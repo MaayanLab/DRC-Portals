@@ -34,7 +34,7 @@ model Publication {
 model DCCPublication {
   publication   Publication @relation(fields: [publicationId], references: [id])
   publicationId String
-  dcc           DCC @relation(fields: [dccId], references: [id])
+  dcc           DCC         @relation(fields: [dccId], references: [id])
   dccId         String
 
   @@id([publicationId, dccId])
@@ -52,19 +52,67 @@ model Tool {
 }
 
 model DccAsset {
-  dccId         String
-  dcc           DCC? @relation(fields: [dccId], references: [id])
-  filetype      String
-  filename      String
-  link          String
-  size          Int?
-  lastmodified  DateTime  @default(now())
-  current       Boolean   @default(true)
-  creator       String
-  approved      Boolean   @default(false)
-  annotation    Json?     @db.JsonB
+  dccId        String
+  dcc          DCC?     @relation(fields: [dccId], references: [id])
+  filetype     String
+  filename     String
+  link         String
+  size         Int?
+  lastmodified DateTime @default(now())
+  current      Boolean  @default(true)
+  creator      String
+  approved     Boolean  @default(false)
+  annotation   Json?    @db.JsonB
 
-  @@unique([dccId, filetype, link, lastmodified])
   @@id([dccId, filetype, link, lastmodified])
   @@map("dcc_assets")
+  @@unique([dccId, filetype, link, lastmodified])
 }
+
+// Next-Auth schema
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// End Next-Auth schema
