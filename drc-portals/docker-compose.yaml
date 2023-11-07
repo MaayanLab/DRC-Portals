@@ -1,5 +1,18 @@
 version: '3.9'
 services:
+  app:
+    build: .
+    image: maayanlab/drc-portal
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      - NEXTAUTH_URL
+      - NEXTAUTH_SECRET
+      - NEXTAUTH_EMAIL
+      - NEXTAUTH_GITHUB
+      - NEXTAUTH_GOOGLE
+      - NEXTAUTH_ORCID
   postgres:
     image: postgres
     environment:
