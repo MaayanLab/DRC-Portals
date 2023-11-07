@@ -16,7 +16,7 @@ echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)" >> .env
 
 ### Session in API Routes
 ```ts
-import { authOptions } from '@/app/auth'
+import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 import { NextResponse } from 'next/server'
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
 ### Session in Server Components
 ```tsx
-import { authOptions } from '@/app/auth'
+import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 
 export default function MyComponent() {
