@@ -13,12 +13,13 @@ datasource db {
 model DCC {
   id            String @id @default(uuid())
   label         String
-  description   String
+  description   String?
   homepage      String
   icon          String?
   annotation    Json?
   publications  DCCPublication[]
   assets        DccAsset[]
+  @@map("dccs")
 }
 
 model Publication {
@@ -27,6 +28,7 @@ model Publication {
   toolId        String?
   dccs          DCCPublication[]
   tool          Tool? @relation(fields: [toolId], references: [id])
+  @@map("publications")
 }
 
 model DCCPublication {
@@ -36,6 +38,7 @@ model DCCPublication {
   dccId         String
 
   @@id([publicationId, dccId])
+  @@map("dcc_publications")
 }
 
 model Tool {
@@ -45,6 +48,7 @@ model Tool {
   url           String
   icon          String?
   publications  Publication[]
+  @@map("tools")
 }
 
 model DccAsset {
@@ -62,4 +66,5 @@ model DccAsset {
 
   @@unique([dccId, filetype, link, lastmodified])
   @@id([dccId, filetype, link, lastmodified])
+  @@map("dcc_assets")
 }
