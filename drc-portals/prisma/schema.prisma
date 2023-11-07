@@ -13,6 +13,7 @@ datasource db {
 model DCC {
   id            String @id @default(uuid())
   label         String
+  short_label   String?
   description   String?
   homepage      String
   icon          String?
@@ -24,20 +25,29 @@ model DCC {
 
 model Publication {
   id            String @id @default(uuid())
-  citation      String
-  toolId        String?
+  title         String
+  year          String?
+  page          String?
+  volume        String?
+  issue         String?
+  journal       String?
+  pmid          String?
+  pmcid         String?
+  doi           String?
+  authors       String
+  tool_id        String?
   dccs          DCCPublication[]
-  tool          Tool? @relation(fields: [toolId], references: [id])
+  tool          Tool? @relation(fields: [tool_id], references: [id])
   @@map("publications")
 }
 
 model DCCPublication {
-  publication   Publication @relation(fields: [publicationId], references: [id])
-  publicationId String
-  dcc           DCC         @relation(fields: [dccId], references: [id])
-  dccId         String
+  publication   Publication @relation(fields: [publication_id], references: [id])
+  publication_id String
+  dcc           DCC         @relation(fields: [dcc_id], references: [id])
+  dcc_id         String
 
-  @@id([publicationId, dccId])
+  @@id([publication_id, dcc_id])
   @@map("dcc_publications")
 }
 
@@ -52,8 +62,8 @@ model Tool {
 }
 
 model DccAsset {
-  dccId        String
-  dcc          DCC?     @relation(fields: [dccId], references: [id])
+  dcc_id       String
+  dcc          DCC?     @relation(fields: [dcc_id], references: [id])
   filetype     String
   filename     String
   link         String
@@ -64,9 +74,9 @@ model DccAsset {
   approved     Boolean  @default(false)
   annotation   Json?    @db.JsonB
 
-  @@id([dccId, filetype, link, lastmodified])
+  @@id([dcc_id, filetype, link, lastmodified])
   @@map("dcc_assets")
-  @@unique([dccId, filetype, link, lastmodified])
+  @@unique([dcc_id, filetype, link, lastmodified])
 }
 
 // Next-Auth schema
