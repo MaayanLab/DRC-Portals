@@ -11,55 +11,57 @@ datasource db {
 }
 
 model DCC {
-  id            String @id @default(uuid())
-  label         String
-  description   String
-  homepage      String
-  icon          String?
-  annotation    Json?
-  publications  DCCPublication[]
-  assets        DccAsset[]
+  id           String           @id @default(uuid())
+  label        String
+  description  String
+  homepage     String
+  icon         String?
+  annotation   Json?
+  publications DCCPublication[]
+  assets       DccAsset[]
 }
 
 model Publication {
-  id            String @id @default(uuid())
-  citation      String
-  toolId        String?
-  dccs          DCCPublication[]
-  tool          Tool? @relation(fields: [toolId], references: [id])
+  id       String           @id @default(uuid())
+  citation String
+  toolId   String?
+  dccs     DCCPublication[]
+  tool     Tool?            @relation(fields: [toolId], references: [id])
 }
 
 model DCCPublication {
   publication   Publication @relation(fields: [publicationId], references: [id])
   publicationId String
-  dcc           DCC @relation(fields: [dccId], references: [id])
+  dcc           DCC         @relation(fields: [dccId], references: [id])
   dccId         String
 
   @@id([publicationId, dccId])
 }
 
 model Tool {
-  id            String @id @default(uuid())
-  label         String
-  description   String?
-  url           String
-  icon          String?
-  publications  Publication[]
+  id           String        @id @default(uuid())
+  label        String
+  description  String?
+  url          String
+  icon         String?
+  publications Publication[]
 }
 
 model DccAsset {
-  dccId         String
-  dcc           DCC? @relation(fields: [dccId], references: [id])
-  filetype      String
-  filename      String
-  link          String
-  size          Int?
-  lastmodified  DateTime  @default(now())
-  current       Boolean   @default(true)
-  creator       String
-  approved      Boolean   @default(false)
-  annotation    Json?     @db.JsonB
+  dccId        String
+  dcc          DCC?     @relation(fields: [dccId], references: [id])
+  filetype     String
+  filename     String
+  link         String
+  size         Int?
+  lastmodified DateTime @default(now())
+  current      Boolean  @default(true)
+  creator      String
+  approved     Boolean  @default(false)
+  annotation   Json?    @db.JsonB
 
-  @@unique([dccId, filetype, link, lastmodified])
   @@id([dccId, filetype, link, lastmodified])
+  @@unique([dccId, filetype, link, lastmodified])
+}
+
 }
