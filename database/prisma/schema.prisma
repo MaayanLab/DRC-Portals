@@ -12,9 +12,10 @@ datasource db {
 
 model DCC {
   id            String @id @default(uuid())
-  label           String
+  label         String
   description   String
   homepage      String
+  icon          String?
   annotation    Json?
   publications  DCCPublication[]
   assets        DccAsset[]
@@ -42,6 +43,7 @@ model Tool {
   label         String
   description   String?
   url           String
+  icon          String?
   publications  Publication[]
 }
 
