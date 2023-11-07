@@ -6,11 +6,11 @@ export default async function Home() {
   const session = await getServerSession(authOptions)
   return (
     <main className="flex flex-col min-h-screen justify-around items-stretch">
-      <div className="flex justify-center">
-        {session === null ? <Link href="/auth/signin"><button>Login</button></Link>
+      <div className="flex flex-col items-center justify-center mt-2">
+        {session === null ? <Link href="/auth/signin"><button className="border rounded-lg p-2">Login</button></Link>
           : <>
             Welcome {session.user?.name ?? 'user'}.
-            <Link href="/auth/signout"><button>Logout</button></Link>
+            <Link href="/auth/signout"><button className="border rounded-lg p-2">Logout</button></Link>
           </>}
       </div>
       <div className="flex-grow flex flex-row justify-around content-around align-middle items-center">
