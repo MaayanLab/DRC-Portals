@@ -13,8 +13,16 @@ const config: Config = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      colors: {
+        'cfde-dark-blue': '#336699',
+        'cfde-light-blue': '#c3e1e6',
+        'cfde-purple': '6c3a77',
+        'cfde-grey': '#4c4d50'
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }
 export default config
