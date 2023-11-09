@@ -20,6 +20,7 @@ model DCC {
   annotation    Json?
   publications  DCCPublication[]
   assets        DccAsset[]
+  outreach      DCCOutreach[]
   @@map("dccs")
 }
 
@@ -35,7 +36,7 @@ model Publication {
   pmcid         String?
   doi           String?
   authors       String
-  tool_id        String?
+  tool_id       String?
   dccs          DCCPublication[]
   tool          Tool? @relation(fields: [tool_id], references: [id])
   @@map("publications")
@@ -50,6 +51,31 @@ model DCCPublication {
   @@id([publication_id, dcc_id])
   @@map("dcc_publications")
 }
+
+model Outreach {
+  id            String @id @default(uuid())
+  title         String
+  description   String
+  tag           String
+  featured      Boolean
+  date          DateTime
+  time          DateTime
+  link          String?
+  icon          String?
+  dccs          DCCOutreach[]
+  @@map("outreach")
+}
+
+model DCCOutreach {
+  outreach      Outreach @relation(fields: [outreach_id], references: [id])
+  outreach_id   String
+  dcc           DCC         @relation(fields: [dcc_id], references: [id])
+  dcc_id        String
+
+  @@id([outreach_id, dcc_id])
+  @@map("dcc_outreach")
+}
+
 
 model Tool {
   id            String @id @default(uuid())
