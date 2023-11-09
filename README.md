@@ -1,3 +1,4 @@
 # DRC-Portal
 
-<https://drc.dev.maayanlab.cloud/>
+<https://cfde.info/> => /info
+<https://cfde.cloud/> => /data
