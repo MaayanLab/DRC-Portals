@@ -26,6 +26,11 @@ auth:
   url: https://cfde.cloud/auth
   # set this to a long random string
   secret: ""
+  # add config for authentication providers
+  env: []
+  # env:
+  # - name: NEXTAUTH_GITHUB
+  #   value: '{"clientId": "", "clientSecret": ""}'
 
 database:
   enabled: true

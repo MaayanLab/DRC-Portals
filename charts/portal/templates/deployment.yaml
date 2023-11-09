@@ -26,6 +26,9 @@ spec:
           value: {{ .Values.auth.secret }}
         - name: NEXTAUTH_URL
           value: {{ .Values.auth.url }}
+{{- range $item := .Values.auth.env }}
+        - {{ $item | toJson }}
+{{- end }}
         image: maayanlab/drc-portal:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
         name: app
