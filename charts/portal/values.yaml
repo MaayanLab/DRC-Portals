@@ -1,0 +1,47 @@
+info:
+  ingress:
+    enabled: true
+    host: cfde.info
+    tlsSecret: cfde-info-tls
+    # specify your ingress class
+    className: ""
+    annotations:
+      # specify specify your cert-manager cluster issuer
+      cert-manager.io/cluster-issuer: ""
+      kubernetes.io/tls-acme: 'true'
+
+data:
+  ingress:
+    enabled: true
+    host: cfde.cloud
+    tlsSecret: cfde-cloud-tls
+    # specify your ingress class
+    className: ""
+    annotations:
+      # specify specify your cert-manager cluster issuer
+      cert-manager.io/cluster-issuer: ""
+      kubernetes.io/tls-acme: 'true'
+
+auth:
+  url: https://cfde.cloud/auth
+  # set this to a long random string
+  secret: ""
+
+database:
+  enabled: true
+  # if not enabled, specify the full uri like postgresql://user:pass@host/db?schema=public
+  # uri:
+
+  image: postgres
+  database: drc
+  username: drc
+  # set this to a long random string
+  password: ""
+
+  persistence:
+    # enable this if you want persistence
+    enabled: false
+    # update the size as necessary
+    size: 5Gi
+    # specify your storage class
+    storageClass: ""
