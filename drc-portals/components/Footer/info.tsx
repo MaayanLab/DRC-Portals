@@ -63,7 +63,7 @@ export default async function InfoFooter() {
                                     >
                                         <Image src={'/img/favicon.png'} alt="cfde-logo" height={30} width={40}/>
                                     </IconButton>
-                                    <Typography variant='h4'>CFDE Workbench</Typography>
+                                    <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Workbench</Typography>
                                     </Link>
                                     <Link href="mailto:support@cfde.atlassian.net">
                                     <Button color="secondary">
