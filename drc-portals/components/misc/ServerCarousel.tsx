@@ -7,13 +7,13 @@ import Link from "next/link"
 export default function ServerCarousel () {
     const items = [
         {
-            name: "Playbook Workflow",
+            name: "Playbook Workflow Builder",
             description: "CFDE Playbook Partnership",
             icon: "/img/Playbook_Gray.png",
             url: "https://playbook-workflow-builder.cloud/graph/extend"
         },
         {
-            name: "Reprotox KG",
+            name: "Reproductive Toxicity Knowledge Graph (ReproTox-KG)",
             description: "CFDE Toxicology Partnership",
             icon: "/img/Reprotox_Gray.png",
             url: "https://maayanlab.cloud/reprotox-kg"
