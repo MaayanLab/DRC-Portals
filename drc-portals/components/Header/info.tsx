@@ -35,7 +35,7 @@ export default async function InfoHeader() {
                   <Link href="">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
-                  <Link href="/about">
+                  <Link href="/info/about">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
                   <Link href="">
@@ -62,19 +62,19 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item xs={12}>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/about">
+                  <Link href="/info/about">
                     <Typography variant="nav">DATA & METADATA</Typography>
                   </Link>
-                  <Link href="/about">
+                  <Link href="/info/about">
                     <Typography variant="nav">TOOLS</Typography>
                   </Link>
-                  <Link href="/about">
+                  <Link href="/info/about">
                     <Typography variant="nav">CHATBOT</Typography>
                   </Link>
-                  <Link href="/about">
+                  <Link href="/info/about">
                     <Typography variant="nav">DRC & KC</Typography>
                   </Link>
-                  <Link href="/about">
+                  <Link href="/info/about">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
                 </Stack>
