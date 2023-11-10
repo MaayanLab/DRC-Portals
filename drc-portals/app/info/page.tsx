@@ -12,7 +12,7 @@ import Chip from '@mui/material/Chip'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 
-import Carousel from '@/components/misc/Carousel'
+import Carousel from '@/components/misc/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 const prisma = new PrismaClient()
 
