@@ -15,7 +15,7 @@ export const cfde_theme = createTheme({
         },
         h3: {
             fontSize: 24,
-            fontFamily: 'Inter',
+            fontFamily: 'Sans-Serif',
             fontStyle: "normal",
             fontWeight: 700,
         },

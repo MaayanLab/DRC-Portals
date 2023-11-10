@@ -92,7 +92,9 @@ export default async function InfoFooter() {
                                 <Link href="/"><Typography variant="footer">Partnerships</Typography></Link>
                                 <Link href="/"><Typography variant="footer">Standards & Protocols</Typography></Link>
                                 <Link href="/"><Typography variant="footer">Training & Outreach</Typography></Link>
-                                <Link href="/"><Typography variant="footer">Social Network</Typography></Link>
+                                <Link href="/"><Typography variant="footer">Data & Metadata</Typography></Link>
+                                <Link href="/"><Typography variant="footer">Tools</Typography></Link>
+                                <Link href="/"><Typography variant="footer">Chatbot</Typography></Link>
                                 <Link href="/"><Typography variant="footer">Publications</Typography></Link>
                             </Stack>
                         </Grid>

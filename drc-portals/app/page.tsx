@@ -9,7 +9,13 @@ const Stack = dynamic(()=>import('@mui/material/Stack'))
 const Typography = dynamic(()=>import('@mui/material/Typography'))
 const Button = dynamic(()=>import('@mui/material/Button'))
 const Paper = dynamic(()=>import('@mui/material/Paper'))
+const Chip = dynamic(()=>import('@mui/material/Chip'))
+const Card = dynamic(()=>import('@mui/material/Card'))
+const CardContent = dynamic(()=>import('@mui/material/CardContent'))
+const CardMedia = dynamic(()=>import('@mui/material/CardMedia'))
 
+const Carousel = dynamic(()=>import('../components/misc/Carousel'))
+const Twitter = dynamic(()=>import('../components/misc/Twitter'))
 const prisma = new PrismaClient()
 
 async function CFPrograms() {
@@ -24,6 +30,89 @@ async function CFPrograms() {
     </Grid>
   )
 }
+
+async function Publications() {
+  const publications = await prisma.publication.findMany({
+    orderBy: [
+      {
+        year: 'desc'
+      }
+    ],
+    take: 5
+  })
+  return (
+    <Paper sx={{boxShadow: "none", height: 500}}>
+      {publications.map((pub, i)=>(
+        <div key={i} style={{marginBottom: 10}}>
+          <Link href={pub.doi || ''}>
+            <Typography variant="caption">
+              {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
+            </Typography>
+          </Link>
+        </div>
+      ))}
+    </Paper>
+  )
+}
+
+export function Outreach() {
+  return (
+    <>
+      <Grid item xs={12}>
+        <Card sx={{ height: 450, padding: 5 }}>
+          {/* <CardMedia
+            sx={{ height: 140 }}
+            image="/img/Bridge2AI.png"
+            title="CrossPollination"
+          /> */}
+          <CardContent>
+            <Stack spacing={2}>
+              <Chip color="secondary" label="FEATURED" sx={{width: 150}}/>
+              <Typography variant="h3">Bridge 2AI - Cross Pollination</Typography>
+              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
+              <Typography variant="subtitle1">Date:  October 3, 2023</Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <Card sx={{ height: 450, padding: 5 }}>
+          {/* <CardMedia
+            sx={{ height: 140 }}
+            image="/img/LINCS.gif"
+            title="CrossPollination"
+          /> */}
+          <CardContent>
+            <Stack spacing={2}>
+              <Chip color="secondary" label="ONLINE" sx={{width: 150}}/>
+              <Typography variant="h3">Coursera: Network Analysis in Systems Biology</Typography>
+              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
+              <Link href="/"><Typography variant="subtitle1">Link</Typography></Link>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <Card sx={{ height: 450, padding: 5}}>
+          {/* <CardMedia
+            sx={{ height: 140 }}
+            image="/img/GTEx.png"
+            title="CrossPollination"
+          /> */}
+          <CardContent>
+            <Stack spacing={2}>
+              <Chip color="secondary" label="IN PERSON" sx={{width: 150}}/>
+              <Typography variant="h3">GTEx In Person Training</Typography>
+              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
+              <Link href="/"><Typography variant="subtitle1">Date: December 6, 2023</Typography></Link>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Grid>
+    </>
+  )
+}
+
 
 
 export default async function Home() {
@@ -47,12 +136,12 @@ export default async function Home() {
           </Stack>
         </Grid>
         <Grid item xs={6} className="flex items-center justify-center">
-          <Image src="/img/nci.jpg" alt="landing" width={400} height={400}/>
+          <Carousel/>
         </Grid>
         <Grid item xs={3} sx={{marginTop: 20}}>
           <Stack spacing={3}>
             <Typography variant="h2" color="primary">
-              Common Fund Programs
+              Common Fund programs partnered with CFDE
             </Typography>
             <Typography variant="subtitle1">
             The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
@@ -64,7 +153,7 @@ export default async function Home() {
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6} className="flex items-center justify-center">
-                <Image src="/img/FAIR.jpg" alt="fair" width={400} height={400}/>
+                <Image src="/img/FAIR.png" alt="fair" width={400} height={400}/>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant={"h2"} color="primary">
@@ -74,16 +163,16 @@ export default async function Home() {
                   The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.
                 </Typography>
                 <div  className="mt-5">
-                  <Typography variant={"caption"}>
+                  <Typography variant={"subtitle1"}>
                     What is FAIR?
                   </Typography>
                 </div>
                 <div  className="ml-8">
                   <ul>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"caption"}>Findable</Typography></li>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"caption"}>Accessible</Typography></li>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"caption"}>Interoperable</Typography></li>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"caption"}>Reusable</Typography></li>
+                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Findable</Typography></li>
+                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Accessible</Typography></li>
+                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Interoperable</Typography></li>
+                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Reusable</Typography></li>
                   </ul>
                 </div>
               </Grid>
@@ -111,7 +200,7 @@ export default async function Home() {
                 </Grid>
                 <Grid item>
                   <Link href="/">
-                    <Button variant="contained" color="secondary">Know More</Button>
+                    <Button variant="contained" color="secondary">Find Out More</Button>
                   </Link>
                 </Grid>
               </Grid>
@@ -122,6 +211,19 @@ export default async function Home() {
           <Typography variant={"h2"}>
             Training & Outreach
           </Typography>
+        </Grid>
+        <Outreach/>
+        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 20, height: 500}}>
+          <Stack>
+            <Typography variant="h2">Twitter</Typography>
+            <Twitter/>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 20}}>
+          <Stack>
+            <Typography variant="h2">Publications</Typography>
+            <Publications/>
+          </Stack>
         </Grid>
       </Grid>
     </main>
