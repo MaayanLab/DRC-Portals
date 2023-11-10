@@ -38,5 +38,4 @@ next-env.d.ts
 # database files
 /data/
 
-data/
 output/
