@@ -53,7 +53,7 @@ async function Publications() {
   )
 }
 
-export function Outreach() {
+function Outreach() {
   return (
     <>
       <Grid item xs={12}>
