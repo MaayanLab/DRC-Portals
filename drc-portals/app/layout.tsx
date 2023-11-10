@@ -22,7 +22,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'NIH-CFDE DRC Portal',
   description: '',
-  
+  icons: {
+    icon: '/img/favicon.png', // /public path
+  },
 }
 
 export default function RootLayout({
@@ -33,7 +35,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="https://s3.amazonaws.com/maayan-kg/cfde-kg/assets/favicon.png"/>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;600;400" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600" rel="stylesheet"/>
