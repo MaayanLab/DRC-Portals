@@ -4,6 +4,7 @@ WORKDIR /app
 ADD .next/standalone ./
 ADD .next/static ./.next/static
 ADD public ./public
+ADD prisma ./prisma
 
 ENV DATABASE_URL ""
 EXPOSE 3000
