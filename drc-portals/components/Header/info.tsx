@@ -1,17 +1,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import dynamic from 'next/dynamic';
 import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 
-const AppBar = dynamic(()=>import('@mui/material/AppBar'))
-const Toolbar = dynamic(()=>import('@mui/material/Toolbar'))
-const Grid = dynamic(()=>import('@mui/material/Grid'))
-const Typography = dynamic(()=>import('@mui/material/Typography'))
-const IconButton = dynamic(()=>import('@mui/material/IconButton'))
-const Stack = dynamic(()=>import('@mui/material/Stack'))
-const Button = dynamic(()=>import('@mui/material/Button'))
-const Container = dynamic(()=>import('@mui/material/Container'))
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 
 
 export default async function InfoHeader() {

@@ -1,7 +1,6 @@
-import dynamic from "next/dynamic"
 import Link from "next/link"
 
-const Grid = dynamic(()=>import('@mui/material/Grid'))
+import Grid from '@mui/material/Grid'
 
 export default async function Home() {
   return (

@@ -1,16 +1,7 @@
 'use client'
-import dynamic from "next/dynamic"
-import Link from "next/link"
 import Image from "next/image"
-import { PrismaClient } from "@prisma/client"
-
-const Grid = dynamic(()=>import('@mui/material/Grid'))
-const Container = dynamic(()=>import('@mui/material/Container'))
-const Stack = dynamic(()=>import('@mui/material/Stack'))
-const Typography = dynamic(()=>import('@mui/material/Typography'))
-const Button = dynamic(()=>import('@mui/material/Button'))
-const Paper = dynamic(()=>import('@mui/material/Paper'))
-const Carousel = dynamic(()=>import('react-material-ui-carousel'))
+import Paper from '@mui/material/Paper'
+import Carousel from 'react-material-ui-carousel'
 
 export default function LandingCarousel() {
     const items = [

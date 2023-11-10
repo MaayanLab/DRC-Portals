@@ -1,20 +1,19 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import dynamic from 'next/dynamic';
 
 import { mdiGithub, mdiBugOutline} from '@mdi/js';
 
-const Icon = dynamic(()=>import('@mdi/react'))
-const Container = dynamic(()=>import('@mui/material/Container'))
-const Paper = dynamic(()=>import('@mui/material/Paper'))
-const Grid = dynamic(()=>import('@mui/material/Grid'))
-const Typography = dynamic(()=>import('@mui/material/Typography'))
-const IconButton = dynamic(()=>import('@mui/material/IconButton'))
-const Stack = dynamic(()=>import('@mui/material/Stack'))
-const Button = dynamic(()=>import('@mui/material/Button'))
-const FacebookIcon = dynamic(()=>import('@mui/icons-material/Facebook'))
-const YouTubeIcon = dynamic(()=>import('@mui/icons-material/YouTube'))
-const LinkedInIcon = dynamic(()=>import('@mui/icons-material/LinkedIn'))
+import Icon from '@mdi/react'
+import Container from '@mui/material/Container'
+import Paper from '@mui/material/Paper'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import FacebookIcon from '@mui/icons-material/Facebook'
+import YouTubeIcon from '@mui/icons-material/YouTube'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
 
 
 export default async function InfoFooter() {

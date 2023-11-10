@@ -1,7 +1,5 @@
 'use client'
-import dynamic from "next/dynamic"
-const TwitterTimelineEmbed = dynamic(async ()=>(await import('react-twitter-embed')).TwitterTimelineEmbed, {ssr: false})
-const TwitterFollowButton = dynamic(async ()=>(await import('react-twitter-embed')).TwitterFollowButton, {ssr: false})
+import {TwitterTimelineEmbed, TwitterFollowButton} from 'react-twitter-embed'
 
 export default function Twitter() {
     return(
