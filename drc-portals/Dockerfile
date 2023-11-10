@@ -1,13 +1,12 @@
 FROM node
 WORKDIR /app
 
-ADD ./package.json .
-ADD ./package-lock.json .
-RUN npm i
+ADD .next/standalone ./
+ADD .next/static ./.next/static
+ADD public ./public
 
-EXPOSE 3000
 ENV DATABASE_URL ""
-ADD . /app
-RUN npx prisma generate && npm run build
-
-CMD ["npm", "start"]
+EXPOSE 3000
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+CMD ["node", "server.js"]

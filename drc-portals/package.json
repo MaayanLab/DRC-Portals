@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "version": "docker build -t maayanlab/drc-portal:${npm_package_version} . && docker tag maayanlab/drc-portal:${npm_package_version} maayanlab/drc-portal",
+    "version": "npm run build && docker build -t maayanlab/drc-portal:${npm_package_version} . && docker tag maayanlab/drc-portal:${npm_package_version} maayanlab/drc-portal",
     "postversion": "docker push maayanlab/drc-portal:${npm_package_version}"
   },
   "dependencies": {
@@ -34,6 +34,7 @@
     "autoprefixer": "^10.0.1",
     "postcss": "^8",
     "prisma": "^5.5.2",
+    "sharp": "^0.32.6",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
