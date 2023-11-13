@@ -16,26 +16,10 @@ import CardContent from '@mui/material/CardContent'
 
 import Carousel from '@/components/misc/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
+import CFPrograms from "@/components/misc/CFPrograms"
+
 const prisma = new PrismaClient()
 
-async function CFPrograms() {
-  const dccs = await prisma.dCC.findMany({
-    where: {
-      cfde_partner: true
-    }
-  })
-  return (
-    <Grid container direction="row" spacing={2}>
-      {dccs.map(dcc=>(
-        <Grid item xs={6} md={4} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, marginTop: 5}}>
-          <Tooltip title={dcc.short_label}>
-            <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer"><Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/></Link>
-          </Tooltip>
-        </Grid>
-      ))}
-    </Grid>
-  )
-}
 
 async function Publications() {
   const publications = await prisma.publication.findMany({
@@ -154,7 +138,7 @@ export default async function Home() {
             </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={9} sx={{marginTop: 10}}><CFPrograms/></Grid>
+        <Grid item xs={9} sx={{marginTop: 10}}><CFPrograms spacing={4}/></Grid>
         <Grid item xs={12} sx={{marginTop: 10}}>
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
