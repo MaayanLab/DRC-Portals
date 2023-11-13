@@ -64,9 +64,9 @@ export default async function InfoFooter() {
                                     </IconButton>
                                     <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Workbench</Typography>
                                     </Link>
-                                    <Link href="mailto:support@cfde.atlassian.net">
+                                    <Link href="mailto:contact@cfde.info">
                                     <Button color="secondary">
-                                        <Typography variant="subtitle2">support@cfde.atlassian.net</Typography>
+                                        <Typography variant="subtitle2">contact@cfde.info</Typography>
                                     </Button>
                                     </Link>
                                     <div className='flex items-center space-x-5'>
