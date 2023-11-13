@@ -17,6 +17,12 @@ export default function ServerCarousel () {
             description: "CFDE Toxicology Partnership",
             icon: "/img/Reprotox_Gray.png",
             url: "https://maayanlab.cloud/reprotox-kg"
+        },
+        {
+            name: "Standardized RNA-seq Pipeline for Patient Samples",
+            description: "Standardized RNA-seq Pipeline for Patient Samples",
+            icon: "/img/rna-seq_pipeline_Gray.png",
+            url: "https://commonfund.nih.gov/dataecosystem/highlights/building-healthier-ecosystem-cfde-expands-new-data-coordinating-centers"
         }
       ]
       
