@@ -136,7 +136,7 @@ export default async function Home() {
         <Grid item xs={6} className="flex items-center justify-center">
           <Carousel/>
         </Grid>
-        <Grid item xs={3} sx={{marginTop: 20}}>
+        <Grid item xs={3} sx={{marginTop: 10}}>
           <Stack spacing={3}>
             <Typography variant="h2" color="primary">
               Common Fund programs partnered with CFDE
@@ -146,8 +146,8 @@ export default async function Home() {
             </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={9} sx={{marginTop: 20}}><CFPrograms/></Grid>
-        <Grid item xs={12} sx={{marginTop: 20}}>
+        <Grid item xs={9} sx={{marginTop: 10}}><CFPrograms/></Grid>
+        <Grid item xs={12} sx={{marginTop: 10}}>
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6} className="flex items-center justify-center">
@@ -205,19 +205,19 @@ export default async function Home() {
             </Container>
           </Paper>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 20, textAlign: "center"}}>
+        <Grid item xs={12} sx={{marginTop: 10, textAlign: "center"}}>
           <Typography variant={"h2"}>
             Training & Outreach
           </Typography>
         </Grid>
         <Outreach/>
-        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 20, height: 500}}>
+        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 10, height: 500}}>
           <Stack>
             <Typography variant="h2">Twitter</Typography>
             <Twitter/>
           </Stack>
         </Grid>
-        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 20}}>
+        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 10}}>
           <Stack>
             <Typography variant="h2">Publications</Typography>
             <Publications/>
