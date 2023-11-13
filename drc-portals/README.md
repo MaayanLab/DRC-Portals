@@ -30,3 +30,11 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+## Production Deployment to Kubernetes
+
+```
+# configure .env
+helm repo add maayanlab https://maayanlab.github.io/helm-charts
+helm install drc-portal maayanlab/docker-compose -f <(docker-compose config)
+```
