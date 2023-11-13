@@ -35,6 +35,10 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ```
 # configure .env
+# initiall install
 helm repo add maayanlab https://maayanlab.github.io/helm-charts
 helm install drc-portal maayanlab/docker-compose -f <(docker-compose config)
+
+# update
+helm upgrade drc-portal maayanlab/docker-compose -f <(docker-compose config)
 ```
