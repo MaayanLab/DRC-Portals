@@ -60,8 +60,10 @@ model Outreach {
   description         String
   tag                 String
   featured            Boolean @default(false)
-  date                DateTime?
-  time                DateTime?
+  start_date          DateTime?
+  end_date            DateTime?
+  start_time          DateTime?
+  end_time            DateTime?
   link                String?
   icon                String?
   dccs                DCCOutreach[]
