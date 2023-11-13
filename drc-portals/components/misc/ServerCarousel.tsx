@@ -23,6 +23,12 @@ export default function ServerCarousel () {
             description: "Standardized RNA-seq Pipeline for Patient Samples",
             icon: "/img/rna-seq_pipeline_Gray.png",
             url: "https://commonfund.nih.gov/dataecosystem/highlights/building-healthier-ecosystem-cfde-expands-new-data-coordinating-centers"
+        },
+        {
+            name: "Data Distillery Partnership",
+            description: "Data Distillery Partnership",
+            icon: "/img/DD_Gray.png",
+            url: "https://ubkg.docs.xconsortia.org/"
         }
       ]
       
