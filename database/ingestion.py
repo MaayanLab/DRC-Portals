@@ -37,6 +37,12 @@ if not pathlib.Path('ingest/dcc_publications.tsv').exists():
 if not pathlib.Path('ingest/publications.tsv').exists():
   import urllib.request
   urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/publications.tsv', 'ingest/publications.tsv')
+if not pathlib.Path('ingest/dcc_outreach.tsv').exists():
+  import urllib.request
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_outreach.tsv', 'ingest/dcc_outreach.tsv')
+if not pathlib.Path('ingest/outreach.tsv').exists():
+  import urllib.request
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'ingest/outreach.tsv')
 
 cur = connection.cursor()
 cur.execute('''
@@ -128,6 +134,72 @@ cur.execute('''
     ;
   ''')
 cur.execute('drop table dcc_publication_tmp;')
+connection.commit()
+
+cur = connection.cursor()
+cur.execute('''
+  create table outreach_tmp
+  as table outreach
+  with no data;
+''')
+
+with open('ingest/outreach.tsv', 'r') as fr:
+    cur.copy_from(fr, 'outreach_tmp',
+      columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
+       'start_date', 'end_date', 'start_time', 'end_time', 'link', 'image'),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into outreach (id, title, short_description, description, tags, featured,active,
+       start_date, end_date, start_time, end_time, link, image)
+      select id, title, short_description, description, tags, featured,active,
+       start_date, end_date, start_time, end_time, link, image
+      from outreach_tmp
+      on conflict (id)
+        do update
+        set id = excluded.id,
+            title = excluded.title,
+            short_description = excluded.short_description,
+            description = excluded.description,
+            tags = excluded.tags,
+            featured = excluded.featured,
+            active = excluded.active,
+            start_date = excluded.start_date,
+            end_date = excluded.end_date,
+            start_time = excluded.start_time,
+            end_time = excluded.end_time,
+            link = excluded.link,
+            image = excluded.image
+    ;
+  ''')
+cur.execute('drop table outreach_tmp;')
+connection.commit()
+
+cur = connection.cursor()
+cur.execute('''
+  create table dcc_outreach_tmp
+  as table dcc_outreach
+  with no data;
+''')
+
+with open('ingest/dcc_outreach.tsv', 'r') as fr:
+    cur.copy_from(fr, 'dcc_outreach_tmp',
+      columns=("outreach_id", "dcc_id"),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into dcc_outreach (outreach_id, dcc_id)
+      select outreach_id, dcc_id
+      from dcc_outreach_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table dcc_outreach_tmp;')
 connection.commit()
 
 cur.close()
