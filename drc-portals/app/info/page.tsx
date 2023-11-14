@@ -8,15 +8,10 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import Chip from '@mui/material/Chip'
-import Card from '@mui/material/Card'
-import Tooltip from '@mui/material/Tooltip'
-
-import CardContent from '@mui/material/CardContent'
-
 import Carousel from '@/components/misc/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
+import Outreach from "@/components/misc/Outreach"
 
 const prisma = new PrismaClient()
 
@@ -41,69 +36,10 @@ async function Publications() {
           </Link>
         </div>
       ))}
+      <Button variant="outlined" color="secondary">See More</Button>
     </Paper>
   )
 }
-
-function Outreach() {
-  return (
-    <>
-      <Grid item xs={12}>
-        <Card sx={{ height: 450, padding: 5 }}>
-          {/* <CardMedia
-            sx={{ height: 140 }}
-            image="/img/Bridge2AI.png"
-            title="CrossPollination"
-          /> */}
-          <CardContent>
-            <Stack spacing={2}>
-              <Chip color="secondary" label="FEATURED" sx={{width: 150}}/>
-              <Typography variant="h3">Bridge 2AI - Cross Pollination</Typography>
-              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
-              <Typography variant="subtitle1">Date:  October 3, 2023</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: 450, padding: 5 }}>
-          {/* <CardMedia
-            sx={{ height: 140 }}
-            image="/img/LINCS.gif"
-            title="CrossPollination"
-          /> */}
-          <CardContent>
-            <Stack spacing={2}>
-              <Chip color="secondary" label="ONLINE" sx={{width: 150}}/>
-              <Typography variant="h3">Coursera Course: Big Data Science with the BD2K-LINCS Data Coordination and Integration Center</Typography>
-              <Typography variant="subtitle1">In this course the LINCS DCC introduces the data generation centers that collected data for the LINCS program. Then, the course covers metadata and how metadata is linked to ontologies. The course then introduces data processing methods used to clean and harmonize the LINCS data. This is followed by discussions about how data is served as RESTful APIs. Most importantly, the course covers computational methods including: clustering, gene-set enrichment analysis, interactive data visualization, and supervised learning.</Typography>
-              <Link href="/"><Typography variant="subtitle1">Link</Typography></Link>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: 450, padding: 5}}>
-          {/* <CardMedia
-            sx={{ height: 140 }}
-            image="/img/GTEx.png"
-            title="CrossPollination"
-          /> */}
-          <CardContent>
-            <Stack spacing={2}>
-              <Chip color="secondary" label="IN PERSON" sx={{width: 150}}/>
-              <Typography variant="h3">GTEx In Person Training</Typography>
-              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
-              <Link href="/"><Typography variant="subtitle1">Date: December 6, 2023</Typography></Link>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-    </>
-  )
-}
-
-
 
 export default async function Home() {
   return (
@@ -143,7 +79,7 @@ export default async function Home() {
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6} className="flex items-center justify-center">
-                <Image src="/img/FAIR.png" alt="fair" width={400} height={400}/>
+                <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer"><Image src="/img/FAIR.png" alt="fair" width={400} height={400}/></Link>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant={"h2"} color="primary">
@@ -153,9 +89,13 @@ export default async function Home() {
                   The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.
                 </Typography>
                 <div  className="mt-5">
-                  <Typography variant={"subtitle1"}>
-                    What is FAIR?
-                  </Typography>
+                  <Link href="https://www.nature.com/articles/sdata201618" target="_blank" rel="noopener noreferrer">
+                    <Button color="secondary">
+                      <Typography variant={"subtitle1"}>
+                        What is FAIR?
+                      </Typography>
+                    </Button>
+                  </Link>
                 </div>
                 <div  className="ml-8">
                   <ul>
@@ -205,7 +145,7 @@ export default async function Home() {
         <Outreach/>
         <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 10, height: 500}}>
           <Stack>
-            <Typography variant="h2">Twitter</Typography>
+            <Typography variant="h2">Social Media</Typography>
             <Twitter/>
           </Stack>
         </Grid>

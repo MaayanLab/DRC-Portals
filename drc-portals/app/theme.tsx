@@ -21,7 +21,7 @@ export const cfde_theme = createTheme({
         },
         h4: {
             fontSize: 22,
-            fontFamily: 'Inter',
+            fontFamily: 'DM Sans',
             fontStyle: "normal",
             fontWeight: 600,
         },
@@ -47,7 +47,7 @@ export const cfde_theme = createTheme({
         },
         footer: {
             fontSize: 16,
-            fontFamily: 'Inter',
+            fontFamily: 'DM Sans',
             fontStyle: "normal",
             fontWeight: 400,
         },

@@ -21,7 +21,12 @@ async function CFPrograms({spacing=4}:{spacing: GridSize}) {
         {dccs.map(dcc=>(
           <Grid item xs={6} md={spacing} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, marginTop: 5}}>
             <Tooltip title={dcc.short_label}>
-              <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer"><Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/></Link>
+              <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
+                { (dcc.icon || "").indexOf(".svg") > -1 ?
+                  <Image src={dcc.icon || ''} alt={dcc.id} width={120} height={120}/> :
+                  <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>
+                }
+                </Link>
             </Tooltip>
           </Grid>
         ))}

@@ -11,7 +11,10 @@ import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
-
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment'
+import Icon from '@mdi/react';
+import { mdiMagnify } from '@mdi/js';
 
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions)
@@ -60,24 +63,29 @@ export default async function InfoHeader() {
                     </>}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12}></Grid>
+              <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/info/about">
-                    <Typography variant="nav">DATA & METADATA</Typography>
+                    <Typography variant="nav">DATA-RESOURCE-PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
-                    <Typography variant="nav">TOOLS</Typography>
+                    <Typography variant="nav">KNOWLEDGE-PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
-                    <Typography variant="nav">CHATBOT</Typography>
-                  </Link>
-                  <Link href="/info/about">
-                    <Typography variant="nav">DRC & KC</Typography>
+                    <Typography variant="nav">CF-DCCs</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
                 </Stack>
+              </Grid>
+              <Grid item>
+                <TextField sx={{width: 400}} placeholder='Search' InputProps={{
+                    sx: {borderRadius: 30, height: 50},
+                    endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
+                  }}
+                />
               </Grid>
             </Grid>
         </Toolbar>
