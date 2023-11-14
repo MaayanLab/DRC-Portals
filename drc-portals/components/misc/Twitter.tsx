@@ -1,15 +1,18 @@
 'use client'
-import {TwitterTimelineEmbed, TwitterFollowButton} from 'react-twitter-embed'
+import {TwitterTimelineEmbed} from 'react-twitter-embed'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
 
 export default function Twitter() {
     return(
-        <div className="flex flex-col items-center justify-center space-y-2 mt-5">
-        <TwitterFollowButton screenName="CfdeNih"/>
-        <TwitterTimelineEmbed
-            sourceType="profile"
-            screenName="CfdeNih"
-            options={{height: 500, width: 300}}
-          />
-        </div>
+        <Paper sx={{boxShadow: "none", height: "100%"}}>
+            <Typography variant="h2">Social Media</Typography>
+            {/* <TwitterFollowButton screenName="CfdeNih"/> */}
+            <TwitterTimelineEmbed
+                sourceType="profile"
+                screenName="CfdeNih"
+                options={{height: 500, width: 300}}
+            />
+        </Paper>
     )
 }

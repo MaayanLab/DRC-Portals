@@ -24,7 +24,7 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
-                <Link href={``} className='flex items-center'>
+                <Link href={`/info`} className='flex items-center'>
                   <IconButton
                     aria-label="menu"
                   >
@@ -38,10 +38,10 @@ export default async function InfoHeader() {
                   <Link href="">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
-                  <Link href="/info/about">
+                  <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
-                  <Link href="">
+                  <Link href="/info/publications">
                     <Typography variant="nav">PUBLICATIONS</Typography>
                   </Link>
                     {session === null ? 

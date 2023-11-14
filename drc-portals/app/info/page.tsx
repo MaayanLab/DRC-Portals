@@ -12,39 +12,13 @@ import Carousel from '@/components/misc/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Outreach from "@/components/misc/Outreach"
-
+import Publications from "@/components/misc/Publications"
 const prisma = new PrismaClient()
-
-
-async function Publications() {
-  const publications = await prisma.publication.findMany({
-    orderBy: [
-      {
-        year: 'desc'
-      }
-    ],
-    take: 5
-  })
-  return (
-    <Paper sx={{boxShadow: "none", height: 500}}>
-      {publications.map((pub, i)=>(
-        <div key={i} style={{marginBottom: 10}}>
-          <Link href={pub.doi || ''}>
-            <Typography variant="caption">
-              {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
-            </Typography>
-          </Link>
-        </div>
-      ))}
-      <Button variant="outlined" color="secondary">See More</Button>
-    </Paper>
-  )
-}
 
 export default async function Home() {
   return (
     <main className="mt-24">
-      <Grid container spacing={2}>
+      <Grid container spacing={2} alignItems={"flex-start"}>
         <Grid item xs={6}>
           <Stack spacing={3}>
             <Typography variant="caption" color={"primary"}>The Common Fund Data Ecosystem Workbench</Typography>
@@ -143,17 +117,14 @@ export default async function Home() {
           </Typography>
         </Grid>
         <Outreach/>
-        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 10, height: 500}}>
-          <Stack>
-            <Typography variant="h2">Social Media</Typography>
-            <Twitter/>
-          </Stack>
+        <Grid item xs={12} sx={{textAlign: "center"}}>
+          <Link href={"/info/outreach"}><Button variant={"contained"} color={"secondary"}>See More outreach events</Button></Link>
         </Grid>
-        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 10}}>
-          <Stack>
-            <Typography variant="h2">Publications</Typography>
-            <Publications/>
-          </Stack>
+        <Grid item xs={12} md={6}>
+          <Twitter/>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Publications all={false}/>
         </Grid>
       </Grid>
     </main>

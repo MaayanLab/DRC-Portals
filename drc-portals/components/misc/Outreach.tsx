@@ -26,7 +26,7 @@ async function Outreach({featured=true}:{
           featured: true
         },
         orderBy: {
-          start_date: "desc"
+          start_date: { sort: 'desc', nulls: 'last' },
         }
       })
     } else {
@@ -35,7 +35,7 @@ async function Outreach({featured=true}:{
           active: true,
         },
         orderBy: {
-          start_date: "desc"
+          start_date: { sort: 'desc', nulls: 'last' }
         }
       })
     }
@@ -58,7 +58,7 @@ async function Outreach({featured=true}:{
                     {tags.map((tag, i)=><Chip color="secondary" sx={{textTransform: "uppercase", width: 150}} key={i} label={tag?.toString()}/>)}
                   </div>
                   <Typography variant="subtitle1">{e.short_description}</Typography>
-                  <Typography variant="subtitle1"><b>Date:</b> {`${e.start_date?.getFullYear()}/${e.start_date?.getMonth()}/${e.start_date?.getDate()}`}</Typography>
+                  {e.start_date && <Typography variant="subtitle1"><b>Date:</b> {`${e.start_date?.getFullYear()}/${e.start_date?.getMonth()}/${e.start_date?.getDate()}`}</Typography>}
                 </CardContent>
                 <CardActions>
                   <Link href={e.link || ''} target="_blank" rel="noopener noreferrer"><Button variant="outlined" color="secondary">Visit event page</Button></Link>
@@ -67,9 +67,6 @@ async function Outreach({featured=true}:{
             </Grid>
           )
         })}
-        <Grid item xs={12} sx={{textAlign: "center"}}>
-          <Button variant={"contained"} color={"secondary"}>See More outreach events</Button>
-        </Grid>
       </Grid>
     )
   }

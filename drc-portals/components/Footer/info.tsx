@@ -85,10 +85,10 @@ export default async function InfoFooter() {
                                     <Typography variant="nav">Knowledge Portal</Typography>
                                   </Link>
                                   <Link href="/"><Typography variant="footer">Partnerships</Typography></Link>
-                                  <Link href="/"><Typography variant="footer">Training & Outreach</Typography></Link>
+                                  <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
                                   
                                   <Link href="/"><Typography variant="footer">Standards & Protocols</Typography></Link>
-                                  <Link href="/"><Typography variant="footer">Publications</Typography></Link>
+                                  <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
                               </Stack>
                           </Grid>
                           <Grid item>
