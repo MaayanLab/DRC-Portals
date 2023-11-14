@@ -66,7 +66,7 @@ export default async function InfoHeader() {
                   <Link href="/data">
                     <Typography variant="nav">META DATA SEARCH ENGINE</Typography>
                   </Link>
-                  <Link href="/data">
+                  <Link href="/data/matrix">
                     <Typography variant="nav">PROCESSED DATA</Typography>
                   </Link>
                   <Link href="/data">
