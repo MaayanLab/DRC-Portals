@@ -83,7 +83,7 @@ export default async function InfoFooter() {
                               <Stack spacing={2}>
                                   <Typography variant="footer"><b>Navigation</b></Typography>
                                   <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
-                                  <Link href="/data"><Typography variant="footer">Processed Datasets</Typography></Link>
+                                  <Link href="/data/matrix"><Typography variant="footer">Processed Datasets</Typography></Link>
                                   <Link href="/data"><Typography variant="footer">Tools and Workflows</Typography></Link>
                                   <Link href="/data"><Typography variant="footer">Chatbot</Typography></Link>
                                   <Link href="/data"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>

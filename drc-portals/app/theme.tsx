@@ -68,6 +68,18 @@ export const cfde_theme = createTheme({
             fontStyle: "normal",
             fontWeight: 400,
         },
+        stats_h3: {
+            fontSize: 24,
+            fontStyle: "normal",
+            fontWeight: 500,
+            color: "#9E9E9E"
+        },
+        stats_sub: {
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 500,
+            color: "#9E9E9E"
+        },
     },
     palette: {
         primary: {
@@ -113,12 +125,16 @@ declare module '@mui/material/styles' {
     interface TypographyVariants {
       nav: React.CSSProperties;
       footer: React.CSSProperties;
+      stats_h3: React.CSSProperties;
+      stats_sub: React.CSSProperties;
     }
   
     // allow configuration using `createTheme`
     interface TypographyVariantsOptions {
       nav?: React.CSSProperties;
       footer?: React.CSSProperties;
+      stats_h3?: React.CSSProperties;
+      stats_sub?: React.CSSProperties;
     }
 
     interface Palette {
@@ -135,6 +151,8 @@ declare module '@mui/material/styles' {
     interface TypographyPropsVariantOverrides {
       nav: true;
       footer: true;
+      stats_h3: true;
+      stats_sub: true;
     }
   }
   
