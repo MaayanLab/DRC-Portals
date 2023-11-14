@@ -5,7 +5,7 @@
 # prepare .env file & review
 cp .env.example .env
 # start database
-docker-compose up -d postgres
+docker-compose up -d drc-portal-postgres
 # install node modules
 npm i
 # initialize prisma
