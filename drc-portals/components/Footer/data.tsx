@@ -33,7 +33,7 @@ export default async function InfoFooter() {
                                         >
                                             <Image src={'/img/favicon.png'} alt="cfde-logo" height={30} width={40}/>
                                         </IconButton>
-                                        <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Workbench</Typography>
+                                        <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Data Resource Portal</Typography>
                                       </Link>
                                       <div className='flex items-center space-x-1'>
                                         <Icon path={mdiGithub} size={1} /> 
@@ -58,13 +58,13 @@ export default async function InfoFooter() {
                                         </div>
                                       </Link>
                                       <div className='flex items-center space-x-5'>
-                                      <Link href="/">
+                                      <Link href="/data">
                                           <FacebookIcon/>
                                       </Link>
-                                      <Link href="/">
+                                      <Link href="/data">
                                           <YouTubeIcon/>
                                       </Link>
-                                      <Link href="/">
+                                      <Link href="/data">
                                           <LinkedInIcon/>
                                       </Link>
                                       </div>
@@ -73,30 +73,20 @@ export default async function InfoFooter() {
                           </Grid>
                           <Grid item>
                               <Stack spacing={2}>
-                                  <Typography variant="footer"><b>Navigation</b></Typography>
-                                  <Link href="/info/about">
-                                    <Typography variant="footer">CF-DCCs</Typography>
-                                  </Link>
-                                  <Link href="/info/about">
-                                    <Typography variant="footer">Data Resource Portal</Typography>
-                                  </Link>
-                                  <Link href="/info/about">
-                                    <Typography variant="footer">Knowledge Portal</Typography>
-                                  </Link>
-                                  <Link href="/"><Typography variant="footer">Partnerships</Typography></Link>
-                                  <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
-                                  
-                                  <Link href="/"><Typography variant="footer">Standards & Protocols</Typography></Link>
-                                  <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
+                                  <Typography variant="footer"><b>Contact Us</b></Typography>
+                                  <Link href="/data"><Typography variant="footer">About</Typography></Link>
+                                  <Link href="/data"><Typography variant="footer">Contact</Typography></Link>
+                                  <Link href="/data"><Typography variant="footer">Contribute</Typography></Link>
                               </Stack>
                           </Grid>
                           <Grid item>
                               <Stack spacing={2}>
-                                  <Typography variant="footer"><b>Explore Common Fund Data</b></Typography>
-                                  <Link href="/"><Typography variant="footer">Data & Metadata</Typography></Link>
-                                  <Link href="/"><Typography variant="footer">Tools</Typography></Link>
-                                  <Link href="/"><Typography variant="footer">Chatbot</Typography></Link>
-                                  <Link href="/"><Typography variant="footer">Use Cases</Typography></Link>
+                                  <Typography variant="footer"><b>Navigation</b></Typography>
+                                  <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
+                                  <Link href="/data"><Typography variant="footer">Processed Datasets</Typography></Link>
+                                  <Link href="/data"><Typography variant="footer">Tools and Workflows</Typography></Link>
+                                  <Link href="/data"><Typography variant="footer">Chatbot</Typography></Link>
+                                  <Link href="/data"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>
                               </Stack>
                           </Grid>
                       </Grid>
@@ -105,8 +95,8 @@ export default async function InfoFooter() {
                           <Grid container justifyContent={"space-between"} alignItems={"center"}>
                                   <Grid item>
                                       <Stack spacing={2} direction={"row"}>
-                                          <Link href="/"><Typography variant="footer">Terms of Service</Typography></Link>
-                                          <Link href="/"><Typography variant="footer">Privacy Policy</Typography></Link>
+                                          <Link href="/data"><Typography variant="footer">Terms of Service</Typography></Link>
+                                          <Link href="/data"><Typography variant="footer">Privacy Policy</Typography></Link>
                                       </Stack>
                                   </Grid>
                                   <Grid item>

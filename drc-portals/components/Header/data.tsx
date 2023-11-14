@@ -24,25 +24,22 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
-                <Link href={`/info`} className='flex items-center'>
+                <Link href={`/data`} className='flex items-center'>
                   <IconButton
                     aria-label="menu"
                   >
                     <Image src={'/img/favicon.png'} alt="cfde-logo" height={37} width={50}/>
                   </IconButton>
-                  <Typography variant='h3' color="primary">CFDE Workbench</Typography>
+                  <Typography variant='h3' color="primary">CFDE Data Resource Portal</Typography>
                 </Link>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="">
+                  <Link href="/data">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
-                  <Link href="/info/outreach">
-                    <Typography variant="nav">TRAINING & OUTREACH</Typography>
-                  </Link>
-                  <Link href="/info/publications">
-                    <Typography variant="nav">PUBLICATIONS</Typography>
+                  <Link href="/data">
+                    <Typography variant="nav">CONTRIBUTE</Typography>
                   </Link>
                     {session === null ? 
                     <>
@@ -66,17 +63,17 @@ export default async function InfoHeader() {
               <Grid item xs={12}></Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info/about">
-                    <Typography variant="nav">DATA-RESOURCE-PORTAL</Typography>
+                  <Link href="/data">
+                    <Typography variant="nav">META DATA SEARCH ENGINE</Typography>
                   </Link>
-                  <Link href="/info/about">
-                    <Typography variant="nav">KNOWLEDGE-PORTAL</Typography>
+                  <Link href="/data">
+                    <Typography variant="nav">PROCESSED DATA</Typography>
                   </Link>
-                  <Link href="/info/about">
-                    <Typography variant="nav">CF-DCCs</Typography>
+                  <Link href="/data">
+                    <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                   </Link>
-                  <Link href="/info/about">
-                    <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
+                  <Link href="/data">
+                    <Typography variant="nav">CROSS DCC USE CASES</Typography>
                   </Link>
                 </Stack>
               </Grid>

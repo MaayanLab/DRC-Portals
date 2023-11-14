@@ -1,8 +1,26 @@
 import { createTheme } from "@mui/material"
+import { Inter, DM_Sans, Montserrat } from 'next/font/google'
+
+export const dm_sans = DM_Sans({ 
+    weight: ['500', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+})
+export const inter = Inter({ 
+    weight: ['400', '600', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+})
+export const montserrat = Montserrat({ 
+    weight: ['600'],
+    subsets: ['latin'],
+    display: 'swap',
+})
+
 
 export const cfde_theme = createTheme({
     typography: {
-        fontFamily: 'DM Sans',
+        fontFamily: dm_sans.style.fontFamily,
         h1: {
             fontSize: 56,
             fontStyle: "normal",
@@ -21,7 +39,6 @@ export const cfde_theme = createTheme({
         },
         h4: {
             fontSize: 22,
-            fontFamily: 'DM Sans',
             fontStyle: "normal",
             fontWeight: 600,
         },
@@ -30,7 +47,7 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         subtitle2: {
-            fontFamily: 'Montserrat',
+            fontFamily: montserrat.style.fontFamily,
             fontSize: 14,
             fontWeight: 600,
         },
@@ -46,8 +63,8 @@ export const cfde_theme = createTheme({
             textTransform: "uppercase",
         },
         footer: {
+            fontFamily: inter.style.fontFamily,
             fontSize: 16,
-            fontFamily: 'DM Sans',
             fontStyle: "normal",
             fontWeight: 400,
         },
