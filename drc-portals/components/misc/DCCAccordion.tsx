@@ -102,27 +102,6 @@ export function DCCAccordion(
             />
           </div>
       ))}
-      {/* <div id="C2M2">
-        <FileAccordion isCode={false} label="C2M2"
-          dccInfo={props.fulldata.C2M2} />
-      </div>
-      <div id="XMT">
-        <FileAccordion isCode={false} label="XMT" 
-          dccInfo={props.fulldata.XMT} />
-      </div>
-      <div id="AttributeTables">
-        <FileAccordion isCode={false} label="Attribute Tables" 
-          dccInfo={props.fulldata.AttributeTables} />
-      </div>
-      <div id="KGAssertions">
-        <FileAccordion isCode={false} label="KG Assertions" 
-          dccInfo={props.fulldata.KGAssertions} />
-      </div>
-      <div id="KCAssertions">
-        <FileAccordion isCode={false} label="KC Assertions" 
-          dccInfo={props.fulldata.KCAssertions} />
-      </div> */}
-      
       <Typography sx={{mt:2}} variant="h5" gutterBottom>Code</Typography>
       {Object.keys(code).map((key: keyof dccAssetRecord) => (
           <div id={key}>
@@ -133,12 +112,6 @@ export function DCCAccordion(
             />
           </div>
       ))}
-
-      {/* <FileAccordion isCode label="APIs" dccInfo={{current: props.fulldata.API.current, archived: props.fulldata.API.archived}} />
-      <FileAccordion isCode label="ETL Scripts" dccInfo={{current: props.fulldata.ETL.current, archived: props.fulldata.ETL.archived}} />
-      <FileAccordion isCode label="Entity Pages" dccInfo={{current: props.fulldata.EntityPages.current, archived: props.fulldata.EntityPages.archived}} />
-      <FileAccordion isCode label="PWB Metanodes" dccInfo={{current: props.fulldata.PWBMetanodes.current, archived: props.fulldata.PWBMetanodes.archived}} />
-      <FileAccordion isCode label="Chatbot Specs" dccInfo={{current: props.fulldata.ChatbotSpecs.current, archived: props.fulldata.ChatbotSpecs.archived}} /> */}
     </Container>
   )
 }

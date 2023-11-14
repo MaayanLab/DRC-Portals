@@ -60,7 +60,6 @@ async function getDataObj(
 ) {
   const codetypes = ['ETL', 'API', 'EntityPages', 'PWBMetanodes', 'ChatbotSpecs']
   const is_code = codetypes.includes(ft)
-  console.log(ft, is_code)
   return (
     {
       current: await getData(prisma, dccId, dccName, ft, true),
@@ -73,15 +72,6 @@ async function getDataObj(
 export async function getDccDataObj(
   prisma: PrismaClient, dccId: string, dccName: string
 ) {
-  // let new_rec = {} as dccAssetRecord
-  // const columns = [
-  //   'C2M2', 'XMT', 'AttributeTables', 'KGAssertions', 'KCAssertions',
-  //   'ETL', 'API', 'EntityPages', 'PWBMetanodes', 'ChatbotSpecs'
-  // ]
-  // columns.map(async item => {
-  //   new_rec[item] = await getDataObj(prisma, dccId, dccName, item)
-  // })
-  // return new_rec
   return ({
     C2M2: await getDataObj(prisma, dccId, dccName, 'C2M2'),
     XMT: await getDataObj(prisma, dccId, dccName, 'XMT'),
