@@ -98,7 +98,7 @@ model DccAsset {
   filetype     String
   filename     String
   link         String
-  size         Int?
+  size         BigInt?
   lastmodified DateTime @default(now())
   current      Boolean  @default(true)
   creator      String
