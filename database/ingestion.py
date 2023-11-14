@@ -43,6 +43,8 @@ if not pathlib.Path('ingest/dcc_outreach.tsv').exists():
 if not pathlib.Path('ingest/outreach.tsv').exists():
   import urllib.request
   urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'ingest/outreach.tsv')
+if not pathlib.Path('ingest/DccAssets.tsv').exists():
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/111423/DccAssets.tsv', 'ingest/DccAssets.tsv')
 
 cur = connection.cursor()
 cur.execute('''
@@ -200,6 +202,36 @@ cur.execute('''
     ;
   ''')
 cur.execute('drop table dcc_outreach_tmp;')
+connection.commit()
+
+# DCC Assets
+cur = connection.cursor()
+cur.execute('''
+  create table dcc_assets_tmp
+  as table dcc_assets
+  with no data;
+''')
+
+with open('ingest/DccAssets.tsv', 'r') as fr:
+  cur.copy_from(fr, 'dcc_assets_tmp',
+    columns=(
+      'filetype', 'filename', 'link', 'size', 'lastmodified',
+      'current', 'creator', 'approved', 'annotation', 'dcc_id'
+    ),
+    null='',
+    sep='\t',
+  )
+
+cur.execute('''
+    insert into dcc_assets (dcc_id, filetype, filename, link, size, 
+      lastmodified, current, creator, approved, annotation)
+    select dcc_id, filetype, filename, link, size, lastmodified, current, 
+      creator, approved, annotation
+    from dcc_assets_tmp
+    on conflict
+      do nothing;
+  ''')
+cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
 
 cur.close()
