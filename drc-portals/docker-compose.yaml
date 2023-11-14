@@ -2,7 +2,7 @@ version: '3.9'
 services:
   drc-portal-app:
     build: .
-    image: maayanlab/drc-portal:0.1.3
+    image: maayanlab/drc-portal:0.1.4
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
