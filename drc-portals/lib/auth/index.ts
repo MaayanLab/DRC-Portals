@@ -12,8 +12,8 @@ import type { OAuthConfig } from 'next-auth/providers/index'
 declare module 'next-auth' {
   interface Session {
     user: {
-      id: string;
-    } & DefaultSession['user'];
+      id: string
+    } & DefaultSession['user']
   }
 }
 
@@ -43,8 +43,8 @@ const providers = [
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
-const cookiePrefix = useSecureCookies ? "__Secure-" : ""; 
-const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud';
+const cookiePrefix = useSecureCookies ? "__Secure-" : "" 
+const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud'
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -59,11 +59,11 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     session({ session, token}) {
-      // I skipped the line below coz it gave me a TypeError
-      // session.accessToken = token.accessToken;
-
-      session.user.id = token.id as string;
-      return session;
+      // session.accessToken = token.accessToken
+      const id = token.sub ?? token.id
+      if (typeof id !== 'string') throw new Error('Missing user id')
+      session.user.id = id
+      return session
     },
     async redirect({ url, baseUrl }) {
       if (url.startsWith('/')) return `${baseUrl}${url}`
