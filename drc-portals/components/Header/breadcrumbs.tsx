@@ -13,7 +13,7 @@ export default function NavBreadcrumbs() {
             <Link 
                 href={`/${path.slice(0, i+1).join("/")}`}
             >
-                <Typography variant='caption' color={i===path.length-1 ? 'primary': 'inherit'}>{p}</Typography>
+                <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path.length-1 ? 'primary': 'inherit'}>{p}</Typography>
             </Link>
         ))
         console.log(breadcrumbs)
