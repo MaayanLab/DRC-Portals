@@ -20,16 +20,12 @@ export default async function UserFiles(props: any) {
             id: session?.user.id,
         },
     })
-    if (!user?.name) throw new Error('Missing name')
+    if (!user?.email) throw new Error('Missing email')
     const userFiles = await prisma.dccAsset.findMany({
         where: {
-            creator: user?.name,
+            creator: user?.email,
         },
     })
-    let sessionEmail = ''
-    if (session?.user.email != null) {
-        sessionEmail = session?.user.email
-    }
 
     return (
         <>
