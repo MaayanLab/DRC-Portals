@@ -5,8 +5,7 @@ import { PrismaClient } from "@prisma/client"
 import Grid from '@mui/material/Grid'
 import Tooltip from '@mui/material/Tooltip'
 import { GridSize } from "@mui/material/Grid"
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 
 

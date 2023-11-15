@@ -8,12 +8,12 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import Carousel from '@/components/misc/ServerCarousel'
+import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Outreach from "@/components/misc/Outreach"
 import Publications from "@/components/misc/Publications"
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 export default async function Home() {
   return (

@@ -12,7 +12,7 @@ import { PrismaClient } from "@prisma/client"
 
 import Grid from '@mui/material/Grid'
 import { JsonArray } from "next-auth/adapters"
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 async function Outreach({featured=true}:{
   featured?: Boolean,
