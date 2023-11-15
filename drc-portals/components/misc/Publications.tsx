@@ -1,8 +1,6 @@
 import Link from "next/link"
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-
-import { PrismaClient } from "@prisma/client"
 import Button from "@mui/material/Button"
 
 import prisma from '@/lib/prisma'

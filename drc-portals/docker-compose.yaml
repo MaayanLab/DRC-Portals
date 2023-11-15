@@ -2,7 +2,7 @@ version: '3.9'
 services:
   drc-portal-app:
     build: .
-    image: maayanlab/drc-portal:0.1.4
+    image: maayanlab/drc-portal:0.1.8
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -22,6 +22,7 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://cfde.cloud
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://cfde.info, https://cfde.cloud
         nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
         nginx.ingress.kubernetes.io/auth-secret: auth
         nginx.ingress.kubernetes.io/auth-type: basic
@@ -31,6 +32,11 @@ services:
       nginx_server_name: cfde.cloud
       nginx_proxy_00: / http://drc-portal-app:3000/data
       nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_redirect_00: /data/? https://cfde.cloud
+      nginx_redirect_01: /info/? https://cfde.info
+      nginx_redirect_02: /info/(.+) https://cfde.info/info/$1
+      nginx_redirect_03: /auth/? https://cfde.info/auth
+      nginx_redirect_04: /auth/(.+) https://cfde.info/auth/$1
 
   drc-portal-info-proxy:
     image: maayanlab/proxy:1.2.9
@@ -38,6 +44,7 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://cfde.info
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://cfde.info, https://cfde.cloud
         nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
         nginx.ingress.kubernetes.io/auth-secret: auth
         nginx.ingress.kubernetes.io/auth-type: basic
@@ -47,9 +54,27 @@ services:
       nginx_server_name: cfde.info
       nginx_proxy_00: / http://drc-portal-app:3000/info
       nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_redirect_00: /info/? https://cfde.info
+      nginx_redirect_01: /data/? https://cfde.cloud
+      nginx_redirect_02: /data/(.+) https://cfde.cloud/data/$1
+
+  drc-portal-auth-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://cfde.info/auth
+        nginx.ingress.kubernetes.io/enable-cors: 'true'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://cfde.info, https://cfde.cloud
+    ports:
+      - 80
+    environment:
+      nginx_server_name: cfde.info
+      nginx_proxy_00: /(.*) http://drc-portal-app:3000/$1
 
   drc-portal-postgres:
-    image: postgres
+    image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:

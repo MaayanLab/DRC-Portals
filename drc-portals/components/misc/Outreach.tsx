@@ -8,8 +8,6 @@ import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 import CardActions from '@mui/material/CardActions';
 
-import { PrismaClient } from "@prisma/client"
-
 import Grid from '@mui/material/Grid'
 import { JsonArray } from "next-auth/adapters"
 import prisma from '@/lib/prisma'

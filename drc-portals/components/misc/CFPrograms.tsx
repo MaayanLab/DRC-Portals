@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { PrismaClient } from "@prisma/client"
 
 import Grid from '@mui/material/Grid'
 import Tooltip from '@mui/material/Tooltip'
