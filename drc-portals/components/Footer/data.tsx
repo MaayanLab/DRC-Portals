@@ -77,7 +77,7 @@ export default async function InfoFooter() {
                                   <Link href="/data"><Typography variant="footer">About</Typography></Link>
                                   <Link href="/data"><Typography variant="footer">Contact</Typography></Link>
                                   <Link href="/data"><Typography variant="footer">Contribute</Typography></Link>
-                                  <Link href="https://cfde.info" target="_blank" rel="noopener noreferrer">
+                                  <Link href="/info" target="_blank" rel="noopener noreferrer">
                                     <Typography variant="footer">CFDE Workbench</Typography>
                                   </Link>
                               </Stack>

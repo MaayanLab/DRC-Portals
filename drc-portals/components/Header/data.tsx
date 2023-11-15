@@ -37,7 +37,7 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="https://cfde.info" target="_blank" rel="noopener noreferrer">
+                  <Link href="/info" target="_blank" rel="noopener noreferrer">
                     <Typography variant="nav">CFDE-WORKBENCH</Typography>
                   </Link>
                   <Link href="/data">
