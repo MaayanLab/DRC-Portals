@@ -53,8 +53,8 @@ services:
       nginx_proxy_00: / http://drc-portal-app:3000/info
       nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
       nginx_redirect_00: /data/? https://data.cfde.cloud
-      nginx_redirect_01: /info/? https://info.cfde.cloud
-      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$1
+      nginx_redirect_01: /data/(.+) https://data.cfde.cloud/data/$1
+      nginx_redirect_02: /info/? https://info.cfde.cloud
       nginx_redirect_03: /auth/? https://cfde.cloud/auth
       nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$1
 
