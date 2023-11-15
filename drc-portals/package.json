@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "version": "npm run build && ts-node cli/version-compose.ts && docker build -t maayanlab/drc-portal:${npm_package_version} . && docker tag maayanlab/drc-portal:${npm_package_version} maayanlab/drc-portal",
+    "version": "npm run build && ts-node cli/version-compose.ts && docker build -t maayanlab/drc-portal:${npm_package_version} .",
     "postversion": "docker push maayanlab/drc-portal:${npm_package_version}"
   },
   "dependencies": {
