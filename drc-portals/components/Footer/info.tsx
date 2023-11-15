@@ -77,7 +77,7 @@ export default async function InfoFooter() {
                                   <Link href="/info/about">
                                     <Typography variant="footer">CF-DCCs</Typography>
                                   </Link>
-                                  <Link href="https://cfde.cloud" target="_blank" rel="noopener noreferrer">
+                                  <Link href="/data" target="_blank" rel="noopener noreferrer">
                                     <Typography variant="footer">Data Resource Portal</Typography>
                                   </Link>
                                   <Link href="/info/about">
