@@ -15,9 +15,10 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment'
 import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
+import UserComponent from '../misc/LoginComponents/UserComponent'
 
 export default async function InfoHeader() {
-  const session = await getServerSession(authOptions)
+  const session = (await getServerSession(authOptions))
   return (
     <Container maxWidth="lg">
       <AppBar position="static" sx={{color: "#000"}}>
@@ -44,23 +45,7 @@ export default async function InfoHeader() {
                   <Link href="/info/publications">
                     <Typography variant="nav">PUBLICATIONS</Typography>
                   </Link>
-                    {session === null ? 
-                    <>
-                      <Link href="/auth/signin">
-                        <Button color="secondary">
-                          SIGN UP
-                        </Button>
-                      </Link>
-                      <Link href="/auth/signin">
-                        <Button color="secondary" variant="outlined">
-                          LOGIN
-                        </Button>
-                      </Link>
-                    </>
-                    : <>
-                      Welcome {session.user?.name ?? 'user'}.
-                      <Link href="/auth/signout"><Button variant='outlined' color="secondary">Logout</Button></Link>
-                    </>}
+                    <UserComponent session={session}/>
                 </Stack>
               </Grid>
               <Grid item xs={12}></Grid>
