@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { PrismaClient } from "@prisma/client"
 
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
@@ -13,7 +12,6 @@ import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Outreach from "@/components/misc/Outreach"
 import Publications from "@/components/misc/Publications"
-const prisma = new PrismaClient()
 
 export default async function Home() {
   return (

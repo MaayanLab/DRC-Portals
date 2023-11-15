@@ -1,11 +1,9 @@
 import Link from "next/link"
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-
-import { PrismaClient } from "@prisma/client"
 import Button from "@mui/material/Button"
 
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 
 async function Publications({all=false}: {all:boolean}) {
