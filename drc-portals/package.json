@@ -1,13 +1,13 @@
 {
   "name": "drc-portals",
-  "version": "0.1.2",
+  "version": "0.1.13",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "version": "npm run build && docker build -t maayanlab/drc-portal:${npm_package_version} . && docker tag maayanlab/drc-portal:${npm_package_version} maayanlab/drc-portal",
+    "version": "npm run build && ts-node cli/version-compose.ts && docker build -t maayanlab/drc-portal:${npm_package_version} . && docker tag maayanlab/drc-portal:${npm_package_version} maayanlab/drc-portal",
     "postversion": "docker push maayanlab/drc-portal:${npm_package_version}"
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "prisma": "^5.5.2",
     "sharp": "^0.32.6",
     "tailwindcss": "^3.3.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5"
   }
 }

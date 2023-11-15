@@ -1,20 +1,95 @@
 version: '3.9'
 services:
-  app:
+  drc-portal-app:
     build: .
-    image: maayanlab/drc-portal
+    image: maayanlab/drc-portal:0.1.13
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres:5432/${POSTGRES_DB}?schema=public
       - NEXTAUTH_URL
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
       - NEXTAUTH_GITHUB
       - NEXTAUTH_GOOGLE
       - NEXTAUTH_ORCID
-  postgres:
-    image: postgres
+
+  drc-portal-data-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://data.cfde.cloud
+        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
+        nginx.ingress.kubernetes.io/auth-secret: auth
+        nginx.ingress.kubernetes.io/auth-type: basic
+    ports:
+      - 80
+    environment:
+      nginx_server_name: data.cfde.cloud
+      nginx_proxy_00: / http://drc-portal-app:3000/data
+      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_redirect_00: /data/? https://data.cfde.cloud
+      nginx_redirect_01: /info/? https://info.cfde.cloud
+      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$1
+      nginx_redirect_03: /auth/? https://cfde.cloud/auth
+      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$1
+
+  drc-portal-info-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://info.cfde.cloud
+        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
+        nginx.ingress.kubernetes.io/auth-secret: auth
+        nginx.ingress.kubernetes.io/auth-type: basic
+    ports:
+      - 80
+    environment:
+      nginx_server_name: info.cfde.cloud
+      nginx_proxy_00: / http://drc-portal-app:3000/info
+      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_redirect_00: /data/? https://data.cfde.cloud
+      nginx_redirect_01: /info/? https://info.cfde.cloud
+      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$1
+      nginx_redirect_03: /auth/? https://cfde.cloud/auth
+      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$1
+
+  drc-portal-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://cfde.cloud
+        nginx.ingress.kubernetes.io/enable-cors: 'true'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
+    ports:
+      - 80
+    environment:
+      nginx_server_name: cfde.cloud
+      nginx_proxy_00: /(.*) http://drc-portal-app:3000/$1
+      nginx_redirect_00: / https://info.cfde.cloud
+
+  drc-portal-cfde-info-redirect:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://cfde.info
+    ports:
+      - 80
+    environment:
+      nginx_server_name: cfde.info
+      nginx_redirect_00: /(.*) https://info.cfde.cloud/$1
+
+  drc-portal-postgres:
+    image: postgres:16
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
@@ -22,4 +97,10 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - drc-portal-postgres:/var/lib/postgresql/data
+
+volumes:
+  drc-portal-postgres:
+    x-kubernetes:
+      size: 5Gi
+      class: gp2

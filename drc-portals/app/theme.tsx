@@ -1,8 +1,26 @@
 import { createTheme } from "@mui/material"
+import { Inter, DM_Sans, Montserrat } from 'next/font/google'
+
+export const dm_sans = DM_Sans({ 
+    weight: ['500', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+})
+export const inter = Inter({ 
+    weight: ['400', '600', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+})
+export const montserrat = Montserrat({ 
+    weight: ['600'],
+    subsets: ['latin'],
+    display: 'swap',
+})
+
 
 export const cfde_theme = createTheme({
     typography: {
-        fontFamily: 'DM Sans',
+        fontFamily: dm_sans.style.fontFamily,
         h1: {
             fontSize: 56,
             fontStyle: "normal",
@@ -21,7 +39,6 @@ export const cfde_theme = createTheme({
         },
         h4: {
             fontSize: 22,
-            fontFamily: 'Inter',
             fontStyle: "normal",
             fontWeight: 600,
         },
@@ -30,7 +47,7 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         subtitle2: {
-            fontFamily: 'Montserrat',
+            fontFamily: montserrat.style.fontFamily,
             fontSize: 14,
             fontWeight: 600,
         },
@@ -46,10 +63,22 @@ export const cfde_theme = createTheme({
             textTransform: "uppercase",
         },
         footer: {
+            fontFamily: inter.style.fontFamily,
             fontSize: 16,
-            fontFamily: 'Inter',
             fontStyle: "normal",
             fontWeight: 400,
+        },
+        stats_h3: {
+            fontSize: 24,
+            fontStyle: "normal",
+            fontWeight: 500,
+            color: "#9E9E9E"
+        },
+        stats_sub: {
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 500,
+            color: "#9E9E9E"
         },
     },
     palette: {
@@ -96,12 +125,16 @@ declare module '@mui/material/styles' {
     interface TypographyVariants {
       nav: React.CSSProperties;
       footer: React.CSSProperties;
+      stats_h3: React.CSSProperties;
+      stats_sub: React.CSSProperties;
     }
   
     // allow configuration using `createTheme`
     interface TypographyVariantsOptions {
       nav?: React.CSSProperties;
       footer?: React.CSSProperties;
+      stats_h3?: React.CSSProperties;
+      stats_sub?: React.CSSProperties;
     }
 
     interface Palette {
@@ -118,6 +151,8 @@ declare module '@mui/material/styles' {
     interface TypographyPropsVariantOverrides {
       nav: true;
       footer: true;
+      stats_h3: true;
+      stats_sub: true;
     }
   }
   

@@ -18,6 +18,7 @@ model DCC {
   homepage      String
   icon          String?
   annotation    Json?
+  cfde_partner   Boolean @default(false)
   publications  DCCPublication[]
   assets        DccAsset[]
   outreach      DCCOutreach[]
@@ -53,16 +54,20 @@ model DCCPublication {
 }
 
 model Outreach {
-  id            String @id @default(uuid())
-  title         String
-  description   String
-  tag           String
-  featured      Boolean
-  date          DateTime
-  time          DateTime
-  link          String?
-  icon          String?
-  dccs          DCCOutreach[]
+  id                  String @id @default(uuid())
+  title               String
+  short_description   String
+  description         String
+  tags                Json
+  featured            Boolean @default(false)
+  active              Boolean @default(false)
+  start_date          DateTime?
+  end_date            DateTime?
+  start_time          DateTime?
+  end_time            DateTime?
+  link                String?
+  image               String?
+  dccs                DCCOutreach[]
   @@map("outreach")
 }
 
@@ -93,7 +98,7 @@ model DccAsset {
   filetype     String
   filename     String
   link         String
-  size         Int?
+  size         BigInt?
   lastmodified DateTime @default(now())
   current      Boolean  @default(true)
   creator      String

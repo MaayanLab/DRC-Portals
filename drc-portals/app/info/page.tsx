@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { PrismaClient } from "@prisma/client"
 
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
@@ -8,120 +7,22 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import Chip from '@mui/material/Chip'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-
-import Carousel from '@/components/misc/ServerCarousel'
+import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
-const prisma = new PrismaClient()
-
-async function CFPrograms() {
-  const dccs = await prisma.dCC.findMany()
-  return (
-    <Grid container direction="row" spacing={2}>
-      {dccs.map(dcc=>(
-        <Grid item xs={6} md={4} key={dcc.short_label} className="flex items-center justify-center">
-          <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer"><Image src={dcc.icon || ''} alt={dcc.id} width={120} height={120}/></Link>
-        </Grid>
-      ))}
-    </Grid>
-  )
-}
-
-async function Publications() {
-  const publications = await prisma.publication.findMany({
-    orderBy: [
-      {
-        year: 'desc'
-      }
-    ],
-    take: 5
-  })
-  return (
-    <Paper sx={{boxShadow: "none", height: 500}}>
-      {publications.map((pub, i)=>(
-        <div key={i} style={{marginBottom: 10}}>
-          <Link href={pub.doi || ''}>
-            <Typography variant="caption">
-              {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
-            </Typography>
-          </Link>
-        </div>
-      ))}
-    </Paper>
-  )
-}
-
-function Outreach() {
-  return (
-    <>
-      <Grid item xs={12}>
-        <Card sx={{ height: 450, padding: 5 }}>
-          {/* <CardMedia
-            sx={{ height: 140 }}
-            image="/img/Bridge2AI.png"
-            title="CrossPollination"
-          /> */}
-          <CardContent>
-            <Stack spacing={2}>
-              <Chip color="secondary" label="FEATURED" sx={{width: 150}}/>
-              <Typography variant="h3">Bridge 2AI - Cross Pollination</Typography>
-              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
-              <Typography variant="subtitle1">Date:  October 3, 2023</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: 450, padding: 5 }}>
-          {/* <CardMedia
-            sx={{ height: 140 }}
-            image="/img/LINCS.gif"
-            title="CrossPollination"
-          /> */}
-          <CardContent>
-            <Stack spacing={2}>
-              <Chip color="secondary" label="ONLINE" sx={{width: 150}}/>
-              <Typography variant="h3">Coursera: Network Analysis in Systems Biology</Typography>
-              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
-              <Link href="/"><Typography variant="subtitle1">Link</Typography></Link>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: 450, padding: 5}}>
-          {/* <CardMedia
-            sx={{ height: 140 }}
-            image="/img/GTEx.png"
-            title="CrossPollination"
-          /> */}
-          <CardContent>
-            <Stack spacing={2}>
-              <Chip color="secondary" label="IN PERSON" sx={{width: 150}}/>
-              <Typography variant="h3">GTEx In Person Training</Typography>
-              <Typography variant="subtitle1">Lorem ipsum dolor sit amet consectetur. Et nunc sit morbi quis id tellus praesent tempor. Tellus convallis amet sed suspendisse. Scelerisque vulputate quis convallis rhoncus nec eget tortor adipiscing.</Typography>
-              <Link href="/"><Typography variant="subtitle1">Date: December 6, 2023</Typography></Link>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-    </>
-  )
-}
-
-
+import CFPrograms from "@/components/misc/CFPrograms"
+import Outreach from "@/components/misc/Outreach"
+import Publications from "@/components/misc/Publications"
+import prisma from '@/lib/prisma'
 
 export default async function Home() {
   return (
     <main className="mt-24">
-      <Grid container spacing={2}>
+      <Grid container spacing={2} alignItems={"flex-start"}>
         <Grid item xs={6}>
           <Stack spacing={3}>
-            <Typography variant="caption" color={"primary"}>Common Fund Data Ecosystem Workbench</Typography>
+            <Typography variant="caption" color={"primary"}>The Common Fund Data Ecosystem Workbench</Typography>
             <Typography variant="h1" color="primary">
-              Accelerating discovery using Common Fund Data
+              Accelerating discovery by integrating Common Fund datasets
             </Typography>
             <Typography variant="subtitle1">
               The Common Fund Data Ecosystem (CFDE) aims to enable broad use of data generated by Common Fund Programs to accelerate hypothesis generation and discovery.
@@ -136,22 +37,22 @@ export default async function Home() {
         <Grid item xs={6} className="flex items-center justify-center">
           <Carousel/>
         </Grid>
-        <Grid item xs={3} sx={{marginTop: 20}}>
+        <Grid item xs={3} sx={{marginTop: 10}}>
           <Stack spacing={3}>
             <Typography variant="h2" color="primary">
-              Common Fund programs partnered with CFDE
+              Common Fund programs partnered with the CFDE
             </Typography>
             <Typography variant="subtitle1">
             The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
             </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={9} sx={{marginTop: 20}}><CFPrograms/></Grid>
-        <Grid item xs={12} sx={{marginTop: 20}}>
+        <Grid item xs={9} sx={{marginTop: 10}}><CFPrograms spacing={4}/></Grid>
+        <Grid item xs={12} sx={{marginTop: 10}}>
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6} className="flex items-center justify-center">
-                <Image src="/img/FAIR.png" alt="fair" width={400} height={400}/>
+                <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer"><Image src="/img/FAIR.png" alt="fair" width={400} height={400}/></Link>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant={"h2"} color="primary">
@@ -161,9 +62,13 @@ export default async function Home() {
                   The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.
                 </Typography>
                 <div  className="mt-5">
-                  <Typography variant={"subtitle1"}>
-                    What is FAIR?
-                  </Typography>
+                  <Link href="https://www.nature.com/articles/sdata201618" target="_blank" rel="noopener noreferrer">
+                    <Button color="secondary">
+                      <Typography variant={"subtitle1"}>
+                        What is FAIR?
+                      </Typography>
+                    </Button>
+                  </Link>
                 </div>
                 <div  className="ml-8">
                   <ul>
@@ -205,23 +110,20 @@ export default async function Home() {
             </Container>
           </Paper>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 20, textAlign: "center"}}>
+        <Grid item xs={12} sx={{marginTop: 10, textAlign: "center"}}>
           <Typography variant={"h2"}>
             Training & Outreach
           </Typography>
         </Grid>
         <Outreach/>
-        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 20, height: 500}}>
-          <Stack>
-            <Typography variant="h2">Twitter</Typography>
-            <Twitter/>
-          </Stack>
+        <Grid item xs={12} sx={{textAlign: "center"}}>
+          <Link href={"/info/outreach"}><Button variant={"contained"} color={"secondary"}>See More outreach events</Button></Link>
         </Grid>
-        <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 20}}>
-          <Stack>
-            <Typography variant="h2">Publications</Typography>
-            <Publications/>
-          </Stack>
+        <Grid item xs={12} md={6}>
+          <Twitter/>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Publications all={false}/>
         </Grid>
       </Grid>
     </main>
