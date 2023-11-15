@@ -1,5 +1,5 @@
-"use client"
-import { useRef } from 'react';
+'use client'
+import React from 'react'
 import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
 import { ImNotification } from "react-icons/im";
 import uploadImage from '@/public/img/contributions/upload_example.png'
@@ -10,9 +10,16 @@ import approveBtnImage from '@/public/img/contributions/approve_btn.png'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
-import { Link, List, ListItem, ListItemIcon, TextField } from '@mui/material';
 import Box, { BoxProps } from '@mui/material/Box';
-import CustomizedAccordions from '@/components/PageLink'
+import ListSubheader from '@mui/material/ListSubheader';
+import List from '@mui/material/List';
+import Link from '@mui/material/Link';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 
 
 function Item(props: BoxProps) {
@@ -40,22 +47,23 @@ function Item(props: BoxProps) {
 
 
 export default function Documentation() {
-    const section1a = useRef(null)
-    const section1b = useRef(null)
-    const section1c = useRef(null)
-    const section1d = useRef(null)
-    const section1e = useRef(null)
-    const section2a = useRef(null)
-    const section2b = useRef(null)
-    const section2c = useRef(null)
-    const sectionRefs = [section1a, section1b, section1c, section1d, section1e, section2a, section2b, section2c]
-
     const exampleUpload = <Image src={uploadImage} width='900' height='600' alt='' className="d-inline-block align-top" />;
     const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
     const exampleNewUpload = <Image src={newUploadImage} width='900' height='200' alt='' className="d-inline-block align-top" />;
     const exampleApprove = <Image src={approveImage} width='900' height='280' alt='' className="d-inline-block align-top" />;
     const exampleApproveBtn = <Image src={approveBtnImage} width='130' height='40' alt='' className="d-inline-block align-top" />;
 
+    const [open, setOpen] = React.useState(true);
+    const [open2, setOpen2] = React.useState(true);
+
+    const scrollToSection = React.useCallback((id: string) => {
+        const el = document.getElementById(id)
+        if (el === null) return
+        window.scrollTo({
+            top: el.offsetTop,
+            behavior: "smooth",
+        });
+    }, []);
 
     return (
         <>
@@ -65,7 +73,61 @@ export default function Documentation() {
                     <Grid xs={2}>
                         {/* <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)' }}> */}
                             <Item>
-                                <CustomizedAccordions  sectionRefs={sectionRefs}/>
+                    <List
+                        sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+                        component="nav"
+                        aria-labelledby="nested-list-subheader"
+                        subheader={
+                            <ListSubheader component="div" id="nested-list-subheader">
+                                Documentation
+                            </ListSubheader>
+                        }
+                    >
+                        <ListItemButton onClick={() => {setOpen(open => !open)}}>
+                            <ListItemText primary="File Types" />
+                            {open ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                        <Collapse in={open} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section1a")}>
+                                    <ListItemText primary="XMT" />
+                                </ListItemButton>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section1b")}>
+                                    <ListItemText primary="C2M2" />
+                                </ListItemButton>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section1c")}>
+                                    <ListItemText primary="KG Assertions" />
+                                </ListItemButton>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section1d")}>
+                                    <ListItemText primary="Attribute Table" />
+                                </ListItemButton>
+                            </List>
+                        </Collapse>
+                        <ListItemButton onClick={() => {setOpen2(open2 => !open2)}}>
+                            <ListItemText primary="File Approval Stages" />
+                            {open2 ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                        <Collapse in={open2} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section1e")}>
+                                    <ListItemText primary="Uploaded (Not Approved)" />
+                                </ListItemButton>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section2a")}>
+                                    <ListItemText primary="DCC Approved" />
+                                </ListItemButton>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => scrollToSection("section2b")}>
+                                    <ListItemText primary="DRC Approved" />
+                                </ListItemButton>
+                            </List>
+                        </Collapse>
+                        <ListItemButton>
+                            <ListItemText primary="File Upload Steps" />
+                        </ListItemButton>
+                        <ListItemButton>
+                            <ListItemText primary="File Approval Steps" />
+                        </ListItemButton>
+
+                    </List>
                             </Item>
                         {/* </Box> */}
                     </Grid>
@@ -76,7 +138,7 @@ export default function Documentation() {
                                     <Box gridTemplateRows={'repeat(5, 1fr)'}>
                                         <h4 className='text-center'>File Types</h4>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1 " ref={section1a}> XMT </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1 " id="section1a"> XMT </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 XMT files are text based files which contain a collection of sets of a given entity type.
                                                 The 'X' in XMT stands for the entity that the sets contain
@@ -87,7 +149,7 @@ export default function Documentation() {
                                             </p>
                                         </Item>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section1b}> C2M2 </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="section1b"> C2M2 </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
                                                 <Link href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
@@ -96,7 +158,7 @@ export default function Documentation() {
                                             </p>
                                         </Item>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section1c}> KG Assertions </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="section1c"> KG Assertions </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 A knowledge graph is a network that illustrates the relationship between different entities which may
                                                 come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels.
@@ -110,7 +172,7 @@ export default function Documentation() {
                                             </p>
                                         </Item>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section1e}> Attribute Table </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="section1e"> Attribute Table </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 Attribute tables are files containing tables that describe the relationship between two entities with
                                                 one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection
@@ -125,7 +187,7 @@ export default function Documentation() {
                                     <Box gridAutoRows={'repeat(4, 1fr)'}>
                                         <h4 className='text-center'> File Approval Stages</h4>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" ref={section2a}> Uploaded (Not Approved) </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="section2a"> Uploaded (Not Approved) </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 Files that are just uploaded will first be placed in the first stage of approval which means
                                                 that they have not yet received DCC or DRC approval. Files in this category are identified with the
@@ -133,7 +195,7 @@ export default function Documentation() {
                                             </p>
                                         </Item>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section2b}> DCC Approved </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="section2b"> DCC Approved </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by the corresponding DCC approver, the status of the file will
                                                 be updated to 'DCC Approved' which is delineated by the &nbsp;
@@ -141,7 +203,7 @@ export default function Documentation() {
                                             </p>
                                         </Item>
                                         <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section2c}> DRC Approved </h6>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="section2c"> DRC Approved </h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by a member of the DRC, the status of the file will
                                                 be updated to 'DRC Approved' which is the final stage of File Approval. This status is delineated by the
