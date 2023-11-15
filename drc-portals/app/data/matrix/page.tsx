@@ -1,5 +1,3 @@
-'use client'
-
 import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell} from '@mui/material'
 import { Typography, Container } from '@mui/material'
 import Link from 'next/link';
