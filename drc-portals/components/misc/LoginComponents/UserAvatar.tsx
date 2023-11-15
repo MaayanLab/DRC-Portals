@@ -7,7 +7,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import { Session } from 'next-auth';
-import { Typography } from '@mui/material';
+import { SignOutLink } from '@/lib/auth/links';
 // some code taken from MUI
 
 function stringToColor(string: string) {
@@ -79,7 +79,7 @@ export default function UserAvatar ({session}: {session: Session}) {
             >
                 <MenuItem onClick={handleClose}>My account</MenuItem>
                 <MenuItem onClick={handleClose}>
-                    <Link href="/auth/signout">Logout</Link>
+                    <SignOutLink>Logout</SignOutLink>
                 </MenuItem>
             </Menu>
         </>
