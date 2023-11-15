@@ -15,10 +15,10 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment'
 import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
-import { SignInLink, SignOutLink } from '@/lib/auth/links'
-
+import UserComponent from '../misc/LoginComponents/UserComponent'
+import NavBreadcrumbs from './breadcrumbs'
 export default async function InfoHeader() {
-  const session = await getServerSession(authOptions)
+  const session = (await getServerSession(authOptions))
   return (
     <Container maxWidth="lg">
       <AppBar position="static" sx={{color: "#000"}}>
@@ -42,39 +42,26 @@ export default async function InfoHeader() {
                   <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
+                  <Link href="/info">
+                    <Typography variant="nav">PRODUCTS</Typography>
+                  </Link>
                   <Link href="/info/publications">
                     <Typography variant="nav">PUBLICATIONS</Typography>
                   </Link>
-                    {session === null ? 
-                    <>
-                      <SignInLink>
-                        <Button color="secondary">
-                          SIGN UP
-                        </Button>
-                      </SignInLink>
-                      <SignInLink>
-                        <Button color="secondary" variant="outlined">
-                          LOGIN
-                        </Button>
-                      </SignInLink>
-                    </>
-                    : <>
-                      Welcome {session.user?.name ?? 'user'}.
-                      <SignOutLink><Button variant='outlined' color="secondary">Logout</Button></SignOutLink>
-                    </>}
+                    <UserComponent session={session}/>
                 </Stack>
               </Grid>
               <Grid item xs={12}></Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info/about">
+                  <Link href="/data" target="_blank" rel="noopener noreferrer">
                     <Typography variant="nav">DATA-RESOURCE-PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">KNOWLEDGE-PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
-                    <Typography variant="nav">CF-DCCs</Typography>
+                    <Typography variant="nav">DCCs</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
@@ -87,6 +74,9 @@ export default async function InfoHeader() {
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>

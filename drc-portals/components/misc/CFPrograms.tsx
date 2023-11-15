@@ -4,8 +4,9 @@ import Image from "next/image"
 import Grid from '@mui/material/Grid'
 import Tooltip from '@mui/material/Tooltip'
 import { GridSize } from "@mui/material/Grid"
-
 import prisma from '@/lib/prisma'
+
+
 
 async function CFPrograms({spacing=4}:{spacing: GridSize}) {
     const dccs = await prisma.dCC.findMany({

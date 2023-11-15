@@ -15,10 +15,11 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment'
 import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
-import { SignInLink, SignOutLink } from '@/lib/auth/links'
+import UserComponent from '../misc/LoginComponents/UserComponent'
+import NavBreadcrumbs from './breadcrumbs'
 
 export default async function InfoHeader() {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions) 
   return (
     <Container maxWidth="lg">
       <AppBar position="static" sx={{color: "#000"}}>
@@ -36,28 +37,16 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                  <Link href="/info" target="_blank" rel="noopener noreferrer">
+                    <Typography variant="nav">CFDE-WORKBENCH</Typography>
+                  </Link>
                   <Link href="/data">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/data">
                     <Typography variant="nav">CONTRIBUTE</Typography>
                   </Link>
-                    {session === null ? 
-                    <>
-                      <SignInLink>
-                        <Button color="secondary">
-                          SIGN UP
-                        </Button>
-                      </SignInLink>
-                      <SignInLink>
-                        <Button color="secondary" variant="outlined">
-                          LOGIN
-                        </Button>
-                      </SignInLink>
-                    </>
-                    : <>
-                      <SignOutLink><Button variant='outlined' color="secondary">Logout</Button></SignOutLink>
-                    </>}
+                    <UserComponent session={session}/>
                 </Stack>
               </Grid>
               <Grid item xs={12}></Grid>
@@ -83,6 +72,9 @@ export default async function InfoHeader() {
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>

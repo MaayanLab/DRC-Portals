@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
+
+process.env.NEXTAUTH_URL_INTERNAL = 'http://localhost:3000/auth'
+
 const nextConfig = {
   output: 'standalone',
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  },
   async rewrites() {
     return [
       {

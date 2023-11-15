@@ -54,7 +54,7 @@ export default async function Home() {
     <main className="mt-24 text-center">
       <Grid container spacing={2} alignItems={"flex-start"} justifyContent={"center"}>
         <Grid item xs={12} className="flex align-center justify-center">
-          <Typography variant="h2">Common Fund Data Resource Portal</Typography>
+          <Typography variant="h2" sx={{fontSize: 30}}>Search Common Fund Programs' Metadata and Processed Datasets</Typography>
         </Grid>
         <Grid item xs={12} className="flex align-center justify-center">
           <TextField sx={{width: 704}} 

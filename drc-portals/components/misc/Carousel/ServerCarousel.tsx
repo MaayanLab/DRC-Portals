@@ -34,12 +34,12 @@ export default function ServerCarousel () {
       
       
     const children = items.map( (item, i) => (
-        <Paper key={i} sx={{height: 500, width:400, textAlign: "center"}}>
+        <div key={i} style={{minHeight: 420, textAlign: "center"}}>
             <Link href={item.url} target="_blank" rel="noopener noreferrer">
                 <Typography variant="subtitle2">{item.name}</Typography>
                 <Image src={item.icon} alt={item.name} width={400} height={400}/>
             </Link>
-        </Paper>
+        </div>
     ))
 
     return <ClientCarousel>{children}</ClientCarousel>

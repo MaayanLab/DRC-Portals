@@ -33,6 +33,10 @@ const providers = [
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
+const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
+const cookiePrefix = useSecureCookies ? "__Secure-" : ""; 
+const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud';
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers,
@@ -41,9 +45,21 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       if (url.startsWith('/')) return `${baseUrl}${url}`
       else if (new URL(url).origin === baseUrl) return url
-      else if (new URL(url).origin === 'cfde.info') return url
       else if (new URL(url).origin === 'cfde.cloud') return url
+      else if (new URL(url).origin.endsWith('.cfde.cloud')) return url
       else return baseUrl
     }
+  },
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        domain: "." + hostName,
+        secure: useSecureCookies,
+      },
+    },
   },
 }
