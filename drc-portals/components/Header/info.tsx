@@ -42,6 +42,9 @@ export default async function InfoHeader() {
                   <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
+                  <Link href="/info">
+                    <Typography variant="nav">PRODUCTS</Typography>
+                  </Link>
                   <Link href="/info/publications">
                     <Typography variant="nav">PUBLICATIONS</Typography>
                   </Link>
@@ -51,14 +54,14 @@ export default async function InfoHeader() {
               <Grid item xs={12}></Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info/about">
+                  <Link href="https://cfde.cloud" target="_blank" rel="noopener noreferrer">
                     <Typography variant="nav">DATA-RESOURCE-PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">KNOWLEDGE-PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
-                    <Typography variant="nav">CF-DCCs</Typography>
+                    <Typography variant="nav">DCCs</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
