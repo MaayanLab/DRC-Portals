@@ -1,5 +1,5 @@
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import { NextAuthOptions } from 'next-auth'
+import { DefaultSession, NextAuthOptions } from 'next-auth'
 import prisma from '@/lib/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import EmailProvider from 'next-auth/providers/email'
@@ -7,6 +7,15 @@ import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import ORCIDProvider from '@/lib/auth/providers/orcid'
 import type { OAuthConfig } from 'next-auth/providers/index'
+
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+    } & DefaultSession['user'];
+  }
+}
 
 const providers = [
   /* In development, we'll add a button for creating a random user */
@@ -37,4 +46,20 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers,
   session: { strategy: 'jwt' },
+  callbacks: {
+    async jwt({ token, account, user }) {
+      if (account) {
+        // Persist the OAuth access_token and or the user id to the token right after signin
+        token.id = user?.id
+      }
+      return token
+    },
+    session({ session, token}) {
+        // I skipped the line below coz it gave me a TypeError
+        // session.accessToken = token.accessToken;
+
+        session.user.id = token.id as string;
+        return session;
+      }
+  }
 }
