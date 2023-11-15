@@ -22,6 +22,7 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://cfde.cloud
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://cfde.info, https://cfde.cloud
         nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
         nginx.ingress.kubernetes.io/auth-secret: auth
         nginx.ingress.kubernetes.io/auth-type: basic
@@ -43,6 +44,7 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://cfde.info
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://cfde.info, https://cfde.cloud
         nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
         nginx.ingress.kubernetes.io/auth-secret: auth
         nginx.ingress.kubernetes.io/auth-type: basic
