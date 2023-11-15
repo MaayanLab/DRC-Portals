@@ -51,6 +51,6 @@ VERSION=0.1.x
 git add . && git commit -m $VERSION && git tag v$VERSION
 git push && git push --tags
 
-# update production
-helm upgrade drc-portal maayanlab/docker-compose -f <(docker-compose config)
+# update production (note that we have this in a drc namespace in prod)
+helm upgrade -n drc drc-portal maayanlab/docker-compose -f <(docker-compose config)
 ```
