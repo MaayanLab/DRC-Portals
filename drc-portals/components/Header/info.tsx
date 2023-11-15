@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment'
 import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
+import { SignInLink, SignOutLink } from '@/lib/auth/links'
 
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions)
@@ -46,20 +47,20 @@ export default async function InfoHeader() {
                   </Link>
                     {session === null ? 
                     <>
-                      <Link href="/auth/signin">
+                      <SignInLink>
                         <Button color="secondary">
                           SIGN UP
                         </Button>
-                      </Link>
-                      <Link href="/auth/signin">
+                      </SignInLink>
+                      <SignInLink>
                         <Button color="secondary" variant="outlined">
                           LOGIN
                         </Button>
-                      </Link>
+                      </SignInLink>
                     </>
                     : <>
                       Welcome {session.user?.name ?? 'user'}.
-                      <Link href="/auth/signout"><Button variant='outlined' color="secondary">Logout</Button></Link>
+                      <SignOutLink><Button variant='outlined' color="secondary">Logout</Button></SignOutLink>
                     </>}
                 </Stack>
               </Grid>

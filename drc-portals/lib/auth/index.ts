@@ -37,4 +37,13 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers,
   session: { strategy: 'jwt' },
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) return `${baseUrl}${url}`
+      else if (new URL(url).origin === baseUrl) return url
+      else if (new URL(url).origin === 'cfde.info') return url
+      else if (new URL(url).origin === 'cfde.cloud') return url
+      else return baseUrl
+    }
+  },
 }
