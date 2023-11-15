@@ -41,8 +41,8 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       if (url.startsWith('/')) return `${baseUrl}${url}`
       else if (new URL(url).origin === baseUrl) return url
-      else if (new URL(url).origin === 'cfde.info') return url
-      else if (new URL(url).origin === 'cfde.cloud') return url
+      else if (new URL(url).origin === 'https://cfde.info') return url
+      else if (new URL(url).origin === 'https://cfde.cloud') return url
       else return baseUrl
     }
   },
