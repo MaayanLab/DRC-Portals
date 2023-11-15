@@ -31,6 +31,9 @@ services:
       nginx_server_name: cfde.cloud
       nginx_proxy_00: / http://drc-portal-app:3000/data
       nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_redirect_00: /data/? https://cfde.cloud
+      nginx_redirect_01: /info/? https://cfde.info
+      nginx_redirect_02: /info/(.+) https://cfde.info/info/$1
 
   drc-portal-info-proxy:
     image: maayanlab/proxy:1.2.9
@@ -47,6 +50,9 @@ services:
       nginx_server_name: cfde.info
       nginx_proxy_00: / http://drc-portal-app:3000/info
       nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_redirect_00: /info/? https://cfde.info
+      nginx_redirect_01: /data/? https://cfde.cloud
+      nginx_redirect_02: /data/(.+) https://cfde.cloud/data/$1
 
   drc-portal-postgres:
     image: postgres:16
