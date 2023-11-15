@@ -16,6 +16,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
 import UserComponent from '../misc/LoginComponents/UserComponent'
+import NavBreadcrumbs from './breadcrumbs'
 
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions) 
@@ -71,6 +72,9 @@ export default async function InfoHeader() {
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>
