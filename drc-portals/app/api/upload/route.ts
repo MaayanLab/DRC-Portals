@@ -5,10 +5,6 @@ import prisma from '@/lib/prisma'
 
 
 export async function POST(req: Request, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ message: 'Method not allowed' });
-  }
-
   try {
     const data = await req.json();
 

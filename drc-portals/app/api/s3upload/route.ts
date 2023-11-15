@@ -1,6 +1,6 @@
 import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
-import Minio from 'minio'
+import * as Minio from 'minio'
 
 if (!process.env.S3_ENDPOINT || !process.env.S3_ACCESS_KEY || !process.env.S3_SECRET_KEY)  throw new Error('missing S3 config');
 
@@ -13,9 +13,6 @@ const minioClient = new Minio.Client({
 
 
 export async function GET(req: NextRequest, res: NextApiResponse) {
-    if (req.method !== 'GET') {
-        res.status(405).json({ message: 'Method not allowed' });
-    }
     try {
         let filename = req.nextUrl.searchParams.get('name');
         let dcc = req.nextUrl.searchParams.get('dcc');
@@ -36,3 +33,4 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
     } 
 };
 
+export const dynamic = "force-dynamic";

@@ -5,10 +5,6 @@ import prisma from '@/lib/prisma'
 
 export async function GET(req: Request, res: NextApiResponse) {
     const session = await getServerSession(authOptions)
-    if (req.method != 'GET') {
-        res.status(405).json({ message: 'Method not allowed' });
-    }
-
     try {
         const user = await prisma.user.findFirst({
             where: {
@@ -29,3 +25,5 @@ export async function GET(req: Request, res: NextApiResponse) {
         res.status(400).json({ message: 'Something went wrong' });
     }
 };
+
+export const dynamic = "force-dynamic";
