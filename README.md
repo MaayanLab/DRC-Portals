@@ -1,4 +1,4 @@
 # DRC-Portal
 
-<https://cfde.cloud/> <=> /info  
+<https://info.cfde.cloud/> <=> /info  
 <https://data.cfde.cloud/> <=> /data  
