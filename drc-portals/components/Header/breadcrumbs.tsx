@@ -11,6 +11,7 @@ export default function NavBreadcrumbs() {
     else {
         const breadcrumbs = path.map((p,i)=>(
             <Link 
+                key={i}
                 href={`/${path.slice(0, i+1).join("/")}`}
             >
                 <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path.length-1 ? 'primary': 'inherit'}>{p}</Typography>
