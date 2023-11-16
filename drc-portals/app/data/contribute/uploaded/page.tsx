@@ -27,22 +27,15 @@ export default async function UserFiles() {
         where: {
             creator: user?.email,
         },
+        include: {
+            dcc: {
+                select: {
+                    label: true
+                }
+            }
+        }
     })
     console.log(userFiles)
-
-    const userFilesDCCMapped = Promise.all(userFiles.map(async (userFile) => {
-        const dcc = await prisma.dCC.findFirst({
-            where: {
-               id:userFile.dcc_id 
-            }
-        }   
-        )
-        if (!userFile ) throw new Error('DCC id mapping does not exist');
-        if (dcc != null) {
-            userFile['dcc_id'] = dcc.label
-        }
-        return userFile
-    }))
 
     return (
         <>
@@ -62,14 +55,14 @@ export default async function UserFiles() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {(await userFilesDCCMapped).map((row) => (
+                        {userFiles.map((row) => (
                             <TableRow
                                 key={row.link}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">{row.lastmodified.toString()}</TableCell>
                                 <TableCell align="right">{row.creator}</TableCell>
-                                <TableCell align="right">{row.dcc_id}</TableCell>
+                                <TableCell align="right">{row.dcc?.label ?? row.dcc_id}</TableCell>
                                 <TableCell align="right">{row.filetype}</TableCell>
                                 <TableCell align="right"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
                                 <TableCell align="right"></TableCell>
