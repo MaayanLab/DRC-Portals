@@ -16,11 +16,7 @@ export async function POST(req: NextRequest
             body: JSON.stringify(data),
         })
 
-        console.log(res)
         const id = await res.json()
-        console.log(id)
-
-
         const resOutput = await fetch(ENDPOINT + '/api/db/fpl/' + id + '/output')
  
         const output = await resOutput.json() 

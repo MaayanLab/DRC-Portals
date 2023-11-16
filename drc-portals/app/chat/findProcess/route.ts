@@ -32,7 +32,6 @@ async function pickProcess({ query, input }: { query: string, input: string }) {
         const tagLineParsed = await tagLine.json()
         const outputsAvialbleList = outputsAvialble(input)
         var output: string = tagLineParsed.choices[0].message.content
-        console.log(output)
         output = output.slice(output.indexOf('['), output.indexOf(']') + 1)
 
         if (outputsAvialbleList.includes(output))
@@ -87,14 +86,11 @@ export async function POST(req: NextRequest
             }),
         })
 
-        console.log(tagLine)
-
         const tagLineJson = await tagLine.json()
 
         const avaiableInputs = inputsAvialble()
         var input = tagLineJson.choices[0].message.content
         input = input.slice(input.indexOf('['), input.indexOf(']') + 1)
-        console.log(input)
 
         if (avaiableInputs.includes(input)) {
             const processResult = await pickProcess({ query, input })

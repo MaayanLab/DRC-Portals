@@ -88,8 +88,6 @@ export default function Chat() {
     } else {
       const input: string = processInfo.input || ''
       const inputFunction = inputMapper[input]
-      console.log(processInfo)
-      console.log(currentArg)
       results = await inputFunction({ message: message.content, options, setOptions, currentArg, setCurrentArg, processInfo, setProcessInfo })
     }
 

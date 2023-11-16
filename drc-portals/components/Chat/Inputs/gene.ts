@@ -39,7 +39,6 @@ export default async function Gene({message, options, setOptions, currentArg, se
                 }
             } else {
                 for (let j=0; j < searchTerms.length; j++) {
-                    console.log(searchTerms[j])
                     if (splitMessage.includes(searchTerms[j])) {
                         currProcessInfo.args[arg] = searchTerms[j]
                         setProcessInfo(currProcessInfo)
@@ -48,14 +47,12 @@ export default async function Gene({message, options, setOptions, currentArg, se
             }
         }
     }
-    console.log(currProcessInfo)
 
     const processName = getProcessComponent(input, output)
     const processText = getProcessText(input, output)
 
     const response = await queryUser(message, currProcessInfo, setProcessInfo, currentArg, setCurrentArg, options, setOptions)
 
-    console.log(currProcessInfo)
     if (response.output) {
         return {
             role: "bot",

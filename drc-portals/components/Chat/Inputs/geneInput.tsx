@@ -20,7 +20,6 @@ const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
 
 export default function GeneInput(props: any) {
     const genesymbol = props.genesymbol || ''
-    console.log(genesymbol)
     const [geneTerm, setGeneTerm] = React.useState(genesymbol)
     const [submitted, setSubmitted] = React.useState(false)
     const processName = props.process

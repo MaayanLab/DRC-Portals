@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '@mui/material';
 
 const METADATA_API = "https://maayanlab.cloud/sigcom-lincs/metadata-api/"
 
@@ -50,8 +51,6 @@ const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useU
             else if (genesetDown.includes(symbol))
                 forEnrichment.down_entities.push(e["id"])
         })
-
-        console.log(forEnrichment)
 
         const payload2 = {
             "meta": {
@@ -150,9 +149,9 @@ export default function SigComLincs(props: any) {
     return (
         <div className='text-center'>
             <Link href={data || ''} target='_blank'>
-                <button>
-                    <div className='row'>Open in <Image className='rounded-md ml-3 mt-3 mr-3' alt='SigCom Lincs' width={50} height={50} src='/img/SigComLincs.png' /></div> 
-                </button>
+                <Button>
+                    <div className='text-slate-100 flex-row'>Open in<Image className='rounded-md m-0' alt='SigCom Lincs' width={50} height={50} src='/img/SigComLincs.png' /></div> 
+                </Button>
             </Link>
         </div>
     );

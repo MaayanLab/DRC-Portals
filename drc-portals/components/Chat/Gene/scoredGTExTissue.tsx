@@ -13,7 +13,6 @@ const getPlaybookGTExPlotData = async (body: any) => {
         body: JSON.stringify(body)
 
     }
-    console.log(options)
     const res = await fetch(`/chat/fetchPlaybook`, options)
     const data = await res.json()
     return data

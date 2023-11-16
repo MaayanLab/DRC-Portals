@@ -16,7 +16,7 @@ export default function TableView(rowData: any) {
     const endIndex = startIndex + entriesPerPage;
 
     const tableHeader = columnNames.map((columnName) => (
-        <th key={columnName}>{columnName}</th>
+        <th key={columnName} className='text-slate-800'>{columnName}</th>
     ));
 
     const tableRows = rowKeys.slice(startIndex, endIndex).map((perturbagenName) => (

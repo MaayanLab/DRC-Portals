@@ -18,11 +18,8 @@ export default async function queryUser(message: any, processInfo: any, setProce
         }
     }
 
-    console.log(processInfo)
-    
     const processQs = getProcessParams(processInfo.input, processInfo.output)
     const processArgs = new Set(Object.keys(processInfo.args))
-    console.log(processInfo)
     for (let i =0; i < processQs.length; i++) {
         const arg = processQs[i].arg
         const opts = processQs[i].options
@@ -30,8 +27,6 @@ export default async function queryUser(message: any, processInfo: any, setProce
         if (!processArgs.has(arg)) {
             setOptions(opts)
             setCurrentArg(arg)
-            console.log('here')
-            console.log(arg)
             return {
                 role: "bot",
                 content: q,

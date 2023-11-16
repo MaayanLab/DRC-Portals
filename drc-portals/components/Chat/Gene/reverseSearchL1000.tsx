@@ -22,12 +22,10 @@ const getL100Sigs = async (gene: string, dir: string, perturb: string) => {
 
     const res = await fetch(`/chat/l1000sigs`, options)
     const data = await res.json()
-    console.log(data)
     return data
 };
 
 export default function ReverseSearchL1000(props: any) {
-    console.log(props)
     const gene = props.genesymbol
     const dir = props.dir
     const perturb = props.perturb
@@ -56,8 +54,6 @@ export default function ReverseSearchL1000(props: any) {
 
         }
     };
-
-    console.log(dir)
 
     if (dir == "both") {
 

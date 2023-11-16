@@ -12,7 +12,6 @@ const fetchImpcPhenotype = async (geneId: string) => {
 
 export default function ImpcPhenotypes(props: any) {
   const geneSymbol = props.genesymbol
-  console.log(geneSymbol)
   const { data, error, isLoading } = useSWR([geneSymbol], () => fetchImpcPhenotype(geneSymbol));
 
   if (error) {
@@ -20,8 +19,6 @@ export default function ImpcPhenotypes(props: any) {
   } else if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  console.log(data)
 
   return (
     <div>

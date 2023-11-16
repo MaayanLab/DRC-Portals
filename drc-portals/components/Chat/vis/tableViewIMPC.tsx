@@ -14,20 +14,21 @@ export default function TableViewIMPC(rowData: any) {
         'statistical_method',
     ]
 
+    if (rowData.rowData.length == 0) {
+        return <>No associated phenotypes were found from IMPC.</>
+    }
+
     try {
         const columnNames = columns
 
         // Define the number of entries to show per page.
         const entriesPerPage = 10;
-
-       
-
         // Calculate the range of rows to display based on the current page.
         const startIndex = (currentPage - 1) * entriesPerPage;
         const endIndex = startIndex + entriesPerPage;
 
         const tableHeader = columnNames.map((columnName) => (
-            <th key={columnName}>{columnName}</th>
+            <th key={columnName} className='text-slate-800'>{columnName}</th>
         ));
 
         const tableRows = rowData.rowData.slice(startIndex, endIndex).map((row: any, i: number) => (

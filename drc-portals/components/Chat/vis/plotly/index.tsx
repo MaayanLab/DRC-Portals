@@ -11,6 +11,5 @@ export type PlotlyJson = {
 }
 
 export default function PlotlyPlot(props: any) {
-  console.log(props)
   return <Plot {...props.props} />
 }

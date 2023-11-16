@@ -6,6 +6,7 @@ import uniqueArray from '@/components/Chat/utils/uniqueArray'
 // Import gene set components and map them to names
 import SigComLincs from '../GeneSet/sigComLincs'
 import classNames from 'classnames'
+import Button from '@mui/material/Button';
 
 let processMapper: Record<string, any> = {
   'sigComLincs': SigComLincs
@@ -57,7 +58,7 @@ export default function InputForm(props: any) {
         {!submitted ? <>
 
           <div className='flex-col'>
-            <p className="prose mb-2">
+            <p className="prose mb-2 text-slate-100">
               Try a gene set <a
                 className="font-bold cursor-pointer  text-sky-400"
                 onClick={() => {
@@ -78,7 +79,7 @@ export default function InputForm(props: any) {
                   setRawGenes(evt.currentTarget.value)
                 }}
                 rows={8}
-                className="textarea textarea-bordered w-full text-slate-800 bg-slate-200"
+                className="textarea textarea-bordered w-full text-slate-800 bg-slate-200 rounded-md p-2"
                 placeholder="Paste a set of valid Entrez gene symbols (e.g. STAT3) on each row in the text-box"
               />
               <input
@@ -95,7 +96,7 @@ export default function InputForm(props: any) {
           {upDown ?
             <>
               <div className='flex-col ml-5'>
-                <p className="prose mb-2">
+                <p className="prose mb-2 text-slate-100">
                   Try a gene set <a
                     className="font-bold cursor-pointer  text-sky-400"
                     onClick={() => {
@@ -116,7 +117,7 @@ export default function InputForm(props: any) {
                       setRawGenes2(evt.currentTarget.value)
                     }}
                     rows={8}
-                    className="textarea textarea-bordered w-full text-slate-800 bg-slate-200"
+                    className="textarea textarea-bordered w-full text-slate-800 bg-slate-200 rounded-md p-2"
                     placeholder="Paste a set of valid Entrez gene symbols (e.g. STAT3) on each row in the text-box"
                   />
                   <input
@@ -138,21 +139,42 @@ export default function InputForm(props: any) {
           </>}
       </div>
       {submitted ? <></> : <div className='flex flex-col mx-auto'>
-        {hasUpDown ? <><button className="btn btn-outline text-slate-300 m-2" onClick={(evt) => {
-          evt.preventDefault()
-          setUpDown(!upDown)
-        }}>
-          {upDown ? <div className='text-center'>Use single gene set</div> : <>Use up & down gene sets</>}</button> {upDown ? <button className={classNames('btn', { 'cursor-not-allowed opacity-50': (genes.length < 5 || genes2.length < 5) })} onClick={(evt) => {
+        {hasUpDown ? <><Button className="m-2" variant="outlined" color="info"
+          style={{
+            borderRadius: 35,
+            borderColor: "darkgray",
+            color: "whitesmoke"
+          }}
+          onClick={(evt) => {
+            evt.preventDefault()
+            setUpDown(!upDown)
+          }}>
+          {upDown ? <div className='text-center'>Use single gene set</div> : <>Use up & down gene sets</>}</Button> {upDown ? <div className='mt-2 text-center'><Button style={{
+              borderRadius: 35,
+              borderColor: "darkgray",
+              color: "whitesmoke",
+              backgroundColor: "#374254",
+            }}
+            variant="contained"
+            className={classNames('btn', { 'cursor-not-allowed opacity-50': (genes.length < 5 || genes2.length < 5) })} onClick={(evt) => {
             evt.preventDefault()
             if ((genes.length >= 5) && ((genes2.length >= 5))) {
-            setSubmitted(true)
+              setSubmitted(true)
             }
-          }}>Submit</button> : <><button className={classNames('btn', { 'cursor-not-allowed opacity-50': (genes.length < 5) })} onClick={(evt) => {
+          }}>Submit</Button></div> : <div className='mt-2 text-center'><Button className={classNames('text-slate-100 mt-2', { 'cursor-not-allowed opacity-50': (genes.length < 5) })} onClick={(evt) => {
             evt.preventDefault()
             if ((genes.length >= 5)) {
               setSubmitted(true)
             }
-          }}>Submit</button></>}</> : <></>}
+          }}
+            style={{
+              borderRadius: 35,
+              borderColor: "darkgray",
+              color: "whitesmoke",
+              backgroundColor: "#374254",
+            }}
+            variant="contained"
+          >Submit</Button></div>}</> : <></>}
       </div>
       }
     </div>
