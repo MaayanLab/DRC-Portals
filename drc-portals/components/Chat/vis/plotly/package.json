@@ -1,0 +1,16 @@
+{
+  "name": "plotly",
+  "version": "1.0.0",
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "Daniel J. B. Clarke <danieljbclarkemssm@gmail.com>",
+  "private": true,
+  "main": "index.tsx",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-plotly.js": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.21",
+    "@types/react-plotly.js": "^2.5.2"
+  }
+}
