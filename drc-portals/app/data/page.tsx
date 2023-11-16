@@ -93,7 +93,7 @@ export default async function Home() {
           <Grid item key={i} sx={{marginTop: 15}}>
             <Card sx={{minHeight: 480, width: 400}} className="flex flex-col space-y-5">
               { e.img && 
-                  <div className="flex flex-row justify-center mt-5"><Image src={e.img} alt={e.title} width={350} height={300}/></div>
+                  <div className="flex flex-row justify-center mt-5"><Image className="grayscale" src={e.img} alt={e.title} width={350} height={300}/></div>
               } 
               <CardContent className="flex flex-col grow space-y-5 text-left">
                 <Typography variant="h4">{e.title}</Typography>

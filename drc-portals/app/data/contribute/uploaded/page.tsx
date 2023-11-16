@@ -12,35 +12,32 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { redirect } from 'next/navigation';
 
-export default async function UserFiles(props: any) {
+export default async function UserFiles() {
     const session = await getServerSession(authOptions)
-    const user = await prisma.user.findFirst({
+    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    // TODO: the user table should be joined with the dcc asset table on the creator field
+    //       then these two queries can be updated to include userFiles..
+    const user = await prisma.user.findUniqueOrThrow({
         where: {
-            id: session?.user.id,
+            id: session.user.id,
         },
     })
-    if (!user?.email) throw new Error('Missing email')
+    if (!user.email) throw new Error('Missing email')
     const userFiles = await prisma.dccAsset.findMany({
         where: {
             creator: user?.email,
         },
+        include: {
+            dcc: {
+                select: {
+                    label: true
+                }
+            }
+        }
     })
     console.log(userFiles)
-
-    const userFilesDCCMapped = Promise.all(userFiles.map(async (userFile) => {
-        const dcc = await prisma.dCC.findFirst({
-            where: {
-               id:userFile.dcc_id 
-            }
-        }   
-        )
-        if (!userFile ) throw new Error('DCC id mapping does not exist');
-        if (dcc != null) {
-            userFile['dcc_id'] = dcc.label
-        }
-        return userFile
-    }))
 
     return (
         <>
@@ -60,14 +57,14 @@ export default async function UserFiles(props: any) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {(await userFilesDCCMapped).map((row) => (
+                        {userFiles.map((row) => (
                             <TableRow
                                 key={row.link}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">{row.lastmodified.toString()}</TableCell>
                                 <TableCell align="right">{row.creator}</TableCell>
-                                <TableCell align="right">{row.dcc_id}</TableCell>
+                                <TableCell align="right">{row.dcc?.label ?? row.dcc_id}</TableCell>
                                 <TableCell align="right">{row.filetype}</TableCell>
                                 <TableCell align="right"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
                                 <TableCell align="right"></TableCell>

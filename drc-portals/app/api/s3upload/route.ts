@@ -1,36 +1,32 @@
 import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
-import * as Minio from 'minio'
-
-if (!process.env.S3_ENDPOINT || !process.env.S3_ACCESS_KEY || !process.env.S3_SECRET_KEY)  throw new Error('missing S3 config');
-
-
-const minioClient = new Minio.Client({
-  endPoint: process.env.S3_ENDPOINT,
-  accessKey: process.env.S3_ACCESS_KEY,
-  secretKey: process.env.S3_SECRET_KEY,
-})
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { z } from 'zod'
+import minio from "@/lib/minio";
 
 export async function GET(req: NextRequest, res: NextApiResponse) {
-    try {
-        let filename = req.nextUrl.searchParams.get('name');
-        let dcc = req.nextUrl.searchParams.get('dcc');
-        let filetype = req.nextUrl.searchParams.get('filetype');
-        let date = req.nextUrl.searchParams.get('date');
-        if ((filename !=null) && (dcc != null) && (filetype != null) && (date != null)){
-            const url = await minioClient.presignedPutObject('test-cfde-upload', '/' + dcc + '/' + filetype + '/'+  date + '/' + filename)
-            console.log('Success', url)
-            return Response.json({ message: url });
-        } else {
-            return Response.json({ message: 'missing params' });
-        }
-
-      } catch (err: any) {
-        console.log(err.message)
-        res.status(400).json({ message: 'Something went wrong' });
-        
-    } 
+  try {
+    if (!process.env.S3_BUCKET) throw new Error('Misconfiguration')
+    const session = await getServerSession(authOptions)
+    if (!session) throw new Error('Unauthorized')
+    const rawSearchParams = Object.fromEntries(req.nextUrl.searchParams.entries())
+    console.log(rawSearchParams)
+    const searchParams = z.object({
+      name: z.string(),
+      // TODO: this should come directly from the user's db profile
+      //       otherwise users may upload on behalf of other dccs
+      dcc: z.string(),
+      filetype: z.string(),
+      date: z.string(),
+    }).parse(rawSearchParams)
+    const url = await minio.presignedPutObject(process.env.S3_BUCKET, searchParams.dcc + '/' + searchParams.filetype + '/'+  searchParams.date + '/' + searchParams.name)
+    console.log('Success', url)
+    return Response.json({ message: url });
+  } catch (err: any) {
+    console.log(err.message)
+    res.status(400).json({ message: 'Something went wrong' });
+  } 
 };
 
 export const dynamic = "force-dynamic";

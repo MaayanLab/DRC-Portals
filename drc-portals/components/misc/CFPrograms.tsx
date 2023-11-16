@@ -21,8 +21,8 @@ async function CFPrograms({spacing=4}:{spacing: GridSize}) {
             <Tooltip title={dcc.short_label}>
               <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
                 { (dcc.icon || "").indexOf(".svg") > -1 ?
-                  <Image src={dcc.icon || ''} alt={dcc.id} width={120} height={120}/> :
-                  <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>
+                  <Image className="grayscale"  src={dcc.icon || ''} alt={dcc.id} width={120} height={120}/> :
+                  <Image className="grayscale"  src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>
                 }
                 </Link>
             </Tooltip>
