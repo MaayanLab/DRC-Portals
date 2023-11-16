@@ -16,7 +16,9 @@ import { redirect } from 'next/navigation';
 
 export default async function UserFiles() {
     const session = await getServerSession(authOptions)
-  if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    // TODO: the user table should be joined with the dcc asset table on the creator field
+    //       then these two queries can be updated to include userFiles..
     const user = await prisma.user.findUniqueOrThrow({
         where: {
             id: session.user.id,
