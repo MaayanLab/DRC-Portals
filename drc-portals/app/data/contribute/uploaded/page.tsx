@@ -12,15 +12,17 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { redirect } from 'next/navigation';
 
-export default async function UserFiles(props: any) {
+export default async function UserFiles() {
     const session = await getServerSession(authOptions)
-    const user = await prisma.user.findFirst({
+  if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    const user = await prisma.user.findUniqueOrThrow({
         where: {
-            id: session?.user.id,
+            id: session.user.id,
         },
     })
-    if (!user?.email) throw new Error('Missing email')
+    if (!user.email) throw new Error('Missing email')
     const userFiles = await prisma.dccAsset.findMany({
         where: {
             creator: user?.email,

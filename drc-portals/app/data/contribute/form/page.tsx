@@ -1,255 +1,69 @@
-"use client"
-
-import React, { use, useEffect, useState } from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Nav from '@/components/Nav';
-import { Divider, FormControl, Grid, Stack, TextField, Typography } from '@mui/material';
-import { FileDrop } from '@/components/FileDrop'
-import Box, { BoxProps } from '@mui/material/Box';
-import { Prisma } from '@prisma/client';
-import JSZip from 'jszip'
-import singleton from '@/lib/prisma'
-import { useSession } from 'next-auth/react';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { FileDrop } from './FileDrop'
+import ThemedBox from './ThemedBox';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import ThemedStack from './ThemedStack';
+import { S3UploadForm } from './S3UploadForm';
+import prisma from '@/lib/prisma';
+import { redirect } from 'next/navigation';
 
-// const prisma = new PrismaClient()
-
-
-const prisma = singleton
-
-function Item(props: BoxProps) {
-  const { sx, ...other } = props;
+export default async function UploadForm() {
+  const session = await getServerSession(authOptions)
+  if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: session.user.id
+    }
+  })
+  // TODO: incorporate user dcc here
+  // TODO: report s3 upload form status to user
   return (
-    <Box
-      sx={{
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#101010' : '#fff'),
-        color: (theme) => (theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800'),
-        // border: '1px solid',
-        // borderColor: (theme) =>
-        //   theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-        p: 1,
-        m: 1,
-        // borderRadius: 2,
-        fontSize: '0.875rem',
-        fontWeight: '700',
-        ...sx,
-      }}
-      {...other}
-    />
-  );
-}
-
-async function saveFileMetadata(uploadedFile: Prisma.DccAssetCreateInput) {
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: JSON.stringify(uploadedFile)
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-  return await response.json();
-}
-
-
-
-function UploadForm() {
-  const [formFiles, setFormFiles] = useState(null);
-  const [manifestJSON, setmanifestJSON] = useState<any | null>(null)
-  const [otherFileInfo, setOtherFileInfo] = useState<File | null>(null)
-  const [formObjects, setFormObjects] = useState<any | null>(null)
-  const [sendToDb, setSendToDb] = useState<boolean>(false);
-
-  const { data: session, status } = useSession();
-
-  async function extractZipContents(zipFile: File, formObject: any) {
-    if (!zipFile) return;
-
-    const zip = new JSZip();
-    const zipBlob = await zip.loadAsync(zipFile);
-
-    // Accessing the contents of the ZIP file and getting the contents of manifest.json
-    zipBlob.forEach(async (relativePath, zipEntry) => {
-      const content = await zipEntry.async('text');
-      if (relativePath.split('/')[1] === 'manifest.json') {
-        let manifestContent = JSON.parse(content.toString());
-        setmanifestJSON(manifestContent);
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (manifestJSON !== null) {
-      if (!formFiles) return;
-      const zip = new JSZip();
-      zip.loadAsync(formFiles).then((zipBlob) => {
-        zipBlob.forEach(async (relativePath, zipEntry) => {
-          if (relativePath.split('/')[1] === manifestJSON.filename) {
-            const content = await zipEntry.async('blob');
-            let newFile = new File([content], relativePath.split('/')[1]);
-            setOtherFileInfo(newFile);
-          }
-        });
-      })
-    };
-
-
-  }, [manifestJSON])
-
-  async function getPreSignedURL(otherFileInfo: File) {
-    if (otherFileInfo != null) {
-      let response = await fetch(`/api/s3upload?name=${otherFileInfo.name}&dcc=${formObjects.dcc}&filetype=${manifestJSON.filetype}&date=${new Date().toJSON().slice(0, 10)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      })
-      if (response.status === 200) {
-        response.json().then((response) => {
-          let url = response.message;
-          fetch(url, {
-            method: 'PUT',
-            body: otherFileInfo
-          })
-        })
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (sendToDb === true) {
-      if ((manifestJSON != null) && (otherFileInfo != null)) {
-        const data = {
-          filetype: manifestJSON.filetype,
-          filename: otherFileInfo.name,
-          link: "https://cfde-drc.s3.amazonaws.com/" + formObjects.dcc + '/' + manifestJSON.filetype + '/' + new Date().toJSON().slice(0, 10) + '/' + otherFileInfo.name,
-          size: otherFileInfo.size,
-          creator: formObjects.name,
-          annotation: manifestJSON.annotation,
-          dcc_string: formObjects.dcc,
-          dcc_id: ""
-        }
-        console.log(data)
-
-        // put metadata in database
-        fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        // put file S3
-        let perpetualFileInfo = otherFileInfo;
-        getPreSignedURL(perpetualFileInfo);
-
-
-        setmanifestJSON({});
-        setFormFiles(null);
-        setOtherFileInfo(null);
-        setSendToDb(false)
-      }
-    }
-  }, [sendToDb])
-
-  useEffect(() => {
-    if ((manifestJSON != null) && (otherFileInfo != null)) {
-      setSendToDb(true);
-    }
-  }, [manifestJSON, otherFileInfo, formObjects])
-
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    var data = new FormData(event.currentTarget);
-    let formObject = Object.fromEntries(data.entries());
-    if (formFiles != null) {
-      formObject.file = formFiles
-      setFormObjects(formObject)
-      await extractZipContents(formFiles, formObject)
-
-      alert("Form Submitted");
-      console.log(otherFileInfo)
-      console.log(manifestJSON)
-      console.log(formObjects)
-    }
-
-  }
-
-
-  return (
-    <>
-      <Container className="mt-10" component='form' onSubmit={handleSubmit}>
+    <S3UploadForm>
+      <Container className="mt-10">
         <Typography variant="h3" className='text-center p-5'>Data and Metadata Upload Form</Typography>
         <Grid container spacing={4} className='p-5' justifyContent="center">
-          <Item>      
+          <ThemedBox>
             <TextField
-              // id="outlined-required"
               label="Uploader Name"
-              // defaultValue=""
-              defaultValue= " "
-              value={session?.user.name}
               name='name'
+              defaultValue={user.name}
             />
-          </Item>
-          <Item>
+          </ThemedBox>
+          <ThemedBox>
             <TextField
-              // id="outlined-required"
               label="Email"
-              // defaultValue=""
-              value={session?.user.email}
-              defaultValue= " "
               name='email'
+              defaultValue={user.email}
             />
-          </Item>
-          <Item>
+          </ThemedBox>
+          <ThemedBox>
             <TextField
-              // id="outlined-required"
               label="DCC"
-              // defaultValue="DCC"
-              value='LINCS'
               name='dcc'
+              defaultValue="LINCS"
             />
-          </Item>
+          </ThemedBox>
         </Grid>
 
         <Typography className='text-center p-5'>Please upload a zipped file containing your data/metdata file and a manifest.json file detailing file information. </Typography>
-        <Stack
-          divider={<Divider flexItem > OR </Divider>}
-          spacing={2}
-          alignItems="center"
-          className='p-5'
-          border={1}
-          sx={{
-            bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#101010' : '#fff'),
-            color: (theme) => (theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800'),
-            border: '1px solid',
-            borderColor: (theme) =>
-              theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-            p: 1,
-            m: 1,
-            borderRadius: 2,
-            fontSize: '0.875rem',
-            fontWeight: '700',
-          }}
-        >
-          <FileDrop setFormFiles={setFormFiles} />
-        </Stack>
-        <Item style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
+        <ThemedStack>
+          <FileDrop name="file" />
+        </ThemedStack>
+        <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
           <FormControl>
             <Button variant="contained" color="primary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
               Submit Form
             </Button>
           </FormControl>
-        </Item>
+        </ThemedBox>
       </Container>
-    </>
-
-
+    </S3UploadForm>
   );
 }
-
-export default UploadForm;

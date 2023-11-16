@@ -28,7 +28,8 @@
     "react-dom": "^18",
     "react-icons": "^4.11.0",
     "react-material-ui-carousel": "^3.4.2",
-    "react-twitter-embed": "^4.0.4"
+    "react-twitter-embed": "^4.0.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
