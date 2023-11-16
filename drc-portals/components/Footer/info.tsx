@@ -94,7 +94,7 @@ export default async function InfoFooter() {
                           </Grid>
                           <Grid item>
                               <Stack spacing={2}>
-                                  <Typography variant="footer"><b>Explore Common Fund Data</b></Typography>
+                                  <Typography variant="footer"><b>Assets</b></Typography>
                                   <Link href="/"><Typography variant="footer">Data & Metadata</Typography></Link>
                                   <Link href="/"><Typography variant="footer">Tools</Typography></Link>
                                   <Link href="/"><Typography variant="footer">Chatbot</Typography></Link>
