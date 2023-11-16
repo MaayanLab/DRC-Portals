@@ -1,0 +1,16 @@
+[
+{
+  "filename": "data_file_1.gmt",
+  "filetype": "XMT",
+  "annotation": {
+    "term_ontology": "",
+    "term_type": "",
+    "entity_ontology": "",
+    "entity_type": ""
+  }
+},
+{
+  "filename": "data_file_2.gmt",
+  "filetype": "C2M2",
+  "annotation":{}
+}]

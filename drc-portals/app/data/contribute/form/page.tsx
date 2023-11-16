@@ -13,6 +13,8 @@ import ThemedStack from './ThemedStack';
 import { S3UploadForm } from './S3UploadForm';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import { Link } from '@mui/material';
+import Status from './Status';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
@@ -23,7 +25,6 @@ export default async function UploadForm() {
     }
   })
   // TODO: incorporate user dcc here
-  // TODO: report s3 upload form status to user
   return (
     <S3UploadForm>
       <Container className="mt-10">
@@ -52,10 +53,13 @@ export default async function UploadForm() {
           </ThemedBox>
         </Grid>
 
-        <Typography className='text-center p-5'>Please upload a zipped file containing your data/metdata file and a manifest.json file detailing file information. </Typography>
+        <Typography className='text-center p-5'>Please upload a zipped file containing your data/metdata files and a manifest.json file detailing files information. See {' '}
+        <Link href='/example_manifest.json' download>manifest.json template</Link>
+        </Typography>
         <ThemedStack>
           <FileDrop name="file" />
         </ThemedStack>
+        <Status />
         <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
           <FormControl>
             <Button variant="contained" color="primary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>

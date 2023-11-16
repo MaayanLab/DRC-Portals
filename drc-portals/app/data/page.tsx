@@ -137,6 +137,7 @@ export default async function Home() {
           </Paper>
         </Grid>
         <Grid item>
+          <Link href={"/data/chat"}>
           <Fab sx={{
             position: 'fixed',
             bottom: 50,
@@ -144,6 +145,7 @@ export default async function Home() {
           }} aria-label={'chat'} color={'secondary'}>
             <Icon path={mdiChatOutline} size={1} />
           </Fab>
+          </Link>
         </Grid>
       </Grid>
     </main>
