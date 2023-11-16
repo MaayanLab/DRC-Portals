@@ -17,7 +17,6 @@ export default function NavBreadcrumbs() {
                 <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path.length-1 ? 'primary': 'inherit'}>{p}</Typography>
             </Link>
         ))
-        console.log(breadcrumbs)
         return <Breadcrumbs aria-label="breadcrumb" separator="›" >
             {breadcrumbs}
         </Breadcrumbs>

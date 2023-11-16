@@ -11,7 +11,7 @@ import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Outreach from "@/components/misc/Outreach"
-import Publications from "@/components/misc/Publications"
+import Publications from "@/components/misc/Publications/PublicationsServer"
 import prisma from '@/lib/prisma'
 
 export default async function Home() {
@@ -125,7 +125,10 @@ export default async function Home() {
           <Twitter/>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Publications all={false}/>
+          <Publications all={false} searchParams={{
+            take: "5",
+            skip: "0"
+          }}/>
         </Grid>
       </Grid>
     </main>
