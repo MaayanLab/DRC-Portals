@@ -27,6 +27,7 @@ export function FileDrop({setFormFiles} : any) {
     // Fetch the files
     const droppedFile = Array.from(event.dataTransfer.files)[0];
     setFile(droppedFile)
+    // TODO: restrict drag and drop to only .zip files 
     setFormFiles(event.dataTransfer.files[0])
   };
 
@@ -52,7 +53,7 @@ export function FileDrop({setFormFiles} : any) {
     m: 1,
     border: 1,
     width: '30rem',
-    height: '20rem',
+    height: '10rem',
     backgroundColor: isOver ? 'lightgray' : 'white',
   };
 
@@ -82,7 +83,7 @@ export function FileDrop({setFormFiles} : any) {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}>
           <div>
-            <Typography variant="h6" className='text-center align-center'> Drag and drop files here </Typography>
+            <Typography variant="h6" className='text-center align-center'> Drag and drop zipped file here </Typography>
           </div>
         </Box>
       </Item>
@@ -106,7 +107,6 @@ export function FileDrop({setFormFiles} : any) {
       </Item>
       <Item>
         <FileList file ={renderedFile} />
-        {/* {renderedFile} */}
       </Item>
     </>
 

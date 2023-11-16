@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Container from '@mui/material/Container'
 // import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
-import { Typography } from '@mui/material';
+import { Link, Typography } from '@mui/material';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
@@ -26,6 +26,21 @@ export default async function UserFiles(props: any) {
             creator: user?.email,
         },
     })
+    console.log(userFiles)
+
+    const userFilesDCCMapped = Promise.all(userFiles.map(async (userFile) => {
+        const dcc = await prisma.dCC.findFirst({
+            where: {
+               id:userFile.dcc_id 
+            }
+        }   
+        )
+        if (!userFile ) throw new Error('DCC id mapping does not exist');
+        if (dcc != null) {
+            userFile['dcc_id'] = dcc.label
+        }
+        return userFile
+    }))
 
     return (
         <>
@@ -45,16 +60,16 @@ export default async function UserFiles(props: any) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {userFiles.map((row) => (
+                        {(await userFilesDCCMapped).map((row) => (
                             <TableRow
                                 key={row.link}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
-                                <TableCell component="th" scope="row">{row.lastmodified.toString().split('T')[0]}</TableCell>
+                                <TableCell component="th" scope="row">{row.lastmodified.toString()}</TableCell>
                                 <TableCell align="right">{row.creator}</TableCell>
                                 <TableCell align="right">{row.dcc_id}</TableCell>
                                 <TableCell align="right">{row.filetype}</TableCell>
-                                <TableCell align="right">{row.filename}</TableCell>
+                                <TableCell align="right"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
                                 <TableCell align="right"></TableCell>
                                 <TableCell align="right">{row.approved}</TableCell>
                             </TableRow>

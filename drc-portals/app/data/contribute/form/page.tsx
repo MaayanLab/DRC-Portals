@@ -3,19 +3,13 @@
 import React, { use, useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Nav from '@/components/Nav';
 import { Divider, FormControl, Grid, Stack, TextField, Typography } from '@mui/material';
 import { FileDrop } from '@/components/FileDrop'
 import Box, { BoxProps } from '@mui/material/Box';
 import { Prisma } from '@prisma/client';
 import JSZip from 'jszip'
-import singleton from '@/lib/prisma'
 import { useSession } from 'next-auth/react';
 
-// const prisma = new PrismaClient()
-
-
-const prisma = singleton
 
 function Item(props: BoxProps) {
   const { sx, ...other } = props;
@@ -64,10 +58,8 @@ function UploadForm() {
 
   async function extractZipContents(zipFile: File, formObject: any) {
     if (!zipFile) return;
-
     const zip = new JSZip();
     const zipBlob = await zip.loadAsync(zipFile);
-
     // Accessing the contents of the ZIP file and getting the contents of manifest.json
     zipBlob.forEach(async (relativePath, zipEntry) => {
       const content = await zipEntry.async('text');
@@ -77,24 +69,6 @@ function UploadForm() {
       }
     });
   };
-
-  useEffect(() => {
-    if (manifestJSON !== null) {
-      if (!formFiles) return;
-      const zip = new JSZip();
-      zip.loadAsync(formFiles).then((zipBlob) => {
-        zipBlob.forEach(async (relativePath, zipEntry) => {
-          if (relativePath.split('/')[1] === manifestJSON.filename) {
-            const content = await zipEntry.async('blob');
-            let newFile = new File([content], relativePath.split('/')[1]);
-            setOtherFileInfo(newFile);
-          }
-        });
-      })
-    };
-
-
-  }, [manifestJSON])
 
   async function getPreSignedURL(otherFileInfo: File) {
     if (otherFileInfo != null) {
@@ -117,6 +91,34 @@ function UploadForm() {
     }
   }
 
+  
+  // get the other files when manifest.json has been loaded
+  useEffect(() => {
+    if (manifestJSON !== null) {
+      if (!formFiles) return;
+      const zip = new JSZip();
+      zip.loadAsync(formFiles).then((zipBlob) => {
+        zipBlob.forEach(async (relativePath, zipEntry) => {
+          if (relativePath.split('/')[1] === manifestJSON.filename) {
+            const content = await zipEntry.async('blob');
+            let newFile = new File([content], relativePath.split('/')[1]);
+            setOtherFileInfo(newFile);
+          }
+        });
+      })
+    };
+  }, [manifestJSON])
+
+
+  // when all data has been loaded, start sending to database and S3
+  useEffect(() => {
+    if ((manifestJSON != null) && (otherFileInfo != null)) {
+      setSendToDb(true);
+    }
+  }, [manifestJSON, otherFileInfo, formObjects])
+
+
+  // when sendtoDb is true send data to database and S3
   useEffect(() => {
     if (sendToDb === true) {
       if ((manifestJSON != null) && (otherFileInfo != null)) {
@@ -125,7 +127,7 @@ function UploadForm() {
           filename: otherFileInfo.name,
           link: "https://cfde-drc.s3.amazonaws.com/" + formObjects.dcc + '/' + manifestJSON.filetype + '/' + new Date().toJSON().slice(0, 10) + '/' + otherFileInfo.name,
           size: otherFileInfo.size,
-          creator: formObjects.name,
+          creator: formObjects.email,
           annotation: manifestJSON.annotation,
           dcc_string: formObjects.dcc,
           dcc_id: ""
@@ -146,7 +148,7 @@ function UploadForm() {
         let perpetualFileInfo = otherFileInfo;
         getPreSignedURL(perpetualFileInfo);
 
-
+        // reset variables
         setmanifestJSON({});
         setFormFiles(null);
         setOtherFileInfo(null);
@@ -155,11 +157,7 @@ function UploadForm() {
     }
   }, [sendToDb])
 
-  useEffect(() => {
-    if ((manifestJSON != null) && (otherFileInfo != null)) {
-      setSendToDb(true);
-    }
-  }, [manifestJSON, otherFileInfo, formObjects])
+
 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -185,31 +183,25 @@ function UploadForm() {
       <Container className="mt-10" component='form' onSubmit={handleSubmit}>
         <Typography variant="h3" className='text-center p-5'>Data and Metadata Upload Form</Typography>
         <Grid container spacing={4} className='p-5' justifyContent="center">
-          <Item>      
+          <Item>
             <TextField
-              // id="outlined-required"
               label="Uploader Name"
-              // defaultValue=""
-              defaultValue= " "
+              defaultValue=" "
               value={session?.user.name}
               name='name'
             />
           </Item>
           <Item>
             <TextField
-              // id="outlined-required"
               label="Email"
-              // defaultValue=""
               value={session?.user.email}
-              defaultValue= " "
+              defaultValue=" "
               name='email'
             />
           </Item>
           <Item>
             <TextField
-              // id="outlined-required"
               label="DCC"
-              // defaultValue="DCC"
               value='LINCS'
               name='dcc'
             />
@@ -218,7 +210,7 @@ function UploadForm() {
 
         <Typography className='text-center p-5'>Please upload a zipped file containing your data/metdata file and a manifest.json file detailing file information. </Typography>
         <Stack
-          divider={<Divider flexItem > OR </Divider>}
+          divider={<Divider flexItem ></Divider>}
           spacing={2}
           alignItems="center"
           className='p-5'

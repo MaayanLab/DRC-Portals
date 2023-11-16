@@ -85,7 +85,7 @@ export default function AccountPage() {
     if ((status === "authenticated") && (session.user != undefined)) {
         return (
             <>
-                <Container className="mt-10 justify-content-center">
+                <Container className="mt-10 justify-content-center"> 
                     <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
                     <Typography className='text-center p-5'>Please complete account information before approving or the uploading forms</Typography>
                     <Box
@@ -136,7 +136,7 @@ export default function AccountPage() {
                             </Select>
                         </FormControl>
 
-                        <Button variant="contained" fullWidth type='submit'>
+                        <Button variant="contained" type='submit' sx={{justifySelf:"center"}}>
                             Save Changes
                         </Button>
                     </Box>

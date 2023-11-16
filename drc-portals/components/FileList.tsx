@@ -42,15 +42,15 @@ export default function FileList(prop: {file:string}) {
 
     
     return (<Grid item xs={12} md={6}>
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            Files to Upload
+        <Typography sx={{ mt: 4, mb: 2}} variant="h6" component="div">
+            Selected File
         </Typography>
         <Demo>
             {fileUploaded && <List dense={dense}>
                 <ListItem
                     secondaryAction={
                         <IconButton edge="end" aria-label="delete">
-                            <DeleteIcon />
+                            {/* <DeleteIcon /> */}
                         </IconButton>
                     }
                 >
