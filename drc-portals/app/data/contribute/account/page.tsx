@@ -90,7 +90,7 @@ export default async function AccountPage() {
                         defaultValue={[]}
                     />
 
-                    <Button variant="contained" fullWidth type='submit'>
+                    <Button variant="contained" type='submit' sx={{justifySelf:"center"}}>
                         Save Changes
                     </Button>
                 </Box>

@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 export default function ThemedStack({ children }: React.PropsWithChildren<{}>) {
   return (
     <Stack
-      divider={<Divider flexItem > OR </Divider>}
+      divider={<Divider flexItem ></Divider>}
       spacing={2}
       alignItems="center"
       className='p-5'

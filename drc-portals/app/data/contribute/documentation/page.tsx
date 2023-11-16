@@ -3,7 +3,7 @@ import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
 import { ImNotification } from "react-icons/im";
 import uploadImage from '@/public/img/contributions/upload_example.png'
 import submitImage from '@/public/img/contributions/submit_button.png'
-import newUploadImage from '@/public/img/contributions/new-upload.png'
+import newUploadImage from '@/public/img/contributions/example_approve2.png'
 import approveImage from '@/public/img/contributions/example_approve.png'
 import approveBtnImage from '@/public/img/contributions/approve_btn.png'
 import Image from 'next/image'
@@ -11,14 +11,13 @@ import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import ListSubheader from '@mui/material/ListSubheader';
-import List from '@mui/material/List';
-import Link from '@mui/material/Link';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ScrollToAnchorLink from '@/components/misc/ScrollToAnchorLink';
 import ListItemCollapsible from '@/components/misc/ListItemCollapsible';
 import ThemedBox from './ThemedBox';
+import { List, ListItem, Typography } from '@mui/material';
+import Link from 'next/link';
 
 const exampleUpload = <Image src={uploadImage} width='900' height='600' alt='' className="d-inline-block align-top" />;
 const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
@@ -139,18 +138,21 @@ export default function Documentation() {
                                         <h4 className='text-center'> File Approval Stages</h4>
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="uploaded">Uploaded (Not Approved)</h6>
-                                            <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
+                                            <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                 Files that are just uploaded will first be placed in the first stage of approval which means
-                                                that they have not yet received DCC or DRC approval. Files in this category are identified with the
-                                                <ImNotification /> icon on the <Link href="/data/form">Uploaded Files</Link> page.
-                                            </p>
+                                                that they have not yet received DCC or DRC approval. Files in this category are identified with the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                                    <ImNotification />
+                                                </span>
+                                                {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
+                                            </Typography>
                                         </ThemedBox>
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="dcc-approved">DCC Approved</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by the corresponding DCC approver, the status of the file will
-                                                be updated to 'DCC Approved' which is delineated by the &nbsp;
-                                                <BsCheckCircle /> &nbsp; icon on the <Link href="/data/form">Uploaded Files</Link> page.
+                                                be updated to 'DCC Approved' which is delineated by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircle /> </span> {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -158,7 +160,9 @@ export default function Documentation() {
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by a member of the DRC, the status of the file will
                                                 be updated to 'DRC Approved' which is the final stage of File Approval. This status is delineated by the
-                                                <BsCheckCircleFill /> icon on the <Link href="/data/form">Uploaded Files</Link> page.
+                                                {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                                    <BsCheckCircleFill /> </span> {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
                                             </p>
                                         </ThemedBox>
                                     </Box>
@@ -169,17 +173,19 @@ export default function Documentation() {
                                         <ThemedBox>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                    On the <Link href="/data/form">DRC Form</Link> page, fill out the available fields.
-                                                    All fields except the 'File Additional Information' field are required. When satisfied with
-                                                    your entries, upload your data file. Please note that only text based file types are allowed.
-                                                    An example of a completed form can be seen here:
-                                                    {exampleUpload}
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        On the <Link href="/data/contribute/form">DRC Form</Link> page, upload a zipped file containing your
+                                                        data/metadata file and a manifest.json detailing the information of each file. Please find an example manifest here: manifest.json.
+                                                        No extra fields excluding what is detailed in the stencil should be added. Please note that only text based file types are allowed.
+                                                    </Typography>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                    After clicking on the {exampleSubmit} button, details of your uploaded file should appear on the
-                                                    <Link href="/data/form"> Uploaded Files</Link> page. You can inspect your uploaded file by clicking
-                                                    on the link under the 'Uploaded file' column
-                                                    {exampleNewUpload}
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        After clicking on the <span style={{ display: 'inline-flex', alignItems: 'center' }}> {exampleSubmit}  </span> button, details of your uploaded file should appear on the
+                                                        <Link href="/data/contribute/form"> Uploaded Files</Link> page. You can inspect your uploaded file by clicking
+                                                        on the link under the 'Uploaded file' column
+                                                        {exampleNewUpload}
+                                                    </Typography>
                                                 </ListItem>
                                             </List>
                                         </ThemedBox>
@@ -191,12 +197,16 @@ export default function Documentation() {
                                         <ThemedBox>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                Go to the <Link href="/data/form">Uploaded Files</Link> page. Here you will find
-                                             all uploaded files that fall under your jurisdiction. You can further inspect an uploaded file
-                                             by clicking on the link under the 'Uploaded file' column.
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        Go to the <Link href="/data/contribute/uploaded">Uploaded Files</Link> page. Here you will find
+                                                        all uploaded files that fall under your jurisdiction. You can further inspect an uploaded file
+                                                        by clicking on the link under the 'Uploaded file' column.
+                                                    </Typography>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                For a given uploaded file, click on the {exampleApproveBtn} button to approve an uploaded file.
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        For a given uploaded file, click on the {' '} <span style={{ display: 'inline-flex', alignItems: 'center' }}>  {exampleApproveBtn} </span> {' '} button to approve an uploaded file.
+                                                    </Typography>
                                                 </ListItem>
                                             </List>
                                         </ThemedBox>

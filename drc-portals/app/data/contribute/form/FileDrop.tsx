@@ -54,14 +54,14 @@ function FileList(prop: {file:string}) {
 
   return (<Grid item xs={12} md={6}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          Files to Upload
+          Selected File
       </Typography>
       <Demo>
           {fileUploaded && <List dense={dense}>
               <ListItem
                   secondaryAction={
                       <IconButton edge="end" aria-label="delete">
-                          <DeleteIcon />
+                          {/* <DeleteIcon /> */}
                       </IconButton>
                   }
               >
@@ -92,10 +92,11 @@ export function FileDrop({ name }: { name: string }) {
     m: 1,
     border: 1,
     width: '30rem',
-    height: '20rem',
+    height: '10rem',
     backgroundColor: isOver ? 'lightgray' : 'white',
   };
 
+  // TODO: restrict drag and drop to only .zip files 
   // TODO: make delete work
   return (
     <>
@@ -109,7 +110,7 @@ export function FileDrop({ name }: { name: string }) {
           }}
         >
           <div>
-            <Typography variant="h6" className='text-center align-center'> Drag and drop files here </Typography>
+            <Typography variant="h6" className='text-center align-center'> Drag and drop zipped file here </Typography>
           </div>
           <input
             id="raised-button-file"
