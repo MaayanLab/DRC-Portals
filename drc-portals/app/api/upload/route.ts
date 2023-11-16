@@ -17,7 +17,7 @@ export async function POST(req: Request, res: NextApiResponse) {
       filetype: z.string(),
       filename: z.string(),
       size: z.number(),
-      annotation: z.string(),
+      annotation: z.record(z.string()),
       // TODO: this should come from the user's profile from the db
       //       otherwise users may upload on behalf of other dccs
       dcc_string: z.string(),
@@ -32,6 +32,7 @@ export async function POST(req: Request, res: NextApiResponse) {
     if (process.env.NODE_ENV === 'development' && dcc === null) {
       dcc = await prisma.dCC.create({data: {
         label: "LINCS",
+        short_label: "LINCS",
         homepage: 'https://lincsproject.org'
       }});
     }
