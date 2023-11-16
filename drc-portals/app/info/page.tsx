@@ -52,7 +52,9 @@ export default async function Home() {
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6} className="flex items-center justify-center">
-                <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer"><Image src="/img/FAIR.png" alt="fair" width={400} height={400}/></Link>
+                <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer">
+                  <Image className="grayscale"  src="/img/FAIR.png" alt="fair" width={400} height={400}/>
+                </Link>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant={"h2"} color="primary">

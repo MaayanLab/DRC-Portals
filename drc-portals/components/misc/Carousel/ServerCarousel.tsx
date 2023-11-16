@@ -34,12 +34,14 @@ export default function ServerCarousel () {
       
       
     const children = items.map( (item, i) => (
-        <div key={i} style={{minHeight: 420, textAlign: "center"}}>
-            <Link href={item.url} target="_blank" rel="noopener noreferrer">
+        <Link href={item.url} target="_blank" rel="noopener noreferrer">
+            <div key={i} className="flex flex-col" style={{minHeight: 420, textAlign: "center"}}>
                 <Typography variant="subtitle2">{item.name}</Typography>
-                <Image src={item.icon} alt={item.name} width={400} height={400}/>
-            </Link>
-        </div>
+                <div className="flex grow items-center justify-center relative">
+                    <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
+                </div>
+            </div>
+        </Link>
     ))
 
     return <ClientCarousel>{children}</ClientCarousel>

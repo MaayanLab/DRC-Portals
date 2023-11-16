@@ -49,7 +49,9 @@ async function Outreach({featured=true}:{
               <Card sx={{ minHeight: "100%", padding: 5 }} className="flex flex-col space-y-5">
                 <Typography variant="h3">{e.title}</Typography>
                 { e.image && 
-                    <div className="flex flex-row justify-center"><Image src={e.image} alt={e.title} width={400} height={300}/></div>
+                    <div className="flex flex-row justify-center">
+                      <Image className="grayscale" src={e.image} alt={e.title} width={400} height={300}/>
+                      </div>
                 } 
                 <CardContent className="flex flex-col grow space-y-5">
                   <div className="flex flex-row mb-5">
