@@ -31,12 +31,12 @@ services:
     environment:
       nginx_server_name: data.cfde.cloud
       nginx_proxy_00: / http://drc-portal-app:3000/data
-      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
       nginx_redirect_00: /data/? https://data.cfde.cloud
       nginx_redirect_01: /info/? https://info.cfde.cloud
-      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$1
+      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$$1
       nginx_redirect_03: /auth/? https://cfde.cloud/auth
-      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$1
+      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
 
   drc-portal-info-proxy:
     image: maayanlab/proxy:1.2.9
@@ -52,12 +52,12 @@ services:
     environment:
       nginx_server_name: info.cfde.cloud
       nginx_proxy_00: / http://drc-portal-app:3000/info
-      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$1
+      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
       nginx_redirect_00: /data/? https://data.cfde.cloud
-      nginx_redirect_01: /data/(.+) https://data.cfde.cloud/data/$1
+      nginx_redirect_01: /data/(.+) https://data.cfde.cloud/data/$$1
       nginx_redirect_02: /info/? https://info.cfde.cloud
       nginx_redirect_03: /auth/? https://cfde.cloud/auth
-      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$1
+      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
 
   drc-portal-proxy:
     image: maayanlab/proxy:1.2.9
@@ -72,7 +72,7 @@ services:
       - 80
     environment:
       nginx_server_name: cfde.cloud
-      nginx_proxy_00: /(.*) http://drc-portal-app:3000/$1
+      nginx_proxy_00: /(.*) http://drc-portal-app:3000/$$1
       nginx_redirect_00: / https://info.cfde.cloud
 
   drc-portal-cfde-info-redirect:
@@ -85,7 +85,7 @@ services:
       - 80
     environment:
       nginx_server_name: cfde.info
-      nginx_redirect_00: /(.*) https://info.cfde.cloud/$1
+      nginx_redirect_00: /(.*) https://info.cfde.cloud/$$1
 
   drc-portal-postgres:
     image: postgres:16
