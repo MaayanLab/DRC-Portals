@@ -1,82 +1,94 @@
-"use client"
-import { useRef } from 'react';
+import React from 'react'
 import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
 import { ImNotification } from "react-icons/im";
 import uploadImage from '@/public/img/contributions/upload_example.png'
 import submitImage from '@/public/img/contributions/submit_button.png'
-import newUploadImage from '@/public/img/contributions/new-upload.png'
+import newUploadImage from '@/public/img/contributions/example_approve2.png'
 import approveImage from '@/public/img/contributions/example_approve.png'
 import approveBtnImage from '@/public/img/contributions/approve_btn.png'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
-import { Link, List, ListItem, ListItemIcon, TextField } from '@mui/material';
-import Box, { BoxProps } from '@mui/material/Box';
-import CustomizedAccordions from '@/components/PageLink'
+import Box from '@mui/material/Box';
+import ListSubheader from '@mui/material/ListSubheader';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import ScrollToAnchorLink from '@/components/misc/ScrollToAnchorLink';
+import ListItemCollapsible from '@/components/misc/ListItemCollapsible';
+import ThemedBox from './ThemedBox';
+import { List, ListItem, Typography } from '@mui/material';
+import Link from 'next/link';
 
-
-function Item(props: BoxProps) {
-    const { sx, ...other } = props;
-    return (
-        <Box
-            sx={{
-                bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#101010' : '#fff'),
-                color: (theme) => (theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800'),
-                border: '1px solid',
-                borderColor: (theme) =>
-                    theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-                p: 1,
-                m: 1,
-                borderRadius: 2,
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                ...sx,
-            }}
-            {...other}
-        />
-    );
-}
-
-
+const exampleUpload = <Image src={uploadImage} width='900' height='600' alt='' className="d-inline-block align-top" />;
+const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
+const exampleNewUpload = <Image src={newUploadImage} width='900' height='200' alt='' className="d-inline-block align-top" />;
+const exampleApprove = <Image src={approveImage} width='900' height='280' alt='' className="d-inline-block align-top" />;
+const exampleApproveBtn = <Image src={approveBtnImage} width='130' height='40' alt='' className="d-inline-block align-top" />;
 
 export default function Documentation() {
-    const section1a = useRef(null)
-    const section1b = useRef(null)
-    const section1c = useRef(null)
-    const section1d = useRef(null)
-    const section1e = useRef(null)
-    const section2a = useRef(null)
-    const section2b = useRef(null)
-    const section2c = useRef(null)
-    const sectionRefs = [section1a, section1b, section1c, section1d, section1e, section2a, section2b, section2c]
-
-    const exampleUpload = <Image src={uploadImage} width='900' height='600' alt='' className="d-inline-block align-top" />;
-    const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
-    const exampleNewUpload = <Image src={newUploadImage} width='900' height='200' alt='' className="d-inline-block align-top" />;
-    const exampleApprove = <Image src={approveImage} width='900' height='280' alt='' className="d-inline-block align-top" />;
-    const exampleApproveBtn = <Image src={approveBtnImage} width='130' height='40' alt='' className="d-inline-block align-top" />;
-
 
     return (
         <>
-            {/* <Nav /> */}
             <Container className="mt-10 justify-content-center">
                 <Grid container spacing={2}>
                     <Grid xs={2}>
-                        {/* <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)' }}> */}
-                            <Item>
-                                <CustomizedAccordions  sectionRefs={sectionRefs}/>
-                            </Item>
-                        {/* </Box> */}
+                        <ThemedBox>
+                            <List
+                                sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+                                component="nav"
+                                aria-labelledby="nested-list-subheader"
+                                subheader={
+                                    <ListSubheader component="div" id="nested-list-subheader">
+                                        Documentation
+                                    </ListSubheader>
+                                }
+                            >
+                                <ListItemCollapsible primary="File Types">
+                                    <List component="div" disablePadding>
+                                        <ListItemButton sx={{ pl: 4 }} href="#xmt" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="XMT" />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#c2m2" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="C2M2" />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#kg-assertions" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="KG Assertions" />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#attribute-table" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="Attribute Table" />
+                                        </ListItemButton>
+                                    </List>
+                                </ListItemCollapsible>
+                                <ListItemCollapsible primary="File Approval Stages">
+                                    <List component="div" disablePadding>
+                                        <ListItemButton sx={{ pl: 4 }} href="#uploaded" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="Uploaded (Not Approved)" />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#dcc-approved" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="DCC Approved" />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#drc-approved" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="DRC Approved" />
+                                        </ListItemButton>
+                                    </List>
+                                </ListItemCollapsible>
+                                <ListItemButton>
+                                    <ListItemText primary="File Upload Steps" />
+                                </ListItemButton>
+                                <ListItemButton>
+                                    <ListItemText primary="File Approval Steps" />
+                                </ListItemButton>
+                            </List>
+                        </ThemedBox>
                     </Grid>
                     <Grid xs={10}>
                         <div>
                             <Box sx={{ display: 'grid', gridAutoRows: 'repeat(3, 1fr)' }}>
-                                <Item>
+                                <ThemedBox>
                                     <Box gridTemplateRows={'repeat(5, 1fr)'}>
                                         <h4 className='text-center'>File Types</h4>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1 " ref={section1a}> XMT </h6>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1 " id="xmt">XMT</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 XMT files are text based files which contain a collection of sets of a given entity type.
                                                 The 'X' in XMT stands for the entity that the sets contain
@@ -85,18 +97,18 @@ export default function Documentation() {
                                                 On each row of the XMT file, the first column contains the Term associated with the set while all other
                                                 columns contain the set entities.
                                             </p>
-                                        </Item>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section1b}> C2M2 </h6>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="c2m2">C2M2</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
                                                 <Link href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
                                                     CFDE C2M2 documentation</Link> and <Link href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
                                                 for more information about C2M2 files.
                                             </p>
-                                        </Item>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section1c}> KG Assertions </h6>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="kg-assertions">KG Assertions</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 A knowledge graph is a network that illustrates the relationship between different entities which may
                                                 come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels.
@@ -108,9 +120,9 @@ export default function Documentation() {
                                                 target_label,resource which display the necessary information about each edge (its source and target
                                                 nodes, the labels for these nodes).
                                             </p>
-                                        </Item>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section1e}> Attribute Table </h6>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="attribute-table">Attribute Table</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 Attribute tables are files containing tables that describe the relationship between two entities with
                                                 one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection
@@ -118,83 +130,92 @@ export default function Documentation() {
                                                 the column entity e.g. the similarity between a given gene and a given tissue type.
 
                                             </p>
-                                        </Item>
+                                        </ThemedBox>
                                     </Box>
-                                </Item>
-                                <Item>
+                                </ThemedBox>
+                                <ThemedBox>
                                     <Box gridAutoRows={'repeat(4, 1fr)'}>
                                         <h4 className='text-center'> File Approval Stages</h4>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" ref={section2a}> Uploaded (Not Approved) </h6>
-                                            <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="uploaded">Uploaded (Not Approved)</h6>
+                                            <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                 Files that are just uploaded will first be placed in the first stage of approval which means
-                                                that they have not yet received DCC or DRC approval. Files in this category are identified with the
-                                                <ImNotification /> icon on the <Link href="/data/form">Uploaded Files</Link> page.
-                                            </p>
-                                        </Item>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section2b}> DCC Approved </h6>
+                                                that they have not yet received DCC or DRC approval. Files in this category are identified with the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                                    <ImNotification />
+                                                </span>
+                                                {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
+                                            </Typography>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="dcc-approved">DCC Approved</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by the corresponding DCC approver, the status of the file will
-                                                be updated to 'DCC Approved' which is delineated by the &nbsp;
-                                                <BsCheckCircle /> &nbsp; icon on the <Link href="/data/form">Uploaded Files</Link> page.
+                                                be updated to 'DCC Approved' which is delineated by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircle /> </span> {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
                                             </p>
-                                        </Item>
-                                        <Item>
-                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" ref={section2c}> DRC Approved </h6>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="drc-approved">DRC Approved</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by a member of the DRC, the status of the file will
                                                 be updated to 'DRC Approved' which is the final stage of File Approval. This status is delineated by the
-                                                <BsCheckCircleFill /> icon on the <Link href="/data/form">Uploaded Files</Link> page.
+                                                {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                                    <BsCheckCircleFill /> </span> {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
                                             </p>
-                                        </Item>
+                                        </ThemedBox>
                                     </Box>
-                                </Item>
-                                <Item>
+                                </ThemedBox>
+                                <ThemedBox>
                                     <Box gridTemplateRows={'repeat(1, 1fr)'}>
                                         <h4 className='text-center'> File Upload Steps</h4>
-                                        <Item>
+                                        <ThemedBox>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                    On the <Link href="/data/form">DRC Form</Link> page, fill out the available fields.
-                                                    All fields except the 'File Additional Information' field are required. When satisfied with
-                                                    your entries, upload your data file. Please note that only text based file types are allowed.
-                                                    An example of a completed form can be seen here:
-                                                    {exampleUpload}
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        On the <Link href="/data/contribute/form">DRC Form</Link> page, upload a zipped file containing your
+                                                        data/metadata file and a manifest.json detailing the information of each file. Please find an example manifest here: manifest.json.
+                                                        No extra fields excluding what is detailed in the stencil should be added. Please note that only text based file types are allowed.
+                                                    </Typography>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                    After clicking on the {exampleSubmit} button, details of your uploaded file should appear on the
-                                                    <Link href="/data/form"> Uploaded Files</Link> page. You can inspect your uploaded file by clicking
-                                                    on the link under the 'Uploaded file' column
-                                                    {exampleNewUpload}
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        After clicking on the <span style={{ display: 'inline-flex', alignItems: 'center' }}> {exampleSubmit}  </span> button, details of your uploaded file should appear on the
+                                                        <Link href="/data/contribute/form"> Uploaded Files</Link> page. You can inspect your uploaded file by clicking
+                                                        on the link under the 'Uploaded file' column
+                                                        {exampleNewUpload}
+                                                    </Typography>
                                                 </ListItem>
                                             </List>
-                                        </Item>
+                                        </ThemedBox>
                                     </Box>
-                                </Item>
-                                <Item>
+                                </ThemedBox>
+                                <ThemedBox>
                                     <Box gridTemplateRows={'repeat(1, 1fr)'}>
                                         <h4 className='text-center'> File Approval Steps</h4>
-                                        <Item>
+                                        <ThemedBox>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                Go to the <Link href="/data/form">Uploaded Files</Link> page. Here you will find
-                                             all uploaded files that fall under your jurisdiction. You can further inspect an uploaded file
-                                             by clicking on the link under the 'Uploaded file' column.
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        Go to the <Link href="/data/contribute/uploaded">Uploaded Files</Link> page. Here you will find
+                                                        all uploaded files that fall under your jurisdiction. You can further inspect an uploaded file
+                                                        by clicking on the link under the 'Uploaded file' column.
+                                                    </Typography>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                For a given uploaded file, click on the {exampleApproveBtn} button to approve an uploaded file.
+                                                    <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                                        For a given uploaded file, click on the {' '} <span style={{ display: 'inline-flex', alignItems: 'center' }}>  {exampleApproveBtn} </span> {' '} button to approve an uploaded file.
+                                                    </Typography>
                                                 </ListItem>
                                             </List>
-                                        </Item>
+                                        </ThemedBox>
                                     </Box>
-                                </Item>
+                                </ThemedBox>
                             </Box>
                         </div>
                     </Grid>
                 </Grid>
-
-
             </Container>
         </>
 

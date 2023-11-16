@@ -1,40 +1,52 @@
 import type { NextApiResponse } from 'next';
-
-import { Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma'
-
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { z } from 'zod'
 
 export async function POST(req: Request, res: NextApiResponse) {
   try {
-    const data = await req.json();
+    const session = await getServerSession(authOptions)
+    if (!session) throw new Error('Unauthorized')
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: session.user.id }
+    })
+    if (!user.email) throw new Error('User email missing')
 
-    const dccString = await prisma.dCC.findFirst({
+    const data = z.object({
+      filetype: z.string(),
+      filename: z.string(),
+      size: z.number(),
+      annotation: z.string(),
+      // TODO: this should come from the user's profile from the db
+      //       otherwise users may upload on behalf of other dccs
+      dcc_string: z.string(),
+    }).parse(await req.json());
+
+    let dcc = await prisma.dCC.findFirst({
       where: {
-        label: data.dcc_string,
+        short_label: data.dcc_string,
       },
     });
 
-
-    if (dccString === null) {
-      await prisma.dCC.create({data: {
+    if (process.env.NODE_ENV === 'development' && dcc === null) {
+      dcc = await prisma.dCC.create({data: {
         label: "LINCS",
         homepage: 'https://lincsproject.org'
       }});
     }
+    if (dcc === null) throw new Error('Failed to find DCC')
 
-    data['dcc'] = dccString;
-    let dcc_id = data['dcc']['id']
-    let dcc_info = {
-      connect: {   // must specify `create`, `connect`, or `connectOrCreate`
-        id: dcc_id
-      }
-    }   
-    delete data['dcc']
-    delete data['dcc_string']
-    delete data['dcc_id']
-    data['dcc'] = dcc_info
     const savedUpload = await prisma.dccAsset.create({ 
-      data: data
+      data: {
+        link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${data.filetype}/${new Date().toJSON().slice(0, 10)}/${data.filename}`,
+        filetype: data.filetype,
+        filename: data.filename,
+        creator: user.email,
+        annotation: data.annotation,
+        size: data.size,
+        dcc_id: dcc.id,
+      }
     });
      return Response.json({message: "test"});
   } catch (err) {
@@ -42,4 +54,3 @@ export async function POST(req: Request, res: NextApiResponse) {
     res.status(400).json({ message: 'Something went wrong' });
   }
 };
-
