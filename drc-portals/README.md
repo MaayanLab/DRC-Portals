@@ -9,7 +9,7 @@ docker-compose up -d drc-portal-postgres
 # install node modules
 npm i
 # initialize prisma
-npx prisma db push
+npx prisma migrate dev
 # run dev server
 npm run dev
 ```
