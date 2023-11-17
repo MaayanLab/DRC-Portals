@@ -57,7 +57,7 @@ export default async function PublicationsServer({
             {all &&
               <div className="mb-5">
                 <Typography variant="subtitle1">
-                  Discover and cite publications from the Common Fund Data Ecosystem Programs, Data Coordination Centers and community.
+                  The publications listed here are automatically extracted from PubMed based on grants awarded to the Common Fund Data Ecosystem (CFDE) Participating Common Fund programs’ DCCs and CFDE awarded R03s.
                 </Typography>
               </div>
             }
