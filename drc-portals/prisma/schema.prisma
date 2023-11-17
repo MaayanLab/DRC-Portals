@@ -4,6 +4,7 @@
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -98,18 +99,73 @@ model DccAsset {
   dcc          DCC?     @relation(fields: [dcc_id], references: [id])
   filetype     String
   filename     String
-  link         String
+  link         String    @unique
   size         BigInt?
   lastmodified DateTime @default(now())
   current      Boolean  @default(true)
   creator      String
   approved     Boolean  @default(false)
   annotation   Json?    @db.JsonB
+  xdataset     XDataset?
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@map("dcc_assets")
   @@unique([dcc_id, filetype, link, lastmodified])
 }
+
+// Processed data search
+model XIdentity {
+  // of the form [cardinality]/[id]
+  id          String    @id
+  label       String
+  description String
+  searchable  String
+  entity_id   String?   @unique
+  set_id      String?   @unique
+  dataset_id  String?   @unique
+  dataset     XDataset?
+  entity      XEntity?
+  set         XSet?
+
+  @@index([label(ops: raw("gin_trgm_ops"))], map: "xidentity_label_trgm", type: Gin)
+  @@map("xidentity")
+}
+
+model XEntity {
+  // of the form [entityType]/[id]
+  id       String     @id
+  identity XIdentity  @relation(fields: [id], references: [id])
+  datasets XDataset[] @relation("XDatasetToXEntity")
+  sets     XSet[]     @relation("XEntityToXSet")
+
+  @@map("xentity")
+}
+
+model XSet {
+  // of the form [entityType]/set/[termType]/[id]
+  id         String    @id
+  dataset_id String
+  dataset    XDataset  @relation(fields: [dataset_id], references: [id])
+  identity   XIdentity @relation(fields: [id], references: [id])
+  contains   XEntity[] @relation("XEntityToXSet")
+
+  @@map("xset")
+}
+
+model XDataset {
+  id             String    @id
+  dcc_asset_link String    @unique
+  entityType     String
+  termType       String
+  dcc_asset      DccAsset  @relation(fields: [dcc_asset_link], references: [link])
+  identity       XIdentity @relation(fields: [id], references: [id])
+  sets           XSet[]
+  entities       XEntity[] @relation("XDatasetToXEntity")
+
+  @@map("xdataset")
+}
+
+// End processed data search
 
 // Next-Auth schema
 model Account {

@@ -103,5 +103,5 @@ services:
 volumes:
   drc-portal-postgres:
     x-kubernetes:
-      size: 5Gi
+      size: 10Gi
       class: gp2
