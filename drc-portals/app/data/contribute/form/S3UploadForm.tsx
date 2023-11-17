@@ -34,7 +34,6 @@ async function upload(formData: FormData) {
   for (let fileObj of manifestJSON){
     console.log(fileObj)
     const otherFile = zipBlob.file(file.name.split('.zip')[0] + '/' +`${fileObj.filename}`)
-    // TODO: couldn't we send multiple files in the zip?
     if (!otherFile) throw new Error(`${fileObj.filename} not found in zip`)
     const content = await otherFile.async('blob')
     const otherFileInfo = new File([content], fileObj.filename)
@@ -95,7 +94,6 @@ export function useS3UploadStatus() {
 
 export function S3UploadForm({ children }: React.PropsWithChildren<{}>) {
   const [status, setStatus] = React.useState<S3UploadStatus>({})
-  // React.useEffect(() => { console.log(status) }, [status])
   return (
     <form onSubmit={(evt) => {
       evt.preventDefault()

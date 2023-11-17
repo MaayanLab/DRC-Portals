@@ -1,10 +1,8 @@
 import React from 'react'
 import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
 import { ImNotification } from "react-icons/im";
-import uploadImage from '@/public/img/contributions/upload_example.png'
 import submitImage from '@/public/img/contributions/submit_button.png'
 import newUploadImage from '@/public/img/contributions/example_approve2.png'
-import approveImage from '@/public/img/contributions/example_approve.png'
 import approveBtnImage from '@/public/img/contributions/approve_btn.png'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
@@ -19,10 +17,8 @@ import ThemedBox from './ThemedBox';
 import { List, ListItem, Typography } from '@mui/material';
 import Link from 'next/link';
 
-const exampleUpload = <Image src={uploadImage} width='900' height='600' alt='' className="d-inline-block align-top" />;
 const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
 const exampleNewUpload = <Image src={newUploadImage} width='900' height='200' alt='' className="d-inline-block align-top" />;
-const exampleApprove = <Image src={approveImage} width='900' height='280' alt='' className="d-inline-block align-top" />;
 const exampleApproveBtn = <Image src={approveBtnImage} width='130' height='40' alt='' className="d-inline-block align-top" />;
 
 export default function Documentation() {

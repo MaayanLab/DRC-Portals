@@ -53,4 +53,7 @@ git push && git push --tags
 
 # update production (note that we have this in a drc namespace in prod)
 helm upgrade -n drc drc-portal maayanlab/docker-compose -f <(docker-compose config)
+
+# broke something? rollback with
+helm rollback -n drc drc-portal <CURRENT_REVISION_NUMBER-1>
 ```
