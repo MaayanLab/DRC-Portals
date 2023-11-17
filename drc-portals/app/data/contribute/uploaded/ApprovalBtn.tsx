@@ -25,18 +25,6 @@ export default function ApprovalBtn(userFile: {
 }) {
 
     const [btnChange, setBtnChange] = useState(false);
-
-    const approvalStateIcon = useMemo(
-        () => {
-            if (btnChange === true){
-                return <Button onClick={handleClick(userFile)}> Approve Upload</Button>
-            } else {
-                <BsCheckCircle />
-            }
-        },
-        [btnChange]
-      );
-
     const handleClick = useCallback(
         (file: {
             dcc: {
@@ -72,11 +60,19 @@ export default function ApprovalBtn(userFile: {
                 },
                 body: JSON.stringify(data),
             })
-            
             if (!uploadStatusChange.ok) throw new Error(await uploadStatusChange.text())
+            setBtnChange(true)
         },
         [],
     )
 
-    return <Button onClick={handleClick(userFile)}> Approve Upload</Button>
+   
+    const [statusEl, setStatusEl] = useState( <Button onClick={handleClick(userFile)}> Approve Upload</Button>)
+
+    useEffect(()=> {
+        if( btnChange === true ){ 
+            setStatusEl(<BsCheckCircle />)
+        }
+    }, [btnChange])
+    return statusEl
 }

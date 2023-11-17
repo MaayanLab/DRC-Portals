@@ -33,8 +33,6 @@ export async function POST(req: Request, res: NextApiResponse) {
 
         }
       })
-      console.log(dcc)
-      console.log(new Date(file.lastmodified))
 
     const approved = await prisma.dccAsset.updateMany({
         where: {
