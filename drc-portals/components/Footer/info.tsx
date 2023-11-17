@@ -21,7 +21,7 @@ export default async function InfoFooter() {
   return (
     <Paper sx={{background: "#494949", color: "#FFF", padding: 2, borderRadius: 0}}>
       <Container maxWidth="lg">
-        <Grid container justifyContent={"space-between"}>
+        <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
               <Link href={`/info`} className='flex items-center' style={{marginLeft: -15}}>
@@ -103,7 +103,7 @@ export default async function InfoFooter() {
               </Stack>
           </Grid>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 5}}>
+        <Grid item xs={12} sx={{marginTop: 5, marginRight: 5, marginLeft: 6}}>
           <Stack spacing={2} direction={"row"} justifyContent="space-between">
               <div className='flex space-x-2'>
                 <Link href="/"><Typography variant="caption">Terms of Service</Typography></Link>
