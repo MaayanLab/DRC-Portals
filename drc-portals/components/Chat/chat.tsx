@@ -9,6 +9,7 @@ import GeneSet from './Inputs/geneset'
 // input forms
 import GeneInput from './Inputs/geneInput'
 import GeneSetInput from './Inputs/geneSetInput'
+import { Input } from '@mui/material'
 
 
 interface ResponseData {
@@ -164,7 +165,7 @@ export default function Chat() {
           }
         }}
       >
-        <input
+        <Input
           type="text"
           className="input w-full bg-transparent rounded-full"
           placeholder="Type your question here"
