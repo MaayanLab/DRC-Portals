@@ -147,6 +147,15 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  dcc           String?
+  role          Role @default(USER)
+}
+
+enum Role {
+  USER
+  DCC_APPROVER
+  UPLOADER
+  DRC_APPROVER
 }
 
 model VerificationToken {

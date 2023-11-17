@@ -11,7 +11,6 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
     const session = await getServerSession(authOptions)
     if (!session) throw new Error('Unauthorized')
     const rawSearchParams = Object.fromEntries(req.nextUrl.searchParams.entries())
-    console.log(rawSearchParams)
     const searchParams = z.object({
       name: z.string(),
       // TODO: this should come directly from the user's db profile
@@ -21,7 +20,6 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
       date: z.string(),
     }).parse(rawSearchParams)
     const url = await minio.presignedPutObject(process.env.S3_BUCKET, searchParams.dcc + '/' + searchParams.filetype + '/'+  searchParams.date + '/' + searchParams.name)
-    console.log('Success', url)
     return Response.json({ message: url });
   } catch (err: any) {
     console.log(err.message)

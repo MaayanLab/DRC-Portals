@@ -6,12 +6,12 @@ import { z } from 'zod'
 
 async function upload(formData: FormData) {
   const formObjects = z.object({
-    name: z.string(),
-    email: z.string(),
+    // name: z.string(),
+    // email: z.string(),
     dcc: z.string(),
   }).parse({
-    name: formData.get('name'),
-    email: formData.get('email'),
+    // name: formData.get('name'),
+    // email: formData.get('email'),
     dcc: formData.get('dcc'),
   })
   const file = formData.get('file')
