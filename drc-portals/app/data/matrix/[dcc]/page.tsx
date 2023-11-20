@@ -47,18 +47,20 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         </Grid>
         <Grid item xs={12} style={{textAlign: "center"}}>
           <Link href={dcc_dbinfo.homepage}>
-            <Typography fontSize="12pt" color="secondary.light">
+            <Typography fontSize="16pt" color="secondary.light">
               Visit the {params.dcc} Portal
             </Typography>
           </Link>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2" sx={{mt:2, ml:3, mb:2}}>
-            <ReadMore text={description_text} expanded={false} />
+            <ReadMore preamble="Description " text={description_text} expanded={false} />
           </Typography>
         </Grid>
         <DCCAccordion dcc={params.dcc} fulldata={assets} />
-        <Link sx={{ml: 3}} href="/data/matrix"><br/>Back to all files</Link>
+        <Link sx={{mt:2}} href="/data/matrix">
+          <Typography fontSize="16pt" color="secondary.light">Back to all files</Typography>
+        </Link>
       </Grid>    
       )
   } else {
@@ -66,7 +68,9 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
       <Container>
         <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>{params.dcc}</Typography>
         Page unavailable
-        <Link sx={{mt: 2}} href="/data/matrix"><br/>Back to all files</Link>
+        <Link sx={{mt:2}} href="/data/matrix">
+          <Typography fontSize="12pt" color="secondary.light">Back to all files</Typography>
+        </Link>
       </Container>
     )
   }
