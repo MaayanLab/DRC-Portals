@@ -11,17 +11,10 @@ import { SignInLink } from '@/lib/auth/links';
 
 export default function Signin ({session}: {session?: Session}) {
     return (
-        <>
-            <SignInLink>
-            <Button color="secondary">
-                SIGN UP
-            </Button>
-            </SignInLink>
-            <SignInLink>
+        <SignInLink>
             <Button color="secondary" variant="outlined">
                 LOGIN
             </Button>
-            </SignInLink>
-        </>
+        </SignInLink>
     )
 }

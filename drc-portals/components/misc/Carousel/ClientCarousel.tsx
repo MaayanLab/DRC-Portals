@@ -9,7 +9,7 @@ export default function ClientCarousel({children}: {children: React.ReactNode}) 
         <Carousel sx={{minHeight: 400, width:400}} indicators={true}>
             {children}
         </Carousel>
-        <Typography variant="subtitle1" color="primary">
+        <Typography variant="subtitle1" color="secondary">
           PRODUCTS & PARTNERSHIPS
         </Typography>
       </div>

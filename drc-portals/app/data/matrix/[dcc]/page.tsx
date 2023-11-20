@@ -27,7 +27,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
     const assets = await getDccDataObj(prisma, dcc_id.id, params.dcc)
     return (
     <Container>
-      <Typography sx={{mt:2}} variant="h2" color="primary" gutterBottom>{params.dcc}</Typography>
+      <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>{params.dcc}</Typography>
       <DCCAccordion dcc={params.dcc} fulldata={assets} />
       <Link sx={{mt: 2}} href="/data/matrix"><br/>Back to all files</Link>
     </Container>
@@ -35,7 +35,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
   } else {
     return (
       <Container>
-        <Typography sx={{mt:2}} variant="h2" color="primary" gutterBottom>{params.dcc}</Typography>
+        <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>{params.dcc}</Typography>
         <Link sx={{mt: 2}} href="/data/matrix"><br/>Back to all files</Link>
       </Container>
     )

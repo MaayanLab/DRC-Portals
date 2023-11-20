@@ -45,9 +45,9 @@ function AccordionItem(
 ) {
   return (
     <AccordionDetails>
-      <Typography variant="h6" color="primary">Current</Typography>
+      <Typography variant="h6" color="secondary">Current</Typography>
       <DCCFileTable fileInfo={props.assetInfo.current} isCode={props.isCode}/>
-      <Typography variant="h6" color="primary">Archived</Typography>
+      <Typography variant="h6" color="secondary">Archived</Typography>
       <DCCFileTable fileInfo={props.assetInfo.archived} isCode={props.isCode}/>
     </AccordionDetails>
   )

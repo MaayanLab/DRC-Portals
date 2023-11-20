@@ -15,7 +15,7 @@ export default function ServerCarousel () {
         {
             name: "Reproductive Toxicity Knowledge Graph (ReproTox-KG)",
             description: "CFDE Toxicology Partnership",
-            icon: "/img/Reprotox_Gray.png",
+            icon: "/img/updated_assets/network.svg",
             url: "https://maayanlab.cloud/reprotox-kg"
         },
         {

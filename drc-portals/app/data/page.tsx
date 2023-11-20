@@ -84,7 +84,7 @@ export default async function Home() {
           </div>
         </Grid>
         <Grid item xs={12} sx={{marginTop: 15}}>
-          <Typography variant="h2" color="primary">
+          <Typography variant="h2" color="secondary">
             Query Harmonized Common Fund Data
           </Typography>
           <CFPrograms spacing={3}/>

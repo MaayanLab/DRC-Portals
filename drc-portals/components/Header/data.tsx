@@ -32,7 +32,7 @@ export default async function InfoHeader() {
                   >
                     <Image src={'/img/favicon.png'} alt="cfde-logo" height={37} width={50}/>
                   </IconButton>
-                  <Typography variant='h3' color="primary">CFDE Data Resource Portal</Typography>
+                  <Typography variant='h3' color="secondary">CFDE Data Resource Portal</Typography>
                 </Link>
               </Grid>
               <Grid item>

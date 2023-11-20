@@ -62,7 +62,7 @@ export default async function UploadForm() {
         <Status />
         <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
           <FormControl>
-            <Button variant="contained" color="primary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+            <Button variant="contained" color="secondary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
               Submit Form
             </Button>
           </FormControl>

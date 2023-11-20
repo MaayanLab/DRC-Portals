@@ -88,7 +88,7 @@ const columns = [
 export default function DataMatrix() {
   return (
     <Container maxWidth="xl">
-      <Typography variant="h2" color="primary" sx={{mt:2}} gutterBottom>Available DCC Files</Typography>
+      <Typography variant="h2" color="secondary" sx={{mt:2}} gutterBottom>Available DCC Files</Typography>
       <TableContainer>
       <Table stickyHeader aria-label="sticky table">
         <colgroup>
