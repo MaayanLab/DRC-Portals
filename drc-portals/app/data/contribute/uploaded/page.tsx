@@ -24,19 +24,20 @@ export default async function UserFiles() {
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
-        }
+        }, 
     })
+
 
     if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
 
     // if user is not an uploader or approver, then they should not have acccess to this page
     if (user.role === 'USER') { return <p>Access Denied</p> }
-    if (!session.user.email) return redirect("/data/contribute/account")
+    if (!user.email) return redirect("/data/contribute/account")
 
     if (user.role === 'UPLOADER') {
         const userFiles = await prisma.dccAsset.findMany({
             where: {
-                creator: session.user.email,
+                creator: user.email,
             },
             include: {
                 dcc: {
@@ -50,13 +51,27 @@ export default async function UserFiles() {
         const symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <FaCircleExclamation size={20}/>
             let approvedSymbol = <FaCircleExclamation size={20} />
-            if (userFile.approved) {
+            if (userFile.dccapproved) {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             if (userFile.drcapproved) {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
-            return ({ ...userFile, approvedSymbol, approvedSymboldcc })
+            return (
+                <TableRow
+                key={userFile.link}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="center" >{userFile.lastmodified.toString()}</TableCell>
+                <TableCell align="center">{userFile.creator}</TableCell>
+                <TableCell align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                <TableCell align="center">{userFile.filetype}</TableCell>
+                <TableCell align="center"><Link href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
+                <TableCell align="center"></TableCell>
+                <TableCell align="center">{approvedSymboldcc}</TableCell>
+                <TableCell align="center">{approvedSymbol}</TableCell>
+            </TableRow>
+            )
         })
 
 
@@ -80,21 +95,7 @@ export default async function UserFiles() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {symbolUserFiles.map((row) => (
-                                    <TableRow
-                                        key={row.link}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                        <TableCell align="center" >{row.lastmodified.toString()}</TableCell>
-                                        <TableCell align="center">{row.creator}</TableCell>
-                                        <TableCell align="center">{row.dcc?.label ?? row.dcc_id}</TableCell>
-                                        <TableCell align="center">{row.filetype}</TableCell>
-                                        <TableCell align="center"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
-                                        <TableCell align="center"></TableCell>
-                                        <TableCell align="center">{row.approvedSymboldcc}</TableCell>
-                                        <TableCell align="center">{row.approvedSymbol}</TableCell>
-                                    </TableRow>
-                                ))}
+                                {symbolUserFiles}
                             </TableBody>
                         </Table>
                     </TableContainer>
@@ -139,7 +140,19 @@ export default async function UserFiles() {
             if (userFile.drcapproved) {
                 approvedSymbol= <BsCheckCircleFill size={20}/>
             }
-            return ({ ...userFile, approvedSymbol, approvedSymboldcc })
+            return ( <TableRow
+                key={userFile.link}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="center" >{userFile.lastmodified.toString()}</TableCell>
+                <TableCell align="center">{userFile.creator}</TableCell>
+                <TableCell align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                <TableCell align="center">{userFile.filetype}</TableCell>
+                <TableCell align="center"><Link href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
+                <TableCell align="center"></TableCell>
+                <TableCell align="center">{approvedSymboldcc}</TableCell>
+                <TableCell align="center">{approvedSymbol}</TableCell>
+            </TableRow>)
         })
 
 
@@ -162,21 +175,7 @@ export default async function UserFiles() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {symbolUserFiles.map((row) => (
-                                    <TableRow
-                                        key={row.link}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                        <TableCell align="center" >{row.lastmodified.toString()}</TableCell>
-                                        <TableCell align="center">{row.creator}</TableCell>
-                                        <TableCell align="center">{row.dcc?.label ?? row.dcc_id}</TableCell>
-                                        <TableCell align="center">{row.filetype}</TableCell>
-                                        <TableCell align="center"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
-                                        <TableCell align="center"></TableCell>
-                                        <TableCell align="center">{row.approvedSymboldcc}</TableCell>
-                                        <TableCell align="center">{row.approvedSymbol}</TableCell>
-                                    </TableRow>
-                                ))}
+                                {symbolUserFiles}
                             </TableBody>
                         </Table>
                     </TableContainer>
@@ -197,13 +196,26 @@ export default async function UserFiles() {
         const symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc'/>
             let approvedSymboldcc = <FaCircleExclamation size={20}/>
-            if (userFile.approved) {
+            if (userFile.dccapproved) {
                 approvedSymboldcc = <BsCheckCircleFill size={20}/>
             }
-            return ({ ...userFile, approvedSymbol, approvedSymboldcc })
+            return  (
+                <TableRow
+                key={userFile.lastmodified.toString()}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="center" >{userFile.lastmodified.toString()}</TableCell>
+                <TableCell align="center">{userFile.creator}</TableCell>
+                <TableCell align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                <TableCell align="center">{userFile.filetype}</TableCell>
+                <TableCell align="center"><Link href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
+                <TableCell align="center"></TableCell>
+                <TableCell align="center">{approvedSymboldcc}</TableCell>
+                <TableCell align="center">{approvedSymbol}</TableCell>
+            </TableRow>
+            )                                   
+
         })
-
-
         return (
             <>
                 <Container className="mt-10 justify-content-center">
@@ -223,21 +235,7 @@ export default async function UserFiles() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {symbolUserFiles.map((row) => (
-                                    <TableRow
-                                        key={row.lastmodified.toString()}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                        <TableCell align="center" >{row.lastmodified.toString()}</TableCell>
-                                        <TableCell align="center">{row.creator}</TableCell>
-                                        <TableCell align="center">{row.dcc?.label ?? row.dcc_id}</TableCell>
-                                        <TableCell align="center">{row.filetype}</TableCell>
-                                        <TableCell align="center"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
-                                        <TableCell align="center"></TableCell>
-                                        <TableCell align="center">{row.approvedSymboldcc}</TableCell>
-                                        <TableCell align="center">{row.approvedSymbol}</TableCell>
-                                    </TableRow>
-                                ))}
+                                {symbolUserFiles}
                             </TableBody>
                         </Table>
                     </TableContainer>

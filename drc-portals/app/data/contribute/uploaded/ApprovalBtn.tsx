@@ -4,7 +4,7 @@ import { Button } from "@mui/material"
 import { Prisma } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { BsCheckCircleFill } from "react-icons/bs";
-import { getDCCAsset } from "./getDCCAsset";
+import { getDCCAsset, updateAssetApproval } from "./getDCCAsset";
 
 export default function ApprovalBtn(userFile: {
     dcc: {
@@ -19,7 +19,7 @@ export default function ApprovalBtn(userFile: {
     lastmodified: Date;
     current: boolean;
     creator: string;
-    approved: boolean;
+    dccapproved: boolean;
     drcapproved: boolean;
     annotation: Prisma.JsonValue;
     dcc_drc: string
@@ -43,7 +43,7 @@ export default function ApprovalBtn(userFile: {
             lastmodified: Date;
             current: boolean;
             creator: string;
-            approved: boolean;
+            dccapproved: boolean;
             drcapproved: boolean;
             annotation: Prisma.JsonValue;
             dcc_drc: string
@@ -55,19 +55,12 @@ export default function ApprovalBtn(userFile: {
                 link: file.link,
                 lastmodified: file.lastmodified.toISOString(),
                 creator: file.creator,
-                approved: file.approved,
+                dccapproved: file.dccapproved,
                 drcapproved: file.drcapproved,
                 dcc_drc: file.dcc_drc
             }
-            let uploadStatusChange = await fetch('/api/approvalupdate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            if (!uploadStatusChange.ok) throw new Error(await uploadStatusChange.text())
+            
+           await updateAssetApproval(data)
 
             let updatedFile = await getDCCAsset(data)
             if (!updatedFile) throw new Error('asset not found')
@@ -94,7 +87,7 @@ export default function ApprovalBtn(userFile: {
             }
         }
         if (currentfile.dcc_drc === 'dcc') {
-            if( currentfile.approved){ 
+            if( currentfile.dccapproved){ 
                 setStatusEl(<Button onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
             } else {
                 setStatusEl(<Button onClick={handleClick(currentfile)}> Approve Upload</Button>)

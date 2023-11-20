@@ -30,7 +30,7 @@ export default function DCCSelect(props: {dccOptions: string}) {
           name="dcc"
         >
         {dccArray.map((dcc) => {
-            return  <MenuItem value={dcc}>{dcc}</MenuItem>
+            return  <MenuItem key={dcc} value={dcc}>{dcc}</MenuItem>
         })}
         </Select>
       </FormControl>

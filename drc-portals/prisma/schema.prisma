@@ -103,7 +103,7 @@ model DccAsset {
   lastmodified DateTime @default(now())
   current      Boolean  @default(true)
   creator      String
-  approved     Boolean  @default(false)
+  dccapproved     Boolean  @default(false)
   drcapproved  Boolean  @default(false)
   annotation   Json?    @db.JsonB
 
