@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { Link } from '@mui/material';
-import { Table, TableHead, TableRow, TableBody, TableCell } from '@mui/material'
+import { Table, TableHead, TableRow, TableBody, TableCell, Typography } from '@mui/material'
 import { CheckCircle } from '@mui/icons-material'
 import { dccAsset } from '@/utils/dcc-assets';
 
@@ -24,14 +24,20 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
               <TableRow key={idx}>
                 <TableCell>
                   {item.link != '' ? (
-                    <Link className="underline" href={item.link} target="_blank" rel="noopener">{item.filename}</Link>
+                    <Link className="underline" href={item.link} target="_blank" rel="noopener">
+                      <Typography color="secondary" fontSize="12pt">{item.filename}</Typography>
+                    </Link>
                   ) : (
                     <p className="underline">{item.filename}</p>
                   )}
                 </TableCell>
-                {props.isCode ? (<span />): (<TableCell align="center"> {item.size != '' ? (item.size) : ('--')}</TableCell>)}
-                <TableCell align="center">{item.lastmodified}</TableCell>
-                <TableCell align="center">{item.creator}</TableCell>
+                {props.isCode ? (
+                  <span />
+                ): (
+                  <TableCell align="center" sx={{fontSize: '12pt'}}> {item.size != '' ? (item.size) : ('--')}</TableCell>
+                )}
+                <TableCell align="center" sx={{fontSize: '12pt'}}>{item.lastmodified}</TableCell>
+                <TableCell align="center" sx={{fontSize: '12pt'}}>{item.creator}</TableCell>
                 <TableCell align="center">
                   {item.approved ? (<CheckCircle />) : (<span />)}
                 </TableCell>
@@ -41,7 +47,7 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
         </TableBody>
       </Table>
   ) : (
-    <p>None Available</p>
+    <Typography variant="body2" color="text.secondary">None Available</Typography>
     )
   )
 }

@@ -107,19 +107,22 @@ export default function DataMatrix() {
           <TableRow >
             <TableCell sx={{ border: 1, borderBottom: "none", borderColor: "#e0e0e0" }}></TableCell>
             <TableCell sx={{ border: 1, borderColor: "#e0e0e0" }} align="center" colSpan={5}>
-              <Typography variant="h6">Datasets and Metadata</Typography>
+              <Typography variant="subtitle1">Datasets and Metadata</Typography>
             </TableCell>
             <TableCell sx={{ border:1, borderColor: "#e0e0e0" }} align="center" colSpan={5}>
-              <Typography variant="h6">Code</Typography>
+              <Typography variant="subtitle1">Code</Typography>
             </TableCell>
           </TableRow>
           <TableRow >
             <TableCell sx={{ border:1, borderTop: "none", borderColor: "#e0e0e0" }} align="center">
-              <Typography variant="h6">DCC</Typography>
+              <Typography variant="subtitle1">DCC</Typography>
             </TableCell>
             {columns.map((item, idx) => {
               return (
-                <TableCell key={idx} sx={{ border:1, borderColor: "#e0e0e0" }} align="center">{item}</TableCell>
+                <TableCell key={idx} align="center" 
+                sx={{ border:1, borderColor: "#e0e0e0" }}>
+                  <Typography variant="subtitle2">{item}</Typography>
+                </TableCell>
               )
             })}
           </TableRow>
