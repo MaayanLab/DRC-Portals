@@ -20,36 +20,53 @@ export async function POST(req: Request, res: NextApiResponse) {
         lastmodified: z.string(),
         creator: z.string(),
         approved: z.boolean(),
+        drcapproved: z.boolean(),
+        dcc_drc: z.string()
     }).parse(await req.json());
 
-    const dcc = await prisma.dccAsset.findMany({
-        where: {
-          dcc_id : file.dcc_id,
-          filetype :file.filetype,
-          link: file.link,
-          lastmodified: new Date(file.lastmodified),
-          creator: file.creator,
-          approved: file.approved
 
-        }
-      })
 
-    const approved = await prisma.dccAsset.updateMany({
-        where: {
-          dcc_id : file.dcc_id,
-          filetype :file.filetype,
-          link: file.link,
-          lastmodified: new Date(file.lastmodified),
-          creator: file.creator,
-          approved: file.approved
+    if (file.dcc_drc ==='drc') {
+        const approved = await prisma.dccAsset.updateMany({
+            where: {
+              dcc_id : file.dcc_id,
+              filetype :file.filetype,
+              link: file.link,
+              lastmodified: new Date(file.lastmodified),
+              creator: file.creator,
+              approved: file.approved,
+              drcapproved: file.drcapproved
+    
+            },
+            data: {
+              drcapproved: true,
+            },
+          })
+    
+         return Response.json({message: "Success"});
 
-        },
-        data: {
-          approved: true,
-        },
-      })
+    } else if  (file.dcc_drc ==='dcc') {
+        const approved = await prisma.dccAsset.updateMany({
+            where: {
+              dcc_id : file.dcc_id,
+              filetype :file.filetype,
+              link: file.link,
+              lastmodified: new Date(file.lastmodified),
+              creator: file.creator,
+              approved: file.approved,
+              drcapproved: file.drcapproved
+    
+            },
+            data: {
+                approved: true,
+            },
+          })
+    
+         return Response.json({message: "Success"});
+    } else {
+        throw new Error('not dcc or drc update')
+    }
 
-     return Response.json({message: "Success"});
   } catch (err) {
     console.log(err)
     res.status(400).json({ message: 'Something went wrong' });

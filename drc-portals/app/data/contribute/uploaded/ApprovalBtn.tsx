@@ -1,10 +1,9 @@
 'use client'
 
-import prisma from "@/lib/prisma";
 import { Button } from "@mui/material"
 import { Prisma } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { BsCheckCircle } from "react-icons/bs";
+import { BsCheckCircleFill } from "react-icons/bs";
 
 
 export default function ApprovalBtn(userFile: {
@@ -21,7 +20,9 @@ export default function ApprovalBtn(userFile: {
     current: boolean;
     creator: string;
     approved: boolean;
+    drcapproved: boolean;
     annotation: Prisma.JsonValue;
+    dcc_drc: string
 }) {
 
     const [btnChange, setBtnChange] = useState(false);
@@ -40,7 +41,9 @@ export default function ApprovalBtn(userFile: {
             current: boolean;
             creator: string;
             approved: boolean;
+            drcapproved: boolean;
             annotation: Prisma.JsonValue;
+            dcc_drc: string
         }) => async () => {
             console.log(file)
             let data = {
@@ -50,7 +53,9 @@ export default function ApprovalBtn(userFile: {
                 link: file.link,
                 lastmodified: file.lastmodified.toISOString(),
                 creator: file.creator,
-                approved: file.approved
+                approved: file.approved,
+                drcapproved: file.drcapproved,
+                dcc_drc: file.dcc_drc
             }
             let uploadStatusChange = await fetch('/api/approvalupdate', {
                 method: 'POST',
@@ -71,8 +76,9 @@ export default function ApprovalBtn(userFile: {
 
     useEffect(()=> {
         if( btnChange === true ){ 
-            setStatusEl(<BsCheckCircle />)
+            setStatusEl(<BsCheckCircleFill size={20}/>)
         }
     }, [btnChange])
+
     return statusEl
 }

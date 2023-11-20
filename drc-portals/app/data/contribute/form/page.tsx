@@ -26,7 +26,8 @@ export default async function UploadForm() {
     }
   })
   if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) {return <p>Access Denied</p>}
-  if (!user.dcc) throw new Error('User has no DCC')
+  if (!user.dcc) return redirect("/data/contribute/account")
+
   // TODO: incorporate user dcc here
   return (
     <S3UploadForm>
