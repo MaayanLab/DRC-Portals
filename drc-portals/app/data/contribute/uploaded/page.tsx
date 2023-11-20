@@ -48,11 +48,15 @@ export default async function UserFiles() {
         })
 
         const symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymbol = <FaCircleExclamation />
+            let approvedSymboldcc = <FaCircleExclamation size={20}/>
+            let approvedSymbol = <FaCircleExclamation size={20} />
             if (userFile.approved) {
-                approvedSymbol = <BsCheckCircle />
+                approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
-            return ({ ...userFile, approvedSymbol })
+            if (userFile.drcapproved) {
+                approvedSymbol = <BsCheckCircleFill size={20} />
+            }
+            return ({ ...userFile, approvedSymbol, approvedSymboldcc })
         })
 
 
@@ -71,7 +75,8 @@ export default async function UserFiles() {
                                     <TableCell align="center">File Type</TableCell>
                                     <TableCell align="center">Uploaded File</TableCell>
                                     <TableCell align="center">Additional Info</TableCell>
-                                    <TableCell align="center">Status</TableCell>
+                                    <TableCell align="center">DCC Status</TableCell>
+                                    <TableCell align="center">DRC Status</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -86,6 +91,7 @@ export default async function UserFiles() {
                                         <TableCell align="center">{row.filetype}</TableCell>
                                         <TableCell align="center"><Link href={row.link} target="_blank" rel="noopener">{row.filename}</Link></TableCell>
                                         <TableCell align="center"></TableCell>
+                                        <TableCell align="center">{row.approvedSymboldcc}</TableCell>
                                         <TableCell align="center">{row.approvedSymbol}</TableCell>
                                     </TableRow>
                                 ))}
@@ -126,17 +132,6 @@ export default async function UserFiles() {
         })
 
 
-        // const symbolUserFiles = userFiles.map((userFile) => {
-        //     let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-        //     let approvedSymbol = <FaCircleExclamation size={20}/>
-        //     if (userFile.approved) {
-        //         approvedSymboldcc = <BsCheckCircleFill size={20}/>
-        //     }
-        //     if (userFile.drcapproved) {
-        //         approvedSymbol =  <BsCheckCircleFill size={20}/>
-        //     }
-        //     return ({ ...userFile, approvedSymbol, approvedSymboldcc })
-        // })
 
         const symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc'/>
