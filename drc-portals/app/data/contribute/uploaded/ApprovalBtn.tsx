@@ -4,7 +4,7 @@ import { Button } from "@mui/material"
 import { Prisma } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { BsCheckCircleFill } from "react-icons/bs";
-
+import { getDCCAsset } from "./getDCCAsset";
 
 export default function ApprovalBtn(userFile: {
     dcc: {
@@ -25,7 +25,10 @@ export default function ApprovalBtn(userFile: {
     dcc_drc: string
 }) {
 
-    const [btnChange, setBtnChange] = useState(false);
+    const [currentfile, setCurrentFile] = useState(userFile);
+    const [statusEl, setStatusEl] = useState( <Button></Button>)
+
+
     const handleClick = useCallback(
         (file: {
             dcc: {
@@ -45,7 +48,6 @@ export default function ApprovalBtn(userFile: {
             annotation: Prisma.JsonValue;
             dcc_drc: string
         }) => async () => {
-            console.log(file)
             let data = {
                 dcc_id: file.dcc_id,
                 filetype: file.filetype,
@@ -66,19 +68,40 @@ export default function ApprovalBtn(userFile: {
                 body: JSON.stringify(data),
             })
             if (!uploadStatusChange.ok) throw new Error(await uploadStatusChange.text())
-            setBtnChange(true)
+
+            let updatedFile = await getDCCAsset(data)
+            if (!updatedFile) throw new Error('asset not found')
+            if( userFile.dcc_drc === 'drc') {
+                let updatedFileComplete = {...updatedFile, dcc_drc:'drc' }
+                setCurrentFile(updatedFileComplete)
+            }
+            if( userFile.dcc_drc === 'dcc') {
+                let updatedFileComplete = {...updatedFile, dcc_drc:'dcc' }
+                setCurrentFile(updatedFileComplete)
+            }
+
         },
         [],
     )
 
-   
-    const [statusEl, setStatusEl] = useState( <Button onClick={handleClick(userFile)}> Approve Upload</Button>)
-
+    
     useEffect(()=> {
-        if( btnChange === true ){ 
-            setStatusEl(<BsCheckCircleFill size={20}/>)
+        if (currentfile.dcc_drc === 'drc') {
+            if( currentfile.drcapproved){ 
+                setStatusEl(<Button onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
+            } else {
+                setStatusEl(<Button onClick={handleClick(currentfile)}> Approve Upload</Button>)
+            }
         }
-    }, [btnChange])
+        if (currentfile.dcc_drc === 'dcc') {
+            if( currentfile.approved){ 
+                setStatusEl(<Button onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
+            } else {
+                setStatusEl(<Button onClick={handleClick(currentfile)}> Approve Upload</Button>)
+            }
+        }
+
+    }, [currentfile])
 
     return statusEl
 }

@@ -39,7 +39,7 @@ export async function POST(req: Request, res: NextApiResponse) {
     
             },
             data: {
-              drcapproved: true,
+              drcapproved: !(file.drcapproved),
             },
           })
     
@@ -58,7 +58,7 @@ export async function POST(req: Request, res: NextApiResponse) {
     
             },
             data: {
-                approved: true,
+                approved: !(file.approved),
             },
           })
     

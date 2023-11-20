@@ -21,11 +21,13 @@ export default async function UserFiles() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
 
-    const user = await prisma.user.findUniqueOrThrow({
+    const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
+
+    if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
 
     // if user is not an uploader or approver, then they should not have acccess to this page
     if (user.role === 'USER') { return <p>Access Denied</p> }
@@ -124,14 +126,23 @@ export default async function UserFiles() {
         })
 
 
+        // const symbolUserFiles = userFiles.map((userFile) => {
+        //     let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
+        //     let approvedSymbol = <FaCircleExclamation size={20}/>
+        //     if (userFile.approved) {
+        //         approvedSymboldcc = <BsCheckCircleFill size={20}/>
+        //     }
+        //     if (userFile.drcapproved) {
+        //         approvedSymbol =  <BsCheckCircleFill size={20}/>
+        //     }
+        //     return ({ ...userFile, approvedSymbol, approvedSymboldcc })
+        // })
+
         const symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
+            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc'/>
             let approvedSymbol = <FaCircleExclamation size={20}/>
-            if (userFile.approved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20}/>
-            }
             if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
+                approvedSymbol= <BsCheckCircleFill size={20}/>
             }
             return ({ ...userFile, approvedSymbol, approvedSymboldcc })
         })
@@ -193,9 +204,6 @@ export default async function UserFiles() {
             let approvedSymboldcc = <FaCircleExclamation size={20}/>
             if (userFile.approved) {
                 approvedSymboldcc = <BsCheckCircleFill size={20}/>
-            }
-            if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
             }
             return ({ ...userFile, approvedSymbol, approvedSymboldcc })
         })

@@ -87,6 +87,7 @@ export default async function AccountPage() {
                         label="Email"
                         name='email'
                         defaultValue={user.email}
+                        required
                     />
                     <MultiSelect
                         name='DCC'

@@ -20,15 +20,17 @@ import DCCSelect from './DCCSelect';
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
   if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: {
       id: session.user.id
     }
   })
+  if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+
   if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) {return <p>Access Denied</p>}
   if (!user.dcc) return redirect("/data/contribute/account")
 
-  // TODO: incorporate user dcc here
+
   return (
     <S3UploadForm>
       <Container className="mt-10">
