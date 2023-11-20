@@ -8,21 +8,21 @@ import prisma from '@/lib/prisma'
 
 
 
-async function CFPrograms({spacing=4}:{spacing: GridSize}) {
+async function CFPrograms({spacing=4, className}:{spacing: GridSize, className?: string | null}) {
     const dccs = await prisma.dCC.findMany({
       where: {
         cfde_partner: true
       }
     })
     return (
-      <Grid container direction="row" spacing={2}>
+      <Grid container direction="row" spacing={2} justifyContent={"center"}>
         {dccs.map(dcc=>(
           <Grid item xs={6} md={spacing} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, marginTop: 5}}>
             <Tooltip title={dcc.short_label}>
               <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
                 { (dcc.icon || "").indexOf(".svg") > -1 ?
-                  <Image className="grayscale"  src={dcc.icon || ''} alt={dcc.id} width={120} height={120}/> :
-                  <Image className="grayscale"  src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>
+                  <Image className={className || ''}  src={dcc.icon || ''} alt={dcc.id} width={120} height={120}/> :
+                  <Image className={className || ''}  src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>
                 }
                 </Link>
             </Tooltip>
