@@ -6,6 +6,8 @@ import Image from "next/image";
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import { capitalize } from "@/app/data/processed/utils"
+import GeneIcon from '@/public/img/icons/gene.png'
+import DrugIcon from '@/public/img/icons/drug.png'
 
 const pageSize = 10
 
@@ -112,9 +114,11 @@ export default async function Page(props: { searchParams: Record<string, string 
                           key={item.id}
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       >
-                          <TableCell>
-                            {item.library && item.library.dcc_asset.dcc?.icon ? <Image src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} width={120} height={120} />
-                              : item.set && item.set.library.dcc_asset.dcc?.icon ? <Image src={item.set.library.dcc_asset.dcc.icon} alt={item.set.library.dcc_asset.dcc.label} width={120} height={120} />
+                          <TableCell className="w-4 relative">
+                            {item.library && item.library.dcc_asset.dcc?.icon ? <Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill />
+                              : item.set && item.set.library.dcc_asset.dcc?.icon ? <Image className="p-2 object-contain" src={item.set.library.dcc_asset.dcc.icon} alt={item.set.library.dcc_asset.dcc.label} fill />
+                              : item.type === 'gene' ? <Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill />
+                              : item.type === 'drug' ? <Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill />
                               : null}
                           </TableCell>
                           <TableCell component="th" scope="row">
