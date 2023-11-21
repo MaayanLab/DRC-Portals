@@ -4,7 +4,7 @@ import Link from "next/link"
 import { z } from 'zod'
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { capitalize, pluralize } from "@/app/data/processed/utils"
+import { capitalize, format_description, pluralize } from "@/app/data/processed/utils"
 import Image from "next/image"
 
 const pageSize = 10
@@ -124,7 +124,7 @@ export default async function Page(props: { params: { entity_type: string, term_
         </div>
         <Container className="flex-grow">
           <Container><Typography variant="h1">{xset.identity.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {xset.identity.description}</Typography></Container>
+          <Container><Typography variant="caption">Description: {format_description(xset.identity.description)}</Typography></Container>
           {xset.library.dcc_asset.dcc ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${xset.library.dcc_asset.dcc.short_label}`}>{xset.library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
           <Container><Typography variant="caption">Library: <Link href={`/data/processed/${xset.library.identity.type}/${xset.library.id}`}>{xset.library.identity.label}</Link></Typography></Container>
           <Container><Typography variant="caption">{pluralize(capitalize(props.params.entity_type))}: {xset._count.contains}</Typography></Container>
@@ -152,7 +152,7 @@ export default async function Page(props: { params: { entity_type: string, term_
                   <TableCell component="th" scope="row">
                     <Link href={`/data/processed/${xentity.identity.type}/${xentity.id}`}>{xentity.identity.label}</Link>
                   </TableCell>
-                  <TableCell>{xentity.identity.description}</TableCell>
+                  <TableCell>{format_description(xentity.identity.description)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import Image from "next/image";
-import { capitalize } from "@/app/data/processed/utils";
+import { capitalize, format_description } from "@/app/data/processed/utils";
 
 const pageSize = 10
 
@@ -109,7 +109,7 @@ export default async function Page(props: { searchParams: Record<string, string 
                         <Typography variant='h6'>{library.identity.label}</Typography>
                       </Link>
                     </TableCell>
-                    <TableCell>{library.identity.description}</TableCell>
+                    <TableCell>{format_description(library.identity.description)}</TableCell>
                     <TableCell>{capitalize(`${library.term_type} ${library.entity_type} sets`)}</TableCell>
                 </TableRow>
             ))}

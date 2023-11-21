@@ -5,7 +5,7 @@ import { z } from 'zod'
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import Image from "next/image"
-import { pluralize } from "@/app/data/processed/utils";
+import { format_description, pluralize } from "@/app/data/processed/utils";
 
 const pageSize = 10
 
@@ -105,7 +105,7 @@ export default async function Page(props: { params: { id: string }, searchParams
         </div>
         <Container className="flex-grow">
           <Container><Typography variant="h1">{library.identity.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {library.identity.description}</Typography></Container>
+          <Container><Typography variant="caption">Description: {format_description(library.identity.description)}</Typography></Container>
           {library.dcc_asset.dcc?.label ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>{library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
           <Container><Typography variant="caption">Number of {pluralize(library.entity_type)}: {library._count.entities}</Typography></Container>
           <Container><Typography variant="caption">Number of {library.term_type} {library.entity_type} sets: {library._count.sets}</Typography></Container>
@@ -136,7 +136,7 @@ export default async function Page(props: { params: { id: string }, searchParams
                     <Typography variant='h6'>{set.identity.label}</Typography>
                   </Link>
                 </TableCell>
-                <TableCell>{set.identity.description}</TableCell>
+                <TableCell>{format_description(set.identity.description)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

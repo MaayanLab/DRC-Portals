@@ -4,7 +4,7 @@ import Link from "next/link";
 import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { type_to_string } from "@/app/data/processed/utils"
+import { format_description, type_to_string } from "@/app/data/processed/utils"
 import Image from "next/image";
 
 const pageSize = 10
@@ -117,7 +117,7 @@ export default async function Page(props: { params: { entity_type: string }, sea
                     <Typography variant='caption'>{type_to_string(item.identity.type)}</Typography>
                   </Link>
                 </TableCell>
-                <TableCell>{item.identity.description}</TableCell>
+                <TableCell>{format_description(item.identity.description)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

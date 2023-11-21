@@ -4,6 +4,7 @@ import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableRow
 import Image from "next/image"
 import Link from "next/link"
 import { z } from 'zod'
+import { format_description } from "../../utils"
 
 const pageSize = 10
 
@@ -76,7 +77,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
   return (
     <Container component="form" action="" method="GET">
       <Container><Typography variant="h1">{xentity.identity.label}</Typography></Container>
-      <Container><Typography variant="caption">Description: {xentity.identity.description}</Typography></Container>
+      <Container><Typography variant="caption">Description: {format_description(xentity.identity.description)}</Typography></Container>
       {/* <SearchField q={searchParams.q ?? ''} /> */}
       {xentity.libraries.map(library => (
         <ListItemCollapsible key={library.id} primary={
@@ -86,7 +87,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
             </div>
             <Container className="flex-grow">
               <Container>{library.identity.label}</Container>
-              <Container>{library.identity.description}</Container>
+              <Container>{format_description(library.identity.description)}</Container>
             </Container>
           </div>
         } defaultOpen={false}>

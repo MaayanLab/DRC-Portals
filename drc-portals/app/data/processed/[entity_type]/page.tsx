@@ -4,6 +4,7 @@ import Link from "next/link";
 import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
+import { format_description } from "../utils";
 
 const pageSize = 10
 
@@ -87,7 +88,7 @@ export default async function Page(props: { params: { entity_type: string }, sea
                         <Typography variant='h6'>{item.identity.label}</Typography>
                       </Link>
                     </TableCell>
-                    <TableCell>{item.identity.description}</TableCell>
+                    <TableCell>{format_description(item.identity.description)}</TableCell>
                 </TableRow>
             ))}
           </TableBody>

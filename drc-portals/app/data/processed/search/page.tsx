@@ -5,7 +5,7 @@ import { z } from 'zod';
 import Image from "next/image";
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { type_to_string } from "@/app/data/processed/utils"
+import { format_description, type_to_string } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
@@ -174,7 +174,7 @@ export default async function Page(props: { searchParams: Record<string, string>
                                   <Typography variant='caption'>{type_to_string(item.type)}</Typography>
                                 </Link>
                               </TableCell>
-                              <TableCell>{item.description}</TableCell>
+                              <TableCell>{format_description(item.description)}</TableCell>
                           </TableRow>
                         )
                       )}

@@ -22,3 +22,8 @@ export function type_to_string(type: string) {
   }
   return name
 }
+
+export function format_description(description: string) {
+  if (description === 'TODO') return null
+  else return description
+}
