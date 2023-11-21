@@ -26,7 +26,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                }>Error! Please make sure manifest.json file and metadata files are formatted properly</Alert>}
+                } sx={{fontSize:14}}> Error! Please make sure manifest.json file and metadata files are formatted properly</Alert>}
             {open && status.loading && <Alert onClose={() => { }} severity="info"
                 action={
                     <IconButton
@@ -39,7 +39,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                }>Upload in Progress!</Alert>}
+                } sx={{fontSize:14}}>Upload in Progress!</Alert>}
             {open && status.success && <Alert onClose={() => { }}
                 action={
                     <IconButton
@@ -52,7 +52,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                }>Success! File Uploaded</Alert>}
+                } sx={{fontSize:14}}>Success! File Uploaded</Alert>}
         </>
 
     )
