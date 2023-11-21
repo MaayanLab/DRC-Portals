@@ -6,7 +6,7 @@ import csv
 import contextlib
 from urllib.parse import urlparse
 from dotenv import load_dotenv
-from uuid import uuid4
+from uuid import UUID, uuid5
 
 load_dotenv('../drc-portals/.env')
 load_dotenv()
@@ -26,6 +26,9 @@ connection = psycopg2.connect(
     host = hostname,
     port = port
 )
+
+uuid0 = UUID('00000000-0000-0000-0000-000000000000')
+tab = '\t'
 
 ingest_path = pathlib.Path('ingest')
 if not ingest_path.exists():
@@ -99,7 +102,7 @@ with xentity_xset_helper.writer() as xentity_xset:
                 import urllib.request
                 urllib.request.urlretrieve(xmt['link'], xmt_path)
               #
-              dataset_id = f"dataset/{uuid4()}"
+              dataset_id = f"dataset/{uuid5(uuid0, xmt['link'])}"
               dataset_xentities = set()
               if xmt_path.suffix == '.gmt':
                 termType = 'unstructured'
@@ -126,7 +129,7 @@ with xentity_xset_helper.writer() as xentity_xset:
                   line_split = list(map(str.strip, line.split('\t')))
                   if len(line_split) < 3: continue
                   set_label, set_description, *set_entities = line_split
-                  set_id = f"{entityType}/set/{termType}/{uuid4()}"
+                  set_id = f"{entityType}/set/{termType}/{uuid5(uuid0, tab.join((dataset_id, set_label, set_description,)))}"
                   xset.writerow(dict(
                     id=set_id,
                     dataset_id=dataset_id,
@@ -138,7 +141,7 @@ with xentity_xset_helper.writer() as xentity_xset:
                     set_id=set_id,
                   ))
                   for set_entity in filter(None, set_entities):
-                    entity_id = f"{entityType}/{set_entity}"
+                    entity_id = f"{entityType}/{uuid5(uuid0, set_entity)}"
                     if entity_id not in xentities:
                       xentity.writerow(dict(
                         id=entity_id,
