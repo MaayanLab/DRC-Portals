@@ -7,6 +7,7 @@ import Icon from '@mdi/react'
 import Container from '@mui/material/Container'
 import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
+import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
@@ -19,16 +20,18 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn'
 
 export default async function InfoFooter() {
   return (
-    <Paper sx={{background: "#494949", color: "#FFF", padding: 2, borderRadius: 0}}>
+    <Paper sx={{background: "#336699", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
       <Container maxWidth="lg">
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
               <Link href={`/info`} className='flex items-center' style={{marginLeft: -15}}>
-                <IconButton
+              <IconButton
                     aria-label="menu"
+                    sx={{background: "#FFF", width: 30, height: 30, marginRight: 1}} 
                 >
-                    <Image src={'/img/favicon.png'} alt="cfde-logo" height={30} width={40}/>
+                    <Avatar sx={{ width: 24, height: 24 }} alt="cfde-logo" src="/img/favicon.png" />
+                    
                 </IconButton>
                 <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Workbench</Typography>
               </Link>

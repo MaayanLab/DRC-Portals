@@ -133,6 +133,16 @@ export const cfde_theme = createTheme({
                 },
               },
         },
+        MuiTypography: {
+            styleOverrides: {
+                root: ({ ownerState }) => ({
+                    ...(ownerState.color === 'tertiary' &&
+                     {
+                        color: '#7187C3',
+                      }),
+                  }),
+            }
+        },
         MuiButton: {
             styleOverrides: {
                 // Name of the slot
