@@ -84,16 +84,16 @@ export default async function UserFiles() {
             return (
                 <TableRow
                     key={userFile.link}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
                 >
-                    <TableCell align="center" >{userFile.lastmodified.toString()}</TableCell>
-                    <TableCell align="center">{userFile.creator}</TableCell>
-                    <TableCell align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
-                    <TableCell align="center">{userFile.filetype}</TableCell>
-                    <TableCell align="center"><Link href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                    <TableCell align="center"></TableCell>
-                    <TableCell align="center">{approvedSymboldcc}</TableCell>
-                    <TableCell align="center">{approvedSymbol}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toString()}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center"></TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymboldcc}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
                 </TableRow>
             )
         })
@@ -109,14 +109,14 @@ export default async function UserFiles() {
                 key={userFile.link}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-                <TableCell align="center" >{userFile.lastmodified.toString()}</TableCell>
-                <TableCell align="center">{userFile.creator}</TableCell>
-                <TableCell align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
-                <TableCell align="center">{userFile.filetype}</TableCell>
-                <TableCell align="center"><Link href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                <TableCell align="center"></TableCell>
-                <TableCell align="center">{approvedSymboldcc}</TableCell>
-                <TableCell align="center">{approvedSymbol}</TableCell>
+                <TableCell sx={{ fontSize: 14 }}  align="center" >{userFile.lastmodified.toString()}</TableCell>
+                <TableCell sx={{ fontSize: 14 }}  align="center">{userFile.creator}</TableCell>
+                <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
+                <TableCell  sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
+                <TableCell  sx={{ fontSize: 14 }} align="center"></TableCell>
+                <TableCell sx={{ fontSize: 14 }}  align="center">{approvedSymboldcc}</TableCell>
+                <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
             </TableRow>)
         })
 
@@ -133,14 +133,14 @@ export default async function UserFiles() {
                     key={userFile.lastmodified.toString()}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell align="center" >{userFile.lastmodified.toString()}</TableCell>
-                    <TableCell align="center">{userFile.creator}</TableCell>
-                    <TableCell align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
-                    <TableCell align="center">{userFile.filetype}</TableCell>
-                    <TableCell align="center"><Link href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                    <TableCell align="center"></TableCell>
-                    <TableCell align="center">{approvedSymboldcc}</TableCell>
-                    <TableCell align="center">{approvedSymbol}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toString()}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }}align="center">{userFile.creator}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                    <TableCell sx={{ fontSize: 14 }}  align="center">{userFile.filetype}</TableCell>
+                    <TableCell sx={{ fontSize: 14 }}  align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center"></TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymboldcc}</TableCell>
+                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
                 </TableRow>
             )
 
@@ -149,20 +149,20 @@ export default async function UserFiles() {
 
     return (
         <>
-            <Container className="mt-10 justify-content-center">
+            <Container className="mt-10 justify-content-center" sx={{mb:5}}>
                 <Typography variant="h3" className='text-center p-5'>Uploaded Files</Typography>
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell align="center">Date Uploaded</TableCell>
-                                <TableCell align="center">Uploaded By</TableCell>
-                                <TableCell align="center">DCC</TableCell>
-                                <TableCell align="center">File Type</TableCell>
-                                <TableCell align="center">Uploaded File</TableCell>
-                                <TableCell align="center">Additional Info</TableCell>
-                                <TableCell align="center">DCC Status</TableCell>
-                                <TableCell align="center">DRC Status</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">Date Uploaded</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">Uploaded By</TableCell>
+                                <TableCell  sx={{ fontSize: 14 }} align="center">DCC</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">File Type</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">Uploaded File</TableCell>
+                                <TableCell  sx={{ fontSize: 14 }} align="center">Additional Info</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

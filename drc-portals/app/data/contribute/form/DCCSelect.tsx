@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import React from 'react';
 
-export default function DCCSelect(props: {dccOptions: string}) {
+export default function DCCSelect(props: { dccOptions: string }) {
   const [dcc, setDCC] = React.useState('');
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -17,8 +17,10 @@ export default function DCCSelect(props: {dccOptions: string}) {
   const dccArray = props.dccOptions.split(',')
   return (
     <div>
-      <FormControl sx={{minWidth: 80 }}>
-        <InputLabel id="select-dcc">DCC</InputLabel>
+      <FormControl sx={{ minWidth: 80 }}>
+        <InputLabel id="select-dcc"
+          sx={{fontSize: 16 }}
+        >DCC</InputLabel>
         <Select
           labelId="select-dcc"
           id="simple-select"
@@ -28,10 +30,11 @@ export default function DCCSelect(props: {dccOptions: string}) {
           required
           label="DCC"
           name="dcc"
+          sx={{fontSize: 16}}
         >
-        {dccArray.map((dcc) => {
-            return  <MenuItem key={dcc} value={dcc}>{dcc}</MenuItem>
-        })}
+          {dccArray.map((dcc) => {
+            return <MenuItem key={dcc} value={dcc} sx={{fontSize: 16}}>{dcc}</MenuItem>
+          })}
         </Select>
       </FormControl>
     </div>

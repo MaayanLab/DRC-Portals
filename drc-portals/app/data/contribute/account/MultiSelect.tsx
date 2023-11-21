@@ -36,7 +36,7 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
 
   return (
     <FormControl sx={{ m: 1, width: 300 }}>
-      <InputLabel id={id}>{label}</InputLabel>
+      <InputLabel id={id} sx={{fontSize: 16}}>{label}</InputLabel>
       <Select
         labelId={id}
         name={name}
@@ -51,12 +51,14 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
         }}
         input={<OutlinedInput label="Name" />}
         MenuProps={MenuProps}
+        sx={{fontSize: 16}}
       >
         {options.map((option) => (
             <MenuItem
                 key={option}
                 value={option}
                 style={getStyles(option, values, theme)}
+                sx={{fontSize: 16}}
             >
                 {option}
             </MenuItem>

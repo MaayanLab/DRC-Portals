@@ -53,10 +53,11 @@ function FileList(prop: {file:string}) {
      }
   }, [prop.file]);
 
-  return (<Grid item xs={12} md={6}>
-      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          Selected File
+  return (<Grid>
+    <Typography style={{display: 'inline-block'}} variant="body2" component="span">
+          File to Upload
       </Typography>
+
       <Demo>
           {fileUploaded && <List dense={dense}>
               <ListItem
@@ -74,6 +75,8 @@ function FileList(prop: {file:string}) {
                   <ListItemText
                       primary= {prop.file.toString()}
                       secondary={secondary ? 'Secondary text' : null}
+                      primaryTypographyProps={{fontSize: '15px'}} 
+                      
                   />
               </ListItem>
           </List>}
@@ -97,8 +100,6 @@ export function FileDrop({ name }: { name: string }) {
     backgroundColor: isOver ? 'lightgray' : 'white',
   };
 
-  // TODO: restrict drag and drop to only .zip files 
-  // TODO: make delete work
   return (
     <>
       <Item>
@@ -112,7 +113,10 @@ export function FileDrop({ name }: { name: string }) {
         >
           <div>
             <Typography variant="h6" className='text-center align-center'> Drag and drop zipped file here </Typography>
-            <GoFileZip size={70} />
+            <div className='flex justify-center'>
+            <GoFileZip size={70}/>
+            </div>
+           
           </div>
           <input
             id="raised-button-file"
@@ -138,7 +142,7 @@ export function FileDrop({ name }: { name: string }) {
       <Item>
         <FormControl>
           <label htmlFor="raised-button-file">
-            <Button variant="contained" component="span">
+            <Button variant="contained" color="primary" component="span">
               Choose File
             </Button>
           </label>

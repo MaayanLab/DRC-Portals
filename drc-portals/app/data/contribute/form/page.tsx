@@ -42,6 +42,8 @@ export default async function UploadForm() {
               name='name'
               disabled
               defaultValue={user.name}
+              inputProps={{style: {fontSize: 16}}} // font size of input text
+              InputLabelProps={{style: {fontSize: 16}}} // font size of input label
             />
           </ThemedBox>
           <ThemedBox>
@@ -50,6 +52,8 @@ export default async function UploadForm() {
               name='email'
               disabled
               defaultValue={user.email}
+              inputProps={{style: {fontSize: 16}}}
+              InputLabelProps={{style: {fontSize: 16}}}
             />
           </ThemedBox>
           <ThemedBox>
@@ -57,8 +61,8 @@ export default async function UploadForm() {
           </ThemedBox>
         </Grid>
 
-        <Typography className='text-center p-5'>Please upload a zipped file containing your data/metdata files and a manifest.json file detailing files information. See {' '}
-        <Link href='/example_manifest.json' download>manifest.json template</Link>
+        <Typography  variant="subtitle1" className='text-center p-5'>Please upload a zipped file containing your data/metdata files and a manifest.json file detailing files information. See {' '}
+        <Link href='/example_manifest.json' color="secondary" download>manifest.json template</Link>
         </Typography>
         <ThemedStack>
           <FileDrop name="file" />
@@ -66,7 +70,7 @@ export default async function UploadForm() {
         <Status />
         <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
           <FormControl>
-            <Button variant="contained" color="secondary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+            <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
               Submit Form
             </Button>
           </FormControl>

@@ -66,7 +66,7 @@ export default async function AccountPage() {
         <>
             <Container className="mt-10 justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
-                <Typography className='text-center p-5'>Please complete account information before approving or the uploading forms</Typography>
+                <Typography variant="body2" className='text-center p-5'>Please complete account information before approving or the uploading forms</Typography>
                 <Box
                     component="form"
                     noValidate
@@ -81,12 +81,16 @@ export default async function AccountPage() {
                         label="Name"
                         name='name'
                         defaultValue={user.name}
+                        inputProps={{style: {fontSize: 16}}} // font size of input text
+                        InputLabelProps={{style: {fontSize: 16}}} // font size of input label
                     />
                     <TextField
                         id="input-email"
                         label="Email"
                         name='email'
                         defaultValue={user.email}
+                        inputProps={{style: {fontSize: 16}}}
+                        InputLabelProps={{style: {fontSize: 16}}}
                         required
                     />
                     <MultiSelect
@@ -96,7 +100,7 @@ export default async function AccountPage() {
                         defaultValue={user.dcc?.split(',')}
                     />
 
-                    <Button variant="contained" type='submit' sx={{justifySelf:"center"}}>
+                    <Button variant="contained" color="tertiary" type='submit' sx={{justifySelf:"center"}}>
                         Save Changes
                     </Button>
                 </Box>

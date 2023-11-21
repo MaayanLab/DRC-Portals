@@ -42,37 +42,37 @@ export default function Documentation() {
                                 <ListItemCollapsible primary="File Types">
                                     <List component="div" disablePadding>
                                         <ListItemButton sx={{ pl: 4 }} href="#xmt" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="XMT" />
+                                            <ListItemText primary="XMT" primaryTypographyProps={{fontSize: '15px'}}  />
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#c2m2" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="C2M2" />
+                                            <ListItemText primary="C2M2" primaryTypographyProps={{fontSize: '15px'}} />
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#kg-assertions" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="KG Assertions" />
+                                            <ListItemText primary="KG Assertions" primaryTypographyProps={{fontSize: '15px'}} />
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#attribute-table" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="Attribute Table" />
+                                            <ListItemText primary="Attribute Table" primaryTypographyProps={{fontSize: '15px'}} />
                                         </ListItemButton>
                                     </List>
                                 </ListItemCollapsible>
                                 <ListItemCollapsible primary="File Approval Stages">
                                     <List component="div" disablePadding>
                                         <ListItemButton sx={{ pl: 4 }} href="#uploaded" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="Uploaded (Not Approved)" />
+                                            <ListItemText primary="Uploaded (Not Approved)" primaryTypographyProps={{fontSize: '15px'}}  />
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#dcc-approved" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="DCC Approved" />
+                                            <ListItemText primary="DCC Approved" primaryTypographyProps={{fontSize: '15px'}} />
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#drc-approved" LinkComponent={ScrollToAnchorLink}>
-                                            <ListItemText primary="DRC Approved" />
+                                            <ListItemText primary="DRC Approved" primaryTypographyProps={{fontSize: '15px'}} />
                                         </ListItemButton>
                                     </List>
                                 </ListItemCollapsible>
                                 <ListItemButton>
-                                    <ListItemText primary="File Upload Steps" />
+                                    <ListItemText primary="File Upload Steps" primaryTypographyProps={{fontSize: '16px'}} />
                                 </ListItemButton>
                                 <ListItemButton>
-                                    <ListItemText primary="File Approval Steps" />
+                                    <ListItemText primary="File Approval Steps" primaryTypographyProps={{fontSize: '16px'}} />
                                 </ListItemButton>
                             </List>
                         </ThemedBox>
@@ -98,8 +98,8 @@ export default function Documentation() {
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="c2m2">C2M2</h6>
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
-                                                <Link href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
-                                                    CFDE C2M2 documentation</Link> and <Link href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
+                                                <Link color="secondary" href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
+                                                    CFDE C2M2 documentation</Link> and <Link color="secondary" href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
                                                 for more information about C2M2 files.
                                             </p>
                                         </ThemedBox>
@@ -140,7 +140,7 @@ export default function Documentation() {
                                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                                     <ImNotification />
                                                 </span>
-                                                {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
+                                                {' '} icon on the <Link color="secondary" href="/data/contribute/form">Uploaded Files</Link> page.
                                             </Typography>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -148,7 +148,7 @@ export default function Documentation() {
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by the corresponding DCC approver, the status of the file will
                                                 be updated to 'DCC Approved' which is delineated by the {' '}
-                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircle /> </span> {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircle /> </span> {' '} icon on the <Link color="secondary" href="/data/contribute/form">Uploaded Files</Link> page.
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -158,7 +158,7 @@ export default function Documentation() {
                                                 be updated to 'DRC Approved' which is the final stage of File Approval. This status is delineated by the
                                                 {' '}
                                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                                    <BsCheckCircleFill /> </span> {' '} icon on the <Link href="/data/contribute/form">Uploaded Files</Link> page.
+                                                    <BsCheckCircleFill /> </span> {' '} icon on the <Link color="secondary" href="/data/contribute/form">Uploaded Files</Link> page.
                                             </p>
                                         </ThemedBox>
                                     </Box>
@@ -170,7 +170,7 @@ export default function Documentation() {
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
-                                                        On the <Link href="/data/contribute/form">DRC Form</Link> page, upload a zipped file containing your
+                                                        On the <Link color="secondary" href="/data/contribute/form">DRC Form</Link> page, upload a zipped file containing your
                                                         data/metadata file and a manifest.json detailing the information of each file. Please find an example manifest here: manifest.json.
                                                         No extra fields excluding what is detailed in the stencil should be added. Please note that only text based file types are allowed.
                                                     </Typography>
@@ -178,7 +178,7 @@ export default function Documentation() {
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                         After clicking on the <span style={{ display: 'inline-flex', alignItems: 'center' }}> {exampleSubmit}  </span> button, details of your uploaded file should appear on the
-                                                        <Link href="/data/contribute/form"> Uploaded Files</Link> page. You can inspect your uploaded file by clicking
+                                                        <Link color="secondary" href="/data/contribute/form"> Uploaded Files</Link> page. You can inspect your uploaded file by clicking
                                                         on the link under the 'Uploaded file' column
                                                         {exampleNewUpload}
                                                     </Typography>
@@ -194,7 +194,7 @@ export default function Documentation() {
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
-                                                        Go to the <Link href="/data/contribute/uploaded">Uploaded Files</Link> page. Here you will find
+                                                        Go to the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page. Here you will find
                                                         all uploaded files that fall under your jurisdiction. You can further inspect an uploaded file
                                                         by clicking on the link under the 'Uploaded file' column.
                                                     </Typography>

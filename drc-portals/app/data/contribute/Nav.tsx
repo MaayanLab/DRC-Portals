@@ -16,16 +16,16 @@ export default function Nav() {
       <AppBar position="static" sx={{color: "#000"}} >
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
-              <Grid item>
-                <Link href={``} className='flex items-center'>
+              {/* <Grid item> */}
+                {/* <Link href={``} className='flex items-center'>
                   <IconButton
                     aria-label="menu"
                   >
                     <Image src={'/img/favicon.png'} alt="cfde-logo" height={37} width={50}/>
                   </IconButton>
                   <Typography variant="h3">Data and Metadata Uploads</Typography>
-                </Link>
-              </Grid>
+                </Link> */}
+              {/* </Grid> */}
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data/contribute/form">

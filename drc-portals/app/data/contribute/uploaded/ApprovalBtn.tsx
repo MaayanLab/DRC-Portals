@@ -81,16 +81,16 @@ export default function ApprovalBtn(userFile: {
     useEffect(()=> {
         if (currentfile.dcc_drc === 'drc') {
             if( currentfile.drcapproved){ 
-                setStatusEl(<Button onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
+                setStatusEl(<Button variant="contained" color="tertiary" onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
             } else {
-                setStatusEl(<Button onClick={handleClick(currentfile)}> Approve Upload</Button>)
+                setStatusEl(<Button variant="contained" color="tertiary" onClick={handleClick(currentfile)}> Approve Upload</Button>)
             }
         }
         if (currentfile.dcc_drc === 'dcc') {
             if( currentfile.dccapproved){ 
-                setStatusEl(<Button onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
+                setStatusEl(<Button variant="contained" color="tertiary" onClick={handleClick(currentfile)}> <BsCheckCircleFill size={20}/> </Button>)
             } else {
-                setStatusEl(<Button onClick={handleClick(currentfile)}> Approve Upload</Button>)
+                setStatusEl(<Button variant="contained" color="tertiary" onClick={handleClick(currentfile)}> Approve Upload</Button>)
             }
         }
 
