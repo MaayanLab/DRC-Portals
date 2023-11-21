@@ -11,7 +11,7 @@ export async function getDCCAsset(file: {
     filename: string
     link: string
     lastmodified: string,
-    creator: string,
+    creator: string | null,
     dccapproved: boolean,
     drcapproved: boolean,
     dcc_drc: string
@@ -71,7 +71,7 @@ export async function updateAssetApproval(file: {
     filename: string,
     link: string,
     lastmodified: string,
-    creator: string,
+    creator: string | null,
     dccapproved: boolean,
     drcapproved: boolean,
     dcc_drc: string

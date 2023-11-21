@@ -18,7 +18,7 @@ export default function ApprovalBtn(userFile: {
     size: bigint | null;
     lastmodified: Date;
     current: boolean;
-    creator: string;
+    creator: string | null;
     dccapproved: boolean;
     drcapproved: boolean;
     annotation: Prisma.JsonValue;
@@ -42,7 +42,7 @@ export default function ApprovalBtn(userFile: {
             size: bigint | null;
             lastmodified: Date;
             current: boolean;
-            creator: string;
+            creator: string | null;
             dccapproved: boolean;
             drcapproved: boolean;
             annotation: Prisma.JsonValue;

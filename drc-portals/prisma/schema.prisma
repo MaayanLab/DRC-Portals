@@ -103,8 +103,8 @@ model DccAsset {
   size         BigInt?
   lastmodified DateTime @default(now())
   current      Boolean  @default(true)
-  creator      String 
-  creatorId   User  @relation(fields: [creator], references: [email])
+  creator      String? 
+  creatorId   User?  @relation(fields: [creator], references: [email])
   dccapproved     Boolean  @default(false)
   drcapproved  Boolean  @default(false)
   annotation   Json?    @db.JsonB

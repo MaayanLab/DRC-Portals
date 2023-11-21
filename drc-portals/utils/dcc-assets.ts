@@ -7,8 +7,9 @@ export type dccAsset = {
   link: string;
   size?: string;
   lastmodified: string;
-  creator: string;
-  approved: boolean
+  creator: string | null;
+  dccapproved: boolean;
+  drcapproved: boolean;
 }
 
 export type dccAssetObj = {
@@ -49,7 +50,8 @@ async function getData(
       size: convertBytes(item.size),
       lastmodified: item.lastmodified.toLocaleDateString("en-US"),
       creator: item.creator,
-      approved: item.approved
+      dccapproved: item.dccapproved,
+      drcapproved: item.drcapproved
     })
   })
   return data
