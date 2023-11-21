@@ -106,7 +106,7 @@ model DccAsset {
   creator      String
   approved     Boolean  @default(false)
   annotation   Json?    @db.JsonB
-  xdataset     XDataset?
+  xlibrary     XLibrary?
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@map("dcc_assets")
@@ -115,54 +115,54 @@ model DccAsset {
 
 // Processed data search
 model XIdentity {
-  // of the form [cardinality]/[id]
-  id          String    @id
+  type        String
+  id          String    @id @db.Uuid
   label       String
   description String
   searchable  String
-  entity_id   String?   @unique
-  set_id      String?   @unique
-  dataset_id  String?   @unique
-  dataset     XDataset?
+  entity_id   String?   @db.Uuid @unique
+  set_id      String?   @db.Uuid @unique
+  library_id  String?   @db.Uuid @unique
+  library     XLibrary?
   entity      XEntity?
   set         XSet?
 
+  @@index([type])
+  @@index([label])
   @@index([label(ops: raw("gin_trgm_ops"))], map: "xidentity_label_trgm", type: Gin)
   @@map("xidentity")
 }
 
 model XEntity {
-  // of the form [entityType]/[id]
-  id       String     @id
+  id       String     @id @db.Uuid
   identity XIdentity  @relation(fields: [id], references: [id])
-  datasets XDataset[] @relation("XDatasetToXEntity")
+  libraries XLibrary[] @relation("XEntityToXLibrary")
   sets     XSet[]     @relation("XEntityToXSet")
 
   @@map("xentity")
 }
 
 model XSet {
-  // of the form [entityType]/set/[termType]/[id]
-  id         String    @id
-  dataset_id String
-  dataset    XDataset  @relation(fields: [dataset_id], references: [id])
+  id         String    @id @db.Uuid
+  library_id String    @db.Uuid
+  library    XLibrary  @relation(fields: [library_id], references: [id])
   identity   XIdentity @relation(fields: [id], references: [id])
   contains   XEntity[] @relation("XEntityToXSet")
 
   @@map("xset")
 }
 
-model XDataset {
-  id             String    @id
+model XLibrary {
+  id             String    @id @db.Uuid
   dcc_asset_link String    @unique
-  entityType     String
-  termType       String
+  entity_type     String
+  term_type       String
   dcc_asset      DccAsset  @relation(fields: [dcc_asset_link], references: [link])
   identity       XIdentity @relation(fields: [id], references: [id])
   sets           XSet[]
-  entities       XEntity[] @relation("XDatasetToXEntity")
+  entities       XEntity[] @relation("XEntityToXLibrary")
 
-  @@map("xdataset")
+  @@map("xlibrary")
 }
 
 // End processed data search

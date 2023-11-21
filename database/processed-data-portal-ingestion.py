@@ -83,16 +83,16 @@ class TableHelper:
       connection.commit()
 
 xentity_xset_helper = TableHelper('_XEntityToXSet', ('A', 'B',), pk_columns=('A', 'B',))
-xdataset_xentity_helper = TableHelper('_XDatasetToXEntity', ('A', 'B'), pk_columns=('A', 'B',))
-xset_helper = TableHelper('xset', ('id', 'dataset_id',), pk_columns=('id',))
-xdataset_helper = TableHelper('xdataset', ('id', 'dcc_asset_link', 'termType', 'entityType',), pk_columns=('id',))
+xentity_xlibrary_helper = TableHelper('_XEntityToXLibrary', ('A', 'B'), pk_columns=('A', 'B',))
+xset_helper = TableHelper('xset', ('id', 'library_id',), pk_columns=('id',))
+xlibrary_helper = TableHelper('xlibrary', ('id', 'dcc_asset_link', 'term_type', 'entity_type',), pk_columns=('id',))
 xentity_helper = TableHelper('xentity', ('id',), pk_columns=('id',))
-xidentity_helper = TableHelper('xidentity', ('id', 'label', 'description', 'entity_id', 'set_id', 'dataset_id',), pk_columns=('id',))
+xidentity_helper = TableHelper('xidentity', ('id', 'type', 'label', 'description', 'entity_id', 'set_id', 'library_id',), pk_columns=('id',))
 
 with xentity_xset_helper.writer() as xentity_xset:
-  with xdataset_xentity_helper.writer() as xdataset_xentity:
+  with xentity_xlibrary_helper.writer() as xentity_xlibrary:
     with xset_helper.writer() as xset:
-      with xdataset_helper.writer() as xdataset:
+      with xlibrary_helper.writer() as xlibrary:
         with xentity_helper.writer() as xentity:
           xentities = set()
           with xidentity_helper.writer() as xidentity:
@@ -102,24 +102,25 @@ with xentity_xset_helper.writer() as xentity_xset:
                 import urllib.request
                 urllib.request.urlretrieve(xmt['link'], xmt_path)
               #
-              dataset_id = f"dataset/{uuid5(uuid0, xmt['link'])}"
-              dataset_xentities = set()
+              library_id = str(uuid5(uuid0, xmt['link']))
+              library_xentities = set()
               if xmt_path.suffix == '.gmt':
-                termType = 'unstructured'
-                entityType = 'gene'
-                xdataset.writerow(dict(
-                  id=dataset_id,
+                term_type = 'unstructured'
+                entity_type = 'gene'
+                xlibrary.writerow(dict(
+                  id=library_id,
                   dcc_asset_link=xmt['link'],
-                  termType=termType,
-                  entityType=entityType,
+                  term_type=term_type,
+                  entity_type=entity_type,
                 ))
                 xidentity.writerow(dict(
-                  id=dataset_id,
+                  id=library_id,
+                  type="library",
                   # TODO
                   label=xmt_path.stem.replace('_', ' '),
                   # TODO
                   description='TODO',
-                  dataset_id=dataset_id,
+                  library_id=library_id,
                 ))
               else:
                 raise NotImplementedError(xmt_path.suffix)
@@ -129,25 +130,28 @@ with xentity_xset_helper.writer() as xentity_xset:
                   line_split = list(map(str.strip, line.split('\t')))
                   if len(line_split) < 3: continue
                   set_label, set_description, *set_entities = line_split
-                  set_id = f"{entityType}/set/{termType}/{uuid5(uuid0, tab.join((dataset_id, set_label, set_description,)))}"
+                  set_type = f"{entity_type}/set/{term_type}"
+                  set_id = str(uuid5(uuid0, tab.join((library_id, set_label, set_description,))))
                   xset.writerow(dict(
                     id=set_id,
-                    dataset_id=dataset_id,
+                    library_id=library_id,
                   ))
                   xidentity.writerow(dict(
                     id=set_id,
+                    type=set_type,
                     label=set_label,
                     description=set_description or 'TODO',
                     set_id=set_id,
                   ))
                   for set_entity in filter(None, set_entities):
-                    entity_id = f"{entityType}/{uuid5(uuid0, set_entity)}"
+                    entity_id = str(uuid5(uuid0, set_entity))
                     if entity_id not in xentities:
                       xentity.writerow(dict(
                         id=entity_id,
                       ))
                       xidentity.writerow(dict(
                         id=entity_id,
+                        type=entity_type,
                         # TODO
                         label=set_entity,
                         # TODO
@@ -155,12 +159,12 @@ with xentity_xset_helper.writer() as xentity_xset:
                         entity_id=entity_id,
                       ))
                       xentities.add(entity_id)
-                    if entity_id not in dataset_xentities:
-                      xdataset_xentity.writerow(dict(
-                        A=dataset_id,
-                        B=entity_id,
+                    if entity_id not in library_xentities:
+                      xentity_xlibrary.writerow(dict(
+                        A=entity_id,
+                        B=library_id,
                       ))
-                      dataset_xentities.add(entity_id)
+                      library_xentities.add(entity_id)
                     xentity_xset.writerow(dict(
                       A=entity_id,
                       B=set_id,
