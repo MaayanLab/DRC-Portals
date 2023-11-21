@@ -32,11 +32,11 @@ if not ingest_path.exists():
   ingest_path.mkdir()
 if not (ingest_path/'DccAssets.tsv').exists():
   import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/111423/DccAssets.tsv', ingest_path/'DccAssets.tsv')
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/112123/DccAssets.tsv', ingest_path/'DccAssets.tsv')
 
 dcc_assets = pd.read_csv(ingest_path/'DccAssets.tsv', sep='\t', names=[
-  'filetype', 'filename', 'link', 'size', 'lastmodified',
-  'current', 'creator', 'approved', 'annotation', 'dcc_id'
+  'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
+  'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
 ])
 
 xmts = dcc_assets[dcc_assets['filetype'] == 'XMT']
