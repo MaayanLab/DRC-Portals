@@ -129,7 +129,10 @@ export default async function Page(props: { searchParams: Record<string, string>
       <SearchField q={searchParams.q ?? ''} />
       {items ?
         <Container className="mt-10 justify-content-center">
-          <Typography variant="h3" className='text-center p-5'>Results</Typography>
+          <Box className="p-5 text-center">
+          <Typography variant="h3">Results</Typography>
+          <Typography variant="subtitle1">(found {count} matches)</Typography>
+          </Box>
           <Box className="flex flex-row gap-4 justify-stretch">
             <Box className="flex flex-col w-48">
               {(type_counts as any /* sidestep prisma typescript bug */).map((type_count: { type: string, _count: number }) =>
