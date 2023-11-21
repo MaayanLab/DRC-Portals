@@ -4,10 +4,11 @@ import Link from "next/link";
 import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
+import Image from "next/image";
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string, term_type: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -23,35 +24,55 @@ export default async function Page(props: { params: { entityType: string }, sear
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [items, count] = await prisma.$transaction([
-    prisma.xEntity.findMany({
+    prisma.xSet.findMany({
       where: searchParams.q ? {
-        id: { startsWith: `${props.params.entityType}/` },
         identity: {
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+          searchable: { search: searchParams.q }
         },
       } : {
-        id: { startsWith: `${props.params.entityType}/` },
+        identity: {
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+        },
       },
       select: {
         id: true,
         identity: {
           select: {
+            type: true,
             label: true,
             description: true,
+          },
+        },
+        library: {
+          select: {
+            dcc_asset: {
+              select: {
+                dcc: {
+                  select: {
+                    short_label: true,
+                    icon: true,
+                    label: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
       skip: offset,
       take: limit,
     }),
-    prisma.xEntity.count({
+    prisma.xSet.count({
       where: searchParams.q ? {
-        id: { startsWith: `${props.params.entityType}/` },
         identity: {
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-        }
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+          searchable: { search: searchParams.q }
+        },
       } : {
-        id: { startsWith: `${props.params.entityType}/` },
+        identity: {
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+        },
       },
     }),
   ])
@@ -63,6 +84,9 @@ export default async function Page(props: { params: { entityType: string }, sear
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell component="th">
+                <Typography variant='h3'>Source</Typography>
+              </TableCell>
               <TableCell component="th">
                 <Typography variant='h3'>Label</Typography>
               </TableCell>
@@ -77,8 +101,15 @@ export default async function Page(props: { params: { entityType: string }, sear
                     key={item.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
+                    <TableCell className="w-4 relative">
+                      {item.library.dcc_asset.dcc?.icon ?
+                        <Link href={`/data/matrix/${item.library.dcc_asset.dcc.short_label}`}>
+                          <Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill />
+                        </Link>
+                        : null}
+                    </TableCell>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.id}`}>
+                      <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
                         <Typography variant='h6'>{item.identity.label}</Typography>
                       </Link>
                     </TableCell>

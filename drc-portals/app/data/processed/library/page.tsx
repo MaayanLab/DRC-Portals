@@ -4,12 +4,12 @@ import Link from "next/link";
 import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { capitalize } from "@/app/data/processed/utils"
 import Image from "next/image";
+import { capitalize } from "@/app/data/processed/utils";
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -24,34 +24,35 @@ export default async function Page(props: { params: { entityType: string }, sear
   }).parse(props.searchParams)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
-  const [items, count] = await prisma.$transaction([
-    prisma.xSet.findMany({
+  const [libraries, count] = await prisma.$transaction([
+    prisma.xLibrary.findMany({
       where: searchParams.q ? {
         identity: {
-          searchable: { search: searchParams.q }
-        },
-        dataset: {
-          entityType: props.params.entityType,
-        },
+          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+        }
       } : {},
       select: {
+        _count: {
+          select: {
+            sets: true,
+            entities: true,
+          }
+        },
         id: true,
+        term_type: true,
+        entity_type: true,
         identity: {
           select: {
             label: true,
             description: true,
-          },
+          }
         },
-        dataset: {
+        dcc_asset: {
           select: {
-            dcc_asset: {
+            dcc: {
               select: {
-                dcc: {
-                  select: {
-                    icon: true,
-                    label: true,
-                  },
-                },
+                short_label: true,
+                icon: true,
               },
             },
           },
@@ -60,19 +61,12 @@ export default async function Page(props: { params: { entityType: string }, sear
       skip: offset,
       take: limit,
     }),
-    prisma.xSet.count({
+    prisma.xLibrary.count({
       where: searchParams.q ? {
         identity: {
-          searchable: { search: searchParams.q }
-        },
-        dataset: {
-          entityType: props.params.entityType,
-        },
-      } : {
-        dataset: {
-          entityType: props.params.entityType,
-        },
-      },
+          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+        }
+      } : {},
     }),
   ])
   const ps = Math.floor(count / pageSize) + 1
@@ -84,37 +78,41 @@ export default async function Page(props: { params: { entityType: string }, sear
           <TableHead>
             <TableRow>
               <TableCell component="th">
+                <Typography variant='h3'>Source</Typography>
+              </TableCell>
+              <TableCell component="th">
                 <Typography variant='h3'>Label</Typography>
               </TableCell>
               <TableCell component="th">
                 <Typography variant='h3'>Description</Typography>
               </TableCell>
+              <TableCell component="th">
+                <Typography variant='h3'>Type</Typography>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map(item => {
-              const split = item.id.indexOf('/')
-              const type = item.id.slice(0, split)
-              return (
+            {libraries.map(library => (
                 <TableRow
-                    key={item.id}
+                    key={library.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell>
-                      {item.dataset.dcc_asset.dcc?.icon ? <Image src={item.dataset.dcc_asset.dcc.icon} alt={item.dataset.dcc_asset.dcc.label} width={120} height={120} /> : null}
+                    <TableCell className="w-4 relative">
+                      {library.dcc_asset.dcc?.icon ?
+                        <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>
+                          <Image className="p-2 object-contain" src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.short_label ?? ''} fill />
+                        </Link>
+                        : null}
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.id}`}>
-                        <Typography variant='h6'>{item.identity.label}</Typography>
-                      </Link>
-                      <Link href={`/data/processed/${item.id.split('/').slice(0, -1).join('/')}`}>
-                        <Typography variant='caption' sx={{textTransform: 'capitalize'}}>{capitalize(item.id.split('/')[2])} {capitalize(item.id.split('/')[0])} Set</Typography>
+                      <Link href={`/data/processed/library/${library.id}`}>
+                        <Typography variant='h6'>{library.identity.label}</Typography>
                       </Link>
                     </TableCell>
-                    <TableCell>{item.identity.description}</TableCell>
+                    <TableCell>{library.identity.description}</TableCell>
+                    <TableCell>{capitalize(`${library.term_type} ${library.entity_type} sets`)}</TableCell>
                 </TableRow>
-              )
-            })}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

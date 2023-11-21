@@ -1,22 +1,24 @@
 'use client'
 
-import { Pagination } from '@mui/material'
 import React from 'react'
+import { Pagination } from '@mui/material'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export default function FormPagination({ p, ps }: { p: number, ps: number }) {
-  const ref = React.useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   return (
     <>
       <Pagination
         defaultPage={p}
         count={ps}
         onChange={(evt, value) => {
-          if (!ref.current) return
-          ref.current.value = `${value}`
-          ref.current.click()
+          const newSearchParams = new URLSearchParams(searchParams)
+          newSearchParams.set('p', value.toString())
+          router.push(pathname + '?' + newSearchParams.toString())
         }}
       />
-      <input ref={ref} className="hidden" type="submit" name="p" defaultValue={p} />
     </>
   )
 }

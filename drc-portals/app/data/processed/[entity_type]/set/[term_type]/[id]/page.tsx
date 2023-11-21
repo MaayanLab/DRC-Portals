@@ -9,7 +9,7 @@ import Image from "next/image"
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string, termType: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string, term_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -27,7 +27,10 @@ export default async function Page(props: { params: { entityType: string, termTy
   const [xset, xset_genes] = await prisma.$transaction([
     prisma.xSet.findUniqueOrThrow({
       where: {
-        id: `${props.params.entityType}/set/${props.params.termType}/${props.params.id}`,
+        id: props.params.id,
+        identity: {
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+        },
       },
       select: {
         _count: {
@@ -35,11 +38,12 @@ export default async function Page(props: { params: { entityType: string, termTy
             contains: true,
           },
         },
-        dataset: {
+        library: {
           select: {
             id: true,
             identity: {
               select: {
+                type: true,
                 label: true,
                 description: true,
               }
@@ -48,6 +52,7 @@ export default async function Page(props: { params: { entityType: string, termTy
               select: {
                 dcc: {
                   select: {
+                    short_label: true,
                     icon: true,
                     label: true,
                   },
@@ -58,6 +63,7 @@ export default async function Page(props: { params: { entityType: string, termTy
         },
         identity: {
           select: {
+            type: true,
             label: true,
             description: true,
           }
@@ -66,7 +72,10 @@ export default async function Page(props: { params: { entityType: string, termTy
     }),
     prisma.xSet.findUniqueOrThrow({
       where: {
-        id: `${props.params.entityType}/set/${props.params.termType}/${props.params.id}`,
+        id: props.params.id,
+        identity: {
+          type: `${props.params.entity_type}/set/${props.params.term_type}`
+        },
       },
       select: {
         _count: {
@@ -85,6 +94,7 @@ export default async function Page(props: { params: { entityType: string, termTy
             id: true,
             identity: {
               select: {
+                type: true,
                 label: true,
                 description: true,
               }
@@ -106,13 +116,18 @@ export default async function Page(props: { params: { entityType: string, termTy
     <Container component="form" action="" method="GET">
       <div className="flex flex-column">
         <div className="flex-grow-0 self-center justify-self-center">
-          {xset.dataset.dcc_asset.dcc?.icon ? <Image src={xset.dataset.dcc_asset.dcc.icon} alt={xset.dataset.dcc_asset.dcc.label} width={240} height={240} /> : null}
+          {xset.library.dcc_asset.dcc?.icon ?
+            <Link href={`/data/matrix/${xset.library.dcc_asset.dcc.short_label}`}>
+              <Image src={xset.library.dcc_asset.dcc.icon} alt={xset.library.dcc_asset.dcc.label} width={240} height={240} />
+            </Link>
+            : null}
         </div>
         <Container className="flex-grow">
           <Container><Typography variant="h1">{xset.identity.label}</Typography></Container>
           <Container><Typography variant="caption">Description: {xset.identity.description}</Typography></Container>
-          <Container><Typography variant="caption">Dataset: <Link href={`/data/processed/${xset.dataset.id}`}>{xset.dataset.identity.label}</Link></Typography></Container>
-          <Container><Typography variant="caption">{pluralize(capitalize(props.params.entityType))}: {xset._count.contains}</Typography></Container>
+          {xset.library.dcc_asset.dcc ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${xset.library.dcc_asset.dcc.short_label}`}>{xset.library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
+          <Container><Typography variant="caption">Library: <Link href={`/data/processed/${xset.library.identity.type}/${xset.library.id}`}>{xset.library.identity.label}</Link></Typography></Container>
+          <Container><Typography variant="caption">{pluralize(capitalize(props.params.entity_type))}: {xset._count.contains}</Typography></Container>
         </Container>
       </div>
       <SearchField q={searchParams.q ?? ''} />
@@ -135,7 +150,7 @@ export default async function Page(props: { params: { entityType: string, termTy
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                   <TableCell component="th" scope="row">
-                    <Link href={`/data/processed/${xentity.id}`}>{xentity.identity.label}</Link>
+                    <Link href={`/data/processed/${xentity.identity.type}/${xentity.id}`}>{xentity.identity.label}</Link>
                   </TableCell>
                   <TableCell>{xentity.identity.description}</TableCell>
               </TableRow>

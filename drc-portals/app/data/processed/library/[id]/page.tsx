@@ -24,12 +24,12 @@ export default async function Page(props: { params: { id: string }, searchParams
   }).parse(props.searchParams)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
-  const [dataset, dataset_sets] = await prisma.$transaction([
-    prisma.xDataset.findUniqueOrThrow({
-      where: { id: `dataset/${props.params.id}` },
+  const [library, library_sets] = await prisma.$transaction([
+    prisma.xLibrary.findUniqueOrThrow({
+      where: { id: props.params.id },
       select: {
-        entityType: true,
-        termType: true,
+        entity_type: true,
+        term_type: true,
         dcc_asset_link: true,
         _count: {
           select: {
@@ -47,6 +47,7 @@ export default async function Page(props: { params: { id: string }, searchParams
           select: {
             dcc: {
               select: {
+                short_label: true,
                 label: true,
                 icon: true,
               }
@@ -55,8 +56,8 @@ export default async function Page(props: { params: { id: string }, searchParams
         },
       },
     }),
-    prisma.xDataset.findUniqueOrThrow({
-      where: { id: `dataset/${props.params.id}` },
+    prisma.xLibrary.findUniqueOrThrow({
+      where: { id: props.params.id },
       select: {
         _count: {
           select: {
@@ -74,6 +75,7 @@ export default async function Page(props: { params: { id: string }, searchParams
             id: true,
             identity: {
               select: {
+                type: true,
                 label: true,
                 description: true,
               },
@@ -90,20 +92,24 @@ export default async function Page(props: { params: { id: string }, searchParams
       },
     }),
   ])
-  const ps = Math.floor(dataset_sets._count.sets / pageSize) + 1
+  const ps = Math.floor(library_sets._count.sets / pageSize) + 1
   return (
     <Container component="form" action="" method="GET">
       <div className="flex flex-column">
         <div className="flex-grow-0 self-center justify-self-center">
-          {dataset.dcc_asset.dcc?.icon ? <Image src={dataset.dcc_asset.dcc.icon} alt={dataset.dcc_asset.dcc.label} width={240} height={240} /> : null}
+          {library.dcc_asset.dcc?.icon ?
+            <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>
+              <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.label} width={240} height={240} />
+            </Link>
+            : null}
         </div>
         <Container className="flex-grow">
-          <Container><Typography variant="h1">{dataset.identity.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {dataset.identity.description}</Typography></Container>
-          {dataset.dcc_asset.dcc?.label ? <Container><Typography variant="caption">DCC: {dataset.dcc_asset.dcc.label}</Typography></Container> : null}
-          <Container><Typography variant="caption">Number of {pluralize(dataset.entityType)}: {dataset._count.entities}</Typography></Container>
-          <Container><Typography variant="caption">Number of {dataset.termType} {dataset.entityType} sets: {dataset._count.sets}</Typography></Container>
-          <Container><Typography variant="caption">Download: <Link href={dataset.dcc_asset_link}>{dataset.dcc_asset_link}</Link></Typography></Container>
+          <Container><Typography variant="h1">{library.identity.label}</Typography></Container>
+          <Container><Typography variant="caption">Description: {library.identity.description}</Typography></Container>
+          {library.dcc_asset.dcc?.label ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>{library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
+          <Container><Typography variant="caption">Number of {pluralize(library.entity_type)}: {library._count.entities}</Typography></Container>
+          <Container><Typography variant="caption">Number of {library.term_type} {library.entity_type} sets: {library._count.sets}</Typography></Container>
+          <Container><Typography variant="caption">Download: <Link href={library.dcc_asset_link}>{library.dcc_asset_link}</Link></Typography></Container>
         </Container>
       </div>
       <SearchField q={searchParams.q ?? ''} />
@@ -120,13 +126,13 @@ export default async function Page(props: { params: { id: string }, searchParams
             </TableRow>
           </TableHead>
           <TableBody>
-            {dataset_sets.sets.map(set => (
+            {library_sets.sets.map(set => (
               <TableRow
                 key={set.id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  <Link href={`/data/processed/${set.id}`}>
+                  <Link href={`/data/processed/${set.identity.type}/${set.id}`}>
                     <Typography variant='h6'>{set.identity.label}</Typography>
                   </Link>
                 </TableCell>

@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -23,7 +23,7 @@ export default async function Page(props: { params: { entityType: string, id: st
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const xentity = await prisma.xEntity.findUniqueOrThrow({
-    where: { id: `${props.params.entityType}/${props.params.id}` },
+    where: { id: props.params.id },
     select: {
       identity: {
         select: {
@@ -31,7 +31,7 @@ export default async function Page(props: { params: { entityType: string, id: st
           description: true,
         }
       },
-      datasets: {
+      libraries: {
         select: {
           id: true,
           identity: {
@@ -54,7 +54,7 @@ export default async function Page(props: { params: { entityType: string, id: st
             where: {
               contains: {
                 some: {
-                  id: `${props.params.entityType}/${props.params.id}`
+                  id: props.params.id
                 }
               }
             },
@@ -62,6 +62,7 @@ export default async function Page(props: { params: { entityType: string, id: st
               id: true,
               identity: {
                 select: {
+                  type: true,
                   label: true,
                   description: true,
                 }
@@ -77,25 +78,25 @@ export default async function Page(props: { params: { entityType: string, id: st
       <Container><Typography variant="h1">{xentity.identity.label}</Typography></Container>
       <Container><Typography variant="caption">Description: {xentity.identity.description}</Typography></Container>
       {/* <SearchField q={searchParams.q ?? ''} /> */}
-      {xentity.datasets.map(dataset => (
-        <ListItemCollapsible key={dataset.id} primary={
+      {xentity.libraries.map(library => (
+        <ListItemCollapsible key={library.id} primary={
           <div className="flex flex-row">
             <div className="flex-0">
-              {dataset.dcc_asset.dcc?.icon ? <Image src={dataset.dcc_asset.dcc.icon} alt={dataset.dcc_asset.dcc.label} width={120} height={120} /> : null}
+              {library.dcc_asset.dcc?.icon ? <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.label} width={120} height={120} /> : null}
             </div>
             <Container className="flex-grow">
-              <Container>{dataset.identity.label}</Container>
-              <Container>{dataset.identity.description}</Container>
+              <Container>{library.identity.label}</Container>
+              <Container>{library.identity.description}</Container>
             </Container>
           </div>
         } defaultOpen={false}>
           <TableContainer component={Paper}>
             <Table aria-label="simple table">
               <TableBody>
-                {dataset.sets.map(set => (
+                {library.sets.map(set => (
                   <TableRow key={set.id}>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${set.id}`}>{set.identity.label}</Link>
+                      <Link href={`/data/processed/${set.identity.type}/${set.id}`}>{set.identity.label}</Link>
                     </TableCell>
                     <TableCell>
                       {set.identity.description}
