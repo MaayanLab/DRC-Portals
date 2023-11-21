@@ -49,6 +49,7 @@ export default async function Page(props: { params: { entity_type: string }, sea
               select: {
                 dcc: {
                   select: {
+                    short_label: true,
                     icon: true,
                     label: true,
                   },
@@ -85,6 +86,9 @@ export default async function Page(props: { params: { entity_type: string }, sea
           <TableHead>
             <TableRow>
               <TableCell component="th">
+                <Typography variant='h3'>Source</Typography>
+              </TableCell>
+              <TableCell component="th">
                 <Typography variant='h3'>Label</Typography>
               </TableCell>
               <TableCell component="th">
@@ -98,15 +102,19 @@ export default async function Page(props: { params: { entity_type: string }, sea
                   key={item.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                <TableCell>
-                  {item.library.dcc_asset.dcc?.icon ? <Image src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} width={120} height={120} /> : null}
+                <TableCell className="w-4 relative">
+                  {item.library.dcc_asset.dcc?.icon ?
+                    <Link href={`/data/matrix/${item.library.dcc_asset.dcc.short_label}`}>
+                      <Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill />
+                    </Link>
+                    : null}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
                     <Typography variant='h6'>{item.identity.label}</Typography>
                   </Link>
                   <Link href={`/data/processed/${item.identity.type}`}>
-                    <Typography variant='caption' sx={{textTransform: 'capitalize'}}>{capitalize(item.id.split('/')[2])} {capitalize(item.id.split('/')[0])} Set</Typography>
+                    <Typography variant='caption' sx={{textTransform: 'capitalize'}}>{capitalize(item.identity.type.split('/')[2])} {capitalize(item.identity.type.split('/')[0])} Set</Typography>
                   </Link>
                 </TableCell>
                 <TableCell>{item.identity.description}</TableCell>

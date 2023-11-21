@@ -97,8 +97,12 @@ export default async function Page(props: { searchParams: Record<string, string 
                     key={library.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell>
-                      {library.dcc_asset.dcc?.icon ? <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.short_label ?? ''} width={120} height={120} /> : null}
+                    <TableCell className="w-4 relative">
+                      {library.dcc_asset.dcc?.icon ?
+                        <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>
+                          <Image className="p-2 object-contain" src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.short_label ?? ''} fill />
+                        </Link>
+                        : null}
                     </TableCell>
                     <TableCell component="th" scope="row">
                       <Link href={`/data/processed/library/${library.id}`}>

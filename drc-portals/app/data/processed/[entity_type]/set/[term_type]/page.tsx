@@ -50,6 +50,7 @@ export default async function Page(props: { params: { entity_type: string, term_
               select: {
                 dcc: {
                   select: {
+                    short_label: true,
                     icon: true,
                     label: true,
                   },
@@ -100,8 +101,12 @@ export default async function Page(props: { params: { entity_type: string, term_
                     key={item.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell>
-                      {item.library.dcc_asset.dcc?.icon ? <Image src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} width={120} height={120} /> : null}
+                    <TableCell className="w-4 relative">
+                      {item.library.dcc_asset.dcc?.icon ?
+                        <Link href={`/data/matrix/${item.library.dcc_asset.dcc.short_label}`}>
+                          <Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill />
+                        </Link>
+                        : null}
                     </TableCell>
                     <TableCell component="th" scope="row">
                       <Link href={`/data/processed/${item.identity.type}/${item.id}`}>

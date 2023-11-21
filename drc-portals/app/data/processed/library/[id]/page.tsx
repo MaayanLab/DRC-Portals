@@ -47,6 +47,7 @@ export default async function Page(props: { params: { id: string }, searchParams
           select: {
             dcc: {
               select: {
+                short_label: true,
                 label: true,
                 icon: true,
               }
@@ -74,6 +75,7 @@ export default async function Page(props: { params: { id: string }, searchParams
             id: true,
             identity: {
               select: {
+                type: true,
                 label: true,
                 description: true,
               },
@@ -95,7 +97,11 @@ export default async function Page(props: { params: { id: string }, searchParams
     <Container component="form" action="" method="GET">
       <div className="flex flex-column">
         <div className="flex-grow-0 self-center justify-self-center">
-          {library.dcc_asset.dcc?.icon ? <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.label} width={240} height={240} /> : null}
+          {library.dcc_asset.dcc?.icon ?
+            <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>
+              <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.label} width={240} height={240} />
+            </Link>
+            : null}
         </div>
         <Container className="flex-grow">
           <Container><Typography variant="h1">{library.identity.label}</Typography></Container>

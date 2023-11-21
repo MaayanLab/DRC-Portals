@@ -52,6 +52,7 @@ export default async function Page(props: { params: { entity_type: string, term_
               select: {
                 dcc: {
                   select: {
+                    short_label: true,
                     icon: true,
                     label: true,
                   },
@@ -115,11 +116,16 @@ export default async function Page(props: { params: { entity_type: string, term_
     <Container component="form" action="" method="GET">
       <div className="flex flex-column">
         <div className="flex-grow-0 self-center justify-self-center">
-          {xset.library.dcc_asset.dcc?.icon ? <Image src={xset.library.dcc_asset.dcc.icon} alt={xset.library.dcc_asset.dcc.label} width={240} height={240} /> : null}
+          {xset.library.dcc_asset.dcc?.icon ?
+            <Link href={`/data/matrix/${xset.library.dcc_asset.dcc.short_label}`}>
+              <Image src={xset.library.dcc_asset.dcc.icon} alt={xset.library.dcc_asset.dcc.label} width={240} height={240} />
+            </Link>
+            : null}
         </div>
         <Container className="flex-grow">
           <Container><Typography variant="h1">{xset.identity.label}</Typography></Container>
           <Container><Typography variant="caption">Description: {xset.identity.description}</Typography></Container>
+          {xset.library.dcc_asset.dcc ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${xset.library.dcc_asset.dcc.short_label}`}>{xset.library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
           <Container><Typography variant="caption">Library: <Link href={`/data/processed/${xset.library.identity.type}/${xset.library.id}`}>{xset.library.identity.label}</Link></Typography></Container>
           <Container><Typography variant="caption">{pluralize(capitalize(props.params.entity_type))}: {xset._count.contains}</Typography></Container>
         </Container>

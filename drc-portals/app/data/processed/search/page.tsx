@@ -50,6 +50,7 @@ export default async function Page(props: { searchParams: Record<string, string 
                   select: {
                     dcc: {
                       select: {
+                        short_label: true,
                         label: true,
                         icon: true
                       },
@@ -67,6 +68,7 @@ export default async function Page(props: { searchParams: Record<string, string 
               select: {
                 dcc: {
                   select: {
+                    short_label: true,
                     label: true,
                     icon: true,
                   },
@@ -115,10 +117,10 @@ export default async function Page(props: { searchParams: Record<string, string 
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       >
                           <TableCell className="w-4 relative">
-                            {item.library && item.library.dcc_asset.dcc?.icon ? <Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill />
-                              : item.set && item.set.library.dcc_asset.dcc?.icon ? <Image className="p-2 object-contain" src={item.set.library.dcc_asset.dcc.icon} alt={item.set.library.dcc_asset.dcc.label} fill />
-                              : item.type === 'gene' ? <Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill />
-                              : item.type === 'drug' ? <Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill />
+                            {item.library && item.library.dcc_asset.dcc?.icon ? <Link href={`/data/matrix/${item.library.dcc_asset.dcc.short_label}`}><Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill /></Link>
+                              : item.set && item.set.library.dcc_asset.dcc?.icon ? <Link href={`/data/matrix/${item.set.library.dcc_asset.dcc.short_label}`}><Image className="p-2 object-contain" src={item.set.library.dcc_asset.dcc.icon} alt={item.set.library.dcc_asset.dcc.label} fill /></Link>
+                              : item.type === 'gene' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill /></Link>
+                              : item.type === 'drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>
                               : null}
                           </TableCell>
                           <TableCell component="th" scope="row">
