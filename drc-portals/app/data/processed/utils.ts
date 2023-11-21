@@ -4,5 +4,6 @@ export function capitalize(s: string) {
 }
 
 export function pluralize(s: string) {
+  if (s.endsWith('y')) return `${s.slice(0, -1)}ies`
   return `${s}s`
 }

@@ -4,12 +4,12 @@ import Link from "next/link"
 import { z } from 'zod'
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { capitalize, pluralize } from "@/app/data/processed/utils"
 import Image from "next/image"
+import { pluralize } from "@/app/data/processed/utils";
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string, termType: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -24,36 +24,17 @@ export default async function Page(props: { params: { entityType: string, termTy
   }).parse(props.searchParams)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
-  const [xset, xset_genes] = await prisma.$transaction([
-    prisma.xSet.findUniqueOrThrow({
-      where: {
-        id: `${props.params.entityType}/set/${props.params.termType}/${props.params.id}`,
-      },
+  const [library, library_sets] = await prisma.$transaction([
+    prisma.xLibrary.findUniqueOrThrow({
+      where: { id: props.params.id },
       select: {
+        entity_type: true,
+        term_type: true,
+        dcc_asset_link: true,
         _count: {
           select: {
-            contains: true,
-          },
-        },
-        dataset: {
-          select: {
-            id: true,
-            identity: {
-              select: {
-                label: true,
-                description: true,
-              }
-            },
-            dcc_asset: {
-              select: {
-                dcc: {
-                  select: {
-                    icon: true,
-                    label: true,
-                  },
-                },
-              },
-            },
+            sets: true,
+            entities: true,
           }
         },
         identity: {
@@ -62,16 +43,24 @@ export default async function Page(props: { params: { entityType: string, termTy
             description: true,
           }
         },
-      }
-    }),
-    prisma.xSet.findUniqueOrThrow({
-      where: {
-        id: `${props.params.entityType}/set/${props.params.termType}/${props.params.id}`,
+        dcc_asset: {
+          select: {
+            dcc: {
+              select: {
+                label: true,
+                icon: true,
+              }
+            },
+          }
+        },
       },
+    }),
+    prisma.xLibrary.findUniqueOrThrow({
+      where: { id: props.params.id },
       select: {
         _count: {
           select: {
-            contains: searchParams.q ? {
+            sets: searchParams.q ? {
               where: {
                 identity: {
                   OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
@@ -80,15 +69,15 @@ export default async function Page(props: { params: { entityType: string, termTy
             } : true,
           },
         },
-        contains: {
+        sets: {
           select: {
             id: true,
             identity: {
               select: {
                 label: true,
                 description: true,
-              }
-            }
+              },
+            },
           },
           where: searchParams.q ? {
             identity: {
@@ -97,22 +86,24 @@ export default async function Page(props: { params: { entityType: string, termTy
           } : {},
           skip: offset,
           take: limit,
-        },
-      }
+        }
+      },
     }),
   ])
-  const ps = Math.floor(xset_genes._count.contains / pageSize) + 1
+  const ps = Math.floor(library_sets._count.sets / pageSize) + 1
   return (
     <Container component="form" action="" method="GET">
       <div className="flex flex-column">
         <div className="flex-grow-0 self-center justify-self-center">
-          {xset.dataset.dcc_asset.dcc?.icon ? <Image src={xset.dataset.dcc_asset.dcc.icon} alt={xset.dataset.dcc_asset.dcc.label} width={240} height={240} /> : null}
+          {library.dcc_asset.dcc?.icon ? <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.label} width={240} height={240} /> : null}
         </div>
         <Container className="flex-grow">
-          <Container><Typography variant="h1">{xset.identity.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {xset.identity.description}</Typography></Container>
-          <Container><Typography variant="caption">Dataset: <Link href={`/data/processed/${xset.dataset.id}`}>{xset.dataset.identity.label}</Link></Typography></Container>
-          <Container><Typography variant="caption">{pluralize(capitalize(props.params.entityType))}: {xset._count.contains}</Typography></Container>
+          <Container><Typography variant="h1">{library.identity.label}</Typography></Container>
+          <Container><Typography variant="caption">Description: {library.identity.description}</Typography></Container>
+          {library.dcc_asset.dcc?.label ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>{library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
+          <Container><Typography variant="caption">Number of {pluralize(library.entity_type)}: {library._count.entities}</Typography></Container>
+          <Container><Typography variant="caption">Number of {library.term_type} {library.entity_type} sets: {library._count.sets}</Typography></Container>
+          <Container><Typography variant="caption">Download: <Link href={library.dcc_asset_link}>{library.dcc_asset_link}</Link></Typography></Container>
         </Container>
       </div>
       <SearchField q={searchParams.q ?? ''} />
@@ -129,15 +120,17 @@ export default async function Page(props: { params: { entityType: string, termTy
             </TableRow>
           </TableHead>
           <TableBody>
-            {xset_genes.contains.map(xentity => (
+            {library_sets.sets.map(set => (
               <TableRow
-                key={xentity.id}
+                key={set.id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                  <TableCell component="th" scope="row">
-                    <Link href={`/data/processed/${xentity.id}`}>{xentity.identity.label}</Link>
-                  </TableCell>
-                  <TableCell>{xentity.identity.description}</TableCell>
+                <TableCell component="th" scope="row">
+                  <Link href={`/data/processed/${set.identity.type}/${set.id}`}>
+                    <Typography variant='h6'>{set.identity.label}</Typography>
+                  </Link>
+                </TableCell>
+                <TableCell>{set.identity.description}</TableCell>
               </TableRow>
             ))}
           </TableBody>

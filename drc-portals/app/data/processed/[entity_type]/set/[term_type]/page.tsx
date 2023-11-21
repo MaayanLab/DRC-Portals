@@ -5,11 +5,10 @@ import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import Image from "next/image";
-import { capitalize } from "@/app/data/processed/utils";
 
 const pageSize = 10
 
-export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string, term_type: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -24,35 +23,37 @@ export default async function Page(props: { searchParams: Record<string, string 
   }).parse(props.searchParams)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
-  const [datasets, count] = await prisma.$transaction([
-    prisma.xDataset.findMany({
+  const [items, count] = await prisma.$transaction([
+    prisma.xSet.findMany({
       where: searchParams.q ? {
         identity: {
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-        }
-      } : {},
-      select: {
-        _count: {
-          select: {
-            sets: true,
-            entities: true,
-          }
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+          searchable: { search: searchParams.q }
         },
+      } : {
+        identity: {
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+        },
+      },
+      select: {
         id: true,
-        termType: true,
-        entityType: true,
         identity: {
           select: {
+            type: true,
             label: true,
             description: true,
-          }
+          },
         },
-        dcc_asset: {
+        library: {
           select: {
-            dcc: {
+            dcc_asset: {
               select: {
-                short_label: true,
-                icon: true,
+                dcc: {
+                  select: {
+                    icon: true,
+                    label: true,
+                  },
+                },
               },
             },
           },
@@ -61,12 +62,17 @@ export default async function Page(props: { searchParams: Record<string, string 
       skip: offset,
       take: limit,
     }),
-    prisma.xDataset.count({
+    prisma.xSet.count({
       where: searchParams.q ? {
         identity: {
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-        }
-      } : {},
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+          searchable: { search: searchParams.q }
+        },
+      } : {
+        identity: {
+          type: `${props.params.entity_type}/set/${props.params.term_type}`,
+        },
+      },
     }),
   ])
   const ps = Math.floor(count / pageSize) + 1
@@ -86,27 +92,23 @@ export default async function Page(props: { searchParams: Record<string, string 
               <TableCell component="th">
                 <Typography variant='h3'>Description</Typography>
               </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Type</Typography>
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {datasets.map(dataset => (
+            {items.map(item => (
                 <TableRow
-                    key={dataset.id}
+                    key={item.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                     <TableCell>
-                      {dataset.dcc_asset.dcc?.icon ? <Image src={dataset.dcc_asset.dcc.icon} alt={dataset.dcc_asset.dcc.short_label ?? ''} width={120} height={120} /> : null}
+                      {item.library.dcc_asset.dcc?.icon ? <Image src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} width={120} height={120} /> : null}
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${dataset.id}`}>
-                        <Typography variant='h6'>{dataset.identity.label}</Typography>
+                      <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
+                        <Typography variant='h6'>{item.identity.label}</Typography>
                       </Link>
                     </TableCell>
-                    <TableCell>{dataset.identity.description}</TableCell>
-                    <TableCell>{capitalize(`${dataset.termType} ${dataset.entityType} sets`)}</TableCell>
+                    <TableCell>{item.identity.description}</TableCell>
                 </TableRow>
             ))}
           </TableBody>

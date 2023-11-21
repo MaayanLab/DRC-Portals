@@ -4,12 +4,10 @@ import Link from "next/link";
 import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { capitalize } from "@/app/data/processed/utils"
-import Image from "next/image";
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -25,53 +23,40 @@ export default async function Page(props: { params: { entityType: string }, sear
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [items, count] = await prisma.$transaction([
-    prisma.xSet.findMany({
+    prisma.xEntity.findMany({
       where: searchParams.q ? {
         identity: {
-          searchable: { search: searchParams.q }
+          type: props.params.entity_type,
+          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
         },
-        dataset: {
-          entityType: props.params.entityType,
+      } : {
+        identity: {
+          type: props.params.entity_type,
         },
-      } : {},
+      },
       select: {
         id: true,
         identity: {
           select: {
+            type: true,
             label: true,
             description: true,
-          },
-        },
-        dataset: {
-          select: {
-            dcc_asset: {
-              select: {
-                dcc: {
-                  select: {
-                    icon: true,
-                    label: true,
-                  },
-                },
-              },
-            },
           },
         },
       },
       skip: offset,
       take: limit,
     }),
-    prisma.xSet.count({
+    prisma.xEntity.count({
       where: searchParams.q ? {
         identity: {
-          searchable: { search: searchParams.q }
-        },
-        dataset: {
-          entityType: props.params.entityType,
-        },
+          type: props.params.entity_type,
+          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+        }
       } : {
-        dataset: {
-          entityType: props.params.entityType,
-        },
+        identity: {
+          type: props.params.entity_type,
+        }
       },
     }),
   ])
@@ -92,29 +77,19 @@ export default async function Page(props: { params: { entityType: string }, sear
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map(item => {
-              const split = item.id.indexOf('/')
-              const type = item.id.slice(0, split)
-              return (
+            {items.map(item => (
                 <TableRow
                     key={item.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell>
-                      {item.dataset.dcc_asset.dcc?.icon ? <Image src={item.dataset.dcc_asset.dcc.icon} alt={item.dataset.dcc_asset.dcc.label} width={120} height={120} /> : null}
-                    </TableCell>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.id}`}>
+                      <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
                         <Typography variant='h6'>{item.identity.label}</Typography>
-                      </Link>
-                      <Link href={`/data/processed/${item.id.split('/').slice(0, -1).join('/')}`}>
-                        <Typography variant='caption' sx={{textTransform: 'capitalize'}}>{capitalize(item.id.split('/')[2])} {capitalize(item.id.split('/')[0])} Set</Typography>
                       </Link>
                     </TableCell>
                     <TableCell>{item.identity.description}</TableCell>
                 </TableRow>
-              )
-            })}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

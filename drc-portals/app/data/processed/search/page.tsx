@@ -31,6 +31,7 @@ export default async function Page(props: { searchParams: Record<string, string 
       },
       select: {
         id: true,
+        type: true,
         label: true,
         description: true,
         entity: {
@@ -41,7 +42,7 @@ export default async function Page(props: { searchParams: Record<string, string 
         set: {
           select: {
             id: true,
-            dataset: {
+            library: {
               select: {
                 dcc_asset: {
                   select: {
@@ -57,7 +58,7 @@ export default async function Page(props: { searchParams: Record<string, string 
             },
           },
         },
-        dataset: {
+        library: {
           select: {
             id: true,
             dcc_asset: {
@@ -112,18 +113,18 @@ export default async function Page(props: { searchParams: Record<string, string 
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       >
                           <TableCell>
-                            {item.dataset && item.dataset.dcc_asset.dcc?.icon ? <Image src={item.dataset.dcc_asset.dcc.icon} alt={item.dataset.dcc_asset.dcc.label} width={120} height={120} />
-                              : item.set && item.set.dataset.dcc_asset.dcc?.icon ? <Image src={item.set.dataset.dcc_asset.dcc.icon} alt={item.set.dataset.dcc_asset.dcc.label} width={120} height={120} />
+                            {item.library && item.library.dcc_asset.dcc?.icon ? <Image src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} width={120} height={120} />
+                              : item.set && item.set.library.dcc_asset.dcc?.icon ? <Image src={item.set.library.dcc_asset.dcc.icon} alt={item.set.library.dcc_asset.dcc.label} width={120} height={120} />
                               : null}
                           </TableCell>
                           <TableCell component="th" scope="row">
-                            <Link href={`/data/processed/${item.id}`}>
+                            <Link href={`/data/processed/${item.type}/${item.id}`}>
                               <Typography variant='h6'>{item.label}</Typography>
                             </Link>
                             <Typography variant='caption'>{
-                              item.entity ? <Link href={`/data/processed/${item.id.split('/').slice(0, -1).join('/')}`}>{capitalize(item.id.split('/')[0])}</Link>
-                                : item.set ? <Link href={`/data/processed/${item.id.split('/').slice(0, -1).join('/')}`}>{capitalize(item.id.split('/')[2])} {capitalize(item.id.split('/')[0])} Set</Link>
-                                : item.dataset ? <Link href={`/data/processed/${item.id.split('/').slice(0, -1).join('/')}`}>Dataset</Link>
+                              item.entity ? <Link href={`/data/processed/${item.type}`}>{capitalize(item.type.split('/')[0])}</Link>
+                                : item.set ? <Link href={`/data/processed/${item.type}`}>{capitalize(item.type.split('/')[2])} {capitalize(item.type.split('/')[0])} Set</Link>
+                                : item.library ? <Link href={`/data/processed/${item.type}`}>{capitalize(item.type.split('/')[0])}</Link>
                                 : null
                             }</Typography>
                           </TableCell>

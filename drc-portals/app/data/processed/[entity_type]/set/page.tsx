@@ -4,10 +4,12 @@ import Link from "next/link";
 import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
+import { capitalize } from "@/app/data/processed/utils"
+import Image from "next/image";
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entityType: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = z.object({
     q: z.union([
       z.array(z.string()).transform(qs => qs.join(' ')),
@@ -23,35 +25,54 @@ export default async function Page(props: { params: { entityType: string }, sear
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [items, count] = await prisma.$transaction([
-    prisma.xEntity.findMany({
+    prisma.xSet.findMany({
       where: searchParams.q ? {
-        id: { startsWith: `${props.params.entityType}/` },
         identity: {
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+          searchable: { search: searchParams.q }
         },
-      } : {
-        id: { startsWith: `${props.params.entityType}/` },
-      },
+        library: {
+          entity_type: props.params.entity_type,
+        },
+      } : {},
       select: {
         id: true,
         identity: {
           select: {
+            type: true,
             label: true,
             description: true,
+          },
+        },
+        library: {
+          select: {
+            dcc_asset: {
+              select: {
+                dcc: {
+                  select: {
+                    icon: true,
+                    label: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
       skip: offset,
       take: limit,
     }),
-    prisma.xEntity.count({
+    prisma.xSet.count({
       where: searchParams.q ? {
-        id: { startsWith: `${props.params.entityType}/` },
         identity: {
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-        }
+          searchable: { search: searchParams.q }
+        },
+        library: {
+          entity_type: props.params.entity_type,
+        },
       } : {
-        id: { startsWith: `${props.params.entityType}/` },
+        library: {
+          entity_type: props.params.entity_type,
+        },
       },
     }),
   ])
@@ -73,17 +94,23 @@ export default async function Page(props: { params: { entityType: string }, sear
           </TableHead>
           <TableBody>
             {items.map(item => (
-                <TableRow
-                    key={item.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.id}`}>
-                        <Typography variant='h6'>{item.identity.label}</Typography>
-                      </Link>
-                    </TableCell>
-                    <TableCell>{item.identity.description}</TableCell>
-                </TableRow>
+              <TableRow
+                  key={item.id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell>
+                  {item.library.dcc_asset.dcc?.icon ? <Image src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} width={120} height={120} /> : null}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
+                    <Typography variant='h6'>{item.identity.label}</Typography>
+                  </Link>
+                  <Link href={`/data/processed/${item.identity.type}`}>
+                    <Typography variant='caption' sx={{textTransform: 'capitalize'}}>{capitalize(item.id.split('/')[2])} {capitalize(item.id.split('/')[0])} Set</Typography>
+                  </Link>
+                </TableCell>
+                <TableCell>{item.identity.description}</TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
