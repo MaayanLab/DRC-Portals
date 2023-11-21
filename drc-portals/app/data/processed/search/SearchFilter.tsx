@@ -3,7 +3,7 @@
 import React from 'react'
 import { useSearchParams } from "next/navigation"
 import Link from 'next/link'
-import { Checkbox, FormControlLabel } from '@mui/material'
+import { Checkbox, FormControlLabel, Typography } from '@mui/material'
 import { pluralize, type_to_string } from '@/app/data/processed/utils'
 
 export default function SearchFilter({ type, count }: { type: string, count: number }) {
@@ -19,7 +19,7 @@ export default function SearchFilter({ type, count }: { type: string, count: num
   }, [type, rawSearchParams])
   return (
     <Link key={type} href={`?${searchParams.toString()}`}>
-      <FormControlLabel control={<Checkbox />} label={`${pluralize(type_to_string(type))} (${count})`} checked={currentTypeSet} />
+      <FormControlLabel control={<Checkbox />} label={<Typography sx={{ fontSize: '60%' }}>{pluralize(type_to_string(type))} ({count})</Typography>} checked={currentTypeSet} />
     </Link>
   )
 }
