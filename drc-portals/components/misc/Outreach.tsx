@@ -104,8 +104,8 @@ async function Outreach({featured=true}:{
                       </div>
                   }
                   <Typography variant="subtitle1">{e.short_description}</Typography>
-                  {e.start_date && <Typography variant="subtitle1"><b>Start Date:</b> {`${formatter.format(e.start_date?.getMonth())} ${e.start_date?.getDate()}, ${e.start_date?.getFullYear()}`}</Typography>}
-                  {e.end_date && <Typography variant="subtitle1"><b>End Date:</b> {`${formatter.format(e.end_date?.getMonth())} ${e.end_date?.getDate()}, ${e.end_date?.getFullYear()}`}</Typography>}
+                  {e.start_date && <Typography variant="subtitle1"><b>Start Date:</b> {`${formatter.format(e.start_date)} ${e.start_date?.getDate()}, ${e.start_date?.getFullYear()}`}</Typography>}
+                  {e.end_date && <Typography variant="subtitle1"><b>End Date:</b> {`${formatter.format(e.end_date)} ${e.end_date?.getDate()}, ${e.end_date?.getFullYear()}`}</Typography>}
                   <Link href={e.link || ''} target="_blank" rel="noopener noreferrer"><Button variant="contained" color="primary">Visit event page</Button></Link>
                 </Stack>
               </Wrapper>
