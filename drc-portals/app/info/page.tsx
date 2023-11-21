@@ -4,6 +4,8 @@ import Image from "next/image"
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
+import Chip from '@mui/material/Chip'
+
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -39,17 +41,73 @@ export default async function Home() {
         <Grid item xs={6} className="flex items-center justify-center">
           <Carousel/>
         </Grid>
-        <Grid item xs={3} sx={{marginTop: 10}}>
-          <Stack spacing={3}>
+        <Grid item xs={12} sx={{marginTop: 10, textAlign: "center"}}>
+          <Container maxWidth="md">
             <Typography variant="h2" color="secondary">
               Common Fund programs partnered with the CFDE
             </Typography>
-            <Typography variant="subtitle1">
-            The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
+            <Typography variant="subtitle1" color="secondary">
+              The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
             </Typography>
-          </Stack>
+          </Container>
         </Grid>
-        <Grid item xs={9} sx={{marginTop: 10}}><CFPrograms spacing={4}/></Grid>
+        <Grid item xs={12} sx={{marginTop: 5}}><CFPrograms spacing={2}/></Grid>
+        <Grid item xs={12} sx={{marginTop: 5}}>
+          <Paper sx={{
+                        boxShadow: "none", 
+                        background: '#EDF0F8',
+                        padding: 5, 
+                        borderRadius: 5, 
+                        width: "100vw", 
+                        marginLeft: "calc((-100vw + 100%) / 2)", 
+                        marginRight: "calc((-100vw + 100%) / 2)"}}>
+            <Container maxWidth="lg">
+                <Grid container spacing={2} alignItems={"center"}>
+                  <Grid item xs={12} md={6} className="flex items-center justify-center">
+                      <Image  src="/img/updated_assets/side_pic.svg" alt="side_pic" width={600} height={600}/>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Stack direction={"column"} spacing={2}>
+                      <Chip color="primary" label="PRODUCT UPDATE" sx={{width: 200}}/>
+                      <Typography variant="h2" color={"secondary"}>
+                        DATA RESOURCE AND KNOWLEDGE CENTERS
+                      </Typography>
+                      <Typography variant="body1" color={"secondary"}>
+                        The Data Resource and Knowledge Centers aims to make Common Fund-generated data and resources more FAIR (Findable, Accessible, Interoperable, and Reusable), and to catalyze new biomedical discoveries that would not be possible without integration across the Common Fund’s rich datasets.
+                      </Typography>
+                      <Link href="/info/about">
+                        <Button variant="contained" 
+                          sx={{textTransform: "uppercase"}}
+                          color="primary"
+                          endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                            Discover DRC & KC
+                        </Button>
+                      </Link>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sx={{marginTop: 10}}>
+                    <Paper sx={{borderRadius: 5, height: 352}}>
+                      <Grid container spacing={2} sx={{height: 290}} justifyContent={"space-around"} alignItems={"center"}>
+                        <Grid item sx={{width: 500}}>
+                          <Typography variant={"h2"} color="secondary">
+                            Standards & Protocols
+                          </Typography>
+                          <Typography variant={"subtitle1"} color="secondary">
+                            Learn more about the standards and protocols for accessing and submitting data to the portal
+                          </Typography>
+                        </Grid>
+                      <Grid item>
+                        <Link href="/">
+                          <Button variant="contained" color="primary">Find Out More</Button>
+                        </Link>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Container>
+          </Paper>
+        </Grid>
         <Grid item xs={12} sx={{marginTop: 10}}>
           <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
             <Grid container spacing={2}>
@@ -86,42 +144,23 @@ export default async function Home() {
             </Grid>
           </Paper>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 10}}>
-          <Paper sx={{
-                      boxShadow: "none", 
-                      background: '#FAFAFA',
-                      padding: 5, 
-                      borderRadius: 0, 
-                      width: "100vw", 
-                      marginLeft: "calc((-100vw + 100%) / 2)", 
-                      marginRight: "calc((-100vw + 100%) / 2)"}}>
-            <Container maxWidth={"lg"}>
-              <Grid container spacing={2} justifyContent={"space-between"} alignItems={"center"}>
-                <Grid item>
-                  <Typography variant={"h2"}>
-                    Standards & Protocols
-                  </Typography>
-                  <Typography variant={"subtitle1"}>
-                    Learn more about the standards and protocols for accessing and submitting data to the portal
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Link href="/">
-                    <Button variant="contained" color="secondary">Find Out More</Button>
-                  </Link>
-                </Grid>
-              </Grid>
-            </Container>
+        <Grid item xs={12} sx={{marginTop: 5, marginBottom: 5}}>
+          <Paper color="primary" sx={{
+                        boxShadow: "none", 
+                        background: "#336699",
+                        padding: 5, 
+                        borderRadius: 5, 
+                        width: "100vw", 
+                        color: "#FFF",
+                        marginLeft: "calc((-100vw + 100%) / 2)", 
+                        marginRight: "calc((-100vw + 100%) / 2)"}}>
+            <Container maxWidth="lg">
+              <Typography variant={"h2"} sx={{marginBottom: 5}} color="white">
+                Training & Outreach
+              </Typography>
+              <Outreach/>  
+            </Container>    
           </Paper>
-        </Grid>
-        <Grid item xs={12} sx={{marginTop: 10, textAlign: "center"}}>
-          <Typography variant={"h2"}>
-            Training & Outreach
-          </Typography>
-        </Grid>
-        <Outreach/>
-        <Grid item xs={12} sx={{textAlign: "center"}}>
-          <Link href={"/info/outreach"}><Button variant={"contained"} color={"secondary"}>See More outreach events</Button></Link>
         </Grid>
         <Grid item xs={12} md={6}>
           <Twitter/>

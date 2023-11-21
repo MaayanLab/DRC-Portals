@@ -53,10 +53,10 @@ export default async function PublicationsServer({
     })
     return (
         <Paper sx={{boxShadow: "none", height: "100%"}}>
-            <Typography variant="h2">Publications</Typography>
+            <Typography variant="h2" color="secondary">Publications</Typography>
             {all &&
               <div className="mb-5">
-                <Typography variant="subtitle1">
+                <Typography variant="subtitle1" color="secondary">
                   The publications listed here are automatically extracted from PubMed based on grants awarded to the Common Fund Data Ecosystem (CFDE) Participating Common Fund programs’ DCCs and CFDE awarded R03s.
                 </Typography>
               </div>
@@ -64,7 +64,7 @@ export default async function PublicationsServer({
             <PublicationsClient searchParams={searchParams} count={count} all={all}>
               {publications.map((pub, i)=>(
               <div key={i} className="mb-2 space-x-1">
-                  <Typography variant="caption">
+                  <Typography color="secondary" variant="caption">
                       {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
                   </Typography>
                   { all &&

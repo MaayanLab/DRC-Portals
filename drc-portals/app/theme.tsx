@@ -139,12 +139,35 @@ export const cfde_theme = createTheme({
                 root: ({ ownerState }) => ({
                     textTransform: "none",
                     borderRadius: 120,
+                    fontWeight: 600,
+                    padding: "10px 16px",
                     ...(ownerState.variant === 'contained' &&
                       ownerState.color === 'primary' && {
                         backgroundColor: '#C3E1E6',
                         color: '#336699',
                       }),
                     ...(ownerState.variant === 'contained' &&
+                      ownerState.color === 'tertiary' && {
+                        backgroundColor: '#7187C3',
+                        color: '#FFFFFF',
+                      }),
+                  }),
+              },
+        },
+        MuiChip: {
+            styleOverrides: {
+                // Name of the slot
+                root: ({ ownerState }) => ({
+                    textTransform: "none",
+                    borderRadius: 120,
+                    fontWeight: 600,
+                    padding: "10px 16px",
+                    ...(ownerState.variant === 'filled' &&
+                      ownerState.color === 'primary' && {
+                        backgroundColor: '#C3E1E6',
+                        color: '#336699',
+                      }),
+                    ...(ownerState.variant === 'filled' &&
                       ownerState.color === 'tertiary' && {
                         backgroundColor: '#7187C3',
                         color: '#FFFFFF',
@@ -186,6 +209,10 @@ declare module '@mui/material/styles' {
 
   declare module "@mui/material" {
     interface ButtonPropsColorOverrides {
+        tertiary: true;
+    }
+
+    interface ChipPropsColorOverrides {
         tertiary: true;
     }
   }
