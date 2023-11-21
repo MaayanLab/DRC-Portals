@@ -66,13 +66,13 @@ export default async function InfoHeader() {
                   </Link>
                 </Stack>
               </Grid>
-              <Grid item>
+              {/* <Grid item>
                 <TextField sx={{width: 400}} placeholder='Search' InputProps={{
                     sx: {borderRadius: 1, height: 50},
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={12}>
                 <NavBreadcrumbs/>
               </Grid>
