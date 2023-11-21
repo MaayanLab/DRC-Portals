@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { PrismaClient } from "@prisma/client"
 
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
@@ -9,16 +8,17 @@ import CardActions from '@mui/material/CardActions'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
 import Divider from '@mui/material/Divider'
-import InputAdornment from '@mui/material/InputAdornment'
 import Icon from '@mdi/react';
 import Fab from '@mui/material/Fab';
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import { mdiMagnify, mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
+import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
+import prisma from "@/lib/prisma"
+import SearchField from "./processed/SearchField"
+import { pluralize, type_to_string } from "./processed/utils"
 
 const search_cards = [
   {
@@ -51,6 +51,13 @@ const tool_cards = [
 ]
 
 export default async function Home() {
+  const counts = await prisma.xIdentity.groupBy({
+    by: ['type'],
+    _count: true,
+    orderBy: {
+      type: 'desc',
+    },
+  })
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -68,36 +75,28 @@ export default async function Home() {
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12} md={5}>
-                    <Stack spacing={2} justifyContent={"flex-start"}>
-                      <Typography color="secondary" className="text-left" variant="h2">COMMON FUND DATA RESOURCE PORTAL</Typography>
-                      <Typography color="secondary" className="text-left" variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
-                      <TextField sx={{width: 477}} 
-                        placeholder='Try MCF7, STAT3, blood, enrichment analysis' 
-                        InputProps={{
-                          sx: {borderRadius: 25, height: 50, fontSize: 16},
-                          endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
-                        }}
-                      />
-                      <div className="flex align-center space-x-10">
-                        <Button variant="outlined" color="secondary">Learn More</Button>
-                        <Button variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Search</Button>
-                      </div>
-                    </Stack>    
+                    <form action="/data/processed/search" method="GET">
+                      <Stack spacing={2} justifyContent={"flex-start"}>
+                        <Typography color="secondary" className="text-left" variant="h2">COMMON FUND DATA RESOURCE PORTAL</Typography>
+                        <Typography color="secondary" className="text-left" variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
+                        <SearchField q="" placeholder="Try MCF7, STAT3, blood, enrichment analysis" />
+                        <div className="flex align-center space-x-10">
+                          <Button variant="outlined" color="secondary">Learn More</Button>
+                          <Button variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
+                        </div>
+                      </Stack>
+                    </form>
                   </Grid>
                   <Grid item xs={12} md={7} className="align-center">
                     <Stack spacing={2} justifyContent={"flex-start"}>
-                      <div className="flex flex-col">
-                        <Typography variant="h2" color="secondary">1,494,556</Typography>
-                        <Typography variant="subtitle1" color="secondary">FILES</Typography>
-                      </div>
-                      <div className="flex flex-col">
-                        <Typography variant="h2" color="secondary">1459</Typography>
-                        <Typography variant="subtitle1" color="secondary">GENE SETS</Typography>
-                      </div>
-                      <div className="flex flex-col">
-                        <Typography variant="h2" color="secondary">755</Typography>
-                        <Typography variant="subtitle1" color="secondary">ASSERTIONS</Typography>
-                      </div>
+                      {counts.map(count => (
+                        <Link key={count.type} href={`/data/processed/${count.type}`}>
+                          <div className="flex flex-col">
+                            <Typography variant="stats_h3">{count._count}</Typography>
+                            <Typography variant="stats_sub">{pluralize(type_to_string(count.type)).toUpperCase()}</Typography>
+                          </div>
+                        </Link>
+                      ))}
                     </Stack>
                   </Grid>
                 </Grid>
