@@ -16,6 +16,7 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
             <TableCell sx={{fontWeight: 'bold'}} align="center">Date Modified</TableCell>
             <TableCell sx={{fontWeight: 'bold'}} align="center">Creator</TableCell>
             <TableCell sx={{fontWeight: 'bold'}} align="center">DCC Approved</TableCell>
+            <TableCell sx={{fontWeight: 'bold'}} align="center">DRC Approved</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -39,7 +40,10 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
                 <TableCell align="center" sx={{fontSize: '12pt'}}>{item.lastmodified}</TableCell>
                 <TableCell align="center" sx={{fontSize: '12pt'}}>{item.creator}</TableCell>
                 <TableCell align="center">
-                  {item.approved ? (<CheckCircle />) : (<span />)}
+                  {item.dccapproved ? (<CheckCircle />) : (<span />)}
+                </TableCell>
+                <TableCell align="center">
+                  {item.drcapproved ? (<CheckCircle />) : (<span />)}
                 </TableCell>
               </TableRow>
             )
