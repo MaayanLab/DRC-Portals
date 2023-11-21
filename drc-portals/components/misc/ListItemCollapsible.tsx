@@ -12,7 +12,7 @@ export default function ListItemCollapsible({ children, primary, defaultOpen = t
   return (
     <>
       <ListItemButton onClick={() => {setOpen(open => !open)}}>
-        <ListItemText primary={primary} />
+        <ListItemText primary={primary} primaryTypographyProps={{fontSize: '16px'}}/>
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>

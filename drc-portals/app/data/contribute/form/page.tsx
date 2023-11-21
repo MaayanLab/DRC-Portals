@@ -15,16 +15,22 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Link } from '@mui/material';
 import Status from './Status';
+import DCCSelect from './DCCSelect';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
   if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: {
       id: session.user.id
     }
   })
-  // TODO: incorporate user dcc here
+  if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+
+  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) {return <p>Access Denied</p>}
+  if (!user.dcc) return redirect("/data/contribute/account")
+
+
   return (
     <S3UploadForm>
       <Container className="mt-10">
@@ -34,27 +40,29 @@ export default async function UploadForm() {
             <TextField
               label="Uploader Name"
               name='name'
+              disabled
               defaultValue={user.name}
+              inputProps={{style: {fontSize: 16}}} // font size of input text
+              InputLabelProps={{style: {fontSize: 16}}} // font size of input label
             />
           </ThemedBox>
           <ThemedBox>
             <TextField
               label="Email"
               name='email'
+              disabled
               defaultValue={user.email}
+              inputProps={{style: {fontSize: 16}}}
+              InputLabelProps={{style: {fontSize: 16}}}
             />
           </ThemedBox>
           <ThemedBox>
-            <TextField
-              label="DCC"
-              name='dcc'
-              defaultValue="LINCS"
-            />
+            <DCCSelect dccOptions={user.dcc} />
           </ThemedBox>
         </Grid>
 
-        <Typography className='text-center p-5'>Please upload a zipped file containing your data/metdata files and a manifest.json file detailing files information. See {' '}
-        <Link href='/example_manifest.json' download>manifest.json template</Link>
+        <Typography  variant="subtitle1" className='text-center p-5'>Please upload a zipped file containing your data/metdata files and a manifest.json file detailing files information. See {' '}
+        <Link href='/example_manifest.json' color="secondary" download>manifest.json template</Link>
         </Typography>
         <ThemedStack>
           <FileDrop name="file" />
@@ -62,7 +70,7 @@ export default async function UploadForm() {
         <Status />
         <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
           <FormControl>
-            <Button variant="contained" color="secondary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+            <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
               Submit Form
             </Button>
           </FormControl>

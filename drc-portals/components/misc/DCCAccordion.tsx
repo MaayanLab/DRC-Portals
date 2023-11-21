@@ -9,14 +9,14 @@ import { dccAsset, dccAssetObj, dccAssetRecord } from '@/utils/dcc-assets';
 function AccordionHeader(
   props: {assetInfo: {current: dccAsset[], archived: dccAsset[]}, label: string, exp: boolean}
 ) {
-  const bgColor = (props.exp) ? '#372c72' : '#ffffff'
+  const bgColor = (props.exp) ? 'primary.dark' : '#ffffff'
   const textColor = (props.exp) ? '#ffffff' : '#212121'
   const secColor = (props.exp) ? '#ffffff' : 'text.secondary'
   if (props.assetInfo.current.length + props.assetInfo.archived.length < 1) {
     return (
       <AccordionSummary sx={{ backgroundColor: bgColor}}>
         <Typography sx={{ color: textColor, width: '32%' }}>{props.label}</Typography>
-        <Typography sx={{ color: secColor }}>0 Available Files</Typography>
+        <Typography sx={{ color: secColor, fontSize: '14pt' }}>0 Available Files</Typography>
       </AccordionSummary>
     )
   } else {
@@ -31,10 +31,10 @@ function AccordionHeader(
         aria-controls="panel1bh-content"
       >
         <Typography sx={{ color: textColor, width: '33%' }}>{props.label}</Typography>
-        <Typography sx={{ color: secColor, width: '50%' }}>
+        <Typography sx={{ color: secColor, width: '45%', fontSize: '14pt'}}>
           {props.assetInfo.current.length} Current File(s) | {props.assetInfo.archived.length} Archived File(s)
         </Typography>
-        <Typography sx={{ color: secColor }}>Modified {maxDate}</Typography>
+        <Typography sx={{ color: secColor, fontSize: '14pt' }}>Modified {maxDate}</Typography>
       </AccordionSummary>
     )
   }
@@ -45,9 +45,9 @@ function AccordionItem(
 ) {
   return (
     <AccordionDetails>
-      <Typography variant="h6" color="secondary">Current</Typography>
+      <Typography variant="subtitle2" fontSize='20pt' color="secondary.dark">Current</Typography>
       <DCCFileTable fileInfo={props.assetInfo.current} isCode={props.isCode}/>
-      <Typography variant="h6" color="secondary">Archived</Typography>
+      <Typography variant="subtitle2" fontSize='20pt' color="secondary.dark">Archived</Typography>
       <DCCFileTable fileInfo={props.assetInfo.archived} isCode={props.isCode}/>
     </AccordionDetails>
   )
@@ -92,9 +92,9 @@ export function DCCAccordion(
   }
   return (
     <Container>
-      <Typography variant="h5" gutterBottom>Files</Typography>
+      <Typography variant="h2" color="secondary" gutterBottom>Metadata and Processed Data Files</Typography>
       {Object.keys(data).map((key: keyof dccAssetRecord) => (
-          <div id={key}>
+          <div id={"current-" + key}>
             <FileAccordion 
               label={key}
               isCode={data[key].isCode} 
@@ -102,9 +102,9 @@ export function DCCAccordion(
             />
           </div>
       ))}
-      <Typography sx={{mt:2}} variant="h5" gutterBottom>Code</Typography>
+      <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>Interoperability Assets</Typography>
       {Object.keys(code).map((key: keyof dccAssetRecord) => (
-          <div id={key}>
+          <div id={"archived-" + key}>
             <FileAccordion 
               label={key}
               isCode={code[key].isCode} 

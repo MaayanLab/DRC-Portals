@@ -103,8 +103,10 @@ model DccAsset {
   size         BigInt?
   lastmodified DateTime @default(now())
   current      Boolean  @default(true)
-  creator      String
-  approved     Boolean  @default(false)
+  creator      String? 
+  creatorId   User?  @relation(fields: [creator], references: [email])
+  dccapproved     Boolean  @default(false)
+  drcapproved  Boolean  @default(false)
   annotation   Json?    @db.JsonB
   xdataset     XDataset?
 
@@ -203,6 +205,16 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  dcc           String?
+  role          Role @default(USER)
+  dccAsset      DccAsset[]
+}
+
+enum Role {
+  USER
+  DCC_APPROVER
+  UPLOADER
+  DRC_APPROVER
 }
 
 model VerificationToken {
