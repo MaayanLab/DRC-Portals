@@ -18,8 +18,6 @@ export async function POST(req: Request, res: NextApiResponse) {
       filename: z.string(),
       size: z.number(),
       annotation: z.record(z.string()),
-      // TODO: this should come from the user's profile from the db
-      //       otherwise users may upload on behalf of other dccs
       dcc_string: z.string(),
     }).parse(await req.json());
 
@@ -31,8 +29,8 @@ export async function POST(req: Request, res: NextApiResponse) {
 
     if (process.env.NODE_ENV === 'development' && dcc === null) {
       dcc = await prisma.dCC.create({data: {
-        label: "LINCS",
-        short_label: "LINCS",
+        label: data.dcc_string,
+        short_label: data.dcc_string,
         homepage: 'https://lincsproject.org'
       }});
     }
@@ -49,7 +47,7 @@ export async function POST(req: Request, res: NextApiResponse) {
         dcc_id: dcc.id,
       }
     });
-     return Response.json({message: "test"});
+     return Response.json({message: "Success"});
   } catch (err) {
     console.log(err)
     res.status(400).json({ message: 'Something went wrong' });

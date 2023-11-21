@@ -15,16 +15,22 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Link } from '@mui/material';
 import Status from './Status';
+import DCCSelect from './DCCSelect';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
   if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: {
       id: session.user.id
     }
   })
-  // TODO: incorporate user dcc here
+  if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+
+  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) {return <p>Access Denied</p>}
+  if (!user.dcc) return redirect("/data/contribute/account")
+
+
   return (
     <S3UploadForm>
       <Container className="mt-10">
@@ -34,6 +40,7 @@ export default async function UploadForm() {
             <TextField
               label="Uploader Name"
               name='name'
+              disabled
               defaultValue={user.name}
             />
           </ThemedBox>
@@ -41,15 +48,12 @@ export default async function UploadForm() {
             <TextField
               label="Email"
               name='email'
+              disabled
               defaultValue={user.email}
             />
           </ThemedBox>
           <ThemedBox>
-            <TextField
-              label="DCC"
-              name='dcc'
-              defaultValue="LINCS"
-            />
+            <DCCSelect dccOptions={user.dcc} />
           </ThemedBox>
         </Grid>
 

@@ -40,9 +40,13 @@ export default async function AccountPage() {
     async function saveuser(formData: FormData) {
         'use server'
         const email = formData.get('email')
-        if (!email) throw new Error('Missing email')
+        const dcc = formData.get('DCC')
+        console.log(dcc?.toString())
 
-        // TODO: add dccs to user in db
+        if (!email) throw new Error('Missing email')
+        if (!dcc) throw new Error('Missing dcc')
+
+       // add dcc to user in db
         console.log('update')
         await prisma.user.update({
             where: {
@@ -50,6 +54,7 @@ export default async function AccountPage() {
             },
             data: {
                 email: email.toString(),
+                dcc: dcc?.toString()
             },
         });
         revalidatePath('/data/contribute/account')
@@ -82,12 +87,13 @@ export default async function AccountPage() {
                         label="Email"
                         name='email'
                         defaultValue={user.email}
+                        required
                     />
                     <MultiSelect
                         name='DCC'
                         label="DCC"
                         options={names}
-                        defaultValue={[]}
+                        defaultValue={user.dcc?.split(',')}
                     />
 
                     <Button variant="contained" type='submit' sx={{justifySelf:"center"}}>

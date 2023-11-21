@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import FolderIcon from '@mui/icons-material/Folder';
+import { GoFileZip } from "react-icons/go";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 // TODO: just inherit theme from root?
@@ -111,6 +112,7 @@ export function FileDrop({ name }: { name: string }) {
         >
           <div>
             <Typography variant="h6" className='text-center align-center'> Drag and drop zipped file here </Typography>
+            <GoFileZip size={70} />
           </div>
           <input
             id="raised-button-file"
@@ -126,7 +128,6 @@ export function FileDrop({ name }: { name: string }) {
             onDragOver={() => {setIsOver(true)}}
             onDragLeave={() => {setIsOver(false)}}
             onDrop={() => {setIsOver(false)}}
-            // multiple
             type="file"
             accept="zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
             name={name}
@@ -138,7 +139,7 @@ export function FileDrop({ name }: { name: string }) {
         <FormControl>
           <label htmlFor="raised-button-file">
             <Button variant="contained" component="span">
-              Choose Files
+              Choose File
             </Button>
           </label>
         </FormControl>

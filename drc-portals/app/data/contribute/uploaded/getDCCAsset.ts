@@ -1,0 +1,128 @@
+'use server'
+
+import { authOptions } from "@/lib/auth"
+import prisma from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation"
+
+export async function getDCCAsset(file: {
+    dcc_id: string
+    filetype: string
+    filename: string
+    link: string
+    lastmodified: string,
+    creator: string,
+    dccapproved: boolean,
+    drcapproved: boolean,
+    dcc_drc: string
+}){
+    if (file.dcc_drc === 'drc') {
+        let newFile = await prisma.dccAsset.findFirst({
+            where: {
+                dcc_id: file.dcc_id,
+                filetype: file.filetype,
+                filename: file.filename,
+                link: file.link,
+                lastmodified: file.lastmodified,
+                creator: file.creator,
+                dccapproved: file.dccapproved,
+                drcapproved: !file.drcapproved,
+            },            
+            include: {
+                dcc: {
+                    select: {
+                        label: true
+                    }
+                }
+            }
+        })
+        if (!newFile) throw new Error('no file found')
+        return newFile
+    } 
+    if (file.dcc_drc === 'dcc') {
+        let newFile = await prisma.dccAsset.findFirst({
+            where: {
+                dcc_id: file.dcc_id,
+                filetype: file.filetype,
+                filename: file.filename,
+                link: file.link,
+                lastmodified: file.lastmodified,
+                creator: file.creator,
+                dccapproved: !file.dccapproved,
+                drcapproved: file.drcapproved,
+            },            
+            include: {
+                dcc: {
+                    select: {
+                        label: true
+                    }
+                }
+            }
+        })
+        if (!newFile) throw new Error('no file found')
+        return newFile
+    } 
+
+}
+
+export async function updateAssetApproval(file: {
+    dcc_id: string,
+    filetype: string,
+    filename: string,
+    link: string,
+    lastmodified: string,
+    creator: string,
+    dccapproved: boolean,
+    drcapproved: boolean,
+    dcc_drc: string
+}) {
+    const session = await getServerSession(authOptions)
+    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    const user = await prisma.user.findUnique({
+        where: {
+            id: session.user.id
+        }
+    })
+    if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+
+    // if user is not an uploader or approver, then they should not have acccess to this function 
+    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER')) throw new Error('user not allowed to update status')
+
+    if (file.dcc_drc ==='drc') {
+        const approved = await prisma.dccAsset.updateMany({
+            where: {
+              dcc_id : file.dcc_id,
+              filetype :file.filetype,
+              link: file.link,
+              lastmodified: new Date(file.lastmodified),
+              creator: file.creator,
+              dccapproved: file.dccapproved,
+              drcapproved: file.drcapproved
+    
+            },
+            data: {
+              drcapproved: !(file.drcapproved),
+            },
+          })
+          return "updated"
+
+    } else if  (file.dcc_drc ==='dcc') {
+        const approved = await prisma.dccAsset.updateMany({
+            where: {
+              dcc_id : file.dcc_id,
+              filetype :file.filetype,
+              link: file.link,
+              lastmodified: new Date(file.lastmodified),
+              creator: file.creator,
+              dccapproved: file.dccapproved,
+              drcapproved: file.drcapproved
+    
+            },
+            data: {
+                dccapproved: !(file.dccapproved),
+            },
+          })
+    
+         return "updated"
+    }
+  }
