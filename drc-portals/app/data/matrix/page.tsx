@@ -1,5 +1,5 @@
 import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell} from '@mui/material'
-import { Typography, Container } from '@mui/material'
+import { Typography, Container, Paper } from '@mui/material'
 import Link from 'next/link';
 
 const cfde_data = [
@@ -89,7 +89,8 @@ export default function DataMatrix() {
   return (
     <Container maxWidth="xl">
       <Typography variant="h2" color="secondary" sx={{mt:2}} gutterBottom>Available DCC Files</Typography>
-      <TableContainer>
+      <Paper sx={{mb: 5}}>
+      <TableContainer sx={{ maxHeight: 680 }}>
       <Table stickyHeader aria-label="sticky table">
         <colgroup>
             <col style={{width:'19%'}}/>
@@ -104,23 +105,23 @@ export default function DataMatrix() {
             <col style={{width:'9%'}}/>
         </colgroup>
         <TableHead>
-          <TableRow >
-            <TableCell sx={{ border: 1, borderBottom: "none", borderColor: "#e0e0e0" }}></TableCell>
-            <TableCell sx={{ border: 1, borderColor: "#e0e0e0" }} align="center" colSpan={5}>
+          <TableRow>
+            <TableCell sx={{ border: 0, backgroundColor: "primary.light"}}></TableCell>
+            <TableCell sx={{ border: 0, backgroundColor: "primary.light"}} align="center" colSpan={5}>
               <Typography variant="subtitle1">Datasets and Metadata</Typography>
             </TableCell>
-            <TableCell sx={{ border:1, borderColor: "#e0e0e0" }} align="center" colSpan={5}>
+            <TableCell sx={{ border:0, backgroundColor: "primary.light" }} align="center" colSpan={5}>
               <Typography variant="subtitle1">Code</Typography>
             </TableCell>
           </TableRow>
           <TableRow >
-            <TableCell sx={{ border:1, borderTop: "none", borderColor: "#e0e0e0" }} align="center">
+            <TableCell sx={{ border: 0, backgroundColor: "primary.light" }} align="center">
               <Typography variant="subtitle1">DCC</Typography>
             </TableCell>
             {columns.map((item, idx) => {
               return (
                 <TableCell key={idx} align="center" 
-                sx={{ border:1, borderColor: "#e0e0e0" }}>
+                sx={{ border:0, backgroundColor: "primary.light" }}>
                   <Typography variant="subtitle2">{item}</Typography>
                 </TableCell>
               )
@@ -176,6 +177,7 @@ export default function DataMatrix() {
           </TableBody>
         </Table>
       </TableContainer>
+      </Paper>
     </Container>
   );
 }

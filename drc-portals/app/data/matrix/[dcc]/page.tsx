@@ -1,11 +1,9 @@
 import React from 'react';
 import { Container, Typography, Link, Grid, Box } from '@mui/material';
-import singleton from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from '@/components/misc/ReadMore';
-
-const prisma = singleton
 
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
   const nameMap = {
