@@ -100,7 +100,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
                       <Link href={`/data/processed/${set.identity.type}/${set.id}`}>{set.identity.label}</Link>
                     </TableCell>
                     <TableCell>
-                      {set.identity.description}
+                      {format_description(set.identity.description)}
                     </TableCell>
                   </TableRow>
                 ))}
