@@ -43,8 +43,8 @@ export default async function Page() {
           </div>
         </Link>
         {Object.entries(entities).map(([type, count]) => (
-          <Link href={`/data/processed/${type}`}>
-            <div key={type} className="flex flex-col">
+          <Link key={type} href={`/data/processed/${type}`}>
+            <div className="flex flex-col">
               <Typography variant="stats_h3">{count}</Typography>
               <Typography variant="stats_sub">{pluralize(capitalize(type))}</Typography>
             </div>
@@ -53,8 +53,8 @@ export default async function Page() {
         {Object.entries(sets).map(([type, count]) => {
           const [entityType, _, termType] = type.split('/')
           return (
-            <Link href={`/data/processed/${type}`}>
-              <div key={type} className="flex flex-col">
+            <Link key={type} href={`/data/processed/${type}`}>
+              <div className="flex flex-col">
                 <Typography variant="stats_h3">{count}</Typography>
                 <Typography variant="stats_sub">{pluralize(capitalize(`${termType} ${entityType} set`))}</Typography>
               </div>
