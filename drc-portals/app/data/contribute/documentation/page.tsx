@@ -14,8 +14,8 @@ import ListItemText from '@mui/material/ListItemText';
 import ScrollToAnchorLink from '@/components/misc/ScrollToAnchorLink';
 import ListItemCollapsible from '@/components/misc/ListItemCollapsible';
 import ThemedBox from './ThemedBox';
-import { List, ListItem, Typography } from '@mui/material';
-import Link from 'next/link';
+import { List, ListItem, Typography, Link } from '@mui/material';
+
 
 const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
 const exampleNewUpload = <Image src={newUploadImage} width='900' height='200' alt='' className="d-inline-block align-top" />;
