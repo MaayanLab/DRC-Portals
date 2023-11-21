@@ -60,7 +60,7 @@ export default async function Home() {
                           background: 'linear-gradient(to right top, #A5B4DB, #FFF, #A5B4DB)',
                           padding: 5, 
                           width: "100vw", 
-                          height: "30vw",
+                          minHeight: "30vw",
                           marginLeft: "calc((-100vw + 100%) / 2)", 
                           marginRight: "calc((-100vw + 100%) / 2)"}}
                   className="flex"
@@ -121,7 +121,7 @@ export default async function Home() {
                           background: '#7187c3',
                           padding: 5, 
                           width: "100vw", 
-                          height: "50vw",
+                          minHeight: "50vw",
                           marginLeft: "calc((-100vw + 100%) / 2)", 
                           marginRight: "calc((-100vw + 100%) / 2)",
                           color: "#fff",
