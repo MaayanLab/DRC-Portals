@@ -63,10 +63,10 @@ model Outreach {
   tags                Json
   featured            Boolean @default(false)
   active              Boolean @default(false)
-  start_date          DateTime?
-  end_date            DateTime?
-  application_start   DateTime?
-  application_end     DateTime?
+  start_date          DateTime? @db.Timestamptz(3)
+  end_date            DateTime? @db.Timestamptz(3)
+  application_start   DateTime? @db.Timestamptz(3)
+  application_end     DateTime? @db.Timestamptz(3)
   link                String?
   image               String?
   dccs                DCCOutreach[]

@@ -19,7 +19,6 @@ import Grid from "@mui/material/Grid"
 
 import MasonryClient from "./MasonryClient"
 
-const formatter = new Intl.DateTimeFormat('en-us', { month: 'long' });
 
 const Wrapper = ({featured, children}: {featured: Boolean, children: React.ReactNode}) => {
   if (featured) {
@@ -104,8 +103,34 @@ async function Outreach({featured=true}:{
                       </div>
                   }
                   <Typography variant="subtitle1">{e.short_description}</Typography>
-                  {e.start_date && <Typography variant="subtitle1"><b>Start Date:</b> {`${formatter.format(e.start_date)} ${e.start_date?.getDate()}, ${e.start_date?.getFullYear()}`}</Typography>}
-                  {e.end_date && <Typography variant="subtitle1"><b>End Date:</b> {`${formatter.format(e.end_date)} ${e.end_date?.getDate()}, ${e.end_date?.getFullYear()}`}</Typography>}
+                  {e.application_start && <Typography variant="subtitle1"><b>Application starts:</b> {`${e.application_start.toLocaleDateString("en-US", {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}`}
+                  </Typography>}
+                  {e.application_end && <Typography variant="subtitle1"><b>Application ends:</b> {`${e.application_end.toLocaleDateString("en-US", {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}`}
+                  </Typography>}
+                  {e.start_date && <Typography variant="subtitle1"><b>Start date:</b> {`${e.start_date.toLocaleDateString("en-US", {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}`}
+                  </Typography>}
+                  {e.end_date && <Typography variant="subtitle1"><b>End date:</b> {`${e.end_date.toLocaleDateString("en-US", {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}`}
+                  </Typography>}
                   <Link href={e.link || ''} target="_blank" rel="noopener noreferrer"><Button variant="contained" color="primary">Visit event page</Button></Link>
                 </Stack>
               </Wrapper>
