@@ -9,6 +9,7 @@ import { format_description, type_to_string } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
+import { Prisma } from "@prisma/client";
 
 const pageSize = 10
 
@@ -32,115 +33,95 @@ export default async function Page(props: { searchParams: Record<string, string>
   }).parse(props.searchParams)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
-  const [items, count, type_counts] = searchParams.q ? [
-    ...await prisma.$transaction([
-      prisma.xIdentity.findMany({
-        where: searchParams.t ? {
-          searchable: {
-            search: searchParams.q,
-          },
-          type: {
-            in: searchParams.t,
-          },
-        } : {
-          searchable: {
-            search: searchParams.q,
-          },
-        },
-        select: {
-          id: true,
-          type: true,
-          label: true,
-          description: true,
-          entity: {
-            select: {
-              id: true,
-            },
-          },
-          set: {
-            select: {
-              id: true,
-              library: {
-                select: {
-                  dcc_asset: {
-                    select: {
-                      dcc: {
-                        select: {
-                          short_label: true,
-                          label: true,
-                          icon: true
-                        },
-                      },
-                    }
-                  }
-                },
-              },
-            },
-          },
-          library: {
-            select: {
-              id: true,
-              dcc_asset: {
-                select: {
-                  dcc: {
-                    select: {
-                      short_label: true,
-                      label: true,
-                      icon: true,
-                    },
-                  },
-                }
-              },
-            },
-          },
-        },
-        skip: offset,
-        take: limit,
-      }),
-      prisma.xIdentity.count({
-        where: searchParams.t ? {
-          searchable: {
-            search: searchParams.q,
-          },
-          type: {
-            in: searchParams.t,
-          },
-        } : {
-          searchable: {
-            search: searchParams.q,
-          },
-        },
-      }),
-      prisma.xIdentity.groupBy({
-        by: ['type'],
-        where: {
-          searchable: { search: searchParams.q }
-        },
-        _count: true,
-        orderBy: {
-          type: 'desc',
-        },
-      })
-    ]),
-  ] : [undefined, undefined, undefined]
-  const ps = Math.floor((count ?? 1) / pageSize) + 1
+  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+    items: {id: string, type: string, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    count: number,
+    type_counts: {type: string, count: number}[],
+  }>>`
+    with results as (
+      select *
+      from "xidentity"
+      where to_tsvector('english', "xidentity"."searchable") @@ to_tsquery('english', ${searchParams.q})
+    ), items as (
+      select id, type, label, description, (
+        select
+          case
+            when library_id is not null then (
+              select jsonb_build_object(
+                'short_label', "dccs".short_label,
+                'icon', "dccs".icon,
+                'label', "dccs".label
+              )
+              from "xlibrary"
+              inner join "dcc_assets" on "xlibrary"."dcc_asset_link" = "dcc_assets"."link"
+              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
+              where "xlibrary"."id" = results."library_id"
+            )
+            when set_id is not null then (
+              select jsonb_build_object(
+                'short_label', short_label,
+                'icon', icon,
+                'label', label
+              )
+              from "xset"
+              inner join "xlibrary" on "xset"."library_id" = "xlibrary"."id"
+              inner join "dcc_assets" on "xlibrary"."dcc_asset_link" = "dcc_assets"."link"
+              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
+              where "xset"."id" = results."set_id"
+            )
+            when c2m2file_id is not null then (
+              select jsonb_build_object(
+                'short_label', short_label,
+                'icon', icon,
+                'label', label
+              )
+              from "c2m2file"
+              inner join "c2m2datapackage" on "c2m2file"."datapackage_id" = "c2m2datapackage"."id"
+              inner join "dcc_assets" on "c2m2datapackage"."dcc_asset_link" = "dcc_assets"."link"
+              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
+              where "c2m2file"."id" = results."c2m2file_id"
+            )
+            else null
+          end
+      ) as dcc
+      from results
+      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t)})` : Prisma.empty}
+      offset ${offset}
+      limit ${limit}
+    ), total_count as (
+      select count(*)::int as count
+      from results
+      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t)})` : Prisma.empty}
+    ), type_counts as (
+      select "type", count(*)::int as count
+      from results
+      group by "type"
+      order by count(*) desc
+    )
+    select 
+      (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
+      (select count from total_count) as count,
+      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts
+    ;
+  ` : [undefined]
+  const ps = Math.floor((results?.count ?? 1) / pageSize) + 1
   return (
     <Container component="form" action="" method="GET">
       <SearchField q={searchParams.q ?? ''} />
-      {items ?
+      {results?.items ?
         <Container className="mt-10 justify-content-center">
           <Box className="p-5 text-center">
           <Typography variant="h3">Results</Typography>
-          <Typography variant="subtitle1">(found {count} matches)</Typography>
+          <Typography variant="subtitle1">(found {results.count} matches)</Typography>
           </Box>
           <Box className="flex flex-row gap-4 justify-stretch">
             <Box className="flex flex-col w-48">
-              {(type_counts as any /* sidestep prisma typescript bug */).map((type_count: { type: string, _count: number }) =>
-                <SearchFilter key={type_count.type} type={type_count.type} count={type_count._count} />
+              {results.type_counts.map((type_count) =>
+                <SearchFilter key={type_count.type} type={type_count.type} count={type_count.count} />
               )}
             </Box>
             <Box className="flex flex-col items-center">
-              {items.length === 0 ? <>No results</> : (
+              {results.items.length === 0 ? <>No results</> : (
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -157,14 +138,13 @@ export default async function Page(props: { searchParams: Record<string, string>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {items.map(item => (
+                      {results.items.map(item => (
                           <TableRow
                               key={item.id}
                               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                           >
                               <TableCell className="w-4 relative">
-                                {item.library && item.library.dcc_asset.dcc?.icon ? <Link href={`/data/matrix/${item.library.dcc_asset.dcc.short_label}`}><Image className="p-2 object-contain" src={item.library.dcc_asset.dcc.icon} alt={item.library.dcc_asset.dcc.label} fill /></Link>
-                                  : item.set && item.set.library.dcc_asset.dcc?.icon ? <Link href={`/data/matrix/${item.set.library.dcc_asset.dcc.short_label}`}><Image className="p-2 object-contain" src={item.set.library.dcc_asset.dcc.icon} alt={item.set.library.dcc_asset.dcc.label} fill /></Link>
+                                {item.dcc?.icon ? <Link href={`/data/matrix/${item.dcc.short_label}`}><Image className="p-2 object-contain" src={item.dcc.icon} alt={item.dcc.label} fill /></Link>
                                   : item.type === 'gene' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill /></Link>
                                   : item.type === 'drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>
                                   : null}

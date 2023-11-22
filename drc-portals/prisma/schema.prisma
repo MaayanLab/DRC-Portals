@@ -95,39 +95,42 @@ model Tool {
 }
 
 model DccAsset {
-  dcc_id       String
-  dcc          DCC?     @relation(fields: [dcc_id], references: [id])
-  filetype     String
-  filename     String
-  link         String    @unique
-  size         BigInt?
-  lastmodified DateTime @default(now())
-  current      Boolean  @default(true)
-  creator      String? 
-  creatorId   User?  @relation(fields: [creator], references: [email])
-  dccapproved     Boolean  @default(false)
-  drcapproved  Boolean  @default(false)
-  annotation   Json?    @db.JsonB
-  xlibrary     XLibrary?
+  dcc_id          String
+  dcc             DCC?              @relation(fields: [dcc_id], references: [id])
+  filetype        String
+  filename        String
+  link            String            @unique
+  size            BigInt?
+  lastmodified    DateTime          @default(now())
+  current         Boolean           @default(true)
+  creator         String?
+  creatorId       User?             @relation(fields: [creator], references: [email])
+  dccapproved     Boolean           @default(false)
+  drcapproved     Boolean           @default(false)
+  annotation      Json?             @db.JsonB
+  xlibrary        XLibrary?
+  C2M2DataPackage C2M2DataPackage[]
 
   @@id([dcc_id, filetype, link, lastmodified])
-  @@map("dcc_assets")
   @@unique([dcc_id, filetype, link, lastmodified])
+  @@map("dcc_assets")
 }
 
 // Processed data search
 model XIdentity {
-  type        String
-  id          String    @id @db.Uuid
-  label       String
-  description String
-  searchable  String
-  entity_id   String?   @db.Uuid @unique
-  set_id      String?   @db.Uuid @unique
-  library_id  String?   @db.Uuid @unique
-  library     XLibrary?
-  entity      XEntity?
-  set         XSet?
+  type            String
+  id              String            @id @db.Uuid
+  label           String
+  description     String
+  searchable      String
+  entity_id       String?           @unique @db.Uuid
+  set_id          String?           @unique @db.Uuid
+  library_id      String?           @unique @db.Uuid
+  c2m2file_id     String?           @unique @db.Uuid
+  library         XLibrary?
+  entity          XEntity?
+  set             XSet?
+  c2m2file        C2M2File?
 
   @@index([type])
   @@index([label])
@@ -136,10 +139,10 @@ model XIdentity {
 }
 
 model XEntity {
-  id       String     @id @db.Uuid
-  identity XIdentity  @relation(fields: [id], references: [id])
+  id        String     @id @db.Uuid
+  identity  XIdentity  @relation(fields: [id], references: [id], onDelete: Cascade)
   libraries XLibrary[] @relation("XEntityToXLibrary")
-  sets     XSet[]     @relation("XEntityToXSet")
+  sets      XSet[]     @relation("XEntityToXSet")
 
   @@map("xentity")
 }
@@ -147,8 +150,8 @@ model XEntity {
 model XSet {
   id         String    @id @db.Uuid
   library_id String    @db.Uuid
-  library    XLibrary  @relation(fields: [library_id], references: [id])
-  identity   XIdentity @relation(fields: [id], references: [id])
+  library    XLibrary  @relation(fields: [library_id], references: [id], onDelete: Cascade)
+  identity   XIdentity @relation(fields: [id], references: [id], onDelete: Cascade)
   contains   XEntity[] @relation("XEntityToXSet")
 
   @@map("xset")
@@ -157,14 +160,38 @@ model XSet {
 model XLibrary {
   id             String    @id @db.Uuid
   dcc_asset_link String    @unique
-  entity_type     String
-  term_type       String
-  dcc_asset      DccAsset  @relation(fields: [dcc_asset_link], references: [link])
-  identity       XIdentity @relation(fields: [id], references: [id])
+  entity_type    String
+  term_type      String
+  dcc_asset      DccAsset  @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
+  identity       XIdentity @relation(fields: [id], references: [id], onDelete: Cascade)
   sets           XSet[]
   entities       XEntity[] @relation("XEntityToXLibrary")
 
   @@map("xlibrary")
+}
+
+model C2M2DataPackage {
+  id             String     @id @db.Uuid
+  dcc_asset_link String
+  dcc_asset      DccAsset   @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
+  files          C2M2File[]
+
+  @@map("c2m2datapackage")
+}
+
+model C2M2File {
+  id             String          @id @db.Uuid
+  creation_time  DateTime?       @db.Timestamptz()
+  persistent_id  String?
+  size_in_bytes  BigInt?
+  file_format    String?
+  data_type      String?
+  assay_type     String?
+  datapackage_id String          @db.Uuid
+  datapackage    C2M2DataPackage @relation(fields: [datapackage_id], references: [id], onDelete: Cascade)
+  identity       XIdentity       @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("c2m2file")
 }
 
 // End processed data search
