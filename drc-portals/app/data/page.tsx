@@ -90,10 +90,6 @@ export default async function Home() {
                   <Grid item xs={12} md={7} className="align-center">
                     <Stack spacing={2} justifyContent={"flex-start"}>
                       <div className="flex flex-col">
-                        <Typography variant="h2" color="secondary">1,494,556</Typography>
-                        <Typography variant="subtitle1" color="secondary">FILES</Typography>
-                      </div>
-                      <div className="flex flex-col">
                         <Typography variant="h2" color="secondary">755</Typography>
                         <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
                       </div>
