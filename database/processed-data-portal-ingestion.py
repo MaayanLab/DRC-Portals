@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 from uuid import UUID, uuid5
 
 uuid0 = UUID('00000000-0000-0000-0000-000000000000')
-tab = '\t'
 def quote(col): return f'"{col}"'
 
 #%%
@@ -83,13 +82,14 @@ dcc_assets = pd.read_csv(ingest_path/'DccAssets.tsv', sep='\t', names=[
   'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
   'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
 ])
+# TODO: I think the dcc label should be preserved instead of a uuid in this tsv..
+dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
 
 #%%
 # Ingest XMTs
 
 xmts = dcc_assets[dcc_assets['filetype'] == 'XMT']
 xmts_path = ingest_path / 'xmts'
-xmts_path.mkdir(exist_ok=True)
 
 if xmts['filename'].apply(lambda fn: fn.endswith('.gmt')).any():
   # We'll be importing GMTs, load gene lookups
@@ -138,7 +138,8 @@ with xentity_xset_helper.writer() as xentity_xset:
           xentities = set()
           with xidentity_helper.writer() as xidentity:
             for _, xmt in xmts.iterrows():
-              xmt_path = xmts_path/xmt['filename']
+              xmt_path = xmts_path/xmt['dcc_short_label']/xmt['filename']
+              xmt_path.parent.mkdir(parents=True, exist_ok=True)
               if not xmt_path.exists():
                 import urllib.request
                 urllib.request.urlretrieve(xmt['link'], xmt_path)
@@ -172,7 +173,7 @@ with xentity_xset_helper.writer() as xentity_xset:
                   if len(line_split) < 3: continue
                   set_label, set_description, *set_entities = line_split
                   set_type = f"{entity_type}/set/{term_type}"
-                  set_id = str(uuid5(uuid0, tab.join((library_id, set_label, set_description,))))
+                  set_id = str(uuid5(uuid0, '\t'.join((library_id, set_label, set_description,))))
                   xset.writerow(dict(
                     id=set_id,
                     library_id=library_id,
