@@ -69,6 +69,18 @@ export default async function Page(props: { searchParams: Record<string, string>
               inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
               where "xset"."id" = results."set_id"
             )
+            when c2m2file_id is not null then (
+              select jsonb_build_object(
+                'short_label', short_label,
+                'icon', icon,
+                'label', label
+              )
+              from "c2m2file"
+              inner join "c2m2datapackage" on "c2m2file"."datapackage_id" = "c2m2datapackage"."id"
+              inner join "dcc_assets" on "c2m2datapackage"."dcc_asset_link" = "dcc_assets"."link"
+              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
+              where "c2m2file"."id" = results."c2m2file_id"
+            )
             else null
           end
       ) as dcc
