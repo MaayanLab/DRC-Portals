@@ -149,16 +149,16 @@ cur.execute('''
 with open('ingest/outreach.tsv', 'r') as fr:
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
-       'start_date', 'end_date', 'start_time', 'end_time', 'link', 'image'),
+       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, start_time, end_time, link, image)
+       start_date, end_date, application_start, application_end, link, image)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, start_time, end_time, link, image
+       start_date, end_date, application_start, application_end, link, image
       from outreach_tmp
       on conflict (id)
         do update
@@ -171,8 +171,8 @@ cur.execute('''
             active = excluded.active,
             start_date = excluded.start_date,
             end_date = excluded.end_date,
-            start_time = excluded.start_time,
-            end_time = excluded.end_time,
+            application_start = excluded.application_start,
+            application_end = excluded.application_end,
             link = excluded.link,
             image = excluded.image
     ;
