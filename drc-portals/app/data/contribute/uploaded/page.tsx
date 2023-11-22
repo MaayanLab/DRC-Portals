@@ -63,7 +63,7 @@ export default async function UserFiles() {
 
    
     // if user is not an uploader or approver, then they should not have acccess to this page
-    if (user.role === 'USER') { return <p>Access Denied</p> }
+    if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
     if (!user.email) return redirect("/data/contribute/account")
     if (!user.dcc) return redirect("/data/contribute/account")
 

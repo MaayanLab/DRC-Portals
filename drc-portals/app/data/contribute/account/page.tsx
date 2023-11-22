@@ -60,7 +60,6 @@ export default async function AccountPage() {
         revalidatePath('/data/contribute/account')
     }
 
-    // variables and functions for dcc multiple select
 
     return (
         <>
@@ -101,7 +100,7 @@ export default async function AccountPage() {
                     />
 
                     <Button variant="contained" color="tertiary" type='submit' sx={{justifySelf:"center"}}>
-                        Save Changes
+                        Request Information Change
                     </Button>
                 </Box>
             </Container>
