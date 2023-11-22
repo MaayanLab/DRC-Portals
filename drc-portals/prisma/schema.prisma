@@ -65,8 +65,8 @@ model Outreach {
   active              Boolean @default(false)
   start_date          DateTime?
   end_date            DateTime?
-  start_time          DateTime?
-  end_time            DateTime?
+  application_start   DateTime?
+  application_end     DateTime?
   link                String?
   image               String?
   dccs                DCCOutreach[]
