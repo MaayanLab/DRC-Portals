@@ -95,7 +95,7 @@ export default async function Home() {
                       </div>
                       <div className="flex flex-col">
                         <Typography variant="h2" color="secondary">755</Typography>
-                        <Typography variant="subtitle1" color="secondary">ASSERTIONS</Typography>
+                        <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
                       </div>
                       {counts.map(count => (
                         <Link key={count.type} href={`/data/processed/${count.type}`}>
