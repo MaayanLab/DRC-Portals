@@ -85,7 +85,7 @@ export default async function InfoFooter() {
               <Typography variant="subtitle1"><b>Data & Metadata</b></Typography>
               <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
               <Link href="/data/matrix"><Typography variant="footer">Processed Datasets</Typography></Link>
-              <Link href="/data"><Typography variant="footer">Contribute</Typography></Link>
+              <Link href="/data/contribute/form"><Typography variant="footer">Contribute</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>

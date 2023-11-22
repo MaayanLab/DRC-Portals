@@ -24,7 +24,6 @@ export async function getDCCAsset(file: {
                 filename: file.filename,
                 link: file.link,
                 lastmodified: file.lastmodified,
-                creator: file.creator,
                 dccapproved: file.dccapproved,
                 drcapproved: !file.drcapproved,
             },            
@@ -47,7 +46,6 @@ export async function getDCCAsset(file: {
                 filename: file.filename,
                 link: file.link,
                 lastmodified: file.lastmodified,
-                creator: file.creator,
                 dccapproved: !file.dccapproved,
                 drcapproved: file.drcapproved,
             },            
@@ -95,7 +93,6 @@ export async function updateAssetApproval(file: {
               filetype :file.filetype,
               link: file.link,
               lastmodified: new Date(file.lastmodified),
-              creator: file.creator,
               dccapproved: file.dccapproved,
               drcapproved: file.drcapproved
     
@@ -113,7 +110,6 @@ export async function updateAssetApproval(file: {
               filetype :file.filetype,
               link: file.link,
               lastmodified: new Date(file.lastmodified),
-              creator: file.creator,
               dccapproved: file.dccapproved,
               drcapproved: file.drcapproved
     
