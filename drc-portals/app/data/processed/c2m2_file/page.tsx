@@ -1,28 +1,16 @@
 import prisma from "@/lib/prisma";
 import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import Link from "next/link";
-import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import Image from "next/image";
-import { format_description } from "@/app/data/processed/utils";
-import { Prisma } from "@prisma/client";
+import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { NodeType, Prisma } from "@prisma/client";
 
 const pageSize = 10
 
 export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
-  const searchParams = z.object({
-    q: z.union([
-      z.array(z.string()).transform(qs => qs.join(' ')),
-      z.string(),
-      z.undefined(),
-    ]),
-    p: z.union([
-      z.array(z.string()).transform(ps => +ps[ps.length-1]),
-      z.string().transform(p => +p),
-      z.undefined().transform(_ => 1),
-    ]),
-  }).parse(props.searchParams)
+  const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [results] = await prisma.$queryRaw<Array<{
@@ -30,8 +18,8 @@ export default async function Page(props: { searchParams: Record<string, string 
       id: string,
       data_type: string,
       assay_type: string,
-      identity: {
-        type: string,
+      node: {
+        type: NodeType,
         label: string,
         description: string,
       },
@@ -43,40 +31,38 @@ export default async function Page(props: { searchParams: Record<string, string 
     count: number,
   }>>`
     with results as (
-      select *
-      from "c2m2file"
-      inner join "xidentity" on "c2m2file"."id" = "xidentity"."c2m2file_id"
+      select "c2m2_file_node".id as c2m2_file_node_id, *
+      from "c2m2_file_node"
+      inner join "node" on "c2m2_file_node"."id" = "node"."id"
       ${searchParams.q ? Prisma.sql`
-        where to_tsvector('english', "xidentity"."searchable") @@ to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd(to_tsvector('english', "xidentity"."searchable"), to_tsquery('english', ${searchParams.q})) desc
+        where to_tsvector('english', "node"."searchable") @@ to_tsquery('english', ${searchParams.q})
+        order by ts_rank_cd(to_tsvector('english', "node"."searchable"), to_tsquery('english', ${searchParams.q})) desc
       ` : Prisma.sql`
-        order by "c2m2file"."id"
+        order by "c2m2_file_node"."id"
       `}
     ), items as (
       select
-        results."c2m2file_id" as id,
+        results."c2m2_file_node_id" as id,
         results."data_type",
         results."assay_type",
         jsonb_build_object(
           'type', results."type",
           'label', results."label",
           'description', results."description"
-        ) as identity,
+        ) as node,
         (
           select jsonb_build_object(
             'short_label', short_label,
             'icon', icon
           )
-          from "c2m2datapackage"
-          inner join "dcc_assets" on "c2m2datapackage"."dcc_asset_link" = "dcc_assets"."link"
-          inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
-          where results."datapackage_id" = "c2m2datapackage"."id"
+          from "dccs"
+          where results."dcc_id" = "dccs"."id"
         ) as dcc
       from results
       offset ${offset}
       limit ${limit}
     ), total_count as (
-      select count("c2m2file_id")::int as count
+      select count("c2m2_file_node_id")::int as count
       from results
     )
     select 
@@ -123,11 +109,11 @@ export default async function Page(props: { searchParams: Record<string, string 
                         : null}
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
-                        <Typography variant='h6'>{item.identity.label}</Typography>
+                      <Link href={`/data/processed/${item.node.type}/${item.id}`}>
+                        <Typography variant='h6'>{item.node.label}</Typography>
                       </Link>
                     </TableCell>
-                    <TableCell>{format_description(item.identity.description)}</TableCell>
+                    <TableCell>{format_description(item.node.description)}</TableCell>
                     <TableCell>{item.data_type}</TableCell>
                     <TableCell>{item.assay_type}</TableCell>
                 </TableRow>

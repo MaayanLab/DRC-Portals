@@ -3,57 +3,41 @@ import prisma from "@/lib/prisma"
 import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
 import Image from "next/image"
 import Link from "next/link"
-import { z } from 'zod'
-import { format_description } from "../../utils"
+import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils"
 
 const pageSize = 10
 
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
-  const searchParams = z.object({
-    q: z.union([
-      z.array(z.string()).transform(qs => qs.join(' ')),
-      z.string(),
-      z.undefined(),
-    ]),
-    p: z.union([
-      z.array(z.string()).transform(ps => +ps[ps.length-1]),
-      z.string().transform(p => +p),
-      z.undefined().transform(_ => 1),
-    ]),
-  }).parse(props.searchParams)
+  const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
-  const xentity = await prisma.xEntity.findUniqueOrThrow({
+  const item = await prisma.geneNode.findUniqueOrThrow({
     where: { id: props.params.id },
     select: {
-      identity: {
+      node: {
         select: {
           label: true,
           description: true,
         }
       },
-      libraries: {
+      gene_set_libraries: {
         select: {
           id: true,
-          identity: {
+          node: {
             select: {
               label: true,
               description: true,
-            }
-          },
-          dcc_asset: {
-            select: {
               dcc: {
                 select: {
                   label: true,
                   icon: true,
                 },
               },
-            },
+            }
           },
-          sets: {
+          gene_sets: {
             where: {
-              contains: {
+              genes: {
                 some: {
                   id: props.params.id
                 }
@@ -61,7 +45,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
             },
             select: {
               id: true,
-              identity: {
+              node: {
                 select: {
                   type: true,
                   label: true,
@@ -76,31 +60,31 @@ export default async function Page(props: { params: { entity_type: string, id: s
   })
   return (
     <Container component="form" action="" method="GET">
-      <Container><Typography variant="h1">{xentity.identity.label}</Typography></Container>
-      <Container><Typography variant="caption">Description: {format_description(xentity.identity.description)}</Typography></Container>
+      <Container><Typography variant="h1">{item.node.label}</Typography></Container>
+      <Container><Typography variant="caption">Description: {format_description(item.node.description)}</Typography></Container>
       {/* <SearchField q={searchParams.q ?? ''} /> */}
-      {xentity.libraries.map(library => (
+      {item.gene_set_libraries.map(library => (
         <ListItemCollapsible key={library.id} primary={
           <div className="flex flex-row">
             <div className="flex-0">
-              {library.dcc_asset.dcc?.icon ? <Image src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.label} width={120} height={120} /> : null}
+              {library.node.dcc?.icon ? <Image src={library.node.dcc.icon} alt={library.node.dcc.label} width={120} height={120} /> : null}
             </div>
             <Container className="flex-grow">
-              <Container>{library.identity.label}</Container>
-              <Container>{format_description(library.identity.description)}</Container>
+              <Container>{library.node.label}</Container>
+              <Container>{format_description(library.node.description)}</Container>
             </Container>
           </div>
         } defaultOpen={false}>
           <TableContainer component={Paper}>
             <Table aria-label="simple table">
               <TableBody>
-                {library.sets.map(set => (
+                {library.gene_sets.map(set => (
                   <TableRow key={set.id}>
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${set.identity.type}/${set.id}`}>{set.identity.label}</Link>
+                      <Link href={`/data/processed/${set.node.type}/${set.id}`}>{set.node.label}</Link>
                     </TableCell>
                     <TableCell>
-                      {format_description(set.identity.description)}
+                      {format_description(set.node.description)}
                     </TableCell>
                   </TableRow>
                 ))}

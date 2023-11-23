@@ -7,9 +7,9 @@ import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import { format_description, type_to_string } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
-import DrugIcon from '@/public/img/icons/drug.png'
+// import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
-import { Prisma } from "@prisma/client";
+import { NodeType, Prisma } from "@prisma/client";
 
 const pageSize = 10
 
@@ -34,64 +34,32 @@ export default async function Page(props: { searchParams: Record<string, string>
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-    items: {id: string, type: string, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    items: {id: string, type: NodeType, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
-    type_counts: {type: string, count: number}[],
+    type_counts: {type: NodeType, count: number}[],
   }>>`
     with results as (
       select *
-      from "xidentity"
-      where to_tsvector('english', "xidentity"."searchable") @@ to_tsquery('english', ${searchParams.q})
+      from "node"
+      where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
     ), items as (
       select id, type, label, description, (
-        select
-          case
-            when library_id is not null then (
-              select jsonb_build_object(
-                'short_label', "dccs".short_label,
-                'icon', "dccs".icon,
-                'label', "dccs".label
-              )
-              from "xlibrary"
-              inner join "dcc_assets" on "xlibrary"."dcc_asset_link" = "dcc_assets"."link"
-              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
-              where "xlibrary"."id" = results."library_id"
-            )
-            when set_id is not null then (
-              select jsonb_build_object(
-                'short_label', short_label,
-                'icon', icon,
-                'label', label
-              )
-              from "xset"
-              inner join "xlibrary" on "xset"."library_id" = "xlibrary"."id"
-              inner join "dcc_assets" on "xlibrary"."dcc_asset_link" = "dcc_assets"."link"
-              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
-              where "xset"."id" = results."set_id"
-            )
-            when c2m2file_id is not null then (
-              select jsonb_build_object(
-                'short_label', short_label,
-                'icon', icon,
-                'label', label
-              )
-              from "c2m2file"
-              inner join "c2m2datapackage" on "c2m2file"."datapackage_id" = "c2m2datapackage"."id"
-              inner join "dcc_assets" on "c2m2datapackage"."dcc_asset_link" = "dcc_assets"."link"
-              inner join "dccs" on "dcc_assets"."dcc_id" = "dccs"."id"
-              where "c2m2file"."id" = results."c2m2file_id"
-            )
-            else null
-          end
+        select jsonb_build_object(
+          'short_label', "dccs".short_label,
+          'icon', "dccs".icon,
+          'label', "dccs".label
+        )
+        from "dccs"
+        where "dccs".id = "dcc_id"
       ) as dcc
       from results
-      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t)})` : Prisma.empty}
+      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t.map(t => Prisma.sql`${t}::"NodeType"`))})` : Prisma.empty}
       offset ${offset}
       limit ${limit}
     ), total_count as (
       select count(*)::int as count
       from results
-      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t)})` : Prisma.empty}
+      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t.map(t => Prisma.sql`${t}::"NodeType"`))})` : Prisma.empty}
     ), type_counts as (
       select "type", count(*)::int as count
       from results
@@ -146,7 +114,7 @@ export default async function Page(props: { searchParams: Record<string, string>
                               <TableCell className="w-4 relative">
                                 {item.dcc?.icon ? <Link href={`/data/matrix/${item.dcc.short_label}`}><Image className="p-2 object-contain" src={item.dcc.icon} alt={item.dcc.label} fill /></Link>
                                   : item.type === 'gene' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill /></Link>
-                                  : item.type === 'drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>
+                                  /*: item.type === 'drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>*/
                                   : null}
                               </TableCell>
                               <TableCell component="th" scope="row">

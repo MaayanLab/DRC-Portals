@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -13,42 +13,45 @@ datasource db {
 }
 
 model DCC {
-  id            String @id @default(uuid())
-  label         String
-  short_label   String?
-  description   String?
-  homepage      String
-  icon          String?
-  annotation    Json?
-  cfde_partner   Boolean @default(false)
-  publications  DCCPublication[]
-  assets        DccAsset[]
-  outreach      DCCOutreach[]
+  id           String           @id @default(uuid())
+  label        String
+  short_label  String?
+  description  String?
+  homepage     String
+  icon         String?
+  annotation   Json?
+  cfde_partner Boolean          @default(false)
+  publications DCCPublication[]
+  assets       DccAsset[]
+  outreach     DCCOutreach[]
+  nodes        Node[]
+
   @@map("dccs")
 }
 
 model Publication {
-  id            String @id @default(uuid())
-  title         String
-  year          String?
-  page          String?
-  volume        String?
-  issue         String?
-  journal       String?
-  pmid          String?
-  pmcid         String?
-  doi           String?
-  authors       String
-  tool_id       String?
-  dccs          DCCPublication[]
-  tool          Tool? @relation(fields: [tool_id], references: [id])
+  id      String           @id @default(uuid())
+  title   String
+  year    String?
+  page    String?
+  volume  String?
+  issue   String?
+  journal String?
+  pmid    String?
+  pmcid   String?
+  doi     String?
+  authors String
+  tool_id String?
+  dccs    DCCPublication[]
+  tool    Tool?            @relation(fields: [tool_id], references: [id])
+
   @@map("publications")
 }
 
 model DCCPublication {
-  publication   Publication @relation(fields: [publication_id], references: [id])
+  publication    Publication @relation(fields: [publication_id], references: [id])
   publication_id String
-  dcc           DCC         @relation(fields: [dcc_id], references: [id])
+  dcc            DCC         @relation(fields: [dcc_id], references: [id])
   dcc_id         String
 
   @@id([publication_id, dcc_id])
@@ -56,60 +59,61 @@ model DCCPublication {
 }
 
 model Outreach {
-  id                  String @id @default(uuid())
-  title               String
-  short_description   String
-  description         String
-  tags                Json
-  featured            Boolean @default(false)
-  active              Boolean @default(false)
-  start_date          DateTime? @db.Timestamptz(3)
-  end_date            DateTime? @db.Timestamptz(3)
-  application_start   DateTime? @db.Timestamptz(3)
-  application_end     DateTime? @db.Timestamptz(3)
-  link                String?
-  image               String?
-  dccs                DCCOutreach[]
+  id                String        @id @default(uuid())
+  title             String
+  short_description String
+  description       String
+  tags              Json
+  featured          Boolean       @default(false)
+  active            Boolean       @default(false)
+  start_date        DateTime?     @db.Timestamptz(3)
+  end_date          DateTime?     @db.Timestamptz(3)
+  application_start DateTime?     @db.Timestamptz(3)
+  application_end   DateTime?     @db.Timestamptz(3)
+  link              String?
+  image             String?
+  dccs              DCCOutreach[]
+
   @@map("outreach")
 }
 
 model DCCOutreach {
-  outreach      Outreach @relation(fields: [outreach_id], references: [id])
-  outreach_id   String
-  dcc           DCC         @relation(fields: [dcc_id], references: [id])
-  dcc_id        String
+  outreach    Outreach @relation(fields: [outreach_id], references: [id])
+  outreach_id String
+  dcc         DCC      @relation(fields: [dcc_id], references: [id])
+  dcc_id      String
 
   @@id([outreach_id, dcc_id])
   @@map("dcc_outreach")
 }
 
-
 model Tool {
-  id            String @id @default(uuid())
-  label         String
-  description   String?
-  url           String
-  icon          String?
-  publications  Publication[]
+  id           String        @id @default(uuid())
+  label        String
+  description  String?
+  url          String
+  icon         String?
+  publications Publication[]
+
   @@map("tools")
 }
 
 model DccAsset {
-  dcc_id          String
-  dcc             DCC?              @relation(fields: [dcc_id], references: [id])
-  filetype        String
-  filename        String
-  link            String            @unique
-  size            BigInt?
-  lastmodified    DateTime          @default(now())
-  current         Boolean           @default(true)
-  creator         String?
-  creatorId       User?             @relation(fields: [creator], references: [email])
-  dccapproved     Boolean           @default(false)
-  drcapproved     Boolean           @default(false)
-  annotation      Json?             @db.JsonB
-  xlibrary        XLibrary?
-  C2M2DataPackage C2M2DataPackage[]
+  dcc_id           String
+  dcc              DCC?                 @relation(fields: [dcc_id], references: [id])
+  filetype         String
+  filename         String
+  link             String               @unique
+  size             BigInt?
+  lastmodified     DateTime             @default(now())
+  current          Boolean              @default(true)
+  creator          String?
+  creatorId        User?                @relation(fields: [creator], references: [email])
+  dccapproved      Boolean              @default(false)
+  drcapproved      Boolean              @default(false)
+  annotation       Json?                @db.JsonB
+  library          GeneSetLibraryNode?
+  c2m2_datapackage C2M2Datapackage?
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])
@@ -117,81 +121,92 @@ model DccAsset {
 }
 
 // Processed data search
-model XIdentity {
-  type            String
-  id              String            @id @db.Uuid
-  label           String
-  description     String
-  searchable      String
-  entity_id       String?           @unique @db.Uuid
-  set_id          String?           @unique @db.Uuid
-  library_id      String?           @unique @db.Uuid
-  c2m2file_id     String?           @unique @db.Uuid
-  library         XLibrary?
-  entity          XEntity?
-  set             XSet?
-  c2m2file        C2M2File?
+enum NodeType {
+  gene
+  gene_set
+  gene_set_library
+  c2m2_file
+}
 
+model Node {
+  dcc_id      String?
+  id          String                   @id @db.Uuid
+  type        NodeType
+  label       String
+  description String
+  searchable       Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
+
+  dcc              DCC?                @relation(fields: [dcc_id], references: [id])
+  gene             GeneNode?
+  gene_set         GeneSetNode?
+  gene_set_library GeneSetLibraryNode?
+  c2m2_file        C2M2FileNode?
+
+  @@map("node")
   @@index([type])
-  @@index([label])
-  @@index([label(ops: raw("gin_trgm_ops"))], map: "xidentity_label_trgm", type: Gin)
-  @@map("xidentity")
+  @@index([label(ops: raw("gin_trgm_ops"))], map: "node_label_trgm", type: Gin)
+  @@index([searchable], map: "node_searchable_fts", type: Gin)
 }
 
-model XEntity {
-  id        String     @id @db.Uuid
-  identity  XIdentity  @relation(fields: [id], references: [id], onDelete: Cascade)
-  libraries XLibrary[] @relation("XEntityToXLibrary")
-  sets      XSet[]     @relation("XEntityToXSet")
+model GeneNode {
+  id      String @id @db.Uuid
+  entrez  String
+  ensembl String
 
-  @@map("xentity")
+  node               Node                 @relation(fields: [id], references: [id])
+  gene_set_libraries GeneSetLibraryNode[]
+  gene_sets          GeneSetNode[]
+
+  @@map("gene_node")
 }
 
-model XSet {
-  id         String    @id @db.Uuid
-  library_id String    @db.Uuid
-  library    XLibrary  @relation(fields: [library_id], references: [id], onDelete: Cascade)
-  identity   XIdentity @relation(fields: [id], references: [id], onDelete: Cascade)
-  contains   XEntity[] @relation("XEntityToXSet")
+model GeneSetNode {
+  id                  String @id @db.Uuid
+  gene_set_library_id String @db.Uuid
 
-  @@map("xset")
+  node             Node               @relation(fields: [id], references: [id])
+  gene_set_library GeneSetLibraryNode @relation(fields: [gene_set_library_id], references: [id])
+  genes            GeneNode[]
+
+  @@map("gene_set_node")
 }
 
-model XLibrary {
-  id             String    @id @db.Uuid
-  dcc_asset_link String    @unique
-  entity_type    String
-  term_type      String
-  dcc_asset      DccAsset  @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
-  identity       XIdentity @relation(fields: [id], references: [id], onDelete: Cascade)
-  sets           XSet[]
-  entities       XEntity[] @relation("XEntityToXLibrary")
+model GeneSetLibraryNode {
+  id             String @id @db.Uuid
+  dcc_asset_link String @unique
 
-  @@map("xlibrary")
+  node      Node          @relation(fields: [id], references: [id])
+  genes     GeneNode[]
+  gene_sets GeneSetNode[]
+  dcc_asset DccAsset      @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
+
+  @@map("gene_set_library_node")
 }
 
-model C2M2DataPackage {
-  id             String     @id @db.Uuid
-  dcc_asset_link String
-  dcc_asset      DccAsset   @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
-  files          C2M2File[]
+model C2M2FileNode {
+  id                  String    @id @db.Uuid
+  c2m2_datapackage_id String    @db.Uuid
+  creation_time       DateTime? @db.Timestamptz()
+  persistent_id       String?
+  size_in_bytes       BigInt?
+  file_format         String?
+  data_type           String?
+  assay_type          String?
 
-  @@map("c2m2datapackage")
+  node             Node            @relation(fields: [id], references: [id])
+  c2m2_datapackage C2M2Datapackage @relation(fields: [c2m2_datapackage_id], references: [id], onDelete: Cascade)
+
+  @@map("c2m2_file_node")
 }
 
-model C2M2File {
-  id             String          @id @db.Uuid
-  creation_time  DateTime?       @db.Timestamptz()
-  persistent_id  String?
-  size_in_bytes  BigInt?
-  file_format    String?
-  data_type      String?
-  assay_type     String?
-  datapackage_id String          @db.Uuid
-  datapackage    C2M2DataPackage @relation(fields: [datapackage_id], references: [id], onDelete: Cascade)
-  identity       XIdentity       @relation(fields: [id], references: [id], onDelete: Cascade)
+model C2M2Datapackage {
+  id             String @id @db.Uuid
+  dcc_asset_link String @unique
 
-  @@map("c2m2file")
+  c2m2_files C2M2FileNode[]
+  dcc_asset  DccAsset       @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
+
+  @@map("c2m2_datapackage")
 }
 
 // End processed data search
@@ -225,15 +240,15 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   dcc           String?
-  role          Role @default(USER)
+  role          Role       @default(USER)
   dccAsset      DccAsset[]
 }
 

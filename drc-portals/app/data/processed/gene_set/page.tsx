@@ -1,0 +1,118 @@
+import prisma from "@/lib/prisma";
+import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import Link from "next/link";
+import FormPagination from "@/app/data/processed/FormPagination";
+import SearchField from "@/app/data/processed/SearchField";
+import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import Image from "next/image";
+import { NodeType, Prisma } from "@prisma/client";
+
+const pageSize = 10
+
+export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
+  const searchParams = useSanitizedSearchParams(props)
+  const offset = (searchParams.p - 1)*pageSize
+  const limit = pageSize
+  const [results] = await prisma.$queryRaw<Array<{
+    items: {
+      id: string,
+      node: {
+        type: NodeType,
+        label: string,
+        description: string,
+      },
+      dcc: {
+        short_label: string,
+        icon: string,
+      } | null,
+    }[]
+    count: number,
+  }>>`
+    with results as (
+      select "gene_set_node".id as gene_set_node_id, *
+      from "gene_set_node"
+      inner join "node" on "gene_set_node"."id" = "node"."id"
+      ${searchParams.q ? Prisma.sql`
+        where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
+        order by ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) desc
+      ` : Prisma.sql`
+        order by "gene_set_node"."id"
+      `}
+    ), items as (
+      select
+        results."gene_set_node_id" as "id",
+        jsonb_build_object(
+          'type', results."type",
+          'label', results."label",
+          'description', results."description"
+        ) as node,
+        (
+          select jsonb_build_object(
+            'short_label', short_label,
+            'icon', icon
+          )
+          from "dccs"
+          where results."dcc_id" = "dccs"."id"
+        ) as dcc
+      from results
+      offset ${offset}
+      limit ${limit}
+    ), total_count as (
+      select count("gene_set_node_id")::int as count
+      from results
+    )
+    select 
+      (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
+      (select count from total_count) as count
+    ;
+  `
+  const ps = Math.floor(results.count / pageSize) + 1
+  return (
+    <Container component="form" action="" method="GET">
+      <SearchField q={searchParams.q ?? ''} />
+      <TableContainer component={Paper}>
+        <Table aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell component="th">
+                <Typography variant='h3'>Source</Typography>
+              </TableCell>
+              <TableCell component="th">
+                <Typography variant='h3'>Label</Typography>
+              </TableCell>
+              <TableCell component="th">
+                <Typography variant='h3'>Description</Typography>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {results.items.map(item => (
+              <TableRow
+                  key={item.id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell className="w-4 relative">
+                  {item.dcc?.icon ?
+                    <Link href={`/data/matrix/${item.dcc.short_label}`}>
+                      <Image className="p-2 object-contain" src={item.dcc.icon} alt={item.dcc.short_label} fill />
+                    </Link>
+                    : null}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  <Link href={`/data/processed/${item.node.type}/${item.id}`}>
+                    <Typography variant='h6'>{item.node.label}</Typography>
+                  </Link>
+                  <Link href={`/data/processed/${item.node.type}`}>
+                    <Typography variant='caption'>{type_to_string(item.node.type)}</Typography>
+                  </Link>
+                </TableCell>
+                <TableCell>{format_description(item.node.description)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <FormPagination p={searchParams.p} ps={ps} />
+    </Container>
+  )
+}

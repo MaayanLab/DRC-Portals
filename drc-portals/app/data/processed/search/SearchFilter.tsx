@@ -5,8 +5,9 @@ import { useSearchParams } from "next/navigation"
 import Link from 'next/link'
 import { Checkbox, FormControlLabel, Typography } from '@mui/material'
 import { pluralize, type_to_string } from '@/app/data/processed/utils'
+import { NodeType } from '@prisma/client'
 
-export default function SearchFilter({ type, count }: { type: string, count: number }) {
+export default function SearchFilter({ type, count }: { type: NodeType, count: number }) {
   const rawSearchParams = useSearchParams()
   const { searchParams, currentTypeSet } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)

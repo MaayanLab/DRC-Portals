@@ -51,7 +51,7 @@ const tool_cards = [
 ]
 
 export default async function Home() {
-  const counts = await prisma.xIdentity.groupBy({
+  const counts = await prisma.node.groupBy({
     by: ['type'],
     _count: true,
     orderBy: {
