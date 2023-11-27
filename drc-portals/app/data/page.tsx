@@ -96,7 +96,7 @@ export default async function Home() {
                       {counts.map(count => (
                         <Link key={count.type} href={`/data/processed/${count.type}`}>
                           <div className="flex flex-col">
-                            <Typography variant="h2" color="secondary">{count._count}</Typography>
+                            <Typography variant="h2" color="secondary">{count._count.toLocaleString()}</Typography>
                             <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type)).toUpperCase()}</Typography>
                           </div>
                         </Link>
