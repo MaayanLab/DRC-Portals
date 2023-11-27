@@ -1,10 +1,21 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { Role } from "@prisma/client"
+import { Session } from "next-auth"
+import { redirect } from "next/navigation"
 
 export async function getUsers(){
     const users = await prisma.user.findMany({})
     return users
+}
+
+export async function getAdminUser(session: Session){
+    const user = await prisma.user.findUnique({
+        where: {
+          id: session.user.id
+        }
+      })
+    return user
 }
 
 
@@ -28,16 +39,17 @@ export async function updateUserInfo(updatedData: {role: string; DCC: string;}, 
             }
 
            // add dcc to user in db
-           console.log('update')
-           console.log(updatedData.role)
-           console.log(prismaRole)
            await prisma.user.update({
                where: {
                    id: userId,
                },
                data: {
                    role: prismaRole as Role,
-                   dcc: updatedData.DCC?.toString()
+                   ...(updatedData.DCC?.toString() != '' ? {
+                        dcc: updatedData.DCC?.toString()
+                } : {})
+                  
                },
            });
+           
 }

@@ -54,7 +54,7 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
           );
-          setFormData({ ...formData, [evt.target.name]: evt.target.value })
+          setFormData({ ...formData, [evt.target.name]: value })
         }}
         input={<OutlinedInput label="Name" />}
         MenuProps={MenuProps}

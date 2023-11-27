@@ -8,8 +8,26 @@ import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
 import Box from '@mui/system/Box'
+import prisma from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
+import { authOptions } from '@/lib/auth'
 
-export default function Nav() {
+export default async function Nav() {
+  const session = await getServerSession(authOptions)
+  if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id
+    }
+  })
+
+  let userAdmin = false
+  if (user?.role === 'ADMIN')
+  {
+    userAdmin = true;
+  }
+
   return (
     <Box>
     <Container maxWidth="lg">
@@ -40,9 +58,9 @@ export default function Nav() {
                   <Link href="/data/contribute/account">
                     <Typography variant="nav">MY ACCOUNT</Typography>
                   </Link>
-                  <Link href="/data/contribute/admin">
+                  { userAdmin && <Link href="/data/contribute/admin">
                     <Typography variant="nav">ADMIN</Typography>
-                  </Link>
+                  </Link>}
                 </Stack>
               </Grid>
             </Grid>

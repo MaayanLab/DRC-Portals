@@ -1,15 +1,14 @@
 "use client"
 import * as React from 'react';
-import { DataGrid, GridColDef, GridRowSelectionModel, GridValueGetterParams, useGridApiContext } from '@mui/x-data-grid';
-import { getUsers, updateUserInfo } from './getUsers';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import { getAdminUser, getUsers, updateUserInfo } from './getUsers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Modal, TextField, Typography } from '@mui/material';
+import { Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography } from '@mui/material';
 import { FaUserPlus, FaUserFriends } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
 import RoleSelect from './RoleSelect';
 import MultiSelect from './MultiSelect';
-import { $Enums } from '@prisma/client';
-
+import { useSession } from "next-auth/react"
 
 const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -59,6 +58,18 @@ const dccs = [
 ];
 
 export default function DataTable() {
+    const [loading, setLoading] = useState(true)
+    const { data: session, status } = useSession()
+
+    if (status === "authenticated") {
+      getAdminUser(session).then((user) => {
+        if (user?.role != 'ADMIN'){
+        return 
+        }
+      })
+    }
+
+
     const [rows, setRows] = React.useState<UserInfo[]>([{ id: 0, name: null, email: null, dcc: null, role: null }]);
     const [users, setUsers] = React.useState<{
         id: string;
@@ -104,13 +115,17 @@ export default function DataTable() {
 
     const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>, user: UserInfo) => {
         event.preventDefault();
-        console.log('Form Data:', formData);
-        console.log(users[user.id - 1])
-        updateUserInfo(formData, users[user.id - 1].id)
+        if (formData.role === ''){
+            alert('Missing field. Fill out role for given user')
+        } else {
+            updateUserInfo(formData, users[user.id - 1].id)
+            alert('User Informtion Updated')
+        }
+       
     };
 
     return (
-        <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
+    <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
             <Typography variant="h3" className='text-center p-5'>Users</Typography>
             {!usersSelected && <Button color='tertiary'> <FaUserPlus size={20} /> Create New User</Button>}
             {!usersSelected && <Button color='tertiary'><FaUserFriends size={20} /> Create Many Users</Button>}
@@ -126,8 +141,8 @@ export default function DataTable() {
 
                         {selection.map((user) => {
                             return <>
-                                <form>
-                                    <Grid container spacing={4} className='p-5' justifyContent="center">
+                                <form className='border mx-2 my-2'>
+                                    <Grid container spacing={4} className='p-3' justifyContent="center">
                                         <Grid item >
                                             <Typography variant='body2'>{user.name}</Typography>
                                             <Chip label={user.role?.toString()} />
@@ -146,7 +161,10 @@ export default function DataTable() {
                                             />
                                         </Grid>
                                     </Grid>
-                                    <Button onClick={e => { handleSubmit(e, user) }}>Update</Button>
+                                    <div className='flex justify-center mb-2'>
+                                    <Button variant="contained" color="tertiary" onClick={e => { handleSubmit(e, user) }}>Update</Button>
+                                    </div>
+                                   
                                 </form>
 
                             </>
@@ -154,7 +172,7 @@ export default function DataTable() {
                         })}
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose}>Done</Button>
+                        <Button color="tertiary" onClick={handleClose}>Done</Button>
                         {/* <Button type='submit'>Update</Button> */}
                     </DialogActions>
                 </Dialog>
