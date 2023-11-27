@@ -8,7 +8,6 @@ export default function PrismaAdapterEx() {
     async linkAccount(data: AdapterAccount) {
       const {
         access_token,
-        expires_at,
         id_token,
         provider,
         providerAccountId,
@@ -19,6 +18,7 @@ export default function PrismaAdapterEx() {
         type,
         userId,
       } = data
+      const expires_at = (data.expires_at && provider === 'orcid') ? data.expires_at / 1000 : data.expires_at
       const account = await prisma.account.create({
         data: {
           access_token,
