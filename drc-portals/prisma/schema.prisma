@@ -25,6 +25,7 @@ model DCC {
   assets       DccAsset[]
   outreach     DCCOutreach[]
   nodes        Node[]
+  kg_assertions KGAssertion[]
 
   @@map("dccs")
 }
@@ -122,10 +123,11 @@ model DccAsset {
 
 // Processed data search
 enum NodeType {
-  gene
+  entity
   gene_set
   gene_set_library
   c2m2_file
+  kg_relation
 }
 
 model Node {
@@ -137,10 +139,11 @@ model Node {
   searchable       Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
 
   dcc              DCC?                @relation(fields: [dcc_id], references: [id])
-  gene             GeneNode?
+  entity           EntityNode?
   gene_set         GeneSetNode?
   gene_set_library GeneSetLibraryNode?
   c2m2_file        C2M2FileNode?
+  kg_relation_node KGRelationNode?
 
   @@map("node")
   @@index([type])
@@ -148,16 +151,54 @@ model Node {
   @@index([searchable], map: "node_searchable_fts", type: Gin)
 }
 
-model GeneNode {
+model EntityNode {
+  id   String @id @db.Uuid
+  type String
+
+  node             Node          @relation(fields: [id], references: [id])
+  sourceAssertions KGAssertion[] @relation("source")
+  targetAssertions KGAssertion[] @relation("target")
+  gene             GeneEntity?
+
+  @@map("entity_node")
+}
+
+model KGRelationNode {
+  id String @id @db.Uuid
+
+  node       Node          @relation(fields: [id], references: [id])
+  assertions KGAssertion[]
+
+  @@map("kg_relation_node")
+}
+
+model KGAssertion {
+  id          String @id @db.Uuid
+  relation_id String @db.Uuid
+  source_id   String @db.Uuid
+  target_id   String @db.Uuid
+  dcc_id      String?
+  SAB         String
+  evidence    Json?
+
+  dcc      DCC?           @relation(fields: [dcc_id], references: [id])
+  relation KGRelationNode @relation(fields: [relation_id], references: [id])
+  source   EntityNode     @relation("source", fields: [source_id], references: [id])
+  target   EntityNode     @relation("target", fields: [target_id], references: [id])
+
+  @@map("kg_assertion")
+}
+
+model GeneEntity {
   id      String @id @db.Uuid
   entrez  String
   ensembl String
 
-  node               Node                 @relation(fields: [id], references: [id])
+  entity             EntityNode                 @relation(fields: [id], references: [id])
   gene_set_libraries GeneSetLibraryNode[]
   gene_sets          GeneSetNode[]
 
-  @@map("gene_node")
+  @@map("gene_entity")
 }
 
 model GeneSetNode {
@@ -166,7 +207,7 @@ model GeneSetNode {
 
   node             Node               @relation(fields: [id], references: [id])
   gene_set_library GeneSetLibraryNode @relation(fields: [gene_set_library_id], references: [id])
-  genes            GeneNode[]
+  genes            GeneEntity[]
 
   @@map("gene_set_node")
 }
@@ -176,7 +217,7 @@ model GeneSetLibraryNode {
   dcc_asset_link String @unique
 
   node      Node          @relation(fields: [id], references: [id])
-  genes     GeneNode[]
+  genes     GeneEntity[]
   gene_sets GeneSetNode[]
   dcc_asset DccAsset      @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
 
