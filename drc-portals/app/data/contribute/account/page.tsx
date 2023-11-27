@@ -37,6 +37,8 @@ export default async function AccountPage() {
         }
     })
 
+    if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/account")
+
     async function saveuser(formData: FormData) {
         'use server'
         const email = formData.get('email')

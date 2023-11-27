@@ -40,6 +40,9 @@ export default function Nav() {
                   <Link href="/data/contribute/account">
                     <Typography variant="nav">MY ACCOUNT</Typography>
                   </Link>
+                  <Link href="/data/contribute/admin">
+                    <Typography variant="nav">ADMIN</Typography>
+                  </Link>
                 </Stack>
               </Grid>
             </Grid>

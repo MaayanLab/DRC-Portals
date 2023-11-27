@@ -215,6 +215,15 @@ enum Role {
   DCC_APPROVER
   UPLOADER
   DRC_APPROVER
+  ADMIN
+}
+
+model UserToApprove {
+  id            String    @id @default(cuid())
+  name          String
+  email         String   @unique
+  dcc           String
+  role          Role
 }
 
 model VerificationToken {
