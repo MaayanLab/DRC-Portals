@@ -22,52 +22,53 @@ export default async function Page(props: { searchParams: Record<string, string 
         type: NodeType,
         label: string,
         description: string,
+        dcc: {
+          short_label: string,
+          icon: string,
+        } | null,
       },
-      dcc: {
-        short_label: string,
-        icon: string,
-      } | null,
     }[]
     count: number,
   }>>`
-    with results as (
-      select "c2m2_file_node".id as c2m2_file_node_id, *
+    with items as (
+      select
+        "c2m2_file_node"."id",
+        "c2m2_file_node"."data_type",
+        "c2m2_file_node"."assay_type",
+        jsonb_build_object(
+          'type', node."type",
+          'label', node."label",
+          'description', node."description",
+          'dcc', (
+            select jsonb_build_object(
+              'short_label', short_label,
+              'icon', icon
+            )
+            from "dccs"
+            where "node"."dcc_id" = "dccs"."id"
+          )
+        ) as node
       from "c2m2_file_node"
-      inner join "node" on "c2m2_file_node"."id" = "node"."id"
+      inner join "node" on "node"."id" = "c2m2_file_node"."id"
       ${searchParams.q ? Prisma.sql`
-        where to_tsvector('english', "node"."searchable") @@ to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd(to_tsvector('english', "node"."searchable"), to_tsquery('english', ${searchParams.q})) desc
+        where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
+        order by ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) desc
       ` : Prisma.sql`
         order by "c2m2_file_node"."id"
       `}
-    ), items as (
-      select
-        results."c2m2_file_node_id" as id,
-        results."data_type",
-        results."assay_type",
-        jsonb_build_object(
-          'type', results."type",
-          'label', results."label",
-          'description', results."description"
-        ) as node,
-        (
-          select jsonb_build_object(
-            'short_label', short_label,
-            'icon', icon
-          )
-          from "dccs"
-          where results."dcc_id" = "dccs"."id"
-        ) as dcc
-      from results
+    ), paginated_items as (
+      select *
+      from items
       offset ${offset}
       limit ${limit}
-    ), total_count as (
-      select count("c2m2_file_node_id")::int as count
-      from results
     )
-    select 
-      (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
-      (select count from total_count) as count
+    select
+      (select coalesce(jsonb_agg(paginated_items.*), '[]') from paginated_items) as items,
+      ${searchParams.q ? Prisma.sql`
+        (select count(items.id)::int from items) as count
+      ` : Prisma.sql`
+        (select count("c2m2_file_node".id)::int from "c2m2_file_node") as count
+      `}
     ;
   `
   const ps = Math.floor(results.count / pageSize) + 1
@@ -78,8 +79,8 @@ export default async function Page(props: { searchParams: Record<string, string 
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Source</Typography>
+              <TableCell component="th" className="w-24">
+                &nbsp;
               </TableCell>
               <TableCell component="th">
                 <Typography variant='h3'>Label</Typography>
@@ -101,10 +102,10 @@ export default async function Page(props: { searchParams: Record<string, string 
                     key={item.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell className="w-4 relative">
-                      {item.dcc?.icon ?
-                        <Link href={`/data/matrix/${item.dcc.short_label}`}>
-                          <Image className="p-2 object-contain" src={item.dcc.icon} alt={item.dcc.short_label ?? ''} fill />
+                    <TableCell className="relative">
+                      {item.node.dcc?.icon ?
+                        <Link href={`/data/matrix/${item.node.dcc.short_label}`}>
+                          <Image className="p-2 object-contain" src={item.node.dcc.icon} alt={item.node.dcc.short_label ?? ''} fill />
                         </Link>
                         : null}
                     </TableCell>

@@ -12,7 +12,7 @@ export default async function Page(props: { searchParams: Record<string, string 
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [items, count] = await prisma.$transaction([
-    prisma.geneNode.findMany({
+    prisma.kGRelationNode.findMany({
       where: searchParams.q ? {
         node: {
           OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]

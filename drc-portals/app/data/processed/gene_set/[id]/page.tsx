@@ -60,9 +60,11 @@ export default async function Page(props: { params: { id: string }, searchParams
           select: {
             genes: searchParams.q ? {
               where: {
-                node: {
-                  OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-                }
+                entity: {
+                  node: {
+                    OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+                  }
+                },
               }
             } : true,
           },
@@ -70,18 +72,24 @@ export default async function Page(props: { params: { id: string }, searchParams
         genes: {
           select: {
             id: true,
-            node: {
+            entity: {
               select: {
-                type: true,
-                label: true,
-                description: true,
-              }
-            }
+                node: {
+                  select: {
+                    type: true,
+                    label: true,
+                    description: true,
+                  },
+                },
+              },
+            },
           },
           where: searchParams.q ? {
-            node: {
-              OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-            }
+            entity: {
+              node: {
+                OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+              },
+            },
           } : {},
           skip: offset,
           take: limit,
@@ -128,9 +136,9 @@ export default async function Page(props: { params: { id: string }, searchParams
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                   <TableCell component="th" scope="row">
-                    <Link href={`/data/processed/gene/${gene.id}`}>{gene.node.label}</Link>
+                    <Link href={`/data/processed/entity/gene/${gene.id}`}>{gene.entity.node.label}</Link>
                   </TableCell>
-                  <TableCell>{format_description(gene.node.description)}</TableCell>
+                  <TableCell>{format_description(gene.entity.node.description)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -3,8 +3,7 @@ import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHea
 import Link from "next/link";
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import Image from "next/image";
+import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
 
 const pageSize = 10
@@ -16,41 +15,31 @@ export default async function Page(props: { searchParams: Record<string, string 
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
+      type: string,
       node: {
         type: NodeType,
         label: string,
         description: string,
-        dcc: {
-          short_label: string,
-          icon: string,
-        } | null,
       },
     }[]
     count: number,
   }>>`
     with items as (
       select
-        "gene_set_node"."id",
+        "entity_node"."id",
+        "entity_node"."type",
         jsonb_build_object(
           'type', node."type",
           'label', node."label",
-          'description', node."description",
-          'dcc', (
-            select jsonb_build_object(
-              'short_label', short_label,
-              'icon', icon
-            )
-            from "dccs"
-            where "node"."dcc_id" = "dccs"."id"
-          )
+          'description', node."description"
         ) as node
-      from "gene_set_node"
-      inner join "node" on "node"."id" = "gene_set_node"."id"
+      from "entity_node"
+      inner join "node" on "node"."id" = "entity_node"."id"
       ${searchParams.q ? Prisma.sql`
         where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
         order by ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) desc
       ` : Prisma.sql`
-        order by "gene_set_node"."id"
+        order by "entity_node"."id"
       `}
     ), paginated_items as (
       select *
@@ -63,7 +52,7 @@ export default async function Page(props: { searchParams: Record<string, string 
       ${searchParams.q ? Prisma.sql`
         (select count(items.id)::int from items) as count
       ` : Prisma.sql`
-        (select count("gene_set_node".id)::int from "gene_set_node") as count
+        (select count("entity_node".id)::int from "entity_node") as count
       `}
     ;
   `
@@ -75,9 +64,6 @@ export default async function Page(props: { searchParams: Record<string, string 
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell component="th" className="w-24">
-                &nbsp;
-              </TableCell>
               <TableCell component="th">
                 <Typography variant='h3'>Label</Typography>
               </TableCell>
@@ -88,27 +74,22 @@ export default async function Page(props: { searchParams: Record<string, string 
           </TableHead>
           <TableBody>
             {results.items.map(item => (
-              <TableRow
-                  key={item.id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell className="relative">
-                  {item.node.dcc?.icon ?
-                    <Link href={`/data/matrix/${item.node.dcc.short_label}`}>
-                      <Image className="p-2 object-contain" src={item.node.dcc.icon} alt={item.node.dcc.short_label} fill />
-                    </Link>
-                    : null}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  <Link href={`/data/processed/${item.node.type}/${item.id}`}>
-                    <Typography variant='h6'>{item.node.label}</Typography>
-                  </Link>
-                  <Link href={`/data/processed/${item.node.type}`}>
-                    <Typography variant='caption'>{type_to_string(item.node.type, null)}</Typography>
-                  </Link>
-                </TableCell>
-                <TableCell>{format_description(item.node.description)}</TableCell>
-              </TableRow>
+                <TableRow
+                    key={item.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    <TableCell component="th" scope="row">
+                      <Link href={`/data/processed/${item.node.type}/${item.type}/${item.id}`}>
+                        <Typography variant='h6'>{item.node.label}</Typography>
+                      </Link>
+                      <Typography variant='caption'>
+                        <Link href={`/data/processed/${item.node.type}/${item.type}`}>
+                          {type_to_string(item.node.type, item.type)}
+                        </Link>
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{format_description(item.node.description)}</TableCell>
+                </TableRow>
             ))}
           </TableBody>
         </Table>

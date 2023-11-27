@@ -63,17 +63,14 @@ export default async function Page(props: { searchParams: Record<string, string 
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Source</Typography>
+              <TableCell component="th" className="w-24">
+                &nbsp;
               </TableCell>
               <TableCell component="th">
                 <Typography variant='h3'>Label</Typography>
               </TableCell>
               <TableCell component="th">
                 <Typography variant='h3'>Description</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Type</Typography>
               </TableCell>
             </TableRow>
           </TableHead>
@@ -83,7 +80,7 @@ export default async function Page(props: { searchParams: Record<string, string 
                   key={library.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                <TableCell className="w-4 relative">
+                <TableCell className="relative">
                   {library.dcc_asset.dcc?.icon ?
                     <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>
                       <Image className="p-2 object-contain" src={library.dcc_asset.dcc.icon} alt={library.dcc_asset.dcc.short_label ?? ''} fill />
@@ -96,7 +93,6 @@ export default async function Page(props: { searchParams: Record<string, string 
                   </Link>
                 </TableCell>
                 <TableCell>{format_description(library.node.description)}</TableCell>
-                <TableCell>Gene Sets</TableCell>
               </TableRow>
             ))}
           </TableBody>

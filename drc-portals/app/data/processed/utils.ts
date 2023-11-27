@@ -11,12 +11,13 @@ export function pluralize(s: string) {
   return `${s}s`
 }
 
-export function type_to_string(type: NodeType) {
-  if (type === 'c2m2_file') return 'File'
+export function type_to_string(type: NodeType, entity_type: string | null) {
+  if (type === 'entity') return entity_type ? capitalize(entity_type) : 'Entity'
+  else if (type === 'c2m2_file') return 'File'
+  else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
-  else if (type === 'gene') return 'Gene'
   else if (type === 'gene_set') return 'Gene Set'
-  throw new Error(`Unhandled type ${type}`)
+  throw new Error(`Unhandled type ${type} ${entity_type}`)
 }
 
 export function format_description(description: string) {

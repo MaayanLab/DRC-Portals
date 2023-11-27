@@ -7,7 +7,7 @@ import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
 import { format_description, type_to_string } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
-// import DrugIcon from '@/public/img/icons/drug.png'
+import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
 
@@ -29,21 +29,28 @@ export default async function Page(props: { searchParams: Record<string, string>
       z.array(z.string()),
       z.string().transform(ts => ts ? ts.split(',') : undefined),
       z.undefined(),
-    ]),
+    ]).transform(ts => ts ? ts.map(t => {
+      const [type, entity_type] = t.split(':')
+      return { type, entity_type: entity_type ? entity_type : null }
+    }) : undefined),
   }).parse(props.searchParams)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-    items: {id: string, type: NodeType, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
-    type_counts: {type: NodeType, count: number}[],
+    type_counts: {type: NodeType, entity_type: string | null, count: number}[],
   }>>`
     with results as (
-      select *
+      select
+        "node".*,
+        "entity_node"."type" as "entity_type",
+        ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) as "rank"
       from "node"
+      left join "entity_node" on "entity_node"."id" = "node"."id"
       where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
     ), items as (
-      select id, type, label, description, (
+      select id, type, entity_type, label, description, (
         select jsonb_build_object(
           'short_label', "dccs".short_label,
           'icon', "dccs".icon,
@@ -52,18 +59,39 @@ export default async function Page(props: { searchParams: Record<string, string>
         from "dccs"
         where "dccs".id = "dcc_id"
       ) as dcc
-      from results
-      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t.map(t => Prisma.sql`${t}::"NodeType"`))})` : Prisma.empty}
+      from "results"
+      ${searchParams.t ? Prisma.sql`
+      where
+        ${Prisma.join(searchParams.t.map(t => Prisma.sql`
+        (
+          "results"."type" = ${t.type}::"NodeType"
+          ${t.entity_type ? Prisma.sql`
+            and "results"."entity_type" = ${t.entity_type}
+          ` : Prisma.empty}
+        )
+        `), ' or ')}
+      ` : Prisma.empty}
+      order by "results"."rank"
       offset ${offset}
       limit ${limit}
     ), total_count as (
       select count(*)::int as count
-      from results
-      ${searchParams.t ? Prisma.sql`where results."type" in (${Prisma.join(searchParams.t.map(t => Prisma.sql`${t}::"NodeType"`))})` : Prisma.empty}
+      from "results"
+      ${searchParams.t ? Prisma.sql`
+      where
+        ${Prisma.join(searchParams.t.map(t => Prisma.sql`
+        (
+          "results"."type" = ${t.type}::"NodeType"
+          ${t.entity_type ? Prisma.sql`
+            and "results"."entity_type" = ${t.entity_type}
+          ` : Prisma.empty}
+        )
+        `), ' or ')}
+      ` : Prisma.empty}
     ), type_counts as (
-      select "type", count(*)::int as count
-      from results
-      group by "type"
+      select "type", "entity_type", count(*)::int as count
+      from "results"
+      group by "type", "entity_type"
       order by count(*) desc
     )
     select 
@@ -84,8 +112,12 @@ export default async function Page(props: { searchParams: Record<string, string>
           </Box>
           <Box className="flex flex-row gap-4 justify-stretch">
             <Box className="flex flex-col w-48">
-              {results.type_counts.map((type_count) =>
-                <SearchFilter key={type_count.type} type={type_count.type} count={type_count.count} />
+              {results.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
+                <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} type={type_count.type} entity_type={type_count.entity_type} count={type_count.count} />
+              )}
+              <hr className="m-2" />
+              {results.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
+                <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} type={type_count.type} entity_type={type_count.entity_type} count={type_count.count} />
               )}
             </Box>
             <Box className="flex flex-col items-center">
@@ -94,8 +126,8 @@ export default async function Page(props: { searchParams: Record<string, string>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                       <TableRow>
-                        <TableCell component="th">
-                          <Typography variant='h3'>Source</Typography>
+                        <TableCell component="th" className="w-20">
+                          &nbsp;
                         </TableCell>
                         <TableCell component="th">
                           <Typography variant='h3'>Label</Typography>
@@ -113,16 +145,18 @@ export default async function Page(props: { searchParams: Record<string, string>
                           >
                               <TableCell className="w-4 relative">
                                 {item.dcc?.icon ? <Link href={`/data/matrix/${item.dcc.short_label}`}><Image className="p-2 object-contain" src={item.dcc.icon} alt={item.dcc.label} fill /></Link>
-                                  : item.type === 'gene' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill /></Link>
-                                  /*: item.type === 'drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>*/
+                                  : item.type === 'entity' ? 
+                                    item.entity_type === 'gene' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill /></Link>
+                                    : item.entity_type === 'Drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>
+                                    : null
                                   : null}
                               </TableCell>
                               <TableCell component="th" scope="row">
-                                <Link href={`/data/processed/${item.type}/${item.id}`}>
+                                <Link href={`/data/processed/${item.type}${item.entity_type ? `/${item.entity_type}` : ''}/${item.id}`}>
                                   <Typography variant='h6'>{item.label}</Typography>
                                 </Link>
-                                <Link href={`/data/processed/${item.type}`}>
-                                  <Typography variant='caption'>{type_to_string(item.type)}</Typography>
+                                <Link href={`/data/processed/${item.type}${item.entity_type ? `/${item.entity_type}` : ''}`}>
+                                  <Typography variant='caption'>{type_to_string(item.type, item.entity_type)}</Typography>
                                 </Link>
                               </TableCell>
                               <TableCell>{format_description(item.description)}</TableCell>
