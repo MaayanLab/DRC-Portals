@@ -54,6 +54,6 @@ with c2m2_file_helper.writer() as c2m2_file:
               dcc_id=c2m2['dcc_id'],
               id=c2m2_file_id,
               type='c2m2_file',
-              label=file['filename'],
-              description='TODO',
+              label=file['local_id'],
+              description=file['filename'],
             ))

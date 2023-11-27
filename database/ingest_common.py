@@ -88,3 +88,6 @@ dcc_assets = pd.read_csv(ingest_path/'DccAssets.tsv', sep='\t', names=[
   'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
 ])
 dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+
+#%%
+dcc_assets = dcc_assets[dcc_assets['current']]
