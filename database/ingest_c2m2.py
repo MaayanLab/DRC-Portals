@@ -1,6 +1,7 @@
 #%%
 import csv
 import zipfile
+from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, ingest_path, dcc_assets, uuid0, uuid5
 
@@ -17,7 +18,7 @@ node_helper = TableHelper('node', ('id', 'type', 'label', 'description', 'dcc_id
 with c2m2_file_helper.writer() as c2m2_file:
   with node_helper.writer() as node:
     with c2m2_datapackage_helper.writer() as c2m2_datapackage:
-      for _, c2m2 in c2m2s.iterrows():
+      for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
@@ -37,7 +38,7 @@ with c2m2_file_helper.writer() as c2m2_file:
         # TODO: also ingest
         with open(c2m2_extracted_files_tsv_path, 'r') as fr:
           c2m2_files_reader = csv.DictReader(fr, fieldnames=next(fr).strip().split('\t'), delimiter='\t')
-          for file in c2m2_files_reader:
+          for file in tqdm(c2m2_files_reader, desc=f"Processing {c2m2['dcc_short_label']}/{c2m2['filename']}..."):
             c2m2_file_id = str(uuid5(uuid0, '\t'.join((c2m2_datapackage_id, file['id_namespace'], file['local_id']))))
             c2m2_file.writerow(dict(
               id=c2m2_file_id,

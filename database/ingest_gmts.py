@@ -1,5 +1,6 @@
 #%%
 import pandas as pd
+from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, ingest_path, dcc_assets, uuid0, uuid5
 
@@ -52,7 +53,7 @@ with gene__gene_set_helper.writer() as gene__gene_set:
         with gene_helper.writer() as gene:
           genes = set()
           with node_helper.writer() as node:
-            for _, gmt in gmts.iterrows():
+            for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
               gmt_path = gmts_path/gmt['dcc_short_label']/gmt['filename']
               gmt_path.parent.mkdir(parents=True, exist_ok=True)
               if not gmt_path.exists():
@@ -79,7 +80,7 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                 raise NotImplementedError(gmt_path.suffix)
 
               with gmt_path.open('r') as fr:
-                for line in fr:
+                for line in tqdm(fr, desc=f"Processing {gmt['dcc_short_label']}/{gmt['filename']}..."):
                   line_split = list(map(str.strip, line.split('\t')))
                   if len(line_split) < 3: continue
                   gene_set_label, gene_set_description, *gene_set_genes = line_split

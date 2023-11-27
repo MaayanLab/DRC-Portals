@@ -23,7 +23,7 @@ class TableHelper:
     with tempfile.TemporaryDirectory() as tmpdir:
       path = pathlib.Path(tmpdir)/(self.tablename+'.tsv')
       with path.open('w') as fw:
-        yield csv.DictWriter(fw, self.columns, delimiter='\t')
+        yield csv.DictWriter(fw, self.columns, delimiter='\t', escapechar='\\', doublequote=False)
       print(f"inserting {self.tablename}...")
       with connection.cursor() as cur:
         cur.execute(f'''
