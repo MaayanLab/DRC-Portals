@@ -53,7 +53,7 @@ export default async function InfoHeader() {
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data">
-                    <Typography variant="nav">META DATA SEARCH ENGINE</Typography>
+                    <Typography variant="nav">METADATA SEARCH ENGINE</Typography>
                   </Link>
                   <Link href="/data/matrix">
                     <Typography variant="nav">PROCESSED DATA</Typography>
