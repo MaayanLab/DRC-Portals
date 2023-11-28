@@ -112,7 +112,7 @@ export default async function Page(props: { searchParams: Record<string, string>
         <Container className="mt-10 justify-content-center">
           <Box className="p-5 text-center">
           <Typography variant="h3">Results</Typography>
-          <Typography variant="subtitle1">(found {results.count} matches)</Typography>
+          <Typography variant="subtitle1">(found {results.count.toLocaleString()} matches)</Typography>
           </Box>
           <Box className="flex flex-row gap-4 justify-stretch">
             <Box className="flex flex-col w-48">

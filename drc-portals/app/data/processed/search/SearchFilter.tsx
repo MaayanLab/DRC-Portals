@@ -19,7 +19,7 @@ export default function SearchFilter({ type, count }: { type: string, count: num
   }, [type, rawSearchParams])
   return (
     <Link key={type} href={`?${searchParams.toString()}`}>
-      <FormControlLabel control={<Checkbox />} label={<Typography sx={{ fontSize: '60%' }}>{pluralize(type_to_string(type))} ({count})</Typography>} checked={currentTypeSet} />
+      <FormControlLabel control={<Checkbox />} label={<Typography sx={{ fontSize: '60%' }}>{pluralize(type_to_string(type))} ({count.toLocaleString()})</Typography>} checked={currentTypeSet} />
     </Link>
   )
 }
