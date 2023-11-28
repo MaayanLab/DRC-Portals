@@ -166,10 +166,7 @@ export default async function Home() {
           <Twitter/>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Publications all={false} searchParams={{
-            take: "5",
-            skip: "0"
-          }}/>
+          <Publications all={false}/>
         </Grid>
       </Grid>
     </main>

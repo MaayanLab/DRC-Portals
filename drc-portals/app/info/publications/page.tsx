@@ -1,20 +1,9 @@
 import Publications from "@/components/misc/Publications/PublicationsServer"
-import { Prisma } from "@prisma/client"
-export default function PublicationPage ({searchParams={
-    take: "10",
-    skip: "0"
-}}: {
+
+export default function PublicationPage ({searchParams}:{
     searchParams?: {
-        take?:string,
-        skip?: string,
-        order?: {
-            field: Prisma.PublicationScalarFieldEnum, 
-            ordering: 'asc'|'desc'
-        },
-        where?: Prisma.PublicationWhereInput,
+        q?:string
     }
 }) {
-    return <Publications all={true}
-        searchParams={searchParams}
-    />
+    return <Publications all={true} searchParams={searchParams}/>
 }
