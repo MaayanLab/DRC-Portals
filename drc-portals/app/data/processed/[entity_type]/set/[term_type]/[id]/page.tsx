@@ -127,7 +127,7 @@ export default async function Page(props: { params: { entity_type: string, term_
           <Container><Typography variant="caption">Description: {format_description(xset.identity.description)}</Typography></Container>
           {xset.library.dcc_asset.dcc ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${xset.library.dcc_asset.dcc.short_label}`}>{xset.library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
           <Container><Typography variant="caption">Library: <Link href={`/data/processed/${xset.library.identity.type}/${xset.library.id}`}>{xset.library.identity.label}</Link></Typography></Container>
-          <Container><Typography variant="caption">{pluralize(capitalize(props.params.entity_type))}: {xset._count.contains}</Typography></Container>
+          <Container><Typography variant="caption">{pluralize(capitalize(props.params.entity_type))}: {xset._count.contains.toLocaleString()}</Typography></Container>
         </Container>
       </div>
       <SearchField q={searchParams.q ?? ''} />

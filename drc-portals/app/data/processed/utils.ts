@@ -9,6 +9,7 @@ export function pluralize(s: string) {
 }
 
 export function type_to_string(type: string) {
+  if (type === 'c2m2file') return 'File'
   const type_split = type.split('/')
   let name = type
   if (type_split.length === 1) {

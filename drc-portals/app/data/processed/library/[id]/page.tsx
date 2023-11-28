@@ -107,8 +107,8 @@ export default async function Page(props: { params: { id: string }, searchParams
           <Container><Typography variant="h1">{library.identity.label}</Typography></Container>
           <Container><Typography variant="caption">Description: {format_description(library.identity.description)}</Typography></Container>
           {library.dcc_asset.dcc?.label ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${library.dcc_asset.dcc.short_label}`}>{library.dcc_asset.dcc.label}</Link></Typography></Container> : null}
-          <Container><Typography variant="caption">Number of {pluralize(library.entity_type)}: {library._count.entities}</Typography></Container>
-          <Container><Typography variant="caption">Number of {library.term_type} {library.entity_type} sets: {library._count.sets}</Typography></Container>
+          <Container><Typography variant="caption">Number of {pluralize(library.entity_type)}: {library._count.entities.toLocaleString()}</Typography></Container>
+          <Container><Typography variant="caption">Number of {library.term_type} {library.entity_type} sets: {library._count.sets.toLocaleString()}</Typography></Container>
           <Container><Typography variant="caption">Download: <Link href={library.dcc_asset_link}>{library.dcc_asset_link}</Link></Typography></Container>
         </Container>
       </div>

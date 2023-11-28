@@ -1,4 +1,3 @@
-import { PrismaAdapter } from '@auth/prisma-adapter'
 import { DefaultSession, NextAuthOptions } from 'next-auth'
 import prisma from '@/lib/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -7,6 +6,7 @@ import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import ORCIDProvider from '@/lib/auth/providers/orcid'
 import type { OAuthConfig } from 'next-auth/providers/index'
+import PrismaAdapterEx from './adapters/prisma'
 
 
 declare module 'next-auth' {
@@ -47,7 +47,7 @@ const cookiePrefix = useSecureCookies ? "__Secure-" : ""
 const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapterEx(),
   providers,
   session: { strategy: 'jwt' },
   callbacks: {
