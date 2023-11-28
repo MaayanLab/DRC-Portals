@@ -8,10 +8,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 export default function RoleSelect(props: { role: string | undefined, formData: {
     role: string;
     DCC: string;
-}, setFormData: React.Dispatch<React.SetStateAction<{
-    role: string;
-    DCC: string;
-}>>}) {
+}, setFormData: any}) {
     const [role, setRole] = React.useState('');
     const roles = [
         'User',
@@ -28,7 +25,7 @@ export default function RoleSelect(props: { role: string | undefined, formData: 
 
     return (
         // <Box sx={{ minWidth: 120 }}>
-            <FormControl fullWidth sx={{ minWidth: 120 }}>
+            <FormControl sx={{ minWidth: 120 }}>
                 <InputLabel id="demo-simple-select-label" sx={{ fontSize: 16 }}>Role</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"

@@ -1,14 +1,16 @@
 "use client"
 import * as React from 'react';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
-import { getAdminUser, getUsers, updateUserInfo } from './getUsers';
+import { createOneUser, getAdminUser, getUsers, updateUserInfo } from './getUsers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography } from '@mui/material';
+import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import { FaUserPlus, FaUserFriends } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
+import { LuRefreshCcw } from "react-icons/lu";
 import RoleSelect from './RoleSelect';
 import MultiSelect from './MultiSelect';
 import { useSession } from "next-auth/react"
+import { useRouter } from 'next/navigation'
 
 const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -58,15 +60,14 @@ const dccs = [
 ];
 
 export default function DataTable() {
-    const [loading, setLoading] = useState(true)
     const { data: session, status } = useSession()
 
     if (status === "authenticated") {
-      getAdminUser(session).then((user) => {
-        if (user?.role != 'ADMIN'){
-        return 
-        }
-      })
+        getAdminUser(session).then((user) => {
+            if (user?.role != 'ADMIN') {
+                return  // TODO: show access denied when the user is not an admin
+            }
+        })
     }
 
 
@@ -87,9 +88,29 @@ export default function DataTable() {
         },
         [selection]
     );
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+
+
+    const [createOpen, setCreateOpen] = React.useState(false);
+    const handleCreateClose = () => setCreateOpen(false);
+    const handleCreate = useCallback(() => {
+        setCreateOpen(true)
+    }, []);
+    const createSingleUser = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        console.log(createFormData)
+        if (createFormData.role === '' || createFormData.name === '' || createFormData.email === '' || createFormData.DCC === '') {
+            alert('Missing field')
+        } else {
+            createOneUser(createFormData)
+            alert('User Creation Successful')
+        }
+    }
+
+    const [updateOpen, setUpdateOpen] = React.useState(false);
+    const handleUpdateClose = () => setUpdateOpen(false);
+    const handleUpdate = useCallback(() => {
+        setUpdateOpen(true)
+    }, []);
 
     useEffect(() => {
         // get all users from database
@@ -102,10 +123,9 @@ export default function DataTable() {
         });
     }, [])
 
-    const handleUpdateRole = useCallback(() => {
-        setOpen(true)
-    }, []);
+
     const [formData, setFormData] = useState({ role: '', DCC: '' });
+    const [createFormData, setCreateFormData] = useState({ name:'', email: '', role: '', DCC: '' });
 
 
     const onRowsSelectionHandler = (ids: GridRowSelectionModel) => {
@@ -115,30 +135,86 @@ export default function DataTable() {
 
     const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>, user: UserInfo) => {
         event.preventDefault();
-        if (formData.role === ''){
+        if (formData.role === '') {
             alert('Missing field. Fill out role for given user')
         } else {
             updateUserInfo(formData, users[user.id - 1].id)
             alert('User Informtion Updated')
         }
-       
+
     };
 
+
+    const router = useRouter();
+    const handleRefresh = () => {
+        router.refresh()
+    };
+    
+
     return (
-    <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
+        <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
             <Typography variant="h3" className='text-center p-5'>Users</Typography>
-            {!usersSelected && <Button color='tertiary'> <FaUserPlus size={20} /> Create New User</Button>}
-            {!usersSelected && <Button color='tertiary'><FaUserFriends size={20} /> Create Many Users</Button>}
-            {usersSelected && <Button color='tertiary' onClick={handleUpdateRole}><FaUserPen size={20} /> Update User Role</Button>}
+            <Grid container spacing={2}>
+            <Button color="tertiary" onClick={handleRefresh}> <LuRefreshCcw size={20}/></Button>
+            {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
             <div>
-                <Dialog open={open} onClose={handleClose} fullWidth component="form">
-                    <DialogTitle>Update User Role</DialogTitle>
-
+                <Dialog open={createOpen} onClose={handleCreateClose} fullWidth component="form">
+                    <DialogTitle>Create a User</DialogTitle>
                     <DialogContent>
-                        {/* <DialogContentText variant='body2'>
-                                Enter the users' new DCC and Role information
-                            </DialogContentText> */}
+                        <Box
+                            component="form"
+                            noValidate
+                            autoComplete="off"
+                            sx={{ display: 'grid', gridTemplateRows: 'repeat(2, 1fr)', '& > :not(style)': { m: 1 } }}
+                            justifyContent='center'
+                        >
+                            <TextField
+                                id="input-name"
+                                label="Name"
+                                name='name'
+                                required
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                                onChange={(evt) => {
+                                    setCreateFormData({ ...createFormData, [evt.target.name]: evt.target.value })
+                                }}
+                            />
+                            <TextField
+                                id="input-email"
+                                label="Email"
+                                name='email'
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                                required
+                                onChange={(evt) => {
+                                    setCreateFormData({ ...createFormData, [evt.target.name]: evt.target.value })
+                                }}
+                            />
+                            <RoleSelect role={''} formData={createFormData} setFormData={setCreateFormData} />
 
+                            <MultiSelect
+                                name='DCC'
+                                label="DCC"
+                                options={dccs}
+                                formData={createFormData}
+                                setFormData={setCreateFormData}
+                            />
+                            <Button variant="contained" color="tertiary" onClick={createSingleUser}  sx={{ justifySelf: "center" }}>
+                                Create User
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="tertiary" onClick={handleCreateClose}>Done</Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
+            {!usersSelected && <Button color='tertiary'><FaUserFriends size={20} /> Create Many Users</Button>}
+            {usersSelected && <Button color='tertiary' onClick={handleUpdate}><FaUserPen size={20} /> Update User Info</Button>}
+            <div>
+                <Dialog open={updateOpen} onClose={handleUpdateClose} fullWidth component="form">
+                    <DialogTitle>Update User Info</DialogTitle>
+                    <DialogContent>
                         {selection.map((user) => {
                             return <>
                                 <form className='border mx-2 my-2'>
@@ -162,9 +238,9 @@ export default function DataTable() {
                                         </Grid>
                                     </Grid>
                                     <div className='flex justify-center mb-2'>
-                                    <Button variant="contained" color="tertiary" onClick={e => { handleSubmit(e, user) }}>Update</Button>
+                                        <Button variant="contained" color="tertiary" onClick={e => { handleSubmit(e, user)}}>Update</Button>
                                     </div>
-                                   
+
                                 </form>
 
                             </>
@@ -172,11 +248,13 @@ export default function DataTable() {
                         })}
                     </DialogContent>
                     <DialogActions>
-                        <Button color="tertiary" onClick={handleClose}>Done</Button>
+                        <Button color="tertiary" onClick={handleUpdateClose}>Done</Button>
                         {/* <Button type='submit'>Update</Button> */}
                     </DialogActions>
                 </Dialog>
             </div>
+            </Grid>
+            
             <div style={{ height: 400, width: '100%' }}>
                 <DataGrid
                     rows={rows}
