@@ -3,6 +3,16 @@ import prisma from "@/lib/prisma"
 import { Role } from "@prisma/client"
 import { Session } from "next-auth"
 
+
+interface UserInfo {
+    id: number;
+    name: string | null;
+    email: string | null;
+    dcc: string | null;
+    role: string | null;
+}
+
+
 export async function getUsers() {
     const users = await prisma.user.findMany({})
     return users
@@ -93,4 +103,23 @@ export async function createOneUser(newUserData: {
             role: prismaRole as Role
         },
       })
+}
+
+export async function deleteUsers(usersToDel: UserInfo[], users: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    emailVerified: Date | null;
+    image: string | null;
+    dcc: string | null;
+    role: string;
+}[]){
+    usersToDel.forEach(async (user, index)=> {
+        const deleteUser = await prisma.user.delete({
+            where: {
+              id: users[user.id - 1].id,
+            },
+          })
+    })
+    
 }
