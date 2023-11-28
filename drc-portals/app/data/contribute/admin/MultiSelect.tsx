@@ -29,10 +29,12 @@ function getStyles(name: string, personName: string[], theme: Theme) {
   };
 }
 
-export default function MultiSelect({ label, options, name, value, defaultValue = [], formData, setFormData }: { label: string, options: string[], name: string, defaultValue?: string[], value?: string[], formData: {
-  role: string;
-  DCC: string;
-}, setFormData: any}) {
+export default function MultiSelect({ label, options, name, value, defaultValue = [], formData, setFormData }: {
+  label: string, options: string[], name: string, defaultValue?: string[], value?: string[], formData: {
+    role: string;
+    DCC: string;
+  }, setFormData: any
+}) {
   const id = React.useId()
   const theme = useTheme();
   const [values, setValues] = React.useState<string[]>(value ?? defaultValue);
