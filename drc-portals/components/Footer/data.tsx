@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 import { mdiGithub, mdiBugOutline, mdiEmail} from '@mdi/js';
@@ -6,18 +5,16 @@ import { mdiGithub, mdiBugOutline, mdiEmail} from '@mdi/js';
 import Icon from '@mdi/react'
 import Container from '@mui/material/Container'
 import Paper from '@mui/material/Paper'
-import Avatar from '@mui/material/Avatar'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 
 import FacebookIcon from '@mui/icons-material/Facebook'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
-
+import { Logo } from '../styled/Buttons';
 
 export default async function InfoFooter() {
   return (
@@ -26,16 +23,7 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Link href={`/info`} className='flex items-center' style={{marginLeft: -15}}>
-                <IconButton
-                    aria-label="menu"
-                    sx={{background: "#FFF", width: 30, height: 30, marginRight: 1}} 
-                >
-                    <Avatar sx={{ width: 24, height: 24 }} alt="cfde-logo" src="/img/favicon.png" />
-                    
-                </IconButton>
-                <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Data Resource Portal</Typography>
-              </Link>
+              <Logo href={`/data`} title="CFDE Data Resource Portal" color="inherit" />
               <Divider sx={{borderColor: "#FFF"}}/>
               <Link href="https://github.com/MaayanLab/DRC-Portals/">
                 <div className='flex items-center space-x-1'>

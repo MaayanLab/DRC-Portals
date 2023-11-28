@@ -7,9 +7,7 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
-import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment'
@@ -17,22 +15,16 @@ import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import NavBreadcrumbs from './breadcrumbs'
+import { Logo } from '../styled/Buttons'
 export default async function InfoHeader() {
   const session = (await getServerSession(authOptions))
   return (
     <Container maxWidth="lg">
-      <AppBar position="static" sx={{color: "#000"}}>
+      <AppBar position="static" sx={{color: "#000", marginTop: 2}}>
         <Toolbar>
-            <Grid container justifyContent={"space-between"} alignItems={"center"}>
+            <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
-                <Link href={`/info`} className='flex items-center'>
-                  <IconButton
-                    aria-label="menu"
-                  >
-                    <Image src={'/img/favicon.png'} alt="cfde-logo" height={37} width={50}/>
-                  </IconButton>
-                  <Typography variant='cfde' color="secondary">CFDE Workbench</Typography>
-                </Link>
+                <Logo href={`/info`} title="CFDE Workbench" color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
@@ -51,7 +43,6 @@ export default async function InfoHeader() {
                     <UserComponent session={session}/>
                 </Stack>
               </Grid>
-              <Grid item xs={12}></Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data" target="_blank" rel="noopener noreferrer">
@@ -69,8 +60,9 @@ export default async function InfoHeader() {
                 </Stack>
               </Grid>
               <Grid item>
-                <TextField sx={{width: 400}} placeholder='Search' InputProps={{
-                    sx: {borderRadius: 1, height: 50},
+                <TextField sx={{width: 400}} color='secondary' placeholder='Search' InputProps={{
+                    style: {borderRadius: 5, height: 50, color: "#336699", fontSize: 16},
+                    color: "secondary",
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />

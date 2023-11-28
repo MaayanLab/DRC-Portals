@@ -18,7 +18,7 @@ export const montserrat = Montserrat({
 })
 
 export const hanken_grotesk = Hanken_Grotesk({
-    weight: ['400', '600', '700'],
+    weight: ['400', '500', '600', '700'],
     subsets: ['latin'],
     display: 'swap',
 })
@@ -30,28 +30,27 @@ export const cfde_theme = createTheme({
         h1: {
             fontSize: 52,
             fontStyle: "normal",
-            fontWeight: 600,
+            fontWeight: 500,
         },
         h2: {
             fontSize: 36,
-            fontWeight: 600,
+            fontWeight: 500,
             fontStyle: "normal",
         },
         h3: {
             fontSize: 24,
             fontStyle: "normal",
-            fontWeight: 700,
+            fontWeight: 500,
         },
         h4: {
             fontSize: 22,
             fontStyle: "normal",
-            fontWeight: 600,
+            fontWeight: 500,
         },
         cfde: {
-            fontFamily: inter.style.fontFamily,
             fontSize: 24,
             fontStyle: "normal",
-            fontWeight: 700,
+            fontWeight: 500,
         },
         subtitle1: {
             fontSize: 20,
@@ -59,7 +58,7 @@ export const cfde_theme = createTheme({
         },
         subtitle2: {
             fontSize: 14,
-            fontWeight: 600,
+            fontWeight: 500,
         },
         body1: {
             fontFamily: dm_sans.style.fontFamily,
@@ -84,7 +83,7 @@ export const cfde_theme = createTheme({
             color: "#336699"
         },
         footer: {
-            fontFamily: inter.style.fontFamily,
+            fontFamily: dm_sans.style.fontFamily,
             fontSize: 16,
             fontStyle: "normal",
             fontWeight: 400,
@@ -148,9 +147,9 @@ export const cfde_theme = createTheme({
                 // Name of the slot
                 root: ({ ownerState }) => ({
                     textTransform: "none",
-                    borderRadius: 120,
+                    borderRadius: 2,
                     fontWeight: 600,
-                    padding: "10px 16px",
+                    padding: "8px 16px",
                     ...(ownerState.variant === 'contained' &&
                       ownerState.color === 'primary' && {
                         backgroundColor: '#C3E1E6',
@@ -237,4 +236,5 @@ declare module '@mui/material/styles' {
       stats_sub: true;
     }
   }
+
   

@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Typography from "@mui/material/Typography"
-import Paper from '@mui/material/Paper'
+import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
 import Link from "next/link"
 
@@ -34,14 +34,23 @@ export default function ServerCarousel () {
       
       
     const children = items.map( (item, i) => (
-        <Link href={item.url} target="_blank" rel="noopener noreferrer">
-            <div key={i} className="flex flex-col" style={{minHeight: 420, textAlign: "center"}}>
-                <Typography variant="subtitle2">{item.name}</Typography>
-                <div className="flex grow items-center justify-center relative">
-                    <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
-                </div>
-            </div>
-        </Link>
+        <Box key={i} sx={{
+            minHeight: 300, 
+            textAlign: "center", 
+            border: 1,
+            borderRadius: 5,
+            borderColor: "rgba(81, 123, 154, 0.5)", 
+            padding: 2
+        }}>
+            <Link href={item.url} target="_blank" rel="noopener noreferrer">
+                <Box className="flex flex-col" sx={{minHeight: 300}}>
+                    <div><Typography variant="subtitle2">{item.name}</Typography></div>
+                    <div className="flex grow items-center justify-center relative">
+                        <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
+                    </div>
+                </Box>
+            </Link>
+        </Box>
     ))
 
     return <ClientCarousel>{children}</ClientCarousel>
