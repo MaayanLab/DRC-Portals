@@ -43,24 +43,7 @@ export default async function AccountPage() {
         'use server'
         const email = formData.get('email')
         const dcc = formData.get('DCC')
-
-        if (!email) {
-            // add dcc to user in db
-            if (!dcc) throw new Error('Missing dcc')
-            console.log('update')
-            await prisma.user.update({
-                where: {
-                    id: session?.user.id,
-                },
-                data: {
-                    dcc: dcc?.toString()
-                },
-            });
-            revalidatePath('/data/contribute/account')
-        } else {
-            if (!dcc) throw new Error('Missing dcc')
-
-            // add dcc to user in db
+        if (email) {
             console.log('update')
             await prisma.user.update({
                 where: {
@@ -68,7 +51,6 @@ export default async function AccountPage() {
                 },
                 data: {
                     email: email.toString(),
-                    dcc: dcc?.toString()
                 },
             });
             revalidatePath('/data/contribute/account')
@@ -81,7 +63,7 @@ export default async function AccountPage() {
         <>
             <Container className="mt-10 justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
-                <Typography variant="body2" className='text-center p-5'>Please complete account information before approving or the uploading forms</Typography>
+                <Typography variant="body2" className='text-center p-5'>Please complete account email information and request for an update in DCC information before approving or the uploading forms</Typography>
                 <Box
                     component="form"
                     noValidate
@@ -117,7 +99,7 @@ export default async function AccountPage() {
                     />
 
                     <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>
-                        Request Information Change
+                        Save Changes
                     </Button>
                 </Box>
             </Container>

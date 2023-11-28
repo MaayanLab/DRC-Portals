@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
-import { createOneUser, deleteUsers, getAdminUser, getUsers, updateUserInfo } from './getUsers';
+import { createOneUser, deleteUsers, getAdminUser, getUsers, updateUserInfo } from './crudUsers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import { FaUserPlus } from "react-icons/fa";
@@ -50,11 +50,11 @@ const dccs = [
 
 export default function DataTable() {
     const { data: session, status } = useSession()
-
+    const [noAccess, setNoAccess] = useState(true);
     if (status === "authenticated") {
         getAdminUser(session).then((user) => {
-            if (user?.role != 'ADMIN') {
-                return  // TODO: show access denied when the user is not an admin
+            if (user?.role === 'ADMIN') {
+                setNoAccess(false);  // TODO: show access denied when the user is not an admin
             }
         })
     }
@@ -131,7 +131,7 @@ export default function DataTable() {
             alert('Missing field. Fill out role for given user')
         } else {
             updateUserInfo(formData, users[user.id - 1].id)
-            alert('User Informtion Updated')
+            alert('User Information Updated')
         }
         setRefresh(oldRefresh => oldRefresh + 1)
 
@@ -145,6 +145,7 @@ export default function DataTable() {
     };
 
     if (isLoading) return <Typography variant='h4'>Loading...</Typography>
+    if (noAccess) return <Typography variant='h4'>Access Denied. Not Admin User</Typography>
     return (
         <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
             <Typography variant="h3" className='text-center p-5'>Users</Typography>

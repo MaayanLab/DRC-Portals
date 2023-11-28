@@ -42,6 +42,7 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
         name={name}
         multiple
         value={values}
+        disabled
         onChange={(evt) => {
           const value = evt.target.value
           setValues(
