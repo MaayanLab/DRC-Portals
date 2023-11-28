@@ -12,20 +12,20 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 const names = [
-  'LINCS',
-  '4DN',
-  'A2CPS',
-  'ExRNA',
-  'GlyGen',
-  'GTEx',
-  'HMP',
-  'HuBMAP',
-  'IDG',
-  'KidsFirst',
-  'MoTrPAC',
-  'Metabolomics',
-  'SenNet',
-  'SPARC'
+    'LINCS',
+    '4DN',
+    'A2CPS',
+    'ExRNA',
+    'GlyGen',
+    'GTEx',
+    'HMP',
+    'HuBMAP',
+    'IDG',
+    'KidsFirst',
+    'MoTrPAC',
+    'Metabolomics',
+    'SenNet',
+    'SPARC'
 ];
 
 export default async function AccountPage() {
@@ -37,27 +37,25 @@ export default async function AccountPage() {
         }
     })
 
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/account")
+
     async function saveuser(formData: FormData) {
         'use server'
         const email = formData.get('email')
         const dcc = formData.get('DCC')
-        console.log(dcc?.toString())
+        if (email) {
+            console.log('update')
+            await prisma.user.update({
+                where: {
+                    id: session?.user.id,
+                },
+                data: {
+                    email: email.toString(),
+                },
+            });
+            revalidatePath('/data/contribute/account')
+        }
 
-        if (!email) throw new Error('Missing email')
-        if (!dcc) throw new Error('Missing dcc')
-
-       // add dcc to user in db
-        console.log('update')
-        await prisma.user.update({
-            where: {
-                id: session?.user.id,
-            },
-            data: {
-                email: email.toString(),
-                dcc: dcc?.toString()
-            },
-        });
-        revalidatePath('/data/contribute/account')
     }
 
 
@@ -65,7 +63,7 @@ export default async function AccountPage() {
         <>
             <Container className="mt-10 justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
-                <Typography variant="body2" className='text-center p-5'>Please complete account information before approving or the uploading forms</Typography>
+                <Typography variant="body2" className='text-center p-5'>Please complete account email information and request for an update in DCC information before approving or the uploading forms</Typography>
                 <Box
                     component="form"
                     noValidate
@@ -80,16 +78,17 @@ export default async function AccountPage() {
                         label="Name"
                         name='name'
                         defaultValue={user.name}
-                        inputProps={{style: {fontSize: 16}}} // font size of input text
-                        InputLabelProps={{style: {fontSize: 16}}} // font size of input label
+                        inputProps={{ style: { fontSize: 16 } }}
+                        InputLabelProps={{ style: { fontSize: 16 } }} 
                     />
                     <TextField
                         id="input-email"
                         label="Email"
                         name='email'
                         defaultValue={user.email}
-                        inputProps={{style: {fontSize: 16}}}
-                        InputLabelProps={{style: {fontSize: 16}}}
+                        inputProps={{ style: { fontSize: 16 } }}
+                        InputLabelProps={{ style: { fontSize: 16 } }}
+                        disabled={user.email ? true : false}
                         required
                     />
                     <MultiSelect
@@ -99,8 +98,8 @@ export default async function AccountPage() {
                         defaultValue={user.dcc?.split(',')}
                     />
 
-                    <Button variant="contained" color="tertiary" type='submit' sx={{justifySelf:"center"}}>
-                        Request Information Change
+                    <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>
+                        Save Changes
                     </Button>
                 </Box>
             </Container>

@@ -184,7 +184,16 @@ export const cfde_theme = createTheme({
                       }),
                   }),
               },
-        }
+        }, 
+        MuiTablePagination: {
+            styleOverrides: {
+                root: {
+                    "& .MuiInputBase-root, & .MuiInputLabel-root, & .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+                      fontSize: "1rem"
+                    },
+              },
+            },
+          },
     }
 })
 
