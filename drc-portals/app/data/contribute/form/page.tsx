@@ -27,7 +27,7 @@ export default async function UploadForm() {
   })
   if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
 
-  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) {return <p>Access Denied. This page is only accessible to DCC Uploaders and DRC Approvers</p>}
+  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN')) {return <p>Access Denied. This page is only accessible to DCC Uploaders and DRC Approvers</p>}
   if (!user.dcc) return redirect("/data/contribute/account")
 
 
