@@ -19,6 +19,7 @@ import CFPrograms from "@/components/misc/CFPrograms"
 import prisma from "@/lib/prisma"
 import SearchField from "./processed/SearchField"
 import { pluralize, type_to_string } from "./processed/utils"
+import { NodeType } from "@prisma/client"
 
 const search_cards = [
   {
@@ -51,13 +52,31 @@ const tool_cards = [
 ]
 
 export default async function Home() {
-  const counts = await prisma.xIdentity.groupBy({
-    by: ['type'],
-    _count: true,
-    orderBy: {
-      type: 'desc',
-    },
-  })
+  const counts = await prisma.$queryRaw<Array<{
+    type: NodeType | 'kg_assertion',
+    entity_type: string | null,
+    count: number,
+  }>>`
+    with entity_type_count as (
+      select "entity_node"."type", count(*) as count
+      from "entity_node"
+      where "entity_node"."type" in ('gene', 'Drug')
+      group by "entity_node"."type"
+    ), node_type_count as (
+      select type, count(*) as count
+      from "node"
+      group by type
+    ), type_counts as (
+      select node_type_count.type::text as type, null as entity_type, node_type_count.count from node_type_count
+      union
+      select 'entity' as type, entity_type_count.type as entity_type, entity_type_count.count from entity_type_count
+      union
+      select 'kg_assertion'::text as type, null as entity_type, (select count(id) from kg_assertion) as count
+    )
+    select type, entity_type, count
+    from type_counts
+    order by count desc;
+  `
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -88,16 +107,17 @@ export default async function Home() {
                     </form>
                   </Grid>
                   <Grid item xs={12} md={7} className="align-center">
-                    <Stack spacing={2} justifyContent={"flex-start"}>
-                      <div className="flex flex-col">
-                        <Typography variant="h2" color="secondary">755</Typography>
-                        <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
-                      </div>
-                      {counts.map(count => (
-                        <Link key={count.type} href={`/data/processed/${count.type}`}>
+                    <Stack spacing={2} justifyContent={"flex-start"} flexWrap="wrap" maxHeight={400}>
+                      {counts.map(count => count.type === 'kg_assertion' ? (
+                        <div className="flex flex-col">
+                          <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
+                          <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
+                        </div>
+                      ) : (
+                        <Link key={count.type} href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
                           <div className="flex flex-col">
-                            <Typography variant="h2" color="secondary">{count._count.toLocaleString()}</Typography>
-                            <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type)).toUpperCase()}</Typography>
+                            <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
+                            <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type, count.entity_type)).toUpperCase()}</Typography>
                           </div>
                         </Link>
                       ))}

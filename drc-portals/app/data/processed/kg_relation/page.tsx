@@ -1,43 +1,26 @@
 import prisma from "@/lib/prisma";
 import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import Link from "next/link";
-import { z } from 'zod';
 import FormPagination from "@/app/data/processed/FormPagination";
 import SearchField from "@/app/data/processed/SearchField";
-import { format_description } from "../utils";
+import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
 
 const pageSize = 10
 
-export default async function Page(props: { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }) {
-  const searchParams = z.object({
-    q: z.union([
-      z.array(z.string()).transform(qs => qs.join(' ')),
-      z.string(),
-      z.undefined(),
-    ]),
-    p: z.union([
-      z.array(z.string()).transform(ps => +ps[ps.length-1]),
-      z.string().transform(p => +p),
-      z.undefined().transform(_ => 1),
-    ]),
-  }).parse(props.searchParams)
+export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
+  const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
   const [items, count] = await prisma.$transaction([
-    prisma.xEntity.findMany({
+    prisma.kGRelationNode.findMany({
       where: searchParams.q ? {
-        identity: {
-          type: props.params.entity_type,
+        node: {
           OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
         },
-      } : {
-        identity: {
-          type: props.params.entity_type,
-        },
-      },
+      } : {},
       select: {
         id: true,
-        identity: {
+        node: {
           select: {
             type: true,
             label: true,
@@ -48,17 +31,10 @@ export default async function Page(props: { params: { entity_type: string }, sea
       skip: offset,
       take: limit,
     }),
-    prisma.xEntity.count({
+    prisma.node.count({
       where: searchParams.q ? {
-        identity: {
-          type: props.params.entity_type,
-          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-        }
-      } : {
-        identity: {
-          type: props.params.entity_type,
-        }
-      },
+        OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+      } : {},
     }),
   ])
   const ps = Math.floor(count / pageSize) + 1
@@ -84,11 +60,11 @@ export default async function Page(props: { params: { entity_type: string }, sea
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                     <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.identity.type}/${item.id}`}>
-                        <Typography variant='h6'>{item.identity.label}</Typography>
+                      <Link href={`/data/processed/${item.node.type}/${item.id}`}>
+                        <Typography variant='h6'>{item.node.label}</Typography>
                       </Link>
                     </TableCell>
-                    <TableCell>{format_description(item.identity.description)}</TableCell>
+                    <TableCell>{format_description(item.node.description)}</TableCell>
                 </TableRow>
             ))}
           </TableBody>
