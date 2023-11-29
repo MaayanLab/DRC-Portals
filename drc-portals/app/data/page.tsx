@@ -20,7 +20,7 @@ import prisma from "@/lib/prisma"
 import SearchField from "./processed/SearchField"
 import { pluralize, type_to_string } from "./processed/utils"
 import { NodeType } from "@prisma/client"
-
+import { BlurBig } from "@/components/styled/Blur"
 const search_cards = [
   {
     "title": "Metadata Search",
@@ -83,31 +83,52 @@ export default async function Home() {
         <Grid item xs={12}>
           <Paper sx={{
                           boxShadow: "none", 
-                          background: 'linear-gradient(to right top, #A5B4DB, #FFF, #A5B4DB)',
-                          padding: 5, 
                           width: "100vw", 
-                          minHeight: "30vw",
+                          minHeight: 560,
                           marginLeft: "calc((-100vw + 100%) / 2)", 
-                          marginRight: "calc((-100vw + 100%) / 2)"}}
+                          marginRight: "calc((-100vw + 100%) / 2)",
+                          position: "relative",
+                          overflow: "hidden"
+                        }}
                   className="flex"
             >
+              <BlurBig sx={{position: "absolute", left: "-20%"}}/>
+              <BlurBig sx={{position: "absolute", right: "-15%"}}/>
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
-                  <Grid item xs={12} md={5}>
+                  <Grid item xs={12}>
                     <form action="/data/processed/search" method="GET">
-                      <Stack spacing={2} justifyContent={"flex-start"}>
-                        <Typography color="secondary" className="text-left" variant="h2">CFDE DATA PORTAL</Typography>
-                        <Typography color="secondary" className="text-left" variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
+                      <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
+                        <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
+                        <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
                         <SearchField q="" placeholder="Try MCF7, STAT3, blood, enrichment analysis" />
                         <div className="flex align-center space-x-10">
-                          <Button variant="outlined" color="secondary">Learn More</Button>
-                          <Button variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
+                          <Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button>
+                          <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
                         </div>
                       </Stack>
                     </form>
                   </Grid>
-                  <Grid item xs={12} md={7} className="align-center">
-                    <Stack spacing={2} justifyContent={"flex-start"} flexWrap="wrap" maxHeight={400}>
+                </Grid>
+              </Container>
+          </Paper>
+        </Grid>
+        <Grid item xs={12}>
+          <Paper sx={{
+                          boxShadow: "none", 
+                          padding: 5, 
+                          background: "#E7F3F5",
+                          width: "100vw", 
+                          marginLeft: "calc((-100vw + 100%) / 2)", 
+                          marginRight: "calc((-100vw + 100%) / 2)",
+                          marginBottom: 10,
+                          position: "relative",
+                          overflow: "hide"
+                        }}
+                  className="flex"
+            >
+              <Container maxWidth="lg" className="m-auto">
+                <Stack spacing={2} direction={"row"} justifyContent={"center"} flexWrap="wrap" maxWidth={400}>
                       {counts.map(count => count.type === 'kg_assertion' ? (
                         <div className="flex flex-col">
                           <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
@@ -121,42 +142,48 @@ export default async function Home() {
                           </div>
                         </Link>
                       ))}
-                    </Stack>
-                  </Grid>
-                </Grid>
+                  </Stack>
               </Container>
-          </Paper>
+            </Paper>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 10, textAlign: "center"}}>
-          <Container maxWidth="md">
-            <Typography variant="h2" color="secondary">
-              Query Common Fund programs partnered with the CFDE
+        <Grid item xs={12} md={5} >
+          <Stack spacing={2} sx={{textAlign: "left"}}>
+            <Typography variant="h2" color="secondary" sx={{textTransform: 'uppercase'}}>
+              Common Fund programs partnered with the CFDE
             </Typography>
-            <Typography variant="subtitle1" color="secondary">
+            <Typography variant="body1" color="secondary" sx={{width: "95%"}}>
               The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
             </Typography>
-          </Container>
+            <Link href="/info/dccs">
+              <Button color="secondary" sx={{marginLeft: -2}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                <Typography variant="subtitle1">
+                  Explore CF Programs
+                </Typography>
+              </Button>
+            </Link>
+          </Stack>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 5}}><CFPrograms spacing={2}/></Grid>
+        <Grid item xs={12} md={1}></Grid>
+        <Grid item xs={12} md={6}>
+          <CFPrograms spacing={2}/>
+        </Grid>
         <Grid item xs={12}  sx={{marginTop: 15}}>
           <Paper sx={{
                           boxShadow: "none", 
-                          background: '#7187c3',
+                          background: '#EDF0F8',
                           padding: 5, 
                           width: "100vw", 
-                          minHeight: "50vw",
                           marginLeft: "calc((-100vw + 100%) / 2)", 
                           marginRight: "calc((-100vw + 100%) / 2)",
-                          color: "#fff",
                         }}
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={5} alignItems={"center"} justifyContent={"center"}>
                   <Grid item xs={12}>
-                    <Container maxWidth="sm">
-                      <Typography variant="h2">Metadata and Processed Data</Typography>
-                      <Typography variant="body1">Efficiently locate datasets based on specific attributes and conduct in-depth analyses, driving forward groundbreaking research endeavors.</Typography>
+                    <Container maxWidth="md">
+                      <Typography variant="h2" color="secondary" sx={{textTransform: "uppercase"}}>Metadata and Processed Data</Typography>
+                      <Typography variant="body1" color="secondary">Efficiently locate datasets based on specific attributes and conduct in-depth analyses, driving forward groundbreaking research endeavors.</Typography>
                     </Container>
                   </Grid>
                   {search_cards.map((e, i)=>(
@@ -165,7 +192,7 @@ export default async function Home() {
                         { e.img && 
                             <div className="flex flex-row justify-center relative" style={{minHeight: 300}}><Image src={e.img} alt={e.title} fill={true} style={{objectFit: "contain"}}/></div>
                         } 
-                        <Divider sx={{borderColor: "#7187C3"}}/>
+                        {/* <Divider sx={{borderColor: "#7187C3"}}/> */}
                         <CardContent className="flex flex-col grow space-y-5 text-left" sx={{paddingLeft: 3, paddingRight: 3}}>
                           <Typography variant="h4">{e.title}</Typography>
                           <Typography variant="caption">
@@ -186,17 +213,16 @@ export default async function Home() {
         <Grid item xs={12}>
           <Paper sx={{
                       boxShadow: "none", 
-                      background: 'linear-gradient(to left top, #A5B4DB, #FFF, #A5B4DB)',
+                      background: '#A5B4DB',
                       padding: 5,
-                      paddingBottom: 15, 
-                      borderRadius: 0, 
+                      borderRadius: 0,
                       width: "100vw", 
                       marginLeft: "calc((-100vw + 100%) / 2)", 
                       marginRight: "calc((-100vw + 100%) / 2)"}}>
-            <Container maxWidth={"lg"}  sx={{marginTop: 10}}>
-              <Grid container spacing={2} justifyContent={"space-between"} alignItems={"center"}>
-                <Grid item xs={12}>
-                  <Card sx={{minHeight: 300, width: 400, paddingLeft: 2, paddingRight: 2, textAlign: "left"}}>
+            <Container maxWidth={"lg"}  sx={{marginTop: 5, marginBottom: 5}}>
+              <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
+                <Grid item>
+                  <Card sx={{minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left"}}>
                     <CardContent className="flex flex-col" sx={{minHeight: 300}}>
                     <Icon path={mdiToolbox} size={1} className="ml-2 mb-2" />
                       <div className="flex flex-col grow">
@@ -212,19 +238,22 @@ export default async function Home() {
                     </CardContent>
                   </Card>
                 </Grid>
-                <Grid item xs={12} className="flex justify-end" sx={{textAlign: "right"}}>
-                    <div className="flex flex-col" style={{height: 200, width: 400}}>
+                <Grid item>
+                  <Card sx={{minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left"}}>
+                    <CardContent className="flex flex-col" sx={{minHeight: 300}}>
+                    <Icon path={mdiLaptop} size={1} className="ml-2 mb-2" />
                       <div className="flex flex-col grow">
-                        <div className="flex justify-end"><Icon path={mdiLaptop} size={1} className="ml-2 mb-2" /></div>
-                        <Typography variant="h2" sx={{fontWeight: 400}} color="secondary">
+                        <Typography variant="h2" sx={{fontWeight: 400, width: 150}} color="secondary">
                           USE CASES
                         </Typography>
                         <Typography variant="body2" color="secondary" sx={{marginTop: 2}}>
                           Find the right tool for your analysis from the hundreds of CF Tools
                         </Typography>
                       </div>
-                      <div><Button variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></div>
-                    </div>
+
+                      <div><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></div>
+                    </CardContent>
+                  </Card>
                 </Grid>
               </Grid>
             </Container>
