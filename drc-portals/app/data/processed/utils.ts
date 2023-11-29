@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { NodeType } from "@prisma/client"
+
 export function capitalize(s: string) {
   if (s.length === 0) return ''
   return `${s[0].toUpperCase()}${s.slice(1)}`
@@ -8,23 +11,31 @@ export function pluralize(s: string) {
   return `${s}s`
 }
 
-export function type_to_string(type: string) {
-  if (type === 'c2m2file') return 'File'
-  const type_split = type.split('/')
-  let name = type
-  if (type_split.length === 1) {
-    name = capitalize(type)
-  } else if (type_split.length === 3) {
-    if (type_split[2] === 'unstructured') {
-      name = capitalize(`${type_split[0]} ${type_split[1]}`)
-    } else {
-      name = capitalize(`${type_split[2]} ${type_split[0]} ${type_split[1]}`)
-    }
-  }
-  return name
+export function type_to_string(type: NodeType, entity_type: string | null) {
+  if (type === 'entity') return entity_type ? capitalize(entity_type) : 'Entity'
+  else if (type === 'c2m2_file') return 'File'
+  else if (type === 'kg_relation') return 'Knowledge Graph Relation'
+  else if (type === 'gene_set_library') return 'Gene Set Library'
+  else if (type === 'gene_set') return 'Gene Set'
+  throw new Error(`Unhandled type ${type} ${entity_type}`)
 }
 
 export function format_description(description: string) {
   if (description === 'TODO') return null
   else return description
+}
+
+export function useSanitizedSearchParams(props: { searchParams: Record<string, string | string[] | undefined> }) {
+  return z.object({
+    q: z.union([
+      z.array(z.string()).transform(qs => qs.join(' ')),
+      z.string(),
+      z.undefined(),
+    ]),
+    p: z.union([
+      z.array(z.string()).transform(ps => +ps[ps.length-1]),
+      z.string().transform(p => +p),
+      z.undefined().transform(_ => 1),
+    ]),
+  }).parse(props.searchParams)
 }

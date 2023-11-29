@@ -11,7 +11,7 @@ export default function FormPagination({ p, ps }: { p: number, ps: number }) {
   return (
     <>
       <Pagination
-        defaultPage={p}
+        page={p}
         count={ps}
         onChange={(evt, value) => {
           const newSearchParams = new URLSearchParams(searchParams)
