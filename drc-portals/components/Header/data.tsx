@@ -22,7 +22,7 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
-                <Logo href={`/data`} title="CFDE Wordkbench"  color="secondary"/>
+                <Logo href={`/data`} title="CFDE Workbench"  color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
