@@ -36,6 +36,7 @@ export default function ServerCarousel () {
     const children = items.map( (item, i) => (
         <Box key={i} sx={{
             minHeight: 300, 
+            width: 640,
             textAlign: "center", 
             border: 1,
             borderRadius: 5,
@@ -44,7 +45,7 @@ export default function ServerCarousel () {
         }}>
             <Link href={item.url} target="_blank" rel="noopener noreferrer">
                 <Box className="flex flex-col" sx={{minHeight: 300}}>
-                    <div><Typography variant="subtitle2">{item.name}</Typography></div>
+                    <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
                     <div className="flex grow items-center justify-center relative">
                         <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
                     </div>

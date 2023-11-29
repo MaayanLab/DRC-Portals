@@ -37,7 +37,7 @@ export default async function PublicationsServer({
         field: "year",
         ordering: "desc",
       },
-      take,
+      take=all?10:5,
       skip
     } = q
     const count = await prisma.publication.count()
@@ -56,7 +56,7 @@ export default async function PublicationsServer({
           [order.field]: order.ordering
         }
       ],
-      take: take || 10,
+      take: take,
       skip: skip || 0,
       include: {
         dccs: {

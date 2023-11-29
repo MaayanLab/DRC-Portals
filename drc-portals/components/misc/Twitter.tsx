@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper'
 export default function Twitter() {
     return(
         <Paper sx={{boxShadow: "none", height: "100%"}}>
-            <Typography variant="h2">Social Media</Typography>
+            <Typography variant="h2" color="secondary">Social Media</Typography>
             {/* <TwitterFollowButton screenName="CfdeNih"/> */}
             <TwitterTimelineEmbed
                 sourceType="profile"

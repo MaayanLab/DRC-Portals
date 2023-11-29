@@ -28,12 +28,12 @@ export const cfde_theme = createTheme({
     typography: {
         fontFamily: hanken_grotesk.style.fontFamily,
         h1: {
-            fontSize: 52,
+            fontSize: 40,
             fontStyle: "normal",
             fontWeight: 500,
         },
         h2: {
-            fontSize: 36,
+            fontSize: 32,
             fontWeight: 500,
             fontStyle: "normal",
         },
@@ -53,21 +53,21 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         subtitle1: {
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: 500,
         },
         subtitle2: {
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: 500,
         },
         body1: {
             fontFamily: dm_sans.style.fontFamily,
-            fontSize: 24,
+            fontSize: 16,
             fontWeight: 500,
         },
         body2: {
             fontFamily: dm_sans.style.fontFamily,
-            fontSize: 20,
+            fontSize: 15,
             fontWeight: 500,
         },
         caption: {

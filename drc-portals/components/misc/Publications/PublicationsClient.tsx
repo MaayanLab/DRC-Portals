@@ -62,7 +62,7 @@ export default function PublicationsClient({
                     <Button size="small" sx={{padding: 1}} color="secondary" variant="outlined">Select all</Button>
                     <Button size="small" sx={{padding: 1}} color="secondary" variant="outlined">Deselect all</Button>
                 </Stack>
-            </Grid> */}
+            </Grid>
             {dccs &&
                 <Grid item xs={12} md={10}>
                     <Grid container>
@@ -75,7 +75,7 @@ export default function PublicationsClient({
                         ))}
                     </Grid>
                 </Grid>
-            }
+            } */}
             
             <Grid item xs={12}>
                 {children}
