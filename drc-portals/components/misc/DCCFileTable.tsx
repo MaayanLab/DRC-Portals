@@ -10,23 +10,23 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
     props.fileInfo.length > 0 ? (
       <Table sx={{mb:2}}>
         <TableHead>
-          <TableRow>
-            <TableCell sx={{fontWeight: 'bold'}}>{props.isCode ? ("Name") : ("Filename")}</TableCell>
-            {props.isCode ? (<span/>): (<TableCell sx={{fontWeight: 'bold'}} align="center">Filesize</TableCell>)}
-            <TableCell sx={{fontWeight: 'bold'}} align="center">Date Modified</TableCell>
-            <TableCell sx={{fontWeight: 'bold'}} align="center">Creator</TableCell>
-            <TableCell sx={{fontWeight: 'bold'}} align="center">DCC Approved</TableCell>
-            <TableCell sx={{fontWeight: 'bold'}} align="center">DRC Approved</TableCell>
+          <TableRow sx={{backgroundColor: '#edf1f7'}}>
+            <TableCell sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}}>{props.isCode ? ("Name") : ("Filename")}</TableCell>
+            {props.isCode ? (<span/>): (<TableCell sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">Filesize</TableCell>)}
+            <TableCell sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">Date Modified</TableCell>
+            <TableCell sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">Creator</TableCell>
+            <TableCell sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">DCC Approved</TableCell>
+            <TableCell sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">DRC Approved</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {props.fileInfo.map((item, idx) => {
             return (
               <TableRow key={idx}>
-                <TableCell>
+                <TableCell sx={{border:0}}>
                   {item.link != '' ? (
                     <Link className="underline" href={item.link} target="_blank" rel="noopener">
-                      <Typography color="secondary" fontSize="12pt">{item.filename}</Typography>
+                      <Typography color="#3470e5" fontSize="11pt">{item.filename}</Typography>
                     </Link>
                   ) : (
                     <p className="underline">{item.filename}</p>
@@ -35,15 +35,15 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
                 {props.isCode ? (
                   <span />
                 ): (
-                  <TableCell align="center" sx={{fontSize: '12pt'}}> {item.size != '' ? (item.size) : ('--')}</TableCell>
+                  <TableCell align="center" sx={{border:0, fontSize: '11pt'}}> {item.size != '' ? (item.size) : ('--')}</TableCell>
                 )}
-                <TableCell align="center" sx={{fontSize: '12pt'}}>{item.lastmodified}</TableCell>
-                <TableCell align="center" sx={{fontSize: '12pt'}}>{item.creator}</TableCell>
-                <TableCell align="center">
-                  {item.dccapproved ? (<CheckCircle />) : (<span />)}
+                <TableCell align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
+                <TableCell align="center" sx={{border:0, fontSize: '11pt'}}>{item.creator}</TableCell>
+                <TableCell align="center" sx={{border:0}}>
+                  {item.dccapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
                 </TableCell>
-                <TableCell align="center">
-                  {item.drcapproved ? (<CheckCircle />) : (<span />)}
+                <TableCell align="center" sx={{border:0}}>
+                  {item.drcapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
                 </TableCell>
               </TableRow>
             )
@@ -51,7 +51,9 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
         </TableBody>
       </Table>
   ) : (
-    <Typography variant="body2" color="text.secondary">None Available</Typography>
+    <Typography sx={{ml:2, mt:1, mb:2}} fontSize="11pt" color="text.secondary">
+      None Available
+    </Typography>
     )
   )
 }

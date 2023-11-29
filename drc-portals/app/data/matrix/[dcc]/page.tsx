@@ -28,8 +28,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
   if (dcc_dbinfo) {
     const assets = await getDccDataObj(prisma, dcc_dbinfo.id, params.dcc)
     const logo = dcc_dbinfo.icon ? (dcc_dbinfo.icon) : ('')
-    const description_text = dcc_dbinfo.description?.replace(/["]+/g, '') + 
-      " (Retrieved from the NIH Common Fund site at https://commonfund.nih.gov/)"
+    const description_text = dcc_dbinfo.description?.replace(/["]+/g, '')
     return (
       <Grid
         container
@@ -38,22 +37,22 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         alignItems="center"
       >
         <Grid item xs={3}>
-          <Box component="img"
-            sx={{display:'inline', height:'auto'}}
-            src={logo} alt={dcc_dbinfo.id}
-          />
-        </Grid>
-        <Grid item xs={12} style={{textAlign: "center"}}>
-          <Link href={dcc_dbinfo.homepage}>
-            <Typography fontSize="16pt" color="secondary.light">
+          <Typography sx={{ml:3, mt:2, color: "secondary.dark"}} variant="h2">
+            {params.dcc}
+          </Typography>
+          <Link href={dcc_dbinfo.homepage} target="_blank" style={{textDecoration: 'none'}}>
+            <Typography sx={{ml:3}} fontSize="12pt" color="#3470e5">
               Visit the {params.dcc} Portal
             </Typography>
           </Link>
         </Grid>
+        <Grid item xs={6}></Grid>
+        <Grid item xs={3}>
+          <img className="object-scale-down h-16 self-center mx-auto" 
+            src={dcc_dbinfo.icon ? dcc_dbinfo.icon: ''} alt={params.dcc} />
+        </Grid>
         <Grid item xs={12}>
-          <Typography variant="body2" sx={{mt:2, ml:3, mb:2}}>
-            <ReadMore preamble="Description " text={description_text} expanded={false} />
-          </Typography>
+            <ReadMore text={description_text} />
         </Grid>
         <DCCAccordion dcc={params.dcc} fulldata={assets} />
         <Link sx={{mt:2}} href="/data/matrix">
