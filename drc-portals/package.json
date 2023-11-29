@@ -19,7 +19,7 @@
     "@mui/icons-material": "^5.14.16",
     "@mui/lab": "^5.0.0-alpha.153",
     "@mui/material": "^5.14.18",
-    "@mui/x-data-grid": "^6.18.1",
+    "@mui/x-data-grid": "^6.18.2",
     "@prisma/client": "^5.5.2",
     "bootstrap": "^5.3.2",
     "classnames": "^2.3.2",
