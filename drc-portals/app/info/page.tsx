@@ -97,7 +97,7 @@ export default async function Home() {
                           <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
                           <Link href='/data'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              DATA RESOURCE PORTAL
+                              DATA PORTAL
                             </Button>
                           </Link>
                           <Link href='/data'>
