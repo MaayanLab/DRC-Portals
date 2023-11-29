@@ -84,7 +84,7 @@ export default async function PublicationsServer({
                       {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
                   </Typography>
                   { all &&
-                  <>
+                  <div className="flex space-x-2">
                     { pub.pmid && 
                       <Link target="_blank" rel="noopener noreferrer" href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`}>
                         <Chip color="secondary" variant="outlined" label={"PubMed"} sx={{minWidth: 100}}/>
@@ -100,7 +100,7 @@ export default async function PublicationsServer({
                         <Chip color="secondary" variant="outlined" label={"DOI"} sx={{minWidth: 100}}/>
                       </Link>
                     }
-                  </>
+                  </div>
                   }
               </div>
               ))}

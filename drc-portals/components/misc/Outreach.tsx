@@ -102,7 +102,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
               <Wrapper key={i} featured={featured} orientation={orientation || 'horizontal'}>
                 <Stack spacing={orientation === 'vertical' ? 1: 2}>
                   {orientation !== 'vertical' && <div className="flex flex-row mb-5">
-                    {tags.map((tag, i)=><Chip variant="outlined" sx={{textTransform: "uppercase", width: 150, color: "inherit"}} key={i} label={tag?.toString()}/>)}
+                    {tags.map((tag, i)=><Chip variant="outlined" sx={{textTransform: "uppercase", minWidth: 150, color: "inherit"}} key={i} label={tag?.toString()}/>)}
                   </div>}
                   <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.title}</Typography>
                   { (e.image && orientation == "horizontal") && 

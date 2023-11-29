@@ -6,7 +6,7 @@ import './globals.css'
 
 
 export const metadata: Metadata = {
-  title: 'NIH-CFDE DRC Portal',
+  title: 'CFDE Data Portal',
   description: '',
   icons: {
     icon: '/img/favicon.png', // /public path
