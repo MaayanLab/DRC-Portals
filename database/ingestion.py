@@ -45,7 +45,7 @@ if not pathlib.Path('ingest/outreach.tsv').exists():
   urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'ingest/outreach.tsv')
 if not pathlib.Path('ingest/DccAssets.tsv').exists():
   import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/112123/DccAssets.tsv', 'ingest/DccAssets.tsv')
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/112923/DccAssets.tsv', 'ingest/DccAssets.tsv')
 
 cur = connection.cursor()
 cur.execute('''
