@@ -163,7 +163,7 @@ export default async function Home() {
                     <Grid item key={i}>
                       <Card sx={{minHeight: 480, width: 400, paddingLeft: 2, paddingRight: 2}} className="flex flex-col space-y-5">
                         { e.img && 
-                            <div className="flex flex-row justify-center relative" style={{minHeight: 300}}><Image className="grayscale" src={e.img} alt={e.title} fill={true} style={{objectFit: "contain"}}/></div>
+                            <div className="flex flex-row justify-center relative" style={{minHeight: 300}}><Image src={e.img} alt={e.title} fill={true} style={{objectFit: "contain"}}/></div>
                         } 
                         <Divider sx={{borderColor: "#7187C3"}}/>
                         <CardContent className="flex flex-col grow space-y-5 text-left" sx={{paddingLeft: 3, paddingRight: 3}}>
