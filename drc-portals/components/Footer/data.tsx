@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image';
 
 import { mdiGithub, mdiBugOutline, mdiEmail} from '@mdi/js';
 
@@ -10,10 +11,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
-
-import FacebookIcon from '@mui/icons-material/Facebook'
-import YouTubeIcon from '@mui/icons-material/YouTube'
-import LinkedInIcon from '@mui/icons-material/LinkedIn'
+import IconButton from '@mui/material/IconButton'
 import { Logo } from '../styled/Buttons';
 
 export default async function InfoFooter() {
@@ -43,18 +41,31 @@ export default async function InfoFooter() {
               </Link>
               <Divider sx={{borderColor: "#FFF"}}/>
               <Typography variant="subtitle1">Contact</Typography>  
-              <div className='flex items-center space-x-5'>
+              <div className='flex items-center space-x-2'>
                 <Link href="mailto:contact@cfde.info">
-                    <Icon path={mdiEmail} size={1} /> 
+                    <IconButton>
+                      <Image src='/img/icons/email.svg' alt="email" width={20} height={20}/>
+                    </IconButton>
                 </Link>
                 <Link href="/">
-                    <FacebookIcon/>
+                  <IconButton>
+                    <Image src='/img/icons/Twitter.svg' alt="Twitter" width={25} height={25}/>
+                  </IconButton>
                 </Link>
                 <Link href="/">
-                    <YouTubeIcon/>
+                  <IconButton>
+                    <Image src='/img/icons/Youtube.svg' alt="Youtube" width={25} height={25}/>
+                  </IconButton>
                 </Link>
                 <Link href="/">
-                    <LinkedInIcon/>
+                  <IconButton>
+                    <Image src='/img/icons/Facebook.svg' alt="Facebook" width={25} height={25}/>
+                  </IconButton>
+                </Link>
+                <Link href="/">
+                  <IconButton>
+                    <Image src='/img/icons/Linkedin.svg' alt="Linkedin" width={25} height={25}/>
+                  </IconButton>
                 </Link>
               </div>
             </Stack>
