@@ -9,7 +9,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres:5432/${POSTGRES_DB}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres-2:5432/${POSTGRES_DB}?schema=public
       - NEXTAUTH_URL
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
@@ -105,8 +105,26 @@ services:
     volumes:
       - drc-portal-postgres:/var/lib/postgresql/data
 
+  drc-portal-postgres-2:
+    image: postgres:16
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - 5432:5432
+    volumes:
+      - drc-portal-postgres-2:/var/lib/postgresql/data
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:
       size: 10Gi
+      class: gp2
+
+  drc-portal-postgres-2:
+    x-kubernetes:
+      size: 40Gi
       class: gp2
