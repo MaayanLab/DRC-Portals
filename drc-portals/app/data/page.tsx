@@ -128,21 +128,25 @@ export default async function Home() {
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
-                <Stack spacing={2} direction={"row"} justifyContent={"center"} flexWrap="wrap" maxWidth={400}>
-                      {counts.map(count => count.type === 'kg_assertion' ? (
-                        <div className="flex flex-col">
-                          <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
-                          <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
-                        </div>
-                      ) : (
-                        <Link key={count.type} href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
-                          <div className="flex flex-col">
+              <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
+                  {counts.map(count => count.type === 'kg_assertion' ? (
+                        <Grid item xs={4} md={2} key="kg">
+                          <div  className="flex flex-col">
                             <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
-                            <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type, count.entity_type)).toUpperCase()}</Typography>
+                            <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
                           </div>
-                        </Link>
+                        </Grid>
+                      ) : (
+                        <Grid item xs={4} md={2} key={count.type}>
+                          <Link href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
+                            <div className="flex flex-col">
+                              <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
+                              <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type, count.entity_type)).toUpperCase()}</Typography>
+                            </div>
+                          </Link>
+                        </Grid>
                       ))}
-                  </Stack>
+                </Grid>
               </Container>
             </Paper>
         </Grid>
