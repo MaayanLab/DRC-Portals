@@ -223,7 +223,7 @@ export default async function Home() {
             <Grid container spacing={2}>
               <Grid item xs={12} md={6} className="flex items-center justify-center">
                 <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer">
-                  <Image className="grayscale"  src="/img/FAIR.png" alt="fair" width={400} height={400}/>
+                  <Image  src="/img/FAIR.png" alt="fair" width={400} height={400}/>
                 </Link>
               </Grid>
               <Grid item xs={12} md={6}>

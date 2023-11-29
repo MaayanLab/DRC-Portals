@@ -9,7 +9,7 @@ export default function ServerCarousel () {
         {
             name: "Playbook Workflow Builder",
             description: "CFDE Playbook Partnership",
-            icon: "/img/Playbook_Gray.png",
+            icon: "/img/Playbook.png",
             url: "https://playbook-workflow-builder.cloud/graph/extend"
         },
         {
@@ -21,13 +21,13 @@ export default function ServerCarousel () {
         {
             name: "Standardized RNA-seq Pipeline for Patient Samples",
             description: "Standardized RNA-seq Pipeline for Patient Samples",
-            icon: "/img/rna-seq_pipeline_Gray.png",
+            icon: "/img/rna-seq_pipeline.png",
             url: "https://commonfund.nih.gov/dataecosystem/highlights/building-healthier-ecosystem-cfde-expands-new-data-coordinating-centers"
         },
         {
             name: "Data Distillery Partnership",
             description: "Data Distillery Partnership",
-            icon: "/img/DD_Gray.png",
+            icon: "/img/DD.png",
             url: "https://ubkg.docs.xconsortia.org/"
         }
       ]

@@ -114,7 +114,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
                           zIndex: 2
                         }}
                       >
-                        <Image className="grayscale" src={e.image} alt={e.title} width={400} height={300}/>
+                        <Image src={e.image} alt={e.title} width={400} height={300}/>
                       </div>
                   }
                   <Typography variant="subtitle2">{e.short_description}</Typography>
