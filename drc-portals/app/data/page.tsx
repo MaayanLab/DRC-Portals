@@ -88,7 +88,8 @@ export default async function Home() {
                           marginLeft: "calc((-100vw + 100%) / 2)", 
                           marginRight: "calc((-100vw + 100%) / 2)",
                           position: "relative",
-                          overflow: "hidden"
+                          overflow: "hidden",
+                          marginBottom: 10,
                         }}
                   className="flex"
             >
@@ -96,11 +97,11 @@ export default async function Home() {
               <BlurBig sx={{position: "absolute", right: "-15%"}}/>
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} md={7}>
                     <form action="/data/processed/search" method="GET">
-                      <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
-                        <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
-                        <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
+                      <Stack spacing={2} justifyContent={"center"} alignItems={"flex-start"}>
+                        <Typography color="secondary" className="text-left" variant="h1">CFDE DATA PORTAL</Typography>
+                        <Typography color="secondary" className="text-left" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
                         <SearchField q="" placeholder="Try MCF7, STAT3, blood, enrichment analysis" />
                         <div className="flex align-center space-x-10">
                           <Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button>
@@ -109,11 +110,28 @@ export default async function Home() {
                       </Stack>
                     </form>
                   </Grid>
+                  <Grid item xs={12} md={5}>
+                    <Stack spacing={2} justifyContent={"flex-start"} flexWrap="wrap" maxHeight={400}>
+                      {counts.map(count => count.type === 'kg_assertion' ? (
+                        <div className="flex flex-col">
+                          <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
+                          <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
+                        </div>
+                      ) : (
+                        <Link key={count.type} href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
+                          <div className="flex flex-col">
+                            <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
+                            <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type, count.entity_type)).toUpperCase()}</Typography>
+                          </div>
+                        </Link>
+                      ))}
+                  </Stack>
+                  </Grid>
                 </Grid>
               </Container>
           </Paper>
         </Grid>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Paper sx={{
                           boxShadow: "none", 
                           padding: 5, 
@@ -128,7 +146,7 @@ export default async function Home() {
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
-              <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
+                <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
                   {counts.map(count => count.type === 'kg_assertion' ? (
                         <Grid item xs={4} md={2} key="kg">
                           <div  className="flex flex-col">
@@ -149,8 +167,8 @@ export default async function Home() {
                 </Grid>
               </Container>
             </Paper>
-        </Grid>
-        <Grid item xs={12} md={5} >
+        </Grid> */}
+        <Grid item xs={12} md={5}>
           <Stack spacing={2} sx={{textAlign: "left"}}>
             <Typography variant="h2" color="secondary" sx={{textTransform: 'uppercase'}}>
               Common Fund programs partnered with the CFDE
