@@ -130,14 +130,14 @@ export default async function Home() {
               <Container maxWidth="lg" className="m-auto">
               <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
                   {counts.map(count => count.type === 'kg_assertion' ? (
-                        <Grid item xs={4} md={2} key="kg">
+                        <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
                           <div  className="flex flex-col">
                             <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
                             <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
                           </div>
                         </Grid>
                       ) : (
-                        <Grid item xs={4} md={2} key={count.type}>
+                        <Grid item  xs={6} sm={4} md={3} lg={2} key={count.type}>
                           <Link href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
                             <div className="flex flex-col">
                               <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
