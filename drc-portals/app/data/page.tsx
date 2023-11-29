@@ -77,7 +77,7 @@ export default async function Home() {
                   <Grid item xs={12} md={5}>
                     <form action="/data/processed/search" method="GET">
                       <Stack spacing={2} justifyContent={"flex-start"}>
-                        <Typography color="secondary" className="text-left" variant="h2">COMMON FUND DATA RESOURCE PORTAL</Typography>
+                        <Typography color="secondary" className="text-left" variant="h2">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-left" variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
                         <SearchField q="" placeholder="Try MCF7, STAT3, blood, enrichment analysis" />
                         <div className="flex align-center space-x-10">

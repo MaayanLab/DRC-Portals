@@ -46,10 +46,10 @@ export default async function InfoHeader() {
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data" target="_blank" rel="noopener noreferrer">
-                    <Typography variant="nav">DATA-RESOURCE-PORTAL</Typography>
+                    <Typography variant="nav">DATA RESOURCE PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
-                    <Typography variant="nav">KNOWLEDGE-PORTAL</Typography>
+                    <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">DCCs</Typography>

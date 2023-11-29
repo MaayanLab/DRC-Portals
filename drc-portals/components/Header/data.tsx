@@ -22,12 +22,12 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
-                <Logo href={`/data`} title="CFDE Data Resource Portal"  color="secondary"/>
+                <Logo href={`/data`} title="CFDE Wordkbench"  color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/info" target="_blank" rel="noopener noreferrer">
-                    <Typography variant="nav">CFDE-WORKBENCH</Typography>
+                    <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
                   <Link href="/data">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
@@ -42,7 +42,7 @@ export default async function InfoHeader() {
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data">
-                    <Typography variant="nav">METADATA SEARCH ENGINE</Typography>
+                    <Typography variant="nav">INFORMATION PORTAL</Typography>
                   </Link>
                   <Link href="/data/matrix">
                     <Typography variant="nav">PROCESSED DATA</Typography>

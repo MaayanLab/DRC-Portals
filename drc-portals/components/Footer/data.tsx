@@ -23,7 +23,7 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Logo href={`/data`} title="CFDE Data Resource Portal" color="inherit" />
+              <Logo href={`/data`} title="CFDE Workbench" color="inherit" />
               <Divider sx={{borderColor: "#FFF"}}/>
               <Link href="https://github.com/MaayanLab/DRC-Portals/">
                 <div className='flex items-center space-x-1'>
