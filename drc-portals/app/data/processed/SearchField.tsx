@@ -5,7 +5,7 @@ import { InputAdornment, TextField } from '@mui/material';
 export default function SearchField({ q, placeholder = 'Search' }: { q: string, placeholder?: string }) {
   return (
     <>
-      <TextField sx={{width: 477}} 
+      <TextField sx={{width: 544}} 
         name="q"
         defaultValue={q}
         placeholder={placeholder}
