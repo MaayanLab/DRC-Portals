@@ -72,8 +72,6 @@ export async function updateUserInfo(updatedForms: updateForm[], users: {
         }
         else if (updatedData.role === "Admin") {
             prismaRole = Role.ADMIN
-        } else {
-            throw new Error('not a role type')
         }
     
         // add dcc to user in db

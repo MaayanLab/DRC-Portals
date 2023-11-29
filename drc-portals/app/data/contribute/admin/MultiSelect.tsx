@@ -30,7 +30,7 @@ function getStyles(name: string, personName: string[], theme: Theme) {
   };
 }
 
-type CreateUserFormData = {
+export type CreateUserFormData = {
   name: string;
   email: string;
   role: string;

@@ -5,21 +5,24 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { updateForm } from './DataTable';
+import { CreateUserFormData } from './MultiSelect';
 
-export default function RoleSelect(props: {
-    role: string | undefined, type: 'createUserForm', formData: {
-        name: string;
-        email: string;
-        role: string;
-        DCC: string;
-    }, setFormData: React.Dispatch<React.SetStateAction<{
-        name: string;
-        email: string;
-        role: string;
-        DCC: string;
-    }>>
-} | { role: string | undefined, type: 'updateUserForm', formData: updateForm[], setFormData: React.Dispatch<React.SetStateAction<updateForm[]>>, index: number }
-) {
+type CreateUserFormProps = {
+    role: string | undefined, 
+    type: 'createUserForm', 
+    formData: CreateUserFormData , 
+    setFormData: React.Dispatch<React.SetStateAction<CreateUserFormData>>
+}
+
+type UpdateUserFormProps = {
+    role: string | undefined, 
+    type: 'updateUserForm', 
+    formData: updateForm[], 
+    setFormData: React.Dispatch<React.SetStateAction<updateForm[]>>, 
+    index: number }
+
+
+export default function RoleSelect(props: CreateUserFormProps | UpdateUserFormProps) {
     const [role, setRole] = React.useState('');
     const roles = [
         'User',
