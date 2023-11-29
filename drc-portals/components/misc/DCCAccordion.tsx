@@ -9,14 +9,11 @@ import { dccAsset, dccAssetObj, dccAssetRecord } from '@/utils/dcc-assets';
 function AccordionHeader(
   props: {assetInfo: {current: dccAsset[], archived: dccAsset[]}, label: string, exp: boolean}
 ) {
-  const bgColor = (props.exp) ? 'primary.dark' : '#ffffff'
-  const textColor = (props.exp) ? '#ffffff' : '#212121'
-  const secColor = (props.exp) ? '#ffffff' : 'text.secondary'
   if (props.assetInfo.current.length + props.assetInfo.archived.length < 1) {
     return (
-      <AccordionSummary sx={{ backgroundColor: bgColor}}>
-        <Typography sx={{ color: textColor, width: '32%' }}>{props.label}</Typography>
-        <Typography sx={{ color: secColor, fontSize: '14pt' }}>0 Available Files</Typography>
+      <AccordionSummary sx={{ backgroundColor: "#7187C3"}}>
+        <Typography sx={{ color: '#ffffff', width: '32%', fontSize: '12pt'}}>{props.label}</Typography>
+        <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>0 Available Files</Typography>
       </AccordionSummary>
     )
   } else {
@@ -26,15 +23,15 @@ function AccordionHeader(
       .toLocaleDateString('en-us', { month:'numeric', day:'numeric', year:'numeric' })
     return (
       <AccordionSummary
-        sx={{ backgroundColor: bgColor }}
+        sx={{ backgroundColor: "#7187C3" }}
         expandIcon={<ExpandMore />}
         aria-controls="panel1bh-content"
       >
-        <Typography sx={{ color: textColor, width: '33%' }}>{props.label}</Typography>
-        <Typography sx={{ color: secColor, width: '45%', fontSize: '14pt'}}>
+        <Typography sx={{ color: '#ffffff', width: '33%', fontSize: '12pt' }}>{props.label}</Typography>
+        <Typography sx={{ color: '#ffffff', width: '45%', fontSize: '12pt'}}>
           {props.assetInfo.current.length} Current File(s) | {props.assetInfo.archived.length} Archived File(s)
         </Typography>
-        <Typography sx={{ color: secColor, fontSize: '14pt' }}>Modified {maxDate}</Typography>
+        <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>Modified {maxDate}</Typography>
       </AccordionSummary>
     )
   }
@@ -45,9 +42,9 @@ function AccordionItem(
 ) {
   return (
     <AccordionDetails>
-      <Typography variant="subtitle2" fontSize='20pt' color="secondary.dark">Current</Typography>
+      <Typography sx={{ml:2}} variant="subtitle2" fontSize='16pt' color="secondary.dark">Current</Typography>
       <DCCFileTable fileInfo={props.assetInfo.current} isCode={props.isCode}/>
-      <Typography variant="subtitle2" fontSize='20pt' color="secondary.dark">Archived</Typography>
+      <Typography sx={{ml:2}} variant="subtitle2" fontSize='16pt' color="secondary.dark">Archived</Typography>
       <DCCFileTable fileInfo={props.assetInfo.archived} isCode={props.isCode}/>
     </AccordionDetails>
   )
@@ -71,7 +68,12 @@ function FileAccordion(
       setExpanded(isExpanded ? panel : false);
     };
   return (
-    <Accordion expanded={expanded === props.label} onChange={handleChange(props.label)}>
+    <Accordion 
+      square={false}
+      expanded={expanded === props.label} 
+      onChange={handleChange(props.label)}
+      sx={{ mb:2 }}
+    >
       <AccordionHeader assetInfo={props.dccInfo} label={props.label} exp={expanded === props.label}/>
       <AccordionItem label={props.label} assetInfo={props.dccInfo} isCode={props.isCode} />
     </Accordion>
@@ -92,7 +94,7 @@ export function DCCAccordion(
   }
   return (
     <Container>
-      <Typography variant="h2" color="secondary" gutterBottom>Metadata and Processed Data Files</Typography>
+      <Typography variant="h3" color="secondary.dark" gutterBottom>Metadata and Processed Data Files</Typography>
       {Object.keys(data).map((key: keyof dccAssetRecord) => (
           <div id={"current-" + key}>
             <FileAccordion 
@@ -102,7 +104,7 @@ export function DCCAccordion(
             />
           </div>
       ))}
-      <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>Interoperability Assets</Typography>
+      <Typography sx={{mt:2}} variant="h3" color="secondary.dark" gutterBottom>Interoperability Assets</Typography>
       {Object.keys(code).map((key: keyof dccAssetRecord) => (
           <div id={"archived-" + key}>
             <FileAccordion 
