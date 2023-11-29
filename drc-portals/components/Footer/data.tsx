@@ -64,7 +64,7 @@ export default async function InfoFooter() {
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
                   <Link href="/data"><Typography variant="footer">About</Typography></Link>
                   <Link href="/info" target="_blank" rel="noopener noreferrer">
-                    <Typography variant="footer">CFDE Workbench</Typography>
+                    <Typography variant="footer">Information Portal</Typography>
                   </Link>
               </Stack>
           </Grid>

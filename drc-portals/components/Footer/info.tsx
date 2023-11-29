@@ -67,7 +67,7 @@ export default async function InfoFooter() {
                 <Typography variant="footer">CF-DCCs</Typography>
               </Link>
               <Link href="/data" target="_blank" rel="noopener noreferrer">
-                <Typography variant="footer">Data Resource Portal</Typography>
+                <Typography variant="footer">Data Portal</Typography>
               </Link>
               <Link href="/info/about">
                 <Typography variant="footer">Knowledge Portal</Typography>
