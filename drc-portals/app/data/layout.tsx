@@ -11,7 +11,7 @@ export default function DataLayout({
   children: React.ReactNode
 }) {
   return (
-    <Grid container direction={"column"} justifyContent="space-between" sx={{minHeight: "100vh"}}>
+    <Grid container direction={"column"} justifyContent="space-between" sx={{minHeight: "100vh", marginTop: 2}}>
       <Grid item><Header/></Grid>
       <Grid item className="grow"><Container maxWidth="lg">{children}</Container></Grid>
       <Grid item><Footer/></Grid>

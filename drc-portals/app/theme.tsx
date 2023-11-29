@@ -128,7 +128,7 @@ export const cfde_theme = createTheme({
                 root: {
                   // Some CSS
                   background: "#FFF",
-                  boxShadow: "none"
+                  boxShadow: "none",
                 },
               },
         },

@@ -20,7 +20,7 @@ export default async function InfoHeader() {
     <Container maxWidth="lg">
       <AppBar position="static" sx={{color: "#000"}}>
         <Toolbar>
-            <Grid container justifyContent={"space-between"} alignItems={"center"}>
+            <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
                 <Logo href={`/data`} title="CFDE Workbench"  color="secondary"/>
               </Grid>

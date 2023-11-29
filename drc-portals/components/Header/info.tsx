@@ -20,7 +20,7 @@ export default async function InfoHeader() {
   const session = (await getServerSession(authOptions))
   return (
     <Container maxWidth="lg">
-      <AppBar position="static" sx={{color: "#000", marginTop: 2}}>
+      <AppBar position="static" sx={{color: "#000"}}>
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
@@ -46,7 +46,7 @@ export default async function InfoHeader() {
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data" target="_blank" rel="noopener noreferrer">
-                    <Typography variant="nav">DATA PORTAL</Typography>
+                    <Typography variant="nav">DATA RESOURCE PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>

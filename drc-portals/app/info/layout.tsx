@@ -11,7 +11,7 @@ export default function InfoLayout({
   children: React.ReactNode
 }) {
   return (
-    <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh"}}>
+    <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
       <Grid item><Header/></Grid>
       <Grid item><Container maxWidth="lg">{children}</Container></Grid>
       <Grid item><Footer/></Grid>
