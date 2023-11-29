@@ -1,67 +1,9 @@
 "use server"
 import prisma from "@/lib/prisma"
-import { Role } from "@prisma/client"
+import { $Enums, Role } from "@prisma/client"
 import { Session } from "next-auth"
-
-
-interface UserInfo {
-    id: number;
-    name: string | null;
-    email: string | null;
-    dcc: string | null;
-    role: string | null;
-}
-
-
-export async function getUsers() {
-    const users = await prisma.user.findMany({})
-    return users
-}
-
-export async function getAdminUser(session: Session) {
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    return user
-}
-
-
-export async function updateUserInfo(updatedData: { role: string; DCC: string; }, userId: string) {
-    let prismaRole = ''
-    if (updatedData.role === "User") {
-        prismaRole = Role.USER
-    } else if (updatedData.role === "Uploader") {
-        prismaRole = Role.UPLOADER
-    }
-    else if (updatedData.role === "DCC Approver") {
-        prismaRole = Role.DCC_APPROVER
-    }
-    else if (updatedData.role === "DRC Approver") {
-        prismaRole = Role.DRC_APPROVER
-    }
-    else if (updatedData.role === "Admin") {
-        prismaRole = Role.ADMIN
-    } else {
-        throw new Error('not a role type')
-    }
-
-    // add dcc to user in db
-    await prisma.user.update({
-        where: {
-            id: userId,
-        },
-        data: {
-            role: prismaRole as Role,
-            ...(updatedData.DCC?.toString() != '' ? {
-                dcc: updatedData.DCC?.toString()
-            } : {})
-
-        },
-    });
-
-}
+import { revalidatePath } from "next/cache";
+import { UserInfo, updateForm } from "./DataTable";
 
 export async function createOneUser(newUserData: {
     name: string;
@@ -103,6 +45,55 @@ export async function createOneUser(newUserData: {
             role: prismaRole as Role
         },
       })
+      revalidatePath('/')
+}
+
+export async function updateUserInfo(updatedForms: updateForm[], users: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    emailVerified: Date | null;
+    image: string | null;
+    dcc: string | null;
+    role: $Enums.Role;
+}[]) {
+    updatedForms.forEach(async (updatedData) => {
+        let prismaRole = ''
+        if (updatedData.role === "User") {
+            prismaRole = Role.USER
+        } else if (updatedData.role === "Uploader") {
+            prismaRole = Role.UPLOADER
+        }
+        else if (updatedData.role === "DCC Approver") {
+            prismaRole = Role.DCC_APPROVER
+        }
+        else if (updatedData.role === "DRC Approver") {
+            prismaRole = Role.DRC_APPROVER
+        }
+        else if (updatedData.role === "Admin") {
+            prismaRole = Role.ADMIN
+        } else {
+            throw new Error('not a role type')
+        }
+    
+        // add dcc to user in db
+        await prisma.user.update({
+            where: {
+                id: users[updatedData.index]['id']
+            },
+            data: {
+                ...(updatedData.role.toString() != '' ? {
+                    role: prismaRole as Role,
+                } : {}),
+                ...(updatedData.DCC?.toString() != '' ? {
+                    dcc: updatedData.DCC?.toString()
+                } : {})
+    
+            },
+        });
+
+    })
+    revalidatePath('/')
 }
 
 export async function deleteUsers(usersToDel: UserInfo[], users: {
@@ -120,6 +111,8 @@ export async function deleteUsers(usersToDel: UserInfo[], users: {
               id: users[user.id - 1].id,
             },
           })
+          
     })
+    revalidatePath('/')
     
 }

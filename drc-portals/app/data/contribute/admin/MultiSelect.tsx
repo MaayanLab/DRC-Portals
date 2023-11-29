@@ -8,6 +8,7 @@ import MenuItem from '@mui/material/MenuItem'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Select from '@mui/material/Select'
 import { Box, Chip, Theme, useTheme } from '@mui/material'
+import { updateForm } from './DataTable'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -29,12 +30,43 @@ function getStyles(name: string, personName: string[], theme: Theme) {
   };
 }
 
-export default function MultiSelect({ label, options, name, value, defaultValue = [], formData, setFormData }: {
-  label: string, options: string[], name: string, defaultValue?: string[], value?: string[], formData: {
-    role: string;
-    DCC: string;
-  }, setFormData: any
-}) {
+type CreateUserFormData = {
+  name: string;
+  email: string;
+  role: string;
+  DCC: string;
+};
+
+type CreateUserFormProps = {
+  label: string;
+  options: string[]; 
+  name: string;
+  value?: string[];
+  defaultValue?: string[];
+  type: 'createUserForm';
+  formData: CreateUserFormData;
+  setFormData: React.Dispatch<React.SetStateAction<CreateUserFormData>>;
+  index: number;
+};
+
+
+type UpdateUserFormProps = {
+  label: string;
+  options: string[]; 
+  name: string;
+  value?: string[];
+  defaultValue?: string[];
+  type: 'updateUserForm';
+  formData: updateForm[];
+  setFormData: React.Dispatch<React.SetStateAction<updateForm[]>>;
+  index: number;
+};
+
+type MyComponentProps = CreateUserFormProps | UpdateUserFormProps;
+
+
+
+export default function MultiSelect({ label, options, name, value, defaultValue = [], formData, setFormData, type, index }: MyComponentProps) {
   const id = React.useId()
   const theme = useTheme();
   const [values, setValues] = React.useState<string[]>(value ?? defaultValue);
@@ -53,7 +85,15 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
           );
-          setFormData({ ...formData, [evt.target.name]: value })
+          // setFormData({ ...formData, [evt.target.name]: value })
+          if (type === 'createUserForm') {
+            setFormData({...formData, [evt.target.name]: value })
+        } else if (type === 'updateUserForm') {
+            const newFormData = [...formData]
+            newFormData[index] = { 'role': formData[index].role, 'DCC': value.toString(), 'index': formData[index].index }
+            setFormData(newFormData);
+
+        };
         }}
         input={<OutlinedInput label="Name" />}
         MenuProps={MenuProps}
