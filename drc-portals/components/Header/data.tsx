@@ -9,12 +9,8 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
-import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment'
-import Icon from '@mdi/react';
-import { mdiMagnify } from '@mdi/js';
+import { Logo } from '../styled/Buttons'
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import NavBreadcrumbs from './breadcrumbs'
 
@@ -26,19 +22,12 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
-                <Link href={`/data`} className='flex items-center'>
-                  <IconButton
-                    aria-label="menu"
-                  >
-                    <Image src={'/img/favicon.png'} alt="cfde-logo" height={37} width={50}/>
-                  </IconButton>
-                  <Typography variant='h3' color="secondary">CFDE Data Resource Portal</Typography>
-                </Link>
+                <Logo href={`/data`} title="CFDE Wordkbench"  color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/info" target="_blank" rel="noopener noreferrer">
-                    <Typography variant="nav">CFDE-WORKBENCH</Typography>
+                    <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
                   <Link href="/data">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
@@ -53,7 +42,7 @@ export default async function InfoHeader() {
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data">
-                    <Typography variant="nav">META DATA SEARCH ENGINE</Typography>
+                    <Typography variant="nav">INFORMATION PORTAL</Typography>
                   </Link>
                   <Link href="/data/matrix">
                     <Typography variant="nav">PROCESSED DATA</Typography>

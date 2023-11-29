@@ -242,7 +242,9 @@ enum Role {
   DCC_APPROVER
   UPLOADER
   DRC_APPROVER
+  ADMIN
 }
+
 
 model VerificationToken {
   identifier String

@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.1.34
+    image: maayanlab/drc-portal:0.1.36
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:

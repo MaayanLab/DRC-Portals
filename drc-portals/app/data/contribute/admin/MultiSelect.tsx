@@ -7,7 +7,7 @@ import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Select from '@mui/material/Select'
-import { Theme, useTheme } from '@mui/material'
+import { Box, Chip, Theme, useTheme } from '@mui/material'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -29,40 +29,51 @@ function getStyles(name: string, personName: string[], theme: Theme) {
   };
 }
 
-export default function MultiSelect({ label, options, name, value, defaultValue = [] }: { label: string, options: string[], name: string, defaultValue?: string[], value?: string[] }) {
+export default function MultiSelect({ label, options, name, value, defaultValue = [], formData, setFormData }: {
+  label: string, options: string[], name: string, defaultValue?: string[], value?: string[], formData: {
+    role: string;
+    DCC: string;
+  }, setFormData: any
+}) {
   const id = React.useId()
   const theme = useTheme();
   const [values, setValues] = React.useState<string[]>(value ?? defaultValue);
 
   return (
-    <FormControl sx={{ m: 1, width: 300 }}>
-      <InputLabel id={id} sx={{fontSize: 16}}>{label}</InputLabel>
+    <FormControl sx={{ width: 300 }}>
+      <InputLabel id={id} sx={{ fontSize: 16 }}>{label}</InputLabel>
       <Select
         labelId={id}
         name={name}
         multiple
         value={values}
-        disabled
         onChange={(evt) => {
           const value = evt.target.value
           setValues(
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
           );
+          setFormData({ ...formData, [evt.target.name]: value })
         }}
         input={<OutlinedInput label="Name" />}
         MenuProps={MenuProps}
-        sx={{fontSize: 16}}
+        sx={{ fontSize: 16 }}
+        renderValue={(selected) => (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {selected.map((value) => (
+              <Chip key={value} label={value} />
+            ))}
+          </Box>)}
       >
         {options.map((option) => (
-            <MenuItem
-                key={option}
-                value={option}
-                style={getStyles(option, values, theme)}
-                sx={{fontSize: 16}}
-            >
-                {option}
-            </MenuItem>
+          <MenuItem
+            key={option}
+            value={option}
+            style={getStyles(option, values, theme)}
+            sx={{ fontSize: 16 }}
+          >
+            {option}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>

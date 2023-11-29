@@ -84,7 +84,7 @@ export async function updateAssetApproval(file: {
     if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
 
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER')) throw new Error('user not allowed to update status')
+    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
 
     if (file.dcc_drc ==='drc') {
         const approved = await prisma.dccAsset.updateMany({

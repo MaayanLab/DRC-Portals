@@ -4,36 +4,51 @@ import Typography from '@mui/material/Typography'
 import Button from "@mui/material/Button"
 import Chip from "@mui/material/Chip"
 import { Prisma } from "@prisma/client"
+
 import prisma from '@/lib/prisma'
 import PublicationsClient from "./PublicationsClient"
 
+export interface queryJson {
+  order?: {
+      field: Prisma.PublicationScalarFieldEnum, 
+      ordering: 'asc'|'desc'
+  },
+  where?: Prisma.PublicationWhereInput,
+  include?: Prisma.PublicationInclude,
+  take?:number,
+  skip?: number,
+}
+
 export default async function PublicationsServer({
-  searchParams,
   all,
+  searchParams,
 }: 
 {
   all: boolean,
   searchParams?: {
-      order?: {
-          field: Prisma.PublicationScalarFieldEnum, 
-          ordering: 'asc'|'desc'
-      },
-      where?: Prisma.PublicationWhereInput,
-      page?: number,
-      take?: string,
-      skip?: string,
+    q?: string
   }
 }) {
+    const q:queryJson = JSON.parse((searchParams || {}).q || '{}')
     const { 
       where, 
+      include,
       order={
         field: "year",
         ordering: "desc",
       },
-      take,
+      take=all?10:5,
       skip
-    } = searchParams || {}
+    } = q
     const count = await prisma.publication.count()
+    const dccs = await prisma.dCC.findMany()
+    // const dccs = await prisma.dCC.findMany({
+    //   where: {
+    //     publications: {
+    //       some: {}
+    //     }
+    //   }
+    // })
     const publications = await prisma.publication.findMany({
       where,
       orderBy: [
@@ -41,14 +56,15 @@ export default async function PublicationsServer({
           [order.field]: order.ordering
         }
       ],
-      take: parseInt(take || "10"),
-      skip: parseInt(skip || "0"),
+      take: take,
+      skip: skip || 0,
       include: {
         dccs: {
           include: {
             dcc: true
           }
-        }
+        },
+        ...include
       },
     })
     return (
@@ -61,7 +77,7 @@ export default async function PublicationsServer({
                 </Typography>
               </div>
             }
-            <PublicationsClient searchParams={searchParams} count={count} all={all}>
+            <PublicationsClient count={count} all={all} q={q} dccs={dccs.map(i=>i.short_label || '')}>
               {publications.map((pub, i)=>(
               <div key={i} className="mb-2 space-x-1">
                   <Typography color="secondary" variant="caption">

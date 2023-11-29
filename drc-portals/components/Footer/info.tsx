@@ -9,14 +9,13 @@ import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 
 import FacebookIcon from '@mui/icons-material/Facebook'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
-
+import { Logo } from '../styled/Buttons';
 
 export default async function InfoFooter() {
   return (
@@ -25,21 +24,12 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Link href={`/info`} className='flex items-center' style={{marginLeft: -15}}>
-              <IconButton
-                    aria-label="menu"
-                    sx={{background: "#FFF", width: 30, height: 30, marginRight: 1}} 
-                >
-                    <Avatar sx={{ width: 24, height: 24 }} alt="cfde-logo" src="/img/favicon.png" />
-                    
-                </IconButton>
-                <Typography variant='h4' sx={{fontFamily: "sans-serif"}}>CFDE Workbench</Typography>
-              </Link>
+              <Logo href={`/info`} title="CFDE Workbench" color="inherit"/>
               <Divider sx={{borderColor: "#FFF"}}/>
               <Link href="https://github.com/MaayanLab/DRC-Portals/">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiGithub} size={1} /> 
-                  <Typography variant='subtitle2' className='flex'>
+                  <Typography variant='footer' className='flex'>
                     Github Repository
                   </Typography>
                 </div>
@@ -47,7 +37,7 @@ export default async function InfoFooter() {
               <Link href="https://github.com/MaayanLab/DRC-Portals/issues/new">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
-                  <Typography variant='subtitle2' className='flex'>
+                  <Typography variant='footer' className='flex'>
                     Report a bug
                   </Typography>
                 </div>
@@ -74,35 +64,35 @@ export default async function InfoFooter() {
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Consortium</b></Typography>
               <Link href="/info/about">
-                <Typography variant="subtitle2">CF-DCCs</Typography>
+                <Typography variant="footer">CF-DCCs</Typography>
               </Link>
               <Link href="/data" target="_blank" rel="noopener noreferrer">
-                <Typography variant="subtitle2">Data Resource Portal</Typography>
+                <Typography variant="footer">Data Portal</Typography>
               </Link>
               <Link href="/info/about">
-                <Typography variant="subtitle2">Knowledge Portal</Typography>
+                <Typography variant="footer">Knowledge Portal</Typography>
               </Link>
-              <Link href="/"><Typography variant="subtitle2">Partnerships</Typography></Link>
+              <Link href="/"><Typography variant="footer">Partnerships</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
-              <Link href="/info/outreach"><Typography variant="subtitle2">Training & Outreach</Typography></Link>
+              <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
               <Link href="/info">
-                <Typography variant="subtitle2">Products</Typography>
+                <Typography variant="footer">Products</Typography>
               </Link>
-              <Link href="/"><Typography variant="subtitle2">Standards & Protocols</Typography></Link>
-              <Link href="/info/publications"><Typography variant="subtitle2">Publications</Typography></Link>
+              <Link href="/"><Typography variant="footer">Standards & Protocols</Typography></Link>
+              <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="subtitle1"><b>Assets</b></Typography>
-                  <Link href="/"><Typography variant="subtitle2">Data & Metadata</Typography></Link>
-                  <Link href="/"><Typography variant="subtitle2">Tools</Typography></Link>
-                  <Link href="/"><Typography variant="subtitle2">Chatbot</Typography></Link>
-                  <Link href="/"><Typography variant="subtitle2">Use Cases</Typography></Link>
+                  <Link href="/"><Typography variant="footer">Data & Metadata</Typography></Link>
+                  <Link href="/"><Typography variant="footer">Tools</Typography></Link>
+                  <Link href="/"><Typography variant="footer">Chatbot</Typography></Link>
+                  <Link href="/"><Typography variant="footer">Use Cases</Typography></Link>
               </Stack>
           </Grid>
         </Grid>
