@@ -45,8 +45,8 @@ export default async function Page(props: { params: { id: string }, searchParams
       from kg_assertion_f
     ${searchParams.q ? Prisma.sql`
       where
-      "kg_assertion_f"."source_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ to_tsquery('english', ${searchParams.q}))
-      or "kg_assertion_f"."target_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ to_tsquery('english', ${searchParams.q}))
+      "kg_assertion_f"."source_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
+      or "kg_assertion_f"."target_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
     ` : Prisma.empty}
     ), kg_assertion_fsp as (
       select

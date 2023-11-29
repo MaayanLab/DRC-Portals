@@ -45,10 +45,10 @@ export default async function Page(props: { searchParams: Record<string, string>
       select
         "node".*,
         "entity_node"."type" as "entity_type",
-        ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) as "rank"
+        ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) as "rank"
       from "node"
       left join "entity_node" on "entity_node"."id" = "node"."id"
-      where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
+      where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
     ), items as (
       select id, type, entity_type, label, description, (
         select jsonb_build_object(

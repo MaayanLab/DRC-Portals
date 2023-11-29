@@ -47,8 +47,8 @@ export default async function Page(props: { searchParams: Record<string, string 
       from "gene_set_node"
       inner join "node" on "node"."id" = "gene_set_node"."id"
       ${searchParams.q ? Prisma.sql`
-        where "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) desc
+        where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
+        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
       ` : Prisma.sql`
         order by "gene_set_node"."id"
       `}

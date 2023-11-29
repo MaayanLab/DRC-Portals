@@ -37,8 +37,8 @@ export default async function Page(props: { params: { entity_type: string }, sea
       inner join "node" on "node"."id" = "entity_node"."id"
       where "entity_node"."type" = ${props.params.entity_type}
       ${searchParams.q ? Prisma.sql`
-        and "node"."searchable" @@ to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", to_tsquery('english', ${searchParams.q})) desc
+        and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
+        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
       ` : Prisma.sql`
         order by "entity_node"."id"
       `}
