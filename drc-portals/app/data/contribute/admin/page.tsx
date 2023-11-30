@@ -1,6 +1,9 @@
 import prisma from "@/lib/prisma"
 import DataTable from "./DataTable"
 import {Container, Typography } from '@mui/material';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 
 async function getUserData() {
@@ -12,6 +15,18 @@ async function getUserData() {
 }
 
 export default async function UsersTable() {
+    const session = await getServerSession(authOptions)
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session.user.id
+      }
+    })
+    if (user === null ) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+  
+    if (!(user.role === 'ADMIN')) {
+        return (<p>Access Denied. This page is only accessible to Admin Users</p>)}
+
     const allUserData = await getUserData();
     const rowData = allUserData['rows']
     const rawData = allUserData['users']
