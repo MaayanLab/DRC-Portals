@@ -57,7 +57,7 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Data & Metadata</b></Typography>
-              <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
+              <Link href="/data/coming_soon"><Typography variant="footer">Metadata Search Engine</Typography></Link>
               <Link href="/data/matrix"><Typography variant="footer">Processed Datasets</Typography></Link>
               <Link href="/data/contribute/form"><Typography variant="footer">Contribute</Typography></Link>
             </Stack>
@@ -65,9 +65,9 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Tools & Usecases</b></Typography>
-              <Link href="/data"><Typography variant="footer">Tools and Workflows</Typography></Link>
+              <Link href="/data/coming_soon"><Typography variant="footer">Tools and Workflows</Typography></Link>
               <Link href="/data"><Typography variant="footer">Chatbot</Typography></Link>
-              <Link href="/data"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>
+              <Link href="/data/coming_soon"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>
             </Stack>
           </Grid>
         </Grid>

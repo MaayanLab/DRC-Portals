@@ -73,10 +73,10 @@ export default async function InfoFooter() {
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="subtitle1"><b>Assets</b></Typography>
-                  <Link href="/"><Typography variant="footer">Data & Metadata</Typography></Link>
-                  <Link href="/"><Typography variant="footer">Tools</Typography></Link>
-                  <Link href="/"><Typography variant="footer">Chatbot</Typography></Link>
-                  <Link href="/"><Typography variant="footer">Use Cases</Typography></Link>
+                  <Link href="/data/coming_soon"><Typography variant="footer">Data & Metadata</Typography></Link>
+                  <Link href="/data/coming_soon"><Typography variant="footer">Tools</Typography></Link>
+                  <Link href="/data"><Typography variant="footer">Chatbot</Typography></Link>
+                  <Link href="/data/coming_soon"><Typography variant="footer">Use Cases</Typography></Link>
               </Stack>
           </Grid>
         </Grid>
