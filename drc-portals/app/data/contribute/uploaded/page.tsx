@@ -50,7 +50,7 @@ export default async function UserFiles() {
             }
         },
         where: {
-            ...(user.role === 'DCC_APPROVER' ? {
+            ...(user.role === 'DCC_APPROVER' || user.role === 'UPLOADER' ? {
                 dcc: {
                     label: {
                         in: userDCCArray
@@ -70,7 +70,8 @@ export default async function UserFiles() {
     let symbolUserFiles = []
 
     if (user.role === 'UPLOADER') {
-        const userFiles = user.dccAsset
+        // const userFiles = user.dccAsset
+        const userFiles = allFiles
 
         symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <FaCircleExclamation size={20} />
