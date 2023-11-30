@@ -69,8 +69,19 @@ export async function uploadServer(formData: FormData) {
             });
         }
         if (dcc === null) throw new Error('Failed to find DCC')
-        const savedUpload = await prisma.dccAsset.create({
-            data: {
+        const savedUpload = await prisma.dccAsset.upsert({
+            where: {
+                link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${data.filetype}/${new Date().toJSON().slice(0, 10)}/${data.filename}`,
+            },
+            update: {
+                filetype: data.filetype,
+                filename: data.filename,
+                creator: user.email,
+                annotation: data.annotation,
+                size: data.size,
+                dcc_id: dcc.id,
+              },
+            create: {
                 link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${data.filetype}/${new Date().toJSON().slice(0, 10)}/${data.filename}`,
                 filetype: data.filetype,
                 filename: data.filename,
