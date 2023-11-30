@@ -13,6 +13,7 @@ import Divider from '@mui/material/Divider'
 
 import { Logo } from '../styled/Buttons';
 import IconButton from '@mui/material/IconButton';
+import SocialMedia from '../misc/SocialMedia/Socials';
 export default async function InfoFooter() {
   return (
     <Paper sx={{background: "#336699", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
@@ -40,33 +41,7 @@ export default async function InfoFooter() {
               </Link>
               <Divider sx={{borderColor: "#FFF"}}/>
               <Typography variant="subtitle1">Contact</Typography>  
-              <div className='flex items-center space-x-2'>
-                <Link href="mailto:contact@cfde.info">
-                    <IconButton>
-                      <Image src='/img/icons/email.svg' alt="email" width={20} height={20}/>
-                    </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Twitter.svg' alt="Twitter" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Youtube.svg' alt="Youtube" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Facebook.svg' alt="Facebook" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Linkedin.svg' alt="Linkedin" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-              </div>
+              <SocialMedia/>
             </Stack>
           </Grid>
           <Grid item>

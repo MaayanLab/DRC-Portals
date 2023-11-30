@@ -24,10 +24,10 @@ import { BlurBig } from "@/components/styled/Blur"
 const search_cards = [
   {
     "title": "Metadata Search",
-    "description": "Find relevant common fund data by entering your research topic",
+    "description": "Find relevant Common Fund data by entering your research topic",
     "button": "Search Metadata",
     "img": "/img/metadata.png",
-    "link": "/data/metadata"
+    "link": "/data/coming_soon"
   },
   {
     "title": "Processed Data",
@@ -128,7 +128,7 @@ export default async function Home() {
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
-              <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
+              <Grid container spacing={2} justifyContent={"center"} alignItems={"flex-start"}>
                   {counts.map(count => count.type === 'kg_assertion' ? (
                         <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
                           <div  className="flex flex-col">
