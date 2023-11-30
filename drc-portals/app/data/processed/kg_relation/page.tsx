@@ -1,9 +1,7 @@
 import prisma from "@/lib/prisma";
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
 import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 
 const pageSize = 10
 
@@ -37,40 +35,23 @@ export default async function Page(props: { searchParams: Record<string, string 
       } : {},
     }),
   ])
-  const ps = Math.floor(count / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {items.map(item => (
-                <TableRow
-                    key={item.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.node.type}/${item.id}`}>
-                        <Typography variant='h6'>{item.node.label}</Typography>
-                      </Link>
-                    </TableCell>
-                    <TableCell>{format_description(item.node.description)}</TableCell>
-                </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <ListingPageLayout
+      count={count}
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={Math.floor(count / pageSize) + 1}
+        columns={[
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={items.map(item => [
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
+          format_description(item.node.description),
+        ])}
+      />
+    </ListingPageLayout>
   )
 }
