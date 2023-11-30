@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
-import { Logo } from '../styled/Buttons'
+import { Logo } from '../styled/Logo'
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import NavBreadcrumbs from './breadcrumbs'
 

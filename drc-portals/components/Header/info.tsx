@@ -15,7 +15,7 @@ import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import NavBreadcrumbs from './breadcrumbs'
-import { Logo } from '../styled/Buttons'
+import { Logo } from '../styled/Logo'
 export default async function InfoHeader() {
   const session = (await getServerSession(authOptions))
   return (

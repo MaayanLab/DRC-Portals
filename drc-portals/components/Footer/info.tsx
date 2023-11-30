@@ -11,9 +11,9 @@ import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 
-import { Logo } from '../styled/Buttons';
+import { Logo } from '../styled/Logo';
 import IconButton from '@mui/material/IconButton';
-import SocialMedia from '../misc/SocialMedia/Socials';
+import SocialMedia from '../misc/Socials';
 export default async function InfoFooter() {
   return (
     <Paper sx={{background: "#336699", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>

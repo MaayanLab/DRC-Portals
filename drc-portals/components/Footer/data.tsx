@@ -12,8 +12,8 @@ import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import { Logo } from '../styled/Buttons';
-import SocialMedia from '../misc/SocialMedia/Socials';
+import { Logo } from '../styled/Logo';
+import SocialMedia from '../misc/Socials';
 
 export default async function InfoFooter() {
   return (
