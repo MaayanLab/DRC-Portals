@@ -54,38 +54,25 @@ const tool_cards = [
 ]
 
 export default async function Home() {
-  const counts_pre = await prisma.$queryRaw<Array<{
-    type: NodeType | 'kg_assertion',
-    entity_type: string | null,
+  const counts = await prisma.$queryRaw<Array<{
+    label: string,
     count: number,
   }>>`
-    with entity_type_count as (
-      select "entity_node"."type", count(*) as count
-      from "entity_node"
-      where "entity_node"."type" in ('gene', 'Drug')
-      group by "entity_node"."type"
-    ), node_type_count as (
-      select type, count(*) as count
-      from "node"
-      group by type
-    ), type_counts as (
-      select node_type_count.type::text as type, null as entity_type, node_type_count.count from node_type_count
+    with labeled_count as (
+      select 'Genes' as label, (select count(*) from gene_entity) as count
       union
-      select 'entity' as type, entity_type_count.type as entity_type, entity_type_count.count from entity_type_count
+      select 'Genes sets' as label, (select count(*) from gene_set_node) as count
       union
-      select 'kg_assertion'::text as type, null as entity_type, (select count(id) from kg_assertion) as count
+      select 'Drugs' as label, (select count(*) from entity_node where type = 'Drug') as count
+      union
+      select 'Files' as label, (select count(*) from c2m2_file_node) as count
+      union
+      select 'KG Assertions' as label, (select count(*) from kg_assertion) as count
     )
-    select type, entity_type, count
-    from type_counts
+    select label, count
+    from labeled_count
     order by count desc;
   `
-  const counts = counts_pre.filter(i=>{
-    if (['kg_relation', 'gene_set_library', 'entity'].indexOf(i.type) === -1) {
-      return i
-    } else if (i.type === 'entity' && i.entity_type!==null) {
-      return i
-    }
-  })
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -138,23 +125,14 @@ export default async function Home() {
             >
               <Container maxWidth="lg" className="m-auto">
               <Grid container spacing={2} justifyContent={"center"} alignItems={"flex-start"}>
-                  {counts.map(count => count.type === 'kg_assertion' ? (
-                        <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
-                          <div  className="flex flex-col">
-                            <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
-                            <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
-                          </div>
-                        </Grid>
-                      ) : (
-                        <Grid item  xs={6} sm={4} md={3} lg={2} key={count.type}>
-                          <Link href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
-                            <div className="flex flex-col">
-                              <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
-                              <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type, count.entity_type)).toUpperCase()}</Typography>
-                            </div>
-                          </Link>
-                        </Grid>
-                      ))}
+                  {counts.map(({ label, count }) => (
+                      <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
+                        <div  className="flex flex-col">
+                          <Typography variant="h2" color="secondary">{count.toLocaleString()}</Typography>
+                          <Typography variant="subtitle1" color="secondary">{label.toUpperCase()}</Typography>
+                        </div>
+                      </Grid>
+                    ))}
                 </Grid>
               </Container>
             </Paper>
