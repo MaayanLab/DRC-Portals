@@ -42,17 +42,19 @@ const tool_cards = [
   {
     "title": "Tools & Workflows",
     "description": "Find the right tool for your analysis from the hundreds of CF Tools.",
-    "icon": mdiToolbox
+    "icon": mdiToolbox,
+    "link": "/data/coming_soon"
   },
   {
     "title": "Use Cases",
     "description": "Explore use cases specifically designed to use multiple Common Fund DCCs.",
-    "icon": mdiLaptop
+    "icon": mdiLaptop,
+    "link": "/data/coming_soon"
   }
 ]
 
 export default async function Home() {
-  const counts = await prisma.$queryRaw<Array<{
+  const counts_pre = await prisma.$queryRaw<Array<{
     type: NodeType | 'kg_assertion',
     entity_type: string | null,
     count: number,
@@ -77,6 +79,11 @@ export default async function Home() {
     from type_counts
     order by count desc;
   `
+  const counts = counts_pre.filter(i=>{
+    if (['kg_relation', 'gene_set_library'].indexOf(i.type) === -1 || i.entity_type!==null) {
+      return i
+    }
+  })
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -238,7 +245,7 @@ export default async function Home() {
                         </Typography>
                       </div>
 
-                      <div><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>CF TOOLS</Button></div>
+                      <div><Link href="/data/coming_soon"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>CF TOOLS</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -255,7 +262,7 @@ export default async function Home() {
                         </Typography>
                       </div>
 
-                      <div><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></div>
+                      <div><Link href="/data/coming_soon"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>
