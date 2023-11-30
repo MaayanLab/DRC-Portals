@@ -2,14 +2,15 @@
 
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import * as React from 'react';
-import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import RoleSelect from './RoleSelect';
 import MultiSelect from './MultiSelect';
 import { FaUserPlus } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { createOneUser, deleteUsers, updateUserInfo } from './actions';
-import { $Enums, Prisma } from '@prisma/client';
+import type { User } from '@prisma/client'
+
 
 
 
@@ -60,15 +61,7 @@ export default function DataTable(props: {
         email: string | null;
         dcc: string | null;
         role: string;
-    }[], users: {
-        id: string;
-        name: string | null;
-        email: string | null;
-        emailVerified: Date | null;
-        image: string | null;
-        dcc: string | null;
-        role: $Enums.Role;
-    }[]
+    }[], users: User[]
 }) {
     const [selection, setSelection] = React.useState<UserInfo[]>([]);
     const [createFormData, setCreateFormData] = React.useState({ name: '', email: '', role: '', DCC: '' });
@@ -131,7 +124,7 @@ export default function DataTable(props: {
             <Grid container spacing={2}>
                 {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
                 <div>
-                    <Dialog open={createOpen} onClose={handleCreateClose} fullWidth component="form">
+                    <Dialog open={createOpen} onClose={handleCreateClose} fullWidth>
                         <DialogTitle>Create a User</DialogTitle>
                         <DialogContent>
                             <Box
@@ -182,7 +175,7 @@ export default function DataTable(props: {
                 </div>
                 {usersSelected && <Button color='tertiary' onClick={handleUpdate}><FaUserPen size={20} /> Update User Info</Button>}
                 <div>
-                    <Dialog open={updateOpen} onClose={handleUpdateClose} fullWidth component="form">
+                    <Dialog open={updateOpen} onClose={handleUpdateClose} fullWidth>
                         <DialogTitle>Update User Info</DialogTitle>
                         <DialogContent>
                             {selection.map((user, index) => {

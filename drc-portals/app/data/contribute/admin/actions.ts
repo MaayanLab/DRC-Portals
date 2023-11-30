@@ -1,9 +1,9 @@
 "use server"
 import prisma from "@/lib/prisma"
-import { $Enums, Role } from "@prisma/client"
-import { Session } from "next-auth"
+import { Role } from "@prisma/client"
 import { revalidatePath } from "next/cache";
 import { UserInfo, updateForm } from "./DataTable";
+import type { User } from '@prisma/client'
 
 export async function createOneUser(newUserData: {
     name: string;
@@ -48,15 +48,7 @@ export async function createOneUser(newUserData: {
       revalidatePath('/')
 }
 
-export async function updateUserInfo(updatedForms: updateForm[], users: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    emailVerified: Date | null;
-    image: string | null;
-    dcc: string | null;
-    role: $Enums.Role;
-}[]) {
+export async function updateUserInfo(updatedForms: updateForm[], users: User[]) {
     updatedForms.forEach(async (updatedData) => {
         let prismaRole = ''
         if (updatedData.role === "User") {
@@ -94,15 +86,7 @@ export async function updateUserInfo(updatedForms: updateForm[], users: {
     revalidatePath('/')
 }
 
-export async function deleteUsers(usersToDel: UserInfo[], users: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    emailVerified: Date | null;
-    image: string | null;
-    dcc: string | null;
-    role: string;
-}[]){
+export async function deleteUsers(usersToDel: UserInfo[], users: User[]){
     usersToDel.forEach(async (user, index)=> {
         const deleteUser = await prisma.user.delete({
             where: {

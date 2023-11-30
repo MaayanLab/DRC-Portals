@@ -18,7 +18,10 @@ export async function uploadServer(formData: FormData) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const zipBlob = await zip.loadAsync(buffer);
+    console.log(zipBlob)
+    console.log(zipBlob.file('manifest.json'))
     const manifestFile = zipBlob.file(file.name.split('.zip')[0] + '/' + 'manifest.json')
+    // const manifestFile = zipBlob.file('manifest.json')
     if (!manifestFile) throw new Error('Manifest not found')
     const manifestContent = await manifestFile.async('text')
     const fileSchema = z.object({
@@ -30,6 +33,7 @@ export async function uploadServer(formData: FormData) {
     const manifestJSON = manifestSchema.parse(JSON.parse(manifestContent))
     for (let fileObj of manifestJSON) {
         const otherFile = zipBlob.file(file.name.split('.zip')[0] + '/' + `${fileObj.filename}`)
+        // const otherFile = zipBlob.file(`${fileObj.filename}`)
         if (!otherFile) throw new Error(`${fileObj.filename} not found in zip`)
         const content = await otherFile.async('blob')
         const data = {
