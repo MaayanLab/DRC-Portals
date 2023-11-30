@@ -80,7 +80,9 @@ export default async function Home() {
     order by count desc;
   `
   const counts = counts_pre.filter(i=>{
-    if (['kg_relation', 'gene_set_library'].indexOf(i.type) === -1 || i.entity_type!==null) {
+    if (['kg_relation', 'gene_set_library', 'entity'].indexOf(i.type) === -1) {
+      return i
+    } else if (i.type === 'entity' && i.entity_type!==null) {
       return i
     }
   })

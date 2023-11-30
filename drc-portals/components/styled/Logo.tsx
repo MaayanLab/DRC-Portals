@@ -8,7 +8,7 @@ export const Logo = ({href, title, color}: {href: string, title: string, color: 
         <div>
         <ElevatedIconButton
             aria-label="menu"
-            sx={{width: 30, height: 30}}
+            sx={{width: 35, height: 35}}
         >
             <Image style={{marginLeft: -1, padding: 2,  objectFit: "contain"}} fill={true} alt="cfde-logo" src="/img/favicon.png" />
         </ElevatedIconButton>
