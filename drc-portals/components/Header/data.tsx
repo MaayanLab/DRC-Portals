@@ -51,7 +51,7 @@ export default async function InfoHeader() {
                     <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                   </Link>
                   <Link href="/data">
-                    <Typography variant="nav">CROSS DCC USE CASES</Typography>
+                    <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
                   </Link>
                 </Stack>
               </Grid>
