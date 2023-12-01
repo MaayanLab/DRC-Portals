@@ -80,9 +80,17 @@ export default async function PublicationsServer({
             <PublicationsClient count={count} all={all} q={q} dccs={dccs.map(i=>i.short_label || '')}>
               {publications.map((pub, i)=>(
               <div key={i} className="mb-2 space-x-1">
-                  <Typography color="secondary" variant="caption">
-                      {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
-                  </Typography>
+                  { all ? 
+                    <Typography color="secondary" variant="caption">
+                        {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
+                    </Typography>:
+                    <Link target="_blank" rel="noopener noreferrer" href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`}>
+                      <Typography color="secondary" variant="caption">
+                          {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
+                      </Typography>
+                    </Link>
+                  }
+                  
                   { all &&
                   <div className="flex space-x-2">
                     { pub.pmid && 

@@ -1,11 +1,8 @@
 import prisma from "@/lib/prisma"
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
-import Link from "next/link";
-import Image from "next/image";
-import SearchField from "../../SearchField";
-import FormPagination from "../../FormPagination";
+import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
+import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 
 const pageSize = 10
 
@@ -94,62 +91,33 @@ export default async function Page(props: { params: { id: string }, searchParams
   `
   const ps = Math.floor((results.n_filtered_assertions ?? 1) / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <Container><Typography variant="h1">Relation: {results.item.node.label}</Typography></Container>
-      <Container><Typography variant="caption">Description: {format_description(results.item.node.description)}</Typography></Container>
-      <Container><Typography variant="caption">Number of Assertions: {results.n_assertions.toLocaleString()}</Typography></Container>
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th" className="w-24">
-                &nbsp;
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Source</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Relation</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Target</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Evidence</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.assertions.map(assertion => (
-              <TableRow
-                key={assertion.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell className="relative">
-                  {assertion.dcc?.icon ? <Link href={`/data/matrix/${assertion.dcc.short_label}`}><Image className="p-2 object-contain" src={assertion.dcc.icon} alt={assertion.dcc.label} fill /></Link>
-                    : null}
-                </TableCell>
-                <TableCell>
-                  <Link href={`/data/processed/entity/${assertion.source.type}/${assertion.source.id}`}><Typography>{assertion.source.label}</Typography></Link>
-                  <Typography variant='caption'>{type_to_string('entity', assertion.source.type)}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Link href={`/data/processed/kg_relation/${props.params.id}`}><Typography fontWeight={"bold"}>{results.item.node.label}</Typography></Link>
-                </TableCell>
-                <TableCell>
-                  <Link href={`/data/processed/entity/${assertion.target.type}/${assertion.target.id}`}><Typography>{assertion.target.label}</Typography></Link>
-                  <Typography variant='caption'>{type_to_string('entity', assertion.target.type)}</Typography>
-                </TableCell>
-                <TableCell>
-                  {assertion.evidence?.toString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <LandingPageLayout
+      label={results.item.node.label}
+      description={format_description(results.item.node.description)}
+      metadata={[
+        { label: 'Description', value: format_description(results.item.node.description) },
+        { label: 'Number of Assertions', value: results.n_assertions.toLocaleString() },
+      ]}
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={ps}
+        columns={[
+          <>&nbsp;</>,
+          <>Source</>,
+          <>Relation</>,
+          <>Target</>,
+          <>Evidence</>,
+        ]}
+        rows={results.assertions.map(assertion => [
+          assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
+          <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} />,
+          <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} />,
+          <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} />,
+          assertion.evidence?.toString(),
+        ])}
+      />
+    </LandingPageLayout>
   )
 }

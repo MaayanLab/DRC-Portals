@@ -1,10 +1,8 @@
 import prisma from "@/lib/prisma"
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import Link from "next/link"
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
 import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import Image from "next/image"
+import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
+import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 
 const pageSize = 10
 
@@ -99,52 +97,29 @@ export default async function Page(props: { params: { id: string }, searchParams
   ])
   const ps = Math.floor(genes._count.genes / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <div className="flex flex-column">
-        <div className="flex-grow-0 self-center justify-self-center">
-          {gene_set.node.dcc?.icon ?
-            <Link href={`/data/matrix/${gene_set.node.dcc.short_label}`}>
-              <Image src={gene_set.node.dcc.icon} alt={gene_set.node.dcc.label} width={240} height={240} />
-            </Link>
-            : null}
-        </div>
-        <Container className="flex-grow">
-          <Container><Typography variant="h1">{gene_set.node.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {format_description(gene_set.node.description)}</Typography></Container>
-          {gene_set.node.dcc ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${gene_set.node.dcc.short_label}`}>{gene_set.node.dcc.label}</Link></Typography></Container> : null}
-          <Container><Typography variant="caption">Gene Set Library: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`}>{gene_set.gene_set_library.node.label}</Link></Typography></Container>
-          <Container><Typography variant="caption">Number of genes: {gene_set._count.genes.toLocaleString()}</Typography></Container>
-        </Container>
-      </div>
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {genes.genes.map(gene => (
-              <TableRow
-                key={gene.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                  <TableCell component="th" scope="row">
-                    <Link href={`/data/processed/entity/gene/${gene.id}`}>{gene.entity.node.label}</Link>
-                  </TableCell>
-                  <TableCell>{format_description(gene.entity.node.description)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <LandingPageLayout
+      icon={gene_set.node.dcc?.icon ? { href: `/data/matrix/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
+      label={gene_set.node.label}
+      description={format_description(gene_set.node.description)}
+      metadata={[
+        gene_set.node.dcc ? { label: 'Project', value: <Link href={`/data/matrix/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer">{gene_set.node.dcc.label}</Link> } : null,
+        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer">{gene_set.gene_set_library.node.label}</Link> },
+        { label: 'Number of genes', value: gene_set._count.genes.toLocaleString() },
+      ]}
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={ps}
+        columns={[
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={genes.genes.map(gene => [
+          <LinkedTypedNode type="entity" id={gene.id} label={gene.entity.node.label} entity_type="gene" />,
+          format_description(gene.entity.node.description),
+        ])}
+      />
+    </LandingPageLayout>
   )
 }

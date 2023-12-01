@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma"
 import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
 import Image from "next/image"
 import Link from "next/link"
-import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
 
 // const pageSize = 10
 

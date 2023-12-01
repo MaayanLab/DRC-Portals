@@ -15,7 +15,7 @@ export default function ServerCarousel () {
         {
             name: "Reproductive Toxicity Knowledge Graph (ReproTox-KG)",
             description: "CFDE Toxicology Partnership",
-            icon: "/img/updated_assets/network.svg",
+            icon: "/img/Reprotox.png",
             url: "https://maayanlab.cloud/reprotox-kg"
         },
         {
@@ -29,6 +29,12 @@ export default function ServerCarousel () {
             description: "Data Distillery Partnership",
             icon: "/img/DD.png",
             url: "https://ubkg.docs.xconsortia.org/"
+        },
+        {
+            name: "CFDE Cross Cut Metadata Model (C2M2)",
+            description: "CFDE Cross Cut Metadata Model (C2M2)",
+            icon: "/img/C2M2.png",
+            url: "https://pubmed.ncbi.nlm.nih.gov/36409836/"
         }
       ]
       
@@ -44,7 +50,7 @@ export default function ServerCarousel () {
             padding: 2
         }}>
             <Link href={item.url} target="_blank" rel="noopener noreferrer">
-                <Box className="flex flex-col" sx={{minHeight: 300}}>
+                <Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none"}}>
                     <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
                     <div className="flex grow items-center justify-center relative">
                         <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>

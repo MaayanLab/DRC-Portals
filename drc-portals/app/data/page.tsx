@@ -1,3 +1,4 @@
+import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -8,7 +9,6 @@ import CardActions from '@mui/material/CardActions'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import Icon from '@mdi/react';
 import Fab from '@mui/material/Fab';
 import Button from '@mui/material/Button'
@@ -18,16 +18,16 @@ import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 import CFPrograms from "@/components/misc/CFPrograms"
 import prisma from "@/lib/prisma"
 import SearchField from "./processed/SearchField"
-import { pluralize, type_to_string } from "./processed/utils"
-import { NodeType } from "@prisma/client"
 import { BlurBig } from "@/components/styled/Blur"
+import ReactJoin from "@/components/util/ReactJoin"
+
 const search_cards = [
   {
     "title": "Metadata Search",
-    "description": "Find relevant common fund data by entering your research topic",
+    "description": "Find relevant Common Fund data by entering your research topic",
     "button": "Search Metadata",
     "img": "/img/metadata.png",
-    "link": "/data/metadata"
+    "link": "/data/coming_soon"
   },
   {
     "title": "Processed Data",
@@ -42,39 +42,35 @@ const tool_cards = [
   {
     "title": "Tools & Workflows",
     "description": "Find the right tool for your analysis from the hundreds of CF Tools.",
-    "icon": mdiToolbox
+    "icon": mdiToolbox,
+    "link": "/data/coming_soon"
   },
   {
     "title": "Use Cases",
     "description": "Explore use cases specifically designed to use multiple Common Fund DCCs.",
-    "icon": mdiLaptop
+    "icon": mdiLaptop,
+    "link": "/data/coming_soon"
   }
 ]
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: { error?: string } }) {
   const counts = await prisma.$queryRaw<Array<{
-    type: NodeType | 'kg_assertion',
-    entity_type: string | null,
+    label: string,
     count: number,
   }>>`
-    with entity_type_count as (
-      select "entity_node"."type", count(*) as count
-      from "entity_node"
-      where "entity_node"."type" in ('gene', 'Drug')
-      group by "entity_node"."type"
-    ), node_type_count as (
-      select type, count(*) as count
-      from "node"
-      group by type
-    ), type_counts as (
-      select node_type_count.type::text as type, null as entity_type, node_type_count.count from node_type_count
+    with labeled_count as (
+      select 'Genes' as label, (select count(*) from gene_entity) as count
       union
-      select 'entity' as type, entity_type_count.type as entity_type, entity_type_count.count from entity_type_count
+      select 'Genes sets' as label, (select count(*) from gene_set_node) as count
       union
-      select 'kg_assertion'::text as type, null as entity_type, (select count(id) from kg_assertion) as count
+      select 'Drugs' as label, (select count(*) from entity_node where type = 'Drug') as count
+      union
+      select 'Files' as label, (select count(*) from c2m2_file_node) as count
+      union
+      select 'KG Assertions' as label, (select count(*) from kg_assertion) as count
     )
-    select type, entity_type, count
-    from type_counts
+    select label, count
+    from labeled_count
     order by count desc;
   `
   return (
@@ -92,8 +88,8 @@ export default async function Home() {
                         }}
                   className="flex"
             >
-              <BlurBig sx={{position: "absolute", left: "-20%"}}/>
-              <BlurBig sx={{position: "absolute", right: "-15%"}}/>
+              <BlurBig sx={{position: "absolute", left: "-20%"}} className="pointer-events-none" />
+              <BlurBig sx={{position: "absolute", right: "-15%"}} className="pointer-events-none" />
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12}>
@@ -101,7 +97,10 @@ export default async function Home() {
                       <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
-                        <SearchField q="" placeholder="Try MCF7, STAT3, blood, enrichment analysis" />
+                        <SearchField q="" error={searchParams.error} />
+                        <Typography variant="stats_sub">Try <ReactJoin sep={<>,&nbsp;</>}>{['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                          <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                        ))}</ReactJoin></Typography>
                         <div className="flex align-center space-x-10">
                           <Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button>
                           <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
@@ -128,24 +127,15 @@ export default async function Home() {
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
-              <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
-                  {counts.map(count => count.type === 'kg_assertion' ? (
-                        <Grid item xs={4} md={2} key="kg">
-                          <div  className="flex flex-col">
-                            <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
-                            <Typography variant="subtitle1" color="secondary">KG ASSERTIONS</Typography>
-                          </div>
-                        </Grid>
-                      ) : (
-                        <Grid item xs={4} md={2} key={count.type}>
-                          <Link href={`/data/processed/${count.type}${count.entity_type ? `/${count.entity_type}` : ''}`}>
-                            <div className="flex flex-col">
-                              <Typography variant="h2" color="secondary">{count.count.toLocaleString()}</Typography>
-                              <Typography variant="subtitle1" color="secondary">{pluralize(type_to_string(count.type, count.entity_type)).toUpperCase()}</Typography>
-                            </div>
-                          </Link>
-                        </Grid>
-                      ))}
+              <Grid container spacing={2} justifyContent={"center"} alignItems={"flex-start"}>
+                  {counts.map(({ label, count }) => (
+                      <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
+                        <div  className="flex flex-col">
+                          <Typography variant="h2" color="secondary">{count.toLocaleString()}</Typography>
+                          <Typography variant="subtitle1" color="secondary">{label.toUpperCase()}</Typography>
+                        </div>
+                      </Grid>
+                    ))}
                 </Grid>
               </Container>
             </Paper>
@@ -238,7 +228,7 @@ export default async function Home() {
                         </Typography>
                       </div>
 
-                      <div><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>CF TOOLS</Button></div>
+                      <div><Link href="/data/coming_soon"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>CF TOOLS</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -255,7 +245,7 @@ export default async function Home() {
                         </Typography>
                       </div>
 
-                      <div><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></div>
+                      <div><Link href="/data/coming_soon"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>

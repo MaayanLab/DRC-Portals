@@ -1,15 +1,14 @@
 import prisma from "@/lib/prisma";
-import { Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
 import { z } from 'zod';
-import Image from "next/image";
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
-import { format_description, type_to_string } from "@/app/data/processed/utils"
+import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import { Typography } from "@mui/material";
+import { notFound, redirect } from "next/navigation";
 
 const pageSize = 10
 
@@ -40,6 +39,7 @@ export default async function Page(props: { searchParams: Record<string, string>
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
     type_counts: {type: NodeType, entity_type: string | null, count: number}[],
+    dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
     with results as (
       select
@@ -62,7 +62,11 @@ export default async function Page(props: { searchParams: Record<string, string>
       from "results"
       ${searchParams.t ? Prisma.sql`
       where
-        ${Prisma.join(searchParams.t.map(t => Prisma.sql`
+        ${Prisma.join(searchParams.t.map(t => t.type === 'dcc' ? 
+          Prisma.sql`
+          "results"."dcc_id" = ${t.entity_type}
+          `
+        : Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
           ${t.entity_type ? Prisma.sql`
@@ -79,7 +83,11 @@ export default async function Page(props: { searchParams: Record<string, string>
       from "results"
       ${searchParams.t ? Prisma.sql`
       where
-        ${Prisma.join(searchParams.t.map(t => Prisma.sql`
+        ${Prisma.join(searchParams.t.map(t =>  t.type === 'dcc' ? 
+          Prisma.sql`
+          "results"."dcc_id" = ${t.entity_type}
+          `
+        : Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
           ${t.entity_type ? Prisma.sql`
@@ -93,85 +101,66 @@ export default async function Page(props: { searchParams: Record<string, string>
       from "results"
       group by "type", "entity_type"
       order by count(*) desc
+    ), dcc_id_counts as (
+      select "dcc_id", count(*)::int as count
+      from "results"
+      group by "dcc_id"
+    ), dcc_counts as (
+      select "dccs".id, "dccs".short_label, "dcc_id_counts".count as count
+      from "dcc_id_counts"
+      inner join "dccs" on "dccs".id = "dcc_id"
     )
     select 
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
       (select count from total_count) as count,
-      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts
+      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
+      (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
-  const ps = Math.floor((results?.count ?? 1) / pageSize) + 1
+  if (!results) redirect('/data')
+  else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
-    <Container component="form" action="" method="GET">
-      <SearchField q={searchParams.q ?? ''} />
-      {results?.items ?
-        <Container className="mt-10 justify-content-center">
-          <Box className="p-5 text-center">
-          <Typography variant="h3">Results</Typography>
-          <Typography variant="subtitle1">(found {results.count.toLocaleString()} matches)</Typography>
-          </Box>
-          <Box className="flex flex-row gap-4 justify-stretch">
-            <Box className="flex flex-col w-48">
-              {results.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-                <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} type={type_count.type} entity_type={type_count.entity_type} count={type_count.count} />
-              )}
-              <hr className="m-2" />
-              {results.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
-                <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} type={type_count.type} entity_type={type_count.entity_type} count={type_count.count} />
-              )}
-            </Box>
-            <Box className="flex flex-col items-center">
-              {results.items.length === 0 ? <>No results</> : (
-                <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell component="th" className="w-20">
-                          &nbsp;
-                        </TableCell>
-                        <TableCell component="th">
-                          <Typography variant='h3'>Label</Typography>
-                        </TableCell>
-                        <TableCell component="th">
-                          <Typography variant='h3'>Description</Typography>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {results.items.map(item => (
-                          <TableRow
-                              key={item.id}
-                              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                          >
-                              <TableCell className="w-4 relative">
-                                {item.dcc?.icon ? <Link href={`/data/matrix/${item.dcc.short_label}`}><Image className="p-2 object-contain" src={item.dcc.icon} alt={item.dcc.label} fill /></Link>
-                                  : item.type === 'entity' ? 
-                                    item.entity_type === 'gene' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={GeneIcon} alt="Gene" fill /></Link>
-                                    : item.entity_type === 'Drug' ? <Link href={`/data/processed/${item.type}`}><Image className="p-2 object-contain" src={DrugIcon} alt="Drug" fill /></Link>
-                                    : null
-                                  : null}
-                              </TableCell>
-                              <TableCell component="th" scope="row">
-                                <Link href={`/data/processed/${item.type}${item.entity_type ? `/${item.entity_type}` : ''}/${item.id}`}>
-                                  <Typography variant='h6'>{item.label}</Typography>
-                                </Link>
-                                <Link href={`/data/processed/${item.type}${item.entity_type ? `/${item.entity_type}` : ''}`}>
-                                  <Typography variant='caption'>{type_to_string(item.type, item.entity_type)}</Typography>
-                                </Link>
-                              </TableCell>
-                              <TableCell>{format_description(item.description)}</TableCell>
-                          </TableRow>
-                        )
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-              <FormPagination p={searchParams.p} ps={ps} />
-            </Box>
-          </Box>
-        </Container>
-        : null}
-    </Container>
+    <ListingPageLayout
+      count={results?.count}
+      filters={
+        <>
+          <Typography className="caption">Type</Typography>
+          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+          )}
+          <hr className="m-2" />
+          <Typography className="caption">Program</Typography>
+          {results?.dcc_counts.map((dcc_count) =>
+            <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
+          )}
+          <hr className="m-2" />
+          <Typography className="caption">Entity</Typography>
+          {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+          )}
+        </>
+      }
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={Math.floor((results?.count ?? 1) / pageSize) + 1}
+        columns={[
+          <>&nbsp;</>,
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={results?.items.map(item => [
+          item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
+            : item.type === 'entity' ? 
+              item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
+              : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
+              : null
+            : null,
+          <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
+          format_description(item.description),
+        ]) ?? []}
+      />
+    </ListingPageLayout>
   )
 }
