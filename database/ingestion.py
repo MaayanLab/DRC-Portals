@@ -45,7 +45,7 @@ if not pathlib.Path('ingest/outreach.tsv').exists():
   urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'ingest/outreach.tsv')
 if not pathlib.Path('ingest/DccAssets.tsv').exists():
   import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/112123/DccAssets.tsv', 'ingest/DccAssets.tsv')
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/113023/DccAssets.tsv', 'ingest/DccAssets.tsv')
 
 cur = connection.cursor()
 cur.execute('''
@@ -229,8 +229,14 @@ cur.execute('''
     select dcc_id, filetype, filename, link, size, lastmodified, current, 
       creator, drcapproved, dccapproved, annotation
     from dcc_assets_tmp
-    on conflict
-      do nothing;
+    on conflict (link)
+      do update
+      set size = excluded.size,
+          current = excluded.current,
+          creator = excluded.creator,
+          drcapproved = excluded.drcapproved,
+          dccapproved = excluded.dccapproved,
+          annotation = excluded.annotation
   ''')
 cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
