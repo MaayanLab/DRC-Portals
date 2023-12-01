@@ -34,6 +34,11 @@ const cfde_data = [
     c2m2: true, xmt: true, kg: true, att: true, kc: false, 
     etl: false, api: true, ent: true, pwb: true, chat: false 
   },
+  {
+    dcc: 'H3Africa', hasfile: false, img: '/img/h3africa.jpg',
+    c2m2: false, xmt: false, kg: false, att: false, kc: false,
+    etl: false, api: false, ent: false, pwb: false, chat: false
+  },
   { 
     dcc: 'HMP', hasfiles: true, img: '/img/HMP.gif',
     c2m2: true, xmt: false, kg: false, att: false, kc: false, 
@@ -44,6 +49,11 @@ const cfde_data = [
     c2m2: true, xmt: false, kg: true, att: false, kc: false, 
     etl: false, api: true, ent: false, pwb: false, chat: false 
   },
+  {
+    dcc: 'iHMP', hasfile: false, img: '/img/iHmp.png',
+    c2m2: false, xmt: false, kg: false, att: false, kc: false,
+    etl: false, api: false, ent: false, pwb: false, chat: false
+  },
   { 
     dcc: 'IDG', hasfiles: true, img: '/img/IDG.png',
     c2m2: true, xmt: true, kg: true, att: false, kc: false, 
@@ -53,6 +63,11 @@ const cfde_data = [
     dcc: 'KidsFirst', hasfiles: true, img: '/img/Kids First.png',
     c2m2: true, xmt: false, kg: true, att: false, kc: false, 
     etl: false, api: false, ent: false, pwb: true, chat: false 
+  },
+  { 
+    dcc: 'KOMP2', hasfiles: true, img: '/img/KOMP2.png',
+    c2m2: false, xmt: true, kg: false, att: false, kc: false, 
+    etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'LINCS', hasfiles: true, img: '/img/LINCS.gif',
@@ -77,6 +92,11 @@ const cfde_data = [
   { 
     dcc: 'SPARC', hasfiles: true, img: '/img/SPARC.svg',
     c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    etl: false, api: false, ent: false, pwb: false, chat: false 
+  },
+  { 
+    dcc: 'UDN', hasfiles: true, img: '/img/UDN.png',
+    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
 ]
