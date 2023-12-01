@@ -8,6 +8,7 @@ import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Typography } from "@mui/material";
+import { notFound, redirect } from "next/navigation";
 
 const pageSize = 10
 
@@ -116,6 +117,8 @@ export default async function Page(props: { searchParams: Record<string, string>
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
+  if (!results) redirect('/data')
+  else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
       count={results?.count}

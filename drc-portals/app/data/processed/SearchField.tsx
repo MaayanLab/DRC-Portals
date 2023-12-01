@@ -2,10 +2,14 @@ import { mdiMagnify } from "@mdi/js";
 import Icon from '@mdi/react';
 import { InputAdornment, TextField } from '@mui/material';
 
-export default function SearchField({ q, placeholder = 'Search' }: { q: string, placeholder?: string }) {
+export default function SearchField({ q, placeholder = 'Search', error }: { q: string, placeholder?: string, error?: string }) {
   return (
     <>
-      <TextField sx={{width: 544}} 
+      <TextField
+        label={error ? error.split(':')[0] : undefined}
+        error={!!error}
+        helperText={error ? error.split(':').slice(1).join(':') : undefined}
+        sx={{width: 544}}
         name="q"
         defaultValue={q}
         placeholder={placeholder}
