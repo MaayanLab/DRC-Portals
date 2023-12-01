@@ -17,6 +17,7 @@ export function type_to_string(type: NodeType, entity_type: string | null) {
   else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
+  else if (type === 'dcc_asset') return 'Processed File'
   throw new Error(`Unhandled type ${type} ${entity_type}`)
 }
 

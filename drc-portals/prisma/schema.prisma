@@ -115,6 +115,7 @@ model DccAsset {
   annotation       Json?                @db.JsonB
   library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
+  node             DCCAssetNode?
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])
@@ -128,6 +129,7 @@ enum NodeType {
   gene_set_library
   c2m2_file
   kg_relation
+  dcc_asset
 }
 
 model Node {
@@ -136,7 +138,7 @@ model Node {
   type        NodeType
   label       String
   description String
-  searchable       Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
+  searchable  Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
 
   dcc              DCC?                @relation(fields: [dcc_id], references: [id])
   entity           EntityNode?
@@ -144,11 +146,12 @@ model Node {
   gene_set_library GeneSetLibraryNode?
   c2m2_file        C2M2FileNode?
   kg_relation_node KGRelationNode?
+  dcc_asset        DCCAssetNode?
 
-  @@map("node")
   @@index([type])
   @@index([label(ops: raw("gin_trgm_ops"))], map: "node_label_trgm", type: Gin)
   @@index([searchable], map: "node_searchable_fts", type: Gin)
+  @@map("node")
 }
 
 model EntityNode {
@@ -173,10 +176,10 @@ model KGRelationNode {
 }
 
 model KGAssertion {
-  id          String @id @db.Uuid
-  relation_id String @db.Uuid
-  source_id   String @db.Uuid
-  target_id   String @db.Uuid
+  id          String  @id @db.Uuid
+  relation_id String  @db.Uuid
+  source_id   String  @db.Uuid
+  target_id   String  @db.Uuid
   dcc_id      String?
   SAB         String
   evidence    Json?
@@ -194,7 +197,7 @@ model GeneEntity {
   entrez  String
   ensembl String
 
-  entity             EntityNode                 @relation(fields: [id], references: [id])
+  entity             EntityNode           @relation(fields: [id], references: [id])
   gene_set_libraries GeneSetLibraryNode[]
   gene_sets          GeneSetNode[]
 
@@ -250,6 +253,15 @@ model C2M2Datapackage {
   @@map("c2m2_datapackage")
 }
 
+model DCCAssetNode {
+  id        String   @id @db.Uuid
+  link      String   @unique
+  node      Node     @relation(fields: [id], references: [id])
+  dcc_asset DccAsset @relation(fields: [link], references: [link])
+
+  @@map("dcc_asset_node")
+}
+
 // End processed data search
 
 // Next-Auth schema
@@ -300,7 +312,6 @@ enum Role {
   DRC_APPROVER
   ADMIN
 }
-
 
 model VerificationToken {
   identifier String
