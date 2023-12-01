@@ -4,7 +4,7 @@ import MasonryClient from "@/components/misc/MasonryClient";
 import prisma from "@/lib/prisma";
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
-import CardMedia from '@mui/material/CardMedia';
+import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import Button from '@mui/material/Button'
@@ -18,6 +18,7 @@ const shuffle = (array: DCC[]) => {
     return array; 
   }; 
 
+
 export default async function DCCLanding() {
     const dccs = shuffle(await prisma.dCC.findMany({
         where: {
@@ -30,28 +31,31 @@ export default async function DCCLanding() {
             {dccs.map(dcc=>(
                 <Card sx={{paddingLeft: 2, paddingRight: 2}}>
                     {dcc.icon &&
-                        <Link href={`/info/dcc/${dcc.short_label}`}>
-                            <div className="flex flex-row justify-center relative" style={{minHeight: 300}}>
-                                <Image src={dcc.icon} 
-                                    alt={dcc.short_label || dcc.id} 
-                                    fill={true} 
-                                    style={{objectFit: "contain"}}
-                                />
-                            </div>
-                        </Link>
+                        <CardHeader
+                            avatar={<Image alt={dcc.id} width={80} height={80} src={dcc.icon} />}
+                            title={<Typography variant="h3" color="secondary">{dcc.short_label}</Typography>}
+                        />
                     }
                     <CardContent>
-                        <Typography variant={'h3'} color="secondary">
-                            {dcc.short_label}
-                        </Typography>
-                        <Typography variant={'body1'} color="secondary">
+                        <Typography sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: '5',
+                            WebkitBoxOrient: 'vertical',
+                        }} variant={'body2'} color="secondary">
                             {dcc.description}
                         </Typography>
                     </CardContent>
                     <CardActions>
                         <Link href={`/info/dcc/${dcc.short_label}`}>
-                            <Button color="secondary" variant="outlined">
+                            <Button color="secondary">
                                 <Typography variant="body1">Expand</Typography>
+                            </Button>
+                        </Link>
+                        <Link href={dcc.homepage}>
+                            <Button color="secondary">
+                                <Typography variant="body1">Go to homepage</Typography>
                             </Button>
                         </Link>
                     </CardActions>
