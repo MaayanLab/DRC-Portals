@@ -6,97 +6,97 @@ import Link from 'next/link';
 const cfde_data = [
   { 
     dcc: '4DN', hasfiles: true, img: '/img/4DN.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'A2CPS', hasfiles: false, img: '/img/A2CPS.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'Bridge2AI', hasfiles: false, img: '/img/Bridge2AI.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'ERCC', hasfiles: true, img: '/img/exRNA.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: true, api: true, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'GlyGen', hasfiles: true, img: '/img/Glycoscience.jpg',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: false, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'GTEx', hasfiles: true, img: '/img/GTEx.png',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: true, ent: true, pwb: true, chat: false 
   },
   {
     dcc: 'H3Africa', hasfile: false, img: '/img/h3africa.jpg',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false,
+    c2m2: false, xmt: false, kg: false, att: false,
     etl: false, api: false, ent: false, pwb: false, chat: false
   },
   { 
     dcc: 'HMP', hasfiles: true, img: '/img/HMP.gif',
-    c2m2: true, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'HuBMAP', hasfiles: true, img: '/img/HuBMAP.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: true, ent: false, pwb: false, chat: false 
   },
   {
     dcc: 'iHMP', hasfile: false, img: '/img/iHmp.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false,
+    c2m2: false, xmt: false, kg: false, att: false,
     etl: false, api: false, ent: false, pwb: false, chat: false
   },
   { 
     dcc: 'IDG', hasfiles: true, img: '/img/IDG.png',
-    c2m2: true, xmt: true, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'KidsFirst', hasfiles: true, img: '/img/Kids First.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'KOMP2', hasfiles: true, img: '/img/KOMP2.png',
-    c2m2: false, xmt: true, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: true, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'LINCS', hasfiles: true, img: '/img/LINCS.gif',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: true, api: true, ent: true, pwb: true, chat: true 
   },
   { 
     dcc: 'Metabolomics', hasfiles: true, img: '/img/Metabolomics.jpg',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: true, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'MoTrPAC', hasfiles: true, img: '/img/MoTrPAC.png',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'SenNet', hasfiles: false, img: '/img/SenNet.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'SPARC', hasfiles: true, img: '/img/SPARC.svg',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'UDN', hasfiles: true, img: '/img/UDN.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
 ]
