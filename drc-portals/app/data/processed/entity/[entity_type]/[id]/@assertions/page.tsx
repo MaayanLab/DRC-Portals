@@ -1,10 +1,8 @@
 import prisma from "@/lib/prisma"
 import { Container, Typography } from "@mui/material"
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
-import Link from "next/link";
-import Image from "next/image";
 import { Prisma } from "@prisma/client";
-import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 
 const pageSize = 10
 
@@ -113,7 +111,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
           <>Evidence</>,
         ]}
         rows={results.assertions.map(assertion => [
-          assertion.dcc?.icon ? <Link href={`/data/matrix/${assertion.dcc.short_label}`}><Image className="p-2 object-contain" src={assertion.dcc.icon} alt={assertion.dcc.label} fill /></Link> : null,
+          assertion.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
           <LinkedTypedNode type="entity" entity_type={assertion.source.type} id={assertion.source.id} focus={assertion.source.id === props.params.id} label={assertion.source.label} />,
           <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} />,
           <LinkedTypedNode type="entity" entity_type={assertion.target.type} id={assertion.target.id} focus={assertion.target.id === props.params.id} label={assertion.target.label} />,
