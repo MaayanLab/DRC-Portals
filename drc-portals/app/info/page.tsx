@@ -63,7 +63,7 @@ export default async function Home() {
                       </Link>
                     </Grid>
                     <Grid item xs={12} md={6} className="flex items-center justify-center" sx={{marginTop: 5}}>
-                      <Image  src="/img/updated_assets/side_pic.svg" alt="side_pic" width={350} height={244}/>
+                      <Image  src="/img/UMAP.png" alt="side_pic" width={350} height={244}/>
                     </Grid>
                     <Grid item xs={12} md={6} sx={{marginTop: 5}}>
                       <Stack spacing={2}>
