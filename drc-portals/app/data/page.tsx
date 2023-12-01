@@ -98,7 +98,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
                         <SearchField q="" error={searchParams.error} />
-                        <Typography variant="stats_sub">Try <ReactJoin sep={<>,&nbsp;</>}>{['MCF7', 'STAT3', 'blood', 'enrichment analysis'].map(example => (
+                        <Typography variant="stats_sub">Try <ReactJoin sep={<>,&nbsp;</>}>{['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
                           <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
                         ))}</ReactJoin></Typography>
                         <div className="flex align-center space-x-10">
