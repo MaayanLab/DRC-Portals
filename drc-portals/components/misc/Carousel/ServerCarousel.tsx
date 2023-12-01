@@ -44,7 +44,7 @@ export default function ServerCarousel () {
             padding: 2
         }}>
             <Link href={item.url} target="_blank" rel="noopener noreferrer">
-                <Box className="flex flex-col" sx={{minHeight: 300}}>
+                <Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none"}}>
                     <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
                     <div className="flex grow items-center justify-center relative">
                         <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
