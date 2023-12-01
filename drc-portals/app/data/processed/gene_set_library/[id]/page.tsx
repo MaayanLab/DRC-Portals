@@ -1,10 +1,8 @@
 import prisma from "@/lib/prisma"
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import Link from "next/link"
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
-import Image from "next/image"
 import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
+import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 
 const pageSize = 10
 
@@ -76,55 +74,30 @@ export default async function Page(props: { params: { id: string }, searchParams
   ])
   const ps = Math.floor(library_sets._count.gene_sets / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <div className="flex flex-column">
-        <div className="flex-grow-0 self-center justify-self-center">
-          {library.node.dcc?.icon ?
-            <Link href={`/data/matrix/${library.node.dcc.short_label}`}>
-              <Image src={library.node.dcc.icon} alt={library.node.dcc.label} width={240} height={240} />
-            </Link>
-            : null}
-        </div>
-        <Container className="flex-grow">
-          <Container><Typography variant="h1">{library.node.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {format_description(library.node.description)}</Typography></Container>
-          {library.node.dcc?.label ? <Container><Typography variant="caption">Project: <Link href={`/data/matrix/${library.node.dcc.short_label}`}>{library.node.dcc.label}</Link></Typography></Container> : null}
-          <Container><Typography variant="caption">Number of genes: {library._count.genes.toLocaleString()}</Typography></Container>
-          <Container><Typography variant="caption">Number of gene sets: {library._count.gene_sets.toLocaleString()}</Typography></Container>
-          <Container><Typography variant="caption">Download: <Link href={library.dcc_asset_link}>{library.dcc_asset_link}</Link></Typography></Container>
-        </Container>
-      </div>
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {library_sets.gene_sets.map(gene_set => (
-              <TableRow
-                key={gene_set.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  <Link href={`/data/processed/${gene_set.node.type}/${gene_set.id}`}>
-                    <Typography variant='h6'>{gene_set.node.label}</Typography>
-                  </Link>
-                </TableCell>
-                <TableCell>{format_description(gene_set.node.description)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <LandingPageLayout
+      icon={library.node.dcc?.icon ? { href: `/data/matrix/${library.node.dcc.short_label}`, src: library.node.dcc.icon, alt: library.node.dcc.label } : undefined}
+      label={library.node.label}
+      description={format_description(library.node.description)}
+      metadata={[
+        library.node.dcc?.label ? { label: 'Project', value: <Link href={`/data/matrix/${library.node.dcc.short_label}`}>{library.node.dcc.label}</Link> } : null,
+        { label: 'Number of genes', value: library._count.genes.toLocaleString() },
+        { label: 'Number of gene sets', value: library._count.gene_sets.toLocaleString() },
+        { label: 'Download', value: <Link href={library.dcc_asset_link}>{library.dcc_asset_link}</Link> },
+      ]}
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={ps}
+        columns={[
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={library_sets.gene_sets.map(gene_set => [
+          <LinkedTypedNode type="gene_set" id={gene_set.id} label={gene_set.node.label} />,
+          format_description(gene_set.node.description),
+        ])}
+      />
+    </LandingPageLayout>
   )
 }

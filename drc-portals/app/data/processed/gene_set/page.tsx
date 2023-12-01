@@ -1,11 +1,8 @@
 import prisma from "@/lib/prisma";
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import Image from "next/image";
+import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { NodeType, Prisma } from "@prisma/client";
+import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
+import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 
 const pageSize = 10
 
@@ -22,6 +19,7 @@ export default async function Page(props: { searchParams: Record<string, string 
         description: string,
         dcc: {
           short_label: string,
+          label: string,
           icon: string,
         } | null,
       },
@@ -38,6 +36,7 @@ export default async function Page(props: { searchParams: Record<string, string 
           'dcc', (
             select jsonb_build_object(
               'short_label', short_label,
+              'label', label,
               'icon', icon
             )
             from "dccs"
@@ -67,53 +66,25 @@ export default async function Page(props: { searchParams: Record<string, string 
       `}
     ;
   `
-  const ps = Math.floor(results.count / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th" className="w-24">
-                &nbsp;
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.items.map(item => (
-              <TableRow
-                  key={item.id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell className="relative">
-                  {item.node.dcc?.icon ?
-                    <Link href={`/data/matrix/${item.node.dcc.short_label}`}>
-                      <Image className="p-2 object-contain" src={item.node.dcc.icon} alt={item.node.dcc.short_label} fill />
-                    </Link>
-                    : null}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  <Link href={`/data/processed/${item.node.type}/${item.id}`}>
-                    <Typography variant='h6'>{item.node.label}</Typography>
-                  </Link>
-                  <Link href={`/data/processed/${item.node.type}`}>
-                    <Typography variant='caption'>{type_to_string(item.node.type, null)}</Typography>
-                  </Link>
-                </TableCell>
-                <TableCell>{format_description(item.node.description)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <ListingPageLayout
+      count={results.count}
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={Math.floor(results.count / pageSize) + 1}
+        columns={[
+          <>&nbsp;</>,
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={results.items.map(item => [
+          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
+          format_description(item.node.description),
+        ])}
+      />
+    </ListingPageLayout>
   )
 }

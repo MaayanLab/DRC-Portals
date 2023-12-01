@@ -1,10 +1,8 @@
 import prisma from "@/lib/prisma";
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
+import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 
 const pageSize = 10
 
@@ -57,45 +55,23 @@ export default async function Page(props: { params: { entity_type: string }, sea
       `}
     ;
   `
-  const ps = Math.floor(results.count / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.items.map(item => (
-                <TableRow
-                    key={item.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.node.type}/${item.type}/${item.id}`}>
-                        <Typography variant='h6'>{item.node.label}</Typography>
-                      </Link>
-                      <Typography variant='caption'>
-                        <Link href={`/data/processed/${item.node.type}/${item.type}`}>
-                          {type_to_string(item.node.type, item.type)}
-                        </Link>
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{format_description(item.node.description)}</TableCell>
-                </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <ListingPageLayout
+      count={results.count}
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={Math.floor(results.count / pageSize) + 1}
+        columns={[
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={results.items.map(item => [
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={props.params.entity_type} />,
+          format_description(item.node.description),
+        ])}
+      />
+    </ListingPageLayout>
   )
 }
