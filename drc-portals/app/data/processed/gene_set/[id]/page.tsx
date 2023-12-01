@@ -1,100 +1,112 @@
 import prisma from "@/lib/prisma"
 import Link from "next/link"
-import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import { Metadata, ResolvingMetadata } from "next";
+import { cache } from "react";
 
-const pageSize = 10
+type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
-export default async function Page(props: { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }) {
-  const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
-  const [gene_set, genes] = await prisma.$transaction([
-    prisma.geneSetNode.findUniqueOrThrow({
-      where: {
-        id: props.params.id,
-      },
+const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
+  where: {
+    id,
+  },
+  select: {
+    _count: {
       select: {
-        _count: {
-          select: {
-            genes: true,
-          },
-        },
-        gene_set_library: {
-          select: {
-            id: true,
-            node: {
-              select: {
-                type: true,
-                label: true,
-                description: true,
-              }
-            },
-          }
-        },
+        genes: true,
+      },
+    },
+    gene_set_library: {
+      select: {
+        id: true,
         node: {
           select: {
             type: true,
             label: true,
             description: true,
-            dcc: {
-              select: {
-                short_label: true,
-                icon: true,
-                label: true,
-              },
-            },
           }
         },
       }
-    }),
-    prisma.geneSetNode.findUniqueOrThrow({
-      where: {
-        id: props.params.id,
-      },
+    },
+    node: {
       select: {
-        _count: {
+        type: true,
+        label: true,
+        description: true,
+        dcc: {
           select: {
-            genes: searchParams.q ? {
-              where: {
-                entity: {
-                  node: {
-                    OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-                  }
-                },
-              }
-            } : true,
+            short_label: true,
+            icon: true,
+            label: true,
           },
-        },
-        genes: {
-          select: {
-            id: true,
-            entity: {
-              select: {
-                node: {
-                  select: {
-                    type: true,
-                    label: true,
-                    description: true,
-                  },
-                },
-              },
-            },
-          },
-          where: searchParams.q ? {
-            entity: {
-              node: {
-                OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-              },
-            },
-          } : {},
-          skip: offset,
-          take: limit,
         },
       }
-    }),
-  ])
+    },
+  }
+}))
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const item = await getItem(props.params.id)
+  return {
+    title: `${(await parent).title?.absolute} | ${type_to_string('gene_set', null)} | ${item.node.label}`,
+    description: item.node.description,
+  }
+}
+
+const pageSize = 10
+
+export default async function Page(props: PageProps) {
+  const searchParams = useSanitizedSearchParams(props)
+  const offset = (searchParams.p - 1)*pageSize
+  const limit = pageSize
+  const gene_set = await getItem(props.params.id)
+  const genes = await prisma.geneSetNode.findUniqueOrThrow({
+    where: {
+      id: props.params.id,
+    },
+    select: {
+      _count: {
+        select: {
+          genes: searchParams.q ? {
+            where: {
+              entity: {
+                node: {
+                  OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+                }
+              },
+            }
+          } : true,
+        },
+      },
+      genes: {
+        select: {
+          id: true,
+          entity: {
+            select: {
+              node: {
+                select: {
+                  type: true,
+                  label: true,
+                  description: true,
+                },
+              },
+            },
+          },
+        },
+        where: searchParams.q ? {
+          entity: {
+            node: {
+              OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+            },
+          },
+        } : {},
+        skip: offset,
+        take: limit,
+      },
+    }
+  })
   const ps = Math.floor(genes._count.genes / pageSize) + 1
   return (
     <LandingPageLayout

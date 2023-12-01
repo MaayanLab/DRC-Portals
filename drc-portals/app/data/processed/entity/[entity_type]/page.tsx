@@ -1,12 +1,14 @@
 import prisma from "@/lib/prisma";
-import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 
+type PageProps = { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }
+
 const pageSize = 10
 
-export default async function Page(props: { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
