@@ -15,7 +15,7 @@ export function ReadMore(
     </span>
     return (
       <Typography color="#666666" fontSize="12pt" sx={{mt:2, ml:3, mb:2}}>
-        {isExpanded ? text : props.text.slice(0, 290) + '...'}
+        {isExpanded ? text : props.text.slice(0, 280) + '...'}
         <span onClick={onClick} white-space='nowrap' style={{display: "block", color:"#3470e5"}}>
           {isExpanded ? " show less" : "read more"}
         </span>
