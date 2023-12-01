@@ -75,7 +75,7 @@ export default async function InfoFooter() {
                   <Typography variant="subtitle1"><b>Assets</b></Typography>
                   <Link href="/data/coming_soon"><Typography variant="footer">Data & Metadata</Typography></Link>
                   <Link href="/data/coming_soon"><Typography variant="footer">Tools</Typography></Link>
-                  <Link href="/data"><Typography variant="footer">Chatbot</Typography></Link>
+                  <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
                   <Link href="/data/coming_soon"><Typography variant="footer">Use Cases</Typography></Link>
               </Stack>
           </Grid>
