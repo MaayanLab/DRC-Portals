@@ -63,7 +63,7 @@ export default async function InfoFooter() {
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
               <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
-              <Link href="/info">
+              <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
               </Link>
               <Link href="/"><Typography variant="footer">Standards & Protocols</Typography></Link>

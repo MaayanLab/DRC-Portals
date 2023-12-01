@@ -129,7 +129,7 @@ export default async function Home() {
                               TRAINING & OUTREACH
                             </Button>
                           </Link>
-                          <Link href='/info/dcc'>
+                          <Link href='/info/coming_soon'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                               PRODUCTS
                             </Button>

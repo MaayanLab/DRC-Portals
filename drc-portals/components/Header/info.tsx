@@ -34,7 +34,7 @@ export default async function InfoHeader() {
                   <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
-                  <Link href="/info">
+                  <Link href="/info/coming_soon">
                     <Typography variant="nav">PRODUCTS</Typography>
                   </Link>
                   <Link href="/info/publications">
