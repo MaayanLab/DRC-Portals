@@ -32,8 +32,8 @@ export default async function UploadForm() {
 
 
   return (
-    <S3UploadForm>
-      <Container className="mt-10">
+    <S3UploadForm {...user}>
+      {/* <Container className="mt-10">
         <Typography variant="h3" className='text-center p-5'>Data and Metadata Upload Form</Typography>
         <Grid container spacing={4} className='p-5' justifyContent="center">
           <ThemedBox>
@@ -65,7 +65,7 @@ export default async function UploadForm() {
         <Link href='/example_manifest.json' color="secondary" download>manifest.json template</Link>
         </Typography>
         <ThemedStack>
-          <FileDrop name="file" />
+          <FileDrop name="files[]" />
         </ThemedStack>
         <Status />
         <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
@@ -75,7 +75,7 @@ export default async function UploadForm() {
             </Button>
           </FormControl>
         </ThemedBox>
-      </Container>
+      </Container> */}
     </S3UploadForm>
   );
 }

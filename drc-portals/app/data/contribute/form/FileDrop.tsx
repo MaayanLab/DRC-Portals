@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import FolderIcon from '@mui/icons-material/Folder';
-import { GoFileZip } from "react-icons/go";
+import { MdUploadFile } from "react-icons/md";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 // TODO: just inherit theme from root?
@@ -37,58 +37,78 @@ function Item(props: BoxProps) {
 }
 
 const Demo = styled('div')(({ theme }) => ({
-    backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.background.paper,
 }));
 
-function FileList(prop: {file:string}) {
+
+
+function FileList(prop: { files: string[], setFile:  React.Dispatch<React.SetStateAction<FileList | []>>, fileObjects : FileList | [] }) {
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(false);
   const [fileUploaded, setFileUploaded] = React.useState<boolean>(false);
 
+  function handleDelete(index: number, files: string[]) {
+    
+    return console.log(index)
+}
+
   useEffect(() => {
-     if (prop.file != '') {
+    if (prop.files.length > 0) {
       setFileUploaded(true)
-     } else {
+    } else {
       setFileUploaded(false)
-     }
-  }, [prop.file]);
+    }
+  }, [prop.files]);
 
   return (<Grid>
-    <Typography style={{display: 'inline-block'}} variant="body2" component="span">
-          File to Upload
-      </Typography>
+    <Typography style={{ display: 'inline-block' }} variant="body2" component="span">
+      File to Upload
+    </Typography>
 
-      <Demo>
-          {fileUploaded && <List dense={dense}>
-              <ListItem
-                  secondaryAction={
-                      <IconButton edge="end" aria-label="delete">
-                          {/* <DeleteIcon /> */}
-                      </IconButton>
-                  }
-              >
-                  <ListItemAvatar>
-                      <Avatar>
-                          <FolderIcon />
-                      </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                      primary= {prop.file.toString()}
-                      secondary={secondary ? 'Secondary text' : null}
-                      primaryTypographyProps={{fontSize: '15px'}} 
-                      
-                  />
-              </ListItem>
-          </List>}
-      </Demo>
+      {fileUploaded && <List dense={dense}>
+        {prop.files.map((file, index) => (
+          <ListItem key={index}
+            secondaryAction={
+              <Button onClick={() => {handleDelete(index, prop.files)}}>
+              <IconButton edge="end" aria-label="delete">
+                <DeleteIcon />
+              </IconButton>
+              </Button>
+
+            }
+          >
+            <ListItemAvatar>
+              <Avatar>
+                <FolderIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={file.toString()}
+              secondary={secondary ? 'Secondary text' : null}
+              primaryTypographyProps={{ fontSize: '15px' }}
+            />
+
+          </ListItem>)
+        )}
+      </List>}
   </Grid>);
 
 }
 
-export function FileDrop({ name }: { name: string }) {
+export function arrayToFileList(arrayOfFiles : File[]) {
+  const dataTransfer = new DataTransfer();
+  arrayOfFiles.forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+  return dataTransfer.files;
+}
+
+
+export function FileDrop({ name, setUploadedFiles }: { name: string, setUploadedFiles:  React.Dispatch<React.SetStateAction<FileList | []>> }) {
   const [isOver, setIsOver] = React.useState(false);
-  const [file, setFile] = React.useState<File | null>(null);
-  const renderedFile = React.useMemo(() => file?.name ?? '', [file])
+  const [files, setFile] = React.useState<FileList | []>([]);
+  const renderedFile = React.useMemo(() => files != null ? Array.from(files).map((file: File) => { return file.name }) : [], [files])
+
 
   const commonStyles = {
     bgcolor: 'background.paper',
@@ -104,8 +124,9 @@ export function FileDrop({ name }: { name: string }) {
     <>
       <Item>
         <Box
-          sx={{ ...commonStyles, borderRadius: 1,
-            position: 'relative', 
+          sx={{
+            ...commonStyles, borderRadius: 1,
+            position: 'relative',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -114,9 +135,8 @@ export function FileDrop({ name }: { name: string }) {
           <div>
             <Typography variant="h6" className='text-center align-center'> Drag and drop zipped file here </Typography>
             <div className='flex justify-center'>
-            <GoFileZip size={70}/>
+              <MdUploadFile size={70} />
             </div>
-           
           </div>
           <input
             id="raised-button-file"
@@ -129,14 +149,24 @@ export function FileDrop({ name }: { name: string }) {
               cursor: 'pointer',
               opacity: 0,
             }}
-            onDragOver={() => {setIsOver(true)}}
-            onDragLeave={() => {setIsOver(false)}}
-            onDrop={() => {setIsOver(false)}}
+            onDragOver={() => { setIsOver(true) }}
+            onDragLeave={() => { setIsOver(false) }}
+            onDrop={() => { setIsOver(false) }}
             type="file"
-            accept="zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
+            multiple
+            // accept="zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
             name={name}
-            onChange={evt => {setFile(evt.target?.files ? evt.target.files[0] : null)}}
-          />
+            onChange={evt => { 
+              const oldFileList = files
+              if (evt.target.files != null) {
+                const newFileList = Array.from(oldFileList).concat(...Array.from(evt.target.files))
+                setFile(arrayToFileList(newFileList))
+                setUploadedFiles(arrayToFileList(newFileList))
+                // setFile(oldFiles => oldFiles.push(...evt.target.files))
+                // setFile(evt.target?.files ? evt.target.files : []) 
+              }
+            }}
+          />     
         </Box>
       </Item>
       <Item>
@@ -149,7 +179,7 @@ export function FileDrop({ name }: { name: string }) {
         </FormControl>
       </Item>
       <Item>
-        <FileList file={renderedFile} />
+        <FileList files={renderedFile} setFile={setFile} fileObjects={files} />
       </Item>
     </>
   );
