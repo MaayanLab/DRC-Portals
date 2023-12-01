@@ -102,7 +102,7 @@ const cfde_data = [
 ]
 
 const columns = [
-  'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 'KC Assertions',
+  'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 
   'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs'
 ]
 
@@ -127,7 +127,7 @@ export default function DataMatrix() {
         <TableHead>
           <TableRow>
             <TableCell sx={{ border: 0, backgroundColor: "#b8c4e1"}}></TableCell>
-            <TableCell sx={{ border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={5}>
+            <TableCell sx={{ border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={4}>
               <Typography variant="subtitle1" color="secondary.dark">Datasets and Metadata</Typography>
             </TableCell>
             <TableCell sx={{ border:0, backgroundColor: "#dbe0f0" }} align="center" colSpan={5}>
@@ -182,11 +182,6 @@ export default function DataMatrix() {
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
                     <Link href={"/data/matrix/".concat(item.dcc).concat('#AttributeTables')}>
                       {item.att ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
-                    </Link>
-                  </TableCell>
-                  <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#KCAssertions')}>
-                      {item.kc ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
