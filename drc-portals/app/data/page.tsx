@@ -16,10 +16,10 @@ import Paper from '@mui/material/Paper'
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
-import prisma from "@/lib/prisma"
 import SearchField from "./processed/SearchField"
 import { BlurBig } from "@/components/styled/Blur"
 import ReactJoin from "@/components/util/ReactJoin"
+import Stats, { StatsFallback } from "./processed/Stats"
 
 const search_cards = [
   {
@@ -54,25 +54,6 @@ const tool_cards = [
 ]
 
 export default async function Home({ searchParams }: { searchParams: { error?: string } }) {
-  const counts = await prisma.$queryRaw<Array<{
-    label: string,
-    count: number,
-  }>>`
-    with labeled_count as (
-      select 'Genes' as label, (select count(*) from gene_entity) as count
-      union
-      select 'Genes sets' as label, (select count(*) from gene_set_node) as count
-      union
-      select 'Drugs' as label, (select count(*) from entity_node where type = 'Drug') as count
-      union
-      select 'Files' as label, (select count(*) from c2m2_file_node) as count
-      union
-      select 'KG Assertions' as label, (select count(*) from kg_assertion) as count
-    )
-    select label, count
-    from labeled_count
-    order by count desc;
-  `
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -128,14 +109,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
             >
               <Container maxWidth="lg" className="m-auto">
               <Grid container spacing={2} justifyContent={"center"} alignItems={"flex-start"}>
-                  {counts.map(({ label, count }) => (
-                      <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
-                        <div  className="flex flex-col">
-                          <Typography variant="h2" color="secondary">{count.toLocaleString()}</Typography>
-                          <Typography variant="subtitle1" color="secondary">{label.toUpperCase()}</Typography>
-                        </div>
-                      </Grid>
-                    ))}
+                <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
                 </Grid>
               </Container>
             </Paper>
