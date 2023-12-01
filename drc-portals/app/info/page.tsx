@@ -110,7 +110,7 @@ export default async function Home() {
                               DCCS
                             </Button>
                           </Link>
-                          <Link href='/info'>
+                          <Link href='/info/coming_soon'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                               STANDARDS & PROTOCOLS
                             </Button>
@@ -119,7 +119,7 @@ export default async function Home() {
                         <Divider/>
                         <Paper elevation={0}>
                           <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">COMMUNITY</Typography>
-                          <Link href='/data'>
+                          <Link href='/info/coming_soon'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                               PARTNERSHIPS
                             </Button>

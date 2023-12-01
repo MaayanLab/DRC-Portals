@@ -47,7 +47,7 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Consortium</b></Typography>
-              <Link href="/info/about">
+              <Link href="/info/dcc">
                 <Typography variant="footer">CF-DCCs</Typography>
               </Link>
               <Link href="/data" target="_blank" rel="noopener noreferrer">
@@ -56,7 +56,7 @@ export default async function InfoFooter() {
               <Link href="/info/coming_soon">
                 <Typography variant="footer">Knowledge Portal</Typography>
               </Link>
-              <Link href="/"><Typography variant="footer">Partnerships</Typography></Link>
+              <Link href="/info/coming_soon"><Typography variant="footer">Partnerships</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
@@ -66,7 +66,7 @@ export default async function InfoFooter() {
               <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
               </Link>
-              <Link href="/"><Typography variant="footer">Standards & Protocols</Typography></Link>
+              <Link href="/info/coming_soon"><Typography variant="footer">Standards & Protocols</Typography></Link>
               <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
             </Stack>
           </Grid>
@@ -83,8 +83,8 @@ export default async function InfoFooter() {
         <Grid item xs={12} sx={{marginTop: 5, marginRight: 5, marginLeft: 6}}>
           <Stack spacing={2} direction={"row"} justifyContent="space-between">
               <div className='flex space-x-5'>
-                <Link href="/"><Typography variant="caption">Terms of Service</Typography></Link>
-                <Link href="/"><Typography variant="caption">Privacy Policy</Typography></Link>
+                <Link href="/info/coming_soon"><Typography variant="caption">Terms of Service</Typography></Link>
+                <Link href="/info/coming_soon"><Typography variant="caption">Privacy Policy</Typography></Link>
               </div>
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
           </Stack>

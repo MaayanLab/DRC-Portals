@@ -26,10 +26,10 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info/coming_soon" target="_blank" rel="noopener noreferrer">
+                  <Link href="/data/coming_soon" target="_blank" rel="noopener noreferrer">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
-                  <Link href="/data">
+                  <Link href="/data/coming_soon">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/data/contribute/form">
@@ -47,10 +47,10 @@ export default async function InfoHeader() {
                   <Link href="/data/matrix">
                     <Typography variant="nav">PROCESSED DATA</Typography>
                   </Link>
-                  <Link href="/data">
+                  <Link href="/data/coming_soon">
                     <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                   </Link>
-                  <Link href="/data">
+                  <Link href="/data/coming_soon">
                     <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
                   </Link>
                 </Stack>

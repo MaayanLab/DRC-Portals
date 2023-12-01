@@ -48,7 +48,7 @@ export default async function InfoFooter() {
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
-                  <Link href="/data"><Typography variant="footer">About</Typography></Link>
+                  <Link href="/data/coming_soon"><Typography variant="footer">About</Typography></Link>
                   <Link href="/info" target="_blank" rel="noopener noreferrer">
                     <Typography variant="footer">Information Portal</Typography>
                   </Link>
