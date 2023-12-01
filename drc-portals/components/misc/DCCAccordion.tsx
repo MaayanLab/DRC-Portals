@@ -96,7 +96,7 @@ export function DCCAccordion(
     <Container>
       <Typography variant="h3" color="secondary.dark" gutterBottom>Metadata and Processed Data Files</Typography>
       {Object.keys(data).map((key: keyof dccAssetRecord) => (
-          <div id={"current-" + key}>
+          <div id={key}>
             <FileAccordion 
               label={key}
               isCode={data[key].isCode} 
@@ -106,7 +106,7 @@ export function DCCAccordion(
       ))}
       <Typography sx={{mt:2}} variant="h3" color="secondary.dark" gutterBottom>Interoperability Assets</Typography>
       {Object.keys(code).map((key: keyof dccAssetRecord) => (
-          <div id={"archived-" + key}>
+          <div id={key}>
             <FileAccordion 
               label={key}
               isCode={code[key].isCode} 
