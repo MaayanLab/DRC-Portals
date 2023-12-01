@@ -8,13 +8,22 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import Button from '@mui/material/Button'
+import { DCC } from "@prisma/client";
+
+const shuffle = (array: DCC[]) => { 
+    for (let i = array.length - 1; i > 0; i--) { 
+      const j = Math.floor(Math.random() * (i + 1)); 
+      [array[i], array[j]] = [array[j], array[i]]; 
+    } 
+    return array; 
+  }; 
 
 export default async function DCCLanding() {
-    const dccs = await prisma.dCC.findMany({
+    const dccs = shuffle(await prisma.dCC.findMany({
         where: {
             cfde_partner: true
         }
-    })
+    }))
 
     return (
         <MasonryClient defaultHeight={1500}>
