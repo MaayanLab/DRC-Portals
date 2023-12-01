@@ -1,3 +1,4 @@
+import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -8,7 +9,6 @@ import CardActions from '@mui/material/CardActions'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import Icon from '@mdi/react';
 import Fab from '@mui/material/Fab';
 import Button from '@mui/material/Button'
@@ -18,9 +18,9 @@ import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 import CFPrograms from "@/components/misc/CFPrograms"
 import prisma from "@/lib/prisma"
 import SearchField from "./processed/SearchField"
-import { pluralize, type_to_string } from "./processed/utils"
-import { NodeType } from "@prisma/client"
 import { BlurBig } from "@/components/styled/Blur"
+import ReactJoin from "@/components/util/ReactJoin"
+
 const search_cards = [
   {
     "title": "Metadata Search",
@@ -88,8 +88,8 @@ export default async function Home() {
                         }}
                   className="flex"
             >
-              <BlurBig sx={{position: "absolute", left: "-20%"}}/>
-              <BlurBig sx={{position: "absolute", right: "-15%"}}/>
+              <BlurBig sx={{position: "absolute", left: "-20%"}} className="pointer-events-none" />
+              <BlurBig sx={{position: "absolute", right: "-15%"}} className="pointer-events-none" />
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12}>
@@ -97,7 +97,10 @@ export default async function Home() {
                       <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
-                        <SearchField q="" placeholder="Try MCF7, STAT3, blood, enrichment analysis" />
+                        <SearchField q="" />
+                        <Typography variant="stats_sub">Try <ReactJoin sep={<>,&nbsp;</>}>{['MCF7', 'STAT3', 'blood', 'enrichment analysis'].map(example => (
+                          <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                        ))}</ReactJoin></Typography>
                         <div className="flex align-center space-x-10">
                           <Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button>
                           <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
