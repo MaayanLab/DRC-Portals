@@ -13,7 +13,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
       </Box>
       <Box className="flex flex-row">
         {props.filters ? (
-          <Box className="w-48">
+          <Box className="w-48  flex-shrink-0 flex flex-col">
             {props.filters}
           </Box>
         ) : null}
