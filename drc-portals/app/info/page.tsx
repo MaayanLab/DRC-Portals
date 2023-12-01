@@ -105,7 +105,7 @@ export default async function Home() {
                               KNOWLEDGE PORTAL
                             </Button>
                           </Link>
-                          <Link href='/info/dccs'>
+                          <Link href='/info/dcc'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                               DCCS
                             </Button>
@@ -129,7 +129,7 @@ export default async function Home() {
                               TRAINING & OUTREACH
                             </Button>
                           </Link>
-                          <Link href='/info/dccs'>
+                          <Link href='/info/dcc'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                               PRODUCTS
                             </Button>
@@ -154,7 +154,7 @@ export default async function Home() {
             <Typography variant="body1" color="secondary" sx={{width: "95%"}}>
               The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
             </Typography>
-            <Link href="/info/dccs">
+            <Link href="/info/dcc">
               <Button color="secondary" sx={{marginLeft: -2}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                 <Typography variant="subtitle1">
                   Explore CF Programs

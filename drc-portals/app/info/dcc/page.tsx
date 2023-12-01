@@ -1,0 +1,53 @@
+import Link from "next/link";
+import Image from "next/image";
+import MasonryClient from "@/components/misc/MasonryClient";
+import prisma from "@/lib/prisma";
+import Typography from '@mui/material/Typography'
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent'
+import CardActions from '@mui/material/CardActions'
+import Button from '@mui/material/Button'
+
+export default async function DCCLanding() {
+    const dccs = await prisma.dCC.findMany({
+        where: {
+            cfde_partner: true
+        }
+    })
+
+    return (
+        <MasonryClient defaultHeight={1500}>
+            {dccs.map(dcc=>(
+                <Card sx={{paddingLeft: 2, paddingRight: 2}}>
+                    {dcc.icon &&
+                        <Link href={`/info/dcc/${dcc.short_label}`}>
+                            <div className="flex flex-row justify-center relative" style={{minHeight: 300}}>
+                                <Image src={dcc.icon} 
+                                    alt={dcc.short_label || dcc.id} 
+                                    fill={true} 
+                                    style={{objectFit: "contain"}}
+                                />
+                            </div>
+                        </Link>
+                    }
+                    <CardContent>
+                        <Typography variant={'h3'} color="secondary">
+                            {dcc.short_label}
+                        </Typography>
+                        <Typography variant={'body1'} color="secondary">
+                            {dcc.description}
+                        </Typography>
+                    </CardContent>
+                    <CardActions>
+                        <Link href={`/info/dcc/${dcc.short_label}`}>
+                            <Button color="secondary" variant="outlined">
+                                <Typography variant="body1">Expand</Typography>
+                            </Button>
+                        </Link>
+                    </CardActions>
+                </Card>
+            ))}
+        </MasonryClient>
+    )
+}
