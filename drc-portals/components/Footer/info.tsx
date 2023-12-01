@@ -53,7 +53,7 @@ export default async function InfoFooter() {
               <Link href="/data" target="_blank" rel="noopener noreferrer">
                 <Typography variant="footer">Data Portal</Typography>
               </Link>
-              <Link href="/info/about">
+              <Link href="/info/coming_soon">
                 <Typography variant="footer">Knowledge Portal</Typography>
               </Link>
               <Link href="/"><Typography variant="footer">Partnerships</Typography></Link>

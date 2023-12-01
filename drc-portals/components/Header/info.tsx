@@ -48,7 +48,7 @@ export default async function InfoHeader() {
                   <Link href="/data" target="_blank" rel="noopener noreferrer">
                     <Typography variant="nav">DATA PORTAL</Typography>
                   </Link>
-                  <Link href="/info/about">
+                  <Link href="/info/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
                   <Link href="/info/about">

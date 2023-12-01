@@ -100,7 +100,7 @@ export default async function Home() {
                               DATA PORTAL
                             </Button>
                           </Link>
-                          <Link href='/data'>
+                          <Link href='/data/coming_soon'>
                             <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                               KNOWLEDGE PORTAL
                             </Button>
