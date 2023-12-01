@@ -29,6 +29,12 @@ export default function ServerCarousel () {
             description: "Data Distillery Partnership",
             icon: "/img/DD.png",
             url: "https://ubkg.docs.xconsortia.org/"
+        },
+        {
+            name: "CFDE Cross Cut Metadata Model (C2M2)",
+            description: "CFDE Cross Cut Metadata Model (C2M2)",
+            icon: "/img/C2M2.png",
+            url: "https://pubmed.ncbi.nlm.nih.gov/36409836/"
         }
       ]
       
