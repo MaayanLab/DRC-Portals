@@ -1,12 +1,21 @@
 import prisma from "@/lib/prisma";
-import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { format_description, type_to_string, pluralize, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import { Metadata, ResolvingMetadata } from 'next'
+ 
+type PageProps = { searchParams: Record<string, string | string[] | undefined> }
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  return {
+    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('entity', null))}`,
+  }
+}
 
 const pageSize = 10
 
-export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize

@@ -1,8 +1,32 @@
 import prisma from "@/lib/prisma"
-import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import { Metadata, ResolvingMetadata } from "next";
+import { cache } from "react";
+
+type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+
+const getItem = cache((id: string) => prisma.kGRelationNode.findUniqueOrThrow({
+  where: { id },
+  select: {
+    node: {
+      select: {
+        label: true,
+        description: true,
+      },
+    },
+  },
+}))
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const item = await getItem(props.params.id)
+  return {
+    title: `${(await parent).title?.absolute} | ${type_to_string('kg_relation', null)} | ${item.node.label}`,
+    description: item.node.description,
+  }
+}
 
 const pageSize = 10
 
@@ -10,8 +34,8 @@ export default async function Page(props: { params: { id: string }, searchParams
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*pageSize
   const limit = pageSize
+  const item = await getItem(props.params.id)
   const [results] = await prisma.$queryRaw<Array<{
-    item: { node: { label: string, description: string } },
     assertions: {
       id: string,
       evidence: Prisma.JsonValue,
@@ -23,17 +47,7 @@ export default async function Page(props: { params: { id: string }, searchParams
     n_filtered_assertions: number,
     n_assertions: number,
   }>>`
-    with item as (
-      select
-        "kg_relation_node"."id",
-        jsonb_build_object(
-          'label', "node"."label",
-          'description', "node"."description"
-        ) as node
-      from "kg_relation_node"
-      inner join "node" on "node"."id" = "kg_relation_node"."id"
-      where "kg_relation_node"."id" = ${props.params.id}::uuid
-    ), kg_assertion_f as (
+    with kg_assertion_f as (
       select *
       from "kg_assertion"
       where "kg_assertion"."relation_id" = ${props.params.id}::uuid
@@ -84,7 +98,6 @@ export default async function Page(props: { params: { id: string }, searchParams
       limit ${limit}
     )
     select
-      (select row_to_json(item.*) from item) as item,
       (select coalesce(jsonb_agg(kg_assertion_fsp.*), '[]'::jsonb) from kg_assertion_fsp) as assertions,
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
@@ -92,10 +105,9 @@ export default async function Page(props: { params: { id: string }, searchParams
   const ps = Math.floor((results.n_filtered_assertions ?? 1) / pageSize) + 1
   return (
     <LandingPageLayout
-      label={results.item.node.label}
-      description={format_description(results.item.node.description)}
+      label={item.node.label}
+      description={format_description(item.node.description)}
       metadata={[
-        { label: 'Description', value: format_description(results.item.node.description) },
         { label: 'Number of Assertions', value: results.n_assertions.toLocaleString() },
       ]}
     >
@@ -113,7 +125,7 @@ export default async function Page(props: { params: { id: string }, searchParams
         rows={results.assertions.map(assertion => [
           assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
           <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} />,
-          <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} />,
+          <LinkedTypedNode type="kg_relation" id={props.params.id} label={item.node.label} focus />,
           <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} />,
           assertion.evidence?.toString(),
         ])}

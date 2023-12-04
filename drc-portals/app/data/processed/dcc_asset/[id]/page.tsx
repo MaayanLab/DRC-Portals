@@ -1,35 +1,49 @@
 import prisma from "@/lib/prisma"
 import Link from "next/link"
-import { format_description } from "@/app/data/processed/utils";
+import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
+import { Metadata, ResolvingMetadata } from 'next'
+import { cache } from "react";
 
-export default async function Page(props: { params: { id: string } }) {
-  const item = await prisma.dCCAssetNode.findUniqueOrThrow({
-    where: { id: props.params.id },
-    select: {
-      dcc_asset: {
-        select: {
-          link: true,
-          filetype: true,
-          lastmodified: true,
-          size: true,
+type PageProps = { params: { id: string } }
+
+const getItem = cache((id: string) => prisma.dCCAssetNode.findUniqueOrThrow({
+  where: { id },
+  select: {
+    dcc_asset: {
+      select: {
+        link: true,
+        filetype: true,
+        lastmodified: true,
+        size: true,
+      },
+    },
+    node: {
+      select: {
+        label: true,
+        description: true,
+        dcc: {
+          select: {
+            short_label: true,
+            label: true,
+            icon: true,
+          }
         },
       },
-      node: {
-        select: {
-          label: true,
-          description: true,
-          dcc: {
-            select: {
-              short_label: true,
-              label: true,
-              icon: true,
-            }
-          },
-        },
-      }
-    },
-  })
+    }
+  },
+}))
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const item = await getItem(props.params.id)
+  return {
+    title: `${(await parent).title?.absolute} | ${type_to_string('dcc_asset', null)} | ${item.node.label}`,
+    description: item.node.description,
+  }
+}
+
+export default async function Page(props: { params: { id: string } }) {
+  const item = await getItem(props.params.id)
   return (
     <LandingPageLayout
       icon={item.node.dcc?.icon ? { href: `/data/matrix/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}

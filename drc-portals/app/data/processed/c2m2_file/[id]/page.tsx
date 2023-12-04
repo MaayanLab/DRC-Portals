@@ -1,32 +1,46 @@
 import prisma from "@/lib/prisma"
 import Link from "next/link"
-import { format_description } from "@/app/data/processed/utils";
+import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
+import { Metadata, ResolvingMetadata } from 'next'
+import { cache } from "react";
 
-export default async function Page(props: { params: { id: string } }) {
-  const item = await prisma.c2M2FileNode.findUniqueOrThrow({
-    where: { id: props.params.id },
-    select: {
-      persistent_id: true,
-      size_in_bytes: true,
-      file_format: true,
-      assay_type: true,
-      data_type: true,
-      node: {
-        select: {
-          label: true,
-          description: true,
-          dcc: {
-            select: {
-              short_label: true,
-              label: true,
-              icon: true,
-            }
-          },
+type PageProps = { params: { id: string } }
+
+const getItem = cache((id: string) => prisma.c2M2FileNode.findUniqueOrThrow({
+  where: { id },
+  select: {
+    persistent_id: true,
+    size_in_bytes: true,
+    file_format: true,
+    assay_type: true,
+    data_type: true,
+    node: {
+      select: {
+        label: true,
+        description: true,
+        dcc: {
+          select: {
+            short_label: true,
+            label: true,
+            icon: true,
+          }
         },
-      }
-    },
-  })
+      },
+    }
+  },
+}))
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const item = await getItem(props.params.id)
+  return {
+    title: `${(await parent).title?.absolute} | ${type_to_string('c2m2_file', null)} | ${item.node.label}`,
+    description: item.node.description,
+  }
+}
+
+export default async function Page(props: PageProps) {
+  const item = await getItem(props.params.id)
   return (
     <LandingPageLayout
       icon={item.node.dcc?.icon ? { href: `/data/matrix/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}
