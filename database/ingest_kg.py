@@ -12,6 +12,47 @@ from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_des
 assertions = dcc_assets[dcc_assets['filetype'] == 'KGAssertions']
 assertions_path = ingest_path / 'assertions'
 
+# for now, we'll map entity types to get less junk/duplication
+map_type = {
+  'Acquired Abnormality': 'Acquired Abnormality',
+  'Amino Acid, Peptide, or Protein': 'Amino Acid, Peptide, or Protein',
+  'Anatomical Abnormality': 'Anatomical Abnormality',
+  'Body Part, Organ, or Organ Component': 'Body Part, Organ, or Organ Component',
+  'Body Substance': 'Body Substance',
+  'Cell Type': 'Cell Type',
+  'Cell': 'Cell',
+  'CLINGEN ALLELE REGISTRY': 'CLINGEN ALLELE REGISTRY',
+  'Congenital Abnormality': 'Congenital Abnormality',
+  'Diagnostic Procedure': 'Diagnostic Procedure',
+  'Disease or Syndrome': 'Disease',
+  'Disease': 'Disease',
+  'Drug': 'Drug',
+  'ENCODE CCRE': 'ENCODE CCRE',
+  'ENSEMBL': 'ENSEMBL',
+  'gene': 'gene',
+  'GLYCAN MOTIF': 'GLYCAN MOTIF',
+  'GLYCAN': 'GLYCAN',
+  'GLYCOSYLTRANSFERASE REACTION': 'GLYCOSYLTRANSFERASE REACTION',
+  'GLYGEN GLYCOSEQUENCE': 'GLYGEN GLYCOSEQUENCE',
+  'GLYGEN GLYCOSYLATION': 'GLYGEN GLYCOSYLATION',
+  'GLYGEN RESIDUE': 'GLYGEN RESIDUE',
+  'GLYTOUCAN': 'GLYTOUCAN',
+  'GTEXEQTL': 'GTEXEQTL',
+  'Hormone': 'Hormone',
+  'Injury or Poisoning': 'Injury or Poisoning',
+  'Inorganic Chemical': 'Drug',
+  'KFVARBIN': 'KFVARBIN',
+  'Laboratory Procedure': 'Laboratory Procedure',
+  'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
+  'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
+  'Organic Chemical': 'Drug',
+  'Pharmacologic Substance': 'Drug',
+  'Phenotype': 'Phenotype',
+  'Sign or Symptom': 'Phenotype',
+  'Therapeutic or Preventive Procedure': 'Laboratory Procedure',
+  'Tissue': 'Tissue',
+}
+
 entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 kg_relation_helper = TableHelper('kg_relation_node', ('id',), pk_columns=('id',))
 kg_assertion_helper = TableHelper('kg_assertion', ('id', 'dcc_id', 'relation_id', 'source_id', 'target_id', 'SAB', 'evidence',), pk_columns=('id',))
@@ -49,7 +90,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                     description=gene_descriptions[gene_ensembl],
                   ))
                 yield gene_id
-            else:
+            elif entity_type in map_type:
+              entity_type = map_type[entity_type]
               entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
               if entity_id not in entities:
                 entities.add(entity_id)
