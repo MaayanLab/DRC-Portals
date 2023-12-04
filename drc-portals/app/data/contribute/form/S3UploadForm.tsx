@@ -3,7 +3,7 @@
 import React, { FormEvent } from 'react'
 // import JSZip from 'jszip'
 // import { z } from 'zod'
-import {upload, uploadServer} from './UploadFunc'
+import {upload} from './UploadFunc'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';

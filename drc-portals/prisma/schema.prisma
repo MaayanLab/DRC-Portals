@@ -110,6 +110,7 @@ model DccAsset {
   annotation      Json?             @db.JsonB
   xlibrary        XLibrary?
   C2M2DataPackage C2M2DataPackage[]
+  etag            String? 
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])
