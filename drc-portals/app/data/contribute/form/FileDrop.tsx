@@ -60,7 +60,7 @@ function FileList(prop: { files: string[], setFile: React.Dispatch<React.SetStat
 
   return (<Grid>
     <Typography style={{ display: 'inline-block' }} variant="body2" component="span">
-      File to Upload
+      Files to Upload
     </Typography>
 
     {fileUploaded && <List dense={dense}>
