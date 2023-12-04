@@ -105,7 +105,7 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
   const [files, setFile] = React.useState<FileList | []>([]);
   const renderedFile = React.useMemo(() => files != null ? Array.from(files).map((file: File) => { return file.name }) : [], [files])
 
-  React.useMemo(()=> {
+  React.useEffect(()=> {
     setUploadedFiles(files)
   }, [files])
 

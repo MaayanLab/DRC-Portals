@@ -10,8 +10,7 @@ import { FaUserPen } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { createOneUser, deleteUsers, updateUserInfo } from './actions';
 import type { User } from '@prisma/client'
-
-
+import ActionAlert from './ActionAlert';
 
 
 export interface UserInfo {
@@ -28,6 +27,16 @@ export type updateForm = {
     index: number
 }
 
+export type ActionStatus = {
+    success?: {
+        selected: boolean;
+        message: string
+    },
+    error?: {
+        selected: boolean;
+        message: string
+    },
+}
 
 const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -54,6 +63,7 @@ const dccs = [
     'SenNet',
 ]
 
+
 export default function DataTable(props: {
     rows: {
         id: number;
@@ -66,6 +76,7 @@ export default function DataTable(props: {
     const [selection, setSelection] = React.useState<UserInfo[]>([]);
     const [createFormData, setCreateFormData] = React.useState({ name: '', email: '', role: '', DCC: '' });
     const [updateFormData, setUpdateFormData] = React.useState<updateForm[]>([]);
+    const [status, setStatus] = React.useState<ActionStatus>({})
 
     // get selected rows
     const onRowsSelectionHandler = (ids: GridRowSelectionModel) => {
@@ -91,10 +102,11 @@ export default function DataTable(props: {
     const createSingleUser = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         if (createFormData.role === '' || createFormData.name === '' || createFormData.email === '' || createFormData.DCC === '') {
-            alert('Missing field')
+            setStatus(({ error: { selected: true, message: 'Missing Field in User Creation. Please fill out all fields' } }))
         } else {
             createOneUser(createFormData)
-            alert('User Creation Successful')
+                .then(() => { setStatus(() => ({ success: { selected: true, message: 'User Created' } })) })
+                .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error in creating user. Please try again' } })) })
         }
         setCreateFormData({ name: '', email: '', role: '', DCC: '' })
     }
@@ -109,13 +121,16 @@ export default function DataTable(props: {
     const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         updateUserInfo(updateFormData, props.users)
-        alert('User Information Updated')
+            .then(() => { setStatus(() => ({ success: { selected: true, message: 'User Information Updated' } })) })
+            .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error in updating user information. Please try again' } })) })
     };
 
     // user delete
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         deleteUsers(selection, props.users)
+            .then(() => { setStatus(() => ({ success: { selected: true, message: 'User Deleted' } })) })
+            .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error in deleting user Please try again' } })) })
     };
 
 
@@ -216,6 +231,7 @@ export default function DataTable(props: {
                 </div>
                 {usersSelected && <Button color='tertiary' onClick={handleDelete}><MdDelete size={20} /> Delete Users </Button>}
             </Grid>
+            <ActionAlert status={status} />
             <div style={{ width: '100%' }}>
                 <DataGrid
                     rows={props.rows}

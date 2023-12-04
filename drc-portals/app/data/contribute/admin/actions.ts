@@ -4,6 +4,22 @@ import { Role } from "@prisma/client"
 import { revalidatePath } from "next/cache";
 import { UserInfo, updateForm } from "./DataTable";
 import type { User } from '@prisma/client'
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+
+async function verifyUser() {
+    const session = await getServerSession(authOptions)
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+
+    const user = await prisma.user.findUnique({
+        where: {
+            id: session.user.id
+        }
+    })
+    if (user === null) throw new Error('No user found')
+    if (user.role != 'ADMIN') throw new Error('not an admin')
+}
 
 export async function createOneUser(newUserData: {
     name: string;
@@ -11,6 +27,8 @@ export async function createOneUser(newUserData: {
     role: string;
     DCC: string;
 }) {
+    await verifyUser();
+
     let prismaRole = ''
     if (newUserData.role === "User") {
         prismaRole = Role.USER
@@ -31,7 +49,7 @@ export async function createOneUser(newUserData: {
 
     await prisma.user.upsert({
         where: {
-          email: newUserData.email,
+            email: newUserData.email,
         },
         update: {
             name: newUserData.name,
@@ -44,11 +62,13 @@ export async function createOneUser(newUserData: {
             dcc: newUserData.DCC.toString(),
             role: prismaRole as Role
         },
-      })
-      revalidatePath('/')
+    })
+    revalidatePath('/')
 }
 
 export async function updateUserInfo(updatedForms: updateForm[], users: User[]) {
+    await verifyUser();
+
     updatedForms.forEach(async (updatedData) => {
         let prismaRole = ''
         if (updatedData.role === "User") {
@@ -65,7 +85,7 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
         else if (updatedData.role === "Admin") {
             prismaRole = Role.ADMIN
         }
-    
+
         // add dcc to user in db
         await prisma.user.update({
             where: {
@@ -78,7 +98,7 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
                 ...(updatedData.DCC?.toString() != '' ? {
                     dcc: updatedData.DCC?.toString()
                 } : {})
-    
+
             },
         });
 
@@ -86,15 +106,17 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
     revalidatePath('/')
 }
 
-export async function deleteUsers(usersToDel: UserInfo[], users: User[]){
-    usersToDel.forEach(async (user, index)=> {
+export async function deleteUsers(usersToDel: UserInfo[], users: User[]) {
+    await verifyUser();
+
+    usersToDel.forEach(async (user, index) => {
         const deleteUser = await prisma.user.delete({
             where: {
-              id: users[user.id - 1].id,
+                id: users[user.id - 1].id,
             },
-          })
-          
+        })
+
     })
     revalidatePath('/')
-    
+
 }
