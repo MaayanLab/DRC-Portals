@@ -42,15 +42,18 @@ const Demo = styled('div')(({ theme }) => ({
 
 
 
-function FileList(prop: { files: string[], setFile:  React.Dispatch<React.SetStateAction<FileList | []>>, fileObjects : FileList | [] }) {
+function FileList(prop: { files: string[], setFile: React.Dispatch<React.SetStateAction<FileList | []>>, fileObjects: FileList | [] }) {
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(false);
   const [fileUploaded, setFileUploaded] = React.useState<boolean>(false);
 
-  function handleDelete(index: number, files: string[]) {
-    
-    return console.log(index)
-}
+  function handleDelete(index: number, fileObjects: FileList | [], setFile: React.Dispatch<React.SetStateAction<FileList | []>>) {
+    if (fileObjects.length > 0) {
+      const fileObjectArray = Array.from(fileObjects)
+      const newFileList = fileObjectArray.filter(file => file.name != fileObjectArray[index].name);
+      setFile(arrayToFileList(newFileList))
+    }
+  }
 
   useEffect(() => {
     if (prop.files.length > 0) {
@@ -65,37 +68,35 @@ function FileList(prop: { files: string[], setFile:  React.Dispatch<React.SetSta
       File to Upload
     </Typography>
 
-      {fileUploaded && <List dense={dense}>
-        {prop.files.map((file, index) => (
-          <ListItem key={index}
-            secondaryAction={
-              <Button onClick={() => {handleDelete(index, prop.files)}}>
-              <IconButton edge="end" aria-label="delete">
+    {fileUploaded && <List dense={dense}>
+      {prop.files.map((file, index) => (
+        <ListItem key={index}
+          secondaryAction={
+              <IconButton edge="end" aria-label="delete" onClick={() => { handleDelete(index, prop.fileObjects, prop.setFile) }}>
                 <DeleteIcon />
               </IconButton>
-              </Button>
 
-            }
-          >
-            <ListItemAvatar>
-              <Avatar>
-                <FolderIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={file.toString()}
-              secondary={secondary ? 'Secondary text' : null}
-              primaryTypographyProps={{ fontSize: '15px' }}
-            />
+          }
+        >
+          <ListItemAvatar>
+            <Avatar>
+              <FolderIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={file.toString()}
+            secondary={secondary ? 'Secondary text' : null}
+            primaryTypographyProps={{ fontSize: '15px' }}
+          />
 
-          </ListItem>)
-        )}
-      </List>}
+        </ListItem>)
+      )}
+    </List>}
   </Grid>);
 
 }
 
-export function arrayToFileList(arrayOfFiles : File[]) {
+export function arrayToFileList(arrayOfFiles: File[]) {
   const dataTransfer = new DataTransfer();
   arrayOfFiles.forEach((file) => {
     dataTransfer.items.add(file);
@@ -104,11 +105,14 @@ export function arrayToFileList(arrayOfFiles : File[]) {
 }
 
 
-export function FileDrop({ name, setUploadedFiles }: { name: string, setUploadedFiles:  React.Dispatch<React.SetStateAction<FileList | []>> }) {
+export function FileDrop({ name, setUploadedFiles }: { name: string, setUploadedFiles: React.Dispatch<React.SetStateAction<FileList | []>> }) {
   const [isOver, setIsOver] = React.useState(false);
   const [files, setFile] = React.useState<FileList | []>([]);
   const renderedFile = React.useMemo(() => files != null ? Array.from(files).map((file: File) => { return file.name }) : [], [files])
 
+  React.useMemo(()=> {
+    setUploadedFiles(files)
+  }, [files])
 
   const commonStyles = {
     bgcolor: 'background.paper',
@@ -154,19 +158,16 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
             onDrop={() => { setIsOver(false) }}
             type="file"
             multiple
-            // accept="zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
             name={name}
-            onChange={evt => { 
+            onChange={evt => {
               const oldFileList = files
               if (evt.target.files != null) {
                 const newFileList = Array.from(oldFileList).concat(...Array.from(evt.target.files))
                 setFile(arrayToFileList(newFileList))
-                setUploadedFiles(arrayToFileList(newFileList))
-                // setFile(oldFiles => oldFiles.push(...evt.target.files))
-                // setFile(evt.target?.files ? evt.target.files : []) 
+                // setUploadedFiles(arrayToFileList(newFileList))
               }
             }}
-          />     
+          />
         </Box>
       </Item>
       <Item>
