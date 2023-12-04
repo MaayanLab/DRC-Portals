@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import Box, { BoxProps } from '@mui/system/Box';
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl';
-import styled from '@mui/material/styles/styled';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
@@ -35,10 +34,6 @@ function Item(props: BoxProps) {
     />
   );
 }
-
-const Demo = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-}));
 
 
 
@@ -137,7 +132,7 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
           }}
         >
           <div>
-            <Typography variant="h6" className='text-center align-center'> Drag and drop zipped file here </Typography>
+            <Typography variant="h6" className='text-center align-center'> Drag and drop files here </Typography>
             <div className='flex justify-center'>
               <MdUploadFile size={70} />
             </div>
@@ -164,7 +159,6 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
               if (evt.target.files != null) {
                 const newFileList = Array.from(oldFileList).concat(...Array.from(evt.target.files))
                 setFile(arrayToFileList(newFileList))
-                // setUploadedFiles(arrayToFileList(newFileList))
               }
             }}
           />
@@ -174,7 +168,7 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
         <FormControl>
           <label htmlFor="raised-button-file">
             <Button variant="contained" color="primary" component="span">
-              Choose File
+              Choose Files
             </Button>
           </label>
         </FormControl>

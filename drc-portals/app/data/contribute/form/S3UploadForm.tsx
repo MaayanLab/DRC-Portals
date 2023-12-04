@@ -93,8 +93,7 @@ export function useS3UploadStatus() {
           </ThemedBox>
         </Grid>
 
-        <Typography  variant="subtitle1" className='text-center p-5'>Please upload a zipped file containing your data/metdata files and a manifest.json file detailing files information. See {' '}
-        <Link href='/example_manifest.json' color="secondary" download>manifest.json template</Link>
+        <Typography  variant="subtitle1" className='text-center p-5'>Please upload your data/metdata files here.
         </Typography>
         <ThemedStack>
           <FileDrop name="currentData" setUploadedFiles={setUploadedfiles}/>

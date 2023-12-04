@@ -74,8 +74,8 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol} : {userFil
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
                 {/* <TableCell sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.etag}</TableCell> */}
-                <TableCell sx={{ fontSize: 14 }} align="center">{approvedSymboldcc}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
