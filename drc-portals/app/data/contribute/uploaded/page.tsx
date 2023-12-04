@@ -2,7 +2,7 @@ import * as React from 'react';
 import Container from '@mui/material/Container'
 import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
 import { FaCircleExclamation } from "react-icons/fa6";
-import { Link, Typography } from '@mui/material';
+import { Alert, Link, Typography } from '@mui/material';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
@@ -40,8 +40,10 @@ export default async function UserFiles() {
     })
 
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
-    // if (!user) throw new Error('user not found')
-    if (!user.dcc) return redirect("/data/contribute/account")
+    if (!user.dcc) return ( 
+        <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
+        );
+        
     const userDCCArray = user.dcc.split(',')
     const allFiles = await prisma.dccAsset.findMany({
         include: {
