@@ -116,6 +116,7 @@ model DccAsset {
   library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
+  etag             String? 
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])

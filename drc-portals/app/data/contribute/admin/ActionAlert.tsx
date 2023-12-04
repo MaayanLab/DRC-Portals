@@ -1,11 +1,10 @@
 'use client'
 import { Alert, IconButton } from "@mui/material";
-import { useS3UploadStatus } from "./S3UploadForm";
 import CloseIcon from '@mui/icons-material/Close';
 import React, { useEffect, useState } from "react";
+import { ActionStatus } from "./DataTable";
 
-export default function Status() {
-    let status = useS3UploadStatus();
+export default function Status({ status }: { status: ActionStatus }) {
     const [open, setOpen] = useState<boolean>(false)
     useEffect(
         () => { setOpen(true) },
@@ -26,20 +25,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                } sx={{fontSize:14}}> Error! Please make sure files are either .csv, .txt, .zip or .dmt or .gmt</Alert>}
-            {open && status.loading && <Alert onClose={() => { }} severity="info"
-                action={
-                    <IconButton
-                        aria-label="close"
-                        color="inherit"
-                        size="small"
-                        onClick={() => {
-                            setOpen(false);
-                        }}
-                    >
-                        <CloseIcon fontSize="inherit" />
-                    </IconButton>
-                } sx={{fontSize:14}}>Upload in Progress!</Alert>}
+                } sx={{ fontSize: 14 }}> {status.error.message}!</Alert>}
             {open && status.success && <Alert onClose={() => { }}
                 action={
                     <IconButton
@@ -52,7 +38,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                } sx={{fontSize:14}}>Success! File Uploaded</Alert>}
+                } sx={{ fontSize: 14 }}>{status.success.message}</Alert>}
         </>
 
     )

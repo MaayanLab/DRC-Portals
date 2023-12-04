@@ -62,7 +62,7 @@ export default async function AccountPage() {
         <>
             <Container className="mt-10 justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
-                <Typography variant="body2" className='text-center p-5'>Please complete account email information and request for an update in DCC information before approving or the uploading forms</Typography>
+                <Typography variant="body2" className='text-center p-5'>Please complete account email information before approving or the uploading forms. If role is incorrect, please contact the DRC to update your information</Typography>
                 <Box
                     component="form"
                     noValidate
@@ -78,7 +78,7 @@ export default async function AccountPage() {
                         name='name'
                         defaultValue={user.name}
                         inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }} 
+                        InputLabelProps={{ style: { fontSize: 16 } }}
                     />
                     <TextField
                         id="input-email"
@@ -95,6 +95,15 @@ export default async function AccountPage() {
                         label="DCC"
                         options={names}
                         defaultValue={user.dcc?.split(',')}
+                    />
+                    <TextField
+                        id="input-role"
+                        label="Role"
+                        name='role'
+                        defaultValue={user.role}
+                        inputProps={{ style: { fontSize: 16 } }}
+                        InputLabelProps={{ style: { fontSize: 16 } }}
+                        disabled
                     />
 
                     <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Container from '@mui/material/Container'
-import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
+import { BsCheckCircleFill } from "react-icons/bs";
 import { FaCircleExclamation } from "react-icons/fa6";
-import { Link, Typography } from '@mui/material';
+import { Alert, Typography } from '@mui/material';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
@@ -15,6 +15,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { redirect } from 'next/navigation';
 import ApprovalBtn from './ApprovalBtn';
+import { FileRow } from './collapsibleFileInfo';
+
 
 export default async function UserFiles() {
     const session = await getServerSession(authOptions)
@@ -33,13 +35,22 @@ export default async function UserFiles() {
                         }
                     }
                 }
-            }, 
+            },
         },
     })
 
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
-    // if (!user) throw new Error('user not found')
-    if (!user.dcc) return redirect("/data/contribute/account")
+    // if user is not an uploader or approver, then they should not have acccess to this page
+    if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
+
+    if (!user.email) return (
+        <Alert severity="warning"> Email not updated on user account. Please enter email on the Accounts Page</Alert>
+    );
+
+    if (!user.dcc) return (
+        <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
+    );
+
     const userDCCArray = user.dcc.split(',')
     const allFiles = await prisma.dccAsset.findMany({
         include: {
@@ -50,27 +61,23 @@ export default async function UserFiles() {
             }
         },
         where: {
-            ...(user.role === 'DCC_APPROVER' ? {
+            ...(user.role === 'DCC_APPROVER' || user.role === 'UPLOADER' ? {
                 dcc: {
                     label: {
                         in: userDCCArray
                     }
                 }
             } : {})
-            }
+        }
 
     })
 
-   
-    // if user is not an uploader or approver, then they should not have acccess to this page
-    if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
-    if (!user.email) return redirect("/data/contribute/account")
-    if (!user.dcc) return redirect("/data/contribute/account")
 
     let symbolUserFiles = []
 
     if (user.role === 'UPLOADER') {
-        const userFiles = user.dccAsset
+        // const userFiles = user.dccAsset
+        const userFiles = allFiles
 
         symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <FaCircleExclamation size={20} />
@@ -82,19 +89,7 @@ export default async function UserFiles() {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
             return (
-                <TableRow
-                    key={userFile.link}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
-                >
-                    <TableCell  sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toString()}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center"></TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymboldcc}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
-                </TableRow>
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
             )
         })
     } else if (user.role === 'DCC_APPROVER') {
@@ -105,19 +100,7 @@ export default async function UserFiles() {
             if (userFile.drcapproved) {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
-            return (<TableRow
-                key={userFile.link}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-                <TableCell sx={{ fontSize: 14 }}  align="center" >{userFile.lastmodified.toString()}</TableCell>
-                <TableCell sx={{ fontSize: 14 }}  align="center">{userFile.creator}</TableCell>
-                <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
-                <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
-                <TableCell  sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                <TableCell  sx={{ fontSize: 14 }} align="center"></TableCell>
-                <TableCell sx={{ fontSize: 14 }}  align="center">{approvedSymboldcc}</TableCell>
-                <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
-            </TableRow>)
+            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />)
         })
 
     } else {
@@ -129,38 +112,26 @@ export default async function UserFiles() {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             return (
-                <TableRow
-                    key={userFile.lastmodified.toString()}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    <TableCell  sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toString()}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }}align="center">{userFile.creator}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
-                    <TableCell sx={{ fontSize: 14 }}  align="center">{userFile.filetype}</TableCell>
-                    <TableCell sx={{ fontSize: 14 }}  align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center"></TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymboldcc}</TableCell>
-                    <TableCell  sx={{ fontSize: 14 }} align="center">{approvedSymbol}</TableCell>
-                </TableRow>
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
             )
-
         })
     }
 
     return (
         <>
-            <Container className="mt-10 justify-content-center" sx={{mb:5}}>
+            <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
                 <Typography variant="h3" className='text-center p-5'>Uploaded Files</Typography>
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                             <TableRow>
+                                <TableCell />
                                 <TableCell sx={{ fontSize: 14 }} align="center">Date Uploaded</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">Uploaded By</TableCell>
-                                <TableCell  sx={{ fontSize: 14 }} align="center">DCC</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">File Type</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Uploaded File</TableCell>
-                                <TableCell  sx={{ fontSize: 14 }} align="center">Additional Info</TableCell>
+                                {/* <TableCell sx={{ fontSize: 14 }} align="center">Uploaded File</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">Checksum (MD5)</TableCell> */}
                                 <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
                             </TableRow>
