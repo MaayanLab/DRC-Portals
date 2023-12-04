@@ -110,7 +110,6 @@ export default async function UserFiles() {
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
             )
-
         })
     }
 
