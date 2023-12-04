@@ -16,7 +16,7 @@ export default function InfoLayout({
   return (
     <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
       <Grid item><Header/></Grid>
-      <Grid item><Container maxWidth="lg">{children}</Container></Grid>
+      <Grid item className="grow"><Container maxWidth="lg">{children}</Container></Grid>
       <Grid item><Footer/></Grid>
     </Grid>
   )
