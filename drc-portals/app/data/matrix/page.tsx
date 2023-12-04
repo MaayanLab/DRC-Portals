@@ -50,7 +50,7 @@ const cfde_data = [
     etl: false, api: true, ent: false, pwb: false, chat: false 
   },
   {
-    dcc: 'iHMP', hasfile: false, img: '/img/iHmp.png',
+    dcc: 'iHMP', hasfile: false, img: '/img/ihmp.png',
     c2m2: false, xmt: false, kg: false, att: false,
     etl: false, api: false, ent: false, pwb: false, chat: false
   },
