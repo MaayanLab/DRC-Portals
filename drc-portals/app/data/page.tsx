@@ -30,9 +30,9 @@ const search_cards = [
     "link": "/data/coming_soon"
   },
   {
-    "title": "Processed Data",
+    "title": "Data Matrix",
     "description": "Search hundreds of processed data (XMTs, assertions, attribute table).",
-    "button": "Explore Processed Data",
+    "button": "Explore Data Matrix",
     "img": "/img/processed_data.png",
     "link": "/data/matrix"
   }

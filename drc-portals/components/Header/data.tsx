@@ -45,7 +45,7 @@ export default async function InfoHeader() {
                     <Typography variant="nav">INFORMATION PORTAL</Typography>
                   </Link>
                   <Link href="/data/matrix">
-                    <Typography variant="nav">PROCESSED DATA</Typography>
+                    <Typography variant="nav">DATA MATRIX</Typography>
                   </Link>
                   <Link href="/data/coming_soon">
                     <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
