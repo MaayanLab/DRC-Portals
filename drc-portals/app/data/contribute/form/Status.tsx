@@ -26,7 +26,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                } sx={{fontSize:14}}> Error! Please make sure manifest.json file and metadata files are formatted properly</Alert>}
+                } sx={{fontSize:14}}> Error! Please make sure files are either .csv, .txt, .zip or .dmt or .gmt</Alert>}
             {open && status.loading && <Alert onClose={() => { }} severity="info"
                 action={
                     <IconButton

@@ -5,6 +5,20 @@ import { getServerSession } from 'next-auth';
 import { z } from 'zod'
 import minio from "@/lib/minio";
 
+export async function parseFileType(filename: string, filetype: string) {
+    let parsedFileType = ''
+    if (filename.includes('.gmt') || filename.includes('.dmt')) {
+        parsedFileType = 'XMT'
+    } else if (filetype === 'text/csv') {
+        parsedFileType = 'KG Assertions'
+    } else if (filetype === 'text/plain') {
+        parsedFileType = 'Attribute Table'
+    } else if ((filetype === 'zip') || (filetype === 'application/zip') || (filetype === 'application/x-zip') || (filetype === "application/x-zip-compressed")) {
+        parsedFileType = 'C2M2'
+    }
+    return parsedFileType
+}
+
 export async function upload(formData: FormData) {
     const formObjects = z.object({
         dcc: z.string(),
@@ -12,7 +26,6 @@ export async function upload(formData: FormData) {
         dcc: formData.get('dcc'),
     })
     const files = formData.getAll('files[]') as File[]
-
 
     files.forEach(async (file) => {
         // get user session
@@ -29,34 +42,24 @@ export async function upload(formData: FormData) {
             },
         });
 
-        let filetype = ""
-        if (file.name.includes('.gmt' || '.dmt')) {
-            filetype = 'XMT'
-        } else if (file.type === 'text/csv') {
-            filetype = 'KG Assertions'
-        }  else if (file.type === 'text/plain') {
-            filetype = 'Attribute Table'
-        } else if (file.type === 'zip'  || 'application/zip' || 'application/x-zip' || "application/x-zip-compressed") {
-                filetype = 'C2M2'
-            }
-
+        let filetype = await parseFileType(file.name, file.type);
+        if (filetype != '') {
         // upload presigned url
         const searchParams = {
-          name: file.name,
-          dcc: formObjects.dcc,
-          filetype: filetype,
-          date: new Date().toJSON().slice(0, 10),
+            name: file.name,
+            dcc: formObjects.dcc,
+            filetype: filetype,
+            date: new Date().toJSON().slice(0, 10),
         }
         if (!process.env.S3_BUCKET) throw new Error('S3 bucket not configured')
-        const url = await minio.presignedPutObject(process.env.S3_BUCKET, searchParams.dcc + '/' + searchParams.filetype + '/'+  searchParams.date + '/' + searchParams.name)
-        console.log(url)
+        const url = await minio.presignedPutObject(process.env.S3_BUCKET, searchParams.dcc + '/' + searchParams.filetype + '/' + searchParams.date + '/' + searchParams.name)
         // upload to s3
         const s3_upload_res = await fetch(url, {
-        method: 'PUT',
-        body: file
+            method: 'PUT',
+            body: file
         })
         if (!s3_upload_res.ok) throw new Error(await s3_upload_res.text())
-        const fileEtag =  s3_upload_res.headers.get('etag')
+        const fileEtag = s3_upload_res.headers.get('etag')
 
         // put metadata in database
         // in development when dccs are not in database
@@ -82,7 +85,7 @@ export async function upload(formData: FormData) {
                 size: file.size,
                 dcc_id: dcc.id,
                 etag: fileEtag
-              },
+            },
             create: {
                 link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${file.name}`,
                 filetype: filetype,
@@ -94,7 +97,8 @@ export async function upload(formData: FormData) {
                 etag: fileEtag
             }
         });
+        }
     })
-    }
+}
 
 
