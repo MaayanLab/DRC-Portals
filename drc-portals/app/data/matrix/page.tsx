@@ -109,7 +109,7 @@ const columns = [
 export default function DataMatrix() {
   return (
     <Container maxWidth="xl">
-      <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>PROCESSED DATA</Typography>
+      <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>METADATA & PROCESSED DATA MATRIX</Typography>
       <TableContainer sx={{ mb: 5, maxHeight: 680 }}>
       <Table stickyHeader aria-label="sticky table">
         <colgroup>
