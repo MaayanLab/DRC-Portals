@@ -44,7 +44,6 @@ export default async function AccountPage() {
         const email = formData.get('email')
         const dcc = formData.get('DCC')
         if (email) {
-            console.log('update')
             await prisma.user.update({
                 where: {
                     id: session?.user.id,

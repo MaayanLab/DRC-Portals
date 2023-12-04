@@ -13,7 +13,6 @@ export default function DCCSelect(props: { dccOptions: string }) {
     setDCC(event.target.value);
   };
 
-  console.log(props.dccOptions)
   const dccArray = props.dccOptions.split(',')
   return (
     <div>
