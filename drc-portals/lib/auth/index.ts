@@ -27,11 +27,16 @@ const providers = [
         create: {
           id: process.env.NEXTAUTH_SECRET ?? '',
           name: 'Developer',
+          role: 'ADMIN',
+          dcc: 'LINCS',
         },
         where: {
           id: process.env.NEXTAUTH_SECRET ?? '',
         },
-        update: {},
+        update: {
+          role: 'ADMIN',
+          dcc: 'LINCS',
+        },
       })
       return user
     }
