@@ -50,6 +50,7 @@ export function SearchablePagedTableCellIcon(props: {
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
   q: string, p: number, r: number, count?: number,
+  autocomplete?: { type?: NodeType, entity_type?: string },
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
@@ -60,7 +61,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
           <form action="" method="GET">
-            <SearchField q={props.q} placeholder={`Search ${props.label}`} />
+            <SearchField q={props.q} placeholder={`Search ${props.label}`} autocomplete={props.autocomplete} />
           </form>
         </Stack>
       </Grid>

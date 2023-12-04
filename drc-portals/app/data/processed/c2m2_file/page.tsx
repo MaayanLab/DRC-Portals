@@ -88,6 +88,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={results.count}
+        autocomplete={{ type: 'c2m2_file' }}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
