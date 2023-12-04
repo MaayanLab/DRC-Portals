@@ -50,7 +50,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                   ))
                 yield gene_id
             else:
-              entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
+              entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
               if entity_id not in entities:
                 entities.add(entity_id)
                 entity.writerow(dict(
