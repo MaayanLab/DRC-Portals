@@ -40,7 +40,6 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item xs={12}></Grid>
               <Grid item>
-                <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={2}>
                   <Stack direction={"row"} alignItems={"center"} spacing={2}>
                     <Link href="/info">
                       <Typography variant="nav">INFORMATION PORTAL</Typography>
@@ -55,8 +54,9 @@ export default async function InfoHeader() {
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
                     </Link>
                   </Stack>
-                  <SearchParamSearchField />
-                </Stack>
+              </Grid>
+              <Grid item>
+                <SearchParamSearchField />
               </Grid>
               <Grid item xs={12}>
                 <NavBreadcrumbs/>
