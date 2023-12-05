@@ -13,12 +13,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
@@ -83,7 +81,8 @@ export default async function Page(props: PageProps) {
         label={type_to_string('dcc_asset', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(results.count / pageSize) + 1}
+        r={searchParams.r}
+        count={results.count}
         columns={[
           <>&nbsp;</>,
           <>Label</>,

@@ -42,12 +42,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const library = await getItem(props.params.id)
   const library_sets = await prisma.geneSetLibraryNode.findUniqueOrThrow({
     where: { id: props.params.id },
@@ -84,7 +82,6 @@ export default async function Page(props: PageProps) {
       }
     },
   })
-  const ps = Math.floor(library_sets._count.gene_sets / pageSize) + 1
   return (
     <LandingPageLayout
       icon={library.node.dcc?.icon ? { href: `/data/matrix/${library.node.dcc.short_label}`, src: library.node.dcc.icon, alt: library.node.dcc.label } : undefined}
@@ -101,7 +98,8 @@ export default async function Page(props: PageProps) {
         label="Gene sets"
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={ps}
+        r={searchParams.r}
+        count={library_sets._count.gene_sets}
         columns={[
           <>Label</>,
           <>Description</>,

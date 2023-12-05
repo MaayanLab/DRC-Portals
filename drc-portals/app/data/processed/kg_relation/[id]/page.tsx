@@ -28,12 +28,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const item = await getItem(props.params.id)
   const [results] = await prisma.$queryRaw<Array<{
     assertions: {
@@ -102,7 +100,6 @@ export default async function Page(props: { params: { id: string }, searchParams
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
   `
-  const ps = Math.floor((results.n_filtered_assertions ?? 1) / pageSize) + 1
   return (
     <LandingPageLayout
       label={item.node.label}
@@ -115,7 +112,8 @@ export default async function Page(props: { params: { id: string }, searchParams
         label="Knowledge Graph Assertions"
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={ps}
+        r={searchParams.r}
+        count={results.n_filtered_assertions}
         columns={[
           <>&nbsp;</>,
           <>Source</>,
