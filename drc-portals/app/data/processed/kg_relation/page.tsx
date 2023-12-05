@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
-import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
-import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from 'next'
 
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
@@ -12,12 +12,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [items, count] = await prisma.$transaction([
     prisma.kGRelationNode.findMany({
       where: searchParams.q ? {
@@ -54,14 +52,15 @@ export default async function Page(props: PageProps) {
         label={type_to_string('kg_relation', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(count / pageSize) + 1}
+        r={searchParams.r}
+        count={count}
         columns={[
           <>Label</>,
           <>Description</>,
         ]}
         rows={items.map(item => [
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
-          format_description(item.node.description),
+          <Description description={item.node.description}/>,
         ])}
       />
     </ListingPageLayout>

@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
-import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import {pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -13,12 +13,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
@@ -83,7 +81,8 @@ export default async function Page(props: PageProps) {
         label={type_to_string('gene_set', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(results.count / pageSize) + 1}
+        r={searchParams.r}
+        count={results.count}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
@@ -92,7 +91,7 @@ export default async function Page(props: PageProps) {
         rows={results.items.map(item => [
           item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
-          format_description(item.node.description),
+          <Description description={item.node.description}/>,
         ])}
       />
     </ListingPageLayout>

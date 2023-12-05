@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
-import { format_description, type_to_string, pluralize, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { type_to_string, pluralize, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Metadata, ResolvingMetadata } from 'next'
  
@@ -13,12 +13,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
@@ -71,14 +69,15 @@ export default async function Page(props: PageProps) {
         label={type_to_string('entity', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(results.count / pageSize) + 1}
+        r={searchParams.r}
+        count={results.count}
         columns={[
           <>Label</>,
           <>Description</>,
         ]}
         rows={results.items.map(item => [
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} />,
-          format_description(item.node.description),
+          <Description description={item.node.description}/>,
         ])}
       />
     </ListingPageLayout>

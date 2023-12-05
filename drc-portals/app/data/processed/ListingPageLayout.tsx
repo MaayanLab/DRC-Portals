@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Container, Typography } from "@mui/material"
+import { Box, Paper, Grid, Typography } from "@mui/material"
 
 export default function ListingPageLayout(props: React.PropsWithChildren<{
   count?: number,
@@ -7,25 +7,30 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   footer?: React.ReactNode,
 }>) {
   return (
-    <Container className="justify-content-center">
-      <div className="flex flex-row gap-4 mt-4">
-        {props.filters ? (
-          <Box className="w-56 flex-shrink-0 flex flex-col p-5 bg-slate-100 rounded-lg">
-            <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
-              <Typography variant="subtitle1">Results found</Typography>
-              {(props.count ?? 0).toLocaleString()}
-            </div>
-            <div className="text-sm">Filter</div>
-            <div className="text-cyan-700 text-2xl">
-              {props.filters}
-            </div>
-          </Box>
-        ) : null}
-        <Box className="flex-grow flex-col flex justify-stretch">
-          {props.children}
-        </Box>
-      </div>
-      {props.footer}
-    </Container>
+    <Grid container justifyContent={"center"} sx={{paddingTop: 5, paddingBottom: 5}} spacing={2}>
+      { props.filters && 
+      <Grid item xs={12} sm={3}>
+        {
+          props.filters && 
+            <Paper elevation={0} sx={{minHeight: 400, background: "#EDF0F8", padding: "12px 24px"}}>
+              <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
+                <Typography variant="h5">Results found</Typography>
+                <Typography variant="h5">{(props.count ?? 0).toLocaleString()}</Typography>
+              </div>
+              <div><Typography variant="subtitle1">Filter</Typography></div>
+              <div className="flex flex-col text-cyan-700 text-lg">
+                {props.filters}
+              </div>
+            </Paper>
+        }
+      </Grid>
+      }
+      <Grid item xs={12} sm={props.filters ? 9: 12}>
+        {props.children}
+      </Grid>
+      <Grid item xs={12}>
+        {props.footer}
+      </Grid>
+    </Grid>
   )
 }

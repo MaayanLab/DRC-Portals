@@ -2,7 +2,7 @@ import { mdiMagnify } from "@mdi/js";
 import Icon from '@mdi/react';
 import { InputAdornment, TextField } from '@mui/material';
 
-export default function SearchField({ q, placeholder = 'Search', error }: { q: string, placeholder?: string, error?: string }) {
+export default function SearchField({ q, width, placeholder = 'Search', error }: { q: string, width?: number | string, placeholder?: string, error?: string }) {
   return (
     <>
       <TextField
@@ -12,8 +12,9 @@ export default function SearchField({ q, placeholder = 'Search', error }: { q: s
         name="q"
         defaultValue={q}
         placeholder={placeholder}
+        color="secondary"
         InputProps={{
-          sx: {borderRadius: 1, height: 50},
+          sx: {borderRadius: 1, height: 50, width, fieldset: { borderColor: "#336699" }},
           endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
         }}
       />

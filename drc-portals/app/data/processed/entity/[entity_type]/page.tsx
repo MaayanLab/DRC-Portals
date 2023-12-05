@@ -6,12 +6,10 @@ import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 
 type PageProps = { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
@@ -65,7 +63,8 @@ export default async function Page(props: PageProps) {
         label={type_to_string('entity', props.params.entity_type)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(results.count / pageSize) + 1}
+        r={searchParams.r}
+        count={results.count}
         columns={[
           <>Label</>,
           <>Description</>,
