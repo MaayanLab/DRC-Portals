@@ -52,7 +52,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
         <div className="flex flex-row justify-between">
           <Typography variant="h2" className="whitespace-nowrap">{props.label}</Typography>
           <form action="" method="GET">
-            <SearchField q={props.q} />
+            <SearchField q={props.q} placeholder={`Search ${props.label}`} />
           </form>
         </div>
         : null}
