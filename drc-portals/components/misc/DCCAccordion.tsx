@@ -11,7 +11,7 @@ function AccordionHeader(
 ) {
   if (props.assetInfo.current.length + props.assetInfo.archived.length < 1) {
     return (
-      <AccordionSummary sx={{ backgroundColor: "#7187C3"}}>
+      <AccordionSummary sx={{ backgroundColor: "#b8c4e1"}}>
         <Typography sx={{ color: '#ffffff', width: '32%', fontSize: '12pt'}}>{props.label}</Typography>
         <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>0 Available Files</Typography>
       </AccordionSummary>
