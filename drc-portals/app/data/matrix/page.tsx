@@ -1,7 +1,6 @@
 import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell} from '@mui/material'
-import { Typography, Container } from '@mui/material'
+import { Typography, Container, Link } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch';
-import Link from 'next/link';
 
 const cfde_data = [
   { 
@@ -110,6 +109,32 @@ export default function DataMatrix() {
   return (
     <Container maxWidth="xl">
       <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>METADATA & PROCESSED DATA MATRIX</Typography>
+      <Typography color="#666666" fontSize="11.5pt" sx={{mt:2, mb:2}}>
+        The CFDE Metadata and Processed Data Matrix provides access to files and 
+        other assets produced by Common Fund (CF) Data Coordination Centers (DCCs) 
+        that partner with the CFDE. Click on a DCC logo to navigate to the 
+        DCC-specific assets page. Alternatively, click on the icon for a particular 
+        file type to navigate to a table that contains these files on the 
+        DCC-specific page. 
+        <br /> <br />
+        Data and metadata files include C2M2 metadata data packages, gene and other 
+        entity set libraries (XMTs), knowledge graph (KG) assertions, and attribute 
+        tables. The files listed here are <b>not</b> the original data generated 
+        by each CF program, but are processed representations of knowledge from the 
+        original data. For the original data source, please refer to each CF DCC 
+        portal, linked from the assets pages. 
+        <br /> <br />
+        Interoperability and code assets include links to extract-transform-load 
+        (ETL) scripts, API specifications, entity pages, 
+        CFDE <Link color="#3470e5" href="https://playbook-workflow-builder.cloud/" target="_blank">
+        Playbook Workflow Builder</Link> (PWB) metanode specifications, and chatbot 
+        specifications. 
+        <br /> <br />
+        For more information about any of the asset types, please refer to 
+        the <Link href="../../info/standards" target="_blank" color="#3470e5">STANDARDS & PROTOCOLS</Link> section
+        of the CFDE Workbench <Link href="../../info" target="_blank" color="#3470e5">
+        Information Portal</Link>.</Typography> 
+      
       <TableContainer sx={{ mb: 5, maxHeight: 680 }}>
       <Table stickyHeader aria-label="sticky table">
         <colgroup>
