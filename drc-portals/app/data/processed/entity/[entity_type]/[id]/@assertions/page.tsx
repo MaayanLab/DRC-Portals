@@ -96,12 +96,10 @@ export default async function Page(props: { params: { entity_type: string, id: s
   if (results.n_assertions === 0) return null
   return (
     <Container>
-      <Typography variant="h2">Assertions ({results.n_assertions.toLocaleString()})</Typography>
       <SearchablePagedTable
         label="Knowledge Graph Assertions"
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={ps}
         r={searchParams.r}
         count={results.n_filtered_assertions}
         columns={[
