@@ -133,60 +133,57 @@ export default async function Page(props: PageProps) {
   if (!results) redirect('/data')
   else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
-    <div className="flex flex-col">
-      <form className="self-end" action="" method="GET"><SearchField q={searchParams.q ?? ''} /></form>
-      <ListingPageLayout
-        count={results?.count}
-        filters={
-          <>
-            {/* <Typography className="caption">Type</Typography> */}
-            {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-              <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
-            )}
-            {/* <hr className="m-2" />
-            <Typography className="caption">Program</Typography> */}
-            {results?.dcc_counts.map((dcc_count) =>
-              <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
-            )}
-            {/* <hr className="m-2" />
-            <Typography className="caption">Entity</Typography> */}
-            {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
-              <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
-            )}
-          </>
-        }
-        footer={
-          <Link href="/data">
-            <Button
-              sx={{textTransform: "uppercase"}}
-              color="secondary"
-              startIcon={<Icon path={mdiArrowLeft} size={1} />}>
-                BACK TO SEARCH
-            </Button>
-          </Link>
-        }
-      >
-        <SearchablePagedTable
-          q={searchParams.q ?? ''}
-          p={searchParams.p}
-          ps={Math.floor((results?.count ?? 1) / pageSize) + 1}
-          columns={[
-            <>&nbsp;</>,
-            <>Label</>,
-            <>Description</>,
-          ]}
-          rows={results?.items.map(item => [
-            item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
-              : item.type === 'entity' ? 
-                item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
-                : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
-                : null
-              : null,
-            <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
-            format_description(item.description),
-          ]) ?? []}
-        />
-      </ListingPageLayout>
-    </div>
+    <ListingPageLayout
+      count={results?.count}
+      filters={
+        <>
+          {/* <Typography className="caption">Type</Typography> */}
+          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+          )}
+          {/* <hr className="m-2" />
+          <Typography className="caption">Program</Typography> */}
+          {results?.dcc_counts.map((dcc_count) =>
+            <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
+          )}
+          {/* <hr className="m-2" />
+          <Typography className="caption">Entity</Typography> */}
+          {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+          )}
+        </>
+      }
+      footer={
+        <Link href="/data">
+          <Button
+            sx={{textTransform: "uppercase"}}
+            color="secondary"
+            startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+              BACK TO SEARCH
+          </Button>
+        </Link>
+      }
+    >
+      <SearchablePagedTable
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        ps={Math.floor((results?.count ?? 1) / pageSize) + 1}
+        columns={[
+          <>&nbsp;</>,
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={results?.items.map(item => [
+          item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
+            : item.type === 'entity' ? 
+              item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
+              : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
+              : null
+            : null,
+          <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
+          format_description(item.description),
+        ]) ?? []}
+      />
+    </ListingPageLayout>
   )
 }
