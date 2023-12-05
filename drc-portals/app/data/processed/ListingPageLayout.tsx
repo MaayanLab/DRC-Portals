@@ -17,7 +17,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
                 <Typography variant="h5">{(props.count ?? 0).toLocaleString()}</Typography>
               </div>
               <div><Typography variant="subtitle1">Filter</Typography></div>
-              <div className="text-cyan-700 text-lg">
+              <div className="flex flex-col text-cyan-700 text-lg">
                 {props.filters}
               </div>
             </Paper>
