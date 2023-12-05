@@ -38,9 +38,11 @@ export default async function Page(props: PageProps) {
       skip: offset,
       take: limit,
     }),
-    prisma.node.count({
+    prisma.kGRelationNode.count({
       where: searchParams.q ? {
-        OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+        node: {
+          OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+        },
       } : {},
     }),
   ])
