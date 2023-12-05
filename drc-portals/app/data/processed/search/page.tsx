@@ -13,6 +13,7 @@ import { Metadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import SearchField from "../SearchField";
+import Link from "next/link";
 
 const pageSize = 10
 
@@ -132,8 +133,8 @@ export default async function Page(props: PageProps) {
   if (!results) redirect('/data')
   else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
-    <form className="flex flex-col" action="" method="GET">
-      <div className="self-end"><SearchField q={searchParams.q ?? ''} /></div>
+    <div className="flex flex-col">
+      <form className="self-end" action="" method="GET"><SearchField q={searchParams.q ?? ''} /></form>
       <ListingPageLayout
         count={results?.count}
         filters={
@@ -155,12 +156,14 @@ export default async function Page(props: PageProps) {
           </>
         }
         footer={
-          <Button
-            sx={{textTransform: "uppercase", marginLeft: -2}}
-            color="secondary"
-            startIcon={<Icon path={mdiArrowLeft} size={1} />}>
-              BACK TO SEARCH
-          </Button>
+          <Link href="/data">
+            <Button
+              sx={{textTransform: "uppercase"}}
+              color="secondary"
+              startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+                BACK TO SEARCH
+            </Button>
+          </Link>
         }
       >
         <SearchablePagedTable
@@ -184,6 +187,6 @@ export default async function Page(props: PageProps) {
           ]) ?? []}
         />
       </ListingPageLayout>
-    </form>
+    </div>
   )
 }

@@ -16,7 +16,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
               {(props.count ?? 0).toLocaleString()}
             </div>
             <div className="text-sm">Filter</div>
-            <div className="text-cyan-700 text-lg">
+            <div className="text-cyan-700 text-2xl">
               {props.filters}
             </div>
           </Box>
