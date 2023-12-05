@@ -12,8 +12,9 @@ export default function SearchField({ q, width, placeholder = 'Search', error }:
         name="q"
         defaultValue={q}
         placeholder={placeholder}
+        color="secondary"
         InputProps={{
-          sx: {borderRadius: 1, height: 50, width, color: "#336699"},
+          sx: {borderRadius: 1, height: 50, width, fieldset: { borderColor: "#336699" }},
           endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
         }}
       />
