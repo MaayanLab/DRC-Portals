@@ -47,7 +47,7 @@ export function FileInfo({ open, fileInfo }: {
                         <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell variant="head">Checksum (MD5)</TableCell>
+                        <TableCell variant="head">Checksum (SHA256)</TableCell>
                         <TableCell>{fileInfo.etag}</TableCell>
                     </TableRow>
                 </Table>

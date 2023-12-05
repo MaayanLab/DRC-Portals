@@ -44,7 +44,7 @@ export default async function UserFiles() {
     if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
 
     if (!user.email) return (
-        <Alert severity="warning"> Email not updated on user account. Please enter email on the Accounts Page</Alert>
+        <Alert severity="warning"> Email not updated on user account. Please enter email on My Account Page</Alert>
     );
 
     if (!user.dcc) return (
