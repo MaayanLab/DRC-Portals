@@ -98,6 +98,7 @@ export default async function Page(props: PageProps) {
       ]}
     >
       <SearchablePagedTable
+        label="Gene sets"
         q={searchParams.q ?? ''}
         p={searchParams.p}
         ps={ps}

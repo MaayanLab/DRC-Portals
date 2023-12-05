@@ -112,6 +112,7 @@ export default async function Page(props: { params: { id: string }, searchParams
       ]}
     >
       <SearchablePagedTable
+        label="Knowledge Graph Assertions"
         q={searchParams.q ?? ''}
         p={searchParams.p}
         ps={ps}

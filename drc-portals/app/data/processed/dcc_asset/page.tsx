@@ -80,6 +80,7 @@ export default async function Page(props: PageProps) {
       count={results.count}
     >
       <SearchablePagedTable
+        label={type_to_string('dcc_asset', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         ps={Math.floor(results.count / pageSize) + 1}

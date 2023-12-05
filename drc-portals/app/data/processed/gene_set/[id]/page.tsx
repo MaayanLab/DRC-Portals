@@ -120,6 +120,7 @@ export default async function Page(props: PageProps) {
       ]}
     >
       <SearchablePagedTable
+        label="Genes"
         q={searchParams.q ?? ''}
         p={searchParams.p}
         ps={ps}

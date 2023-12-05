@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react"
-import { Container, Typography } from "@mui/material"
+import { Box, Container, Typography } from "@mui/material"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -12,6 +12,11 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
   return (
     <Container>
       <div className="flex flex-column">
+        <Box className="flex-grow">
+          <Box><Typography variant="h1">{props.label}</Typography></Box>
+          {props.metadata?.map((item, i) => item ? <Box key={i}>{item.label}: {item.value}</Box> : null)}
+          <Box><Typography variant="body2">Description: {props.description}</Typography></Box>
+        </Box>
         {props.icon ? 
           <div className="flex-grow-0 self-center justify-self-center">
             <Link href={props.icon.href}>
@@ -19,13 +24,10 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             </Link>
           </div>
           : null}
-        <Container className="flex-grow">
-          <Container><Typography variant="h1">{props.label}</Typography></Container>
-          <Container><Typography variant="caption">Description: {props.description}</Typography></Container>
-          {props.metadata?.map((item, i) => item ? <Container key={i}>{item.label}: {item.value}</Container> : null)}
-        </Container>
       </div>
-      {props.children}
+      <div className="my-8">
+        {props.children}
+      </div>
     </Container>
   )
 }

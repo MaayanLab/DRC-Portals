@@ -100,6 +100,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
     <Container>
       <Typography variant="h2">Assertions ({results.n_assertions.toLocaleString()})</Typography>
       <SearchablePagedTable
+        label="Knowledge Graph Assertions"
         q={searchParams.q ?? ''}
         p={searchParams.p}
         ps={ps}

@@ -65,6 +65,7 @@ export default async function Page(props: PageProps) {
       count={count}
     >
       <SearchablePagedTable
+        label={type_to_string('gene_set_library', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         ps={Math.floor(count / pageSize) + 1}

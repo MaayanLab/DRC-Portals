@@ -32,7 +32,7 @@ export function SearchablePagedTableCellIcon(props: {
   src: string | StaticImageData, href: string, alt: string
 }) {
   return (
-    <div className="w-16 h-16 relative">
+    <div className="w-32 h-16 relative">
       <Link href={props.href}>
         <Image className="object-contain" src={props.src} alt={props.alt} fill />
       </Link>
@@ -41,13 +41,19 @@ export function SearchablePagedTableCellIcon(props: {
 }
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
+  label?: string,
   q: string, p: number, ps: number,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
   return (
     <form className="flex flex-col" action="" method="GET">
-      <SearchField q={props.q} />
+      {props.label ?
+        <div className="flex flex-row justify-between">
+          <Typography variant="h2" className="whitespace-nowrap">{props.label}</Typography>
+          <SearchField q={props.q} />
+        </div>
+        : null}
       {props.rows.length === 0 ? <>No results</> : (
         <>
           <TableContainer component={Paper}>
