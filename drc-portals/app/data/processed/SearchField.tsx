@@ -9,7 +9,6 @@ export default function SearchField({ q, placeholder = 'Search', error }: { q: s
         label={error ? error.split(':')[0] : undefined}
         error={!!error}
         helperText={error ? error.split(':').slice(1).join(':') : undefined}
-        sx={{width: 544}}
         name="q"
         defaultValue={q}
         placeholder={placeholder}

@@ -81,6 +81,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
       },
     },
   })
+  if (item._count.gene_sets === 0) return null
   return (
     <Container>
       <Typography variant="h2">Gene Sets ({item._count.gene_sets})</Typography>

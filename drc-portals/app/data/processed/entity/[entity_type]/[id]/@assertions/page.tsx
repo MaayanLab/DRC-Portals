@@ -95,6 +95,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
   `
+  if (results.n_assertions === 0) return null
   const ps = Math.floor((results.n_filtered_assertions ?? 1) / pageSize) + 1
   return (
     <Container>
