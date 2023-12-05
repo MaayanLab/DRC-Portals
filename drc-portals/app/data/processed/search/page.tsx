@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma";
-import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button } from "@mui/material";
 import { redirect } from "next/navigation";
@@ -160,7 +160,7 @@ export default async function Page(props: PageProps) {
               : null
             : null,
           <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
-          format_description(item.description),
+          <Description description={item.description}/>,
         ]) ?? []}
       />
     </ListingPageLayout>

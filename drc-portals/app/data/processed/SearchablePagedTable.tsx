@@ -1,5 +1,5 @@
 import React from "react"
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material"
+import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material"
 import FormPagination from "./FormPagination"
 import SearchField from "./SearchField"
 import Link from "next/link"
@@ -22,10 +22,17 @@ export function LinkedTypedNode({
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}/${id}`}><Typography sx={{overflowWrap: "break-word", maxWidth: 300}} fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
-      <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}`}><Typography variant='caption'>{type_to_string(type, entity_type)}</Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}`}><Typography variant='caption' color="secondary">{type_to_string(type, entity_type)}</Typography></Link>
     </div>
   )
+}
+
+export function Description({description}: {description: string}) {
+  if (description === 'TODO') return null
+  else {
+    return <Typography variant="body1" color="secondary">{description}</Typography>
+  }
 }
 
 export function SearchablePagedTableCellIcon(props: {
@@ -47,49 +54,53 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   rows: React.ReactNode[][],
 }>) {
   return (
-    <>
-      {props.label ?
-        <div className="flex flex-row justify-between">
-          <Typography variant="h2" className="whitespace-nowrap">{props.label}</Typography>
+    <Grid container justifyContent={'space-between'}>
+      {props.label && 
+      <Grid item xs={12}  sx={{marginBottom: 5}}>
+        <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
+          <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
           <form action="" method="GET">
             <SearchField q={props.q} placeholder={`Search ${props.label}`} />
           </form>
-        </div>
-        : null}
-      {props.rows.length === 0 ? <>No results</> : (
-        <>
-          <TableContainer component={Paper} elevation={0}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  {props.columns.map((column, i) => (
-                    <TableCell key={i} component="th">
-                      <Typography variant='body1' color="secondary">{column}</Typography>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {props.rows.map((row, i) => (
-                  <TableRow
-                    key={i}
-                    sx={{ 
-                      '&:last-child td, &:last-child th': { border: 0 },
-                    }}
-                  >
-                    {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
-                      <Typography variant={"body1"} color="secondary">{cell}</Typography>
-                    </TableCell>)}
+        </Stack>
+      </Grid>
+      }
+      <Grid item xs={12}>
+        {props.rows.length === 0 ? <>No results</> : (
+          <>
+            <TableContainer component={Paper} elevation={0}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    {props.columns.map((column, i) => (
+                      <TableCell key={i} component="th">
+                        <Typography variant='body1' color="secondary">{column}</Typography>
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <FormPagination p={props.p} r={props.r} count={props.count} />
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </>
-      )}
-    </>
+                </TableHead>
+                <TableBody>
+                  {props.rows.map((row, i) => (
+                    <TableRow
+                      key={i}
+                      sx={{ 
+                        '&:last-child td, &:last-child th': { border: 0 },
+                      }}
+                    >
+                      {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
+                        {cell}
+                      </TableCell>)}
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <FormPagination p={props.p} r={props.r} count={props.count} />
+                </TableFooter>
+              </Table>
+            </TableContainer>
+          </>
+        )}
+      </Grid>
+    </Grid>
   )
 }

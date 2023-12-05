@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
-import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
-import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from 'next'
 
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
@@ -60,7 +60,7 @@ export default async function Page(props: PageProps) {
         ]}
         rows={items.map(item => [
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
-          format_description(item.node.description),
+          <Description description={item.node.description}/>,
         ])}
       />
     </ListingPageLayout>

@@ -1,9 +1,10 @@
 import prisma from "@/lib/prisma";
-import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
 import ListingPageLayout from "../ListingPageLayout";
-import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
+import SearchablePagedTable, { LinkedTypedNode, Description, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from 'next'
+import { Typography } from "@mui/material";
 
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
@@ -97,9 +98,9 @@ export default async function Page(props: PageProps) {
         rows={results.items.map(item => [
           item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
-          format_description(item.node.description),
-          item.data_type,
-          item.assay_type,
+          <Description description={item.node.description}/>,
+          <Typography variant={'body1'} color="secondary">{item.data_type}</Typography>,
+          <Typography variant={'body1'} color="secondary">{item.assay_type}</Typography>,,
         ])}
       />
     </ListingPageLayout>
