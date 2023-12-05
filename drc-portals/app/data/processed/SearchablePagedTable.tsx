@@ -22,7 +22,7 @@ export function LinkedTypedNode({
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}/${id}`}><Typography fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}/${id}`}><Typography sx={{overflowWrap: "break-word", maxWidth: 300}} fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
       <Link href={`/data/processed/${type}${entity_type ? `/${entity_type}` : ''}`}><Typography variant='caption'>{type_to_string(type, entity_type)}</Typography></Link>
     </div>
   )
@@ -58,13 +58,13 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
         : null}
       {props.rows.length === 0 ? <>No results</> : (
         <>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} elevation={0}>
             <Table aria-label="simple table">
               <TableHead>
                 <TableRow>
                   {props.columns.map((column, i) => (
                     <TableCell key={i} component="th">
-                      <Typography variant='h3'>{column}</Typography>
+                      <Typography variant='body1' color="secondary">{column}</Typography>
                     </TableCell>
                   ))}
                 </TableRow>
@@ -73,9 +73,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 {props.rows.map((row, i) => (
                   <TableRow
                     key={i}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    sx={{ 
+                      '&:last-child td, &:last-child th': { border: 0 },
+                    }}
                   >
-                    {row.map((cell, j) => <TableCell key={j}>{cell}</TableCell>)}
+                    {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>{cell}</TableCell>)}
                   </TableRow>
                 ))}
               </TableBody>
