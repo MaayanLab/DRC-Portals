@@ -47,11 +47,13 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   rows: React.ReactNode[][],
 }>) {
   return (
-    <form className="flex flex-col" action="" method="GET">
+    <>
       {props.label ?
         <div className="flex flex-row justify-between">
           <Typography variant="h2" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchField q={props.q} />
+          <form className="flex flex-col" action="" method="GET">
+            <SearchField q={props.q} />
+          </form>
         </div>
         : null}
       {props.rows.length === 0 ? <>No results</> : (
@@ -82,6 +84,6 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
           <FormPagination p={props.p} ps={props.ps} />
         </>
       )}
-    </form>
+    </>
   )
 }
