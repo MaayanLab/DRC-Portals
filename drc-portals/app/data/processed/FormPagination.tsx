@@ -1,32 +1,57 @@
 'use client'
-
 import React from 'react'
-import { Pagination, PaginationItem } from '@mui/material'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Grid, MenuItem, Pagination, PaginationItem, Select, Stack, TableCell, TableRow, Typography } from '@mui/material'
+import { usePathname, useRouter } from 'next/navigation'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-export default function FormPagination({ p, ps }: { p: number, ps: number }) {
+const rowsPerPageOptions = [10, 20, 50]
+
+export default function FormPagination({ p, r, count }: { p: number, r: number, count?: number }) {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const pageCount = (((count??0)/r)|0)+((((count??0)%r)===0)?0:1)
   return (
-    <>
-      <Pagination
-        page={p}
-        count={ps}
-        onChange={(evt, value) => {
-          const newSearchParams = new URLSearchParams(searchParams)
-          newSearchParams.set('p', value.toString())
-          router.push(pathname + '?' + newSearchParams.toString())
-        }}
-        renderItem={(item) => (
-          <PaginationItem
-            slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
-            {...item}
+    <TableRow>
+      <TableCell colSpan={100}>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item>
+          <Pagination
+            page={p}
+            count={pageCount}
+            onChange={(evt, value) => {
+              const newSearchParams = new URLSearchParams(window.location.search)
+              newSearchParams.set('p', value.toString())
+              router.push(pathname + '?' + newSearchParams.toString())
+            }}
+            renderItem={(item) => (
+              <PaginationItem
+                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                {...item}
+              />
+            )}
           />
-        )}
-      />
-    </>
+          </Grid>
+          <Grid item>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Typography>DISPLAY PER PAGE</Typography>
+              <Select
+                value={r}
+                onChange={evt => {
+                  const newSearchParams = new URLSearchParams(window.location.search)
+                  newSearchParams.set('p', '1')
+                  newSearchParams.set('r', evt.target.value.toString())
+                  router.push(pathname + '?' + newSearchParams.toString())
+                }}
+              >
+                {rowsPerPageOptions.map(rowsPerPage =>
+                  <MenuItem key={rowsPerPage} value={rowsPerPage}>{rowsPerPage}</MenuItem>
+                )}
+              </Select>
+            </Stack>
+          </Grid>
+        </Grid>
+      </TableCell>
+    </TableRow>
   )
 }

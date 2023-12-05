@@ -5,13 +5,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
 
-// const pageSize = 10
-
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   // const searchParams = useSanitizedSearchParams(props)
   if (props.params.entity_type !== 'gene') return null
-  // const offset = (searchParams.p - 1)*pageSize
-  // const limit = pageSize
+  // const offset = (searchParams.p - 1)*searchParams.r
+  // const limit = searchParams.r
   const item = await prisma.geneEntity.findUniqueOrThrow({
     where: { id: props.params.id },
     select: {

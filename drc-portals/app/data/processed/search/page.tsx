@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
-import { z } from 'zod';
-import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
+import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
@@ -12,10 +11,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import SearchField from "../SearchField";
 import Link from "next/link";
-
-const pageSize = 10
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -26,28 +22,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function Page(props: PageProps) {
-  const searchParams = z.object({
-    q: z.union([
-      z.array(z.string()).transform(qs => qs.join(' ')),
-      z.string(),
-      z.undefined(),
-    ]),
-    p: z.union([
-      z.array(z.string()).transform(ps => +ps[ps.length-1]),
-      z.string().transform(p => +p),
-      z.undefined().transform(_ => 1),
-    ]),
-    t: z.union([
-      z.array(z.string()),
-      z.string().transform(ts => ts ? ts.split(',') : undefined),
-      z.undefined(),
-    ]).transform(ts => ts ? ts.map(t => {
-      const [type, entity_type] = t.split(':')
-      return { type, entity_type: entity_type ? entity_type : null }
-    }) : undefined),
-  }).parse(props.searchParams)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const searchParams = useSanitizedSearchParams(props)
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
@@ -168,7 +145,8 @@ export default async function Page(props: PageProps) {
       <SearchablePagedTable
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor((results?.count ?? 1) / pageSize) + 1}
+        r={searchParams.r}
+        count={results?.count}
         columns={[
           <>&nbsp;</>,
           <>Label</>,

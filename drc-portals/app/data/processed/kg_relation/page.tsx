@@ -12,12 +12,10 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-const pageSize = 10
-
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [items, count] = await prisma.$transaction([
     prisma.kGRelationNode.findMany({
       where: searchParams.q ? {
@@ -54,7 +52,8 @@ export default async function Page(props: PageProps) {
         label={type_to_string('kg_relation', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(count / pageSize) + 1}
+        r={searchParams.r}
+        count={count}
         columns={[
           <>Label</>,
           <>Description</>,

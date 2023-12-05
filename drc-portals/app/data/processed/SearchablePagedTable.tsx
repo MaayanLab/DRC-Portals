@@ -1,5 +1,5 @@
 import React from "react"
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
+import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material"
 import FormPagination from "./FormPagination"
 import SearchField from "./SearchField"
 import Link from "next/link"
@@ -42,7 +42,7 @@ export function SearchablePagedTableCellIcon(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
-  q: string, p: number, ps: number,
+  q: string, p: number, r: number, count?: number,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
@@ -83,9 +83,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                   </TableRow>
                 ))}
               </TableBody>
+              <TableFooter>
+                <FormPagination p={props.p} r={props.r} count={props.count} />
+              </TableFooter>
             </Table>
           </TableContainer>
-          <FormPagination p={props.p} ps={props.ps} />
         </>
       )}
     </>

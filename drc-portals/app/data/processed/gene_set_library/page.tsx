@@ -11,12 +11,11 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
     title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('gene_set_library', null))}`,
   }
 }
-const pageSize = 10
 
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [items, count] = await prisma.$transaction([
     prisma.geneSetLibraryNode.findMany({
       where: searchParams.q ? {
@@ -68,7 +67,8 @@ export default async function Page(props: PageProps) {
         label={type_to_string('gene_set_library', null)}
         q={searchParams.q ?? ''}
         p={searchParams.p}
-        ps={Math.floor(count / pageSize) + 1}
+        r={searchParams.r}
+        count={count}
         columns={[
           <></>,
           <>Label</>,
