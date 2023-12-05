@@ -7,11 +7,11 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   footer?: React.ReactNode,
 }>) {
   return (
-    <Grid container justifyContent={"center"} className="mt-4" spacing={2}>
+    <Grid container justifyContent={"center"} sx={{paddingTop: 5, paddingBottom: 5}} spacing={2}>
       <Grid item xs={12} sm={3}>
         {
           props.filters && 
-            <Paper elevation={0} sx={{minHeight: 400, background: "linear-gradient(180deg, #DBE0ED 0%, #FFFFFF 100%)", padding: "12px 24px"}}>
+            <Paper elevation={0} sx={{minHeight: 400, background: "#EDF0F8", padding: "12px 24px"}}>
               <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
                 <Typography variant="h5">Results found</Typography>
                 <Typography variant="h5">{(props.count ?? 0).toLocaleString()}</Typography>

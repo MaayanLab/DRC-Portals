@@ -77,7 +77,9 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                       '&:last-child td, &:last-child th': { border: 0 },
                     }}
                   >
-                    {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>{cell}</TableCell>)}
+                    {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
+                      <Typography variant={"body1"} color="secondary">{cell}</Typography>
+                    </TableCell>)}
                   </TableRow>
                 ))}
               </TableBody>

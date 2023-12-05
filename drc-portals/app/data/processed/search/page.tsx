@@ -157,7 +157,8 @@ export default async function Page(props: PageProps) {
         <Link href="/data">
           <Button
             sx={{textTransform: "uppercase"}}
-            color="secondary"
+            color="primary"
+            variant="contained"
             startIcon={<Icon path={mdiArrowLeft} size={1} />}>
               BACK TO SEARCH
           </Button>
