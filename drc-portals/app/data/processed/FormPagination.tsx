@@ -37,21 +37,19 @@ export default function FormPagination({ p, r, count }: { p: number, r: number, 
       </Box>
       <Stack direction={"row"} alignItems={"center"} gap={2}>
         <Typography variant="nav" noWrap>DISPLAY PER PAGE</Typography>
-        <Paper elevation={0}>
-          <Select
-            value={r}
-            onChange={evt => {
-              const newSearchParams = new URLSearchParams(window.location.search)
-              newSearchParams.set('p', '1')
-              newSearchParams.set('r', evt.target.value.toString())
-              router.push(pathname + '?' + newSearchParams.toString())
-            }}
-          >
-            {rowsPerPageOptions.map(rowsPerPage =>
-              <MenuItem key={rowsPerPage} value={rowsPerPage}>{rowsPerPage}</MenuItem>
-            )}
-          </Select>
-        </Paper>
+        <Select
+          value={r}
+          onChange={evt => {
+            const newSearchParams = new URLSearchParams(window.location.search)
+            newSearchParams.set('p', '1')
+            newSearchParams.set('r', evt.target.value.toString())
+            router.push(pathname + '?' + newSearchParams.toString())
+          }}
+        >
+          {rowsPerPageOptions.map(rowsPerPage =>
+            <MenuItem key={rowsPerPage} value={rowsPerPage}>{rowsPerPage}</MenuItem>
+          )}
+        </Select>
       </Stack>
     </Stack>
   )

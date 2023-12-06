@@ -145,6 +145,20 @@ export const cfde_theme = createTheme({
                 }
             }
         },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                notchedOutline: {
+                    borderColor: '#336699',
+                },
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                root: {
+                    background: 'white',
+                },
+            },
+        },
         MuiCheckbox: {
             styleOverrides: {
                 root: {
