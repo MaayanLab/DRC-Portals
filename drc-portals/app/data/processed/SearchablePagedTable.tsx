@@ -68,7 +68,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12}>
         {props.rows.length === 0 ? <>No results</> : (
           <Stack spacing={1}>
-            <TableContainer component={Paper} elevation={0}>
+            <TableContainer component={Paper} elevation={0} variant="rounded-top">
               <Table aria-label="simple table">
                 <TableHead>
                   <TableRow>
