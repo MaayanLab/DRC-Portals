@@ -10,11 +10,12 @@ from dotenv import load_dotenv
 from uuid import UUID, uuid5
 import json
 
+# Load C2M2 schema from JSON file
 c2m2Schema = 'C2M2_datapackage.json'
-
 with open(c2m2Schema, 'r') as f:
     c2m2Obj = json.load(f)
 
+# Function to map C2M2 data types to PostgreSQL data types
 def typeMatcher(schemaDataType):
     typeMap = {
         'string': 'varchar(5000)',
@@ -27,51 +28,51 @@ def typeMatcher(schemaDataType):
     }
     return typeMap.get(schemaDataType)
 
+# Extract tables from C2M2 data package
 tables = c2m2Obj['resources']
 
+# Connect to PostgreSQL database
 conn = psycopg2.connect(
-   database="drc",
+    database="drc",
     user='drc',
     password='drcpass',
     host='localhost',
-    port= '5432'
+    port='5432'
 )
 
+# Set the schema name
 schemaName = 'c2m2Metadata'
 
+# Create a cursor for executing SQL statements
 cursor = conn.cursor()
-# Execute the CREATE SCHEMA command with IF NOT EXISTS clause
 
-# cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schemaName}")
-
+# Enable autocommit to avoid transaction issues
 conn.autocommit = True
 
+# Iterate over C2M2 tables and create corresponding PostgreSQL tables
 for table in tables:
-    
+    # Commit any previous changes
     conn.commit()
+    
+    # Extract table name and fields from C2M2 schema
     tableName = table['name']
     fields = table['schema']['fields']
 
+    # Build the SQL statement to create the table
     createFieldStr = ''
     for field in fields:
         fieldName = field['name']
         fieldType = typeMatcher(field['type'])
-        createFieldStr += (f'{fieldName} {fieldType}, ')
+        createFieldStr += f'{fieldName} {fieldType}, '
     
-    # createFieldStr = createFieldStr[0:-2]
-
     createTableStr = f'create table {schemaName}.{tableName} ({createFieldStr} sourceDCC varchar(100));'
 
+    # Execute the SQL statement to create the table
     sql = createTableStr
     print(sql)
-    
     cursor.execute(sql)
     
-    print("Database has been created successfully !!");
-    
-# Closing the connection
-conn.close()  
+    print("Table has been created successfully!")
 
-base_directory = '/mnt/share/cfdeworkbench/C2M2/latest'
-
-subdirectories = [d for d in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, d))]
+# Close the database connection
+conn.close()
