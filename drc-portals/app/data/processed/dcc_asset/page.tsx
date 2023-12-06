@@ -83,6 +83,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={results.count}
+        autocomplete={{ type: 'dcc_asset' }}
         columns={[
           <>&nbsp;</>,
           <>Label</>,

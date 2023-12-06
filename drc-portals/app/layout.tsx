@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import NextAuthProvider from '@/lib/auth/client'
+import TrpcProvider from '@/lib/trpc/provider'
 import ThemeRegistry from './ThemeRegistry'
 import './globals.css'
 
@@ -22,8 +23,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeRegistry options={{ key: 'mui' }}>
-          <NextAuthProvider>         
+          <NextAuthProvider>
+            <TrpcProvider>
               {children}
+            </TrpcProvider>
           </NextAuthProvider>
         </ThemeRegistry>
       </body>

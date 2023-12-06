@@ -56,7 +56,7 @@ export default async function InfoHeader() {
                   </Stack>
               </Grid>
               <Grid item>
-                <SearchParamSearchField />
+                <SearchParamSearchField autocomplete={{}} />
               </Grid>
               <Grid item xs={12}>
                 <NavBreadcrumbs/>

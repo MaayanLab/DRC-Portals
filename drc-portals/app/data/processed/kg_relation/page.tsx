@@ -54,6 +54,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={count}
+        autocomplete={{ type: 'kg_relation' }}
         columns={[
           <>Label</>,
           <>Description</>,

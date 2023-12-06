@@ -65,6 +65,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={results.count}
+        autocomplete={{ type: 'entity', entity_type: props.params.entity_type }}
         columns={[
           <>Label</>,
           <>Description</>,

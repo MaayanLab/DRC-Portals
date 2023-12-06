@@ -69,6 +69,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={count}
+        autocomplete={{ type: 'gene_set_library' }}
         columns={[
           <></>,
           <>Label</>,
