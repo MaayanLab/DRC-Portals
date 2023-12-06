@@ -16,7 +16,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
           <Stack>
             <Typography variant="h1" color="secondary">{props.label}</Typography>
             {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="body2">{item.label}: {item.value}</Typography> : null)}
-            <Typography variant="body2">Description: {props.description}</Typography>
+            {props.description ? <Typography variant="body2">Description: {props.description}</Typography> : null}
           </Stack>
           {props.icon ? 
             <div className="flex-grow-0 self-center justify-self-center">

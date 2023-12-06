@@ -105,7 +105,7 @@ export default async function Page(props: { params: { id: string }, searchParams
       label={item.node.label}
       description={format_description(item.node.description)}
       metadata={[
-        { label: 'Number of Assertions', value: results.n_assertions.toLocaleString() },
+        { label: 'Assertions', value: results.n_assertions.toLocaleString() },
       ]}
     >
       <SearchablePagedTable

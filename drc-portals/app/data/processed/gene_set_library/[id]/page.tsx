@@ -90,7 +90,7 @@ export default async function Page(props: PageProps) {
       metadata={[
         library.node.dcc?.label ? { label: 'Project', value: <Link href={`/data/matrix/${library.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{library.node.dcc.label}</Link> } : null,
         { label: 'Gene coverage', value: library._count.genes.toLocaleString() },
-        { label: 'Number of gene sets', value: library._count.gene_sets.toLocaleString() },
+        { label: 'Gene sets', value: library._count.gene_sets.toLocaleString() },
         { label: 'Download', value: <Link href={library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.dcc_asset_link}</Link> },
       ]}
     >
