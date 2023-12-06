@@ -43,6 +43,7 @@ model Publication {
   doi     String?
   authors String
   tool_id String?
+  landmark Boolean @default(false)
   dccs    DCCPublication[]
   tool    Tool?            @relation(fields: [tool_id], references: [id])
 
