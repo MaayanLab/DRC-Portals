@@ -31,9 +31,9 @@ def typeMatcher(schemaDataType):
 tables = c2m2Obj['resources']
 
 conn = psycopg2.connect(
-   database="c2m2",
-    user='c2m2Super',
-    password='c2m2',
+   database="drc",
+    user='drc',
+    password='drcpass',
     host='localhost',
     port= '5432'
 )
