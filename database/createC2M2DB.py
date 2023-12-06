@@ -57,10 +57,11 @@ for table in tables:
     createTableStr = f'create table {tableName} ({createFieldStr});'
 
     sql = createTableStr
+    print(sql)
     
-    cursor.execute(sql)
+    # cursor.execute(sql)
     
-    print("Database has been created successfully !!");
+    # print("Database has been created successfully !!");
     
 # Closing the connection
 conn.close()    
