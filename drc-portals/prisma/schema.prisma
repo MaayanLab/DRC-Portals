@@ -24,6 +24,7 @@ model DCC {
   publications DCCPublication[]
   assets       DccAsset[]
   outreach     DCCOutreach[]
+  partnerships     DCCPartnerships[]
   nodes        Node[]
   kg_assertions KGAssertion[]
 
@@ -87,6 +88,27 @@ model DCCOutreach {
 
   @@id([outreach_id, dcc_id])
   @@map("dcc_outreach")
+}
+
+model Partnerships {
+  id                String        @id @default(uuid())
+  title             String
+  description       String?
+  active            Boolean       @default(true)
+  image             String?
+  dccs              DCCPartnerships[]
+
+  @@map("partnerships")
+}
+
+model DCCPartnerships {
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
+  dcc         DCC      @relation(fields: [dcc_id], references: [id])
+  dcc_id      String
+
+  @@id([partnership_id, dcc_id])
+  @@map("dcc_partnerships")
 }
 
 model Tool {
