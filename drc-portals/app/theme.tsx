@@ -145,6 +145,20 @@ export const cfde_theme = createTheme({
                 }
             }
         },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                notchedOutline: {
+                    borderColor: '#336699',
+                },
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                root: {
+                    background: 'white',
+                },
+            },
+        },
         MuiCheckbox: {
             styleOverrides: {
                 root: {
@@ -218,7 +232,20 @@ export const cfde_theme = createTheme({
                     },
               },
             },
-          },
+        },
+        MuiPaper: {
+            variants: [
+                {
+                    props: {
+                        variant: 'rounded-top'
+                    },
+                    style: {
+                        borderTopLeftRadius: '1rem',
+                        borderTopRightRadius: '1rem',
+                    },
+                }
+            ],
+        },
     }
 })
 
@@ -273,3 +300,8 @@ declare module '@mui/material/styles' {
   }
 
   
+  declare module '@mui/material/Paper' {
+    interface PaperPropsVariantOverrides {
+      "rounded-top": true;
+    }
+  }

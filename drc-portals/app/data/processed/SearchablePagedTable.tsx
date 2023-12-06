@@ -56,7 +56,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   return (
     <Grid container justifyContent={'space-between'}>
       {props.label && 
-      <Grid item xs={12}  sx={{marginBottom: 5}}>
+      <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
           <form action="" method="GET">
@@ -67,8 +67,8 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       }
       <Grid item xs={12}>
         {props.rows.length === 0 ? <>No results</> : (
-          <>
-            <TableContainer component={Paper} elevation={0}>
+          <Stack spacing={1}>
+            <TableContainer component={Paper} elevation={0} variant="rounded-top">
               <Table aria-label="simple table">
                 <TableHead>
                   <TableRow>
@@ -93,12 +93,10 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                     </TableRow>
                   ))}
                 </TableBody>
-                <TableFooter>
-                  <FormPagination p={props.p} r={props.r} count={props.count} />
-                </TableFooter>
               </Table>
             </TableContainer>
-          </>
+            <FormPagination p={props.p} r={props.r} count={props.count} />
+          </Stack>
         )}
       </Grid>
     </Grid>
