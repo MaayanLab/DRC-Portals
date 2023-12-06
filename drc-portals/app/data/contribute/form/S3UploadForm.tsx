@@ -17,11 +17,22 @@ import { $Enums } from '@prisma/client';
 import { Box } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 
-type S3UploadStatus = {
+// type S3UploadStatus = {
+//   success?: boolean,
+//   loading?: boolean,
+//   error?: boolean,
+// }
+
+export type S3UploadStatus = {
   success?: boolean,
   loading?: boolean,
-  error?: boolean,
+  error?: {
+      selected: boolean;
+      message: string
+  },
 }
+
+
 const S3UploadStatusContext = React.createContext({} as S3UploadStatus)
 
 function parseFileTypeClient(filename: string, filetype: string) {
@@ -65,6 +76,7 @@ export function S3UploadForm(user: {
   React.useEffect(() => {
     if (progress >= 100) {
       setStatus(() => ({ success: true }))
+      setProgress(0)
     }
   }, [progress])
 
@@ -72,12 +84,18 @@ export function S3UploadForm(user: {
     <form onSubmit={(evt) => {
       evt.preventDefault()
       const formData = new FormData(evt.currentTarget)
-      if (uploadedfiles.length === 0) return setStatus(() => ({ error: true }))
+      console.log(uploadedfiles)
+      if (uploadedfiles.length === 0) return  setStatus(({ error: { selected: true, message: 'No files uploaded' } }))
+
       setStatus(() => ({ loading: true }))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         if (parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type) === '') {
-          setStatus(() => ({ error: true }))
+          setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .dmt or .gmt' } }))
+
           return
+        }
+        if (uploadedfiles[i].size > 4200000000) {
+          setStatus(({ error: { selected: true, message: 'Files too large. Make sure no file is > 4.2 GB' } })); return
         }
       }
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
@@ -85,21 +103,10 @@ export function S3UploadForm(user: {
         singleFormData.append('files[]', uploadedfiles[i])
         upload(singleFormData)
           .then(() => {
-            // setStatus(() => ({ success: true }))
             setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
           })
-          .catch(error => { console.log({ error }); setStatus(() => ({ error: true })) })
+          .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } })); return })
       }
-
-
-
-
-      // if (type(uploadedfiles) === 'Array') throw new Error('no file uploaded')
-      // upload(formData)
-      //   .then(() => {
-      //     setStatus(() => ({ success: true }))
-      //   })
-      //   .catch(error => { console.log({ error }); setStatus(() => ({ error: true })) })
     }}>
       <S3UploadStatusContext.Provider value={status}>
         {/* {children} */}
