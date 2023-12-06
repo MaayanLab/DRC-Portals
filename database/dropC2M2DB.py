@@ -38,40 +38,20 @@ conn = psycopg2.connect(
 )
 
 schemaName = 'c2m2Metadata'
+conn.autocommit = True
 
 cursor = conn.cursor()
 # Execute the CREATE SCHEMA command with IF NOT EXISTS clause
 
-# cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schemaName}")
-
-conn.autocommit = True
+schemaName = "c2m2metadata"
 
 for table in tables:
-    
     conn.commit()
     tableName = table['name']
     fields = table['schema']['fields']
-
-    createFieldStr = ''
-    for field in fields:
-        fieldName = field['name']
-        fieldType = typeMatcher(field['type'])
-        createFieldStr += (f'{fieldName} {fieldType}, ')
+    cursor.execute(f'DROP TABLE {schemaName}.{tableName}')
     
-    # createFieldStr = createFieldStr[0:-2]
-
-    createTableStr = f'create table {schemaName}.{tableName} ({createFieldStr} sourceDCC varchar(100));'
-
-    sql = createTableStr
-    print(sql)
-    
-    cursor.execute(sql)
-    
-    print("Database has been created successfully !!");
+    print("Tables have been dropped successfully !!");
     
 # Closing the connection
-conn.close()  
-
-base_directory = '/mnt/share/cfdeworkbench/C2M2/latest'
-
-subdirectories = [d for d in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, d))]
+conn.close()    
