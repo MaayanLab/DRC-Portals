@@ -1,6 +1,6 @@
 import ListItemCollapsible from "@/components/misc/ListItemCollapsible"
 import prisma from "@/lib/prisma"
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
+import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
 import Image from "next/image"
 import Link from "next/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
@@ -81,10 +81,12 @@ export default async function Page(props: { params: { entity_type: string, id: s
   })
   if (item._count.gene_sets === 0) return null
   return (
-    <Container>
-      <Typography variant="h2">Gene Sets ({item._count.gene_sets})</Typography>
-      <Container component="form" action="" method="GET">
+    <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
+      <Grid item xs={12} sx={{marginBottom: 5}}>
+        <Typography variant="h2" color="secondary" className="whitespace-nowrap">Gene Sets ({item._count.gene_sets})</Typography>
         {/* <SearchField q={searchParams.q ?? ''} /> */}
+      </Grid>
+      <Grid item xs={12}>
         {item.gene_set_libraries.map(library => (
           <ListItemCollapsible key={library.id} primary={
             <div className="flex flex-row">
@@ -115,7 +117,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
             </TableContainer>
           </ListItemCollapsible>
         ))}
-      </Container>
-    </Container>
+      </Grid>
+    </Grid>
   )
 }
