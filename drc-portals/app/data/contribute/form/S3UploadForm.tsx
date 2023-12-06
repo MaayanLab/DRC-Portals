@@ -1,8 +1,6 @@
 'use client'
 
 import React, { FormEvent } from 'react'
-// import JSZip from 'jszip'
-// import { z } from 'zod'
 import { upload } from './UploadFunc'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -13,10 +11,11 @@ import Typography from '@mui/material/Typography';
 import { FileDrop } from './FileDrop'
 import ThemedBox from './ThemedBox';
 import ThemedStack from './ThemedStack';
-import { Link } from '@mui/material';
 import Status from './Status';
 import DCCSelect from './DCCSelect';
 import { $Enums } from '@prisma/client';
+import { Box } from '@mui/material';
+import { ProgressBar } from './ProgressBar';
 
 type S3UploadStatus = {
   success?: boolean,
@@ -61,28 +60,46 @@ export function S3UploadForm(user: {
 
   const [status, setStatus] = React.useState<S3UploadStatus>({})
   const [uploadedfiles, setUploadedfiles] = React.useState<FileList | []>([]);
+  const [progress, setProgress] = React.useState(0);
 
+  React.useEffect(() => {
+    if (progress >= 100) {
+      setStatus(() => ({ success: true }))
+    }
+  }, [progress])
 
   return (
     <form onSubmit={(evt) => {
       evt.preventDefault()
       const formData = new FormData(evt.currentTarget)
+      if (uploadedfiles.length === 0) return setStatus(() => ({ error: true }))
       setStatus(() => ({ loading: true }))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         if (parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type) === '') {
           setStatus(() => ({ error: true }))
           return
-        } else {
-          formData.append('files[]', uploadedfiles[i])
         }
       }
+      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+        const singleFormData = new FormData(evt.currentTarget)
+        singleFormData.append('files[]', uploadedfiles[i])
+        upload(singleFormData)
+          .then(() => {
+            // setStatus(() => ({ success: true }))
+            setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
+          })
+          .catch(error => { console.log({ error }); setStatus(() => ({ error: true })) })
+      }
+
+
+
 
       // if (type(uploadedfiles) === 'Array') throw new Error('no file uploaded')
-      upload(formData)
-        .then(() => {
-          setStatus(() => ({ success: true }))
-        })
-        .catch(error => { console.log({ error }); setStatus(() => ({ error: true })) })
+      // upload(formData)
+      //   .then(() => {
+      //     setStatus(() => ({ success: true }))
+      //   })
+      //   .catch(error => { console.log({ error }); setStatus(() => ({ error: true })) })
     }}>
       <S3UploadStatusContext.Provider value={status}>
         {/* {children} */}
@@ -113,13 +130,17 @@ export function S3UploadForm(user: {
               <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
             </ThemedBox>
           </Grid>
-
           <Typography variant="subtitle1" className='text-center p-5'>Please upload your data/metdata files here.
           </Typography>
           <ThemedStack>
             <FileDrop name="currentData" setUploadedFiles={setUploadedfiles} />
           </ThemedStack>
           <Status />
+          <div className='flex justify-center'>
+            <Box sx={{ width: '50%' }}>
+              {status.loading && <ProgressBar value={progress} />}
+            </Box>
+          </div>
           <ThemedBox style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
             <FormControl>
               <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
