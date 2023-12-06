@@ -32,7 +32,7 @@ try:
     for table in tables:
         table_name = table[0]
         print(table_name)
-        
+        # select local_id, project_local_id, granularity from subject where local_id like 'SU0000%';
         query = f"SELECT id_namespace, local_id FROM c2m2_metadata.{table_name} LIMIT 1"
         cursor.execute(query)
         result = cursor.fetchone()
