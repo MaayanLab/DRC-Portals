@@ -107,13 +107,14 @@ export default async function Page(props: PageProps) {
   })
   return (
     <LandingPageLayout
-      icon={gene_set.node.dcc?.icon ? { href: `/data/matrix/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
-      label={gene_set.node.label}
+      icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
+      title={gene_set.node.label}
+      subtitle={type_to_string('gene_set', null)}
       description={format_description(gene_set.node.description)}
       metadata={[
-        gene_set.node.dcc ? { label: 'Project', value: <Link href={`/data/matrix/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer">{gene_set.node.dcc.label}</Link> } : null,
-        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer">{gene_set.gene_set_library.node.label}</Link> },
-        { label: 'Number of genes', value: gene_set._count.genes.toLocaleString() },
+        gene_set.node.dcc ? { label: 'Project', value: <Link href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,
+        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
+        { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >
       <SearchablePagedTable

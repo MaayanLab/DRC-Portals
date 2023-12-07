@@ -102,10 +102,11 @@ export default async function Page(props: { params: { id: string }, searchParams
   `
   return (
     <LandingPageLayout
-      label={item.node.label}
+      title={item.node.label}
+      subtitle={type_to_string('kg_relation', null)}
       description={format_description(item.node.description)}
       metadata={[
-        { label: 'Number of Assertions', value: results.n_assertions.toLocaleString() },
+        { label: 'Assertions', value: results.n_assertions.toLocaleString() },
       ]}
     >
       <SearchablePagedTable
@@ -122,7 +123,7 @@ export default async function Page(props: { params: { id: string }, searchParams
           <>Evidence</>,
         ]}
         rows={results.assertions.map(assertion => [
-          assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
+          assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
           <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} />,
           <LinkedTypedNode type="kg_relation" id={props.params.id} label={item.node.label} focus />,
           <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} />,

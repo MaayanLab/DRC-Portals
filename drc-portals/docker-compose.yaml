@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.2.16
+    image: maayanlab/drc-portal:0.2.20
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -16,6 +16,7 @@ services:
       - NEXTAUTH_GITHUB
       - NEXTAUTH_GOOGLE
       - NEXTAUTH_ORCID
+      - NEXTAUTH_GLOBUS
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT

@@ -10,10 +10,10 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
   const { searchParams, currentFilterSet } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)
     const currentRawFilters = searchParams.get('t')
-    const currentFilters = currentRawFilters ? currentRawFilters.split(',') : []
+    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : []
     const currentFilterSet = currentFilters.includes(id)
     const newFilters = currentFilterSet ? currentFilters.filter(t => t !== id) : [...currentFilters, id]
-    searchParams.set('t', newFilters.join(','))
+    searchParams.set('t', newFilters.join('|'))
     searchParams.set('p', '1')
     return { searchParams, currentFilterSet }
   }, [id, rawSearchParams])

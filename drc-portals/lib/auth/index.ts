@@ -5,6 +5,7 @@ import EmailProvider from 'next-auth/providers/email'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import ORCIDProvider from '@/lib/auth/providers/orcid'
+import GlobusProvider from '@/lib/auth/providers/globus'
 import type { OAuthConfig } from 'next-auth/providers/index'
 import PrismaAdapterEx from './adapters/prisma'
 
@@ -45,6 +46,7 @@ const providers = [
   process.env.NEXTAUTH_GITHUB ? GithubProvider(JSON.parse(process.env.NEXTAUTH_GITHUB)) : undefined,
   process.env.NEXTAUTH_GOOGLE ? GoogleProvider(JSON.parse(process.env.NEXTAUTH_GOOGLE)) : undefined,
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,
+  process.env.NEXTAUTH_GLOBUS ? GlobusProvider(JSON.parse(process.env.NEXTAUTH_GLOBUS)) : undefined,
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")

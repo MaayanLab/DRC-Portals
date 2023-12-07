@@ -11,14 +11,14 @@ export function pluralize(s: string) {
   return `${s}s`
 }
 
-export function type_to_string(type: NodeType, entity_type: string | null) {
+export function type_to_string(type: NodeType | string, entity_type: string | null) {
   if (type === 'entity') return entity_type ? capitalize(entity_type) : 'Entity'
   else if (type === 'c2m2_file') return 'File'
   else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
-  throw new Error(`Unhandled type ${type} ${entity_type}`)
+  else return capitalize(type)
 }
 
 export function format_description(description: string) {
@@ -45,7 +45,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
     ]).transform(r => ({10: 10, 20: 20, 50: 50}[r] ?? 10)),
     t: z.union([
       z.array(z.string()),
-      z.string().transform(ts => ts ? ts.split(',') : undefined),
+      z.string().transform(ts => ts ? ts.split('|') : undefined),
       z.undefined(),
     ]).transform(ts => ts ? ts.map(t => {
       const [type, entity_type] = t.split(':')

@@ -43,13 +43,14 @@ export default async function Page(props: PageProps) {
   const item = await getItem(props.params.id)
   return (
     <LandingPageLayout
-      icon={item.node.dcc?.icon ? { href: `/data/matrix/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}
-      label={item.node.label}
+      icon={item.node.dcc?.icon ? { href: `/info/dcc/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}
+      title={item.node.label}
+      subtitle={type_to_string('c2m2_file', null)}
       description={format_description(item.node.description)}
       metadata={[
-        item.node.dcc?.label ? { label: 'Project', value: <Link href={`/data/matrix/${item.node.dcc.short_label}`} className="underline cursor-pointer">{item.node.dcc.label}</Link> } : null,
+        item.node.dcc?.label ? { label: 'Project', value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link> } : null,
         { label: 'Persistent ID', value: item.persistent_id },
-        { label: 'Size in Bytes', value: item.size_in_bytes?.toString() ?? 'unknown' },
+        { label: 'Size in Bytes', value: item.size_in_bytes?.toLocaleString() ?? 'unknown' },
         { label: 'File Format', value: item.file_format },
         { label: 'Assay Type', value: item.assay_type },
         { label: 'Data Type', value: item.data_type },

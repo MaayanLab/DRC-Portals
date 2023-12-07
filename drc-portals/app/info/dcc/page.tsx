@@ -55,7 +55,7 @@ export default async function DCCLanding() {
                         </Link>
                         <Link href={dcc.homepage}>
                             <Button color="secondary">
-                                <Typography variant="body1">Go to homepage</Typography>
+                                <Typography variant="body1">Go to DCC portal</Typography>
                             </Button>
                         </Link>
                     </CardActions>

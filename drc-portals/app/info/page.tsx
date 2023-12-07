@@ -15,13 +15,20 @@ import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Outreach from "@/components/misc/Outreach"
-import Publications from "@/components/misc/Publications/PublicationsServer"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
+import prisma from "@/lib/prisma"
+import PublicationComponent from "@/components/misc/PublicationComponent"
 export default async function Home() {
+  const publications = await prisma.publication.findMany({
+    orderBy: {
+      year: "desc"
+    },
+    take: 5
+  })
   return (
-    <main className="mb-10">
+    <main>
       <Grid container spacing={2} alignItems={"center"}>
         <Grid item xs={12}>
           <Paper color="primary" elevation={0} sx={{
@@ -167,6 +174,46 @@ export default async function Home() {
         <Grid item xs={12} md={6}>
           <CFPrograms spacing={2}/>
         </Grid>
+        <Grid item xs={12} sx={{marginTop: 10}}>
+          <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
+            <Grid item>
+              <Paper sx={{
+                borderRadius: 5, 
+                height: 300, 
+                width: "928px", 
+                color: "#FFF", 
+                background: "#336699",
+                border:3,
+                borderColor: "#C3E1E6", 
+                boxShadow: 0,
+                position: "relative",
+                overflow: "hidden"
+              }}>
+                <Grid container spacing={2} sx={{height: 300}} justifyContent={"space-around"} alignItems={"center"}>
+                  <Grid item sx={{width: 400}}>
+                    <Typography variant={"h1"} sx={{textTransform: "uppercase"}} color="inherit">
+                      Standards and Protocols
+                    </Typography>
+                    <Typography variant={"subtitle1"} color="inherit">
+                      Learn more about the standards and protocols for accessing and submitting data to the portal
+                    </Typography>
+                  </Grid>
+                <Grid item>
+                  <Link href="/">
+                    <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
+                  </Link>
+                </Grid>
+              </Grid>
+              <BlurSmall sx={{
+                backgroundColor: "#C3E1E6",
+                position: 'absolute', 
+                bottom: -180, 
+                right: "30%"
+              }}/>
+            </Paper>
+          </Grid>
+        </Grid>
+        </Grid>
         <Grid item xs={12} sx={{marginTop: 5}}>
           <Paper sx={{
                         boxShadow: "none", 
@@ -178,91 +225,55 @@ export default async function Home() {
                         marginRight: "calc((-100vw + 100%) / 2)"}}>
             <Container maxWidth="lg">
                 <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
-                  <Grid item>
-                    <Paper sx={{
-                      borderRadius: 5, 
-                      height: 300, 
-                      width: "928px", 
-                      color: "#FFF", 
-                      background: "#336699",
-                      border:3,
-                      borderColor: "#C3E1E6", 
-                      boxShadow: 0,
-                      position: "relative",
-                      overflow: "hidden"
-                    }}>
-                      <Grid container spacing={2} sx={{height: 300}} justifyContent={"space-around"} alignItems={"center"}>
-                        <Grid item sx={{width: 400}}>
-                          <Typography variant={"h1"} sx={{textTransform: "uppercase"}} color="inherit">
-                            Standards and Protocols
-                          </Typography>
-                          <Typography variant={"subtitle1"} color="inherit">
-                            Learn more about the standards and protocols for accessing and submitting data to the portal
-                          </Typography>
+                  <Grid item xs={12} sx={{marginBottom: 10}}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} md={6} className="flex items-center justify-center">
+                          <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer">
+                            <Image  src="/img/FAIR.png" alt="fair" width={400} height={400}/>
+                          </Link>
                         </Grid>
-                      <Grid item>
-                        <Link href="/">
-                          <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
-                        </Link>
+                        <Grid item xs={12} md={6}>
+                          <Typography variant={"h2"} color="secondary">
+                            Making data more FAIR
+                          </Typography>
+                          <Typography variant={"subtitle1"}>
+                            The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.
+                          </Typography>
+                          <div  className="mt-5">
+                            <Link href="https://www.nature.com/articles/sdata201618" target="_blank" rel="noopener noreferrer">
+                              <Button color="secondary">
+                                <Typography variant={"subtitle1"}>
+                                  What is FAIR?
+                                </Typography>
+                              </Button>
+                            </Link>
+                          </div>
+                          <div  className="ml-8">
+                            <ul>
+                              <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Findable</Typography></li>
+                              <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Accessible</Typography></li>
+                              <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Interoperable</Typography></li>
+                              <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Reusable</Typography></li>
+                            </ul>
+                          </div>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                    <BlurSmall sx={{
-                      backgroundColor: "#C3E1E6",
-                      position: 'absolute', 
-                      bottom: -180, 
-                      right: "30%"
-                    }}/>
-                  </Paper>
-                </Grid>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Twitter/>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 120}}variant="subtitle1">PUBLICATIONS</Typography>
+                    <PublicationComponent publications={publications}/>
+                    <Link href={"/info/publications"}>
+                      <Button color="secondary" variant="outlined">
+                        Show More
+                      </Button>
+                    </Link>
+                  </Grid>
               </Grid>
             </Container>
           </Paper>
-        </Grid>
-        <Grid item xs={12} sx={{marginTop: 10}}>
-          <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6} className="flex items-center justify-center">
-                <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer">
-                  <Image  src="/img/FAIR.png" alt="fair" width={400} height={400}/>
-                </Link>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography variant={"h2"} color="secondary">
-                  Making data more FAIR
-                </Typography>
-                <Typography variant={"subtitle1"}>
-                  The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.
-                </Typography>
-                <div  className="mt-5">
-                  <Link href="https://www.nature.com/articles/sdata201618" target="_blank" rel="noopener noreferrer">
-                    <Button color="secondary">
-                      <Typography variant={"subtitle1"}>
-                        What is FAIR?
-                      </Typography>
-                    </Button>
-                  </Link>
-                </div>
-                <div  className="ml-8">
-                  <ul>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Findable</Typography></li>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Accessible</Typography></li>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Interoperable</Typography></li>
-                    <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Reusable</Typography></li>
-                  </ul>
-                </div>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container alignItems={"flex-start"}>
-            <Grid item xs={12} md={6}>
-              <Twitter/>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Publications all={false}/>
-            </Grid>
-          </Grid>
         </Grid>
       </Grid>
     </main>

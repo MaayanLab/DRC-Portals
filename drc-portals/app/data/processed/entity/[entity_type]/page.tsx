@@ -33,7 +33,7 @@ export default async function Page(props: PageProps) {
         ) as node
       from "entity_node"
       inner join "node" on "node"."id" = "entity_node"."id"
-      where "entity_node"."type" = ${props.params.entity_type}
+      where "entity_node"."type" = ${decodeURIComponent(props.params.entity_type)}
       ${searchParams.q ? Prisma.sql`
         and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
         order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
@@ -51,7 +51,7 @@ export default async function Page(props: PageProps) {
       ${searchParams.q ? Prisma.sql`
         (select count(items.id)::int from items) as count
       ` : Prisma.sql`
-        (select count("entity_node".id)::int from "entity_node" where "entity_node"."type" = ${props.params.entity_type}) as count
+        (select count("entity_node".id)::int from "entity_node" where "entity_node"."type" = ${decodeURIComponent(props.params.entity_type)}) as count
       `}
     ;
   `
@@ -60,7 +60,7 @@ export default async function Page(props: PageProps) {
       count={results.count}
     >
       <SearchablePagedTable
-        label={type_to_string('entity', props.params.entity_type)}
+        label={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -70,7 +70,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results.items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={props.params.entity_type} />,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={decodeURIComponent(props.params.entity_type)} />,
           format_description(item.node.description),
         ])}
       />

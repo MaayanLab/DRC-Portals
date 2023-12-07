@@ -111,7 +111,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
-              <Grid container spacing={2} justifyContent={"center"} alignItems={"flex-start"}>
+              <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
                 <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
                 </Grid>
               </Container>

@@ -84,14 +84,18 @@ export default async function Page(props: PageProps) {
   })
   return (
     <LandingPageLayout
-      icon={library.node.dcc?.icon ? { href: `/data/matrix/${library.node.dcc.short_label}`, src: library.node.dcc.icon, alt: library.node.dcc.label } : undefined}
-      label={library.node.label}
+      icon={library.node.dcc?.icon ? { href: `/info/dcc/${library.node.dcc.short_label}`, src: library.node.dcc.icon, alt: library.node.dcc.label } : undefined}
+      title={library.node.label}
+      subtitle={type_to_string('gene_set_library', null)}
       description={format_description(library.node.description)}
       metadata={[
-        library.node.dcc?.label ? { label: 'Project', value: <Link href={`/data/matrix/${library.node.dcc.short_label}`} className="underline cursor-pointer">{library.node.dcc.label}</Link> } : null,
+        ...library.node.dcc?.label ? [
+          { label: 'Project', value: <Link href={`/info/dcc/${library.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{library.node.dcc.label}</Link> },
+          { label: 'Asset', value:  <Link href={`/data/matrix/${library.node.dcc.short_label}#XMT`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
+        ] : [],
         { label: 'Gene coverage', value: library._count.genes.toLocaleString() },
-        { label: 'Number of gene sets', value: library._count.gene_sets.toLocaleString() },
-        { label: 'Download', value: <Link href={library.dcc_asset_link} className="underline cursor-pointer">{library.dcc_asset_link}</Link> },
+        { label: 'Gene sets', value: library._count.gene_sets.toLocaleString() },
+        { label: 'Download', value: <Link href={library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.dcc_asset_link}</Link> },
       ]}
     >
       <SearchablePagedTable

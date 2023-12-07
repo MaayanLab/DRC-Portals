@@ -1,5 +1,5 @@
 import React from "react"
-import { format_description } from "@/app/data/processed/utils";
+import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import { getItem } from './item'
 
@@ -12,7 +12,8 @@ export default async function Layout(props: {
   const item = await getItem(props.params.id)
   return (
     <LandingPageLayout
-      label={item.node.label}
+      title={item.node.label}
+      subtitle={type_to_string('entity', props.params.entity_type)}
       description={format_description(item.node.description)}
     >
       {props.children}
