@@ -68,9 +68,6 @@ export default async function InfoHeader() {
                   }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <NavBreadcrumbs/>
-              </Grid>
             </Grid>
         </Toolbar>
       </AppBar>

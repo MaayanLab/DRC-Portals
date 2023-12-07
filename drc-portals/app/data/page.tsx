@@ -136,7 +136,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
         </Grid>
         <Grid item xs={12} md={1}></Grid>
         <Grid item xs={12} md={6}>
-          <CFPrograms spacing={2}/>
+          <CFPrograms baseEndpoint="/data/matrix" spacing={2}/>
         </Grid>
         <Grid item xs={12}  sx={{marginTop: 15}}>
           <Paper sx={{
