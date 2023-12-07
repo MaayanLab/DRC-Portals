@@ -80,16 +80,22 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description}
+                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>.)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
                         <CardActions>
                             <Link href={dcc.homepage}>
                                 <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                    Homepage
+                                    {dcc.short_label} DCC Portal
                                 </Button>
                             </Link>
+                            {dcc.cf_site && <Link href={dcc.cf_site}>
+                                <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                    {dcc.short_label} Program on the NIH Common Fund Website
+                                </Button>
+                            </Link>
+                            }
                         </CardActions>
                     </Card>
                 </Grid>
@@ -135,12 +141,14 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         </Paper>
                     </Grid>
                 }
-                <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
-                    <Paper sx={{padding: 2, height: "100%"}}>
-                        <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
-                        <PublicationComponent publications={publications} chipped={true}/>
-                    </Paper>
-                </Grid>
+                { publications.length > 0 && 
+                    <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
+                        <Paper sx={{padding: 2, height: "100%"}}>
+                            <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
+                            <PublicationComponent publications={publications} chipped={true}/>
+                        </Paper>
+                    </Grid>
+                }
             </Grid>
         </Container>
     </Paper>
