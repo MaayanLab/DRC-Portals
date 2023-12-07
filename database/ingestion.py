@@ -178,7 +178,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open(partnerships_path, 'r') as fr:
+with open(partnerships_path(), 'r') as fr:
     cur.copy_from(fr, 'partnerships_tmp',
       columns=('id', 'title', 'description', 'active', 'image'),
       null='',
@@ -208,7 +208,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open(dcc_partnerships_path, 'r') as fr:
+with open(dcc_partnerships_path(), 'r') as fr:
     cur.copy_from(fr, 'dcc_partnerships_tmp',
       columns=("partnership_id", "dcc_id"),
       null='',
