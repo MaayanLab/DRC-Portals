@@ -15,11 +15,18 @@ import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Outreach from "@/components/misc/Outreach"
-import Publications from "@/components/misc/Publications/PublicationsServer"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
+import prisma from "@/lib/prisma"
+import PublicationComponent from "@/components/misc/PublicationComponent"
 export default async function Home() {
+  const publications = await prisma.publication.findMany({
+    orderBy: {
+      year: "desc"
+    },
+    take: 5
+  })
   return (
     <main className="mb-10">
       <Grid container spacing={2} alignItems={"center"}>
@@ -260,7 +267,13 @@ export default async function Home() {
               <Twitter/>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Publications all={false}/>
+              <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 120}}variant="subtitle1">PUBLICATIONS</Typography>
+              <PublicationComponent publications={publications}/>
+              <Link href={"/info/publications"}>
+                <Button color="secondary" variant="outlined">
+                  Show More
+                </Button>
+              </Link>
             </Grid>
           </Grid>
         </Grid>

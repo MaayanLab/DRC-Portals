@@ -15,6 +15,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Icon from "@mdi/react";
 import { mdiArrowRight } from "@mdi/js";
+import PublicationComponent from "@/components/misc/PublicationComponent";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
@@ -51,7 +52,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         }
     })
     const outreach = dcc?.outreach || []
-    const publications = dcc?.publications.map(i=>i.publication)
+    const publications = dcc?.publications.map(i=>i.publication) || []
     if (!dcc) return notFound()
     return (
     <Paper sx={{
@@ -136,31 +137,8 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 }
                 <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                     <Paper sx={{padding: 2, height: "100%"}}>
-                        <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publications</Typography>
-                        {(publications || []).map((pub, i)=>(
-                            <div key={i} className="mb-2 space-x-1">
-                               <Typography color="secondary" variant="caption">
-                                    {pub.authors}. {pub.year}. <b>{pub.title}{!pub.title.endsWith(".") && "."}</b> {pub.journal}. {pub.volume}. {pub.page}
-                                </Typography>
-                                <div className="flex space-x-2">
-                                    { pub.pmid && 
-                                    <Link target="_blank" rel="noopener noreferrer" href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`}>
-                                        <Chip color="secondary" variant="outlined" label={"PubMed"} sx={{minWidth: 100}}/>
-                                    </Link>
-                                    }
-                                    { pub.pmcid && 
-                                    <Link target="_blank" rel="noopener noreferrer" href={`https://www.ncbi.nlm.nih.gov/pmc/articles/${pub.pmcid}/`}>
-                                        <Chip color="secondary" variant="outlined"  label={"PMC"} sx={{minWidth: 100}}/>
-                                    </Link>
-                                    }
-                                    { pub.doi && 
-                                    <Link target="_blank" rel="noopener noreferrer" href={`https://www.doi.org/${pub.doi}`}>
-                                        <Chip color="secondary" variant="outlined" label={"DOI"} sx={{minWidth: 100}}/>
-                                    </Link>
-                                    }
-                                </div>
-                            </div>
-                        ))}
+                        <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
+                        <PublicationComponent publications={publications} chipped={true}/>
                     </Paper>
                 </Grid>
             </Grid>
