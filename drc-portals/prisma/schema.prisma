@@ -21,6 +21,7 @@ model DCC {
   icon         String?
   annotation   Json?
   cfde_partner Boolean          @default(false)
+  cf_site      String?
   publications DCCPublication[]
   assets       DccAsset[]
   outreach     DCCOutreach[]

@@ -19,14 +19,14 @@ cur.execute('''
 
 with open(dcc_path(), 'r') as fr:
     cur.copy_from(fr, 'dcc_tmp',
-      columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner'),
+      columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner', 'cf_site'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner)
-      select id, label, short_label, description, homepage, icon, cfde_partner
+    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, cf_site)
+      select id, label, short_label, description, homepage, icon, cfde_partner, cf_site
       from dcc_tmp
       on conflict (id)
         do update
@@ -35,7 +35,8 @@ cur.execute('''
             description = excluded.description,
             homepage = excluded.homepage,
             icon = excluded.icon,
-            cfde_partner = excluded.cfde_partner
+            cfde_partner = excluded.cfde_partner,
+            cf_site = excluded.cf_site
     ;
   ''')
 cur.execute('drop table dcc_tmp;')
