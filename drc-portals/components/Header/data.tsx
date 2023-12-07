@@ -35,7 +35,8 @@ export default async function InfoHeader() {
                   <Link href="/data/contribute/form">
                     <Typography variant="nav">CONTRIBUTE</Typography>
                   </Link>
-                    <UserComponent session={session}/>
+                  <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
+                  <UserComponent session={session}/>
                 </Stack>
               </Grid>
               <Grid item xs={12}></Grid>
