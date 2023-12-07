@@ -46,6 +46,12 @@ if not pathlib.Path('ingest/outreach.tsv').exists():
 if not pathlib.Path('ingest/DccAssets.tsv').exists():
   import urllib.request
   urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/113023/DccAssets.tsv', 'ingest/DccAssets.tsv')
+if not pathlib.Path('ingest/dcc_partnerships.tsv').exists():
+  import urllib.request
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'ingest/dcc_partnerships.tsv')
+if not pathlib.Path('ingest/partnerships.tsv').exists():
+  import urllib.request
+  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'ingest/partnerships.tsv')
 
 cur = connection.cursor()
 cur.execute('''
@@ -87,14 +93,14 @@ cur.execute('''
 
 with open('ingest/publications.tsv', 'r') as fr:
     cur.copy_from(fr, 'publication_tmp',
-      columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors"),
+      columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark"),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors
+    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark)
+      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark
       from publication_tmp
       on conflict (id)
         do update
@@ -108,7 +114,8 @@ cur.execute('''
             pmid = excluded.pmid,
             pmcid = excluded.pmcid,
             doi = excluded.doi,
-            authors = excluded.authors
+            authors = excluded.authors,
+            landmark = excluded.landmark
     ;
   ''')
 cur.execute('drop table publication_tmp;')
@@ -204,6 +211,64 @@ cur.execute('''
   ''')
 cur.execute('drop table dcc_outreach_tmp;')
 connection.commit()
+
+## Partnerships
+
+cur = connection.cursor()
+cur.execute('''
+  create table partnerships_tmp
+  as table partnerships
+  with no data;
+''')
+
+with open('ingest/partnerships.tsv', 'r') as fr:
+    cur.copy_from(fr, 'partnerships_tmp',
+      columns=('id', 'title', 'description', 'active', 'image'),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into partnerships (id, title, description, active, image)
+      select id, title, description, active, image
+      from partnerships_tmp
+      on conflict (id)
+        do update
+        set id = excluded.id,
+            title = excluded.title,
+            description = excluded.description,
+            active = excluded.active,
+            image = excluded.image
+    ;
+  ''')
+cur.execute('drop table partnerships_tmp;')
+connection.commit()
+
+cur = connection.cursor()
+cur.execute('''
+  create table dcc_partnerships_tmp
+  as table dcc_partnerships
+  with no data;
+''')
+
+with open('ingest/dcc_partnerships.tsv', 'r') as fr:
+    cur.copy_from(fr, 'dcc_partnerships_tmp',
+      columns=("partnership_id", "dcc_id"),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into dcc_partnerships (partnership_id, dcc_id)
+      select partnership_id, dcc_id
+      from dcc_partnerships_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table dcc_partnerships_tmp;')
+connection.commit()
+
 
 # DCC Assets
 cur = connection.cursor()

@@ -25,6 +25,11 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 select: {
                     publication: true
                 },
+                where: {
+                    publication: {
+                        landmark: true
+                    }
+                },
                 orderBy: {
                     publication: {
                         year: { sort: 'desc', nulls: 'last' },
@@ -45,7 +50,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             },
         }
     })
-    const outreach = dcc?.outreach
+    const outreach = dcc?.outreach || []
     const publications = dcc?.publications.map(i=>i.publication)
     if (!dcc) return notFound()
     return (
@@ -87,49 +92,51 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         </CardActions>
                     </Card>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                    <Paper sx={{padding: 2, textAlign: "center"}}>
-                        <Typography sx={{color: "#FFF", background: "#7187c3", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
-                        { (outreach === undefined || outreach.length === 0) ?
-                            <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>
-                                No events at the moment
-                            </Typography>:
-                            <>
-                            {dcc.outreach.map((e,i)=>(
-                                <Card elevation={0} sx={{borderBottom: 1, borderColor: "#B7C3E2", borderRadius: 0, textAlign: "left"}}>
-                                    <CardContent>
-                                        <Stack spacing={1}>
-                                        <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.outreach.title}</Typography>
-                                        <Typography variant="subtitle2">{e.outreach.short_description}</Typography>
-                                        {e.outreach.application_end ? 
-                                            <Typography variant="subtitle2"><b>Application ends</b>: {`${e.outreach.application_end.toLocaleDateString("en-US", {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                            })}`}
-                                            </Typography> :
-                                            e.outreach.start_date &&
-                                                <Typography variant="subtitle2"><b>Starts</b>: {`${e.outreach.start_date.toLocaleDateString("en-US", {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
+                {(outreach.length > 0) && 
+                    <Grid item xs={12} md={3}>
+                        <Paper sx={{padding: 2, textAlign: "center"}}>
+                            <Typography sx={{color: "#FFF", background: "#7187c3", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
+                            { (outreach === undefined || outreach.length === 0) ?
+                                <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>
+                                    No events at the moment
+                                </Typography>:
+                                <>
+                                {dcc.outreach.map((e,i)=>(
+                                    <Card elevation={0} sx={{borderBottom: 1, borderColor: "#B7C3E2", borderRadius: 0, textAlign: "left"}}>
+                                        <CardContent>
+                                            <Stack spacing={1}>
+                                            <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.outreach.title}</Typography>
+                                            <Typography variant="subtitle2">{e.outreach.short_description}</Typography>
+                                            {e.outreach.application_end ? 
+                                                <Typography variant="subtitle2"><b>Application ends</b>: {`${e.outreach.application_end.toLocaleDateString("en-US", {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
                                                 })}`}
-                                                </Typography>
-                                        }
-                                        <Link href={e.outreach.link || ''} target="_blank" rel="noopener noreferrer">
-                                            <Button sx={{marginLeft: -2}} color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>Visit event page</Button>
-                                        </Link>
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            ))}    
-                            </>
-                        }
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} md={9}>
+                                                </Typography> :
+                                                e.outreach.start_date &&
+                                                    <Typography variant="subtitle2"><b>Starts</b>: {`${e.outreach.start_date.toLocaleDateString("en-US", {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    })}`}
+                                                    </Typography>
+                                            }
+                                            <Link href={e.outreach.link || ''} target="_blank" rel="noopener noreferrer">
+                                                <Button sx={{marginLeft: -2}} color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>Visit event page</Button>
+                                            </Link>
+                                            </Stack>
+                                        </CardContent>
+                                    </Card>
+                                ))}    
+                                </>
+                            }
+                        </Paper>
+                    </Grid>
+                }
+                <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                     <Paper sx={{padding: 2, height: "100%"}}>
-                        <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Featured publications</Typography>
+                        <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publications</Typography>
                         {(publications || []).map((pub, i)=>(
                             <div key={i} className="mb-2 space-x-1">
                                <Typography color="secondary" variant="caption">
