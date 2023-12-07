@@ -89,7 +89,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results.items.map(item => [
-          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
+          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
           <Description description={item.node.description}/>,
         ])}

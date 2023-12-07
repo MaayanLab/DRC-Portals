@@ -153,7 +153,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results?.items.map(item => [
-          item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
+          item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
             : item.type === 'entity' ? 
               item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
               : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />

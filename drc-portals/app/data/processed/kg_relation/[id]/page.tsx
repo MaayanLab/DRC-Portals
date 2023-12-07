@@ -122,7 +122,7 @@ export default async function Page(props: { params: { id: string }, searchParams
           <>Evidence</>,
         ]}
         rows={results.assertions.map(assertion => [
-          assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/data/matrix/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
+          assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
           <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} />,
           <LinkedTypedNode type="kg_relation" id={props.params.id} label={item.node.label} focus />,
           <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} />,
