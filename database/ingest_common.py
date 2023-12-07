@@ -96,6 +96,8 @@ publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/datab
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'outreach.tsv')
 dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/113023/DccAssets.tsv', 'DccAssets.tsv')
+dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'partnerships.tsv')
 
 #%%
 def current_dcc_assets():
