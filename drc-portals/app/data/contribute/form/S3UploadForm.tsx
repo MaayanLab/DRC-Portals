@@ -1,7 +1,7 @@
 'use client'
 
 import React, { FormEvent } from 'react'
-import { upload } from './UploadFunc'
+import { saveChecksumDb, upload } from './UploadFunc'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';
@@ -16,6 +16,8 @@ import DCCSelect from './DCCSelect';
 import { $Enums } from '@prisma/client';
 import { Box } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
+import jsSHA256 from 'jssha/sha256'
+import { createPresignedUrl } from './UploadFunc'
 
 // type S3UploadStatus = {
 //   success?: boolean,
@@ -27,8 +29,8 @@ export type S3UploadStatus = {
   success?: boolean,
   loading?: boolean,
   error?: {
-      selected: boolean;
-      message: string
+    selected: boolean;
+    message: string
   },
 }
 
@@ -48,6 +50,37 @@ function parseFileTypeClient(filename: string, filetype: string) {
   }
   return parsedFileType
 }
+
+
+async function uploadAndComputeSha256(file: File, filetype:string, dcc: string) {
+  const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
+  const computeHash = file.stream()
+    .pipeTo(new WritableStream({
+      write(chunk) {
+
+        hash.update(chunk)
+      },
+    }))
+  await computeHash
+  const checksumHash = hash.getHash('B64')
+  let date = new Date().toJSON().slice(0, 10)
+  let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
+  const presignedurl = await createPresignedUrl(filepath, checksumHash)
+  console.log(checksumHash)
+  console.log(presignedurl)
+  const awsPost = await fetch(presignedurl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      'x-amz-checksum-sha256': checksumHash
+    },
+    body: file,
+  })
+  if (!awsPost.ok) throw new Error(await awsPost.text())
+  return checksumHash
+}
+
+
 
 /**
  * Any child of <S3UploadForm> can access this hook to
@@ -81,32 +114,48 @@ export function S3UploadForm(user: {
   }, [progress])
 
   return (
-    <form onSubmit={(evt) => {
+    <form onSubmit={async (evt) => {
       evt.preventDefault()
       const formData = new FormData(evt.currentTarget)
-      console.log(uploadedfiles)
-      if (uploadedfiles.length === 0) return  setStatus(({ error: { selected: true, message: 'No files uploaded' } }))
-
+ 
+      let dcc = formData.get('dcc')?.toString()
+      if (uploadedfiles.length === 0) return setStatus(({ error: { selected: true, message: 'No files uploaded' } }))
       setStatus(() => ({ loading: true }))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         if (parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type) === '') {
           setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .dmt or .gmt' } }))
-
           return
         }
-        if (uploadedfiles[i].size > 4200000000) {
-          setStatus(({ error: { selected: true, message: 'Files too large. Make sure no file is > 4.2 GB' } })); return
-        }
+        // if (uploadedfiles[i].size > 4200000000) {
+        //   setStatus(({ error: { selected: true, message: 'Files too large. Make sure no file is > 4.2 GB' } })); return
+        // }
       }
+
+      // for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+      //   const singleFormData = new FormData(evt.currentTarget)
+      //   singleFormData.append('files[]', uploadedfiles[i])
+      //   upload(singleFormData)
+      //     .then(() => {
+      //       setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
+      //     })
+      //     .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } })); return })
+      // }
+
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-        const singleFormData = new FormData(evt.currentTarget)
-        singleFormData.append('files[]', uploadedfiles[i])
-        upload(singleFormData)
-          .then(() => {
-            setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
-          })
-          .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } })); return })
+        try {        
+        let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
+        if (!dcc) throw new Error('no dcc entered')
+        let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc)
+        // save to db 
+        await saveChecksumDb (digest, uploadedfiles[i].name, uploadedfiles[i].size,filetype, dcc)
+        setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
+        }
+        catch (error) {
+          console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } })); 
+          return }
       }
+
+
     }}>
       <S3UploadStatusContext.Provider value={status}>
         {/* {children} */}

@@ -56,10 +56,10 @@ export function FileInfo({ open, fileInfo }: {
     )
 }
 
-export function FileRow({userFile, approvedSymboldcc, approvedSymbol} : {userFile: {dcc: {
+export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSymbol} : {userFile: {dcc: {
     label: string;
 } | null;
-} & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element}) {
+} & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element}) {
     const [open, setOpen] = React.useState(false);
     return (
         <>
@@ -76,6 +76,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol} : {userFil
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.etag}</TableCell> */}
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
