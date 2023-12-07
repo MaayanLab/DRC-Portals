@@ -29,7 +29,6 @@ export default function ApprovalBtn(userFile: {
     )
 
     useEffect(() => {
-         console.log(userFile)
         if (userFile.dcc_drc === 'drc') {
             if (userFile.drcapproved) {
                 setStatus(true)

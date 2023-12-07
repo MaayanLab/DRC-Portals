@@ -52,35 +52,6 @@ function parseFileTypeClient(filename: string, filetype: string) {
 }
 
 
-async function uploadAndComputeSha256(file: File, filetype:string, dcc: string) {
-  const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
-  const computeHash = file.stream()
-    .pipeTo(new WritableStream({
-      write(chunk) {
-
-        hash.update(chunk)
-      },
-    }))
-  await computeHash
-  const checksumHash = hash.getHash('B64')
-  let date = new Date().toJSON().slice(0, 10)
-  let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
-  const presignedurl = await createPresignedUrl(filepath, checksumHash)
-  console.log(checksumHash)
-  console.log(presignedurl)
-  const awsPost = await fetch(presignedurl, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/octet-stream',
-      'x-amz-checksum-sha256': checksumHash
-    },
-    body: file,
-  })
-  if (!awsPost.ok) throw new Error(await awsPost.text())
-  return checksumHash
-}
-
-
 
 /**
  * Any child of <S3UploadForm> can access this hook to
@@ -113,6 +84,68 @@ export function S3UploadForm(user: {
     }
   }, [progress])
 
+  async function parseFile(file: File,) {
+    var chunkSize = 64 * 1024; // bytes
+    let hash = new jsSHA256("SHA-256", "UINT8ARRAY")
+    for (let start = 0; start < file.size; start += chunkSize) {
+      const end = Math.min(start + chunkSize, file.size)
+      let chunk = file.slice(start, end)
+      hash.update(new Uint8Array(await chunk.arrayBuffer()))
+    }
+    const checksumHash = hash.getHash('B64')  
+    return checksumHash
+  }
+
+
+  async function uploadAndComputeSha256(file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number) {
+    const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
+    try {
+      const computeHash = file.stream()
+      .pipeTo(new WritableStream({
+        write(chunk) {
+          const cycles = chunk.length
+          console.log(cycles)
+          hash.update(chunk)
+        },
+      }))
+    await computeHash
+    setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    const checksumHash = hash.getHash('B64')
+    let date = new Date().toJSON().slice(0, 10)
+    let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
+    const presignedurl = await createPresignedUrl(filepath, checksumHash)
+    setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    console.log(checksumHash)
+    console.log(presignedurl)
+    const awsPost = await fetch(presignedurl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'x-amz-checksum-sha256': checksumHash
+      },
+      body: file,
+    })
+    setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    if (!awsPost.ok) throw new Error(await awsPost.text())
+    return checksumHash
+    } catch (e) {
+      var chunkSize = 64 * 1024; // bytes
+      const fileSize = file.size
+      const cycles = fileSize/chunkSize
+      let hash = new jsSHA256("SHA-256", "UINT8ARRAY")
+      for (let start = 0; start < file.size; start += chunkSize) {
+        const end = Math.min(start + chunkSize, file.size)
+        let chunk = file.slice(start, end)
+        hash.update(new Uint8Array(await chunk.arrayBuffer()))
+        setProgress(oldProgress => oldProgress + (progressAlloc / 3) /cycles) 
+      }
+      const checksumHash = hash.getHash('B64')  
+      return checksumHash
+    }
+
+  }
+
+
   return (
     <form onSubmit={async (evt) => {
       evt.preventDefault()
@@ -128,17 +161,18 @@ export function S3UploadForm(user: {
       }
 
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-        try {        
-        let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
-        if (!dcc) throw new Error('no dcc entered')
-        let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc)
-        // save to db 
-        await saveChecksumDb (digest, uploadedfiles[i].name, uploadedfiles[i].size,filetype, dcc)
-        setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
+        try {
+          let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
+          if (!dcc) throw new Error('no dcc entered')
+          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length))
+          // save to db 
+          await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
+          // setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
         }
         catch (error) {
-          console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } })); 
-          return }
+          console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+          return
+        }
       }
 
 
