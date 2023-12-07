@@ -28,7 +28,7 @@ export default async function Home() {
     take: 5
   })
   return (
-    <main className="mb-10">
+    <main>
       <Grid container spacing={2} alignItems={"center"}>
         <Grid item xs={12}>
           <Paper color="primary" elevation={0} sx={{
@@ -226,7 +226,6 @@ export default async function Home() {
             <Container maxWidth="lg">
                 <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
                   <Grid item xs={12} sx={{marginBottom: 10}}>
-                    <Paper sx={{boxShadow: "none", background: '#FAFAFA', padding: 5, borderRadius: 15}}>
                       <Grid container spacing={2}>
                         <Grid item xs={12} md={6} className="flex items-center justify-center">
                           <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer">
@@ -259,7 +258,6 @@ export default async function Home() {
                           </div>
                         </Grid>
                       </Grid>
-                    </Paper>
                   </Grid>
                   <Grid item xs={6}>
                     <Twitter/>
