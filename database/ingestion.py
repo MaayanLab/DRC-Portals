@@ -1,57 +1,12 @@
-import pandas as pd
-import os
-import psycopg2
-import pathlib
-from urllib.parse import urlparse
-from dotenv import load_dotenv
-from uuid import NAMESPACE_URL, uuid5
-
-# load .env from drc-portals potentially
-load_dotenv('../drc-portals/.env')
-load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-result = urlparse(DATABASE_URL)
-username = result.username
-password = result.password
-database = result.path[1:]
-hostname = result.hostname
-port = result.port
-
-connection = psycopg2.connect(
-    database = database,
-    user = username,
-    password = password,
-    host = hostname,
-    port = port
+from ingest_common import (
+  connection,
+  dcc_path,
+  publications_path,
+  dcc_publications_path,
+  outreach_path,
+  dcc_outreach_path,
+  dcc_assets_path,
 )
-
-# Fetch data for ingest
-if not pathlib.Path('ingest').exists():
-  pathlib.Path('ingest').mkdir()
-if not pathlib.Path('ingest/DCC.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/DCC.tsv', 'ingest/DCC.tsv')
-if not pathlib.Path('ingest/dcc_publications.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_publications.tsv', 'ingest/dcc_publications.tsv')
-if not pathlib.Path('ingest/publications.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/publications.tsv', 'ingest/publications.tsv')
-if not pathlib.Path('ingest/dcc_outreach.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_outreach.tsv', 'ingest/dcc_outreach.tsv')
-if not pathlib.Path('ingest/outreach.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'ingest/outreach.tsv')
-if not pathlib.Path('ingest/DccAssets.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/113023/DccAssets.tsv', 'ingest/DccAssets.tsv')
-if not pathlib.Path('ingest/dcc_partnerships.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'ingest/dcc_partnerships.tsv')
-if not pathlib.Path('ingest/partnerships.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'ingest/partnerships.tsv')
 
 cur = connection.cursor()
 cur.execute('''
@@ -60,7 +15,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open('ingest/DCC.tsv', 'r') as fr:
+with open(dcc_path(), 'r') as fr:
     cur.copy_from(fr, 'dcc_tmp',
       columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner'),
       null='',
@@ -91,7 +46,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open('ingest/publications.tsv', 'r') as fr:
+with open(publications_path(), 'r') as fr:
     cur.copy_from(fr, 'publication_tmp',
       columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark"),
       null='',
@@ -128,7 +83,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open('ingest/dcc_publications.tsv', 'r') as fr:
+with open(dcc_publications_path(), 'r') as fr:
     cur.copy_from(fr, 'dcc_publication_tmp',
       columns=("publication_id", "dcc_id"),
       null='',
@@ -153,7 +108,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open('ingest/outreach.tsv', 'r') as fr:
+with open(outreach_path(), 'r') as fr:
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
        'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image'),
@@ -194,7 +149,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open('ingest/dcc_outreach.tsv', 'r') as fr:
+with open(dcc_outreach_path(), 'r') as fr:
     cur.copy_from(fr, 'dcc_outreach_tmp',
       columns=("outreach_id", "dcc_id"),
       null='',
@@ -278,7 +233,7 @@ cur.execute('''
   with no data;
 ''')
 
-with open('ingest/DccAssets.tsv', 'r') as fr:
+with open(dcc_assets_path(), 'r') as fr:
   cur.copy_from(fr, 'dcc_assets_tmp',
     columns=(
       'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
