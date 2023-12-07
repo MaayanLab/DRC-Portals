@@ -69,7 +69,7 @@ export default async function PublicationsServer({
     })
     return (
         <Paper sx={{boxShadow: "none", height: "100%"}}>
-            <Typography variant="h2" color="secondary">Publications</Typography>
+            <Typography variant="h2" color="secondary">CFDE Associated Publications</Typography>
             {all &&
               <div className="mb-5">
                 <Typography variant="subtitle1" color="secondary">
