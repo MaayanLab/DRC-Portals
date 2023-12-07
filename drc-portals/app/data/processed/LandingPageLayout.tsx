@@ -19,7 +19,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             {props.description ? <Typography variant="body2">Description: {props.description}</Typography> : null}
           </Stack>
           {props.icon ? 
-            <div className="flex-grow-0 self-center justify-self-center">
+            <div className="flex-grow-0 flex-shrink-0 self-center justify-self-center">
               <Link href={props.icon.href}>
                 <Image src={props.icon.src} alt={props.icon.alt} width={240} height={240} />
               </Link>
