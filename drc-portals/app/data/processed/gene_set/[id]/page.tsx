@@ -108,7 +108,8 @@ export default async function Page(props: PageProps) {
   return (
     <LandingPageLayout
       icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
-      label={gene_set.node.label}
+      title={gene_set.node.label}
+      subtitle={type_to_string('gene_set', null)}
       description={format_description(gene_set.node.description)}
       metadata={[
         gene_set.node.dcc ? { label: 'Project', value: <Link href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,

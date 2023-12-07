@@ -102,7 +102,8 @@ export default async function Page(props: { params: { id: string }, searchParams
   `
   return (
     <LandingPageLayout
-      label={item.node.label}
+      title={item.node.label}
+      subtitle={type_to_string('kg_relation', null)}
       description={format_description(item.node.description)}
       metadata={[
         { label: 'Assertions', value: results.n_assertions.toLocaleString() },

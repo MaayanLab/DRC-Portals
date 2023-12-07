@@ -47,7 +47,8 @@ export default async function Page(props: { params: { id: string } }) {
   return (
     <LandingPageLayout
       icon={item.node.dcc?.icon ? { href: `/info/dcc/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}
-      label={item.node.label}
+      title={item.node.label}
+      subtitle={type_to_string('dcc_asset', null)}
       description={format_description(item.node.description)}
       metadata={[
         ...(item.node.dcc?.label ? [
