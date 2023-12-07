@@ -49,7 +49,7 @@ export default async function Page(props: PageProps) {
       metadata={[
         item.node.dcc?.label ? { label: 'Project', value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link> } : null,
         { label: 'Persistent ID', value: item.persistent_id },
-        { label: 'Size in Bytes', value: item.size_in_bytes?.toString() ?? 'unknown' },
+        { label: 'Size in Bytes', value: item.size_in_bytes?.toLocaleString() ?? 'unknown' },
         { label: 'File Format', value: item.file_format },
         { label: 'Assay Type', value: item.assay_type },
         { label: 'Data Type', value: item.data_type },
