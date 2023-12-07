@@ -7,7 +7,7 @@ export default function Twitter() {
     return(
         <Card sx={{minHeight: 620}}>
             <CardContent sx={{padding: 3}}>
-                <Grid container spacing={2} justifyContent={"space-between"}>
+                <Grid container spacing={2} justifyContent={"space-between"} alignItems={"center"}>
                     <Grid item>
                         <Typography variant="h2" color="secondary">Social Media</Typography>
                     </Grid>
