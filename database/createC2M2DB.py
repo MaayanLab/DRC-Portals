@@ -23,7 +23,7 @@ def typeMatcher(schemaDataType):
         'datetime': 'date',
         'binary': 'binary',
         'array': 'TEXT[]',
-        'integer': 'int',
+        'integer': 'bigint',
         'number': 'float8'
     }
     return typeMap.get(schemaDataType)
@@ -63,14 +63,22 @@ for table in tables:
     for field in fields:
         fieldName = field['name']
         fieldType = typeMatcher(field['type'])
-        createFieldStr += f'{fieldName} {fieldType}, '
+        createFieldStr += f'{fieldName} {fieldType} '
+        if fieldType == 'bigint' or fieldType == 'binary' or fieldType == 'float8' or fieldType == 'bool':
+            createFieldStr = createFieldStr + 'default null,'
+        if fieldType == 'varchar(5000)' or fieldType == 'date' or fieldType == 'TEXT[]':
+            createFieldStr = createFieldStr + 'default \'\','
     
+    ## Add drop table command
+    # dropTableStr = f'drop table if exists {tableName} restrict;'
     createTableStr = f'create table {schemaName}.{tableName} ({createFieldStr} sourceDCC varchar(100));'
 
     # Execute the SQL statement to create the table
-    sql = createTableStr
-    print(sql)
-    cursor.execute(sql)
+    createTableCmd = createTableStr
+    print(createTableCmd)
+    # dropTableCmd = dropTableStr
+    # cursor.execute(dropTableCmd)
+    # cursor.execute(createTableCmd)
     
     print("Table has been created successfully!")
 
