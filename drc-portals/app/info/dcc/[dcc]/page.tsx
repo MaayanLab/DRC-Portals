@@ -140,7 +140,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         {(publications || []).map((pub, i)=>(
                             <div key={i} className="mb-2 space-x-1">
                                <Typography color="secondary" variant="caption">
-                                    {pub.authors}. {pub.year}. <b>{pub.title}.</b> {pub.journal}. {pub.volume}. {pub.page}
+                                    {pub.authors}. {pub.year}. <b>{pub.title}{!pub.title.endsWith(".") && "."}</b> {pub.journal}. {pub.volume}. {pub.page}
                                 </Typography>
                                 <div className="flex space-x-2">
                                     { pub.pmid && 
