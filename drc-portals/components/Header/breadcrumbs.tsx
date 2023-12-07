@@ -14,7 +14,7 @@ export default function NavBreadcrumbs() {
                 key={i}
                 href={`/${path.slice(0, i+1).join("/")}`}
             >
-                <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path.length-1 ? 'secondary': 'inherit'}>{decodeURI(p)}</Typography>
+                <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path.length-1 ? 'secondary': 'inherit'}>{decodeURIComponent(p)}</Typography>
             </Link>
         ))
         return <Breadcrumbs aria-label="breadcrumb" separator="›" >
