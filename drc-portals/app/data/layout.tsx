@@ -3,7 +3,7 @@ import Container  from '@mui/material/Container'
 import Header  from '@/components/Header/data'
 import Footer  from '@/components/Footer/data'
 import { Metadata } from 'next'
-import Background from './background'
+import Background from '@/components/styled/background'
 
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
