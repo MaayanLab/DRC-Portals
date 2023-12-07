@@ -3,7 +3,10 @@ import csv
 import zipfile
 from tqdm.auto import tqdm
 
-from ingest_common import TableHelper, ingest_path, dcc_assets, uuid0, uuid5
+from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
+
+#%%
+dcc_assets = current_dcc_assets()
 
 #%%
 # Ingest C2M2
