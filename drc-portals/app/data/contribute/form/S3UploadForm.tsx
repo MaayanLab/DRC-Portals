@@ -116,30 +116,16 @@ export function S3UploadForm(user: {
   return (
     <form onSubmit={async (evt) => {
       evt.preventDefault()
+      setStatus(() => ({ loading: true }))
       const formData = new FormData(evt.currentTarget)
- 
       let dcc = formData.get('dcc')?.toString()
       if (uploadedfiles.length === 0) return setStatus(({ error: { selected: true, message: 'No files uploaded' } }))
-      setStatus(() => ({ loading: true }))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         if (parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type) === '') {
           setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .dmt or .gmt' } }))
           return
         }
-        // if (uploadedfiles[i].size > 4200000000) {
-        //   setStatus(({ error: { selected: true, message: 'Files too large. Make sure no file is > 4.2 GB' } })); return
-        // }
       }
-
-      // for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-      //   const singleFormData = new FormData(evt.currentTarget)
-      //   singleFormData.append('files[]', uploadedfiles[i])
-      //   upload(singleFormData)
-      //     .then(() => {
-      //       setProgress(oldProgress => oldProgress + 100 / (uploadedfiles.length))
-      //     })
-      //     .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } })); return })
-      // }
 
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         try {        

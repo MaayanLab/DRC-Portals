@@ -102,7 +102,7 @@ export default async function UserFiles() {
         symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
             let approvedSymbol = <FaCircleExclamation size={20} />
-            let currentSymbol = <CurrentBtn {...userFile} dcc_drc='dcc'/>
+            let currentSymbol = <CurrentBtn {...userFile}/>
             if (userFile.drcapproved) {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
@@ -111,10 +111,11 @@ export default async function UserFiles() {
 
     } else {
         const userFiles = allFiles
-        symbolUserFiles = userFiles.map((userFile) => {
+        const sortedData = userFiles.sort((a, b) => b.lastmodified.valueOf() - a.lastmodified.valueOf())
+        symbolUserFiles = sortedData.map((userFile) => {
             let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
             let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let currentSymbol = <CurrentBtn {...userFile} dcc_drc='drc' />
+            let currentSymbol = <CurrentBtn {...userFile} />
             if (userFile.dccapproved) {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }

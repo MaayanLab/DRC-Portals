@@ -304,6 +304,7 @@ export const createPresignedUrl = async (filepath : string, checksumHash: string
         update: {
             filetype: filetype,
             filename: filename,
+            lastmodified: new Date(),
             creator: user.email,
             annotation: {},
             size: filesize,
