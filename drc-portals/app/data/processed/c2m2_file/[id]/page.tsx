@@ -48,8 +48,16 @@ export default async function Page(props: PageProps) {
       subtitle={type_to_string('c2m2_file', null)}
       description={format_description(item.node.description)}
       metadata={[
-        item.node.dcc?.label ? { label: 'Project', value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link> } : null,
-        { label: 'Persistent ID', value: item.persistent_id },
+        item.node.dcc?.label ? {
+          label: 'Project',
+          value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link>
+        } : null,
+        item.persistent_id ? {
+          label: 'Persistent ID',
+          value: /^https?:\/\//.exec(item.persistent_id) !== null ?
+            <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
+            : item.persistent_id,
+        } : null,
         { label: 'Size in Bytes', value: item.size_in_bytes?.toLocaleString() ?? 'unknown' },
         { label: 'File Format', value: item.file_format },
         { label: 'Assay Type', value: item.assay_type },
