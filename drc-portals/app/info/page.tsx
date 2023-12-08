@@ -19,7 +19,7 @@ import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
-import PublicationComponent from "@/components/misc/PublicationComponent"
+import PublicationComponent from "@/components/misc/Publication/PublicationComponent"
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {

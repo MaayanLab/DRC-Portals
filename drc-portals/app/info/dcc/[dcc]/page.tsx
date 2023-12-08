@@ -15,7 +15,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Icon from "@mdi/react";
 import { mdiArrowRight } from "@mdi/js";
-import PublicationComponent from "@/components/misc/PublicationComponent";
+import PublicationComponent from "@/components/misc/Publication/PublicationComponent";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
