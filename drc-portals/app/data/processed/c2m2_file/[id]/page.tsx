@@ -58,7 +58,10 @@ export default async function Page(props: PageProps) {
             <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
             : item.persistent_id,
         } : null,
-        { label: 'Size in Bytes', value: item.size_in_bytes?.toLocaleString() ?? 'unknown' },
+        item.size_in_bytes ? {
+          label: 'Size in Bytes',
+          value: item.size_in_bytes.toLocaleString(),
+        } : null,
         { label: 'File Format', value: item.file_format },
         { label: 'Assay Type', value: item.assay_type },
         { label: 'Data Type', value: item.data_type },
