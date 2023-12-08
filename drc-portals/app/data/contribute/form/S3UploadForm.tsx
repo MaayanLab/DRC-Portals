@@ -1,7 +1,7 @@
 'use client'
 
-import React, { FormEvent } from 'react'
-import { saveChecksumDb, upload } from './UploadFunc'
+import React from 'react'
+import { saveChecksumDb } from './UploadFunc'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';
@@ -101,10 +101,14 @@ export function S3UploadForm(user: {
 
 
   async function uploadAndComputeSha256(file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number) {
+    console.log('progress',  progress)
+    console.log('progressAlloc', progressAlloc)
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
     const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
     const fileSize = file.size
     const cycles = fileSize / chunkSize
+    console.log(fileSize, chunkSize, cycles)
+    console.log(cycles)
     for (let start = 0; start < file.size; start += chunkSize) {
       const end = Math.min(start + chunkSize, file.size)
       await new Promise<void>((resolve, reject) => {
@@ -112,16 +116,19 @@ export function S3UploadForm(user: {
         fr.onload = () => {
           hash.update(new Uint8Array(fr.result as ArrayBuffer));
           setProgress(oldProgress => oldProgress + (progressAlloc / 3) / cycles)
+          console.log('progressHash', progress)
           resolve();
         }
         fr.readAsArrayBuffer(file.slice(start, end))
       })
     }
     const checksumHash = hash.getHash('B64')
+    console.log(checksumHash)
     let date = new Date().toJSON().slice(0, 10)
     let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    console.log('url', progress)
     const awsPost = await fetch(presignedurl, {
       method: 'PUT',
       headers: {
@@ -130,7 +137,9 @@ export function S3UploadForm(user: {
       },
       body: file,
     })
+    console.log(presignedurl)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    console.log('end', progress)
     if (!awsPost.ok) throw new Error(await awsPost.text())
     return checksumHash
   }
@@ -150,6 +159,7 @@ export function S3UploadForm(user: {
         }
       }
 
+      console.log(100 / (uploadedfiles.length))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         try {
           let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
