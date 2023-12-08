@@ -79,6 +79,8 @@ async function parseFile(file: File,) {
   return checksumHash
 }
 
+
+
 export default function TestUpload() {
   const [status, setStatus_] = React.useState('')
 //   const presignedPutObjectMutation = trpc.presignedPutObject.useMutation()
@@ -88,6 +90,7 @@ export default function TestUpload() {
       evt.preventDefault()
       const formData = new FormData(evt.currentTarget)
       const file = formData.get('file') as File
+      const chunkSize = 64 * 1024;
       const checksumHash = await parseFile(file)
       setStatus(`Registering hash (${checksumHash})`)
 
