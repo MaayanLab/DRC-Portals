@@ -356,7 +356,7 @@ export default function Documentation() {
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }}>
-                                                        Go to the following URL <Link color="secondary" href="/data/contribute/uploaded">https://cfde.cloud/data/contribute/uploaded</Link>
+                                                        Go to the following URL <Link color="secondary" href="/data/contribute/uploaded">https://data.cfde.cloud/data/contribute/uploaded</Link>
                                                         and click "Log In" (top right corner) OR Click on the “Contribute” option in the navigation bar or in the footer and on the "Uploaded Files" tab
                                                     </Typography>
                                                 </ListItem>
@@ -375,7 +375,7 @@ export default function Documentation() {
                                                     </List>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                    Go to <Link color="secondary" href="/data/contribute/uploaded">https://cfde.cloud/data/contribute/uploaded</Link>. Here you will find all uploaded
+                                                    Go to <Link color="secondary" href="/data/contribute/uploaded">https://data.cfde.cloud/data/contribute/uploaded</Link>. Here you will find all uploaded
                                                     files that fall under your jurisdiction. For DCC Approvers, these are all files that have been uploaded for your DCC. For DRC Approvers,
                                                     these are all files that have been uploaded by uploaders across all DCCs.
                                                 </ListItem>
@@ -405,7 +405,7 @@ export default function Documentation() {
                                                             At the moment, files cannot be deleted after they have been uploaded. If it comes to your attention that a mistake has been made in an upload, simply do not approve the file.
                                                         </ListItem>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                            DCC Approvers do not have access to the <Link color="secondary" href="/data/contribute/form">https://cfde.cloud/data/contribute/form</Link>  page. This page is only available to DCC Uploaders and DRC Approvers. 
+                                                            DCC Approvers do not have access to the <Link color="secondary" href="/data/contribute/form">https://data.cfde.cloud/data/contribute/form</Link>  page. This page is only available to DCC Uploaders and DRC Approvers. 
                                                             </ListItem>
                                                     </List>
                                                 </ListItem>
@@ -420,7 +420,7 @@ export default function Documentation() {
                                             <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="create">Create a User</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://cfde.cloud/data/contribute/admin</Link> page and click on the "Create New User" button,
+                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://data.cfde.cloud/data/contribute/admin</Link> page and click on the "Create New User" button,
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             Fill out the new user's information and click the “Create User” button. If successful, an alert with “User Creation Successful” should appear. 
@@ -431,7 +431,7 @@ export default function Documentation() {
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="update">Update User Information</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://cfde.cloud/data/contribute/admin</Link> page and select the users whose information is to be updated. 
+                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://data.cfde.cloud/data/contribute/admin</Link> page and select the users whose information is to be updated. 
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. 
@@ -446,7 +446,7 @@ export default function Documentation() {
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="delete">Delete Users</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://cfde.cloud/data/contribute/admin</Link> page and select the users to delete.
+                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://data.cfde.cloud/data/contribute/admin</Link> page and select the users to delete.
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             Click on the  “Delete Users” button to delete selected users
