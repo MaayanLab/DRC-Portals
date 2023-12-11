@@ -13,20 +13,20 @@ datasource db {
 }
 
 model DCC {
-  id           String           @id @default(uuid())
-  label        String
-  short_label  String?
-  description  String?
-  homepage     String
-  icon         String?
-  annotation   Json?
-  cfde_partner Boolean          @default(false)
-  cf_site      String?
-  publications DCCPublication[]
-  assets       DccAsset[]
-  outreach     DCCOutreach[]
-  partnerships     DCCPartnerships[]
-  nodes        Node[]
+  id            String           @id @default(uuid())
+  label         String
+  short_label   String?
+  description   String?
+  homepage      String
+  icon          String?
+  annotation    Json?
+  cfde_partner  Boolean          @default(false)
+  cf_site       String?
+  publications  DCCPublication[]
+  assets        DccAsset[]
+  outreach      DCCOutreach[]
+  partnerships  DCCPartnerships[]
+  nodes         Node[]
   kg_assertions KGAssertion[]
 
   @@map("dccs")
@@ -125,22 +125,22 @@ model Tool {
 
 model DccAsset {
   dcc_id           String
-  dcc              DCC?                 @relation(fields: [dcc_id], references: [id])
+  dcc              DCC?                @relation(fields: [dcc_id], references: [id])
   filetype         String
   filename         String
-  link             String               @unique
+  link             String              @unique
   size             BigInt?
-  lastmodified     DateTime             @default(now())
-  current          Boolean              @default(true)
+  lastmodified     DateTime            @default(now())
+  current          Boolean             @default(true)
   creator          String?
-  creatorId        User?                @relation(fields: [creator], references: [email])
-  dccapproved      Boolean              @default(false)
-  drcapproved      Boolean              @default(false)
-  annotation       Json?                @db.JsonB
+  creatorId        User?               @relation(fields: [creator], references: [email])
+  dccapproved      Boolean             @default(false)
+  drcapproved      Boolean             @default(false)
+  annotation       Json?               @db.JsonB
   library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
-  etag             String? 
+  sha256checksum      String?
 
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])
