@@ -6,17 +6,11 @@ import { Alert, Typography } from '@mui/material';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import { redirect } from 'next/navigation';
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
+import { PaginatedTable } from './PaginatedTable';
 
 
 export default async function UserFiles() {
@@ -127,27 +121,9 @@ export default async function UserFiles() {
 
     return (
         <>
-            <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
+            <Container className="justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Uploaded Files</Typography>
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell />
-                                <TableCell sx={{ fontSize: 14 }} align="center">Date Uploaded</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Uploaded By</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">File Type</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {symbolUserFiles}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <PaginatedTable symbolUserFiles={symbolUserFiles}/> 
             </Container>
         </>
     );

@@ -31,7 +31,7 @@ export default async function Nav() {
   return (
     <Box>
     <Container maxWidth="lg">
-      <AppBar position="static" sx={{color: "#000"}} >
+      <AppBar position="static">
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
