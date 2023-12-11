@@ -5,10 +5,7 @@ import { IconButton, Link, Typography } from '@mui/material';
 import * as React from 'react';
 import Collapse from '@mui/material/Collapse';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
 import type { DccAsset } from '@prisma/client'
@@ -31,7 +28,7 @@ export function FileInfo({ open, fileInfo }: {
     fileInfo: {
         fileName: string,
         fileLink: string,
-        etag: string | null
+        shaChecksum: string | null
     }
 }
 ) {
@@ -48,7 +45,7 @@ export function FileInfo({ open, fileInfo }: {
                     </TableRow>
                     <TableRow>
                         <TableCell variant="head">Checksum (SHA256)</TableCell>
-                        <TableCell>{fileInfo.etag}</TableCell>
+                        <TableCell>{fileInfo.shaChecksum}</TableCell>
                     </TableRow>
                 </Table>
             </Box>
@@ -72,15 +69,13 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
-                {/* <TableCell sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.etag}</TableCell> */}
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'etag': userFile.etag }} />
+                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'shaChecksum': userFile.shaChecksum }} />
                 </TableCell>
             </TableRow>
         </>

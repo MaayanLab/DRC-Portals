@@ -2,7 +2,6 @@
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import minio from "@/lib/minio";
 import { PutObjectCommand, S3Client, S3ClientConfig, GetObjectAttributesCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { redirect } from 'next/navigation';
 import {
@@ -53,9 +52,6 @@ export const createPresignedUrl = async (filepath: string, checksumHash: string)
 export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-
-    await verifyUser();
-
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
@@ -92,7 +88,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             annotation: {},
             size: filesize,
             dcc_id: dcc.id,
-            etag: checksumHash
+            shaChecksum: checksumHash
         },
         create: {
             link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
@@ -103,7 +99,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             annotation: {},
             size: filesize,
             dcc_id: dcc.id,
-            etag: checksumHash
+            shaChecksum: checksumHash
         }
     });
     revalidatePath('/data/contribute/uploaded')

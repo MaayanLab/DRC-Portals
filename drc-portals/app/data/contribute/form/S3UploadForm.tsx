@@ -19,11 +19,6 @@ import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
 
-// type S3UploadStatus = {
-//   success?: boolean,
-//   loading?: boolean,
-//   error?: boolean,
-// }
 
 export type S3UploadStatus = {
   success?: boolean,
@@ -57,7 +52,6 @@ async function alternativeHash(file: File) {
     .pipeTo(new WritableStream({
       write(chunk) {
         const cycles = chunk.length
-        console.log(cycles)
         hash.update(chunk)
       },
     },
@@ -75,7 +69,6 @@ export function useS3UploadStatus() {
   return React.useContext(S3UploadStatusContext)
 }
 
-// export function S3UploadForm({ children }: React.PropsWithChildren<{}>) {
 export function S3UploadForm(user: {
   id: string;
   name: string | null;
@@ -91,32 +84,23 @@ export function S3UploadForm(user: {
   const [uploadedfiles, setUploadedfiles] = React.useState<FileList | []>([]);
   const [progress, setProgress] = React.useState(0);
 
-  React.useEffect(() => {
-    if (progress >= 100) {
-      setStatus(() => ({ success: true }))
-      setProgress(0)
-    }
-  }, [progress])
+  // React.useEffect(() => {
+  //   console.log(progress)
+  //   if (progress >= 100) {
+  //     setStatus(() => ({ success: true }))
+  //     setProgress(0)
+  //   }
+  // }, [progress])
 
-
-
-  async function uploadAndComputeSha256(file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number) {
-    console.log('progress',  progress)
-    console.log('progressAlloc', progressAlloc)
+  const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number) => {
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
     const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
-    const fileSize = file.size
-    const cycles = fileSize / chunkSize
-    console.log(fileSize, chunkSize, cycles)
-    console.log(cycles)
     for (let start = 0; start < file.size; start += chunkSize) {
       const end = Math.min(start + chunkSize, file.size)
       await new Promise<void>((resolve, reject) => {
         const fr = new FileReader()
         fr.onload = () => {
           hash.update(new Uint8Array(fr.result as ArrayBuffer));
-          setProgress(oldProgress => oldProgress + (progressAlloc / 3) / cycles)
-          console.log('progressHash', progress)
           resolve();
         }
         fr.readAsArrayBuffer(file.slice(start, end))
@@ -126,9 +110,9 @@ export function S3UploadForm(user: {
     console.log(checksumHash)
     let date = new Date().toJSON().slice(0, 10)
     let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
+    setProgress(oldProgress => oldProgress + progressAlloc / 3)
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
-    console.log('url', progress)
     const awsPost = await fetch(presignedurl, {
       method: 'PUT',
       headers: {
@@ -137,12 +121,10 @@ export function S3UploadForm(user: {
       },
       body: file,
     })
-    console.log(presignedurl)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
-    console.log('end', progress)
     if (!awsPost.ok) throw new Error(await awsPost.text())
     return checksumHash
-  }
+  }, [])
 
 
   return (
@@ -159,7 +141,6 @@ export function S3UploadForm(user: {
         }
       }
 
-      console.log(100 / (uploadedfiles.length))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         try {
           let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
@@ -172,6 +153,8 @@ export function S3UploadForm(user: {
           return
         }
       }
+      setStatus(() => ({ success: true }))
+
 
 
     }}>
