@@ -35,7 +35,8 @@ export default async function InfoHeader() {
                   <Link href="/data/contribute/form">
                     <Typography variant="nav">CONTRIBUTE</Typography>
                   </Link>
-                    <UserComponent session={session}/>
+                  <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
+                  <UserComponent session={session}/>
                 </Stack>
               </Grid>
               <Grid item xs={12}></Grid>
@@ -57,9 +58,6 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <SearchParamSearchField />
-              </Grid>
-              <Grid item xs={12}>
-                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>

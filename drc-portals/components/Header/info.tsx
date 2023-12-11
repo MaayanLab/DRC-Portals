@@ -57,6 +57,7 @@ export default async function InfoHeader() {
                   <Link href="/info/coming_soon">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
+                  <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                 </Stack>
               </Grid>
               <Grid item>
@@ -66,9 +67,6 @@ export default async function InfoHeader() {
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>

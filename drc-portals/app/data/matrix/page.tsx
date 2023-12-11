@@ -135,7 +135,6 @@ export default function DataMatrix() {
         of the CFDE Workbench <Link href="../../info" target="_blank" color="#3470e5">
         Information Portal</Link>.</Typography> 
       
-      <TableContainer sx={{ mb: 5, maxHeight: 680 }}>
       <Table stickyHeader aria-label="sticky table">
         <colgroup>
             <col style={{width:'19%'}}/>
@@ -151,16 +150,16 @@ export default function DataMatrix() {
         </colgroup>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ border: 0, backgroundColor: "#b8c4e1"}}></TableCell>
-            <TableCell sx={{ border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={4}>
+            <TableCell sx={{ height: '60px', border: 0, backgroundColor: "#b8c4e1"}}></TableCell>
+            <TableCell sx={{ height: '60px', border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={4}>
               <Typography variant="subtitle1" color="secondary.dark">Datasets and Metadata</Typography>
             </TableCell>
-            <TableCell sx={{ border:0, backgroundColor: "#dbe0f0" }} align="center" colSpan={5}>
+            <TableCell sx={{ height: '60px', border:0, backgroundColor: "#dbe0f0" }} align="center" colSpan={5}>
               <Typography variant="subtitle1" color="secondary.dark">Code</Typography>
             </TableCell>
           </TableRow>
-          <TableRow >
-            <TableCell sx={{ border: 0, backgroundColor: "#b8c4e1" }} align="center">
+          <TableRow>
+            <TableCell sx={{ top: '60px', border: 0, backgroundColor: "#b8c4e1" }} align="center">
               <Typography variant="subtitle1" color="secondary.dark">DCC</Typography>
             </TableCell>
             {columns.map((item, idx) => {
@@ -168,7 +167,7 @@ export default function DataMatrix() {
               const bgColor = (code_assets.includes(item)) ? '#dbe0f0' : '#c8d2e9'
               return (
                 <TableCell key={idx} align="center" 
-                sx={{ border:0, backgroundColor: bgColor }}>
+                sx={{ top: '60px', border:0, backgroundColor: bgColor }}>
                   <Typography variant="subtitle2" color="secondary.dark">{item}</Typography>
                 </TableCell>
               )
@@ -239,7 +238,6 @@ export default function DataMatrix() {
             })}
           </TableBody>
         </Table>
-      </TableContainer>
     </Container>
   );
 }

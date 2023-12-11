@@ -26,7 +26,7 @@ export default function NavBreadcrumbs() {
                     key={i}
                     href={`/${path_split.slice(0, i+1).join("/")}`}
                 >
-                    <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path_split.length-1 ? 'secondary': 'inherit'}>{p}</Typography>
+                    <Typography variant='caption' sx={{textTransform: 'uppercase'}} color={i===path_split.length-1 ? 'secondary': 'inherit'}>{p}</Typography>
                 </Link>
             ))}
         </Breadcrumbs>
