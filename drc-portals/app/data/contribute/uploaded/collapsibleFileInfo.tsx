@@ -28,7 +28,7 @@ export function FileInfo({ open, fileInfo }: {
     fileInfo: {
         fileName: string,
         fileLink: string,
-        shaChecksum: string | null
+        sha256checksum: string | null
     }
 }
 ) {
@@ -45,7 +45,7 @@ export function FileInfo({ open, fileInfo }: {
                     </TableRow>
                     <TableRow>
                         <TableCell variant="head">Checksum (SHA256)</TableCell>
-                        <TableCell>{fileInfo.shaChecksum}</TableCell>
+                        <TableCell>{fileInfo.sha256checksum}</TableCell>
                     </TableRow>
                 </Table>
             </Box>
@@ -75,7 +75,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'shaChecksum': userFile.shaChecksum }} />
+                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'sha256checksum': userFile.sha256checksum }} />
                 </TableCell>
             </TableRow>
         </>

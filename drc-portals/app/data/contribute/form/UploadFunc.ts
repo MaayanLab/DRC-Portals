@@ -88,7 +88,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             annotation: {},
             size: filesize,
             dcc_id: dcc.id,
-            shaChecksum: checksumHash
+            sha256checksum: checksumHash
         },
         create: {
             link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
@@ -99,7 +99,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             annotation: {},
             size: filesize,
             dcc_id: dcc.id,
-            shaChecksum: checksumHash
+            sha256checksum: checksumHash
         }
     });
     revalidatePath('/data/contribute/uploaded')

@@ -154,9 +154,6 @@ export function S3UploadForm(user: {
         }
       }
       setStatus(() => ({ success: true }))
-
-
-
     }}>
       <S3UploadStatusContext.Provider value={status}>
         {/* {children} */}

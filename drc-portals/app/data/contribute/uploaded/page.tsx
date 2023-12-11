@@ -138,8 +138,6 @@ export default async function UserFiles() {
                                 <TableCell sx={{ fontSize: 14 }} align="center">Uploaded By</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">File Type</TableCell>
-                                {/* <TableCell sx={{ fontSize: 14 }} align="center">Uploaded File</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Checksum (MD5)</TableCell> */}
                                 <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
