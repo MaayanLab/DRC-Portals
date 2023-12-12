@@ -67,8 +67,8 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
                 <TableCell><CollapsibleArrow open={open} setOpen={setOpen}/></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toUTCString()}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
