@@ -1,6 +1,6 @@
 import React from 'react'
-import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
-import { ImNotification } from "react-icons/im";
+import { BsCheckCircleFill } from "react-icons/bs";
+import { FaCircleExclamation } from "react-icons/fa6";
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
@@ -97,7 +97,7 @@ export default function Documentation() {
                                         </ListItemButton>
                                     </List>
                                 </ListItemCollapsible>
-                                <ListItemCollapsible primary="File Approval Stages">
+                                <ListItemCollapsible primary="File Approval Status">
                                     <List component="div" disablePadding>
                                         <ListItemButton sx={{ pl: 4 }} href="#uploaded" LinkComponent={ScrollToAnchorLink}>
                                             <ListItemText primary="Uploaded (Not Approved)" primaryTypographyProps={{ fontSize: '15px' }} />
@@ -107,6 +107,16 @@ export default function Documentation() {
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#drc-approved" LinkComponent={ScrollToAnchorLink}>
                                             <ListItemText primary="DRC Approved" primaryTypographyProps={{ fontSize: '15px' }} />
+                                        </ListItemButton>
+                                    </List>
+                                </ListItemCollapsible>
+                                <ListItemCollapsible primary="File Current Status">
+                                    <List component="div" disablePadding>
+                                        <ListItemButton sx={{ pl: 4 }} href="#current" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="Current" primaryTypographyProps={{ fontSize: '15px' }} />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#archived" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="Archived" primaryTypographyProps={{ fontSize: '15px' }} />
                                         </ListItemButton>
                                     </List>
                                 </ListItemCollapsible>
@@ -159,7 +169,8 @@ export default function Documentation() {
                                                 For example, .gmt files are XMT files that contain a collection of gene sets while
                                                 .dmt files are XMT files that contain a collection of drug sets.
                                                 On each row of the XMT file, the first column contains the Term associated with the set while all other
-                                                columns contain the set entities.
+                                                columns contain the set entities. 
+                                                All uploaded files with a .gmt or .dmt extension are tagged as XMT files by default. 
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -168,7 +179,7 @@ export default function Documentation() {
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
                                                 <Link color="secondary" href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
                                                     CFDE C2M2 documentation</Link> and <Link color="secondary" href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
-                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files.
+                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files. All uploaded zipped files are tagged as C2M2 files by default. 
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -182,7 +193,8 @@ export default function Documentation() {
                                                 a KG Assertion file for Nodes would contain columns id,label,ontology_label which define information about
                                                 each node. A KG Assertion file for Edges would contain columns source,relation,target,source_label,
                                                 target_label,resource which display the necessary information about each edge (its source and target
-                                                nodes, the labels for these nodes).
+                                                nodes, the labels for these nodes). All uploaded files with .csv extensions are tagged as KG Assertion files by default. 
+
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -191,7 +203,8 @@ export default function Documentation() {
                                                 Attribute tables are files containing tables that describe the relationship between two entities with
                                                 one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection
                                                 of a given row and column is then a value defining nature of the relationship between the row entity and
-                                                the column entity e.g. the similarity between a given gene and a given tissue type.
+                                                the column entity e.g. the similarity between a given gene and a given tissue type. All uploaded files with .txt 
+                                                extensions are tagged as Attribute Table files by default. 
 
                                             </p>
                                         </ThemedBox>
@@ -206,7 +219,7 @@ export default function Documentation() {
                                                 The Uploaded (Not Approved) stage is the first stage of approval. All files that are just uploaded
                                                 by a designated DCC uploader will first be placed in this category.  The file will be visible by will be tagged by the {' '}
                                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                                    <ImNotification />
+                                                    <FaCircleExclamation />
                                                 </span>
                                                 {' '} icon on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page, icon which represents
                                                 that the file was not reviewed by the DCC approver or evaluated by the DRC.
@@ -217,7 +230,7 @@ export default function Documentation() {
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by the corresponding DCC approver (appointed by each DCC),
                                                 the status of the file will be updated to become 'DCC Approved' which is tagged by the {' '}
-                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircle /> </span> {' '} icon under the DCC Status column
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircleFill /> </span> {' '} icon under the DCC Status column
                                                 on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page.
                                             </p>
                                         </ThemedBox>
@@ -230,6 +243,31 @@ export default function Documentation() {
                                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                                     <BsCheckCircleFill /> </span> {' '} icon under the “DCC Status” column on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page.
                                                 Please note that DCC and DRC approval status are independent of each other.
+                                            </p>
+                                        </ThemedBox>
+                                    </Box>
+                                </ThemedBox>
+                                <ThemedBox>
+                                    <Box gridAutoRows={'repeat(4, 1fr)'}>
+                                        <h4 className='text-center'> File Current Status</h4>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="current">Current</h6>
+                                            <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                            A file tagged by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircleFill /> </span> 
+                                                {' '} icon under the 'Current' column on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page is considered the current version of
+                                                that file type for a given DCC. DCC and DRC approvers both have the right to change the current/archived status of a file.
+                                            </Typography>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="archived">Archived</h6>
+                                            <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
+                                                A file tagged by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                                    <FaCircleExclamation />
+                                                </span>
+                                                {' '} icon under the 'Current' column
+                                                on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page, is considered an archived version of that filetype.
                                             </p>
                                         </ThemedBox>
                                     </Box>

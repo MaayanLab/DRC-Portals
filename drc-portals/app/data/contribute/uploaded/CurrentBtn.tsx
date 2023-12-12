@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from "@mui/material"
-import { Prisma } from "@prisma/client";
 import { useCallback, useEffect, useState } from "react"
 import { BsCheckCircleFill } from "react-icons/bs";
 import { updateAssetCurrent } from "./getDCCAsset";

@@ -80,13 +80,13 @@ const headCells: readonly HeadCell[] = [
     },
     {
         id: 'creator',
-        numeric: true,
+        numeric: false,
         disablePadding: false,
         label: 'Uploaded By',
     },
     {
         id: 'filetype',
-        numeric: true,
+        numeric: false,
         disablePadding: false,
         label: 'File Type',
     },
