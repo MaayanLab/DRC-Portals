@@ -154,11 +154,11 @@ export function S3UploadForm(user: {
         }
       }
       setStatus(() => ({ success: true }))
+      setProgress(0)
     }}>
       <S3UploadStatusContext.Provider value={status}>
-        {/* {children} */}
-        <Container className="mt-10">
-          <Typography variant="h3" className='text-center p-5'>Data and Metadata Upload Form</Typography>
+        <Container>
+        <Typography variant="h3" className='text-center p-5'>Data and Metadata Upload Form</Typography>
           <Grid container spacing={4} className='p-5' justifyContent="center">
             <ThemedBox>
               <TextField

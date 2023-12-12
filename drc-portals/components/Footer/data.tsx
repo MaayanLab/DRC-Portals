@@ -49,7 +49,7 @@ export default async function InfoFooter() {
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
                   <Link href="/data/coming_soon"><Typography variant="footer">About</Typography></Link>
-                  <Link href="/info" target="_blank" rel="noopener noreferrer">
+                  <Link href="/info">
                     <Typography variant="footer">Information Portal</Typography>
                   </Link>
               </Stack>

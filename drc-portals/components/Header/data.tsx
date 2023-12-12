@@ -22,11 +22,11 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
-                <Logo href={`/data`} title="CFDE Workbench"  color="secondary"/>
+                <Logo href={`/info`} title="CFDE Workbench"  color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/data/coming_soon" target="_blank" rel="noopener noreferrer">
+                  <Link href="/data/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
                   <Link href="/data/coming_soon">

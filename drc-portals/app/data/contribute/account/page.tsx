@@ -60,7 +60,7 @@ export default async function AccountPage() {
 
     return (
         <>
-            <Container className="mt-10 justify-content-center">
+            <Container className="justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
                 <Typography variant="body2" className='text-center p-5'>Please complete account email information before approving or the uploading forms. If role is incorrect, please contact the DRC to update your information</Typography>
                 <Box

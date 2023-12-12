@@ -31,8 +31,8 @@ export default async function UsersTable() {
     const rowData = allUserData['rows']
     const rawData = allUserData['users']
     return (
-        <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
-        <Typography variant="h3" className='text-center p-5'>Users</Typography>
+        <Container className="justify-content-center" sx={{minHeight:"30vw"}}>
+        <Typography variant="h3" className='text-center p-5'>Admin Page</Typography>
         <DataTable rows={rowData}  users={rawData}/>
         </Container>
     )
