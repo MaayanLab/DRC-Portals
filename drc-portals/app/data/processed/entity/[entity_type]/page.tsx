@@ -60,7 +60,7 @@ export default async function Page(props: PageProps) {
       count={results.count}
     >
       <SearchablePagedTable
-        label={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
+        label={`${type_to_string('entity', decodeURIComponent(props.params.entity_type))} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}

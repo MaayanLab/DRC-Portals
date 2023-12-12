@@ -64,7 +64,7 @@ export default async function Page(props: PageProps) {
       count={count}
     >
       <SearchablePagedTable
-        label={type_to_string('gene_set_library', null)}
+        label={`${type_to_string('gene_set_library', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
