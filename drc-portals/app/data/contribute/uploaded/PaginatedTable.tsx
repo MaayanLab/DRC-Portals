@@ -142,7 +142,7 @@ export function PaginatedTable({ userFiles, role }: {
     } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
 }) {
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
     const [orderBy, setOrderBy] = React.useState<keyof Data>('lastmodified');
 
@@ -173,9 +173,13 @@ export function PaginatedTable({ userFiles, role }: {
 
     const sortedData = React.useMemo(
         () =>
-            stableSort(userFiles, getComparator(order, orderBy)),
-        [order, orderBy, userFiles],
-    );
+          stableSort(userFiles, getComparator(order, orderBy)).slice(
+            page * rowsPerPage,
+            page * rowsPerPage + rowsPerPage,
+          ),
+        [order, orderBy, page, rowsPerPage, userFiles],
+      );
+
     let symbolUserFiles;
 
     if (role === 'UPLOADER') {
@@ -232,16 +236,14 @@ export function PaginatedTable({ userFiles, role }: {
                     onRequestSort={handleRequestSort}
                 />
                 <TableBody>
-                    {rowsPerPage > 0
-                        ? symbolUserFiles.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        : symbolUserFiles}
+                    {symbolUserFiles}
                 </TableBody>
                 <TableFooter>
                     <TableRow>
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                             colSpan={8}
-                            count={symbolUserFiles.length}
+                            count={userFiles.length}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             onPageChange={handleChangePage}

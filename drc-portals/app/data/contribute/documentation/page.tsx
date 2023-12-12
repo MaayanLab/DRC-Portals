@@ -24,6 +24,7 @@ import fileapproval3 from '@/public/img/contributions/fileapproval3.png'
 import fileapproval4 from '@/public/img/contributions/fileapproval4.png'
 import fileapproval5 from '@/public/img/contributions/fileapproval5.png'
 import fileapproval6 from '@/public/img/contributions/fileapproval6.png'
+import fileapproval7 from '@/public/img/contributions/setCurrent.png'
 import fileupload2 from '@/public/img/contributions/fileupload2.png'
 import fileupload3 from '@/public/img/contributions/fileupload3.png'
 import fileupload4 from '@/public/img/contributions/fileupload4.png'
@@ -48,6 +49,7 @@ const fileApproval3 = <Image src={fileapproval3} width='500' height='400' alt=''
 const fileApproval4 = <Image src={fileapproval4} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileApproval5 = <Image src={fileapproval5} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileApproval6 = <Image src={fileapproval6} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval7 = <Image src={fileapproval7} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileUpload2 = <Image src={fileupload2} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileUpload3 = <Image src={fileupload3} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileUpload4 = <Image src={fileupload4} width='500' height='400' alt='' className="d-inline-block align-top" />;
@@ -65,7 +67,7 @@ export default function Documentation() {
     return (
         <>
             <Container className="justify-content-center">
-            <Typography variant="h3" className='text-center p-5'>Documentation</Typography>
+                <Typography variant="h3" className='text-center p-5'>Documentation</Typography>
                 <Grid container spacing={2}>
                     <Grid md={2} xs={12}>
                         <ThemedBox>
@@ -272,7 +274,7 @@ export default function Documentation() {
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                         Before uploading, ensure that all your account information has been entered is
-                                                        accurate on the :<Link color="secondary" href="/data/contribute/account">My Account page</Link>
+                                                        accurate on the: <Link color="secondary" href="/data/contribute/account">My Account page</Link>
                                                         {fileUpload2}
                                                     </Typography>
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
@@ -316,7 +318,7 @@ export default function Documentation() {
                                                         <ListItem sx={{ display: 'list-item' }}>
                                                             If an upload is unsuccessful, a red banner with an error message will appear. If the message is: “Error! Please make sure files
                                                             are either .csv, .txt, .zip or .dmt or .gmt” will appear. Ensure that all the files you have
-                                                            selected for upload have one of those extensions. Otherwise please try again. 
+                                                            selected for upload have one of those extensions. Otherwise please try again.
                                                             {fileUploadError}
                                                         </ListItem>
                                                     </List>
@@ -445,6 +447,12 @@ export default function Documentation() {
                                                     To remove the approved status of a file, click on the button. This reverses the Approval action.
                                                     {fileApproval6}
                                                 </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Similar steps are done to set a file as the most current version. Click the 'Set as Current' button to set a file as
+                                                    the current version of a file type for a given DCC. Click the checkmark under the 'Current' column of the older version of the file to remove the 'Current' status. 
+                                                    DCC and DRC approvers are authorized to change the current status of files for affiliated DCCs/all DCCs respectively. 
+                                                    {fileApproval7}
+                                                </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'bold' }}>
                                                     Troubleshooting:
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
@@ -458,8 +466,8 @@ export default function Documentation() {
                                                             At the moment, files cannot be deleted after they have been uploaded. If it comes to your attention that a mistake has been made in an upload, simply do not approve the file.
                                                         </ListItem>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                            DCC Approvers do not have access to the <Link color="secondary" href="/data/contribute/form">Data and Metadata Upload Form</Link>  page. This page is only available to DCC Uploaders and DRC Approvers. 
-                                                            </ListItem>
+                                                            DCC Approvers do not have access to the <Link color="secondary" href="/data/contribute/form">Data and Metadata Upload Form</Link>  page. This page is only available to DCC Uploaders and DRC Approvers.
+                                                        </ListItem>
                                                     </List>
                                                 </ListItem>
                                             </List>
@@ -472,49 +480,49 @@ export default function Documentation() {
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="create">Create a User</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and click on the "Create New User" button,
-                                            {createUser}
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Fill out the new user's information and click the “Create User” button. All fields are required. {createUser2} If successful, an alert with “User Creation Successful” should appear. 
-                                            {createUser3}
-                                            
-                                            </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and click on the "Create New User" button,
+                                                    {createUser}
+                                                </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Fill out the new user's information and click the “Create User” button. All fields are required. {createUser2} If successful, an alert with “User Creation Successful” should appear.
+                                                    {createUser3}
+
+                                                </ListItem>
                                             </List>
                                         </ThemedBox>
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="update">Update User Information</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users whose information is to be updated.
-                                            {updateUser1} 
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. 
-                                            An alert with “User Information Updated” will appear if the update operation is successful. 
-                                            {updateUser2} 
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            When all selected users' information have been updated, click on “Done” or outside the dialog box
-                                            </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users whose information is to be updated.
+                                                    {updateUser1}
+                                                </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    In the dialog box that appears, for each user, select their new role and DCC information and click “Update”.
+                                                    An alert with “User Information Updated” will appear if the update operation is successful.
+                                                    {updateUser2}
+                                                </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    When all selected users' information have been updated, click on “Done” or outside the dialog box
+                                                </ListItem>
                                             </List>
                                         </ThemedBox>
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="delete">Delete Users</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users to delete.
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Click on the  “Delete Users” button to delete selected users
-                                            {deleteUser1}
-                                            <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                Please note that the delete operation is irreversible. 
+                                                    Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users to delete.
                                                 </ListItem>
-                                            </List>
-                                            </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Click on the  “Delete Users” button to delete selected users
+                                                    {deleteUser1}
+                                                    <List sx={{ listStyleType: 'disc', pl: 2, }}>
+                                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                            Please note that the delete operation is irreversible.
+                                                        </ListItem>
+                                                    </List>
+                                                </ListItem>
                                             </List>
                                         </ThemedBox>
                                     </Box>
