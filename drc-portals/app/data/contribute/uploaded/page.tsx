@@ -16,6 +16,7 @@ import Paper from '@mui/material/Paper';
 import { redirect } from 'next/navigation';
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
+import CurrentBtn from './CurrentBtn';
 
 
 export default async function UserFiles() {
@@ -44,7 +45,7 @@ export default async function UserFiles() {
     if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
 
     if (!user.email) return (
-        <Alert severity="warning"> Email not updated on user account. Please enter email on the Accounts Page</Alert>
+        <Alert severity="warning"> Email not updated on user account. Please enter email on My Account Page</Alert>
     );
 
     if (!user.dcc) return (
@@ -82,14 +83,18 @@ export default async function UserFiles() {
         symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <FaCircleExclamation size={20} />
             let approvedSymbol = <FaCircleExclamation size={20} />
+            let currentSymbol = <FaCircleExclamation size={20} />
             if (userFile.dccapproved) {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             if (userFile.drcapproved) {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
+            if (userFile.current) {
+                currentSymbol = <BsCheckCircleFill size={20} />
+            }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol}  currentSymbol={currentSymbol} />
             )
         })
     } else if (user.role === 'DCC_APPROVER') {
@@ -97,22 +102,25 @@ export default async function UserFiles() {
         symbolUserFiles = userFiles.map((userFile) => {
             let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
             let approvedSymbol = <FaCircleExclamation size={20} />
+            let currentSymbol = <CurrentBtn {...userFile}/>
             if (userFile.drcapproved) {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />)
+            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol}  currentSymbol={currentSymbol} />)
         })
 
     } else {
         const userFiles = allFiles
-        symbolUserFiles = userFiles.map((userFile) => {
+        const sortedData = userFiles.sort((a, b) => b.lastmodified.valueOf() - a.lastmodified.valueOf())
+        symbolUserFiles = sortedData.map((userFile) => {
             let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
             let approvedSymboldcc = <FaCircleExclamation size={20} />
+            let currentSymbol = <CurrentBtn {...userFile} />
             if (userFile.dccapproved) {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol}/>
             )
         })
     }
@@ -130,10 +138,9 @@ export default async function UserFiles() {
                                 <TableCell sx={{ fontSize: 14 }} align="center">Uploaded By</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">File Type</TableCell>
-                                {/* <TableCell sx={{ fontSize: 14 }} align="center">Uploaded File</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Checksum (MD5)</TableCell> */}
                                 <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
                                 <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
+                                <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

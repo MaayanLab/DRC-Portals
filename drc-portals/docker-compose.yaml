@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.2.22
+    image: maayanlab/drc-portal:0.2.24
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -21,6 +21,7 @@ services:
       - S3_SECRET_KEY
       - S3_ENDPOINT
       - S3_BUCKET
+      - S3_REGION
       - OPENAI_API_KEY
 
   drc-portal-data-proxy:
