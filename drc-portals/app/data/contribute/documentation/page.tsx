@@ -1,6 +1,6 @@
 import React from 'react'
-import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
-import { ImNotification } from "react-icons/im";
+import { BsCheckCircleFill } from "react-icons/bs";
+import { FaCircleExclamation } from "react-icons/fa6";
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
@@ -24,6 +24,7 @@ import fileapproval3 from '@/public/img/contributions/fileapproval3.png'
 import fileapproval4 from '@/public/img/contributions/fileapproval4.png'
 import fileapproval5 from '@/public/img/contributions/fileapproval5.png'
 import fileapproval6 from '@/public/img/contributions/fileapproval6.png'
+import fileapproval7 from '@/public/img/contributions/setCurrent.png'
 import fileupload2 from '@/public/img/contributions/fileupload2.png'
 import fileupload3 from '@/public/img/contributions/fileupload3.png'
 import fileupload4 from '@/public/img/contributions/fileupload4.png'
@@ -48,6 +49,7 @@ const fileApproval3 = <Image src={fileapproval3} width='500' height='400' alt=''
 const fileApproval4 = <Image src={fileapproval4} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileApproval5 = <Image src={fileapproval5} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileApproval6 = <Image src={fileapproval6} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval7 = <Image src={fileapproval7} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileUpload2 = <Image src={fileupload2} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileUpload3 = <Image src={fileupload3} width='500' height='400' alt='' className="d-inline-block align-top" />;
 const fileUpload4 = <Image src={fileupload4} width='500' height='400' alt='' className="d-inline-block align-top" />;
@@ -65,7 +67,7 @@ export default function Documentation() {
     return (
         <>
             <Container className="justify-content-center">
-            <Typography variant="h3" className='text-center p-5'>Documentation</Typography>
+                <Typography variant="h3" className='text-center p-5'>Documentation</Typography>
                 <Grid container spacing={2}>
                     <Grid md={2} xs={12}>
                         <ThemedBox>
@@ -95,7 +97,7 @@ export default function Documentation() {
                                         </ListItemButton>
                                     </List>
                                 </ListItemCollapsible>
-                                <ListItemCollapsible primary="File Approval Stages">
+                                <ListItemCollapsible primary="File Approval Status">
                                     <List component="div" disablePadding>
                                         <ListItemButton sx={{ pl: 4 }} href="#uploaded" LinkComponent={ScrollToAnchorLink}>
                                             <ListItemText primary="Uploaded (Not Approved)" primaryTypographyProps={{ fontSize: '15px' }} />
@@ -105,6 +107,16 @@ export default function Documentation() {
                                         </ListItemButton>
                                         <ListItemButton sx={{ pl: 4 }} href="#drc-approved" LinkComponent={ScrollToAnchorLink}>
                                             <ListItemText primary="DRC Approved" primaryTypographyProps={{ fontSize: '15px' }} />
+                                        </ListItemButton>
+                                    </List>
+                                </ListItemCollapsible>
+                                <ListItemCollapsible primary="File Current Status">
+                                    <List component="div" disablePadding>
+                                        <ListItemButton sx={{ pl: 4 }} href="#current" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="Current" primaryTypographyProps={{ fontSize: '15px' }} />
+                                        </ListItemButton>
+                                        <ListItemButton sx={{ pl: 4 }} href="#archived" LinkComponent={ScrollToAnchorLink}>
+                                            <ListItemText primary="Archived" primaryTypographyProps={{ fontSize: '15px' }} />
                                         </ListItemButton>
                                     </List>
                                 </ListItemCollapsible>
@@ -157,7 +169,8 @@ export default function Documentation() {
                                                 For example, .gmt files are XMT files that contain a collection of gene sets while
                                                 .dmt files are XMT files that contain a collection of drug sets.
                                                 On each row of the XMT file, the first column contains the Term associated with the set while all other
-                                                columns contain the set entities.
+                                                columns contain the set entities. 
+                                                All uploaded files with a .gmt or .dmt extension are tagged as XMT files by default. 
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -166,7 +179,7 @@ export default function Documentation() {
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
                                                 <Link color="secondary" href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
                                                     CFDE C2M2 documentation</Link> and <Link color="secondary" href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
-                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files.
+                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files. All uploaded zipped files are tagged as C2M2 files by default. 
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -180,7 +193,8 @@ export default function Documentation() {
                                                 a KG Assertion file for Nodes would contain columns id,label,ontology_label which define information about
                                                 each node. A KG Assertion file for Edges would contain columns source,relation,target,source_label,
                                                 target_label,resource which display the necessary information about each edge (its source and target
-                                                nodes, the labels for these nodes).
+                                                nodes, the labels for these nodes). All uploaded files with .csv extensions are tagged as KG Assertion files by default. 
+
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -189,7 +203,8 @@ export default function Documentation() {
                                                 Attribute tables are files containing tables that describe the relationship between two entities with
                                                 one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection
                                                 of a given row and column is then a value defining nature of the relationship between the row entity and
-                                                the column entity e.g. the similarity between a given gene and a given tissue type.
+                                                the column entity e.g. the similarity between a given gene and a given tissue type. All uploaded files with .txt 
+                                                extensions are tagged as Attribute Table files by default. 
 
                                             </p>
                                         </ThemedBox>
@@ -204,7 +219,7 @@ export default function Documentation() {
                                                 The Uploaded (Not Approved) stage is the first stage of approval. All files that are just uploaded
                                                 by a designated DCC uploader will first be placed in this category.  The file will be visible by will be tagged by the {' '}
                                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                                    <ImNotification />
+                                                    <FaCircleExclamation />
                                                 </span>
                                                 {' '} icon on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page, icon which represents
                                                 that the file was not reviewed by the DCC approver or evaluated by the DRC.
@@ -215,7 +230,7 @@ export default function Documentation() {
                                             <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
                                                 When an uploaded file has been approved by the corresponding DCC approver (appointed by each DCC),
                                                 the status of the file will be updated to become 'DCC Approved' which is tagged by the {' '}
-                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircle /> </span> {' '} icon under the DCC Status column
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircleFill /> </span> {' '} icon under the DCC Status column
                                                 on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page.
                                             </p>
                                         </ThemedBox>
@@ -228,6 +243,31 @@ export default function Documentation() {
                                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                                     <BsCheckCircleFill /> </span> {' '} icon under the “DCC Status” column on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page.
                                                 Please note that DCC and DRC approval status are independent of each other.
+                                            </p>
+                                        </ThemedBox>
+                                    </Box>
+                                </ThemedBox>
+                                <ThemedBox>
+                                    <Box gridAutoRows={'repeat(4, 1fr)'}>
+                                        <h4 className='text-center'> File Current Status</h4>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="current">Current</h6>
+                                            <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
+                                            A file tagged by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircleFill /> </span> 
+                                                {' '} icon under the 'Current' column on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page is considered the current version of
+                                                that file type for a given DCC. DCC and DRC approvers both have the right to change the current/archived status of a file.
+                                            </Typography>
+                                        </ThemedBox>
+                                        <ThemedBox>
+                                            <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="archived">Archived</h6>
+                                            <p style={{ textAlign: 'left', fontWeight: 'lighter' }} className="p-2">
+                                                A file tagged by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                                    <FaCircleExclamation />
+                                                </span>
+                                                {' '} icon under the 'Current' column
+                                                on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page, is considered an archived version of that filetype.
                                             </p>
                                         </ThemedBox>
                                     </Box>
@@ -272,7 +312,7 @@ export default function Documentation() {
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                         Before uploading, ensure that all your account information has been entered is
-                                                        accurate on the :<Link color="secondary" href="/data/contribute/account">My Account page</Link>
+                                                        accurate on the: <Link color="secondary" href="/data/contribute/account">My Account page</Link>
                                                         {fileUpload2}
                                                     </Typography>
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
@@ -316,7 +356,7 @@ export default function Documentation() {
                                                         <ListItem sx={{ display: 'list-item' }}>
                                                             If an upload is unsuccessful, a red banner with an error message will appear. If the message is: “Error! Please make sure files
                                                             are either .csv, .txt, .zip or .dmt or .gmt” will appear. Ensure that all the files you have
-                                                            selected for upload have one of those extensions. Otherwise please try again. 
+                                                            selected for upload have one of those extensions. Otherwise please try again.
                                                             {fileUploadError}
                                                         </ListItem>
                                                     </List>
@@ -445,6 +485,12 @@ export default function Documentation() {
                                                     To remove the approved status of a file, click on the button. This reverses the Approval action.
                                                     {fileApproval6}
                                                 </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Similar steps are done to set a file as the most current version. Click the 'Set as Current' button to set a file as
+                                                    the current version of a file type for a given DCC. Click the checkmark under the 'Current' column of the older version of the file to remove the 'Current' status. 
+                                                    DCC and DRC approvers are authorized to change the current status of files for affiliated DCCs/all DCCs respectively. 
+                                                    {fileApproval7}
+                                                </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'bold' }}>
                                                     Troubleshooting:
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
@@ -458,8 +504,8 @@ export default function Documentation() {
                                                             At the moment, files cannot be deleted after they have been uploaded. If it comes to your attention that a mistake has been made in an upload, simply do not approve the file.
                                                         </ListItem>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                            DCC Approvers do not have access to the <Link color="secondary" href="/data/contribute/form">Data and Metadata Upload Form</Link>  page. This page is only available to DCC Uploaders and DRC Approvers. 
-                                                            </ListItem>
+                                                            DCC Approvers do not have access to the <Link color="secondary" href="/data/contribute/form">Data and Metadata Upload Form</Link>  page. This page is only available to DCC Uploaders and DRC Approvers.
+                                                        </ListItem>
                                                     </List>
                                                 </ListItem>
                                             </List>
@@ -472,49 +518,49 @@ export default function Documentation() {
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="create">Create a User</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and click on the "Create New User" button,
-                                            {createUser}
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Fill out the new user's information and click the “Create User” button. All fields are required. {createUser2} If successful, an alert with “User Creation Successful” should appear. 
-                                            {createUser3}
-                                            
-                                            </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and click on the "Create New User" button,
+                                                    {createUser}
+                                                </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Fill out the new user's information and click the “Create User” button. All fields are required. {createUser2} If successful, an alert with “User Creation Successful” should appear.
+                                                    {createUser3}
+
+                                                </ListItem>
                                             </List>
                                         </ThemedBox>
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="update">Update User Information</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users whose information is to be updated.
-                                            {updateUser1} 
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. 
-                                            An alert with “User Information Updated” will appear if the update operation is successful. 
-                                            {updateUser2} 
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            When all selected users' information have been updated, click on “Done” or outside the dialog box
-                                            </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users whose information is to be updated.
+                                                    {updateUser1}
+                                                </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    In the dialog box that appears, for each user, select their new role and DCC information and click “Update”.
+                                                    An alert with “User Information Updated” will appear if the update operation is successful.
+                                                    {updateUser2}
+                                                </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    When all selected users' information have been updated, click on “Done” or outside the dialog box
+                                                </ListItem>
                                             </List>
                                         </ThemedBox>
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="delete">Delete Users</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users to delete.
-                                            </ListItem>
-                                            <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Click on the  “Delete Users” button to delete selected users
-                                            {deleteUser1}
-                                            <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                Please note that the delete operation is irreversible. 
+                                                    Go to the <Link color="secondary" href="/data/contribute/admin">Admin page</Link> and select the users to delete.
                                                 </ListItem>
-                                            </List>
-                                            </ListItem>
+                                                <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                    Click on the  “Delete Users” button to delete selected users
+                                                    {deleteUser1}
+                                                    <List sx={{ listStyleType: 'disc', pl: 2, }}>
+                                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                                            Please note that the delete operation is irreversible.
+                                                        </ListItem>
+                                                    </List>
+                                                </ListItem>
                                             </List>
                                         </ThemedBox>
                                     </Box>
