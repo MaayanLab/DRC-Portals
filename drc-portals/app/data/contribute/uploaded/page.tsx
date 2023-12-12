@@ -1,15 +1,10 @@
 import * as React from 'react';
 import Container from '@mui/material/Container'
-import { BsCheckCircleFill } from "react-icons/bs";
-import { FaCircleExclamation } from "react-icons/fa6";
 import { Alert, Typography } from '@mui/material';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import ApprovalBtn from './ApprovalBtn';
-import { FileRow } from './collapsibleFileInfo';
-import CurrentBtn from './CurrentBtn';
 import { PaginatedTable } from './PaginatedTable';
 
 
@@ -68,62 +63,22 @@ export default async function UserFiles() {
     })
 
 
-    let symbolUserFiles = []
+    let userFiles = []
 
     if (user.role === 'UPLOADER') {
         // const userFiles = user.dccAsset
-        const userFiles = allFiles
-
-        symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let approvedSymbol = <FaCircleExclamation size={20} />
-            let currentSymbol = <FaCircleExclamation size={20} />
-            if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
-            }
-            if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
-            }
-            if (userFile.current) {
-                currentSymbol = <BsCheckCircleFill size={20} />
-            }
-            return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol}  currentSymbol={currentSymbol} />
-            )
-        })
+        userFiles = allFiles
     } else if (user.role === 'DCC_APPROVER') {
-        const userFiles = allFiles
-        symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-            let approvedSymbol = <FaCircleExclamation size={20} />
-            let currentSymbol = <CurrentBtn {...userFile}/>
-            if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
-            }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol}  currentSymbol={currentSymbol} />)
-        })
-
+        userFiles = allFiles
     } else {
-        const userFiles = allFiles
-        const sortedData = userFiles.sort((a, b) => b.lastmodified.valueOf() - a.lastmodified.valueOf())
-        symbolUserFiles = sortedData.map((userFile) => {
-            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let currentSymbol = <CurrentBtn {...userFile} />
-            if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
-            }
-            return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol}/>
-            )
-        })
+        userFiles = allFiles
     }
 
     return (
         <>
             <Container className="justify-content-center">
                 <Typography variant="h3" className='text-center p-5'>Uploaded Files</Typography>
-                <PaginatedTable symbolUserFiles={symbolUserFiles}/> 
+                <PaginatedTable userFiles={userFiles} role={user.role}/> 
             </Container>
         </>
     );

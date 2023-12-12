@@ -1,9 +1,6 @@
 import React from 'react'
 import { BsCheckCircleFill, BsCheckCircle } from "react-icons/bs";
 import { ImNotification } from "react-icons/im";
-import submitImage from '@/public/img/contributions/submit_button.png'
-import newUploadImage from '@/public/img/contributions/example_approve2.png'
-import approveBtnImage from '@/public/img/contributions/approve_btn.png'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
@@ -15,11 +12,53 @@ import ScrollToAnchorLink from '@/components/misc/ScrollToAnchorLink';
 import ListItemCollapsible from '@/components/misc/ListItemCollapsible';
 import ThemedBox from './ThemedBox';
 import { List, ListItem, Typography, Link } from '@mui/material';
+import createuser from '@/public/img/contributions/createuser.png'
+import createuser2 from '@/public/img/contributions/createuser2.png'
+import createuser3 from '@/public/img/contributions/createuser3.png'
+import updateuser1 from '@/public/img/contributions/updateuser1.png'
+import updateuser2 from '@/public/img/contributions/updateuser2.png'
+import deleteuser1 from '@/public/img/contributions/deleteuser1.png'
+import fileapproval1 from '@/public/img/contributions/fileapproval1.png'
+import fileapproval2 from '@/public/img/contributions/fileapproval2.png'
+import fileapproval3 from '@/public/img/contributions/fileapproval3.png'
+import fileapproval4 from '@/public/img/contributions/fileapproval4.png'
+import fileapproval5 from '@/public/img/contributions/fileapproval5.png'
+import fileapproval6 from '@/public/img/contributions/fileapproval6.png'
+import fileupload2 from '@/public/img/contributions/fileupload2.png'
+import fileupload3 from '@/public/img/contributions/fileupload3.png'
+import fileupload4 from '@/public/img/contributions/fileupload4.png'
+import fileupload5 from '@/public/img/contributions/fileupload5.png'
+import fileupload6 from '@/public/img/contributions/fileupload6.png'
+import fileupload7 from '@/public/img/contributions/fileupload7.png'
+import fileupload8 from '@/public/img/contributions/fileupload8.png'
+import fileupload9 from '@/public/img/contributions/fileupload9.png'
+import fileupload10 from '@/public/img/contributions/fileupload10.png'
+import fileuploaderror from '@/public/img/contributions/fileuploaderror.png'
 
 
-const exampleSubmit = <Image src={submitImage} width='100' height='40' alt='' className="d-inline-block align-top" />;
-const exampleNewUpload = <Image src={newUploadImage} width='900' height='200' alt='' className="d-inline-block align-top" />;
-const exampleApproveBtn = <Image src={approveBtnImage} width='130' height='40' alt='' className="d-inline-block align-top" />;
+const createUser = <Image src={createuser} width='600' height='500' alt='' className="d-inline-block align-top" />;
+const createUser2 = <Image src={createuser2} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const createUser3 = <Image src={createuser3} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const updateUser1 = <Image src={updateuser1} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const updateUser2 = <Image src={updateuser2} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const deleteUser1 = <Image src={deleteuser1} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval1 = <Image src={fileapproval1} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval2 = <Image src={fileapproval2} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval3 = <Image src={fileapproval3} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval4 = <Image src={fileapproval4} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval5 = <Image src={fileapproval5} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileApproval6 = <Image src={fileapproval6} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload2 = <Image src={fileupload2} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload3 = <Image src={fileupload3} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload4 = <Image src={fileupload4} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload5 = <Image src={fileupload5} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload6 = <Image src={fileupload6} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload7 = <Image src={fileupload7} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload8 = <Image src={fileupload8} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload9 = <Image src={fileupload9} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUpload10 = <Image src={fileupload10} width='500' height='400' alt='' className="d-inline-block align-top" />;
+const fileUploadError = <Image src={fileuploaderror} width='500' height='400' alt='' className="d-inline-block align-top" />;
+
 
 export default function Documentation() {
 
@@ -127,7 +166,7 @@ export default function Documentation() {
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
                                                 <Link color="secondary" href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
                                                     CFDE C2M2 documentation</Link> and <Link color="secondary" href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
-                                                for more information about C2M2 files.
+                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files.
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -227,12 +266,14 @@ export default function Documentation() {
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                         Go to the following URL:  <Link color="secondary" href="/data/contribute/form">https://data.cfde.cloud/data/contribute/form</Link> and click "Log In"
                                                         (top right corner) OR Click on the “Contribute” option in the navigation bar or in the footer:
+                                                        {fileApproval1}
                                                     </Typography>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
                                                         Before uploading, ensure that all your account information has been entered/is
                                                         accurate on the My Account page:<Link color="secondary" href="/data/contribute/account">https://data.cfde.cloud/data/contribute/account</Link>
+                                                        {fileUpload2}
                                                     </Typography>
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
@@ -248,11 +289,13 @@ export default function Documentation() {
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     On the Upload Form page, upload your data and metadata files by either dragging and dropping them in the upload box, or clicking in the box or on the "Choose Files” button.
-
+                                                    {fileUpload3}
                                                     The files you have selected should appear under “File to Upload”
+                                                    {fileUpload4}
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                         <ListItem sx={{ display: 'list-item' }}>
                                                             If you select a wrong file, you can delete it by clicking on the delete icon next to the file name
+                                                            {fileUpload5}
                                                         </ListItem>
                                                     </List>
                                                 </ListItem>
@@ -260,17 +303,21 @@ export default function Documentation() {
                                                     Select the DCC that the files to upload were generated from. By default, only DCCs that you are affiliated
                                                     with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option
                                                     is not provided, please contact the DRC to update this information
+                                                    {fileUpload6}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     After clicking on the “Submit Form” button:
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                         <ListItem sx={{ display: 'list-item' }}>
                                                             If an upload is successful, a green banner with “Success! File Uploaded” should appear.
+                                                            {fileUpload7}
+                                                            {fileUpload8}
                                                         </ListItem>
-                                                        <ListItem>
-                                                            If an upload is unsuccessful, a red banner with the message  “Error! Please make sure files
+                                                        <ListItem sx={{ display: 'list-item' }}>
+                                                            If an upload is unsuccessful, a red banner with an error message will appear. If the message is: “Error! Please make sure files
                                                             are either .csv, .txt, .zip or .dmt or .gmt” will appear. Ensure that all the files you have
-                                                            selected for upload have one of those extensions.
+                                                            selected for upload have one of those extensions. Otherwise please try again. 
+                                                            {fileUploadError}
                                                         </ListItem>
                                                     </List>
                                                 </ListItem>
@@ -279,12 +326,11 @@ export default function Documentation() {
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                             To inspect the contents of your uploaded file, click on the Collapse icon on the desired row to view the File Info.
+                                                            {fileUpload9}
                                                         </ListItem>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                             To download the given file locally, click on the link for the given File. See also the Checksum section on how to validate file integrity after download.
-                                                        </ListItem>
-                                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                            To download the given file locally, click on the link for the given File. See also the Checksum section on how to validate file integrity after download.
+                                                            {fileUpload10}
                                                         </ListItem>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                             File status information for each file is also on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page.
@@ -358,12 +404,14 @@ export default function Documentation() {
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }}>
                                                         Go to the following URL <Link color="secondary" href="/data/contribute/uploaded">https://data.cfde.cloud/data/contribute/uploaded</Link>
                                                         and click "Log In" (top right corner) OR Click on the “Contribute” option in the navigation bar or in the footer and on the "Uploaded Files" tab
+                                                        {fileApproval1}
                                                     </Typography>
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }}>
                                                         Before approving, ensure that all your account information has been entered/is
                                                         accurate on the My Account page:<Link color="secondary" href="/data/contribute/account">https://data.cfde.cloud/data/contribute/account</Link>
+                                                        {fileApproval2}
                                                     </Typography>
                                                     <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
@@ -378,19 +426,24 @@ export default function Documentation() {
                                                     Go to <Link color="secondary" href="/data/contribute/uploaded">https://data.cfde.cloud/data/contribute/uploaded</Link>. Here you will find all uploaded
                                                     files that fall under your jurisdiction. For DCC Approvers, these are all files that have been uploaded for your DCC. For DRC Approvers,
                                                     these are all files that have been uploaded by uploaders across all DCCs.
+                                                    {fileApproval3}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     All unapproved files that you are authorized to approve will be marked by the “Approve Upload” button under the DCC status or
                                                     DRC status columns for DCC and DRC Approvers respectively.
+                                                    {fileApproval4}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                                    To inspect the content of an uploaded file, click on the link under the 'Uploaded file' column. This will download the given file locally.
+                                                    To inspect the content of an uploaded file, click on the link in the File Info. This will download the given file locally.
+                                                    {fileApproval5}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     To approve a given uploaded file, click on the “Approve Upload” button to approve the file.
+                                                    {fileApproval3}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     To remove the approved status of a file, click on the button. This reverses the Approval action.
+                                                    {fileApproval6}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'bold' }}>
                                                     Troubleshooting:
@@ -421,9 +474,12 @@ export default function Documentation() {
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             Go to the <Link color="secondary" href="/data/contribute/admin">https://data.cfde.cloud/data/contribute/admin</Link> page and click on the "Create New User" button,
+                                            {createUser}
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Fill out the new user's information and click the “Create User” button. If successful, an alert with “User Creation Successful” should appear. 
+                                            Fill out the new user's information and click the “Create User” button. All fields are required. {createUser2} If successful, an alert with “User Creation Successful” should appear. 
+                                            {createUser3}
+                                            
                                             </ListItem>
                                             </List>
                                         </ThemedBox>
@@ -431,11 +487,13 @@ export default function Documentation() {
                                             <h6 style={{ textAlign: 'left' }} className="border bg-light p-1" id="update">Update User Information</h6>
                                             <List sx={{ listStyle: "decimal", pl: 4 }}>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://data.cfde.cloud/data/contribute/admin</Link> page and select the users whose information is to be updated. 
+                                            Go to the <Link color="secondary" href="/data/contribute/admin">https://data.cfde.cloud/data/contribute/admin</Link> page and select the users whose information is to be updated.
+                                            {updateUser1} 
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. 
                                             An alert with “User Information Updated” will appear if the update operation is successful. 
+                                            {updateUser2} 
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             When all selected users' information have been updated, click on “Done” or outside the dialog box
@@ -450,6 +508,7 @@ export default function Documentation() {
                                             </ListItem>
                                             <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             Click on the  “Delete Users” button to delete selected users
+                                            {deleteUser1}
                                             <List sx={{ listStyleType: 'disc', pl: 2, }}>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                 Please note that the delete operation is irreversible. 
