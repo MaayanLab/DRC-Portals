@@ -161,7 +161,8 @@ export function S3UploadForm(user: {
           <Typography variant="h3" color="secondary.dark" className='p-5'>DATA AND METADATA UPLOAD FORM</Typography>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             This is the form to upload the data/metadata files for your DCC. Select the DCC for which the files belong and
-            drop your files in the upload box or click on the 'Choose Files' to select files for upload.
+            drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not leave 
+            the page until all files have been successfully uploaded.
             <br></br>
             All uploaded files with .csv extensions are tagged as KG Assertion files. All uploaded files with .txt
             extensions are tagged as Attribute Table files. All uploaded zipped files are tagged as C2M2 files.
