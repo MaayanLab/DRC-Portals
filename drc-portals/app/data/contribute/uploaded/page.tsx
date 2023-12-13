@@ -74,18 +74,18 @@ export default async function UserFiles() {
         Expand each file to download or view the SHA256 checksum of each file.
         <br></br>
         See the {' '}
-        <Link color="secondary" href="data/contribute/documentation"> Documentation page</Link> for more information about the approval
+        <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
         and current statuses of each file.
     </Typography>
 
     } else if (user.role === 'DCC_APPROVER') {
         userFiles = allFiles
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-        These are all files that have been uploaded for all the DCCs. 
+        These are all files that have been uploaded for your affiliated DCCs. 
         Expand each file to download or view the SHA256 checksum of each file.
         <br></br>
         See the {' '}
-        <Link color="secondary" href="data/contribute/documentation"> Documentation page</Link> for more information about the approval
+        <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
         and current statuses of each file and the steps to approve a file or change its current status.
     </Typography>
     } else {
@@ -95,7 +95,7 @@ export default async function UserFiles() {
         Expand each file to download or view the SHA256 checksum of each file.
         <br></br>
         See the {' '}
-        <Link color="secondary" href="data/contribute/documentation"> Documentation page</Link> for more information about the approval
+        <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
         and current statuses of each file and the steps to approve a file or change its current status.
     </Typography>
     }
@@ -104,9 +104,7 @@ export default async function UserFiles() {
         <>
             <Container className="justify-content-center">
                 <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED FILES</Typography>
-                {/* <Typography variant="subtitle1" color="#666666" className='text-center' sx={{mb:3}}> */}
                 {headerText}
-                {/* </Typography> */}
                 <PaginatedTable userFiles={userFiles} role={user.role} />
             </Container>
         </>

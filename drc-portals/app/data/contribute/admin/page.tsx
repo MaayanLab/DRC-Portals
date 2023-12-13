@@ -34,8 +34,6 @@ export default async function UsersTable() {
     return (
         <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
             <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
-            <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
-            </Typography>
             <DataTable rows={rowData} users={rawData} />
         </Container>
     )
