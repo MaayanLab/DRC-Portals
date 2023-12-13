@@ -39,6 +39,9 @@ export default async function Nav() {
                   <Link href="/data/contribute/form">
                     <Typography variant="nav">UPLOAD FORM</Typography>
                   </Link>
+                  <Link href="/data/contribute/urlform">
+                    <Typography variant="nav">CODE UPLOAD FORM</Typography>
+                  </Link>
                   <Link href="/data/contribute/uploaded">
                     <Typography variant="nav">UPLOADED FILES</Typography>
                   </Link>

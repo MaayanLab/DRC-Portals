@@ -14,7 +14,7 @@ import ThemedStack from './ThemedStack';
 import Status from './Status';
 import DCCSelect from './DCCSelect';
 import { $Enums } from '@prisma/client';
-import { Box } from '@mui/material';
+import { Box, Link } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
@@ -158,34 +158,40 @@ export function S3UploadForm(user: {
     }}>
       <S3UploadStatusContext.Provider value={status}>
         <Container>
-        <Typography variant="h3" className='text-center p-5'>Data and Metadata Upload Form</Typography>
-          <Grid container spacing={4} className='p-5' justifyContent="center">
-            <ThemedBox>
-              <TextField
-                label="Uploader Name"
-                name='name'
-                disabled
-                defaultValue={user.name}
-                inputProps={{ style: { fontSize: 16 } }} // font size of input text
-                InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
-              />
-            </ThemedBox>
-            <ThemedBox>
-              <TextField
-                label="Email"
-                name='email'
-                disabled
-                defaultValue={user.email}
-                inputProps={{ style: { fontSize: 16 } }}
-                InputLabelProps={{ style: { fontSize: 16 } }}
-              />
-            </ThemedBox>
-            <ThemedBox>
-              <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
-            </ThemedBox>
-          </Grid>
-          <Typography variant="subtitle1" className='text-center p-5'>Please upload your data/metdata files here.
+          <Typography variant="h3" color="secondary.dark" className='p-5'>DATA AND METADATA UPLOAD FORM</Typography>
+          <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
+            This is the form to upload the data/metadata files for your DCC. Select the DCC for which the files belong and
+            drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not leave 
+            the page until all files have been successfully uploaded.
+            <br></br>
+            All uploaded files with .csv extensions are tagged as KG Assertion files. All uploaded files with .txt
+            extensions are tagged as Attribute Table files. All uploaded zipped files are tagged as C2M2 files.
+            All uploaded files with a .gmt or .dmt extension are tagged as XMT files. All uploaded files with .txt
+            extensions are tagged as Attribute Table files.
+            <br></br>
+            See the {' '}
+            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
           </Typography>
+          <Grid container spacing={4} justifyContent="center" sx={{ p: 5 }}>
+            <TextField
+              label="Uploader Name"
+              name='name'
+              disabled
+              defaultValue={user.name}
+              inputProps={{ style: { fontSize: 16 } }} // font size of input text
+              InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
+            />
+            <TextField
+              label="Email"
+              name='email'
+              disabled
+              defaultValue={user.email}
+              inputProps={{ style: { fontSize: 16 } }}
+              InputLabelProps={{ style: { fontSize: 16 } }}
+              sx={{ mx: 3 }}
+            />
+            <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+          </Grid>
           <ThemedStack>
             <FileDrop name="currentData" setUploadedFiles={setUploadedfiles} />
           </ThemedStack>

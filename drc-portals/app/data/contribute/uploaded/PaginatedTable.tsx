@@ -32,8 +32,8 @@ function getComparator<Key extends keyof any>(
     order: Order,
     orderBy: Key,
 ): (
-    a: { [key in Key]: number | string | Date | null },
-    b: { [key in Key]: number | string | Date | null },
+    a: { [key in Key]: number | string | Date | null | { label: string; } },
+    b: { [key in Key]: number | string | Date | null | { label: string; } },
 ) => number {
     return order === 'desc'
         ? (a, b) => descendingComparator(a, b, orderBy)
@@ -62,6 +62,9 @@ interface Data {
     lastmodified: Date;
     creator: string;
     filetype: string;
+    dcc?: {
+        label: string;
+    };
 }
 
 interface HeadCell {
@@ -90,6 +93,12 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: 'File Type',
     },
+    {
+        id: 'dcc',
+        numeric: false,
+        disablePadding: false,
+        label: 'DCC',
+    }
 ];
 
 function EnhancedTableHead(props: EnhancedTableProps) {
@@ -125,7 +134,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                         </TableSortLabel>
                     </TableCell>
                 ))}
-                <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell>
+                {/* <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell> */}
                 <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
@@ -133,6 +142,45 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         </TableHead>
     );
 }
+
+function dccCompare(a: {
+    dcc: {
+        label: string;
+    } | null;
+} & DccAsset, b: {
+    dcc: {
+        label: string;
+    } | null;
+} & DccAsset) {
+    if (!a.dcc?.label) return 0
+    if (!b.dcc?.label) return 0
+    if (a.dcc?.label < b.dcc?.label) {
+      return -1;
+    } else if (a.dcc?.label > b.dcc?.label) {
+      return 1;
+    }
+    return 0;
+  }
+
+  function dccCompareAsc(a: {
+    dcc: {
+        label: string;
+    } | null;
+} & DccAsset, b: {
+    dcc: {
+        label: string;
+    } | null;
+} & DccAsset) {
+    if (!a.dcc?.label) return 0
+    if (!b.dcc?.label) return 0
+    if (a.dcc?.label < b.dcc?.label) {
+      return 1;
+    } else if (a.dcc?.label > b.dcc?.label) {
+      return -1;
+    }
+    return 0;
+  }
+
 
 export function PaginatedTable({ userFiles, role }: {
     userFiles: ({
@@ -145,7 +193,6 @@ export function PaginatedTable({ userFiles, role }: {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
     const [orderBy, setOrderBy] = React.useState<keyof Data>('lastmodified');
-
 
     const handleChangePage = React.useCallback((
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -172,14 +219,22 @@ export function PaginatedTable({ userFiles, role }: {
 
 
     const sortedData = React.useMemo(
-        () =>
-          stableSort(userFiles, getComparator(order, orderBy)).slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage,
-          ),
-        [order, orderBy, page, rowsPerPage, userFiles],
-      );
-
+        () => {
+            if( orderBy === 'dcc') {
+             return order ==='desc' ?  userFiles.sort(dccCompare).slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage,
+            ) : userFiles.sort(dccCompareAsc).slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage,
+            )
+            }
+            return stableSort(userFiles, getComparator(order, orderBy)).slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage,
+            )
+        }, [order, orderBy, page, rowsPerPage, userFiles],
+    );
     let symbolUserFiles;
 
     if (role === 'UPLOADER') {
@@ -220,15 +275,13 @@ export function PaginatedTable({ userFiles, role }: {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             return (
-                <FileRow key={userFile.lastmodified.toString()} userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
             )
         })
     }
 
-
-
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ml:3}}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <EnhancedTableHead
                     order={order}
