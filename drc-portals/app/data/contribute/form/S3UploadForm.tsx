@@ -170,7 +170,7 @@ export function S3UploadForm(user: {
             extensions are tagged as Attribute Table files.
             <br></br>
             See the {' '}
-            <Link color="secondary" href="data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
+            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
           </Typography>
           <Grid container spacing={4} justifyContent="center" sx={{ p: 5 }}>
             <TextField
