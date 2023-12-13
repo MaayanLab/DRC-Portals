@@ -172,14 +172,13 @@ export function PaginatedTable({ userFiles, role }: {
 
 
     const sortedData = React.useMemo(
-        () =>
-          stableSort(userFiles, getComparator(order, orderBy)).slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage,
-          ),
-        [order, orderBy, page, rowsPerPage, userFiles],
-      );
-
+        () => {
+                return stableSort(userFiles, getComparator(order, orderBy)).slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage,
+                )
+        }, [order, orderBy, page, rowsPerPage, userFiles],
+    );
     let symbolUserFiles;
 
     if (role === 'UPLOADER') {
@@ -220,12 +219,10 @@ export function PaginatedTable({ userFiles, role }: {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             return (
-                <FileRow key={userFile.lastmodified.toString()} userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
             )
         })
     }
-
-
 
     return (
         <TableContainer component={Paper}>
