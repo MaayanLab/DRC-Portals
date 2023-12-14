@@ -16,7 +16,7 @@ const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "seco
                     <Email/>
                 </IconButton>
             </Link>
-            <Link href="/">
+            <Link href="https://twitter.com/CfdeNih">
                 <IconButton  color={"secondary"}>
                     <Twitter/>
                 </IconButton>
