@@ -80,7 +80,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>.)</>}
+                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
