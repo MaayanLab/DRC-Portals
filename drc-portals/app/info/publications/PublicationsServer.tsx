@@ -66,7 +66,7 @@ export default async function PublicationsServer({
               </Typography>
             </div>
             <PublicationsClient count={count} q={q} dccs={dccs.map(i=>i.short_label || '')}>
-              <PublicationComponent publications={publications} chipped={true}/>
+              <PublicationComponent publications={publications}/>
             </PublicationsClient>
         </div>
     )

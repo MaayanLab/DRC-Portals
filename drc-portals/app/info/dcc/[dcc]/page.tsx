@@ -15,7 +15,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Icon from "@mdi/react";
 import { mdiArrowRight } from "@mdi/js";
-import PublicationComponent from "@/components/misc/Publication/PublicationComponent";
+import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
@@ -145,7 +145,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                     <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                         <Paper sx={{padding: 2, height: "100%"}}>
                             <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
-                            <PublicationComponent publications={publications} chipped={true}/>
+                            <SimplePublicationComponent publications={publications}/>
                         </Paper>
                     </Grid>
                 }

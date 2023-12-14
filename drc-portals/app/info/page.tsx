@@ -19,7 +19,7 @@ import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
-import PublicationComponent from "@/components/misc/Publication/PublicationComponent"
+import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
@@ -264,7 +264,7 @@ export default async function Home() {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 120}}variant="subtitle1">PUBLICATIONS</Typography>
-                    <PublicationComponent publications={publications}/>
+                    <SimplePublicationComponent publications={publications}/>
                     <Link href={"/info/publications"}>
                       <Button color="secondary" variant="outlined">
                         Show More
