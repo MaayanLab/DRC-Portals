@@ -101,10 +101,6 @@ async function Outreach({featured=true, orientation='horizontal'}:{
             return (
               <Wrapper key={i} featured={featured} orientation={orientation || 'horizontal'}>
                 <Stack spacing={orientation === 'vertical' ? 1: 2}>
-                  {orientation !== 'vertical' && <div className="flex flex-row mb-5">
-                    {tags.map((tag, i)=><Chip variant="outlined" sx={{textTransform: "uppercase", minWidth: 150, color: "inherit"}} key={i} label={tag?.toString()}/>)}
-                  </div>}
-                  <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.title}</Typography>
                   { (e.image && orientation == "horizontal") && 
                       <div className="flex flex-row justify-center"
                         style={{
@@ -117,45 +113,49 @@ async function Outreach({featured=true, orientation='horizontal'}:{
                         <Image src={e.image} alt={e.title} width={400} height={300}/>
                       </div>
                   }
-                  <Typography variant="subtitle2">{e.short_description}</Typography>
+                  {orientation !== 'vertical' && <div className="flex flex-row mb-5">
+                    {tags.map((tag, i)=><Chip variant="filled" sx={{textTransform: "uppercase", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>)}
+                  </div>}
+                  <Typography color="secondary" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.title}</Typography>
+                  <Typography variant="body2" color="secondary">{e.short_description}</Typography>
                   {orientation === 'vertical' ?
                     e.application_end ? 
-                      <Typography variant="subtitle2"><b>Application ends</b>: {`${e.application_end.toLocaleDateString("en-US", {
+                      <Typography variant="body2" color="secondary"><b>Application ends</b>: {`${e.application_end.toLocaleDateString("en-US", {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
                       })}`}
                       </Typography> :
                       e.start_date &&
-                        <Typography variant="subtitle2"><b>Starts</b>: {`${e.start_date.toLocaleDateString("en-US", {
+                        <Typography variant="body2" color="secondary"><b>Starts</b>: {`${e.start_date.toLocaleDateString("en-US", {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
                         })}`}
                         </Typography>
                     : <>
-                      {e.application_start && <Typography variant="subtitle2"><b>Application starts:</b> {`${e.application_start.toLocaleDateString("en-US", {
+                      {e.application_start && <Typography variant="body2" color="secondary"><b>Application starts:</b> {`${e.application_start.toLocaleDateString("en-US", {
                                       weekday: 'long',
                                       year: 'numeric',
                                       month: 'long',
                                       day: 'numeric',
                                     })}`}
                         </Typography>}
-                        {e.application_end && <Typography variant="subtitle2"><b>Application ends:</b> {`${e.application_end.toLocaleDateString("en-US", {
+                        {e.application_end && <Typography variant="body2" color="secondary"><b>Application ends:</b> {`${e.application_end.toLocaleDateString("en-US", {
                                             weekday: 'long',
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric',
                                           })}`}
                         </Typography>}
-                        {e.start_date && <Typography variant="subtitle2"><b>Start date:</b> {`${e.start_date.toLocaleDateString("en-US", {
+                        {e.start_date && <Typography variant="body2" color="secondary"><b>Start date:</b> {`${e.start_date.toLocaleDateString("en-US", {
                                             weekday: 'long',
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric',
                                           })}`}
                         </Typography>}
-                        {e.end_date && <Typography variant="subtitle2"><b>End date:</b> {`${e.end_date.toLocaleDateString("en-US", {
+                        {e.end_date && <Typography variant="body2" color="secondary"><b>End date:</b> {`${e.end_date.toLocaleDateString("en-US", {
                                             weekday: 'long',
                                             year: 'numeric',
                                             month: 'long',
@@ -167,7 +167,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
                   }
                   
                   <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                    <Button sx={{marginLeft: -2}} color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>Visit event page</Button>
+                    <Button sx={{marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT EVENT PAGE</Button>
                   </Link>
                 </Stack>
               </Wrapper>
