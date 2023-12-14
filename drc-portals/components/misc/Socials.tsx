@@ -21,7 +21,7 @@ const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "seco
                     <Twitter/>
                 </IconButton>
             </Link>
-            <Link href="/">
+            <Link href="https://www.youtube.com/channel/UCWucYIvMygAgG5t0xEGEZgg">
                 <IconButton  color={"secondary"}>
                     <Youtube/>
                 </IconButton>
