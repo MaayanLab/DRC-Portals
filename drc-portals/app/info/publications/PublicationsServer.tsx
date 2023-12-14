@@ -55,7 +55,6 @@ export default async function PublicationsServer({
             dcc: true
           }
         },
-        ...include
       },
     })
     return (
