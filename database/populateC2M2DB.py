@@ -55,12 +55,12 @@ conn.autocommit = True
 baseDirectory = '/mnt/share/cfdeworkbench/C2M2/latest/'
 
 # List directories within the base directory
-dccDirectories = [d for d in os.listdir(baseDirectory) if os.path.isdir(os.path.join(baseDirectory, d))]
-print(dccDirectories)
+# dccDirectories = [d for d in os.listdir(baseDirectory) if os.path.isdir(os.path.join(baseDirectory, d))]
+# print(dccDirectories)
 dccList2 = ['SPARC']
-# ['4DN', 'ERCC', 'GlyGen', 'GTEx', 'HMP', 'IDG', 'MW', 'KidsFirst', 'LINCS', 'MoTrPAC', 'SPARC', 'HuBMAP']
+dccDirectories = ['4DN', 'ERCC', 'GlyGen', 'GTEx', 'IDG', 'MW', 'KidsFirst', 'LINCS', 'MoTrPAC', 'SPARC', 'HuBMAP']
 # Iterate over DCC directories
-for dccDirectory in dccList2:
+for dccDirectory in dccDirectories:
     # Construct the path to the data directory for the current DCC
     dataPath = os.path.join(baseDirectory, dccDirectory, 'data')
     # Iterate over C2M2 tables
@@ -72,6 +72,8 @@ for dccDirectory in dccList2:
         tableTSVPath = os.path.join(dataPath, tableName + '.tsv')
         df = pd.read_csv(tableTSVPath, delimiter='\t')
 
+        
+
         df['sourcedcc'] = dccDirectory
         print('DCC '+ dccDirectory + '\n-----------------------------------\n')
         print(tableTSVPath)
@@ -80,13 +82,13 @@ for dccDirectory in dccList2:
         
         
         # SQL command to populate data from TSV file into the PostgreSQL table
-        populateData = f"COPY {schemaName}.{tableName} FROM '{tableTSVPath}' WITH CSV HEADER;"
+        # populateData = f"COPY {schemaName}.{tableName} FROM '{tableTSVPath}' WITH CSV HEADER;"
         
         # SQL command to add the DCC name to the 'sourcedcc' column in the PostgreSQL table
         addDCCName = f'UPDATE {schemaName}.{tableName} SET sourcedcc = \'{dccDirectory}\';'
         
         # Execute the SQL commands
-        print(populateData)
+        # print(populateData)
         cursor.execute(addDCCName)
 
 # Close the database connection
