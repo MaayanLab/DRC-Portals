@@ -26,7 +26,7 @@ const search_cards = [
     "description": "Find relevant Common Fund data by entering your research topic",
     "button": "Search Metadata",
     "img": "/img/metadata.png",
-    "link": "/data/coming_soon"
+    "link": "/data"
   },
   {
     "title": "Data Matrix",
