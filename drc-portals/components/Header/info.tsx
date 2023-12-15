@@ -34,9 +34,9 @@ export default async function InfoHeader() {
                   <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
-                  <Link href="/info/coming_soon">
+                  {/* <Link href="/info/coming_soon">
                     <Typography variant="nav">PRODUCTS</Typography>
-                  </Link>
+                  </Link> */}
                   <Link href="/info/publications">
                     <Typography variant="nav">PUBLICATIONS</Typography>
                   </Link>
@@ -48,9 +48,9 @@ export default async function InfoHeader() {
                   <Link href="/data">
                     <Typography variant="nav">DATA PORTAL</Typography>
                   </Link>
-                  <Link href="/info/coming_soon">
+                  {/* <Link href="/info/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
-                  </Link>
+                  </Link> */}
                   <Link href="/info/dcc">
                     <Typography variant="nav">DCCs</Typography>
                   </Link>
