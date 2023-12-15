@@ -8,6 +8,7 @@ from ingest_common import (
   dcc_assets_path,
   partnerships_path,
   dcc_partnerships_path,
+  partnership_publications_path,
 )
 
 cur = connection.cursor()
@@ -173,6 +174,9 @@ connection.commit()
 ## Partnerships
 
 cur = connection.cursor()
+cur.execute('DELETE FROM dcc_partnerships;')
+cur.execute('DELETE FROM partnerships;')
+
 cur.execute('''
   create table partnerships_tmp
   as table partnerships
@@ -181,21 +185,22 @@ cur.execute('''
 
 with open(partnerships_path(), 'r') as fr:
     cur.copy_from(fr, 'partnerships_tmp',
-      columns=('id', 'title', 'description', 'active', 'image'),
+      columns=('id', 'title', 'description', 'status', 'website', 'image'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into partnerships (id, title, description, active, image)
-      select id, title, description, active, image
+    insert into partnerships (id, title, description, status, website, image)
+      select id, title, description, status, website, image
       from partnerships_tmp
       on conflict (id)
         do update
         set id = excluded.id,
             title = excluded.title,
             description = excluded.description,
-            active = excluded.active,
+            status = excluded.status,
+            website = excluded.website,
             image = excluded.image
     ;
   ''')
@@ -227,6 +232,30 @@ cur.execute('''
 cur.execute('drop table dcc_partnerships_tmp;')
 connection.commit()
 
+cur = connection.cursor()
+cur.execute('''
+  create table partnership_publications_tmp
+  as table partnership_publications
+  with no data;
+''')
+
+with open(partnership_publications_path(), 'r') as fr:
+    cur.copy_from(fr, 'partnership_publications_tmp',
+      columns=("partnership_id", "publication_id"),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into partnership_publications (partnership_id, publication_id)
+      select partnership_id, publication_id
+      from partnership_publications_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table partnership_publications_tmp;')
+connection.commit()
 
 # DCC Assets
 cur = connection.cursor()
