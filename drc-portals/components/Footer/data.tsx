@@ -12,7 +12,8 @@ import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import { Logo } from '../styled/Buttons';
+import { Logo } from '../styled/Logo';
+import SocialMedia from '../misc/Socials';
 
 export default async function InfoFooter() {
   return (
@@ -41,39 +42,13 @@ export default async function InfoFooter() {
               </Link>
               <Divider sx={{borderColor: "#FFF"}}/>
               <Typography variant="subtitle1">Contact</Typography>  
-              <div className='flex items-center space-x-2'>
-                <Link href="mailto:contact@cfde.info">
-                    <IconButton>
-                      <Image src='/img/icons/email.svg' alt="email" width={20} height={20}/>
-                    </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Twitter.svg' alt="Twitter" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Youtube.svg' alt="Youtube" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Facebook.svg' alt="Facebook" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-                <Link href="/">
-                  <IconButton>
-                    <Image src='/img/icons/Linkedin.svg' alt="Linkedin" width={25} height={25}/>
-                  </IconButton>
-                </Link>
-              </div>
+              <SocialMedia/>
             </Stack>
           </Grid>
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
-                  <Link href="/data"><Typography variant="footer">About</Typography></Link>
+                  <Link href="/data/coming_soon"><Typography variant="footer">About</Typography></Link>
                   <Link href="/info" target="_blank" rel="noopener noreferrer">
                     <Typography variant="footer">Information Portal</Typography>
                   </Link>
@@ -82,17 +57,17 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Data & Metadata</b></Typography>
-              <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
-              <Link href="/data/matrix"><Typography variant="footer">Processed Datasets</Typography></Link>
+              <Link href="/data/coming_soon"><Typography variant="footer">Metadata Search Engine</Typography></Link>
+              <Link href="/data/matrix"><Typography variant="footer">Data Matrix</Typography></Link>
               <Link href="/data/contribute/form"><Typography variant="footer">Contribute</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Tools & Usecases</b></Typography>
-              <Link href="/data"><Typography variant="footer">Tools and Workflows</Typography></Link>
-              <Link href="/data"><Typography variant="footer">Chatbot</Typography></Link>
-              <Link href="/data"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>
+              <Link href="/data/coming_soon"><Typography variant="footer">Tools and Workflows</Typography></Link>
+              <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
+              <Link href="/data/coming_soon"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>
             </Stack>
           </Grid>
         </Grid>

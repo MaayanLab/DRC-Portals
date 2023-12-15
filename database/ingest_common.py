@@ -5,6 +5,7 @@ import pathlib
 import csv
 import contextlib
 import tempfile
+import urllib.request
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
@@ -79,15 +80,31 @@ ingest_path = pathlib.Path('ingest')
 
 if not ingest_path.exists():
   ingest_path.mkdir()
-if not (ingest_path/'DccAssets.tsv').exists():
-  import urllib.request
-  urllib.request.urlretrieve('https://cfde-drc.s3.amazonaws.com/database/112123/DccAssets.tsv', ingest_path/'DccAssets.tsv')
 
-dcc_assets = pd.read_csv(ingest_path/'DccAssets.tsv', sep='\t', names=[
-  'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
-  'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
-])
-dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+def ensure_file_factory(url, path):
+  def ensure_file():
+    if not (ingest_path / path).exists():
+      urllib.request.urlretrieve(url, ingest_path / path)
+    return ingest_path / path
+  return ensure_file
 
 #%%
-dcc_assets = dcc_assets[dcc_assets['current']]
+# Fetch data for ingest
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/DCC.tsv', 'DCC.tsv')
+dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_publications.tsv', 'dcc_publications.tsv')
+publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/publications.tsv', 'publications.tsv')
+dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_outreach.tsv', 'dcc_outreach.tsv')
+outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/outreach.tsv', 'outreach.tsv')
+dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/113023/DccAssets.tsv', 'DccAssets.tsv')
+dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'partnerships.tsv')
+
+#%%
+def current_dcc_assets():
+  dcc_assets = pd.read_csv(dcc_assets_path(), sep='\t', names=[
+    'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
+    'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
+  ])
+  dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+  dcc_assets = dcc_assets[dcc_assets['current']]
+  return dcc_assets

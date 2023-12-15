@@ -7,12 +7,12 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
-import { Logo } from '../styled/Buttons'
+import { Logo } from '../styled/Logo'
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import NavBreadcrumbs from './breadcrumbs'
+import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions) 
@@ -26,10 +26,10 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info" target="_blank" rel="noopener noreferrer">
+                  <Link href="/data/coming_soon" target="_blank" rel="noopener noreferrer">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
-                  <Link href="/data">
+                  <Link href="/data/coming_soon">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/data/contribute/form">
@@ -40,28 +40,24 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item xs={12}></Grid>
               <Grid item>
-                <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info">
-                    <Typography variant="nav">INFORMATION PORTAL</Typography>
-                  </Link>
-                  <Link href="/data/matrix">
-                    <Typography variant="nav">PROCESSED DATA</Typography>
-                  </Link>
-                  <Link href="/data">
-                    <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
-                  </Link>
-                  <Link href="/data">
-                    <Typography variant="nav">CROSS DCC USE CASES</Typography>
-                  </Link>
-                </Stack>
+                  <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                    <Link href="/info">
+                      <Typography variant="nav">INFORMATION PORTAL</Typography>
+                    </Link>
+                    <Link href="/data/matrix">
+                      <Typography variant="nav">DATA MATRIX</Typography>
+                    </Link>
+                    <Link href="/data/coming_soon">
+                      <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
+                    </Link>
+                    <Link href="/data/coming_soon">
+                      <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
+                    </Link>
+                  </Stack>
               </Grid>
-              {/* <Grid item>
-                <TextField sx={{width: 400}} placeholder='Search' InputProps={{
-                    sx: {borderRadius: 1, height: 50},
-                    endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
-                  }}
-                />
-              </Grid> */}
+              <Grid item>
+                <SearchParamSearchField />
+              </Grid>
               <Grid item xs={12}>
                 <NavBreadcrumbs/>
               </Grid>

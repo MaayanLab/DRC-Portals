@@ -1,26 +1,16 @@
-import prisma from "@/lib/prisma"
-import { Container, Typography } from "@mui/material"
-import { format_description, type_to_string } from "@/app/data/processed/utils";
+import { Metadata, ResolvingMetadata } from "next";
+import { getItem } from './item'
 
-export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
-  const item = await prisma.entityNode.findUniqueOrThrow({
-    where: {
-      id: props.params.id
-    },
-    select: {
-      type: true,
-      node: {
-        select: {
-          label: true,
-          description: true,
-        }
-      }
-    }
-  })
-  return (
-    <>
-      <Container><Typography variant="h1">{type_to_string('entity', item.type)}: {item.node.label}</Typography></Container>
-      <Container><Typography variant="subtitle1">Description: {format_description(item.node.description)}</Typography></Container>
-    </>
-  )
+type PageProps = { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const item = await getItem(props.params.id)
+  return {
+    title: `${(await parent).title?.absolute} | ${item.node.label}`,
+    description: item.node.description,
+  }
+}
+
+export default async function Page(props: PageProps) {
+  return null
 }

@@ -47,6 +47,11 @@ export const cfde_theme = createTheme({
             fontStyle: "normal",
             fontWeight: 500,
         },
+        h5: {
+            fontSize: 20,
+            fontStyle: "normal",
+            fontWeight: 500,
+        },
         cfde: {
             fontSize: 24,
             fontStyle: "normal",
@@ -132,6 +137,41 @@ export const cfde_theme = createTheme({
                 },
               },
         },
+        MuiTableHead: {
+            styleOverrides: {
+                root: {
+                    borderRadius: "0px 0px 0px 0px",
+                    background: "#C9D2E9"
+                }
+            }
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                notchedOutline: {
+                    borderColor: '#336699',
+                },
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                root: {
+                    background: 'white',
+                },
+            },
+        },
+        MuiCheckbox: {
+            styleOverrides: {
+                root: {
+                    color: "#B7C3E2",
+                    '&.Mui-checked': {
+                        color: "#336699",
+                    },
+                    '& .MuiSvgIcon-root': { 
+                        fontSize: 20,
+                    }
+                }
+            }
+        },
         MuiTypography: {
             styleOverrides: {
                 root: ({ ownerState }) => ({
@@ -192,7 +232,20 @@ export const cfde_theme = createTheme({
                     },
               },
             },
-          },
+        },
+        MuiPaper: {
+            variants: [
+                {
+                    props: {
+                        variant: 'rounded-top'
+                    },
+                    style: {
+                        borderTopLeftRadius: '1rem',
+                        borderTopRightRadius: '1rem',
+                    },
+                }
+            ],
+        },
     }
 })
 
@@ -247,3 +300,8 @@ declare module '@mui/material/styles' {
   }
 
   
+  declare module '@mui/material/Paper' {
+    interface PaperPropsVariantOverrides {
+      "rounded-top": true;
+    }
+  }

@@ -1,95 +1,140 @@
 import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell} from '@mui/material'
-import { Typography, Container } from '@mui/material'
+import { Typography, Container, Link } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch';
-import Link from 'next/link';
 
 const cfde_data = [
   { 
     dcc: '4DN', hasfiles: true, img: '/img/4DN.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'A2CPS', hasfiles: false, img: '/img/A2CPS.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'Bridge2AI', hasfiles: false, img: '/img/Bridge2AI.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'ERCC', hasfiles: true, img: '/img/exRNA.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: true, api: true, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'GlyGen', hasfiles: true, img: '/img/Glycoscience.jpg',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: false, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'GTEx', hasfiles: true, img: '/img/GTEx.png',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: true, ent: true, pwb: true, chat: false 
+  },
+  {
+    dcc: 'H3Africa', hasfile: false, img: '/img/h3africa.jpg',
+    c2m2: false, xmt: false, kg: false, att: false,
+    etl: false, api: false, ent: false, pwb: false, chat: false
   },
   { 
     dcc: 'HMP', hasfiles: true, img: '/img/HMP.gif',
-    c2m2: true, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'HuBMAP', hasfiles: true, img: '/img/HuBMAP.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: true, ent: false, pwb: false, chat: false 
+  },
+  {
+    dcc: 'iHMP', hasfile: false, img: '/img/ihmp.png',
+    c2m2: false, xmt: false, kg: false, att: false,
+    etl: false, api: false, ent: false, pwb: false, chat: false
   },
   { 
     dcc: 'IDG', hasfiles: true, img: '/img/IDG.png',
-    c2m2: true, xmt: true, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'KidsFirst', hasfiles: true, img: '/img/Kids First.png',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
     etl: false, api: false, ent: false, pwb: true, chat: false 
   },
   { 
+    dcc: 'KOMP2', hasfiles: true, img: '/img/KOMP2.png',
+    c2m2: false, xmt: true, kg: false, att: false, 
+    etl: false, api: false, ent: false, pwb: false, chat: false 
+  },
+  { 
     dcc: 'LINCS', hasfiles: true, img: '/img/LINCS.gif',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: true, api: true, ent: true, pwb: true, chat: true 
   },
   { 
     dcc: 'Metabolomics', hasfiles: true, img: '/img/Metabolomics.jpg',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: true, ent: false, pwb: true, chat: false 
   },
   { 
     dcc: 'MoTrPAC', hasfiles: true, img: '/img/MoTrPAC.png',
-    c2m2: true, xmt: true, kg: true, att: true, kc: false, 
+    c2m2: true, xmt: true, kg: true, att: true, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'SenNet', hasfiles: false, img: '/img/SenNet.png',
-    c2m2: false, xmt: false, kg: false, att: false, kc: false, 
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
   { 
     dcc: 'SPARC', hasfiles: true, img: '/img/SPARC.svg',
-    c2m2: true, xmt: false, kg: true, att: false, kc: false, 
+    c2m2: true, xmt: false, kg: true, att: false, 
+    etl: false, api: false, ent: false, pwb: false, chat: false 
+  },
+  { 
+    dcc: 'UDN', hasfiles: true, img: '/img/UDN.png',
+    c2m2: false, xmt: false, kg: false, att: false, 
     etl: false, api: false, ent: false, pwb: false, chat: false 
   },
 ]
 
 const columns = [
-  'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 'KC Assertions',
+  'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 
   'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs'
 ]
 
 export default function DataMatrix() {
   return (
     <Container maxWidth="xl">
-      <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>PROCESSED DATA</Typography>
+      <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>METADATA & PROCESSED DATA MATRIX</Typography>
+      <Typography color="#666666" fontSize="11.5pt" sx={{mt:2, mb:2}}>
+        The CFDE Metadata and Processed Data Matrix provides access to files and 
+        other assets produced by Common Fund (CF) Data Coordination Centers (DCCs) 
+        that partner with the CFDE. Click on a DCC logo to navigate to the 
+        DCC-specific assets page. Alternatively, click on the icon for a particular 
+        file type to navigate to a table that contains these files on the 
+        DCC-specific page. 
+        <br /> <br />
+        Data and metadata files include C2M2 metadata data packages, gene and other 
+        entity set libraries (XMTs), knowledge graph (KG) assertions, and attribute 
+        tables. The files listed here are <b>not</b> the original data generated 
+        by each CF program, but are processed representations of knowledge from the 
+        original data. For the original data source, please refer to each CF DCC 
+        portal, linked from the assets pages. 
+        <br /> <br />
+        Interoperability and code assets include links to extract-transform-load 
+        (ETL) scripts, API specifications, entity pages, 
+        CFDE <Link color="#3470e5" href="https://playbook-workflow-builder.cloud/" target="_blank">
+        Playbook Workflow Builder</Link> (PWB) metanode specifications, and chatbot 
+        specifications. 
+        <br /> <br />
+        For more information about any of the asset types, please refer to 
+        the <Link href="../../info/standards" target="_blank" color="#3470e5">STANDARDS & PROTOCOLS</Link> section
+        of the CFDE Workbench <Link href="../../info" target="_blank" color="#3470e5">
+        Information Portal</Link>.</Typography> 
+      
       <TableContainer sx={{ mb: 5, maxHeight: 680 }}>
       <Table stickyHeader aria-label="sticky table">
         <colgroup>
@@ -107,7 +152,7 @@ export default function DataMatrix() {
         <TableHead>
           <TableRow>
             <TableCell sx={{ border: 0, backgroundColor: "#b8c4e1"}}></TableCell>
-            <TableCell sx={{ border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={5}>
+            <TableCell sx={{ border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={4}>
               <Typography variant="subtitle1" color="secondary.dark">Datasets and Metadata</Typography>
             </TableCell>
             <TableCell sx={{ border:0, backgroundColor: "#dbe0f0" }} align="center" colSpan={5}>
@@ -162,11 +207,6 @@ export default function DataMatrix() {
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
                     <Link href={"/data/matrix/".concat(item.dcc).concat('#AttributeTables')}>
                       {item.att ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
-                    </Link>
-                  </TableCell>
-                  <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#KCAssertions')}>
-                      {item.kc ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">

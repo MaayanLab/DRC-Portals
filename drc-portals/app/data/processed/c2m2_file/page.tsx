@@ -1,18 +1,23 @@
 import prisma from "@/lib/prisma";
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
-import Image from "next/image";
-import { format_description, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
+import ListingPageLayout from "../ListingPageLayout";
+import SearchablePagedTable, { LinkedTypedNode, Description, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
+import { Metadata, ResolvingMetadata } from 'next'
+import { Typography } from "@mui/material";
 
-const pageSize = 10
+type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
-export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  return {
+    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('c2m2_file', null))}`,
+  }
+}
+
+export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
@@ -23,6 +28,7 @@ export default async function Page(props: { searchParams: Record<string, string 
         label: string,
         description: string,
         dcc: {
+          label: string,
           short_label: string,
           icon: string,
         } | null,
@@ -42,6 +48,7 @@ export default async function Page(props: { searchParams: Record<string, string 
           'dcc', (
             select jsonb_build_object(
               'short_label', short_label,
+              'label', label,
               'icon', icon
             )
             from "dccs"
@@ -71,58 +78,31 @@ export default async function Page(props: { searchParams: Record<string, string 
       `}
     ;
   `
-  const ps = Math.floor(results.count / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th" className="w-24">
-                &nbsp;
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Data Type</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Assay Type</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.items.map(item => (
-                <TableRow
-                    key={item.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    <TableCell className="relative">
-                      {item.node.dcc?.icon ?
-                        <Link href={`/data/matrix/${item.node.dcc.short_label}`}>
-                          <Image className="p-2 object-contain" src={item.node.dcc.icon} alt={item.node.dcc.short_label ?? ''} fill />
-                        </Link>
-                        : null}
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.node.type}/${item.id}`}>
-                        <Typography variant='h6'>{item.node.label}</Typography>
-                      </Link>
-                    </TableCell>
-                    <TableCell>{format_description(item.node.description)}</TableCell>
-                    <TableCell>{item.data_type}</TableCell>
-                    <TableCell>{item.assay_type}</TableCell>
-                </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <ListingPageLayout
+      count={results.count}
+    >
+      <SearchablePagedTable
+        label={type_to_string('c2m2_file', null)}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results.count}
+        columns={[
+          <>&nbsp;</>,
+          <>Label</>,
+          <>Description</>,
+          <>Data Type</>,
+          <>Assay Type</>,
+        ]}
+        rows={results.items.map(item => [
+          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
+          <Description description={item.node.description}/>,
+          <Typography variant={'body1'} color="secondary">{item.data_type}</Typography>,
+          <Typography variant={'body1'} color="secondary">{item.assay_type}</Typography>,,
+        ])}
+      />
+    </ListingPageLayout>
   )
 }

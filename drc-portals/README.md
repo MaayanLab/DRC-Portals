@@ -18,6 +18,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 The pages will auto-update as you edit the files.
 
+## Provisioning the Database
+
+Much of the site is driven by contents of the database, see [Provisioning the Database](../database/README.md) to populate your database with CFDE data.
+
 ## Learn More
 
 To use authentication see the [Auth README](./lib/auth/README.md) for more info.

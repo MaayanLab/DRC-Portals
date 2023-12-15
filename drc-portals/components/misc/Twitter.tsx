@@ -1,18 +1,35 @@
 'use client'
-import {TwitterTimelineEmbed} from 'react-twitter-embed'
+import {TwitterTimelineEmbed, TwitterFollowButton} from 'react-twitter-embed'
 import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
+import { Card, CardContent, Grid } from '@mui/material'
 
 export default function Twitter() {
     return(
-        <Paper sx={{boxShadow: "none", height: "100%"}}>
-            <Typography variant="h2" color="secondary">Social Media</Typography>
-            {/* <TwitterFollowButton screenName="CfdeNih"/> */}
-            <TwitterTimelineEmbed
-                sourceType="profile"
-                screenName="CfdeNih"
-                options={{height: 500, width: 300}}
-            />
-        </Paper>
+        <Card sx={{minHeight: 620}}>
+            <CardContent sx={{padding: 3}}>
+                <Grid container spacing={2} justifyContent={"space-between"} alignItems={"center"}>
+                    <Grid item>
+                        <Typography variant="h2" color="secondary">Social Media</Typography>
+                    </Grid>
+                    <Grid item>
+                        <TwitterFollowButton screenName={'CfdeNih'}/>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">
+                            Working to improve findability, accessibility, and interoperability of NIH Common Fund data sets and to encourage data reuse.
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} className='flex justify-center'>
+                        <div>
+                            <TwitterTimelineEmbed
+                                sourceType="profile"
+                                screenName="CfdeNih"
+                                options={{height: 500, width: 300}}
+                            />
+                        </div>
+                    </Grid>
+                </Grid>
+            </CardContent>
+        </Card>
     )
 }

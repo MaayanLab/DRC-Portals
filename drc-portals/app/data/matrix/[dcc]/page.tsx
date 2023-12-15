@@ -56,7 +56,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         </Grid>
         <DCCAccordion dcc={params.dcc} fulldata={assets} />
         <Link sx={{mt:2}} href="/data/matrix">
-          <Typography fontSize="16pt" color="secondary.light">Back to all files</Typography>
+          <Typography fontSize="14pt" color="#3470e5">Back to all files</Typography>
         </Link>
       </Grid>    
       )
@@ -66,7 +66,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>{params.dcc}</Typography>
         Page unavailable
         <Link sx={{mt:2}} href="/data/matrix">
-          <Typography fontSize="12pt" color="secondary.light">Back to all files</Typography>
+          <Typography fontSize="14pt" color="#3470e5">Back to all files</Typography>
         </Link>
       </Container>
     )

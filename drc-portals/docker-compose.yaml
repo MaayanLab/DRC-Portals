@@ -3,19 +3,20 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.2.2
+    image: maayanlab/drc-portal:0.2.20
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres-2:5432/${POSTGRES_DB}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres:5432/${POSTGRES_DB}?schema=public
       - NEXTAUTH_URL
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
       - NEXTAUTH_GITHUB
       - NEXTAUTH_GOOGLE
       - NEXTAUTH_ORCID
+      - NEXTAUTH_GLOBUS
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT
@@ -125,7 +126,7 @@ services:
 volumes:
   drc-portal-postgres:
     x-kubernetes:
-      size: 10Gi
+      size: 40Gi
       class: gp2
 
   drc-portal-postgres-2:

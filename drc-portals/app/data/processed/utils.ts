@@ -11,13 +11,14 @@ export function pluralize(s: string) {
   return `${s}s`
 }
 
-export function type_to_string(type: NodeType, entity_type: string | null) {
+export function type_to_string(type: NodeType | string, entity_type: string | null) {
   if (type === 'entity') return entity_type ? capitalize(entity_type) : 'Entity'
   else if (type === 'c2m2_file') return 'File'
   else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
-  throw new Error(`Unhandled type ${type} ${entity_type}`)
+  else if (type === 'dcc_asset') return 'Processed File'
+  else return capitalize(type)
 }
 
 export function format_description(description: string) {
@@ -37,5 +38,18 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       z.string().transform(p => +p),
       z.undefined().transform(_ => 1),
     ]),
+    r: z.union([
+      z.array(z.string()).transform(ps => +ps[ps.length-1]),
+      z.string().transform(p => +p),
+      z.undefined().transform(_ => 1),
+    ]).transform(r => ({10: 10, 20: 20, 50: 50}[r] ?? 10)),
+    t: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split('|') : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(t => {
+      const [type, entity_type] = t.split(':')
+      return { type, entity_type: entity_type ? entity_type : null }
+    }) : undefined),
   }).parse(props.searchParams)
 }

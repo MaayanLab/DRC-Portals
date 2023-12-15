@@ -79,7 +79,6 @@ export async function getDccDataObj(
     XMT: await getDataObj(prisma, dccId, dccName, 'XMT'),
     AttributeTables: await getDataObj(prisma, dccId, dccName, 'AttributeTables'),
     KGAssertions: await getDataObj(prisma, dccId, dccName, 'KGAssertions'),
-    KCAssertions: await getDataObj(prisma, dccId, dccName, 'KCAssertions'),
     ETL: await getDataObj(prisma, dccId, dccName, 'ETL'),
     API: await getDataObj(prisma, dccId, dccName, 'API'),
     EntityPages: await getDataObj(prisma, dccId, dccName, 'EntityPages'),

@@ -15,7 +15,7 @@ import Icon from '@mdi/react';
 import { mdiMagnify } from '@mdi/js';
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import NavBreadcrumbs from './breadcrumbs'
-import { Logo } from '../styled/Buttons'
+import { Logo } from '../styled/Logo'
 export default async function InfoHeader() {
   const session = (await getServerSession(authOptions))
   return (
@@ -28,13 +28,13 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="">
+                  <Link href="/info/coming_soon">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
-                  <Link href="/info">
+                  <Link href="/info/coming_soon">
                     <Typography variant="nav">PRODUCTS</Typography>
                   </Link>
                   <Link href="/info/publications">
@@ -46,15 +46,15 @@ export default async function InfoHeader() {
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data" target="_blank" rel="noopener noreferrer">
-                    <Typography variant="nav">DATA RESOURCE PORTAL</Typography>
+                    <Typography variant="nav">DATA PORTAL</Typography>
                   </Link>
-                  <Link href="/info/about">
+                  <Link href="/info/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
-                  <Link href="/info/about">
+                  <Link href="/info/dcc">
                     <Typography variant="nav">DCCs</Typography>
                   </Link>
-                  <Link href="/info/about">
+                  <Link href="/info/coming_soon">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
                 </Stack>

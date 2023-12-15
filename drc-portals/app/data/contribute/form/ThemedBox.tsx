@@ -11,8 +11,6 @@ export default function ThemedBox({ sx, ...other }: BoxProps) {
         color: (theme) => (theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800'),
         p: 1,
         m: 1,
-        // fontSize: '0.50rem',
-        // fontWeight: '700',
         fontVariant: 'subtitle1',
         ...sx,
       }}
