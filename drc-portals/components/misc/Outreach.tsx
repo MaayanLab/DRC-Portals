@@ -120,7 +120,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
                   <Typography variant="body2" color="secondary">{e.short_description}</Typography>
                   {orientation === 'vertical' ?
                     e.application_end ? 
-                      <Typography variant="body2" color="secondary"><b>Application ends</b>: {`${e.application_end.toLocaleDateString("en-US", {
+                      <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${e.application_end.toLocaleDateString("en-US", {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -134,7 +134,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
                         })}`}
                         </Typography>
                     : <>
-                      {e.application_start && <Typography variant="body2" color="secondary"><b>Application starts:</b> {`${e.application_start.toLocaleDateString("en-US", {
+                      {e.application_start && <Typography variant="body2" color="secondary"><b>Application opens:</b> {`${e.application_start.toLocaleDateString("en-US", {
                                       weekday: 'long',
                                       year: 'numeric',
                                       month: 'long',
