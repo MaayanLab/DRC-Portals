@@ -48,7 +48,7 @@ export default async function InfoHeader() {
                     <Link href="/data/matrix">
                       <Typography variant="nav">DATA MATRIX</Typography>
                     </Link>
-                    <Link href="/data/coming_soon">
+                    <Link href="/data/tools_and_workflows">
                       <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                     </Link>
                     {/* <Link href="/data/coming_soon">
