@@ -29,7 +29,7 @@ export default async function InfoHeader() {
                   <Link href="/data/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
-                  <Link href="/data/coming_soon">
+                  <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/data/contribute/form">
