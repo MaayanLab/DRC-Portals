@@ -18,7 +18,7 @@ export default function DataLayout({
     <Grid container direction={"column"} justifyContent="space-between" sx={{minHeight: "100vh", marginTop: 2}}>
       <Grid item><Header/></Grid>
       <Grid item className="flex grow">
-        <Background>
+        <Background background="#E7F3F5">
           <NavBreadcrumbs/>
           {children}
         </Background>
