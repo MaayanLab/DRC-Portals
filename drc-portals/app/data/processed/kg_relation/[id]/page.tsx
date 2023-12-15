@@ -1,20 +1,39 @@
 import prisma from "@/lib/prisma"
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
-import Link from "next/link";
-import Image from "next/image";
-import SearchField from "../../SearchField";
-import FormPagination from "../../FormPagination";
 import { Prisma } from "@prisma/client";
+import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
+import { Metadata, ResolvingMetadata } from "next";
+import { cache } from "react";
 
-const pageSize = 10
+type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+
+const getItem = cache((id: string) => prisma.kGRelationNode.findUniqueOrThrow({
+  where: { id },
+  select: {
+    node: {
+      select: {
+        label: true,
+        description: true,
+      },
+    },
+  },
+}))
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const item = await getItem(props.params.id)
+  return {
+    title: `${(await parent).title?.absolute} | ${type_to_string('kg_relation', null)} | ${item.node.label}`,
+    description: item.node.description,
+  }
+}
 
 export default async function Page(props: { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
+  const item = await getItem(props.params.id)
   const [results] = await prisma.$queryRaw<Array<{
-    item: { node: { label: string, description: string } },
     assertions: {
       id: string,
       evidence: Prisma.JsonValue,
@@ -26,17 +45,7 @@ export default async function Page(props: { params: { id: string }, searchParams
     n_filtered_assertions: number,
     n_assertions: number,
   }>>`
-    with item as (
-      select
-        "kg_relation_node"."id",
-        jsonb_build_object(
-          'label', "node"."label",
-          'description', "node"."description"
-        ) as node
-      from "kg_relation_node"
-      inner join "node" on "node"."id" = "kg_relation_node"."id"
-      where "kg_relation_node"."id" = ${props.params.id}::uuid
-    ), kg_assertion_f as (
+    with kg_assertion_f as (
       select *
       from "kg_assertion"
       where "kg_assertion"."relation_id" = ${props.params.id}::uuid
@@ -87,69 +96,40 @@ export default async function Page(props: { params: { id: string }, searchParams
       limit ${limit}
     )
     select
-      (select row_to_json(item.*) from item) as item,
       (select coalesce(jsonb_agg(kg_assertion_fsp.*), '[]'::jsonb) from kg_assertion_fsp) as assertions,
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
   `
-  const ps = Math.floor((results.n_filtered_assertions ?? 1) / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <Container><Typography variant="h1">Relation: {results.item.node.label}</Typography></Container>
-      <Container><Typography variant="caption">Description: {format_description(results.item.node.description)}</Typography></Container>
-      <Container><Typography variant="caption">Number of Assertions: {results.n_assertions.toLocaleString()}</Typography></Container>
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th" className="w-24">
-                &nbsp;
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Source</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Relation</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Target</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Evidence</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.assertions.map(assertion => (
-              <TableRow
-                key={assertion.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell className="relative">
-                  {assertion.dcc?.icon ? <Link href={`/data/matrix/${assertion.dcc.short_label}`}><Image className="p-2 object-contain" src={assertion.dcc.icon} alt={assertion.dcc.label} fill /></Link>
-                    : null}
-                </TableCell>
-                <TableCell>
-                  <Link href={`/data/processed/entity/${assertion.source.type}/${assertion.source.id}`}><Typography>{assertion.source.label}</Typography></Link>
-                  <Typography variant='caption'>{type_to_string('entity', assertion.source.type)}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Link href={`/data/processed/kg_relation/${props.params.id}`}><Typography fontWeight={"bold"}>{results.item.node.label}</Typography></Link>
-                </TableCell>
-                <TableCell>
-                  <Link href={`/data/processed/entity/${assertion.target.type}/${assertion.target.id}`}><Typography>{assertion.target.label}</Typography></Link>
-                  <Typography variant='caption'>{type_to_string('entity', assertion.target.type)}</Typography>
-                </TableCell>
-                <TableCell>
-                  {assertion.evidence?.toString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <LandingPageLayout
+      title={item.node.label}
+      subtitle={type_to_string('kg_relation', null)}
+      description={format_description(item.node.description)}
+      metadata={[
+        { label: 'Assertions', value: results.n_assertions.toLocaleString() },
+      ]}
+    >
+      <SearchablePagedTable
+        label="Knowledge Graph Assertions"
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results.n_filtered_assertions}
+        columns={[
+          <>&nbsp;</>,
+          <>Source</>,
+          <>Relation</>,
+          <>Target</>,
+          <>Evidence</>,
+        ]}
+        rows={results.assertions.map(assertion => [
+          assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
+          <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} />,
+          <LinkedTypedNode type="kg_relation" id={props.params.id} label={item.node.label} focus />,
+          <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} />,
+          assertion.evidence?.toString(),
+        ])}
+      />
+    </LandingPageLayout>
   )
 }

@@ -1,19 +1,12 @@
 import prisma from "@/lib/prisma"
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
-import Link from "next/link";
-import Image from "next/image";
-import SearchField from "@/app/data/processed/SearchField";
-import FormPagination from "@/app/data/processed/FormPagination";
-import classNames from "classnames";
+import { useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
-
-const pageSize = 10
+import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     assertions: {
       id: string,
@@ -99,64 +92,28 @@ export default async function Page(props: { params: { entity_type: string, id: s
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
   `
-  const ps = Math.floor((results.n_filtered_assertions ?? 1) / pageSize) + 1
+  if (results.n_assertions === 0) return null
   return (
-    <Container>
-      <Typography variant="h2">Assertions ({results.n_assertions.toLocaleString()})</Typography>
-      <Container component="form" action="" method="GET">
-        <SearchField q={searchParams.q ?? ''} />
-        <TableContainer component={Paper}>
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell component="th" className="w-24">
-                  &nbsp;
-                </TableCell>
-                <TableCell component="th">
-                  <Typography variant='h3'>Source</Typography>
-                </TableCell>
-                <TableCell component="th">
-                  <Typography variant='h3'>Relation</Typography>
-                </TableCell>
-                <TableCell component="th">
-                  <Typography variant='h3'>Target</Typography>
-                </TableCell>
-                <TableCell component="th">
-                  <Typography variant='h3'>Evidence</Typography>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {results.assertions.map(assertion => (
-                <TableRow
-                  key={assertion.id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell className="w-24 relative">
-                    {assertion.dcc?.icon ? <Link href={`/data/matrix/${assertion.dcc.short_label}`}><Image className="p-2 object-contain" src={assertion.dcc.icon} alt={assertion.dcc.label} fill /></Link>
-                      : null}
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/data/processed/entity/${assertion.source.type}/${assertion.source.id}`}><Typography fontWeight={assertion.source.id === props.params.id ? 'bold' : undefined}>{assertion.source.label}</Typography></Link>
-                    <Typography variant='caption'>{type_to_string('entity', assertion.source.type)}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/data/processed/kg_relation/${assertion.relation.id}`}>{assertion.relation.label}</Link>
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/data/processed/entity/${assertion.target.type}/${assertion.target.id}`}><Typography fontWeight={assertion.target.id === props.params.id ? 'bold' : undefined}>{assertion.target.label}</Typography></Link>
-                    <Typography variant='caption'>{type_to_string('entity', assertion.target.type)}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    {assertion.evidence?.toString()}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <FormPagination p={searchParams.p} ps={ps} />
-      </Container>
-    </Container>
+    <SearchablePagedTable
+      label="Knowledge Graph Assertions"
+      q={searchParams.q ?? ''}
+      p={searchParams.p}
+      r={searchParams.r}
+      count={results.n_filtered_assertions}
+      columns={[
+        <></>,
+        <>Source</>,
+        <>Relation</>,
+        <>Target</>,
+        <>Evidence</>,
+      ]}
+      rows={results.assertions.map(assertion => [
+        assertion.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
+        <LinkedTypedNode type="entity" entity_type={assertion.source.type} id={assertion.source.id} focus={assertion.source.id === props.params.id} label={assertion.source.label} />,
+        <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} />,
+        <LinkedTypedNode type="entity" entity_type={assertion.target.type} id={assertion.target.id} focus={assertion.target.id === props.params.id} label={assertion.target.label} />,
+        assertion.evidence?.toString(),
+      ])}
+    />
   )
 }

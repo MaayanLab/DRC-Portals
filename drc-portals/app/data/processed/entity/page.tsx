@@ -1,17 +1,22 @@
 import prisma from "@/lib/prisma";
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
-import FormPagination from "@/app/data/processed/FormPagination";
-import SearchField from "@/app/data/processed/SearchField";
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { type_to_string, pluralize, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
+import SearchablePagedTable, { LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
+import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import { Metadata, ResolvingMetadata } from 'next'
+ 
+type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
-const pageSize = 10
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  return {
+    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('entity', null))}`,
+  }
+}
 
-export default async function Page(props: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*pageSize
-  const limit = pageSize
+  const offset = (searchParams.p - 1)*searchParams.r
+  const limit = searchParams.r
   const [results] = await prisma.$queryRaw<Array<{
     items: {
       id: string,
@@ -56,45 +61,25 @@ export default async function Page(props: { searchParams: Record<string, string 
       `}
     ;
   `
-  const ps = Math.floor(results.count / pageSize) + 1
   return (
-    <Container component="form" action="" method="GET">
-      <SearchField q={searchParams.q ?? ''} />
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell component="th">
-                <Typography variant='h3'>Label</Typography>
-              </TableCell>
-              <TableCell component="th">
-                <Typography variant='h3'>Description</Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.items.map(item => (
-                <TableRow
-                    key={item.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    <TableCell component="th" scope="row">
-                      <Link href={`/data/processed/${item.node.type}/${item.type}/${item.id}`}>
-                        <Typography variant='h6'>{item.node.label}</Typography>
-                      </Link>
-                      <Typography variant='caption'>
-                        <Link href={`/data/processed/${item.node.type}/${item.type}`}>
-                          {type_to_string(item.node.type, item.type)}
-                        </Link>
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{format_description(item.node.description)}</TableCell>
-                </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <FormPagination p={searchParams.p} ps={ps} />
-    </Container>
+    <ListingPageLayout
+      count={results.count}
+    >
+      <SearchablePagedTable
+        label={type_to_string('entity', null)}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results.count}
+        columns={[
+          <>Label</>,
+          <>Description</>,
+        ]}
+        rows={results.items.map(item => [
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} />,
+          <Description description={item.node.description}/>,
+        ])}
+      />
+    </ListingPageLayout>
   )
 }

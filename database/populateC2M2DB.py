@@ -70,6 +70,12 @@ for dccDirectory in dccDirectories:
         
         # Construct the path to the TSV file for the current table
         tableTSVPath = os.path.join(dataPath, tableName + '.tsv')
+<<<<<<< HEAD
+=======
+
+        # Use DictReader
+        
+>>>>>>> main
         df = pd.read_csv(tableTSVPath, delimiter='\t')
 
         

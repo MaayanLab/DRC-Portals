@@ -22,7 +22,7 @@ import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 
 
-const Wrapper = ({featured, children, orientation}: {featured: Boolean, children: React.ReactNode, orientation: 'horizontal'| 'vertical'}) => {
+export const Wrapper = ({featured, children, orientation}: {featured: Boolean, children: React.ReactNode, orientation: 'horizontal'| 'vertical'}) => {
   if (featured) {
     if (orientation === 'vertical') {
       return (

@@ -3,14 +3,58 @@ import csv
 import json
 from tqdm.auto import tqdm
 
-from ingest_common import TableHelper, ingest_path, dcc_assets, uuid0, uuid5
+from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
+
+#%%
+dcc_assets = current_dcc_assets()
 
 #%%
 # Ingest KG Assertions
 
 assertions = dcc_assets[dcc_assets['filetype'] == 'KGAssertions']
 assertions_path = ingest_path / 'assertions'
+
+# for now, we'll map entity types to get less junk/duplication
+map_type = {
+  'Acquired Abnormality': 'Acquired Abnormality',
+  'Amino Acid, Peptide, or Protein': 'Amino Acid, Peptide, or Protein',
+  'Anatomical Abnormality': 'Anatomical Abnormality',
+  'Body Part, Organ, or Organ Component': 'Body Part, Organ, or Organ Component',
+  'Body Substance': 'Body Substance',
+  'Cell Type': 'Cell Type',
+  'Cell': 'Cell',
+  'CLINGEN ALLELE REGISTRY': 'CLINGEN ALLELE REGISTRY',
+  'Congenital Abnormality': 'Congenital Abnormality',
+  'Diagnostic Procedure': 'Diagnostic Procedure',
+  'Disease or Syndrome': 'Disease',
+  'Disease': 'Disease',
+  'Drug': 'Drug',
+  'ENCODE CCRE': 'ENCODE CCRE',
+  'ENSEMBL': 'ENSEMBL',
+  'gene': 'gene',
+  'GLYCAN MOTIF': 'GLYCAN MOTIF',
+  'GLYCAN': 'GLYCAN',
+  'GLYCOSYLTRANSFERASE REACTION': 'GLYCOSYLTRANSFERASE REACTION',
+  'GLYGEN GLYCOSEQUENCE': 'GLYGEN GLYCOSEQUENCE',
+  'GLYGEN GLYCOSYLATION': 'GLYGEN GLYCOSYLATION',
+  'GLYGEN RESIDUE': 'GLYGEN RESIDUE',
+  'GLYTOUCAN': 'GLYTOUCAN',
+  'GTEXEQTL': 'GTEXEQTL',
+  'Hormone': 'Hormone',
+  'Injury or Poisoning': 'Injury or Poisoning',
+  'Inorganic Chemical': 'Drug',
+  'KFVARBIN': 'KFVARBIN',
+  'Laboratory Procedure': 'Laboratory Procedure',
+  'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
+  'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
+  'Organic Chemical': 'Drug',
+  'Pharmacologic Substance': 'Drug',
+  'Phenotype': 'Phenotype',
+  'Sign or Symptom': 'Phenotype',
+  'Therapeutic or Preventive Procedure': 'Laboratory Procedure',
+  'Tissue': 'Tissue',
+}
 
 entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 kg_relation_helper = TableHelper('kg_relation_node', ('id',), pk_columns=('id',))
@@ -31,39 +75,44 @@ with kg_assertion_helper.writer() as kg_assertion:
             if entity_type in {'Gene', 'ENSEMBL'}:
               for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
-                if gene_id not in genes:
-                  genes.add(gene_id)
-                  gene.writerow(dict(
-                    id=gene_id,
-                    entrez=gene_entrez[gene_ensembl],
-                    ensembl=gene_ensembl,
-                  ))
+                def ensure():
+                  if gene_id not in genes:
+                    genes.add(gene_id)
+                    gene.writerow(dict(
+                      id=gene_id,
+                      entrez=gene_entrez[gene_ensembl],
+                      ensembl=gene_ensembl,
+                    ))
+                    entity.writerow(dict(
+                      id=gene_id,
+                      type='gene',
+                    ))
+                    node.writerow(dict(
+                      id=gene_id,
+                      type='entity',
+                      label=gene_labels[gene_ensembl],
+                      description=gene_descriptions[gene_ensembl],
+                    ))
+                  return gene_id
+                yield ensure
+            elif entity_type in map_type:
+              entity_type = map_type[entity_type]
+              entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
+              def ensure():
+                if entity_id not in entities:
+                  entities.add(entity_id)
                   entity.writerow(dict(
-                    id=gene_id,
-                    type='gene',
+                    id=entity_id,
+                    type=entity_type,
                   ))
                   node.writerow(dict(
-                    id=gene_id,
+                    id=entity_id,
                     type='entity',
-                    label=gene_labels[gene_ensembl],
-                    description=gene_descriptions[gene_ensembl],
+                    label=entity_label,
+                    description=entity_description,
                   ))
-                yield gene_id
-            else:
-              entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
-              if entity_id not in entities:
-                entities.add(entity_id)
-                entity.writerow(dict(
-                  id=entity_id,
-                  type=entity_type,
-                ))
-                node.writerow(dict(
-                  id=entity_id,
-                  type='entity',
-                  label=entity_label,
-                  description=entity_description,
-                ))
-              yield entity_id
+                return entity_id
+              yield ensure
           for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
             if file['dcc_short_label'] in ('4DN',): continue
             file_path = assertions_path/file['dcc_short_label']/file['filename']
@@ -78,7 +127,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                 if assertion['source_label'] == 'nan': assertion['source_label'] = None
                 if not assertion['source_label']: assertion['source_label'] = assertion['source']
                 assert assertion['source'] and assertion['source_type'], assertion
-                for source_id in ensure_entity(
+                for ensure_source_id in ensure_entity(
                   assertion['source_type'],
                   assertion['source_label'],
                 ):
@@ -86,7 +135,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                   if assertion['target_label'] == 'nan': assertion['target_label'] = None
                   if not assertion['target_label']: assertion['target_label'] = assertion['target']
                   assert assertion['target'] and assertion['target_type'], assertion
-                  for target_id in ensure_entity(
+                  for ensure_target_id in ensure_entity(
                     assertion['target_type'],
                     assertion['target_label'],
                   ):
@@ -111,6 +160,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                         assertion['evidence'] = assertion['evidence']
                       assertion['evidence'] = json.dumps(assertion['evidence'])
                     #
+                    source_id = ensure_source_id()
+                    target_id = ensure_target_id()
                     assertion_id = str(uuid5(uuid0, '\t'.join((file['dcc_id'], source_id, target_id, relation_id, assertion['evidence'] or '',))))
                     if assertion_id not in kg_assertions:
                       kg_assertions.add(assertion_id)

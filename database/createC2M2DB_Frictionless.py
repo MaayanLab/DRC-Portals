@@ -67,7 +67,7 @@ try:
                 data_frame['dcc_name'] = dcc_name
 
                 # Insert the DataFrame into the PostgreSQL database
-                data_frame.to_sql(resource.name, con=engine, index=False, if_exists='replace', schema=desired_schema)
+                data_frame.to_sql(resource.name, con=engine, index=False, if_exists='append', schema=desired_schema)
 
         except Exception as e:
             print(f"Error processing {json_path}: {e}")
