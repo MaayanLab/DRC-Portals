@@ -208,8 +208,8 @@ connection.commit()
 ## Partnerships
 
 cur = connection.cursor()
-cur.execute('DELETE FROM dcc_partnerships')
-cur.execute('DELETE FROM partnership_publications')
+# cur.execute('DELETE FROM dcc_partnerships')
+# cur.execute('DELETE FROM partnership_publications')
 cur.execute('DELETE FROM partnerships')
 
 cur.execute('''
