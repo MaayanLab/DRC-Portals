@@ -99,7 +99,7 @@ dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/databas
 dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
 partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'partnerships.tsv')
 partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnership_publications.tsv', 'partnership_publications.tsv')
-
+tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/tools.tsv', 'tools.tsv')
 #%%
 def current_dcc_assets():
   dcc_assets = pd.read_csv(dcc_assets_path(), sep='\t', names=[
