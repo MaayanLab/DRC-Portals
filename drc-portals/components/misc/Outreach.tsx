@@ -20,7 +20,14 @@ import Grid from "@mui/material/Grid"
 import MasonryClient from "./MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-
+import { Outreach } from "@prisma/client"
+const shuffle = (array: Outreach[]) => { 
+  for (let i = array.length - 1; i > 0; i--) { 
+    const j = Math.floor(Math.random() * (i + 1)); 
+    [array[i], array[j]] = [array[j], array[i]]; 
+  } 
+  return array; 
+}; 
 
 export const Wrapper = ({featured, children, orientation}: {featured: Boolean, children: React.ReactNode, orientation: 'horizontal'| 'vertical'}) => {
   if (featured) {
@@ -79,6 +86,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
           start_date: { sort: 'desc', nulls: 'last' },
         }
       })
+      outreach = shuffle(outreach).slice(0,2)
     } else {
       outreach = await prisma.outreach.findMany({
         where: {
