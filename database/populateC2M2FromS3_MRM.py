@@ -79,7 +79,7 @@ print("Creating "+ schema_name)
 create_schema_str = f"CREATE SCHEMA IF NOT EXISTS {schema_name};"
 cursor.execute(create_schema_str)
 
-qf.write(drop_schema_sql)
+qf.write(drop_schema_sql); qf.write(newline);
 qf.write(create_schema_str)
 qf.write('\n\n/* Define the tables */\n')
 
@@ -92,15 +92,15 @@ for resource in package.resources:
     table_names.append(table_name)
     if(debug >0): print(f"=================== table_name: {table_name} ===========================");
     
-    fields = resource.schema.fields
-    pk = resource.schema.primary_key # Mano: 2023/12/22: frictionless uses _ instead of caps, so use primary_key
+    table_fields = resource.schema.fields
+    table_primaryKeys = resource.schema.primary_key # Mano: 2023/12/22: frictionless uses _ instead of caps, so use primary_key
 
-    if(debug > 1): print(f"primaryKey: {pk}")
+    if(debug > 1): print(f"primaryKey: {table_primaryKeys}")
 
     # Create SQL statement to define the table with default values  DEFAULT {field.get('default', 'NULL')}
     columns_definition = ', '.join([
        f"{field.name} VARCHAR DEFAULT NULL" # original line
-       for field in fields
+       for field in table_fields
     ])
     # keeping original code
     # Mano: 2023/12/21: to try typeMatcher({field.type}) instead of a single type VARCHAR
@@ -109,7 +109,7 @@ for resource in package.resources:
 
     #if(debug > 0): print(f"type of fields: {type(fields)}");
 
-    for field in fields:
+    for field in table_fields:
         str1 = f"{field.name} VARCHAR "
         if(debug> 0): print(f"---- Column name: {field.name} ----")
         if(debug> 1): print(f"str1: {str1}")
@@ -132,8 +132,8 @@ for resource in package.resources:
 
     columns_definition = ', \n'.join(coldef_strs)
 
-    #Mano: 2023/12/21: add primary key info
-    pk_str = ",\nPRIMARY KEY(" + ', '.join(pk) + ")"
+    #Mano: 2023/12/21: add primary key info: pk means primary key
+    pk_str = ",\nPRIMARY KEY(" + ', '.join(table_primaryKeys) + ")"
 
     if(debug >0): print(columns_definition)
     if(debug >0): print(pk_str)
@@ -236,6 +236,7 @@ with c2m2_file_helper.writer() as c2m2_file:
 qf.write('\n/* Add foreign key constraints */\n');
 
 # Handle foreign keys
+# How variable names are constructed: fk: foreign key, str: string, cnt: counter
 for resource in package.resources:
     table_name = resource.name
     if(debug > 0): print(f" ----------- Adding foreign key constraint for table {table_name} ----------");
@@ -245,7 +246,7 @@ for resource in package.resources:
     fkcnt = 0;
     for fk in fks:
         fkcnt = fkcnt + 1;
-        table2_name = fk["reference"]["resource"];
+        table2_name = fk["reference"]["resource"]; # name of the other table
         cl1 = fk["fields"]; # column names from current table
         cl2 = fk["reference"]["fields"]; # column names from other table
         if(debug > 0):
