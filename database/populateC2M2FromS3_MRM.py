@@ -86,10 +86,10 @@ qf.write('\n\n/* Define the tables */\n')
 if(debug> 1): print(f"Type of package: {type(package)}")
 
 # Iterate over resources in the package
-table_filenames = []; # collect the list from schema
+table_names = []; # collect the list from schema
 for resource in package.resources:
     table_name = resource.name
-    table_filenames.append(resource.path)
+    table_names.append(table_name)
     if(debug >0): print(f"=================== table_name: {table_name} ===========================");
     
     fields = resource.schema.fields
@@ -160,6 +160,8 @@ if(debug >0): print("================== Defined all tables =====================
 
 qf.close();
 
+
+print("Names of all tables:"); print(table_names)
 input("Press Enter to continue, to ingest the tables...")
 
 qf = open(qf_name, "a")
@@ -196,11 +198,7 @@ with c2m2_file_helper.writer() as c2m2_file:
             if(debug > 0): print(f"--- {table_str} ---")
 
             # Check if the last part after the final "/" starts with a dot
-            #if not re.search(r'/\.', table_str):
-            # table_names was defined when schema was read
-            if (not(re.search(r'/\.', table_str)) and (table_str in table_filenames)):
-                
-                
+            if not re.search(r'/\.', table_str):
                 # get table name from posix pathtable_name_withtsv = os.path.basename(table)
                 # # Remove the file extension if present
                 pattern = r"/(.*).tsv"
@@ -212,24 +210,28 @@ with c2m2_file_helper.writer() as c2m2_file:
                 match = re.search(pattern, table_str)
                 table_name = match.group(1)
                 
-                df = pd.read_csv(table_str, delimiter='\t')
+                # Mano: added the if condition: table_names was defined when schema was read
+                if (table_name in table_names):
+                    df = pd.read_csv(table_str, delimiter='\t')
                 
-                print("Entering " + table_name + " to database")
+                    print("*** Entering " + table_name + " to database ***")
                     
-                        
-                #if(actually_ingest_tables > 0): 
-                df.to_sql(table_name, con=engine, if_exists="append", index=False, schema=schema_name)
-                print(">>> All good.")
+                    if(debug > 0): print(f"df: #rows = {df.shape[0]}, #cols: {df.shape[1]}{newline}df:{newline}{df}");
+                    if(debug > 0): print(f"db schema name:{schema_name}"); 
                     
-                # SQL command to add the DCC name to the 'sourcedcc' column in the PostgreSQL table
-                # dcc_name = c2m2['dcc_short_label']
-                # #addDCCName = f'UPDATE {schema_name}.{table_name} SET sourcedcc = \'{dcc_name}\';'
-                # if (countDCC == 1):
-                #     add_column_sql = f"ALTER TABLE {schema_name}.{table_name} ADD COLUMN sourcedcc VARCHAR(255);"
-                #     cursor.execute(add_column_sql)
-                # update_dcc_sql = f"UPDATE {schema_name}.{table_name} SET sourcedcc = \'{dcc_name}\';"
-                # cursor.execute(update_dcc_sql)
-                # countDCC = countDCC + 1
+                    #if(actually_ingest_tables > 0): 
+                    df.to_sql(table_name, con=engine, if_exists="append", index=False, schema=schema_name)
+                    print(">>> All good.")
+                    
+                    # SQL command to add the DCC name to the 'sourcedcc' column in the PostgreSQL table
+                    # dcc_name = c2m2['dcc_short_label']
+                    # #addDCCName = f'UPDATE {schema_name}.{table_name} SET sourcedcc = \'{dcc_name}\';'
+                    # if (countDCC == 1):
+                    #     add_column_sql = f"ALTER TABLE {schema_name}.{table_name} ADD COLUMN sourcedcc VARCHAR(255);"
+                    #     cursor.execute(add_column_sql)
+                    # update_dcc_sql = f"UPDATE {schema_name}.{table_name} SET sourcedcc = \'{dcc_name}\';"
+                    # cursor.execute(update_dcc_sql)
+                    # countDCC = countDCC + 1
 
 qf.write('\n/* Add foreign key constraints */\n');
 
