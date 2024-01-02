@@ -10,6 +10,7 @@ from frictionless import Package as FLPackage
 
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 import json
+import numpy as np
 
 # debug
 debug = 1
@@ -47,7 +48,7 @@ dcc_assets = current_dcc_assets()
 c2m2Schema = 'C2M2_datapackage.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
-schema_name = "c2m2"
+schema_name = "c2m2"; # if there is one by the name c2m2 for testing, use a different name here
 
 # write the query to a file as well
 qf_name = 'TableDefs.sql'
@@ -72,7 +73,7 @@ def typeMatcher(schemaDataType):
 
 # Create schema from the json definition using frictionless
 # Create the schema if it doesn't exist
-drop_schema_sql = f'DROP SCHEMA {schema_name} CASCADE;'
+drop_schema_sql = f'DROP SCHEMA IF EXISTS {schema_name} CASCADE;'
 print(drop_schema_sql)
 cursor.execute(drop_schema_sql)
 print("Creating "+ schema_name)
@@ -111,7 +112,7 @@ for resource in package.resources:
 
     for field in table_fields:
         str1 = f"{field.name} VARCHAR "
-        if(debug> 0): print(f"---- Column name: {field.name} ----")
+        if(debug> 1): print(f"---- Column name: {field.name} ----")
         if(debug> 1): print(f"str1: {str1}")
         if(debug> 1): print(f"field: {field}")
         if(debug> 1): print(f"field.constraints: {field.constraints}")
@@ -135,8 +136,8 @@ for resource in package.resources:
     #Mano: 2023/12/21: add primary key info: pk means primary key
     pk_str = ",\nPRIMARY KEY(" + ', '.join(table_primaryKeys) + ")"
 
-    if(debug >0): print(columns_definition)
-    if(debug >0): print(pk_str)
+    if(debug >1): print(columns_definition)
+    if(debug >1): print(pk_str)
     
     #create_table_query = f"CREATE TABLE {schema_name}.{table_name} ({columns_definition});"
     create_table_query = f"CREATE TABLE {schema_name}.{table_name} ({newline}{columns_definition}{pk_str}{newline});"
@@ -162,12 +163,11 @@ qf.close();
 
 
 print("Names of all tables:"); print(table_names)
-input("Press Enter to continue, to ingest the tables...")
-
-qf = open(qf_name, "a")
 
 # #%%
 # Ingest C2M2
+
+#input("Press Enter to continue, to ingest the tables...")
 
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 c2m2s_path = ingest_path / 'c2m2s'
@@ -212,12 +212,85 @@ with c2m2_file_helper.writer() as c2m2_file:
                 
                 # Mano: added the if condition: table_names was defined when schema was read
                 if (table_name in table_names):
-                    df = pd.read_csv(table_str, delimiter='\t')
-                
+                    df = pd.read_csv(table_str, delimiter='\t');
+                    if(debug > 0): print(f"Read from file: df: #rows = {df.shape[0]}, #cols: {df.shape[1]}{newline}");
+                    # drop duplicate rows to begin with
+                    df = df.drop_duplicates();
+
+                    #-----------------------------------------------------------------------------------------
+                    # if any of pKeys has id_namespace in it, no need to check for duplicate primary keys in current df with query
+                    # Mano: 2023/12/30: if duplicate primary key, delete it from the df first before ingestion
+                    # Since this is quite involved, may be write it in a function later
+                    # First, query the current table in the db, extract the primary key fields
+                    ind = table_names.index(table_name); # 0-based index
+                    resource = package.resources[ind];
+                    table_name_tmp = resource.name;
+                    if(table_name != table_name_tmp): # Nearly redundant check
+                        raise ValueError(f'The table name from resource, {table_name_tmp}, does not match with, {table_name}, being ingested currently');
+
+                    pKeys = resource.schema.primary_key;
+                    npk = len(pKeys);
+                    if(debug > 0): print(f"pKeys: {pKeys}");
+
+                    COLSEP = "___";
+
+                    id_namespace_pat = 'id_namespace';
+                    pKeys_has_id_namespace = any([id_namespace_pat in i for i in pKeys]);
+                    if(not pKeys_has_id_namespace):
+                        if(debug > 0): print("---- Will check if a primary key in current df is already in the table in the DB");
+                        # make a string of primary key columns of df sep by COLSEP
+                        if npk == 1: df_pk_df = df[pKeys[0]]; # astype(str).apply("___".join, axis=1) # apply is slow for large DF
+                        elif npk == 2: df_pk_df = df[pKeys[0]] + COLSEP + df[pKeys[1]];
+                        elif npk == 3: df_pk_df = df[pKeys[0]] + COLSEP + df[pKeys[1]]  + COLSEP + df[pKeys[2]];
+                        elif npk == 4: df_pk_df = df[pKeys[0]] + COLSEP + df[pKeys[1]]  + COLSEP + df[pKeys[2]] + COLSEP + df[pKeys[3]];
+
+                        df_pk = df_pk_df.values; # 1-col df to numpy 1-D array
+                        # check if duplicate primary key: https://stackoverflow.com/questions/11528078/determining-duplicate-values-in-an-array
+                        # sort both df_pk and df since later I used the index to extract subset
+                        df_pk_sort_index = np.argsort(df_pk, axis=None); df_pk = df_pk[df_pk_sort_index]; # df_pk = np.sort(df_pk, axis=None);
+                        df = df.iloc[df_pk_sort_index];
+                        df_pk_dup = df_pk[:-1][df_pk[1:] == df_pk[:-1]];
+                        if(df_pk_dup.size > 0):
+                            raise ValueError(f'The primary key columns in df of table read for a DCC has duplicates'); # should never happen
+                    
+                        df_pk = list(df_pk); # easier to work with list later
+                        df_pk = [str(i) for i in df_pk]; # make sure the elements are string
+
+                        # if(len(table_primaryKeys) == 1): # some tables such as protein_gene.tsv can have more than two columns in primary key
+                        pk_concat_name = 'pk'; # Use this as colummn name for the column in the query output
+                        sql_qstr = f"SELECT distinct CONCAT_WS('{COLSEP}', " + ', '.join(pKeys) + f") as {pk_concat_name} FROM {schema_name}.{table_name};";
+                        # use fetchmany if memory becomes issue: https://stackoverflow.com/questions/17933344/python-postgres-can-i-fetchall-1-million-rows
+                        if(debug > 0): print("---- Going to query database to get the primary key columns");
+                        if(debug > 0): print(f"sql_qstr: {sql_qstr}");
+                        # qt means queried table; qt_df: result of query as a dataframe
+                        qt_df = pd.read_sql_query(sql_qstr, con=engine); # if this is very slow, try cursor.execute, cursor.fetchall and pd.DataFrame below
+                        ## cursor.execute(qstr);  qt_data = cursor.fetchall(); # DO NOT DELETE LINE
+                        ## qt_cols = [desc[0] for desc in cursor.description]; qt_df = pd.DataFrame((qt_data) , columns=qt_cols); # DO NOT DELETE LINE
+                        if(debug > 0): print(f"qt_df: {qt_df}");
+                        if(debug > 1): print(f"type of qt_df: {type(qt_df)}");
+                        if(debug > 0): print(f"---- Executed query, got data.frame: qt_df: #rows = {qt_df.shape[0]}, #cols: {qt_df.shape[1]}{newline}");
+
+                        qt_pk = list(qt_df[pk_concat_name].values);
+                        qt_pk = [str(i) for i in qt_pk]; # make sure the elements are string
+                        if(debug > 0): print(f"df_pk (at most first 10 elements): {df_pk[0:min(10,len(df_pk))]}");
+                        if(debug > 0): print(f"qt_pk (at most first 10 elements): {qt_pk[0:min(10,len(qt_pk))]}");
+                        # If some element of df_pk already in qt_pk then find its index and remove such rows from df
+                        # Define a lambda function match or nomatch: 0-based index
+                        #match = lambda a, b: [ b.index(x) if x in b else None for x in a ];
+                        #nomatch_ind_in_first = lambda a, b: [ a.index(x) if x not in b else None for x in a ];
+                        nomatch_ind_in_first = lambda a, b: [a.index(x) for x in a if x not in b]; # CAN BE VERY SLOW for long arrays/lists
+                        ind_df_pk_notin_qt_pk = nomatch_ind_in_first(df_pk, qt_pk);
+                        # keep the rows of df corresponding to ind_df_pk_notin_qt_pk
+                        #df0 = df.copy(); # don't make copy as waste of memory for large df
+                        # index.isin can be misleading if sorting changes order of df and df_pk: df = df[df.index.isin(ind_df_pk_notin_qt_pk)];
+                        df = df.iloc[ind_df_pk_notin_qt_pk];
+                        if(debug > 0): print("---- Removed rows from df with matching pk");
+                    #-----------------------------------------------------------------------------------------
+
                     print("*** Entering " + table_name + " to database ***")
                     
                     if(debug > 0): print(f"df: #rows = {df.shape[0]}, #cols: {df.shape[1]}{newline}df:{newline}{df}");
-                    if(debug > 0): print(f"db schema name:{schema_name}"); 
+                    if(debug > 1): print(f"db schema name:{schema_name}"); 
                     
                     #if(actually_ingest_tables > 0): 
                     df.to_sql(table_name, con=engine, if_exists="append", index=False, schema=schema_name)
@@ -233,6 +306,9 @@ with c2m2_file_helper.writer() as c2m2_file:
                     # cursor.execute(update_dcc_sql)
                     # countDCC = countDCC + 1
 
+#input("Press Enter to continue, to add foreign key constraints...")
+
+qf = open(qf_name, "a")
 qf.write('\n/* Add foreign key constraints */\n');
 
 # Handle foreign keys
@@ -266,7 +342,6 @@ for resource in package.resources:
         qf.write(fk_query);     qf.write("\n")
     
     qf.write("\n")
-
 
 # # Commit the changes 
 conn.commit()
