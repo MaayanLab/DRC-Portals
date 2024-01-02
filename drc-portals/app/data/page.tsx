@@ -91,6 +91,24 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                         </div>
                       </Stack>
                     </form>
+                    <form action="/data/c2m2/search" method="GET">
+                      <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
+                        <Typography color="secondary" className="text-center" variant="h1">CFDE C2M2 DATA PORTAL</Typography>
+                        <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata.</Typography>
+                        <SearchField q="" error={searchParams.error} width={'544px'}/>
+                        <Typography variant="stats_sub">
+                          Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
+                            {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                              <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                            ))}
+                          </Stack>
+                        </Typography>
+                        <div className="flex align-center space-x-10">
+                          <Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button>
+                          <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
+                        </div>
+                      </Stack>
+                    </form>
                   </Grid>
                 </Grid>
               </Container>
