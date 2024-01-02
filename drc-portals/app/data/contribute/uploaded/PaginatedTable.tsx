@@ -15,6 +15,51 @@ import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
 import type { DccAsset } from '@prisma/client'
 import { visuallyHidden } from '@mui/utils';
+import SearchIcon from '@mui/icons-material/Search';
+import { styled, alpha } from '@mui/material/styles';
+import InputBase from '@mui/material/InputBase';
+
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(1),
+        width: 'auto',
+    },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    width: '100%',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        [theme.breakpoints.up('sm')]: {
+            width: '12ch',
+            '&:focus': {
+                width: '20ch',
+            },
+        },
+    },
+}));
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -134,7 +179,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                         </TableSortLabel>
                     </TableCell>
                 ))}
-                {/* <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell> */}
                 <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
@@ -155,14 +199,14 @@ function dccCompare(a: {
     if (!a.dcc?.label) return 0
     if (!b.dcc?.label) return 0
     if (a.dcc?.label < b.dcc?.label) {
-      return -1;
+        return -1;
     } else if (a.dcc?.label > b.dcc?.label) {
-      return 1;
+        return 1;
     }
     return 0;
-  }
+}
 
-  function dccCompareAsc(a: {
+function dccCompareAsc(a: {
     dcc: {
         label: string;
     } | null;
@@ -174,13 +218,26 @@ function dccCompare(a: {
     if (!a.dcc?.label) return 0
     if (!b.dcc?.label) return 0
     if (a.dcc?.label < b.dcc?.label) {
-      return 1;
+        return 1;
     } else if (a.dcc?.label > b.dcc?.label) {
-      return -1;
+        return -1;
     }
     return 0;
-  }
+}
 
+function filterSearch(item: ({
+    dcc: {
+        label: string;
+    } | null;
+} & DccAsset), query: string) {
+    return (item.filetype.toLowerCase().includes(query.toLowerCase())) || 
+    (item.filename.toLowerCase().includes(query.toLowerCase())) ||
+    (item.creator?.toLowerCase().includes(query.toLowerCase())) ||
+    (item.lastmodified.toString().toLowerCase().includes(query.toLowerCase())) ||
+    (item.link.toLowerCase().includes(query.toLowerCase())) ||
+    (item.dcc?.label.toLowerCase().includes(query.toLowerCase()))
+
+}
 
 export function PaginatedTable({ userFiles, role }: {
     userFiles: ({
@@ -189,10 +246,20 @@ export function PaginatedTable({ userFiles, role }: {
         } | null;
     } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
 }) {
+
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
     const [orderBy, setOrderBy] = React.useState<keyof Data>('lastmodified');
+    const [copyUserFiles, setCopyUserFiles] = React.useState<({
+        dcc: {
+            label: string;
+        } | null;
+    } & DccAsset)[]>([])
+
+    React.useEffect(() => {
+        setCopyUserFiles([...userFiles]);
+      }, [userFiles]);
 
     const handleChangePage = React.useCallback((
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -217,23 +284,29 @@ export function PaginatedTable({ userFiles, role }: {
         setOrderBy(property);
     }, [order, orderBy]);
 
+    const handleSearch = React.useCallback((
+        query: string
+    ) => {
+        setCopyUserFiles(userFiles.filter((item) => filterSearch(item,query)))
+    }, [userFiles])
+
 
     const sortedData = React.useMemo(
         () => {
-            if( orderBy === 'dcc') {
-             return order ==='desc' ?  userFiles.sort(dccCompare).slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage,
-            ) : userFiles.sort(dccCompareAsc).slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage,
-            )
+            if (orderBy === 'dcc') {
+                return order === 'desc' ? copyUserFiles.sort(dccCompare).slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage,
+                ) : copyUserFiles.sort(dccCompareAsc).slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage,
+                )
             }
-            return stableSort(userFiles, getComparator(order, orderBy)).slice(
+            return stableSort(copyUserFiles, getComparator(order, orderBy)).slice(
                 page * rowsPerPage,
                 page * rowsPerPage + rowsPerPage,
             )
-        }, [order, orderBy, page, rowsPerPage, userFiles],
+        }, [order, orderBy, page, rowsPerPage, userFiles, copyUserFiles],
     );
     let symbolUserFiles;
 
@@ -281,7 +354,18 @@ export function PaginatedTable({ userFiles, role }: {
     }
 
     return (
-        <TableContainer component={Paper} sx={{ml:3}}>
+        <TableContainer component={Paper} sx={{ ml: 3 }}>
+            <Search>
+                <SearchIconWrapper>
+                    <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                    placeholder="Search…"
+                    inputProps={{ 'aria-label': 'search' }}
+                    name='search'
+                    onInput={(e) => handleSearch((e.target as HTMLFormElement).value)}
+                />
+            </Search>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <EnhancedTableHead
                     order={order}
@@ -296,7 +380,7 @@ export function PaginatedTable({ userFiles, role }: {
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                             colSpan={8}
-                            count={userFiles.length}
+                            count={copyUserFiles.length}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             onPageChange={handleChangePage}
