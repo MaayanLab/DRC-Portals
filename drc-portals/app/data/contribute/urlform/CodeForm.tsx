@@ -21,23 +21,28 @@ import { Link } from '@mui/material';
 const assetOptions = [
     {
         asset: 'ETL',
-        description: <Typography fontSize={11}>Extract, transform, load (ETL) is a three-phase process where data is extracted,transformed (cleaned, sanitized, scrubbed) and loaded into an output data container. The ETL URL is the link to the script (usually GitHub) containing the code that performs these operations on DCC generated data for different tools/purposes.</Typography>,
+        description: <Typography fontSize={11}>Extract, transform, load (ETL) is a three-phase process where data is extracted,
+        transformed (cleaned, sanitized, scrubbed) and loaded into an output data container or database. The ETL URL is the Github link containing the code that performs these operations on DCC generated data for different tools/purposes.
+        </Typography>,
         example: <Link href="https://github.com/nih-cfde/LINCS-metadata/blob/main/scripts/build_file_lincs2021.py" color="secondary" target="_blank">LINCS ETL script</Link>
     },
     {
         asset: 'API',
-        description: <Typography fontSize={11}><b>SmartAPI: </b>The SmartAPI Specification (smartAPI) is a community-based extension of the OpenAPI specification. It features new metadata elements and value sets to promote the interoperability of web-based APIs. See <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#versions" color="secondary" target="_blank">SmartAPI specs</Link> for more information on how to generate script that adhers to SmartAPI specifications  <br></br><b>OpenAPI:</b> The OpenAPI Specification provides a formal standard for describing HTTP APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md" color="secondary" target="_blank" >Current OpenAPI Specs</Link> for more information on how to generate script that adhers to OpenAPI specifications </Typography>,
-        example: ''
+        description: 
+        <Typography fontSize={11}><b>SmartAPI: </b>The smartAPI Specification (smartAPI) is a community-based extension of the OpenAPI specification. It features new metadata elements and value sets to promote the interoperability of web-based APIs. (Extracted from <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#versions" color="secondary">smartAPI specifications</Link>). See <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#versions" color="secondary" target="_blank">smartAPI specs</Link> for more information on how to generate script that adhers to SmartAPI specifications  
+        <br></br>
+        <b>OpenAPI:</b> The OpenAPI Specification provides a formal standard for describing HTTP APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md" color="secondary" target="_blank" >Current openAPI Specs</Link> for more information on how to generate script that adhers to openAPI specifications </Typography>,
+        example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="secondary">exRNA openAPI link </Link> 
     },
     {
         asset: 'PWB Metanode',
-        description: <Typography fontSize={11}>These are links to the code blocks describing Playbook metanodes (Playbook components which are knowledge resolution graph node specifications used in the Playbook Partnership). Metanodes are implemented by defining the semantic description, typescript-constrained type and functionality of that node. See <Link href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="http://info.cfde.cloud/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> page for more information about metanodes.</Typography>,
+        description: <Typography fontSize={11}>This is a Github link to a script describing a Playbook metanode (a Playbook component representing knowledge resolution graph node specifications used in the Playbook Partnership). A metanode is implemented by defining the semantic description, typescript-constrained type and functionality of that node. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="http://info.cfde.cloud/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> page for more information about metanodes.</Typography>,
         example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/main/components/MW/metabolite_summary/index.tsx' target="_blank" color="secondary"><u>PWB Metanode example</u></Link>
     },
     {
         asset: 'Entity Page Template',
-        description: <Typography fontSize={11}>Entity Page Template is a link to the template used to create the page displaying the datasheet full of useful information about a given entity e.g. a gene. An entity page presents a single view of a given entity, all metadata associated to this entity and all entities that have a connection to this entity.</Typography>,
-        example: <Link href='https://data.cfde.cloud/data/processed/search?q=MCF7' color="secondary" target="_blank"><u>Entity Page example</u></Link>
+        description: <Typography fontSize={11}>Entity Page Template is a link to a template used to create the page displaying the datasheet full of useful information about a given entity e.g. a gene obtained from a DCC. An entity page presents a single view of a given entity, all metadata associated to this entity and all entities that have a connection to this entity. </Typography>,
+        example: <Link href='https://www.gtexportal.org/home/gene/MAPK3' color="secondary" target="_blank"><u>Entity Page example</u></Link>
     },
     {
         asset:
@@ -48,7 +53,7 @@ const assetOptions = [
     {
         asset: 'Apps URL',
         description: <Typography fontSize={11}>App URLs are links to a page(s)/site that serves all the web applications or tools that have been created using a given DCCs data.</Typography>,
-        example: <Link color="secondary" href="https://lincsproject.org/LINCS/tools" target="_blank">LINCS App URL</Link>
+        example: <Link color="secondary" href="https://lincsproject.org/LINCS/tools" target="_blank">LINCS Apps URL</Link>
     }
 ]
 
