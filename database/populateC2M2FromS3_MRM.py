@@ -11,6 +11,7 @@ from frictionless import Package as FLPackage
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 import json
 import numpy as np
+import sys
 
 # debug
 debug = 1
@@ -40,18 +41,36 @@ conn = psycopg2.connect(**conn_params)
 # Create a PostgreSQL engine
 engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}')
 
-
 #%%
 dcc_assets = current_dcc_assets()
+
+# Mano: To define specific schema for each DCC, need their short name or label
+# dcc_short_labels not used but kept here for ref if needed later
+c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
+dcc_short_labels = list(np.unique(c2m2s[['dcc_short_label']].values));
+if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 
 # Load C2M2 schema from JSON file
 c2m2Schema = 'C2M2_datapackage.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
-schema_name = "c2m2"; # if there is one by the name c2m2 for testing, use a different name here
+
+# Mano: 2024/01/02: Trying to use this script to also ingest C2M2 metadata from a single DCC as the DCC submits it.
+# Ingest it into a schema by the DCC short name/label, so that the submitter can query from their own metadata only.
+# The dcc short name (case sensitive) can be passed in as an argument to this script.
+if(len(sys.argv) > 1):
+    dcc_short_label = str(sys.argv[1]);
+    schema_name = dcc_short_label.lower();
+    single_dcc = 1;
+    print(f"********** DCC name specified as an argument: {schema_name}, so, will ingest only from that DCC, using it as schema name (lower case).");
+else:
+    dcc_short_label = "C2M2";
+    schema_name = dcc_short_label.lower(); # if there is one by the name c2m2 for testing, use a different name here, e.g., c2
+    single_dcc = 0; # metadata from all dccs to be ingested
+    print(f"********** No arguments specified: will use schema_name: {schema_name}, and ingest from all DCCs.");
 
 # write the query to a file as well
-qf_name = 'TableDefs.sql'
+qf_name = 'TableDefs_' + dcc_short_label + '.sql'
 qf = open(qf_name, "w")
 
 # Create a cursor for executing SQL statements
@@ -162,14 +181,21 @@ if(debug >0): print("================== Defined all tables =====================
 qf.close();
 
 
-print("Names of all tables:"); print(table_names)
+print("Names of all tables:"); print(f"{table_names}{newline}")
+print(f"Going to ingest metadata from files{newline}");
 
 # #%%
 # Ingest C2M2
 
 #input("Press Enter to continue, to ingest the tables...")
 
+# Mano: dcc_assets is a pandas data.frame (see the file ingest_common.py) with columns such as 
+# 'filetype', 'filename', 'link', 'size', 'lastmodified', 'current', ... 'dcc_short_label'
+# Below, c2m2 holds one row.
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
+if(single_dcc == 1): # Mano
+    c2m2s = c2m2s[c2m2s['dcc_short_label'] == dcc_short_label]; # This should select just one row of the c2m2s data.frame
+
 c2m2s_path = ingest_path / 'c2m2s'
 
 c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link',), pk_columns=('id',))
@@ -180,6 +206,7 @@ with c2m2_file_helper.writer() as c2m2_file:
   with node_helper.writer() as node:
     with c2m2_datapackage_helper.writer() as c2m2_datapackage:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+        print(f"==================== DCC short label: {c2m2['dcc_short_label']} ====================");
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
@@ -188,6 +215,7 @@ with c2m2_file_helper.writer() as c2m2_file:
         c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
         if not c2m2_extract_path.exists():
           with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
+            print(f"Unpack zip file: c2m2_extract_path: {c2m2_extract_path}"); # Mano
             c2m2_zip.extractall(c2m2_extract_path)
 
         for table in c2m2_extract_path.rglob('*.tsv'):
@@ -217,6 +245,12 @@ with c2m2_file_helper.writer() as c2m2_file:
                     # drop duplicate rows to begin with
                     df = df.drop_duplicates();
 
+                    # Mano: For HMP and SPARC, for the table biosample replace the column name 'assay_type' with 'sample_prep_method'
+                    # These DCCs don't have the table sample_prep_method.tsv in their set of files, but that is OK as far as ingestion goes.
+                    cur_dcc_short_label = c2m2['dcc_short_label'];
+                    if((table_name == 'biosample') and ((cur_dcc_short_label == 'HMP') or (cur_dcc_short_label == 'SPARC'))):
+                        df.rename(columns={'assay_type': 'sample_prep_method'}, inplace=True);
+
                     #-----------------------------------------------------------------------------------------
                     # if any of pKeys has id_namespace in it, no need to check for duplicate primary keys in current df with query
                     # Mano: 2023/12/30: if duplicate primary key, delete it from the df first before ingestion
@@ -236,7 +270,7 @@ with c2m2_file_helper.writer() as c2m2_file:
 
                     id_namespace_pat = 'id_namespace';
                     pKeys_has_id_namespace = any([id_namespace_pat in i for i in pKeys]);
-                    if(not pKeys_has_id_namespace):
+                    if((single_dcc == 0) and (not pKeys_has_id_namespace)):
                         if(debug > 0): print("---- Will check if a primary key in current df is already in the table in the DB");
                         # make a string of primary key columns of df sep by COLSEP
                         if npk == 1: df_pk_df = df[pKeys[0]]; # astype(str).apply("___".join, axis=1) # apply is slow for large DF
@@ -325,7 +359,7 @@ for resource in package.resources:
         table2_name = fk["reference"]["resource"]; # name of the other table
         cl1 = fk["fields"]; # column names from current table
         cl2 = fk["reference"]["fields"]; # column names from other table
-        if(debug > 0):
+        if(debug > 1):
             print(f"table2_name: {table2_name}") 
             print(f"cl1: {cl1}")
             print(f"cl2: {cl2}")
@@ -347,5 +381,7 @@ for resource in package.resources:
 conn.commit()
 
 conn.close()
+
+print(f"********** C2M2 metadata ingestion completed: schema_name: {schema_name}.");
 
 qf.close()
