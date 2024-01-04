@@ -99,7 +99,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                         <Typography variant="stats_sub">
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={`/data/c2m2/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>

@@ -22,8 +22,8 @@ export function LinkedTypedNode({
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color="secondary">{type_to_string(type, entity_type)}</Typography></Link>
+      <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
+      <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color="secondary">{type_to_string(type, entity_type)}</Typography></Link>
     </div>
   )
 }
