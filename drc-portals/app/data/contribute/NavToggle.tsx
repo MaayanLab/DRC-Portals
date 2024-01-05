@@ -3,7 +3,7 @@ import * as React from 'react';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography'
-import { redirect, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 export default function ColorToggleButton({ userAdmin }: { userAdmin: boolean }) {
     const pathname = usePathname()

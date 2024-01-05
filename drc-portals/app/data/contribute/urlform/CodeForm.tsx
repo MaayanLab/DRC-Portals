@@ -21,38 +21,39 @@ import { Link } from '@mui/material';
 const assetOptions = [
     {
         asset: 'ETL',
-        description: <Typography fontSize={11}>Extract, transform, load (ETL) is a three-phase process where data is extracted,
-        transformed (cleaned, sanitized, scrubbed) and loaded into an output data container or database. The ETL URL is the Github link containing the code that performs these operations on DCC generated data for different tools/purposes.
+        description: <Typography fontSize={11}>Extract, transform, load (ETL) is the process of converting the DCC raw data into various processed data formats such as the C2M2, XMT, KG assertions, attribute tables, and database tables.The ETL URL should point to the DCC GitHub repo containing the scripts that process the data by the DCC to generate these processed datasets.
         </Typography>,
         example: <Link href="https://github.com/nih-cfde/LINCS-metadata/blob/main/scripts/build_file_lincs2021.py" color="secondary" target="_blank">LINCS ETL script</Link>
     },
     {
         asset: 'API',
         description: 
-        <Typography fontSize={11}><b>SmartAPI: </b>The smartAPI Specification (smartAPI) is a community-based extension of the OpenAPI specification. It features new metadata elements and value sets to promote the interoperability of web-based APIs. (Extracted from <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#versions" color="secondary">smartAPI specifications</Link>). See <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#versions" color="secondary" target="_blank">smartAPI specs</Link> for more information on how to generate script that adhers to SmartAPI specifications  
+        <Typography fontSize={11}> It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these APIs into the SmartAPI repository.
         <br></br>
-        <b>OpenAPI:</b> The OpenAPI Specification provides a formal standard for describing HTTP APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md" color="secondary" target="_blank" >Current openAPI Specs</Link> for more information on how to generate script that adhers to openAPI specifications </Typography>,
+        <b>SmartAPI: </b> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features additional metadata elements and value sets to promote the interoperability of RESTful APIs. See the <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#versions" color="secondary" target="_blank">SmartAPI specifications</Link> specifications for more information on how to deposit your API into SmartAPI.  
+        <br></br>
+        <b>OpenAPI:</b> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md" color="secondary" target="_blank" >current OpenAPI Specs</Link> for more information on how to generate your DCC OpenAPI document.</Typography>,
         example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="secondary">exRNA openAPI link </Link> 
     },
     {
-        asset: 'PWB Metanode',
-        description: <Typography fontSize={11}>This is a Github link to a script describing a Playbook metanode (a Playbook component representing knowledge resolution graph node specifications used in the Playbook Partnership). A metanode is implemented by defining the semantic description, typescript-constrained type and functionality of that node. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="http://info.cfde.cloud/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> page for more information about metanodes.</Typography>,
+        asset: 'Playbook Workflow Builder (PWB) Metanodes',
+        description: <Typography fontSize={11}>A PWB metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type, and functionality of a node in the network of PWB workflows. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="http://info.cfde.cloud/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook metanode .</Typography>,
         example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/main/components/MW/metabolite_summary/index.tsx' target="_blank" color="secondary"><u>PWB Metanode example</u></Link>
     },
     {
-        asset: 'Entity Page Template',
-        description: <Typography fontSize={11}>Entity Page Template is a link to a template used to create the page displaying the datasheet full of useful information about a given entity e.g. a gene obtained from a DCC. An entity page presents a single view of a given entity, all metadata associated to this entity and all entities that have a connection to this entity. </Typography>,
-        example: <Link href='https://www.gtexportal.org/home/gene/MAPK3' color="secondary" target="_blank"><u>Entity Page example</u></Link>
+        asset: 'Entity Page Template and Example',
+        description: <Typography fontSize={11}>The Entity Page Template and Example are  links to: 1) a template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 2) The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. Example of a template from GTEx: https://www.gtexportal.org/home/gene/${`<GENE_NAME>`}. </Typography>,
+        example: <Link href='https://www.gtexportal.org/home/gene/MAPK3' color="secondary" target="_blank"><u>Live entity page from GTEx</u></Link>
     },
     {
         asset:
             'Chatbot Specifications',
-        description: <Typography fontSize={11}>Chatbot specifications URL is a link to code detailing the implementation of a chatbot that interacts with users to provide information about a DCC and/or its processed data. </Typography>,
-        example: ''
+        description: <Typography fontSize={11}>Chatbot specifications URL is a link to a manifest file containing metadata and OpenAPI specifications which can be used to develop a chat plugin for large language models. These plugins allow the large language models to function as specialized chatbots that have access to the exposed API endpoints described in the manifest files and can call these APIs based on user input. See <Link color="secondary" href="https://platform.openai.com/docs/plugins" target="_blank">ChatGPT plugins documentation</Link> for more information on how to develop chatbot specifications.</Typography>,
+        example: <Link href="https://github.com/openai/plugins-quickstart/blob/main/.well-known/ai-plugin.json" color="secondary" target="_blank">ai-plugin specs template</Link>
     },
     {
         asset: 'Apps URL',
-        description: <Typography fontSize={11}>App URLs are links to a page(s)/site that serves all the web applications or tools that have been created using a given DCCs data.</Typography>,
+        description: <Typography fontSize={11}>An Apps URL is a link to a page(s) that serves a listing of bioinformatics tools, workflows, and databases produced by the DCC.</Typography>,
         example: <Link color="secondary" href="https://lincsproject.org/LINCS/tools" target="_blank">LINCS Apps URL</Link>
     }
 ]
