@@ -165,7 +165,6 @@ export function CodeForm(user: {
                 <Grid container className='p-5' justifyContent="center" sx={{ mt: 3 }}>
                     <TextField
                         label="Uploader Name"
-                        name='name'
                         disabled
                         defaultValue={user.name}
                         inputProps={{ style: { fontSize: 16 } }} // font size of input text
@@ -173,7 +172,6 @@ export function CodeForm(user: {
                     />
                     <TextField
                         label="Email"
-                        name='email'
                         disabled
                         defaultValue={user.email}
                         inputProps={{ style: { fontSize: 16 } }}

@@ -5,7 +5,7 @@ import { S3UploadForm } from './S3UploadForm';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Alert } from '@mui/material';
-
+import Nav from '../Nav';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
@@ -28,7 +28,11 @@ export default async function UploadForm() {
 
 
   return (
-    <S3UploadForm {...user}>
-    </S3UploadForm>
+    <>
+      <Nav />
+      <S3UploadForm {...user}>
+      </S3UploadForm>
+    </>
+
   );
 }

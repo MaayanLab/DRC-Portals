@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Alert } from '@mui/material';
 import { CodeForm } from './CodeForm';
+import Nav from '../Nav';
 
 
 export default async function UploadForm() {
@@ -28,7 +29,11 @@ export default async function UploadForm() {
 
 
   return (
-    <CodeForm {...user}>
+    <>
+     <Nav />
+     <CodeForm {...user}>
     </CodeForm>
+    </>
+
   );
 }

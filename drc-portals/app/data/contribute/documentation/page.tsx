@@ -35,6 +35,7 @@ import fileupload8 from '@/public/img/contributions/fileupload8.png'
 import fileupload9 from '@/public/img/contributions/fileupload9.png'
 import fileupload10 from '@/public/img/contributions/fileupload10.png'
 import fileuploaderror from '@/public/img/contributions/fileuploaderror.png'
+import Nav from '../Nav';
 
 
 const createUser = <Image src={createuser} width='600' height='500' alt='' className="d-inline-block align-top" />;
@@ -66,10 +67,11 @@ export default function Documentation() {
 
     return (
         <>
+            <Nav />
             <Container className="justify-content-center">
                 <Typography variant="h3" color="secondary.dark" className='p-5'>DOCUMENTATION</Typography>
                 <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
-                    This documentation covers the file submission system of the Data Resource Portal. Please click on any section
+                    This page covers the submission system of the Data Resource Portal. Please click on any section
                     from the dropdown list below to navigate to that section.
                 </Typography>
                 <Grid container spacing={2}>

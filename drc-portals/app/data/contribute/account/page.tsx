@@ -10,6 +10,7 @@ import { getServerSession } from "next-auth";
 import MultiSelect from './MultiSelect';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import Nav from '../Nav';
 
 const names = [
     'LINCS',
@@ -60,6 +61,7 @@ export default async function AccountPage() {
 
     return (
         <>
+        <Nav />
             <Container className="justify-content-center">
                 <Typography variant="h3" color="secondary.dark" className='p-5'>ACCOUNT INFORMATION</Typography>
                 <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>

@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
@@ -7,11 +6,11 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
-import Box from '@mui/system/Box'
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
+import ColorToggleButton from './NavToggle'
 
 export default async function Nav() {
   const session = await getServerSession(authOptions)
@@ -28,19 +27,20 @@ export default async function Nav() {
     userAdmin = true;
   }
 
+
   return (
-    <Box>
     <Container maxWidth="lg">
-      <AppBar position="static">
+      <ColorToggleButton userAdmin={userAdmin}/>
+      {/* <AppBar position="static">
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                   <Link href="/data/contribute/form">
-                    <Typography variant="nav">UPLOAD FORM</Typography>
+                    <Typography variant="nav">DATA AND METADATA UPLOAD FORM</Typography>
                   </Link>
                   <Link href="/data/contribute/urlform">
-                    <Typography variant="nav">CODE UPLOAD FORM</Typography>
+                    <Typography variant="nav">CODE ASSETS UPLOAD FORM</Typography>
                   </Link>
                   <Link href="/data/contribute/uploaded">
                     <Typography variant="nav">UPLOADED FILES</Typography>
@@ -58,8 +58,7 @@ export default async function Nav() {
               </Grid>
             </Grid>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
     </Container>
-    </Box>
   )
 }

@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { PaginatedTable } from './PaginatedTable';
+import Nav from '../Nav';
 
 
 export default async function UserFiles() {
@@ -102,6 +103,7 @@ export default async function UserFiles() {
 
     return (
         <>
+            <Nav />
             <Container className="justify-content-center">
                 <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED FILES</Typography>
                 {headerText}

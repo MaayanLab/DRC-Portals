@@ -84,13 +84,6 @@ export function S3UploadForm(user: {
   const [uploadedfiles, setUploadedfiles] = React.useState<FileList | []>([]);
   const [progress, setProgress] = React.useState(0);
 
-  // React.useEffect(() => {
-  //   console.log(progress)
-  //   if (progress >= 100) {
-  //     setStatus(() => ({ success: true }))
-  //     setProgress(0)
-  //   }
-  // }, [progress])
 
   const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number) => {
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")

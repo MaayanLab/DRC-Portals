@@ -45,7 +45,7 @@ export function FileInfo({ open, fileInfo }: {
                     </TableRow>
                     <TableRow>
                         <TableCell variant="head">Checksum (SHA256)</TableCell>
-                        <TableCell>{fileInfo.sha256checksum}</TableCell>
+                        <TableCell>{fileInfo.sha256checksum ? Buffer.from(fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
                     </TableRow>
                 </Table>
             </Box>
