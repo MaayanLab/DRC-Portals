@@ -4,6 +4,7 @@ import { Container, Typography } from '@mui/material';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Nav from "../Nav";
 
 
 async function getUserData() {
@@ -32,9 +33,13 @@ export default async function UsersTable() {
     const rowData = allUserData['rows']
     const rawData = allUserData['users']
     return (
+        <>
+        <Nav />
         <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
             <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
             <DataTable rows={rowData} users={rawData} />
         </Container>
+        </>
+
     )
 }

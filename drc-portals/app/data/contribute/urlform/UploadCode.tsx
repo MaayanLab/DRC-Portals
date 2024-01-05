@@ -34,8 +34,6 @@ export const saveCodeAsset = async (filename: string, filetype: string, url: str
     }
     if (dcc === null) throw new Error('Failed to find DCC')
 
-
-
     const savedUpload = await prisma.dccAsset.upsert({
         where: {
             link: url,
