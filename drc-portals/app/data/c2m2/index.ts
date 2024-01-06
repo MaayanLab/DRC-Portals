@@ -1,3 +1,6 @@
+// npx prisma generate
+// then run this
+
 import { PrismaClient } from '@prisma/client/'
 
 const prisma = new PrismaClient()
