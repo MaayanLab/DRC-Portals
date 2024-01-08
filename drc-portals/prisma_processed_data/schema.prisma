@@ -216,7 +216,9 @@ model KGAssertion {
   @@map("kg_assertion")
 }
 
-model GeneEntity {
+model GeneEntity
+
+ {
   id      String @id @db.Uuid
   entrez  String
   ensembl String
