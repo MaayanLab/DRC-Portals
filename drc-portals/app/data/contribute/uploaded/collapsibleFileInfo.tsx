@@ -10,6 +10,13 @@ import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
 import type { DccAsset } from '@prisma/client'
 import DeleteIcon from '@mui/icons-material/Delete';
+import { deleteAsset } from './getDCCAsset';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 
 export function CollapsibleArrow({open, setOpen}: {open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
@@ -54,15 +61,59 @@ export function FileInfo({ open, fileInfo }: {
     )
 }
 
+export function DeleteDialogButton({userFile} : {userFile: DccAsset}) {
+    const [open, setOpen] = React.useState(false);
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+  
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    const deleteRow = () => {
+        deleteAsset(userFile);
+        handleClose();
+    }
+  
+    return (
+      <React.Fragment>
+        <button onClick={handleClickOpen}>
+          <DeleteIcon />
+        </button>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Delete Uploaded File?"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this file? Deleting files is permanent and cannot be undone
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={handleClose}>No</Button>
+            <Button color="secondary" onClick={deleteRow} autoFocus>
+              Yes, Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+    );    
+}
+
 export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSymbol} : {userFile: {dcc: {
     label: string;
 } | null;
 } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element}) {
     const [open, setOpen] = React.useState(false);
 
-    const deleteRow = () => {
-        
-    }
+
 
     return (
         <>
@@ -78,7 +129,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><button onClick={() => deleteRow()}><DeleteIcon /></button></div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><DeleteDialogButton userFile={userFile}/></div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
