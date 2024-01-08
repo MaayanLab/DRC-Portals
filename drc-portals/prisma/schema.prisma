@@ -1,12 +1,13 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["multiSchema"]
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["c2m2", "public"]
 }
 
 model analysis_type {
@@ -15,6 +16,8 @@ model analysis_type {
   description                            String? @default("") @db.VarChar
   synonyms                               String? @default("") @db.VarChar
   file_file_analysis_typeToanalysis_type file[]  @relation("file_analysis_typeToanalysis_type")
+
+  @@schema("c2m2")
 }
 
 model anatomy {
@@ -24,6 +27,8 @@ model anatomy {
   synonyms                                               String?              @default("") @db.VarChar
   biosample_biosample_anatomyToanatomy                   biosample[]          @relation("biosample_anatomyToanatomy")
   collection_anatomy_collection_anatomy_anatomyToanatomy collection_anatomy[] @relation("collection_anatomy_anatomyToanatomy")
+
+  @@schema("c2m2")
 }
 
 model assay_type {
@@ -32,6 +37,8 @@ model assay_type {
   description                      String? @default("") @db.VarChar
   synonyms                         String? @default("") @db.VarChar
   file_file_assay_typeToassay_type file[]  @relation("file_assay_typeToassay_type")
+
+  @@schema("c2m2")
 }
 
 model biosample {
@@ -55,6 +62,7 @@ model biosample {
   file_describes_biosample                                            file_describes_biosample[]
 
   @@id([id_namespace, local_id])
+  @@schema("c2m2")
 }
 
 model biosample_disease {
@@ -66,6 +74,7 @@ model biosample_disease {
   disease_biosample_disease_diseaseTodisease disease   @relation("biosample_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_disease_disease_2")
 
   @@id([biosample_id_namespace, biosample_local_id, association_type, disease])
+  @@schema("c2m2")
 }
 
 model biosample_from_subject {
@@ -78,6 +87,7 @@ model biosample_from_subject {
   subject                subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_from_subject_subject_2")
 
   @@id([biosample_id_namespace, biosample_local_id, subject_id_namespace, subject_local_id])
+  @@schema("c2m2")
 }
 
 model biosample_gene {
@@ -88,6 +98,7 @@ model biosample_gene {
   gene_biosample_gene_geneTogene gene      @relation("biosample_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_gene_gene_2")
 
   @@id([biosample_id_namespace, biosample_local_id, gene])
+  @@schema("c2m2")
 }
 
 model biosample_in_collection {
@@ -99,6 +110,7 @@ model biosample_in_collection {
   collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_in_collection_collection_2")
 
   @@id([biosample_id_namespace, biosample_local_id, collection_id_namespace, collection_local_id])
+  @@schema("c2m2")
 }
 
 model biosample_substance {
@@ -109,6 +121,7 @@ model biosample_substance {
   substance_biosample_substance_substanceTosubstance substance @relation("biosample_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_substance_substance_2")
 
   @@id([biosample_id_namespace, biosample_local_id, substance])
+  @@schema("c2m2")
 }
 
 model collection {
@@ -139,6 +152,7 @@ model collection {
   subject_in_collection                                                                                                       subject_in_collection[]
 
   @@id([id_namespace, local_id])
+  @@schema("c2m2")
 }
 
 model collection_anatomy {
@@ -149,6 +163,7 @@ model collection_anatomy {
   collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_anatomy_collection_1")
 
   @@id([collection_id_namespace, collection_local_id, anatomy])
+  @@schema("c2m2")
 }
 
 model collection_compound {
@@ -159,6 +174,7 @@ model collection_compound {
   compound_collection_compound_compoundTocompound compound   @relation("collection_compound_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_compound_compound_2")
 
   @@id([collection_id_namespace, collection_local_id, compound])
+  @@schema("c2m2")
 }
 
 model collection_defined_by_project {
@@ -170,6 +186,7 @@ model collection_defined_by_project {
   project                 project    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_defined_by_project_project_2")
 
   @@id([collection_id_namespace, collection_local_id, project_id_namespace, project_local_id])
+  @@schema("c2m2")
 }
 
 model collection_disease {
@@ -180,6 +197,7 @@ model collection_disease {
   disease_collection_disease_diseaseTodisease disease    @relation("collection_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_disease_disease_2")
 
   @@id([collection_id_namespace, collection_local_id, disease])
+  @@schema("c2m2")
 }
 
 model collection_gene {
@@ -190,6 +208,7 @@ model collection_gene {
   gene_collection_gene_geneTogene gene       @relation("collection_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_gene_gene_2")
 
   @@id([collection_id_namespace, collection_local_id, gene])
+  @@schema("c2m2")
 }
 
 model collection_in_collection {
@@ -201,6 +220,7 @@ model collection_in_collection {
   collection_collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection     collection @relation("collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection", fields: [subset_collection_id_namespace, subset_collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_in_collection_collection_2")
 
   @@id([superset_collection_id_namespace, superset_collection_local_id, subset_collection_id_namespace, subset_collection_local_id])
+  @@schema("c2m2")
 }
 
 model collection_phenotype {
@@ -211,6 +231,7 @@ model collection_phenotype {
   phenotype_collection_phenotype_phenotypeTophenotype phenotype  @relation("collection_phenotype_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_phenotype_phenotype_2")
 
   @@id([collection_id_namespace, collection_local_id, phenotype])
+  @@schema("c2m2")
 }
 
 model collection_protein {
@@ -221,6 +242,7 @@ model collection_protein {
   protein_collection_protein_proteinToprotein protein    @relation("collection_protein_proteinToprotein", fields: [protein], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_protein_protein_2")
 
   @@id([collection_id_namespace, collection_local_id, protein])
+  @@schema("c2m2")
 }
 
 model collection_substance {
@@ -231,6 +253,7 @@ model collection_substance {
   substance_collection_substance_substanceTosubstance substance  @relation("collection_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_substance_substance_2")
 
   @@id([collection_id_namespace, collection_local_id, substance])
+  @@schema("c2m2")
 }
 
 model collection_taxonomy {
@@ -241,6 +264,7 @@ model collection_taxonomy {
   ncbi_taxonomy           ncbi_taxonomy @relation(fields: [taxon], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_taxonomy_ncbi_taxonomy_2")
 
   @@id([collection_id_namespace, collection_local_id, taxon])
+  @@schema("c2m2")
 }
 
 model compound {
@@ -250,6 +274,8 @@ model compound {
   synonyms                                                   String?               @default("") @db.VarChar
   collection_compound_collection_compound_compoundTocompound collection_compound[] @relation("collection_compound_compoundTocompound")
   substance_substance_compoundTocompound                     substance[]           @relation("substance_compoundTocompound")
+
+  @@schema("c2m2")
 }
 
 model data_type {
@@ -258,6 +284,8 @@ model data_type {
   description                    String? @default("") @db.VarChar
   synonyms                       String? @default("") @db.VarChar
   file_file_data_typeTodata_type file[]  @relation("file_data_typeTodata_type")
+
+  @@schema("c2m2")
 }
 
 model dcc {
@@ -271,6 +299,8 @@ model dcc {
   project_id_namespace String  @db.VarChar
   project_local_id     String  @db.VarChar
   project              project @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
+
+  @@schema("c2m2")
 }
 
 model disease {
@@ -282,6 +312,8 @@ model disease {
   collection_disease_collection_disease_diseaseTodisease collection_disease[] @relation("collection_disease_diseaseTodisease")
   phenotype_disease_phenotype_disease_diseaseTodisease   phenotype_disease[]  @relation("phenotype_disease_diseaseTodisease")
   subject_disease_subject_disease_diseaseTodisease       subject_disease[]    @relation("subject_disease_diseaseTodisease")
+
+  @@schema("c2m2")
 }
 
 model file {
@@ -319,6 +351,7 @@ model file {
   file_in_collection                               file_in_collection[]
 
   @@id([id_namespace, local_id])
+  @@schema("c2m2")
 }
 
 model file_describes_biosample {
@@ -330,6 +363,7 @@ model file_describes_biosample {
   file                   file      @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_biosample_file_1")
 
   @@id([file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id])
+  @@schema("c2m2")
 }
 
 model file_describes_collection {
@@ -341,6 +375,7 @@ model file_describes_collection {
   file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_collection_file_1")
 
   @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
+  @@schema("c2m2")
 }
 
 model file_describes_subject {
@@ -352,6 +387,7 @@ model file_describes_subject {
   subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_subject_subject_2")
 
   @@id([file_id_namespace, file_local_id, subject_id_namespace, subject_local_id])
+  @@schema("c2m2")
 }
 
 model file_format {
@@ -361,6 +397,8 @@ model file_format {
   synonyms                                  String? @default("") @db.VarChar
   file_file_file_formatTofile_format        file[]  @relation("file_file_formatTofile_format")
   file_file_compression_formatTofile_format file[]  @relation("file_compression_formatTofile_format")
+
+  @@schema("c2m2")
 }
 
 model file_in_collection {
@@ -372,6 +410,7 @@ model file_in_collection {
   file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_in_collection_file_1")
 
   @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
+  @@schema("c2m2")
 }
 
 model gene {
@@ -385,6 +424,8 @@ model gene {
   ncbi_taxonomy                              ncbi_taxonomy     @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gene_ncbi_taxonomy_1")
   phenotype_gene_phenotype_gene_geneTogene   phenotype_gene[]  @relation("phenotype_gene_geneTogene")
   protein_gene_protein_gene_geneTogene       protein_gene[]    @relation("protein_gene_geneTogene")
+
+  @@schema("c2m2")
 }
 
 model id_namespace {
@@ -397,6 +438,8 @@ model id_namespace {
   file_file_id_namespaceToid_namespace             file[]       @relation("file_id_namespaceToid_namespace")
   project_project_id_namespaceToid_namespace       project[]    @relation("project_id_namespaceToid_namespace")
   subject_subject_id_namespaceToid_namespace       subject[]    @relation("subject_id_namespaceToid_namespace")
+
+  @@schema("c2m2")
 }
 
 model ncbi_taxonomy {
@@ -409,6 +452,8 @@ model ncbi_taxonomy {
   gene                  gene[]
   protein               protein[]
   subject_role_taxonomy subject_role_taxonomy[]
+
+  @@schema("c2m2")
 }
 
 model phenotype {
@@ -420,6 +465,8 @@ model phenotype {
   phenotype_disease_phenotype_disease_phenotypeTophenotype       phenotype_disease[]    @relation("phenotype_disease_phenotypeTophenotype")
   phenotype_gene_phenotype_gene_phenotypeTophenotype             phenotype_gene[]       @relation("phenotype_gene_phenotypeTophenotype")
   subject_phenotype_subject_phenotype_phenotypeTophenotype       subject_phenotype[]    @relation("subject_phenotype_phenotypeTophenotype")
+
+  @@schema("c2m2")
 }
 
 model phenotype_disease {
@@ -429,6 +476,7 @@ model phenotype_disease {
   phenotype_phenotype_disease_phenotypeTophenotype phenotype @relation("phenotype_disease_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_disease_phenotype_1")
 
   @@id([phenotype, disease])
+  @@schema("c2m2")
 }
 
 model phenotype_gene {
@@ -438,6 +486,7 @@ model phenotype_gene {
   phenotype_phenotype_gene_phenotypeTophenotype phenotype @relation("phenotype_gene_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_gene_phenotype_1")
 
   @@id([phenotype, gene])
+  @@schema("c2m2")
 }
 
 model project {
@@ -458,6 +507,7 @@ model project {
   subject                                                                                            subject[]
 
   @@id([id_namespace, local_id])
+  @@schema("c2m2")
 }
 
 model project_in_project {
@@ -469,6 +519,7 @@ model project_in_project {
   project_project_in_project_child_project_id_namespace_child_project_local_idToproject   project @relation("project_in_project_child_project_id_namespace_child_project_local_idToproject", fields: [child_project_id_namespace, child_project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_in_project_project_2")
 
   @@id([parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id])
+  @@schema("c2m2")
 }
 
 model protein {
@@ -480,6 +531,8 @@ model protein {
   collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
   ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
   protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
+
+  @@schema("c2m2")
 }
 
 model protein_gene {
@@ -489,6 +542,7 @@ model protein_gene {
   protein_protein_gene_proteinToprotein protein @relation("protein_gene_proteinToprotein", fields: [protein], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_gene_protein_1")
 
   @@id([protein, gene])
+  @@schema("c2m2")
 }
 
 model sample_prep_method {
@@ -497,6 +551,8 @@ model sample_prep_method {
   description                                                String?     @default("") @db.VarChar
   synonyms                                                   String?     @default("") @db.VarChar
   biosample_biosample_sample_prep_methodTosample_prep_method biosample[] @relation("biosample_sample_prep_methodTosample_prep_method")
+
+  @@schema("c2m2")
 }
 
 model subject {
@@ -522,6 +578,7 @@ model subject {
   subject_substance                               subject_substance[]
 
   @@id([id_namespace, local_id])
+  @@schema("c2m2")
 }
 
 model subject_disease {
@@ -533,6 +590,7 @@ model subject_disease {
   subject                                  subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_disease_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, association_type, disease])
+  @@schema("c2m2")
 }
 
 model subject_in_collection {
@@ -544,6 +602,7 @@ model subject_in_collection {
   subject                 subject    @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_in_collection_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id])
+  @@schema("c2m2")
 }
 
 model subject_phenotype {
@@ -555,6 +614,7 @@ model subject_phenotype {
   subject                                          subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_phenotype_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, association_type, phenotype])
+  @@schema("c2m2")
 }
 
 model subject_race {
@@ -564,6 +624,7 @@ model subject_race {
   subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_race_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, race])
+  @@schema("c2m2")
 }
 
 model subject_role_taxonomy {
@@ -575,6 +636,7 @@ model subject_role_taxonomy {
   subject              subject       @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_role_taxonomy_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, role_id, taxonomy_id])
+  @@schema("c2m2")
 }
 
 model subject_substance {
@@ -585,6 +647,7 @@ model subject_substance {
   substance_subject_substance_substanceTosubstance substance @relation("subject_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_substance_substance_2")
 
   @@id([subject_id_namespace, subject_local_id, substance])
+  @@schema("c2m2")
 }
 
 model substance {
@@ -597,4 +660,355 @@ model substance {
   collection_substance_collection_substance_substanceTosubstance collection_substance[] @relation("collection_substance_substanceTosubstance")
   subject_substance_subject_substance_substanceTosubstance       subject_substance[]    @relation("subject_substance_substanceTosubstance")
   compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_substance_compound_1")
+
+  @@schema("c2m2")
+}
+
+model DCC {
+  id            String            @id @default(uuid())
+  label         String
+  description   String?
+  homepage      String
+  icon          String?
+  annotation    Json?
+  short_label   String?
+  cfde_partner  Boolean           @default(false)
+  assets        DccAsset[]
+  outreach      DCCOutreach[]
+  partnerships  DCCPartnerships[]
+  publications  DCCPublication[]
+  kg_assertions KGAssertion[]
+  nodes         Node[]
+
+  @@map("dccs")
+  @@schema("public")
+}
+
+model Publication {
+  id       String           @id @default(uuid())
+  authors  String
+  doi      String?
+  issue    String?
+  journal  String?
+  page     String?
+  pmcid    String?
+  pmid     String?
+  title    String
+  volume   String?
+  year     String?
+  tool_id  String?
+  landmark Boolean          @default(false)
+  dccs     DCCPublication[]
+  tool     Tool?            @relation(fields: [tool_id], references: [id])
+
+  @@map("publications")
+  @@schema("public")
+}
+
+model DCCPublication {
+  dcc_id         String
+  publication_id String
+  dcc            DCC         @relation(fields: [dcc_id], references: [id])
+  publication    Publication @relation(fields: [publication_id], references: [id])
+
+  @@id([publication_id, dcc_id])
+  @@map("dcc_publications")
+  @@schema("public")
+}
+
+model Outreach {
+  id                String        @id @default(uuid())
+  title             String
+  description       String
+  featured          Boolean       @default(false)
+  link              String?
+  short_description String
+  end_date          DateTime?     @db.Timestamptz(3)
+  start_date        DateTime?     @db.Timestamptz(3)
+  image             String?
+  active            Boolean       @default(false)
+  tags              Json
+  application_end   DateTime?     @db.Timestamptz(3)
+  application_start DateTime?     @db.Timestamptz(3)
+  dccs              DCCOutreach[]
+
+  @@map("outreach")
+  @@schema("public")
+}
+
+model DCCOutreach {
+  outreach_id String
+  dcc_id      String
+  dcc         DCC      @relation(fields: [dcc_id], references: [id])
+  outreach    Outreach @relation(fields: [outreach_id], references: [id])
+
+  @@id([outreach_id, dcc_id])
+  @@map("dcc_outreach")
+  @@schema("public")
+}
+
+model Partnerships {
+  id          String            @id @default(uuid())
+  title       String
+  description String?
+  active      Boolean           @default(true)
+  image       String?
+  dccs        DCCPartnerships[]
+
+  @@map("partnerships")
+  @@schema("public")
+}
+
+model DCCPartnerships {
+  partnership_id String
+  dcc_id         String
+  dcc            DCC          @relation(fields: [dcc_id], references: [id])
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+
+  @@id([partnership_id, dcc_id])
+  @@map("dcc_partnerships")
+  @@schema("public")
+}
+
+model Tool {
+  id           String        @id @default(uuid())
+  label        String
+  description  String?
+  url          String
+  icon         String?
+  publications Publication[]
+
+  @@map("tools")
+  @@schema("public")
+}
+
+model DccAsset {
+  filetype         String
+  filename         String
+  link             String              @unique
+  size             BigInt?
+  lastmodified     DateTime            @default(now())
+  current          Boolean             @default(true)
+  creator          String?
+  annotation       Json?
+  dcc_id           String
+  drcapproved      Boolean             @default(false)
+  dccapproved      Boolean             @default(false)
+  etag             String?
+  c2m2_datapackage C2M2Datapackage?
+  node             DCCAssetNode?
+  creatorId        User?               @relation(fields: [creator], references: [email])
+  dcc              DCC                 @relation(fields: [dcc_id], references: [id])
+  library          GeneSetLibraryNode?
+
+  @@id([dcc_id, filetype, link, lastmodified])
+  @@unique([dcc_id, filetype, link, lastmodified])
+  @@map("dcc_assets")
+  @@schema("public")
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model Node {
+  dcc_id           String?
+  id               String                   @id @db.Uuid
+  type             NodeType
+  label            String
+  description      String
+  searchable       Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
+  c2m2_file        C2M2FileNode?
+  dcc_asset        DCCAssetNode?
+  entity           EntityNode?
+  gene_set_library GeneSetLibraryNode?
+  gene_set         GeneSetNode?
+  kg_relation_node KGRelationNode?
+  dcc              DCC?                     @relation(fields: [dcc_id], references: [id])
+
+  @@index([type])
+  @@index([label(ops: raw("gin_trgm_ops"))], map: "node_label_trgm", type: Gin)
+  @@index([searchable], map: "node_searchable_fts", type: Gin)
+  @@map("node")
+  @@schema("public")
+}
+
+model EntityNode {
+  id               String        @id @db.Uuid
+  type             String
+  node             Node          @relation(fields: [id], references: [id])
+  gene             GeneEntity?
+  sourceAssertions KGAssertion[] @relation("source")
+  targetAssertions KGAssertion[] @relation("target")
+
+  @@map("entity_node")
+  @@schema("public")
+}
+
+model KGRelationNode {
+  id         String        @id @db.Uuid
+  assertions KGAssertion[]
+  node       Node          @relation(fields: [id], references: [id])
+
+  @@map("kg_relation_node")
+  @@schema("public")
+}
+
+model KGAssertion {
+  id          String         @id @db.Uuid
+  relation_id String         @db.Uuid
+  source_id   String         @db.Uuid
+  target_id   String         @db.Uuid
+  dcc_id      String?
+  SAB         String
+  evidence    Json?
+  dcc         DCC?           @relation(fields: [dcc_id], references: [id])
+  relation    KGRelationNode @relation(fields: [relation_id], references: [id])
+  source      EntityNode     @relation("source", fields: [source_id], references: [id])
+  target      EntityNode     @relation("target", fields: [target_id], references: [id])
+
+  @@map("kg_assertion")
+  @@schema("public")
+}
+
+model GeneEntity {
+  id                 String               @id @db.Uuid
+  entrez             String
+  ensembl            String
+  entity             EntityNode           @relation(fields: [id], references: [id])
+  gene_set_libraries GeneSetLibraryNode[] @relation("GeneEntityToGeneSetLibraryNode")
+  gene_sets          GeneSetNode[]        @relation("GeneEntityToGeneSetNode")
+
+  @@map("gene_entity")
+  @@schema("public")
+}
+
+model GeneSetNode {
+  id                  String             @id @db.Uuid
+  gene_set_library_id String             @db.Uuid
+  gene_set_library    GeneSetLibraryNode @relation(fields: [gene_set_library_id], references: [id])
+  node                Node               @relation(fields: [id], references: [id])
+  genes               GeneEntity[]       @relation("GeneEntityToGeneSetNode")
+
+  @@map("gene_set_node")
+  @@schema("public")
+}
+
+model GeneSetLibraryNode {
+  id             String        @id @db.Uuid
+  dcc_asset_link String        @unique
+  dcc_asset      DccAsset      @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
+  node           Node          @relation(fields: [id], references: [id])
+  gene_sets      GeneSetNode[]
+  genes          GeneEntity[]  @relation("GeneEntityToGeneSetLibraryNode")
+
+  @@map("gene_set_library_node")
+  @@schema("public")
+}
+
+model C2M2FileNode {
+  id                  String          @id @db.Uuid
+  c2m2_datapackage_id String          @db.Uuid
+  creation_time       DateTime?       @db.Timestamptz(6)
+  persistent_id       String?
+  size_in_bytes       BigInt?
+  file_format         String?
+  data_type           String?
+  assay_type          String?
+  c2m2_datapackage    C2M2Datapackage @relation(fields: [c2m2_datapackage_id], references: [id], onDelete: Cascade)
+  node                Node            @relation(fields: [id], references: [id])
+
+  @@map("c2m2_file_node")
+  @@schema("public")
+}
+
+model C2M2Datapackage {
+  id             String         @id @db.Uuid
+  dcc_asset_link String         @unique
+  dcc_asset      DccAsset       @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
+  c2m2_files     C2M2FileNode[]
+
+  @@map("c2m2_datapackage")
+  @@schema("public")
+}
+
+model DCCAssetNode {
+  id        String   @id @db.Uuid
+  link      String   @unique
+  node      Node     @relation(fields: [id], references: [id])
+  dcc_asset DccAsset @relation(fields: [link], references: [link])
+
+  @@map("dcc_asset_node")
+  @@schema("public")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@schema("public")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("public")
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  dcc           String?
+  role          Role       @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  dccAsset      DccAsset[]
+
+  @@schema("public")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@schema("public")
+}
+
+enum NodeType {
+  entity
+  gene_set
+  gene_set_library
+  c2m2_file
+  kg_relation
+  dcc_asset
+
+  @@schema("public")
+}
+
+enum Role {
+  USER
+  DCC_APPROVER
+  UPLOADER
+  DRC_APPROVER
+  ADMIN
+
+  @@schema("public")
 }

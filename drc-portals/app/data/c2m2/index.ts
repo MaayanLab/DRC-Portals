@@ -1,3 +1,4 @@
+// if schema changes run the commands in
 // npx prisma generate
 // then run this
 
@@ -6,8 +7,8 @@ import { PrismaClient } from '@prisma/client/'
 const prisma = new PrismaClient()
 
 async function main() {
-  const allUsers = await prisma.biosample_substance.findMany()
-  console.log(allUsers)
+  const allsamples = await prisma.geneEntity.findMany()
+  console.log(allsamples)
 }
 
 main()
