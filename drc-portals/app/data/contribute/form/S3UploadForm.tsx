@@ -9,15 +9,46 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FileDrop } from './FileDrop'
-import ThemedBox from './ThemedBox';
 import ThemedStack from './ThemedStack';
 import Status from './Status';
 import DCCSelect from './DCCSelect';
 import { $Enums } from '@prisma/client';
-import { Box, Link } from '@mui/material';
+import { Box, Link, Stack } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
+import AssetInfoDrawer from '../AssetInfo';
+import HelpIcon from '@mui/icons-material/Help';
+
+export const metaDatasAsetOptions = [
+  {
+    asset: 'XMT',
+    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character. All uploaded files with an extension that ends with the letters “mt” are considered as XMT files by the ingestion system. 
+    </Typography>,
+    example: <Link href="https://cfde-drc.s3.amazonaws.com/GTEx/XMT/2023-03-10/GTEx_XMT_2023-03-10_GTEx_Tissues_V8_2023.gmt" color="secondary" target="_blank">GTEx_Tissues_V8_2023.gmt</Link>
+  },
+  {
+    asset: 'C2M2',
+    description:
+      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Standards and Protocols page of the CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the ingestion system. 
+      </Typography>,
+    example: <Link href="https://cfde-drc.s3.amazonaws.com/LINCS/C2M2/2023-09-18/LINCS_C2M2_2023-09-18_datapackage.zip" color="secondary">datapackage.zip</Link>
+  },
+  {
+    asset: 'KG Assertions',
+    description: <Typography fontSize={12}>A knowledge graph is a network that illustrates the relationship between different entities which may come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the entities represented in the knowledge graph e.g GO Ontology terms and edges characterize the relationship between nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and edges that could be used to create a knowledge graph. 
+    For example, a KG Assertion file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship. All uploaded files with .csv extensions are considered KG Assertion files by the ingestion system.
+    </Typography>,
+    example: <Link href='https://cfde-drc.s3.amazonaws.com/GTEx/KG/2023-10-26/GTEx_KG_2023-10-26_GTEX.edges.csv' target="_blank" color="secondary"><u>GTEX.edges.csv</u></Link>
+  },
+  {
+    asset: 'Attribute Table',
+    description: <Typography fontSize={12}>Attribute tables are files containing tables that describe the relationship between two entities with one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a given row and column is then a value defining nature of the relationship between the row entity and the column entity e.g. the qualitative score of similarity between a given gene and a given tissue type. All uploaded files with .txt extensions are considered Attribute Table files by the ingestion system. </Typography>,
+    example: <Link href='' color="secondary" target="_blank"><u></u></Link>
+  },
+
+]
+
 
 
 export type S3UploadStatus = {
@@ -34,7 +65,8 @@ const S3UploadStatusContext = React.createContext({} as S3UploadStatus)
 
 function parseFileTypeClient(filename: string, filetype: string) {
   let parsedFileType = ''
-  if (filename.includes('.gmt') || filename.includes('.dmt')) {
+  let extension = filename.split('.')[1]
+  if (extension.slice(-2) === 'mt') {
     parsedFileType = 'XMT'
   } else if (filetype === 'text/csv') {
     parsedFileType = 'KG Assertions'
@@ -151,10 +183,13 @@ export function S3UploadForm(user: {
     }}>
       <S3UploadStatusContext.Provider value={status}>
         <Container>
-          <Typography variant="h3" color="secondary.dark" className='p-5'>DATA AND METADATA UPLOAD FORM</Typography>
+          <Stack direction="row" alignItems="center" gap={1}>
+          <Typography variant="h3" color="secondary.dark" sx={{mb:2, ml:2, mt:2}} >DATA AND METADATA UPLOAD FORM</Typography>
+            <AssetInfoDrawer assetOptions={metaDatasAsetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
+          </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             This is the form to upload the data/metadata files for your DCC. Select the DCC for which the files belong and
-            drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not leave 
+            drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not leave
             the page until all files have been successfully uploaded.
             <br></br>
             All uploaded files with .csv extensions are tagged as KG Assertion files. All uploaded files with .txt
@@ -164,6 +199,8 @@ export function S3UploadForm(user: {
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
+            <br></br>
+            <AssetInfoDrawer assetOptions={metaDatasAsetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
           </Typography>
           <Grid container spacing={4} justifyContent="center" sx={{ p: 5 }}>
             <TextField
