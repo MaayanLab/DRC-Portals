@@ -28,15 +28,15 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/info/coming_soon">
+                  <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/info/outreach">
                     <Typography variant="nav">TRAINING & OUTREACH</Typography>
                   </Link>
-                  <Link href="/info/coming_soon">
+                  {/* <Link href="/info/coming_soon">
                     <Typography variant="nav">PRODUCTS</Typography>
-                  </Link>
+                  </Link> */}
                   <Link href="/info/publications">
                     <Typography variant="nav">PUBLICATIONS</Typography>
                   </Link>
@@ -45,18 +45,19 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/data" target="_blank" rel="noopener noreferrer">
+                  <Link href="/data">
                     <Typography variant="nav">DATA PORTAL</Typography>
                   </Link>
-                  <Link href="/info/coming_soon">
+                  {/* <Link href="/info/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
-                  </Link>
+                  </Link> */}
                   <Link href="/info/dcc">
                     <Typography variant="nav">DCCs</Typography>
                   </Link>
                   <Link href="/info/coming_soon">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
+                  <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                 </Stack>
               </Grid>
               <Grid item>
@@ -66,9 +67,6 @@ export default async function InfoHeader() {
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>

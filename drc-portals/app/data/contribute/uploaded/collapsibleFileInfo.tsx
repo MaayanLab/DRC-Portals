@@ -5,10 +5,7 @@ import { IconButton, Link, Typography } from '@mui/material';
 import * as React from 'react';
 import Collapse from '@mui/material/Collapse';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
 import type { DccAsset } from '@prisma/client'
@@ -31,7 +28,7 @@ export function FileInfo({ open, fileInfo }: {
     fileInfo: {
         fileName: string,
         fileLink: string,
-        etag: string | null
+        sha256checksum: string | null
     }
 }
 ) {
@@ -47,8 +44,8 @@ export function FileInfo({ open, fileInfo }: {
                         <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell variant="head">Checksum (MD5)</TableCell>
-                        <TableCell>{fileInfo.etag}</TableCell>
+                        <TableCell variant="head">Checksum (SHA256)</TableCell>
+                        <TableCell>{fileInfo.sha256checksum ? Buffer.from(fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
                     </TableRow>
                 </Table>
             </Box>
@@ -56,10 +53,10 @@ export function FileInfo({ open, fileInfo }: {
     )
 }
 
-export function FileRow({userFile, approvedSymboldcc, approvedSymbol} : {userFile: {dcc: {
+export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSymbol} : {userFile: {dcc: {
     label: string;
 } | null;
-} & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element}) {
+} & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element}) {
     const [open, setOpen] = React.useState(false);
     return (
         <>
@@ -70,16 +67,15 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol} : {userFil
                 <TableCell><CollapsibleArrow open={open} setOpen={setOpen}/></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toUTCString()}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
-                {/* <TableCell sx={{ fontSize: 14 }} align="center"><Link color="secondary" href={userFile.link} target="_blank" rel="noopener">{userFile.filename}</Link></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.etag}</TableCell> */}
+                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'etag': userFile.etag }} />
+                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'sha256checksum': userFile.sha256checksum }} />
                 </TableCell>
             </TableRow>
         </>

@@ -13,7 +13,7 @@ export default async function Layout(props: {
   return (
     <LandingPageLayout
       title={item.node.label}
-      subtitle={type_to_string('entity', props.params.entity_type)}
+      subtitle={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
       description={format_description(item.node.description)}
     >
       {props.children}

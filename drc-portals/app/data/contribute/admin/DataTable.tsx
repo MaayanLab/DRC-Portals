@@ -42,7 +42,7 @@ const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'name', headerName: 'Name', width: 200 },
     { field: 'email', headerName: 'Email', width: 250 },
-    { field: 'dcc', headerName: 'DCC', width: 300 },
+    { field: 'dcc', headerName: 'DCC', width: 330 },
     { field: 'role', headerName: 'Role', width: 200 },
 
 ];
@@ -136,7 +136,7 @@ export default function DataTable(props: {
 
     return (
         <>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ml: 3}}>
                 {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
                 <div>
                     <Dialog open={createOpen} onClose={handleCreateClose} fullWidth>
@@ -161,6 +161,7 @@ export default function DataTable(props: {
                                     id="input-email"
                                     label="Email"
                                     name='email'
+                                    type='email'
                                     inputProps={{ style: { fontSize: 16 } }}
                                     InputLabelProps={{ style: { fontSize: 16 } }}
                                     required
@@ -244,7 +245,11 @@ export default function DataTable(props: {
                     pageSizeOptions={[5, 10]}
                     checkboxSelection
                     onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
-                    sx={{ fontSize: 14 }}
+                    sx={{ fontSize: 14,
+                        '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                            backgroundColor: "white", },
+                            ml:3
+                        }}
                 />
             </div>
         </>

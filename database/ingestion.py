@@ -8,6 +8,8 @@ from ingest_common import (
   dcc_assets_path,
   partnerships_path,
   dcc_partnerships_path,
+  partnership_publications_path,
+  tools_path,
 )
 
 cur = connection.cursor()
@@ -19,14 +21,14 @@ cur.execute('''
 
 with open(dcc_path(), 'r') as fr:
     cur.copy_from(fr, 'dcc_tmp',
-      columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner'),
+      columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner', 'cf_site'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner)
-      select id, label, short_label, description, homepage, icon, cfde_partner
+    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, cf_site)
+      select id, label, short_label, description, homepage, icon, cfde_partner, cf_site
       from dcc_tmp
       on conflict (id)
         do update
@@ -35,12 +37,45 @@ cur.execute('''
             description = excluded.description,
             homepage = excluded.homepage,
             icon = excluded.icon,
-            cfde_partner = excluded.cfde_partner
+            cfde_partner = excluded.cfde_partner,
+            cf_site = excluded.cf_site
     ;
   ''')
 cur.execute('drop table dcc_tmp;')
 connection.commit()
 
+# tools
+cur = connection.cursor()
+cur.execute('''
+  create table tool_tmp
+  as table tools
+  with no data;
+''')
+
+with open(tools_path(), 'r') as fr:
+    cur.copy_from(fr, 'tool_tmp',
+      columns=("id", "label", "description", "url", "icon"),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into tools (id, label, description, url, icon)
+      select id, label, description, url, icon
+      from tool_tmp
+      on conflict (id)
+        do update
+        set id = excluded.id,
+            label = excluded.label,
+            description = excluded.description,
+            url = excluded.url,
+            icon = excluded.icon
+    ;
+  ''')
+cur.execute('drop table tool_tmp;')
+connection.commit()
+
+# Publication
 cur = connection.cursor()
 cur.execute('''
   create table publication_tmp
@@ -50,14 +85,14 @@ cur.execute('''
 
 with open(publications_path(), 'r') as fr:
     cur.copy_from(fr, 'publication_tmp',
-      columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark"),
+      columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark", "tool_id"),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark
+    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id)
+      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id
       from publication_tmp
       on conflict (id)
         do update
@@ -72,7 +107,8 @@ cur.execute('''
             pmcid = excluded.pmcid,
             doi = excluded.doi,
             authors = excluded.authors,
-            landmark = excluded.landmark
+            landmark = excluded.landmark,
+            tool_id = excluded.tool_id
     ;
   ''')
 cur.execute('drop table publication_tmp;')
@@ -172,6 +208,10 @@ connection.commit()
 ## Partnerships
 
 cur = connection.cursor()
+# cur.execute('DELETE FROM dcc_partnerships')
+# cur.execute('DELETE FROM partnership_publications')
+# cur.execute('DELETE FROM partnerships')
+
 cur.execute('''
   create table partnerships_tmp
   as table partnerships
@@ -180,21 +220,22 @@ cur.execute('''
 
 with open(partnerships_path(), 'r') as fr:
     cur.copy_from(fr, 'partnerships_tmp',
-      columns=('id', 'title', 'description', 'active', 'image'),
+      columns=('id', 'title', 'description', 'status', 'website', 'image'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into partnerships (id, title, description, active, image)
-      select id, title, description, active, image
+    insert into partnerships (id, title, description, status, website, image)
+      select id, title, description, status, website, image
       from partnerships_tmp
       on conflict (id)
         do update
         set id = excluded.id,
             title = excluded.title,
             description = excluded.description,
-            active = excluded.active,
+            status = excluded.status,
+            website = excluded.website,
             image = excluded.image
     ;
   ''')
@@ -226,6 +267,30 @@ cur.execute('''
 cur.execute('drop table dcc_partnerships_tmp;')
 connection.commit()
 
+cur = connection.cursor()
+cur.execute('''
+  create table partnership_publications_tmp
+  as table partnership_publications
+  with no data;
+''')
+
+with open(partnership_publications_path(), 'r') as fr:
+    cur.copy_from(fr, 'partnership_publications_tmp',
+      columns=("partnership_id", "publication_id"),
+      null='',
+      sep='\t',
+    )
+
+cur.execute('''
+    insert into partnership_publications (partnership_id, publication_id)
+      select partnership_id, publication_id
+      from partnership_publications_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table partnership_publications_tmp;')
+connection.commit()
 
 # DCC Assets
 cur = connection.cursor()

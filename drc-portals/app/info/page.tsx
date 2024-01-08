@@ -19,7 +19,7 @@ import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
-import PublicationComponent from "@/components/misc/PublicationComponent"
+import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
@@ -101,51 +101,55 @@ export default async function Home() {
                         <Outreach orientation="vertical"/> 
                         {/* <Link href="/info/outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}
                         <Paper elevation={0}>
-                          <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
-                          <Link href='/data'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              DATA PORTAL
-                            </Button>
-                          </Link>
-                          <Link href='/data/coming_soon'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              KNOWLEDGE PORTAL
-                            </Button>
-                          </Link>
-                          <Link href='/info/dcc'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              DCCS
-                            </Button>
-                          </Link>
-                          <Link href='/info/coming_soon'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              STANDARDS & PROTOCOLS
-                            </Button>
-                          </Link>
+                          <Stack>
+                            <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
+                            <Link href='/data'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                DATA PORTAL
+                              </Button>
+                            </Link>
+                            <Link href='/data/chat'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                CHAT
+                              </Button>
+                            </Link>
+                            <Link href='/info/dcc'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                DCCS
+                              </Button>
+                            </Link>
+                            <Link href='/info/coming_soon'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                STANDARDS & PROTOCOLS
+                              </Button>
+                            </Link>
+                          </Stack>
                         </Paper>
                         <Divider/>
                         <Paper elevation={0}>
-                          <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">COMMUNITY</Typography>
-                          <Link href='/info/coming_soon'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              PARTNERSHIPS
-                            </Button>
-                          </Link>
-                          <Link href='/info/outreach'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              TRAINING & OUTREACH
-                            </Button>
-                          </Link>
-                          <Link href='/info/coming_soon'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              PRODUCTS
-                            </Button>
-                          </Link>
-                          <Link href='/info/publications'>
-                            <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              PUBLICATIONS
-                            </Button>
-                          </Link>
+                          <Stack>
+                            <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">COMMUNITY</Typography>
+                            <Link href='/info/coming_soon'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                PARTNERSHIPS
+                              </Button>
+                            </Link>
+                            <Link href='/info/outreach'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                TRAINING & OUTREACH
+                              </Button>
+                            </Link>
+                            <Link href='/data/tools_and_workflows'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                TOOLS & WORKFLOWS
+                              </Button>
+                            </Link>
+                            <Link href='/info/publications'>
+                              <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                PUBLICATIONS
+                              </Button>
+                            </Link>
+                          </Stack>
                         </Paper>
                       </Stack>
                 </Grid>
@@ -172,7 +176,7 @@ export default async function Home() {
         </Grid>
         <Grid item xs={12} md={1}></Grid>
         <Grid item xs={12} md={6}>
-          <CFPrograms spacing={2}/>
+          <CFPrograms baseEndpoint="/info/dcc" spacing={2}/>
         </Grid>
         <Grid item xs={12} sx={{marginTop: 10}}>
           <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
@@ -264,7 +268,7 @@ export default async function Home() {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 120}}variant="subtitle1">PUBLICATIONS</Typography>
-                    <PublicationComponent publications={publications}/>
+                    <SimplePublicationComponent publications={publications}/>
                     <Link href={"/info/publications"}>
                       <Button color="secondary" variant="outlined">
                         Show More

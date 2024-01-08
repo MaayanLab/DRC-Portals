@@ -1,21 +1,12 @@
 import * as React from 'react';
 import Container from '@mui/material/Container'
-import { BsCheckCircleFill } from "react-icons/bs";
-import { FaCircleExclamation } from "react-icons/fa6";
-import { Alert, Typography } from '@mui/material';
+import { Alert, Link, Typography } from '@mui/material';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import { redirect } from 'next/navigation';
-import ApprovalBtn from './ApprovalBtn';
-import { FileRow } from './collapsibleFileInfo';
+import { PaginatedTable } from './PaginatedTable';
+import Nav from '../Nav';
 
 
 export default async function UserFiles() {
@@ -44,7 +35,7 @@ export default async function UserFiles() {
     if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
 
     if (!user.email) return (
-        <Alert severity="warning"> Email not updated on user account. Please enter email on the Accounts Page</Alert>
+        <Alert severity="warning"> Email not updated on user account. Please enter email on My Account Page</Alert>
     );
 
     if (!user.dcc) return (
@@ -73,74 +64,50 @@ export default async function UserFiles() {
     })
 
 
-    let symbolUserFiles = []
+    let userFiles = []
+    let headerText;
 
     if (user.role === 'UPLOADER') {
         // const userFiles = user.dccAsset
-        const userFiles = allFiles
+        userFiles = allFiles
+        headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
+        These are all files that have been you have uploaded for all the DCCs you are affiliated with.
+        Expand each file to download or view the SHA256 checksum of each file.
+        <br></br>
+        See the {' '}
+        <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
+        and current statuses of each file.
+    </Typography>
 
-        symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let approvedSymbol = <FaCircleExclamation size={20} />
-            if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
-            }
-            if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
-            }
-            return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
-            )
-        })
     } else if (user.role === 'DCC_APPROVER') {
-        const userFiles = allFiles
-        symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-            let approvedSymbol = <FaCircleExclamation size={20} />
-            if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
-            }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />)
-        })
-
+        userFiles = allFiles
+        headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
+        These are all files that have been uploaded for your affiliated DCCs. 
+        Expand each file to download or view the SHA256 checksum of each file.
+        <br></br>
+        See the {' '}
+        <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
+        and current statuses of each file and the steps to approve a file or change its current status.
+    </Typography>
     } else {
-        const userFiles = allFiles
-        symbolUserFiles = userFiles.map((userFile) => {
-            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
-            }
-            return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} />
-            )
-        })
+        userFiles = allFiles
+        headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
+        These are all files that have been uploaded for all the DCCs. 
+        Expand each file to download or view the SHA256 checksum of each file.
+        <br></br>
+        See the {' '}
+        <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
+        and current statuses of each file and the steps to approve a file or change its current status.
+    </Typography>
     }
 
     return (
         <>
-            <Container className="mt-10 justify-content-center" sx={{ mb: 5 }}>
-                <Typography variant="h3" className='text-center p-5'>Uploaded Files</Typography>
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell />
-                                <TableCell sx={{ fontSize: 14 }} align="center">Date Uploaded</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Uploaded By</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">DCC</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">File Type</TableCell>
-                                {/* <TableCell sx={{ fontSize: 14 }} align="center">Uploaded File</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">Checksum (MD5)</TableCell> */}
-                                <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
-                                <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {symbolUserFiles}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+            <Nav />
+            <Container className="justify-content-center">
+                <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED FILES</Typography>
+                {headerText}
+                <PaginatedTable userFiles={userFiles} role={user.role} />
             </Container>
         </>
     );

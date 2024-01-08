@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import MasonryClient from "@/components/misc/MasonryClient";
 import prisma from "@/lib/prisma";
 import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent'
@@ -27,40 +27,42 @@ export default async function DCCLanding() {
     }))
 
     return (
-        <MasonryClient defaultHeight={1500}>
+        <Grid container spacing={2} alignItems={"flex-start"} className="pb-10">
             {dccs.map(dcc=>(
-                <Card sx={{paddingLeft: 2, paddingRight: 2}}>
-                    {dcc.icon &&
-                        <CardHeader
-                            avatar={<Image alt={dcc.id} width={80} height={80} src={dcc.icon} />}
-                            title={<Typography variant="h3" color="secondary">{dcc.short_label}</Typography>}
-                        />
-                    }
-                    <CardContent>
-                        <Typography sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: '5',
-                            WebkitBoxOrient: 'vertical',
-                        }} variant={'body2'} color="secondary">
-                            {dcc.description}
-                        </Typography>
-                    </CardContent>
-                    <CardActions>
-                        <Link href={`/info/dcc/${dcc.short_label}`}>
-                            <Button color="secondary">
-                                <Typography variant="body1">Expand</Typography>
-                            </Button>
-                        </Link>
-                        <Link href={dcc.homepage}>
-                            <Button color="secondary">
-                                <Typography variant="body1">Go to DCC portal</Typography>
-                            </Button>
-                        </Link>
-                    </CardActions>
-                </Card>
+                <Grid item xs={12} sm={6} md={4} key={dcc.short_label}>
+                    <Card sx={{paddingLeft: 2, paddingRight: 2}}>
+                        {dcc.icon &&
+                            <CardHeader
+                                avatar={<Image alt={dcc.id} width={80} height={80} src={dcc.icon} />}
+                                title={<Typography variant="h3" color="secondary">{dcc.short_label}</Typography>}
+                            />
+                        }
+                        <CardContent>
+                            <Typography sx={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: '5',
+                                WebkitBoxOrient: 'vertical',
+                            }} variant={'body2'} color="secondary">
+                                {dcc.description}
+                            </Typography>
+                        </CardContent>
+                        <CardActions>
+                            <Link href={`/info/dcc/${dcc.short_label}`}>
+                                <Button color="secondary">
+                                    <Typography variant="body1">Expand</Typography>
+                                </Button>
+                            </Link>
+                            <Link href={dcc.homepage}>
+                                <Button color="secondary">
+                                    <Typography variant="body1">Go to DCC portal</Typography>
+                                </Button>
+                            </Link>
+                        </CardActions>
+                    </Card>
+                </Grid>
             ))}
-        </MasonryClient>
+        </Grid>
     )
 }

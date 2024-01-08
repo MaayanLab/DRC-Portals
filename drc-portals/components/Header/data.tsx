@@ -22,20 +22,21 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
-                <Logo href={`/data`} title="CFDE Workbench"  color="secondary"/>
+                <Logo href={`/info`} title="CFDE Workbench"  color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/data/coming_soon" target="_blank" rel="noopener noreferrer">
+                  <Link href="/data/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
-                  <Link href="/data/coming_soon">
+                  <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/data/contribute/form">
                     <Typography variant="nav">CONTRIBUTE</Typography>
                   </Link>
-                    <UserComponent session={session}/>
+                  <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
+                  <UserComponent session={session}/>
                 </Stack>
               </Grid>
               <Grid item xs={12}></Grid>
@@ -47,19 +48,16 @@ export default async function InfoHeader() {
                     <Link href="/data/matrix">
                       <Typography variant="nav">DATA MATRIX</Typography>
                     </Link>
-                    <Link href="/data/coming_soon">
+                    <Link href="/data/tools_and_workflows">
                       <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                     </Link>
-                    <Link href="/data/coming_soon">
+                    {/* <Link href="/data/coming_soon">
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
-                    </Link>
+                    </Link> */}
                   </Stack>
               </Grid>
               <Grid item>
                 <SearchParamSearchField />
-              </Grid>
-              <Grid item xs={12}>
-                <NavBreadcrumbs/>
               </Grid>
             </Grid>
         </Toolbar>
