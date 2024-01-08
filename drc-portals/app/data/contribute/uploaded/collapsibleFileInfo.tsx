@@ -9,6 +9,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
 import type { DccAsset } from '@prisma/client'
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 export function CollapsibleArrow({open, setOpen}: {open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
@@ -58,6 +59,11 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
 } | null;
 } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element}) {
     const [open, setOpen] = React.useState(false);
+
+    const deleteRow = () => {
+        
+    }
+
     return (
         <>
             <TableRow
@@ -72,6 +78,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><button onClick={() => deleteRow()}><DeleteIcon /></button></div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>

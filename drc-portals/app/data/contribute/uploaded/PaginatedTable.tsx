@@ -182,6 +182,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                 <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"></TableCell>
             </TableRow>
         </TableHead>
     );
