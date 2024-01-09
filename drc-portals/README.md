@@ -22,6 +22,17 @@ The pages will auto-update as you edit the files.
 
 Much of the site is driven by contents of the database, see [Provisioning the Database](../database/README.md) to populate your database with CFDE data.
 
+## Pulling New Changes
+
+As the site evolves, changes may be made to the database. For the most part you can update your code base like so:
+```bash
+# get the latest changes
+git pull
+# update your database to match any added fields/tables
+npx prisma migrate deploy
+# then rerun-ingest as during Provisioning the Database above
+```
+
 ## Learn More
 
 To use authentication see the [Auth README](./lib/auth/README.md) for more info.
