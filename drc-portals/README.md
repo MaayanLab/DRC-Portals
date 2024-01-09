@@ -5,6 +5,7 @@
 # prepare .env file & review
 cp .env.example .env
 # start database
+#  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
 docker-compose up -d drc-portal-postgres
 # install node modules
 npm i
