@@ -20,7 +20,7 @@ import { createPresignedUrl } from './UploadFunc'
 import AssetInfoDrawer from '../AssetInfo';
 import HelpIcon from '@mui/icons-material/Help';
 
-export const metaDatasAsetOptions = [
+export const metaDataAssetOptions = [
   {
     asset: 'XMT',
     description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character. All uploaded files with an extension that ends with the letters “mt” are considered as XMT files by the ingestion system. 
@@ -32,7 +32,7 @@ export const metaDatasAsetOptions = [
     description:
       <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Standards and Protocols page of the CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the ingestion system. 
       </Typography>,
-    example: <Link href="https://cfde-drc.s3.amazonaws.com/LINCS/C2M2/2023-09-18/LINCS_C2M2_2023-09-18_datapackage.zip" color="secondary">datapackage.zip</Link>
+    example: <Link href="https://cfde-drc.s3.amazonaws.com/MoTrPAC/C2M2/2023-07-14/MoTrPAC_C2M2_2023-07-14_datapackage.zip" color="secondary">datapackage.zip</Link>
   },
   {
     asset: 'KG Assertions',
@@ -185,7 +185,7 @@ export function S3UploadForm(user: {
         <Container>
           <Stack direction="row" alignItems="center" gap={1}>
           <Typography variant="h3" color="secondary.dark" sx={{mb:2, ml:2, mt:2}} >DATA AND METADATA UPLOAD FORM</Typography>
-            <AssetInfoDrawer assetOptions={metaDatasAsetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
+            <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
           </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             This is the form to upload the data/metadata files for your DCC. Select the DCC for which the files belong and
@@ -200,7 +200,7 @@ export function S3UploadForm(user: {
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
             <br></br>
-            <AssetInfoDrawer assetOptions={metaDatasAsetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
+            <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
           </Typography>
           <Grid container spacing={4} justifyContent="center" sx={{ p: 5 }}>
             <TextField
