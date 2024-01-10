@@ -36,12 +36,12 @@ def upload_file(file_name, bucket, object_name=None):
 bucket = 'cfde-drc'
 
 filename = sys.argv[1]
-dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0)
+dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=None)
 # map dcc names to their respective ids
 dcc_mapper = {}
 for i, v in dccs.iloc[:,1].items():
     dcc_mapper[v] = i
-
+print(dcc_mapper)
 now = str(date.today()).replace("-", "")
 df = pd.read_csv(filename, sep="\t")
 outreach_columns = [i for i in df.columns if not i == 'dcc']
