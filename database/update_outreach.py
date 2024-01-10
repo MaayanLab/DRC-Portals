@@ -65,11 +65,19 @@ dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
 outreach_df.to_csv(outreach_file, sep="\t", header=None, quoting=csv.QUOTE_NONE)
 dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=None, index=None)
 
+print("Uploading to s3")
+
 filename = outreach_file.replace('outreach_files', 'database/outreach_files')
+print(filename)
+upload_file(outreach_file, bucket, filename)
+filename = filename.replace(now, "current")
 print(filename)
 upload_file(outreach_file, bucket, filename)
 
 filename = dcc_outreach_file.replace('outreach_files', 'database/outreach_files')
+print(filename)
+upload_file(dcc_outreach_file, bucket, filename)
+filename = filename.replace(now, "current")
 print(filename)
 upload_file(dcc_outreach_file, bucket, filename)
 
