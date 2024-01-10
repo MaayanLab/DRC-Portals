@@ -26,7 +26,7 @@ export const assetOptions = [
         asset: 'ETL',
         description: <Typography fontSize={12}>Extract, transform, load (ETL) is the process of converting the DCC raw data into various processed data formats such as the C2M2, XMT, KG assertions, attribute tables, and database tables.The ETL URL should point to the DCC GitHub repo containing the scripts that process the data by the DCC to generate these processed datasets.
         </Typography>,
-        example: <Link href="https://github.com/nih-cfde/LINCS-metadata/blob/main/scripts/build_file_lincs2021.py" color="secondary" target="_blank">LINCS ETL script</Link>
+        example: <Typography></Typography>
     },
     {
         asset: 'API',
