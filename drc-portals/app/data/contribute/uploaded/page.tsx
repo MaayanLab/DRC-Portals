@@ -32,14 +32,25 @@ export default async function UserFiles() {
 
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this page
-    if (user.role === 'USER') { return <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p> }
+    if (user.role === 'USER') { 
+        return (
+        <>
+        <Nav />
+        <p>Access Denied. This page is only accessible to DCC Uploaders, DCC Approvers and DRC Approvers</p>
+        </> )}
 
     if (!user.email) return (
-        <Alert severity="warning"> Email not updated on user account. Please enter email on My Account Page</Alert>
+        <>
+        <Nav />
+        <Alert severity="warning"> Email not updated on user account. Please enter email on the My Account Page</Alert>
+        </>
     );
 
     if (!user.dcc) return (
+        <>
+        <Nav />
         <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
+        </>
     );
 
     const userDCCArray = user.dcc.split(',')
@@ -58,7 +69,8 @@ export default async function UserFiles() {
                         in: userDCCArray
                     }
                 }
-            } : {})
+            } : {}),
+            deleted: false
         }
 
     })
