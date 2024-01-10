@@ -26,7 +26,11 @@ export default async function UsersTable() {
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
 
     if (!(user.role === 'ADMIN')) {
-        return (<p>Access Denied. This page is only accessible to Admin Users</p>)
+        return (
+            <>
+                <Nav />
+                <p>Access Denied. This page is only accessible to Admin Users</p>
+            </>)
     }
 
     const allUserData = await getUserData();
@@ -34,11 +38,11 @@ export default async function UsersTable() {
     const rawData = allUserData['users']
     return (
         <>
-        <Nav />
-        <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
-            <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
-            <DataTable rows={rowData} users={rawData} />
-        </Container>
+            <Nav />
+            <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
+                <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
+                <DataTable rows={rowData} users={rawData} />
+            </Container>
         </>
 
     )

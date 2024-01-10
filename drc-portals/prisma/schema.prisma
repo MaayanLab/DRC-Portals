@@ -154,7 +154,7 @@ model DccAsset {
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
   sha256checksum      String?
-
+  deleted          Boolean            @default(false)
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])
   @@map("dcc_assets")
