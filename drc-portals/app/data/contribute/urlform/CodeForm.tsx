@@ -44,8 +44,8 @@ export const assetOptions = [
         example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' target="_blank" color="secondary"><u>PWB Metanode example</u></Link>
     },
     {
-        asset: 'Entity Page Template and Example',
-        description: <Typography fontSize={12}>The Entity Page Template and Example are  links to: 1) a template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 2) The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. Example of a template from GTEx: https://www.gtexportal.org/home/gene/${`<GENE_NAME>`}. </Typography>,
+        asset: 'Entity Page Template',
+        description: <Typography fontSize={12}>The Entity Page Template and Example are links to: 1) a template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 2) The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. Example of a template from GTEx: https://www.gtexportal.org/home/gene/${`<GENE_NAME>`}. </Typography>,
         example: <Link href='https://www.gtexportal.org/home/gene/MAPK3' color="secondary" target="_blank"><u>Live entity page from GTEx</u></Link>
     },
     {
