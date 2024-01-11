@@ -100,7 +100,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                     </Card>
                 </Grid>
                 {(outreach.length > 0) && 
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} md={publications.length > 0 ? 3:12}>
                         <Paper sx={{padding: 2, textAlign: "center"}}>
                             <Typography sx={{color: "#FFF", background: "#7187c3", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
                             { (outreach === undefined || outreach.length === 0) ?
