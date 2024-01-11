@@ -56,10 +56,11 @@ for i in df.index:
     uid = str(uuid5(NAMESPACE_URL, title))
     v = {c: val[c] for c in outreach_columns}
     outreach_df.loc[uid] = val
-    for dcc in val["dcc"].split("; "):
-        dcc_id = dcc_mapper[dcc]
-        dcc_outreach_df.loc[ind] = [uid, dcc_mapper[dcc]]
-        ind += 1
+    if val["dcc"].strip() != '':
+        for dcc in val["dcc"].split("; "):
+            dcc_id = dcc_mapper[dcc]
+            dcc_outreach_df.loc[ind] = [uid, dcc_mapper[dcc]]
+            ind += 1
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
 outreach_df.to_csv(outreach_file, sep="\t", header=None, quoting=csv.QUOTE_NONE)
@@ -137,6 +138,10 @@ with open(dcc_outreach_file, 'r') as fr:
       null='',
       sep='\t',
     )
+
+cur.execute('''
+  DELETE FROM dcc_outreach;
+''')
 
 cur.execute('''
     insert into dcc_outreach (outreach_id, dcc_id)
