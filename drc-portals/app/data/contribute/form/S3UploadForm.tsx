@@ -19,25 +19,26 @@ import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
 import AssetInfoDrawer from '../AssetInfo';
 import HelpIcon from '@mui/icons-material/Help';
+import axios from "axios";
 
 export const metaDataAssetOptions = [
   {
     asset: 'XMT',
-    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character. All uploaded files with an extension that ends with the letters “mt” are considered as XMT files by the ingestion system. 
+    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character. All uploaded files with an extension that ends with the letters “mt” are considered as XMT files by the ingestion system.
     </Typography>,
     example: <Link href="https://cfde-drc.s3.amazonaws.com/GTEx/XMT/2023-03-10/GTEx_XMT_2023-03-10_GTEx_Tissues_V8_2023.gmt" color="secondary" target="_blank">GTEx_Tissues_V8_2023.gmt</Link>
   },
   {
     asset: 'C2M2',
     description:
-      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Standards and Protocols page of the CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the ingestion system. 
+      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Standards and Protocols page of the CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the ingestion system.
       </Typography>,
     example: <Link href="https://cfde-drc.s3.amazonaws.com/MoTrPAC/C2M2/2023-07-14/MoTrPAC_C2M2_2023-07-14_datapackage.zip" color="secondary">datapackage.zip</Link>
   },
   {
     asset: 'KG Assertions',
-    description: <Typography fontSize={12}>A knowledge graph is a network that illustrates the relationship between different entities which may come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the entities represented in the knowledge graph e.g GO Ontology terms and edges characterize the relationship between nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and edges that could be used to create a knowledge graph. 
-    For example, a KG Assertion file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship. All uploaded files with .csv extensions are considered KG Assertion files by the ingestion system.
+    description: <Typography fontSize={12}>A knowledge graph is a network that illustrates the relationship between different entities which may come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the entities represented in the knowledge graph e.g GO Ontology terms and edges characterize the relationship between nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and edges that could be used to create a knowledge graph.
+      For example, a KG Assertion file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship. All uploaded files with .csv extensions are considered KG Assertion files by the ingestion system.
     </Typography>,
     example: <Link href='https://cfde-drc.s3.amazonaws.com/GTEx/KG/2023-10-26/GTEx_KG_2023-10-26_GTEX.edges.csv' target="_blank" color="secondary"><u>GTEX.edges.csv</u></Link>
   },
@@ -117,7 +118,7 @@ export function S3UploadForm(user: {
   const [progress, setProgress] = React.useState(0);
 
 
-  const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number) => {
+  const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number, fileNumber: number) => {
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
     const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
     for (let start = 0; start < file.size; start += chunkSize) {
@@ -132,22 +133,29 @@ export function S3UploadForm(user: {
       })
     }
     const checksumHash = hash.getHash('B64')
-    console.log(checksumHash)
     let date = new Date().toJSON().slice(0, 10)
     let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
-    const awsPost = await fetch(presignedurl, {
-      method: 'PUT',
+ 
+
+    await axios.put(presignedurl, file, {
       headers: {
         'Content-Type': 'application/octet-stream',
         'x-amz-checksum-sha256': checksumHash
       },
-      body: file,
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+            const newProgress = ((fileNumber - 1) * progressAlloc) + ((0.667 * progressAlloc)) + ((progressEvent.loaded / progressEvent.total) * (0.333 * progressAlloc))
+            setProgress(newProgress);
+        }
+      },
+    }).catch(function (error) {
+      if (error.response) {
+        throw new Error(error.response.data)
+      }
     })
-    setProgress(oldProgress => oldProgress + progressAlloc / 3)
-    if (!awsPost.ok) throw new Error(await awsPost.text())
     return checksumHash
   }, [])
 
@@ -158,10 +166,17 @@ export function S3UploadForm(user: {
       setStatus(() => ({ loading: true }))
       const formData = new FormData(evt.currentTarget)
       let dcc = formData.get('dcc')?.toString()
-      if (uploadedfiles.length === 0) return setStatus(({ error: { selected: true, message: 'No files uploaded' } }))
+      if (uploadedfiles.length === 0) return setStatus(({ error: { selected: true, message: 'No files selected!' } }))
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         if (parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type) === '') {
-          setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .dmt or .gmt' } }))
+          setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .(x)mt' } }))
+          return
+        }
+      }
+
+      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+        if (uploadedfiles[i].size > 500000000) {
+          setStatus(({ error: { selected: true, message: 'File too large! Make sure that each file is less than 500MB' } }))
           return
         }
       }
@@ -170,7 +185,7 @@ export function S3UploadForm(user: {
         try {
           let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
           if (!dcc) throw new Error('no dcc entered')
-          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length))
+          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length), i+1)
           await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
         }
         catch (error) {
@@ -184,7 +199,7 @@ export function S3UploadForm(user: {
       <S3UploadStatusContext.Provider value={status}>
         <Container>
           <Stack direction="row" alignItems="center" gap={1}>
-          <Typography variant="h3" color="secondary.dark" sx={{mb:2, ml:2, mt:2}} >DATA AND METADATA UPLOAD FORM</Typography>
+            <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }} >DATA AND METADATA UPLOAD FORM</Typography>
             <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
           </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
