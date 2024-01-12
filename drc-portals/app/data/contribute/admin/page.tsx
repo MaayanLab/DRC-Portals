@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import DataTable from "./DataTable"
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, Grid } from '@mui/material';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -38,11 +38,17 @@ export default async function UsersTable() {
     const rawData = allUserData['users']
     return (
         <>
-            <Nav />
-            <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
-                <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
-                <DataTable rows={rowData} users={rawData} />
-            </Container>
+            <Grid container spacing={2} sx={{mt:2}}>
+                <Grid md={2} xs={12}>
+                    <Nav />
+                </Grid>
+                <Grid md={10} xs={12}>
+                    <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
+                        <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
+                        <DataTable rows={rowData} users={rawData} />
+                    </Container>
+                </Grid>
+            </Grid>
         </>
 
     )

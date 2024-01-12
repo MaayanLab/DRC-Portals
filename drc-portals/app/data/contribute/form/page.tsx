@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { S3UploadForm } from './S3UploadForm';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import { Alert } from '@mui/material';
+import { Alert, Grid } from '@mui/material';
 import Nav from '../Nav';
 
 export default async function UploadForm() {
@@ -17,32 +17,40 @@ export default async function UploadForm() {
   })
   if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
 
-  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN')) { return (
-    <>
-    <Nav />
-    <p>Access Denied. This page is only accessible to DCC Uploaders and DRC Approvers</p>
-    </>
-   )}
+  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN')) {
+    return (
+      <>
+        <Nav />
+        <p>Access Denied. This page is only accessible to DCC Uploaders and DRC Approvers</p>
+      </>
+    )
+  }
   if (!user.email) return (
     <>
-    <Nav />
-    <Alert severity="warning"> Email not updated on user account. Please enter email on the My Account Page</Alert>
+      <Nav />
+      <Alert severity="warning"> Email not updated on user account. Please enter email on the My Account Page</Alert>
     </>
   );
 
   if (!user.dcc) return (
     <>
-    <Nav />
-    <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
+      <Nav />
+      <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
     </>
   );
 
 
   return (
     <>
-      <Nav />
-      <S3UploadForm {...user}>
-      </S3UploadForm>
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid md={2} xs={12}>
+          <Nav />
+        </Grid>
+        <Grid md={10} xs={12}>
+          <S3UploadForm {...user}>
+          </S3UploadForm>
+        </Grid>
+      </Grid>
     </>
 
   );

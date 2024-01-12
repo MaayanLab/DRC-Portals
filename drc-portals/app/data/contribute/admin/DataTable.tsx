@@ -42,7 +42,7 @@ const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'name', headerName: 'Name', width: 200 },
     { field: 'email', headerName: 'Email', width: 250 },
-    { field: 'dcc', headerName: 'DCC', width: 330 },
+    { field: 'dcc', headerName: 'DCC', width: 200 },
     { field: 'role', headerName: 'Role', width: 200 },
 
 ];
