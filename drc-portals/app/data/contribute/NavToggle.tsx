@@ -35,9 +35,9 @@ export default function ColorToggleButton({ userAdmin }: { userAdmin: boolean })
             <ToggleButton value="/data/contribute/documentation" href="/data/contribute/documentation">
                 <Typography variant="nav">DOCUMENTATION</Typography>
             </ToggleButton>
-            <ToggleButton value="/data/contribute/account" href="/data/contribute/account">
+            {/* <ToggleButton value="/data/contribute/account" href="/data/contribute/account">
                 <Typography variant="nav">MY ACCOUNT</Typography>
-            </ToggleButton>
+            </ToggleButton> */}
             {userAdmin && <ToggleButton value="/data/contribute/admin" href="/data/contribute/admin">
                 <Typography variant="nav">ADMIN</Typography>
             </ToggleButton>

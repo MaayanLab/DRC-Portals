@@ -102,5 +102,5 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             sha256checksum: checksumHash
         }
     });
-    revalidatePath('/data/contribute/uploaded')
+    // revalidatePath('/data/contribute/uploaded')
 }

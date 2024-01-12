@@ -31,34 +31,6 @@ export default async function Nav() {
   return (
     <Container maxWidth="lg">
       <ColorToggleButton userAdmin={userAdmin}/>
-      {/* <AppBar position="static">
-        <Toolbar>
-            <Grid container justifyContent={"space-between"} alignItems={"center"}>
-              <Grid item>
-                <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/data/contribute/form">
-                    <Typography variant="nav">DATA AND METADATA UPLOAD FORM</Typography>
-                  </Link>
-                  <Link href="/data/contribute/urlform">
-                    <Typography variant="nav">CODE ASSETS UPLOAD FORM</Typography>
-                  </Link>
-                  <Link href="/data/contribute/uploaded">
-                    <Typography variant="nav">UPLOADED FILES</Typography>
-                  </Link>
-                  <Link href="/data/contribute/documentation">
-                    <Typography variant="nav">DOCUMENTATION</Typography>
-                  </Link>
-                  <Link href="/data/contribute/account">
-                    <Typography variant="nav">MY ACCOUNT</Typography>
-                  </Link>
-                  { userAdmin && <Link href="/data/contribute/admin">
-                    <Typography variant="nav">ADMIN</Typography>
-                  </Link>}
-                </Stack>
-              </Grid>
-            </Grid>
-        </Toolbar>
-      </AppBar> */}
     </Container>
   )
 }
