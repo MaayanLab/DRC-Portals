@@ -31,12 +31,23 @@ export function CollapsibleArrow({open, setOpen}: {open: boolean, setOpen: React
     );
 }
 
+// gotten from https://gist.github.com/zentala/1e6f72438796d74531803cc3833c039c 
+function formatBytes(bytes: number,decimals: number) {
+    if(bytes == 0) return '0 Bytes';
+    var k = 1024,
+        dm = decimals || 2,
+        sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+ }
+
 export function FileInfo({ open, fileInfo }: {
     open: boolean;
     fileInfo: {
         fileName: string,
         fileLink: string,
         sha256checksum: string | null
+        filesize: BigInt | null
     }
 }
 ) {
@@ -44,8 +55,9 @@ export function FileInfo({ open, fileInfo }: {
         <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
                 <Typography variant="h6" gutterBottom component="div">
-                    File Info
+                    Asset Info
                 </Typography>
+                {fileInfo.filesize ?               
                 <Table>
                     <TableRow>
                         <TableCell variant="head">File</TableCell>
@@ -55,7 +67,19 @@ export function FileInfo({ open, fileInfo }: {
                         <TableCell variant="head">Checksum (SHA256)</TableCell>
                         <TableCell>{fileInfo.sha256checksum ? Buffer.from(fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
                     </TableRow>
-                </Table>
+                    <TableRow>
+                        <TableCell variant="head">File size</TableCell>
+                        <TableCell>{fileInfo.filesize ? fileInfo.filesize.toString() : ''}</TableCell>
+                    </TableRow>
+                </Table>  :
+                <Table>
+                    <TableRow>
+                        <TableCell variant="head">File</TableCell>
+                        <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
+                    </TableRow>
+                </Table> 
+                }
+
             </Box>
         </Collapse>
     )
@@ -122,7 +146,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
                 <TableCell><CollapsibleArrow open={open} setOpen={setOpen}/></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toUTCString()}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toLocaleString()}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
@@ -133,7 +157,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'sha256checksum': userFile.sha256checksum }} />
+                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'sha256checksum': userFile.sha256checksum, 'filesize': userFile.size }} />
                 </TableCell>
             </TableRow>
         </>

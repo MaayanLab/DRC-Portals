@@ -136,7 +136,7 @@ const headCells: readonly HeadCell[] = [
         id: 'filetype',
         numeric: false,
         disablePadding: false,
-        label: 'File Type',
+        label: 'Asset Type',
     },
     {
         id: 'dcc',
@@ -170,7 +170,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                             direction={orderBy === headCell.id ? order : 'asc'}
                             onClick={createSortHandler(headCell.id)}
                         >
-                            {headCell.label}
+                            <strong>{headCell.label}</strong>
                             {orderBy === headCell.id ? (
                                 <Box component="span" sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -179,9 +179,9 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                         </TableSortLabel>
                     </TableCell>
                 ))}
-                <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><strong>DCC Status</strong></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><strong>DRC Status</strong></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><strong>Current</strong></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"></TableCell>
             </TableRow>
         </TableHead>

@@ -12,7 +12,6 @@ import { createOneUser, deleteUsers, updateUserInfo } from './actions';
 import type { User } from '@prisma/client'
 import ActionAlert from './ActionAlert';
 
-
 export interface UserInfo {
     id: number;
     name: string | null;
@@ -47,21 +46,29 @@ const columns: GridColDef[] = [
 
 ];
 
-const dccs = [
-    'LINCS',
-    '4DN',
-    'A2CPS',
-    'ExRNA',
-    'GlyGen',
-    'GTEx',
-    'HMP',
-    'HuBMAP',
-    'IDG',
-    'KidsFirst',
-    'MoTrPAC',
-    'Metabolomics',
-    'SenNet',
-]
+const dccMapping = {
+    'LINCS': 'Library of Integrated Network-based Cellular Signatures',
+    '4DN': '4D Nucleome',
+    'Bridge2AI': 'Bridge to Artificial Intelligence',
+    'A2CPS': 'Acute to Chronic Pain Signatures',
+    'ExRNA': 'Extracellular RNA Communication',
+    'GTEx': 'Genotype Tissue Expression',
+    'HMP': 'Human Microbiome Project',
+    'HuBMAP': 'Human BioMolecular Atlas Program',
+    'IDG': 'Illuminating the Druggable Genome',
+    'KidsFirst': 'Gabriella Miller Kids First Pediatric Research',
+    'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
+    'Metabolomics': 'Metabolomics',
+    'SenNet': 'Cellular Senescence Network',
+    'Glycoscience': 'Glycoscience', 
+    'KOMP2': 'Knockout Mouse Phenotyping Program',
+    'H3Africa': 'H3Africa', 
+    'UDN': 'Undiagnosed Diseases Network',
+    'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
+    'iHMP': 'Integrative Human Microbiome Project'
+
+}
+
 
 
 export default function DataTable(props: {
@@ -173,7 +180,7 @@ export default function DataTable(props: {
                                 <MultiSelect
                                     name='DCC'
                                     label="DCC"
-                                    options={dccs}
+                                    options={Object.keys(dccMapping)}
                                     formData={createFormData}
                                     setFormData={setCreateFormData}
                                     type='createUserForm'
@@ -209,7 +216,7 @@ export default function DataTable(props: {
                                                 <MultiSelect
                                                     name='DCC'
                                                     label="DCC"
-                                                    options={dccs}
+                                                    options={Object.keys(dccMapping)}
                                                     defaultValue={user.dcc?.split(',')}
                                                     formData={updateFormData}
                                                     setFormData={setUpdateFormData}

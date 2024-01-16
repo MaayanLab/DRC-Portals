@@ -8,6 +8,28 @@ import { redirect } from 'next/navigation';
 import { PaginatedTable } from './PaginatedTable';
 import Nav from '../Nav';
 
+export const dccMapping : {[key: string]: string} = {
+    'LINCS': 'Library of Integrated Network-based Cellular Signatures',
+    '4DN': '4D Nucleome',
+    'Bridge2AI': 'Bridge to Artificial Intelligence',
+    'A2CPS': 'Acute to Chronic Pain Signatures',
+    'ExRNA': 'Extracellular RNA Communication',
+    'GTEx': 'Genotype Tissue Expression',
+    'HMP': 'Human Microbiome Project',
+    'HuBMAP': 'Human BioMolecular Atlas Program',
+    'IDG': 'Illuminating the Druggable Genome',
+    'KidsFirst': 'Gabriella Miller Kids First Pediatric Research',
+    'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
+    'Metabolomics': 'Metabolomics',
+    'SenNet': 'Cellular Senescence Network',
+    'Glycoscience': 'Glycoscience', 
+    'KOMP2': 'Knockout Mouse Phenotyping Program',
+    'H3Africa': 'H3Africa', 
+    'UDN': 'Undiagnosed Diseases Network',
+    'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
+    'iHMP': 'Integrative Human Microbiome Project'
+
+}
 
 export default async function UserFiles() {
     const session = await getServerSession(authOptions)
@@ -54,7 +76,8 @@ export default async function UserFiles() {
         </>
     );
 
-    const userDCCArray = user.dcc.split(',')
+    const userDCCArray = user.dcc.split(',').map((dcc) => dccMapping[dcc])
+    
     const allFiles = await prisma.dccAsset.findMany({
         include: {
             dcc: {
@@ -122,7 +145,7 @@ export default async function UserFiles() {
                 </Grid>
                 <Grid md={10} xs={12}>
                     <Container className="justify-content-center">
-                        <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED FILES</Typography>
+                        <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
                         <PaginatedTable userFiles={userFiles} role={user.role} />
                     </Container>

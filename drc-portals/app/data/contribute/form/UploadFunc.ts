@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import {
     getSignedUrl,
 } from "@aws-sdk/s3-request-presigner";
-
+import { dccMapping } from '../uploaded/page';
 import { revalidatePath } from 'next/cache';
 
 async function verifyUser() {
@@ -69,7 +69,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     if (process.env.NODE_ENV === 'development' && dcc === null) {
         dcc = await prisma.dCC.create({
             data: {
-                label: formDcc, // TODO: change to long label
+                label: dccMapping[formDcc], // TODO: change to long label
                 short_label: formDcc,
                 homepage: 'https://lincsproject.org'
             }
