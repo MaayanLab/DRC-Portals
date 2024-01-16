@@ -35,6 +35,7 @@ import fileupload8 from '@/public/img/contributions/fileupload8.png'
 import fileupload9 from '@/public/img/contributions/fileupload9.png'
 import fileupload10 from '@/public/img/contributions/fileupload10.png'
 import fileuploaderror from '@/public/img/contributions/fileuploaderror.png'
+import Nav from '../Nav';
 
 
 const createUser = <Image src={createuser} width='600' height='500' alt='' className="d-inline-block align-top" />;
@@ -66,8 +67,13 @@ export default function Documentation() {
 
     return (
         <>
+            <Nav />
             <Container className="justify-content-center">
-                <Typography variant="h3" className='text-center p-5'>Documentation</Typography>
+                <Typography variant="h3" color="secondary.dark" className='p-5'>DOCUMENTATION</Typography>
+                <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
+                    This page covers the submission system of the Data Resource Portal. Please click on any section
+                    from the dropdown list below to navigate to that section.
+                </Typography>
                 <Grid container spacing={2}>
                     <Grid md={2} xs={12}>
                         <ThemedBox>
@@ -169,8 +175,8 @@ export default function Documentation() {
                                                 For example, .gmt files are XMT files that contain a collection of gene sets while
                                                 .dmt files are XMT files that contain a collection of drug sets.
                                                 On each row of the XMT file, the first column contains the Term associated with the set while all other
-                                                columns contain the set entities. 
-                                                All uploaded files with a .gmt or .dmt extension are tagged as XMT files by default. 
+                                                columns contain the set entities.
+                                                All uploaded files with a .gmt or .dmt extension are tagged as XMT files by default.
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -179,7 +185,7 @@ export default function Documentation() {
                                                 Crosscut Metadata Model (C2M2) files are a (zipped) set of TSV files containing metadata that is already standardized to a set of known ontologies. Please explore the {' '}
                                                 <Link color="secondary" href="https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/#c2m2-technical-specification">
                                                     CFDE C2M2 documentation</Link> and <Link color="secondary" href="https://github.com/nih-cfde/published-documentation/wiki">C2M2 techincal wiki</Link> {' '}
-                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files. All uploaded zipped files are tagged as C2M2 files by default. 
+                                                for more information about C2M2 files. Please also see the C2M2 section in the Standards and Protocols page on how to create C2M2 files. All uploaded zipped files are tagged as C2M2 files by default.
                                             </p>
                                         </ThemedBox>
                                         <ThemedBox>
@@ -193,7 +199,7 @@ export default function Documentation() {
                                                 a KG Assertion file for Nodes would contain columns id,label,ontology_label which define information about
                                                 each node. A KG Assertion file for Edges would contain columns source,relation,target,source_label,
                                                 target_label,resource which display the necessary information about each edge (its source and target
-                                                nodes, the labels for these nodes). All uploaded files with .csv extensions are tagged as KG Assertion files by default. 
+                                                nodes, the labels for these nodes). All uploaded files with .csv extensions are tagged as KG Assertion files by default.
 
                                             </p>
                                         </ThemedBox>
@@ -203,8 +209,8 @@ export default function Documentation() {
                                                 Attribute tables are files containing tables that describe the relationship between two entities with
                                                 one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection
                                                 of a given row and column is then a value defining nature of the relationship between the row entity and
-                                                the column entity e.g. the similarity between a given gene and a given tissue type. All uploaded files with .txt 
-                                                extensions are tagged as Attribute Table files by default. 
+                                                the column entity e.g. the similarity between a given gene and a given tissue type. All uploaded files with .txt
+                                                extensions are tagged as Attribute Table files by default.
 
                                             </p>
                                         </ThemedBox>
@@ -253,8 +259,8 @@ export default function Documentation() {
                                         <ThemedBox>
                                             <h6 style={{ textAlign: 'left' }} className="border text-left bg-light p-1" id="current">Current</h6>
                                             <Typography sx={{ textAlign: 'left', fontWeight: 'lighter', fontSize: 14 }} className="p-2">
-                                            A file tagged by the {' '}
-                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircleFill /> </span> 
+                                                A file tagged by the {' '}
+                                                <span style={{ display: 'inline-flex', alignItems: 'center' }}><BsCheckCircleFill /> </span>
                                                 {' '} icon under the 'Current' column on the <Link color="secondary" href="/data/contribute/uploaded">Uploaded Files</Link> page is considered the current version of
                                                 that file type for a given DCC. DCC and DRC approvers both have the right to change the current/archived status of a file.
                                             </Typography>
@@ -487,8 +493,8 @@ export default function Documentation() {
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                                     Similar steps are done to set a file as the most current version. Click the 'Set as Current' button to set a file as
-                                                    the current version of a file type for a given DCC. Click the checkmark under the 'Current' column of the older version of the file to remove the 'Current' status. 
-                                                    DCC and DRC approvers are authorized to change the current status of files for affiliated DCCs/all DCCs respectively. 
+                                                    the current version of a file type for a given DCC. Click the checkmark under the 'Current' column of the older version of the file to remove the 'Current' status.
+                                                    DCC and DRC approvers are authorized to change the current status of files for affiliated DCCs/all DCCs respectively.
                                                     {fileApproval7}
                                                 </ListItem>
                                                 <ListItem sx={{ display: "list-item", fontWeight: 'bold' }}>

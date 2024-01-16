@@ -29,7 +29,7 @@ export default async function InfoHeader() {
                   <Link href="/data/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
                   </Link>
-                  <Link href="/data/coming_soon">
+                  <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
                   <Link href="/data/contribute/form">
@@ -48,12 +48,12 @@ export default async function InfoHeader() {
                     <Link href="/data/matrix">
                       <Typography variant="nav">DATA MATRIX</Typography>
                     </Link>
-                    <Link href="/data/coming_soon">
+                    <Link href="/data/tools_and_workflows">
                       <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                     </Link>
-                    <Link href="/data/coming_soon">
+                    {/* <Link href="/data/coming_soon">
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
-                    </Link>
+                    </Link> */}
                   </Stack>
               </Grid>
               <Grid item>

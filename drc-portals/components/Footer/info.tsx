@@ -53,19 +53,19 @@ export default async function InfoFooter() {
               <Link href="/data">
                 <Typography variant="footer">Data Portal</Typography>
               </Link>
-              <Link href="/info/coming_soon">
+              {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Knowledge Portal</Typography>
-              </Link>
-              <Link href="/info/coming_soon"><Typography variant="footer">Partnerships</Typography></Link>
+              </Link> */}
+              <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
               <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
-              <Link href="/info/coming_soon">
+              {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
-              </Link>
+              </Link> */}
               <Link href="/info/coming_soon"><Typography variant="footer">Standards & Protocols</Typography></Link>
               <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
             </Stack>

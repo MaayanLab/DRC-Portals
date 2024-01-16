@@ -4,7 +4,7 @@ import { mdiProgressWrench } from '@mdi/js';
 
 export default function ComingSoon () {
     return (
-        <Container maxWidth="sm" >
+        <Container maxWidth="sm" sx={{height: "50vh"}}>
             <Stack spacing={1} sx={{marginTop: 15}} alignItems={"center"}>
                 <Icon className="text-center" path={mdiProgressWrench} size={3} />
                 <Typography className="text-center" variant="h2">COMING SOON</Typography>

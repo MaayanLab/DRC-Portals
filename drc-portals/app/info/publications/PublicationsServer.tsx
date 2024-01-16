@@ -55,19 +55,18 @@ export default async function PublicationsServer({
             dcc: true
           }
         },
-        ...include
       },
     })
     return (
         <div className="mt-5">
-            <Typography variant="h2" color="secondary">CFDE Associated Publications</Typography>
+            <Typography variant="h2" color="secondary">CFDE Associated and CF Programs Landmark Publications</Typography>
             <div className="mb-5 mt-10">
               <Typography variant="subtitle1" color="secondary">
                 The publications listed here are automatically extracted from PubMed based on grants awarded to the Common Fund Data Ecosystem (CFDE) Participating Common Fund programs’ DCCs and CFDE awarded R03s.
               </Typography>
             </div>
             <PublicationsClient count={count} q={q} dccs={dccs.map(i=>i.short_label || '')}>
-              <PublicationComponent publications={publications} chipped={true}/>
+              <PublicationComponent publications={publications}/>
             </PublicationsClient>
         </div>
     )

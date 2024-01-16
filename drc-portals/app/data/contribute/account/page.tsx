@@ -10,6 +10,7 @@ import { getServerSession } from "next-auth";
 import MultiSelect from './MultiSelect';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import Nav from '../Nav';
 
 const names = [
     'LINCS',
@@ -60,9 +61,12 @@ export default async function AccountPage() {
 
     return (
         <>
+        <Nav />
             <Container className="justify-content-center">
-                <Typography variant="h3" className='text-center p-5'>Account Information</Typography>
-                <Typography variant="body2" className='text-center p-5'>Please complete account email information before approving or the uploading forms. If role is incorrect, please contact the DRC to update your information</Typography>
+                <Typography variant="h3" color="secondary.dark" className='p-5'>ACCOUNT INFORMATION</Typography>
+                <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
+                Please complete account email information before approving or the uploading forms. If the email field is empty, this information can only be saved once. For all other information updates to your user account (role or DCC), please contact the DRC to update your information. 
+                </Typography>
                 <Box
                     component="form"
                     noValidate

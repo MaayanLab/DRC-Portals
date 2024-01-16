@@ -136,7 +136,7 @@ export default function DataTable(props: {
 
     return (
         <>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ml: 3}}>
                 {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
                 <div>
                     <Dialog open={createOpen} onClose={handleCreateClose} fullWidth>
@@ -247,7 +247,8 @@ export default function DataTable(props: {
                     onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
                     sx={{ fontSize: 14,
                         '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
-                            backgroundColor: "white", }
+                            backgroundColor: "white", },
+                            ml:3
                         }}
                 />
             </div>

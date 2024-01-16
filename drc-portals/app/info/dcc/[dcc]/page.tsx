@@ -15,7 +15,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Icon from "@mdi/react";
 import { mdiArrowRight } from "@mdi/js";
-import PublicationComponent from "@/components/misc/Publication/PublicationComponent";
+import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
@@ -80,7 +80,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>.)</>}
+                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
@@ -100,7 +100,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                     </Card>
                 </Grid>
                 {(outreach.length > 0) && 
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} md={publications.length > 0 ? 3:12}>
                         <Paper sx={{padding: 2, textAlign: "center"}}>
                             <Typography sx={{color: "#FFF", background: "#7187c3", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
                             { (outreach === undefined || outreach.length === 0) ?
@@ -145,7 +145,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                     <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                         <Paper sx={{padding: 2, height: "100%"}}>
                             <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
-                            <PublicationComponent publications={publications} chipped={true}/>
+                            <SimplePublicationComponent publications={publications}/>
                         </Paper>
                     </Grid>
                 }

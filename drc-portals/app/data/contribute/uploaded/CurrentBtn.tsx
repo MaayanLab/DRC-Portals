@@ -37,8 +37,8 @@ export default function CurrentBtn(userFile: {
 
     return (
         <>
-        {status &&  <Button variant="contained" color="tertiary" onClick={handleClick(userFile)}> <BsCheckCircleFill size={20} /> </Button> }
-        {!status &&  <Button variant="contained" color="tertiary" onClick={handleClick(userFile)}> Set as Current</Button> }
+        {status &&  <Button variant="contained" color="tertiary" onClick={handleClick(userFile)}> Current </Button> }
+        {!status &&  <Button variant="contained" color="tertiary" onClick={handleClick(userFile)}> Archived </Button> }
         </>
        
     );

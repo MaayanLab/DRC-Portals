@@ -26,7 +26,7 @@ const search_cards = [
     "description": "Find relevant Common Fund data by entering your research topic",
     "button": "Search Metadata",
     "img": "/img/metadata.png",
-    "link": "/data/coming_soon"
+    "link": "/data"
   },
   {
     "title": "Data Matrix",
@@ -40,15 +40,15 @@ const search_cards = [
 const tool_cards = [
   {
     "title": "Tools & Workflows",
-    "description": "Find the right tool for your analysis from the hundreds of CF Tools.",
+    "description": "Explore CFDE products such as bioinformatics tools, software libraries, and workflow engines",
     "icon": mdiToolbox,
-    "link": "/data/coming_soon"
+    "link": "/data/tools_and_workflows"
   },
   {
     "title": "Use Cases",
-    "description": "Explore use cases specifically designed to use multiple Common Fund DCCs.",
+    "description": "Explore crosscut DCC use cases encoded in Playbook Workflow Builder use cases",
     "icon": mdiLaptop,
-    "link": "/data/coming_soon"
+    "link": "https://playbook-workflow-builder.cloud/playbooks"
   }
 ]
 
@@ -125,7 +125,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
             <Typography variant="body1" color="secondary" sx={{width: "95%"}}>
               The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
             </Typography>
-            <Link href="/info/dccs">
+            <Link href="/info/dcc">
               <Button color="secondary" sx={{marginLeft: -2}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                 <Typography variant="subtitle1">
                   Explore CF Programs
@@ -201,11 +201,11 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                           TOOLS & WORKFLOWS
                         </Typography>
                         <Typography variant="body2" color="secondary" sx={{marginTop: 2}}>
-                          Find the right tool for your analysis from the hundreds of CF Tools
+                          Explore CFDE products such as bioinformatics tools, software libraries, and workflow engines
                         </Typography>
                       </div>
 
-                      <div><Link href="/data/coming_soon"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>CF TOOLS</Button></Link></div>
+                      <div><Link href="/data/tools_and_workflows"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>CF TOOLS</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -218,11 +218,11 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                           USE CASES
                         </Typography>
                         <Typography variant="body2" color="secondary" sx={{marginTop: 2}}>
-                          Find the right tool for your analysis from the hundreds of CF Tools
+                        Explore crosscut DCC use cases encoded in Playbook Workflow Builder use cases
                         </Typography>
                       </div>
 
-                      <div><Link href="/data/coming_soon"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></Link></div>
+                      <div><Link href="https://playbook-workflow-builder.cloud/playbooks" target="_blank" rel="noopener noreferrer"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>

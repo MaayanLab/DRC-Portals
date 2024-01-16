@@ -33,20 +33,21 @@ model DCC {
 }
 
 model Publication {
-  id      String           @id @default(uuid())
-  title   String
-  year    String?
-  page    String?
-  volume  String?
-  issue   String?
-  journal String?
-  pmid    String?
-  pmcid   String?
-  doi     String?
-  authors String
-  tool_id String?
-  landmark Boolean @default(false)
-  dccs    DCCPublication[]
+  id            String           @id @default(uuid())
+  title         String
+  year          String?
+  page          String?
+  volume        String?
+  issue         String?
+  journal       String?
+  pmid          String?
+  pmcid         String?
+  doi           String?
+  authors       String
+  tool_id       String?
+  landmark      Boolean @default(false)
+  dccs          DCCPublication[]
+  partnertships PartnershipPublications[]
   tool    Tool?            @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
@@ -95,9 +96,11 @@ model Partnerships {
   id                String        @id @default(uuid())
   title             String
   description       String?
-  active            Boolean       @default(true)
+  status            String?
+  website           String?
   image             String?
   dccs              DCCPartnerships[]
+  publications      PartnershipPublications[]
 
   @@map("partnerships")
 }
@@ -110,6 +113,16 @@ model DCCPartnerships {
 
   @@id([partnership_id, dcc_id])
   @@map("dcc_partnerships")
+}
+
+model PartnershipPublications {
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
+  publication         Publication      @relation(fields: [publication_id], references: [id])
+  publication_id      String
+
+  @@id([partnership_id, publication_id])
+  @@map("partnership_publications")
 }
 
 model Tool {
@@ -141,7 +154,7 @@ model DccAsset {
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
   sha256checksum      String?
-
+  deleted          Boolean            @default(false)
   @@id([dcc_id, filetype, link, lastmodified])
   @@unique([dcc_id, filetype, link, lastmodified])
   @@map("dcc_assets")

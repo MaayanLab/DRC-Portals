@@ -45,7 +45,7 @@ export const createPresignedUrl = async (filepath: string, checksumHash: string)
         Key: filepath,
         ChecksumSHA256: checksumHash
     });
-    return getSignedUrl(s3, command, { unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
+    return getSignedUrl(s3, command, { expiresIn: 3600 , unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
 };
 
 
@@ -102,5 +102,5 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             sha256checksum: checksumHash
         }
     });
-    revalidatePath('/data/contribute/uploaded')
+    // revalidatePath('/data/contribute/uploaded')
 }
