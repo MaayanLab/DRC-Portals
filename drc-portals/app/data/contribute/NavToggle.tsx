@@ -17,6 +17,7 @@ export default function ColorToggleButton({ userAdmin }: { userAdmin: boolean })
 
     return (
         <ToggleButtonGroup
+            orientation='vertical'
             color="secondary"
             value={menuItem}
             exclusive
