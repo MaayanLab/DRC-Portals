@@ -57,6 +57,9 @@ export default async function InfoHeader() {
                   <Link href="/info/coming_soon">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
+                  <Link href="/data/tools_and_workflows">
+                    <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
+                  </Link>
                   <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                 </Stack>
               </Grid>
