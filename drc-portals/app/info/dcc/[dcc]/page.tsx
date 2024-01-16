@@ -147,12 +147,12 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 { (publications.length > 0 || Object.keys(assets).length > 0) && 
                     <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            {publications.length > 0 && <Grid item xs={12}>
                                 <Paper sx={{padding: 2, height: "100%"}}>
                                     <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
                                     <SimplePublicationComponent publications={publications}/>
                                 </Paper>
-                            </Grid>
+                            </Grid>}
                             <Grid item xs={12}>
                                 <Paper sx={{padding: 2, height: "100%"}}>
                                     <DCCAccordion dcc={params.dcc} fulldata={assets} />
