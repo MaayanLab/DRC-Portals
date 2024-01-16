@@ -11,7 +11,6 @@ import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
 import { Logo } from '../styled/Logo'
 import UserComponent from '../misc/LoginComponents/UserComponent'
-import NavBreadcrumbs from './breadcrumbs'
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 
 export default async function InfoHeader() {
@@ -22,7 +21,7 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
-                <Logo href={`/info`} title="CFDE Workbench"  color="secondary"/>
+                <Logo href={`/data`} title="CFDE Workbench"  color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
