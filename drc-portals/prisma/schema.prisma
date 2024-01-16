@@ -16,6 +16,7 @@ model analysis_type {
   description                            String? @default("") @db.VarChar
   synonyms                               String? @default("") @db.VarChar
   file_file_analysis_typeToanalysis_type file[]  @relation("file_analysis_typeToanalysis_type")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -27,6 +28,7 @@ model anatomy {
   synonyms                                               String?              @default("") @db.VarChar
   biosample_biosample_anatomyToanatomy                   biosample[]          @relation("biosample_anatomyToanatomy")
   collection_anatomy_collection_anatomy_anatomyToanatomy collection_anatomy[] @relation("collection_anatomy_anatomyToanatomy")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -37,6 +39,8 @@ model assay_type {
   description                      String? @default("") @db.VarChar
   synonyms                         String? @default("") @db.VarChar
   file_file_assay_typeToassay_type file[]  @relation("file_assay_typeToassay_type")
+
+  node                             C2M2Node        @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -275,6 +279,7 @@ model compound {
   collection_compound_collection_compound_compoundTocompound collection_compound[] @relation("collection_compound_compoundTocompound")
   substance_substance_compoundTocompound                     substance[]           @relation("substance_compoundTocompound")
 
+  node                C2M2Node               @relation(fields: [id], references: [id])
   @@schema("c2m2")
 }
 
@@ -299,6 +304,7 @@ model dcc {
   project_id_namespace String  @db.VarChar
   project_local_id     String  @db.VarChar
   project              project @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -312,6 +318,7 @@ model disease {
   collection_disease_collection_disease_diseaseTodisease collection_disease[] @relation("collection_disease_diseaseTodisease")
   phenotype_disease_phenotype_disease_diseaseTodisease   phenotype_disease[]  @relation("phenotype_disease_diseaseTodisease")
   subject_disease_subject_disease_diseaseTodisease       subject_disease[]    @relation("subject_disease_diseaseTodisease")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -424,6 +431,7 @@ model gene {
   ncbi_taxonomy                              ncbi_taxonomy     @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gene_ncbi_taxonomy_1")
   phenotype_gene_phenotype_gene_geneTogene   phenotype_gene[]  @relation("phenotype_gene_geneTogene")
   protein_gene_protein_gene_geneTogene       protein_gene[]    @relation("protein_gene_geneTogene")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -452,6 +460,7 @@ model ncbi_taxonomy {
   gene                  gene[]
   protein               protein[]
   subject_role_taxonomy subject_role_taxonomy[]
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -465,6 +474,7 @@ model phenotype {
   phenotype_disease_phenotype_disease_phenotypeTophenotype       phenotype_disease[]    @relation("phenotype_disease_phenotypeTophenotype")
   phenotype_gene_phenotype_gene_phenotypeTophenotype             phenotype_gene[]       @relation("phenotype_gene_phenotypeTophenotype")
   subject_phenotype_subject_phenotype_phenotypeTophenotype       subject_phenotype[]    @relation("subject_phenotype_phenotypeTophenotype")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -531,6 +541,7 @@ model protein {
   collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
   ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
   protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
+  node                C2M2Node               @relation(fields: [id], references: [id])
 
   @@schema("c2m2")
 }
@@ -576,6 +587,7 @@ model subject {
   subject_race                                    subject_race[]
   subject_role_taxonomy                           subject_role_taxonomy[]
   subject_substance                               subject_substance[]
+  
 
   @@id([id_namespace, local_id])
   @@schema("c2m2")
@@ -663,6 +675,32 @@ model substance {
 
   @@schema("c2m2")
 }
+
+model C2M2Node {
+  id               String                   @id @db.Uuid
+  type             NodeType
+  name             String
+  description      String
+  searchable       Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((name || ' '::text) || description))"))
+  analysis_type    analysis_type?
+  anatomy          anatomy?
+  assay_type       assay_type?
+  compound         compound?
+  disease          disease?
+  dcc              dcc?
+  gene             gene?
+  nbi_taxonomy     ncbi_taxonomy?
+  phenotype        phenotype?
+  protein          protein?
+ 
+              
+
+  @@index([type])
+  @@map("node")
+  @@schema("c2m2")
+}
+
+
 
 model DCC {
   id            String            @id @default(uuid())
@@ -808,6 +846,8 @@ model DccAsset {
 }
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+
+
 model Node {
   dcc_id           String?
   id               String                   @id @db.Uuid
