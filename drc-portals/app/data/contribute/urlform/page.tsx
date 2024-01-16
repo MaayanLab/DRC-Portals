@@ -10,13 +10,13 @@ import Nav from '../Nav';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
-  if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+  if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/urlform")
   const user = await prisma.user.findUnique({
     where: {
       id: session.user.id
     }
   })
-  if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+  if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/urlform")
 
   if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN')) {
     return (
