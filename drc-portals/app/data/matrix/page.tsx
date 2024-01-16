@@ -127,52 +127,52 @@ export default async function DataMatrix() {
               return (
                 <TableRow key={idx} sx={{backgroundColor: row_color}}>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc)}>
+                    <Link href={"/info/dcc/".concat(item.dcc)}>
                       <img className="object-scale-down h-14 self-center mx-auto" src={item.img} alt={item.dcc.concat(" Logo")} />
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#C2M2')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#C2M2')}>
                       {item.c2m2 ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#XMT')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#XMT')}>
                       {item.xmt ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#KGAssertions')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#KGAssertions')}>
                       {item.kg ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#AttributeTables')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#AttributeTables')}>
                       {item.att ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#ETL')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#ETL')}>
                       {item.etl ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#API')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#API')}>
                       {item.api ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#EntityPages')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#EntityPages')}>
                       {item.ent ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#PWBMetanodes')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#PWBMetanodes')}>
                       {item.pwb ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
                   <TableCell sx={{ border:0, borderColor: "#e0e0e0" }} align="center">
-                    <Link href={"/data/matrix/".concat(item.dcc).concat('#ChatbotSpecs')}>
+                    <Link href={"/info/dcc/".concat(item.dcc).concat('#ChatbotSpecs')}>
                       {item.chat ? (<LaunchIcon sx={{color:"#7187C3"}} />) : (<span />)}
                     </Link>
                   </TableCell>
