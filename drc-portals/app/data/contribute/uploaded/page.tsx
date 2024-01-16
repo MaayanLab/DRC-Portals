@@ -64,7 +64,7 @@ export default async function UserFiles() {
             }
         },
         where: {
-            ...(user.role === 'DCC_APPROVER' || user.role === 'UPLOADER' ? {
+            ...(user.role === 'DCC_APPROVER' ? {
                 dcc: {
                     label: {
                         in: userDCCArray
@@ -81,8 +81,8 @@ export default async function UserFiles() {
     let headerText;
 
     if (user.role === 'UPLOADER') {
-        // const userFiles = user.dccAsset
-        userFiles = allFiles
+        userFiles = user.dccAsset
+        // userFiles = allFiles
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all files that have been you have uploaded for all the DCCs you are affiliated with.
             Expand each file to download or view the SHA256 checksum of each file.
