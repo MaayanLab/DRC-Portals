@@ -26,8 +26,11 @@ export default async function InfoHeader() {
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/data/coming_soon">
+                  {/* <Link href="/data/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
+                  </Link> */}
+                  <Link href="/info">
+                    <Typography variant="nav">INFORMATION PORTAL</Typography>
                   </Link>
                   <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
@@ -42,9 +45,9 @@ export default async function InfoHeader() {
               <Grid item xs={12}></Grid>
               <Grid item>
                   <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                    <Link href="/info">
+                    {/* <Link href="/info">
                       <Typography variant="nav">INFORMATION PORTAL</Typography>
-                    </Link>
+                    </Link> */}
                     <Link href="/data/matrix">
                       <Typography variant="nav">DATA MATRIX</Typography>
                     </Link>
