@@ -57,6 +57,9 @@ export default async function InfoHeader() {
                     <Link href="https://playbook-workflow-builder.cloud/playbooks">
                       <Typography variant="nav">USE CASES</Typography>
                     </Link>
+                    <Link href="/info/coming_soon">
+                      <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
+                    </Link>
                     {/* <Link href="/data/coming_soon">
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
                     </Link> */}
