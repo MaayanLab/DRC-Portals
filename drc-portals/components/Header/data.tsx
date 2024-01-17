@@ -12,7 +12,7 @@ import Container from '@mui/material/Container'
 import { Logo } from '../styled/Logo'
 import UserComponent from '../misc/LoginComponents/UserComponent'
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
-
+import DataPortalButton from './dataportal_button'
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions) 
   return (
@@ -47,6 +47,7 @@ export default async function InfoHeader() {
                     {/* <Link href="/info">
                       <Typography variant="nav">INFORMATION PORTAL</Typography>
                     </Link> */}
+                    <DataPortalButton />
                     <Link href="/data/matrix">
                       <Typography variant="nav">DATA MATRIX</Typography>
                     </Link>
