@@ -8,27 +8,26 @@ import { redirect } from 'next/navigation';
 import { PaginatedTable } from './PaginatedTable';
 import Nav from '../Nav';
 
-export const dccMapping : {[key: string]: string} = {
+const dccMapping : {[key: string]: string} = {
     'LINCS': 'Library of Integrated Network-based Cellular Signatures',
     '4DN': '4D Nucleome',
     'Bridge2AI': 'Bridge to Artificial Intelligence',
     'A2CPS': 'Acute to Chronic Pain Signatures',
     'ExRNA': 'Extracellular RNA Communication',
     'GTEx': 'Genotype Tissue Expression',
-    'HMP': 'Human Microbiome Project',
+    'HMP': 'The Human Microbiome Project',
     'HuBMAP': 'Human BioMolecular Atlas Program',
     'IDG': 'Illuminating the Druggable Genome',
-    'KidsFirst': 'Gabriella Miller Kids First Pediatric Research',
+    'Kids First': 'Gabriella Miller Kids First Pediatric Research',
     'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
     'Metabolomics': 'Metabolomics',
-    'SenNet': 'Cellular Senescence Network',
+    'SenNet': 'The Cellular Senescence Network',
     'Glycoscience': 'Glycoscience', 
     'KOMP2': 'Knockout Mouse Phenotyping Program',
-    'H3Africa': 'H3Africa', 
+    'H3Africa': 'Human Heredity & Health in Africa', 
     'UDN': 'Undiagnosed Diseases Network',
     'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
-    'iHMP': 'Integrative Human Microbiome Project'
-
+    'iHMP': 'NIH Integrative Human Microbiome Project'
 }
 
 export default async function UserFiles() {
@@ -44,7 +43,8 @@ export default async function UserFiles() {
                 include: {
                     dcc: {
                         select: {
-                            label: true
+                            label: true,
+                            short_label:true
                         }
                     }
                 }
@@ -82,7 +82,8 @@ export default async function UserFiles() {
         include: {
             dcc: {
                 select: {
-                    label: true
+                    label: true,
+                    short_label:true
                 }
             }
         },

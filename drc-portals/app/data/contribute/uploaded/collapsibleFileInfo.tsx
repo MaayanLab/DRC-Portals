@@ -36,7 +36,7 @@ function formatBytes(bytes: number,decimals: number) {
     if(bytes == 0) return '0 Bytes';
     var k = 1024,
         dm = decimals || 2,
-        sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
         i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
  }
@@ -69,12 +69,12 @@ export function FileInfo({ open, fileInfo }: {
                     </TableRow>
                     <TableRow>
                         <TableCell variant="head">File size</TableCell>
-                        <TableCell>{fileInfo.filesize ? fileInfo.filesize.toString() : ''}</TableCell>
+                        <TableCell>{fileInfo.filesize ? formatBytes(parseInt(fileInfo.filesize.toString()), 2).toString() : ''}</TableCell>
                     </TableRow>
                 </Table>  :
                 <Table>
                     <TableRow>
-                        <TableCell variant="head">File</TableCell>
+                        <TableCell variant="head">Asset</TableCell>
                         <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
                     </TableRow>
                 </Table> 
@@ -133,6 +133,7 @@ export function DeleteDialogButton({userFile} : {userFile: DccAsset}) {
 
 export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSymbol} : {userFile: {dcc: {
     label: string;
+    short_label: string | null
 } | null;
 } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element}) {
     const [open, setOpen] = React.useState(false);
@@ -143,13 +144,16 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
         <>
             <TableRow
                 key={userFile.lastmodified.toString()}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{ '&:last-child td, &:last-child th': { border: 0}}}
             >
                 <TableCell><CollapsibleArrow open={open} setOpen={setOpen}/></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toLocaleString()}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
+                <TableCell sx={{ fontSize: 14}} align="center" style={{
+                      whiteSpace: "normal",
+                      wordBreak: "break-word"
+                    }}>{userFile.creator}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.short_label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>

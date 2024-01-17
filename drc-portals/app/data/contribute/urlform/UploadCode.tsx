@@ -5,6 +5,27 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
+const dccMapping : {[key: string]: string} = {
+    'LINCS': 'Library of Integrated Network-based Cellular Signatures',
+    '4DN': '4D Nucleome',
+    'Bridge2AI': 'Bridge to Artificial Intelligence',
+    'A2CPS': 'Acute to Chronic Pain Signatures',
+    'ExRNA': 'Extracellular RNA Communication',
+    'GTEx': 'Genotype Tissue Expression',
+    'HMP': 'The Human Microbiome Project',
+    'HuBMAP': 'Human BioMolecular Atlas Program',
+    'IDG': 'Illuminating the Druggable Genome',
+    'Kids First': 'Gabriella Miller Kids First Pediatric Research',
+    'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
+    'Metabolomics': 'Metabolomics',
+    'SenNet': 'The Cellular Senescence Network',
+    'Glycoscience': 'Glycoscience', 
+    'KOMP2': 'Knockout Mouse Phenotyping Program',
+    'H3Africa': 'Human Heredity & Health in Africa', 
+    'UDN': 'Undiagnosed Diseases Network',
+    'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
+    'iHMP': 'NIH Integrative Human Microbiome Project'
+}
 
 export const saveCodeAsset = async (filename: string, filetype: string, url: string, formDcc: string) => {
     const session = await getServerSession(authOptions)
@@ -26,7 +47,7 @@ export const saveCodeAsset = async (filename: string, filetype: string, url: str
     if (process.env.NODE_ENV === 'development' && dcc === null) {
         dcc = await prisma.dCC.create({
             data: {
-                label: formDcc, // TODO: change to long label
+                label: dccMapping[formDcc], 
                 short_label: formDcc,
                 homepage: 'https://lincsproject.org'
             }

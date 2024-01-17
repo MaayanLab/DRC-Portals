@@ -7,7 +7,6 @@ import { redirect } from 'next/navigation';
 import {
     getSignedUrl,
 } from "@aws-sdk/s3-request-presigner";
-import { dccMapping } from '../uploaded/page';
 import { revalidatePath } from 'next/cache';
 
 async function verifyUser() {
@@ -21,6 +20,29 @@ async function verifyUser() {
     })
     if (user === null) throw new Error('No user found')
     if (!(user.role === 'ADMIN' || user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) throw new Error('not authorized')
+}
+
+
+const dccMapping : {[key: string]: string} = {
+    'LINCS': 'Library of Integrated Network-based Cellular Signatures',
+    '4DN': '4D Nucleome',
+    'Bridge2AI': 'Bridge to Artificial Intelligence',
+    'A2CPS': 'Acute to Chronic Pain Signatures',
+    'ExRNA': 'Extracellular RNA Communication',
+    'GTEx': 'Genotype Tissue Expression',
+    'HMP': 'The Human Microbiome Project',
+    'HuBMAP': 'Human BioMolecular Atlas Program',
+    'IDG': 'Illuminating the Druggable Genome',
+    'Kids First': 'Gabriella Miller Kids First Pediatric Research',
+    'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
+    'Metabolomics': 'Metabolomics',
+    'SenNet': 'The Cellular Senescence Network',
+    'Glycoscience': 'Glycoscience', 
+    'KOMP2': 'Knockout Mouse Phenotyping Program',
+    'H3Africa': 'Human Heredity & Health in Africa', 
+    'UDN': 'Undiagnosed Diseases Network',
+    'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
+    'iHMP': 'NIH Integrative Human Microbiome Project'
 }
 
 
@@ -69,7 +91,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     if (process.env.NODE_ENV === 'development' && dcc === null) {
         dcc = await prisma.dCC.create({
             data: {
-                label: dccMapping[formDcc], // TODO: change to long label
+                label: dccMapping[formDcc], 
                 short_label: formDcc,
                 homepage: 'https://lincsproject.org'
             }
