@@ -13,6 +13,12 @@ export default async function UserFiles() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
 
+    const dccInfo =  await prisma.dCC.findMany()
+    const dccMapping : {[key: string]: string} = {}
+    dccInfo.map((dcc) => {
+        dcc.short_label ? dccMapping[dcc.short_label] = dcc.label : dccMapping[dcc.label] = dcc.label
+        })
+
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
@@ -22,7 +28,8 @@ export default async function UserFiles() {
                 include: {
                     dcc: {
                         select: {
-                            label: true
+                            label: true,
+                            short_label:true
                         }
                     }
                 }
@@ -54,12 +61,14 @@ export default async function UserFiles() {
         </>
     );
 
-    const userDCCArray = user.dcc.split(',')
+    const userDCCArray = user.dcc.split(',').map((dcc) => dccMapping[dcc])
+    
     const allFiles = await prisma.dccAsset.findMany({
         include: {
             dcc: {
                 select: {
-                    label: true
+                    label: true,
+                    short_label:true
                 }
             }
         },
@@ -81,7 +90,7 @@ export default async function UserFiles() {
     let headerText;
 
     if (user.role === 'UPLOADER') {
-        userFiles = user.dccAsset
+        userFiles = user.dccAsset.filter((asset) => asset.deleted === false)
         // userFiles = allFiles
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all files that have been you have uploaded for all the DCCs you are affiliated with.
@@ -114,6 +123,7 @@ export default async function UserFiles() {
         </Typography>
     }
 
+
     return (
         <>
             <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -122,7 +132,7 @@ export default async function UserFiles() {
                 </Grid>
                 <Grid md={10} xs={12}>
                     <Container className="justify-content-center">
-                        <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED FILES</Typography>
+                        <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
                         <PaginatedTable userFiles={userFiles} role={user.role} />
                     </Container>

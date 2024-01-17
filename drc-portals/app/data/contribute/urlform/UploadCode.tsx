@@ -24,9 +24,14 @@ export const saveCodeAsset = async (filename: string, filetype: string, url: str
     });
     // in  development, if dcc not ingested into database
     if (process.env.NODE_ENV === 'development' && dcc === null) {
+        const dccInfo = await prisma.dCC.findMany()
+        const dccMapping: { [key: string]: string } = {}
+        dccInfo.map((dcc) => {
+            dcc.short_label ? dccMapping[dcc.short_label] = dcc.label : dccMapping[dcc.label] = dcc.label
+        })
         dcc = await prisma.dCC.create({
             data: {
-                label: formDcc, // TODO: change to long label
+                label: dccMapping[formDcc],
                 short_label: formDcc,
                 homepage: 'https://lincsproject.org'
             }

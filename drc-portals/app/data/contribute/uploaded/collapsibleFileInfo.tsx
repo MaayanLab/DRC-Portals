@@ -31,12 +31,23 @@ export function CollapsibleArrow({open, setOpen}: {open: boolean, setOpen: React
     );
 }
 
+// gotten from https://gist.github.com/zentala/1e6f72438796d74531803cc3833c039c 
+function formatBytes(bytes: number,decimals: number) {
+    if(bytes == 0) return '0 Bytes';
+    var k = 1024,
+        dm = decimals || 2,
+        sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+ }
+
 export function FileInfo({ open, fileInfo }: {
     open: boolean;
     fileInfo: {
         fileName: string,
         fileLink: string,
         sha256checksum: string | null
+        filesize: BigInt | null
     }
 }
 ) {
@@ -44,18 +55,31 @@ export function FileInfo({ open, fileInfo }: {
         <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
                 <Typography variant="h6" gutterBottom component="div">
-                    File Info
+                    Asset Info
                 </Typography>
+                {fileInfo.filesize ?               
                 <Table>
                     <TableRow>
                         <TableCell variant="head">File</TableCell>
                         <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
                     </TableRow>
                     <TableRow>
+                        <TableCell variant="head">File size</TableCell>
+                        <TableCell>{fileInfo.filesize ? formatBytes(parseInt(fileInfo.filesize.toString()), 2).toString() : ''}</TableCell>
+                    </TableRow>
+                    <TableRow>
                         <TableCell variant="head">Checksum (SHA256)</TableCell>
                         <TableCell>{fileInfo.sha256checksum ? Buffer.from(fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
                     </TableRow>
-                </Table>
+                </Table>  :
+                <Table>
+                    <TableRow>
+                        <TableCell variant="head">Asset</TableCell>
+                        <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
+                    </TableRow>
+                </Table> 
+                }
+
             </Box>
         </Collapse>
     )
@@ -109,6 +133,7 @@ export function DeleteDialogButton({userFile} : {userFile: DccAsset}) {
 
 export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSymbol} : {userFile: {dcc: {
     label: string;
+    short_label: string | null
 } | null;
 } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element}) {
     const [open, setOpen] = React.useState(false);
@@ -119,13 +144,16 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
         <>
             <TableRow
                 key={userFile.lastmodified.toString()}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{ '&:last-child td, &:last-child th': { border: 0}}}
             >
                 <TableCell><CollapsibleArrow open={open} setOpen={setOpen}/></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toUTCString()}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.creator}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toLocaleString()}</TableCell>
+                <TableCell sx={{ fontSize: 14}} align="center" style={{
+                      whiteSpace: "normal",
+                      wordBreak: "break-word"
+                    }}>{userFile.creator}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center">{userFile.filetype}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.label ?? userFile.dcc_id}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.short_label ?? userFile.dcc_id}</TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
@@ -133,7 +161,7 @@ export function FileRow({userFile, approvedSymboldcc, approvedSymbol, currentSym
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'sha256checksum': userFile.sha256checksum }} />
+                    <FileInfo open={open} fileInfo={{ 'fileLink': userFile.link, 'fileName': userFile.filename, 'sha256checksum': userFile.sha256checksum, 'filesize': userFile.size }} />
                 </TableCell>
             </TableRow>
         </>
