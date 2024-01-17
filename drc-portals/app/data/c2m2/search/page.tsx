@@ -23,6 +23,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
+  console.log(searchParams)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
