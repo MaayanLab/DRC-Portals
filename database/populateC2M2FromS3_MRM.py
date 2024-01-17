@@ -202,6 +202,8 @@ c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link
 c2m2_file_helper = TableHelper('c2m2_file_node', ('id', 'c2m2_datapackage_id', 'creation_time', 'persistent_id', 'size_in_bytes', 'file_format', 'data_type', 'assay_type',), pk_columns=('id',))
 node_helper = TableHelper('node', ('id', 'type', 'label', 'description', 'dcc_id',), pk_columns=('id',))
 
+# Mano: 2024/01/04: Do we really need the three "with ...." lines below. 
+# We are not using the variables/objects c2m2_file, node or c2m2_datapackage
 with c2m2_file_helper.writer() as c2m2_file:
   with node_helper.writer() as node:
     with c2m2_datapackage_helper.writer() as c2m2_datapackage:
@@ -252,6 +254,7 @@ with c2m2_file_helper.writer() as c2m2_file:
                         df.rename(columns={'assay_type': 'sample_prep_method'}, inplace=True);
 
                     #-----------------------------------------------------------------------------------------
+                    # Mano: Look into "on conflict ignore": https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
                     # if any of pKeys has id_namespace in it, no need to check for duplicate primary keys in current df with query
                     # Mano: 2023/12/30: if duplicate primary key, delete it from the df first before ingestion
                     # Since this is quite involved, may be write it in a function later
@@ -285,7 +288,7 @@ with c2m2_file_helper.writer() as c2m2_file:
                         df = df.iloc[df_pk_sort_index];
                         df_pk_dup = df_pk[:-1][df_pk[1:] == df_pk[:-1]];
                         if(df_pk_dup.size > 0):
-                            raise ValueError(f'The primary key columns in df of table read for a DCC has duplicates'); # should never happen
+                            raise ValueError(f'The primary key columns in df of table read for a DCC have duplicates'); # should never happen
                     
                         df_pk = list(df_pk); # easier to work with list later
                         df_pk = [str(i) for i in df_pk]; # make sure the elements are string

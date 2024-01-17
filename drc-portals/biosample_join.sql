@@ -1,5 +1,9 @@
-select
-id_namespace, local_id, project_id_namespace, project_local_id, creation_time, sample_prep_method, anatomy,
+/* How to run: on psql prompt: be in the folder with this file or give full path:
+\i biosample_join.sql
+ */
+
+CREATE TABLE c2m2.fl2_biosample as (SELECT DISTINCT
+id_namespace, local_id, project_id_namespace, project_local_id, persistent_id, creation_time, sample_prep_method, anatomy,
 association_type, disease,
 subject_id_namespace, subject_local_id, age_at_sampling,
 gene,
