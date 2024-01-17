@@ -64,12 +64,12 @@ export function FileInfo({ open, fileInfo }: {
                         <TableCell><Link color="secondary" href={fileInfo.fileLink} target="_blank" rel="noopener">{fileInfo.fileName}</Link></TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell variant="head">Checksum (SHA256)</TableCell>
-                        <TableCell>{fileInfo.sha256checksum ? Buffer.from(fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
-                    </TableRow>
-                    <TableRow>
                         <TableCell variant="head">File size</TableCell>
                         <TableCell>{fileInfo.filesize ? formatBytes(parseInt(fileInfo.filesize.toString()), 2).toString() : ''}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell variant="head">Checksum (SHA256)</TableCell>
+                        <TableCell>{fileInfo.sha256checksum ? Buffer.from(fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
                     </TableRow>
                 </Table>  :
                 <Table>

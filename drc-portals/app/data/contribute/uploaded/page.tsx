@@ -90,7 +90,7 @@ export default async function UserFiles() {
     let headerText;
 
     if (user.role === 'UPLOADER') {
-        userFiles = user.dccAsset
+        userFiles = user.dccAsset.filter((asset) => asset.deleted === false)
         // userFiles = allFiles
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all files that have been you have uploaded for all the DCCs you are affiliated with.

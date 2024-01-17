@@ -28,7 +28,7 @@ export const saveCodeAsset = async (filename: string, filetype: string, url: str
         const dccMapping: { [key: string]: string } = {}
         dccInfo.map((dcc) => {
             dcc.short_label ? dccMapping[dcc.short_label] = dcc.label : dccMapping[dcc.label] = dcc.label
-            })
+        })
         dcc = await prisma.dCC.create({
             data: {
                 label: dccMapping[formDcc],
