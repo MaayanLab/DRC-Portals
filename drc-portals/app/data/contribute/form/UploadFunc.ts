@@ -82,7 +82,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     if (dcc === null) throw new Error('Failed to find DCC')
     const savedUpload = await prisma.dccAsset.upsert({
         where: {
-            link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
+            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
         },
         update: {
             filetype: filetype,
@@ -95,7 +95,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             sha256checksum: checksumHash
         },
         create: {
-            link: `https://${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
+            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
             filetype: filetype,
             filename: filename,
             creator: user.email,
