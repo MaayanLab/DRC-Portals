@@ -42,6 +42,11 @@ export default async function UsersTable() {
     const allUserData = await getUserData();
     const rowData = allUserData['rows']
     const rawData = allUserData['users']
+    const dccInfo = await prisma.dCC.findMany()
+    const dccMapping: { [key: string]: string } = {}
+    dccInfo.map((dcc) => {
+        dcc.short_label ? dccMapping[dcc.short_label] = dcc.label : dccMapping[dcc.label] = dcc.label
+        })
     return (
         <>
             <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -51,7 +56,7 @@ export default async function UsersTable() {
                 <Grid md={10} xs={12}>
                     <Container className="justify-content-center" sx={{ minHeight: "30vw" }}>
                         <Typography variant="h3" color="secondary.dark" className='p-5'>ADMIN PAGE</Typography>
-                        <DataTable rows={rowData} users={rawData} />
+                        <DataTable rows={rowData} users={rawData} dccMapping={dccMapping} />
                     </Container>
                 </Grid>
             </Grid>

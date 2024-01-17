@@ -46,29 +46,6 @@ const columns: GridColDef[] = [
 
 ];
 
-const dccMapping = {
-    'LINCS': 'Library of Integrated Network-based Cellular Signatures',
-    '4DN': '4D Nucleome',
-    'Bridge2AI': 'Bridge to Artificial Intelligence',
-    'A2CPS': 'Acute to Chronic Pain Signatures',
-    'ExRNA': 'Extracellular RNA Communication',
-    'GTEx': 'Genotype Tissue Expression',
-    'HMP': 'The Human Microbiome Project',
-    'HuBMAP': 'Human BioMolecular Atlas Program',
-    'IDG': 'Illuminating the Druggable Genome',
-    'Kids First': 'Gabriella Miller Kids First Pediatric Research',
-    'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
-    'Metabolomics': 'Metabolomics',
-    'SenNet': 'The Cellular Senescence Network',
-    'Glycoscience': 'Glycoscience', 
-    'KOMP2': 'Knockout Mouse Phenotyping Program',
-    'H3Africa': 'Human Heredity & Health in Africa', 
-    'UDN': 'Undiagnosed Diseases Network',
-    'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
-    'iHMP': 'NIH Integrative Human Microbiome Project'
-}
-
-
 
 export default function DataTable(props: {
     rows: {
@@ -77,7 +54,8 @@ export default function DataTable(props: {
         email: string | null;
         dcc: string | null;
         role: string;
-    }[], users: User[]
+    }[], users: User[],
+    dccMapping: { [key: string]: string };
 }) {
     const [selection, setSelection] = React.useState<UserInfo[]>([]);
     const [createFormData, setCreateFormData] = React.useState({ name: '', email: '', role: '', DCC: '' });
@@ -142,7 +120,7 @@ export default function DataTable(props: {
 
     return (
         <>
-            <Grid container spacing={2} sx={{ml: 3}}>
+            <Grid container spacing={2} sx={{ ml: 3 }}>
                 {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
                 <div>
                     <Dialog open={createOpen} onClose={handleCreateClose} fullWidth>
@@ -179,7 +157,7 @@ export default function DataTable(props: {
                                 <MultiSelect
                                     name='DCC'
                                     label="DCC"
-                                    options={Object.keys(dccMapping)}
+                                    options={Object.keys(props.dccMapping)}
                                     formData={createFormData}
                                     setFormData={setCreateFormData}
                                     type='createUserForm'
@@ -215,7 +193,7 @@ export default function DataTable(props: {
                                                 <MultiSelect
                                                     name='DCC'
                                                     label="DCC"
-                                                    options={Object.keys(dccMapping)}
+                                                    options={Object.keys(props.dccMapping)}
                                                     defaultValue={user.dcc?.split(',')}
                                                     formData={updateFormData}
                                                     setFormData={setUpdateFormData}
@@ -251,11 +229,13 @@ export default function DataTable(props: {
                     pageSizeOptions={[5, 10]}
                     checkboxSelection
                     onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
-                    sx={{ fontSize: 14,
+                    sx={{
+                        fontSize: 14,
                         '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
-                            backgroundColor: "white", },
-                            ml:3
-                        }}
+                            backgroundColor: "white",
+                        },
+                        ml: 3
+                    }}
                 />
             </div>
         </>
