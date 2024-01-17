@@ -53,9 +53,10 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         cfde: {
-            fontSize: 24,
+            fontSize: 40,
             fontStyle: "normal",
             fontWeight: 500,
+            textTransform: "uppercase"
         },
         subtitle1: {
             fontSize: 16,
@@ -81,7 +82,7 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         nav: {
-            fontSize: 14,
+            fontSize: 16,
             fontStyle: "normal",
             fontWeight: 600,
             textTransform: "uppercase",
