@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import Message from './message'
+import Communicator from './Communicator'
 
 // Input processing functions
 import Gene from './Inputs/gene'
@@ -39,6 +40,8 @@ export default function Chat() {
     waitingForReply: false,
     messages: [] as { role: string, content: string, output: null | string, options: null | string[], args: null | any }[],
   })
+
+  const lastBotChat = React.useMemo(() => chat.messages.filter((message) => message.role == 'bot').slice(-1)[0]?.content || null, [chat])
 
   const trigger = React.useCallback(async (arg0: { body: { message: string } }) => {
     const options = {
@@ -149,7 +152,6 @@ export default function Chat() {
           <span className="sr-only">Loading...</span>
         </div> : <></>}
       </div>
-      
       <form
         className="flex flex-row items-center mt-3"
         onSubmit={async (evt) => {
@@ -172,6 +174,7 @@ export default function Chat() {
           value={query}
           onChange={evt => setQuery(() => evt.target.value)}
         />
+        <Communicator text2speech={lastBotChat} setMessage={setQuery}></Communicator>
         <button type="submit" className="btn btn-sm ml-2" disabled={!query && !chat.waitingForReply}>Send</button>
       </form>
       <div className='flex flex-wrap justify-center mt-2 mb-5'>
