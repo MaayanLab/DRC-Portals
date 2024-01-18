@@ -70,5 +70,15 @@
             "text": "I can send your gene set(s) to SigCom LINCS which is a web-based search engine that serves over 1.5 million gene expression signatures processed, analyzed, and visualized from LINCS, GTEx, and GEO. SigCom LINCS provides rapid signature similarity search for mimickers and reversers given sets of up and down genes. Once you submit your gene set I will provide a link to the result:",
             "questions": []
         }
+    },
+    "[Glycan]": {
+        "[GlyTouCanInfo]": {
+            "gpt_desc": "Find information about a given glycan such as G17689DH or a similarly formatted glycan id",
+            "process": "GlyGenbyGlyTouCan",
+            "args": [
+            ],
+            "text": "The GlyGen database was searched to identify a information about your glycan:",
+            "questions": []
+        }
     }
 }

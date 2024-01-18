@@ -2,15 +2,17 @@
 import React from 'react'
 import Message from './message'
 import Communicator from './Communicator'
-import ChatExample from './ChatExample'
+import ChatExample from './chatExample'
 
 // Input processing functions
 import Gene from './Inputs/gene'
 import GeneSet from './Inputs/geneset'
+import Glycan from './Inputs/glycan'
 
 // input forms
 import GeneInput from './Inputs/geneInput'
 import GeneSetInput from './Inputs/geneSetInput'
+import GlycanInput from './Inputs/glycanInput'
 import { Input } from '@mui/material'
 
 
@@ -23,12 +25,14 @@ interface ResponseData {
 
 let inputMapper: Record<string, any> = {
   '[Gene]': Gene,
-  '[Gene Set]': GeneSet
+  '[Gene Set]': GeneSet,
+  '[Glycan]': Glycan,
 }
 
 let processMapper: Record<string, any> = {
   'GeneInput': GeneInput,
   'GeneSetInput': GeneSetInput,
+  'GlycanInput': GlycanInput,
 }
 
 export default function Chat() {
@@ -184,6 +188,8 @@ export default function Chat() {
         <ChatExample example={'Which L1000 signatures up or down regulate my gene set?'} submit={submit}/>
         <ChatExample example={'Which mouse phenotypes signfigantly associated with ACE2?'} submit={submit}/>
         <ChatExample example={'In which pediatric tumors is ACE2 expressed?'} submit={submit}/>
+        <ChatExample example={'Which regulatory elements are associated with STAT3?'} submit={submit}/>
+        <ChatExample example={'Can you provide information about the glycan G17689DH?'} submit={submit}/>
       </div>
     </div>
   )

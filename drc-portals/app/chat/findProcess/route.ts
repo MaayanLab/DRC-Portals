@@ -20,7 +20,7 @@ async function pickProcess({ query, input }: { query: string, input: string }) {
                 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'gpt-4',
+                model: 'gpt-4-1106-preview',
                 messages: [
                     { "role": "system", "content": "You are an assitant meant to process a user query and decide what type of input the user is specifiying" },
                     { "role": "user", "content": pickOuput }
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest
 
     const pickInput = `
     Based on the query from the user: "${query}"
-    Pick an input type from the list: [[Metabolite],[RNA-seq file],[Variant],[Transcript],[Gene],[Gene Set],[Differential Expression],[Study Metadata],[Other]]
+    Pick an input type from the list: [[Metabolite],[Glycan],[RNA-seq file],[Variant],[Transcript],[Gene],[Gene Set],[Differential Expression],[Study Metadata],[Other]]
     Additional context: 
     A Gene Set is a collection of mulitple genes.
     If the user includes a gene symbol in their query, then the input is likely [Gene].
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest
                 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'gpt-4',
+                model: 'gpt-4-1106-preview',
                 messages: [
                     { "role": "system", "content": "You are an assitant meant to process a user query and decide what type of input the user is specifiying" },
                     { "role": "user", "content": pickInput }
