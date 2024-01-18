@@ -66,7 +66,7 @@ export default async function InfoFooter() {
               {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
               </Link> */}
-              <Link href="/info/coming_soon"><Typography variant="footer">Standards & Protocols</Typography></Link>
+              <Link href="/info/standards"><Typography variant="footer">Standards & Protocols</Typography></Link>
               <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
             </Stack>
           </Grid>
