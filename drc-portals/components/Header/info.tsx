@@ -63,14 +63,14 @@ export default async function InfoHeader() {
                   <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                 </Stack>
               </Grid>
-              <Grid item>
+              {/* <Grid item>
                 <TextField sx={{width: 400}} color='secondary' placeholder='Search' InputProps={{
                     style: {borderRadius: 5, height: 50, color: "#336699", fontSize: 16},
                     color: "secondary",
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
         </Toolbar>
       </AppBar>

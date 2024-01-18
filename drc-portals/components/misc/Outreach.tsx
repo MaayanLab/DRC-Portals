@@ -70,10 +70,11 @@ const GridView = ({featured, children}: {featured: Boolean, children: React.Reac
 
 
 
-async function Outreach({featured=true, orientation='horizontal'}:{
+async function Outreach({featured=true, orientation='horizontal', size=2}:{
   featured?: Boolean,
   active?: Boolean,
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: 'horizontal' | 'vertical',
+  size?: number
 }) {
     let outreach
     if (featured) {
@@ -86,7 +87,7 @@ async function Outreach({featured=true, orientation='horizontal'}:{
           start_date: { sort: 'desc', nulls: 'last' },
         }
       })
-      outreach = shuffle(outreach).slice(0,2)
+      outreach = shuffle(outreach).slice(0,size)
     } else {
       outreach = await prisma.outreach.findMany({
         where: {
