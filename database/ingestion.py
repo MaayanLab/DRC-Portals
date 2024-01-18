@@ -149,16 +149,16 @@ cur.execute('''
 with open(outreach_path(), 'r') as fr:
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image'),
+       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image)
+       start_date, end_date, application_start, application_end, link, image, carousel)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image
+       start_date, end_date, application_start, application_end, link, image, carousel
       from outreach_tmp
       on conflict (id)
         do update
@@ -174,7 +174,8 @@ cur.execute('''
             application_start = excluded.application_start,
             application_end = excluded.application_end,
             link = excluded.link,
-            image = excluded.image
+            image = excluded.image,
+            carousel = excluded.carousel
     ;
   ''')
 cur.execute('drop table outreach_tmp;')

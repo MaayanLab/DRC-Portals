@@ -21,7 +21,7 @@ import MasonryClient from "./MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { Outreach } from "@prisma/client"
-const shuffle = (array: Outreach[]) => { 
+export const shuffle = (array: Outreach[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
     [array[i], array[j]] = [array[j], array[i]]; 

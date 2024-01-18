@@ -26,6 +26,8 @@ model DCC {
   assets        DccAsset[]
   outreach      DCCOutreach[]
   partnerships  DCCPartnerships[]
+  usecases_created      UseCase[]
+  usecases      DCCUseCase[]
   nodes         Node[]
   kg_assertions KGAssertion[]
 
@@ -71,6 +73,7 @@ model Outreach {
   tags              Json
   featured          Boolean       @default(false)
   active            Boolean       @default(false)
+  carousel          Boolean       @default(false)
   start_date        DateTime?     @db.Timestamptz(3)
   end_date          DateTime?     @db.Timestamptz(3)
   application_start DateTime?     @db.Timestamptz(3)
@@ -123,6 +126,33 @@ model PartnershipPublications {
 
   @@id([partnership_id, publication_id])
   @@map("partnership_publications")
+}
+
+model UseCase {
+  id                String        @id @default(uuid())
+  title             String
+  short_description String
+  description       String
+  inputs            Json
+  outputs           Json
+  sources           Json
+  link              String?
+  image             String?
+  tutorial          String?
+  creator_dcc_id    String?
+  creator_dcc       DCC?      @relation(fields: [creator_dcc_id], references: [id])
+  source_dccs       DCCUseCase[]
+  @@map("usecase")
+}
+
+model DCCUseCase {
+  usecase    UseCase @relation(fields: [usecase_id], references: [id])
+  usecase_id String
+  dcc         DCC      @relation(fields: [dcc_id], references: [id])
+  dcc_id      String
+
+  @@id([usecase_id, dcc_id])
+  @@map("dcc_usecase")
 }
 
 model Tool {
