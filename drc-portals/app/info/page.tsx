@@ -122,7 +122,7 @@ export default async function Home() {
                                 DCCS
                               </Button>
                             </Link>
-                            <Link href='/info/coming_soon'>
+                            <Link href='/info/standards'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                 STANDARDS & PROTOCOLS
                               </Button>
