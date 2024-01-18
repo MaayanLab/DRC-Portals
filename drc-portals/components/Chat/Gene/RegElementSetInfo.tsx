@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import TableView from "@/components/Chat/vis/tableView";
+import PlaybookButton from '../playbookButton';
 
 const getPlaybookRegElementInfo = async (body: any) => {
 
@@ -55,14 +56,14 @@ export default function RegElementSetInfo(props: any) {
         ]
     }
     const { data, isLoading, error } = useSWR([body], () => getPlaybookRegElementInfo(body));
+
     if (error) {
         return <>{error}</>
     } else if (isLoading) {
         return <>{isLoading}</>
     }
-    console.log(data)
 
-    const tableData = data[2].process.output.value;
+    const tableData = data.data[2].process.output.value;
     const formattedTableData:  {
         ID: string[];
         chromosome: string[];
@@ -82,11 +83,13 @@ export default function RegElementSetInfo(props: any) {
     return (
         <>
             <TableView rowData={formattedTableData}></TableView>
+            <PlaybookButton id={data.id}></PlaybookButton>
         </>)
     } catch {
         return (
             <>
                 <TableView rowData={{}}></TableView>
+                <PlaybookButton id={data.id}></PlaybookButton>
             </>)
     }
 }

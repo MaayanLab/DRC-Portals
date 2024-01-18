@@ -21,7 +21,8 @@ export async function POST(req: NextRequest
  
         const output = await resOutput.json() 
 
-        return new NextResponse(JSON.stringify(output), {
+        return new NextResponse(
+            JSON.stringify({'data': output, 'id': id}), {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });

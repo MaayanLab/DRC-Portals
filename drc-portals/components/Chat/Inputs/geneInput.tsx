@@ -45,7 +45,9 @@ export default function GeneInput(props: any) {
 
     return (
         <>
-            {submitted ? <>{React.createElement(Component, { ...props, genesymbol: geneTerm })}</> : <div className=' w-1/2' style={{ width: '200px' }}>
+            {submitted ? 
+            <>{React.createElement(Component, { ...props, genesymbol: geneTerm })}</> : 
+            <div className=' w-1/2' style={{ width: '200px' }}>
                 <Select
                     theme={(theme) => ({
                         ...theme,
