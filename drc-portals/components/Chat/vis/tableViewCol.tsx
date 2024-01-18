@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 
-export default function TableViewIMPC(rowData: any) {
+export default function TableViewIMPC({rowData, columns}: {rowData: any, columns: string[]}) {
     const [currentPage, setCurrentPage] = useState(1);
 
-    const columns = [
-        'marker_accession_id',
-        'mp_term_id',
-        'mp_term_name',
-        'assertion_type',
-        'p_value',
-        'percentage_change',
-        'statistical_method',
-    ]
+    console.log(rowData.length)
 
-    if (rowData.rowData.length == 0) {
+    if (rowData.length == 0) {
         return <>No associated phenotypes were found from IMPC.</>
     }
 
     try {
-        const columnNames = columns
+        var columnNames = columns;
+
+        if (!columns) {
+            columnNames = Object.keys(rowData[0]);
+        }
+
 
         // Define the number of entries to show per page.
         const entriesPerPage = 10;
@@ -31,7 +28,7 @@ export default function TableViewIMPC(rowData: any) {
             <th key={columnName} className='text-slate-800'>{columnName}</th>
         ));
 
-        const tableRows = rowData.rowData.slice(startIndex, endIndex).map((row: any, i: number) => (
+        const tableRows = rowData.slice(startIndex, endIndex).map((row: any, i: number) => (
             <tr key={i}>
                 {columnNames.map((columnName) => {
                     const cellValue = row[columnName];
@@ -44,7 +41,7 @@ export default function TableViewIMPC(rowData: any) {
             </tr>
         ));
 
-        const totalPages = Math.ceil(rowData.rowData.length / entriesPerPage);
+        const totalPages = Math.ceil(rowData.length / entriesPerPage);
 
         const handlePreviousPage = () => {
             if (currentPage > 1) {
@@ -70,11 +67,11 @@ export default function TableViewIMPC(rowData: any) {
                         {tableRows}
                     </tbody>
                 </table>
-                <div className='text-center m-2'>
-                    <button className={classNames('btn-sm border rounded opacity-50', { 'font-bold opacity-100': currentPage != 1 })} onClick={handlePreviousPage} disabled={currentPage === 1}>
+                <div className='text-center m-2 space-x-2'>
+                    <button className={classNames('px-2 btn-sm border rounded', { 'font-extrabold opacity-100 border-2': currentPage != 1 })} onClick={handlePreviousPage} disabled={currentPage === 1}>
                         Previous
                     </button>
-                    <button className={classNames('btn-sm border rounded opacity-50', { 'font-bold opacity-100': currentPage != totalPages })} onClick={handleNextPage} disabled={currentPage === totalPages}>
+                    <button className={classNames('px-2 btn-sm border rounded', { 'font-extrabold opacity-100 border-2 ': currentPage != totalPages })} onClick={handleNextPage} disabled={currentPage === totalPages}>
                         Next
                     </button>
                     <p className={'text-sm mt-1'}>Page {currentPage} of {totalPages}</p>

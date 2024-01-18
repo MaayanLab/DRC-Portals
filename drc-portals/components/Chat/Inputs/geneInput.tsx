@@ -10,12 +10,14 @@ import ReverseSearchL1000 from '../Gene/reverseSearchL1000'
 import ImpcPhenotypes from '../Gene/impcPhenotypes'
 import ScoredGTExTissue from '../Gene/scoredGTExTissue'
 import RegElementSetInfo from '../Gene/RegElementSetInfo'
+import KidsFirstTumorExpr from '../Gene/KidsFirstTumorExpr'
 
 let processMapper: Record<string, any> = {
     'GtexGeneExpression': ScoredGTExTissue,
     'ReverseSearchL1000': ReverseSearchL1000,
     'ImpcPhenotypes': ImpcPhenotypes,
-    'RegElementSetInfo': RegElementSetInfo
+    'RegElementSetInfo': RegElementSetInfo,
+    'KidsFirstTumorExpr': KidsFirstTumorExpr,
 }
 
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())

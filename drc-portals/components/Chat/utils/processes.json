@@ -42,6 +42,14 @@
                 }
             ]
         },
+        "[Kids First Tumor Expression]": {
+            "gpt_desc": "Gene expression in tumors for a gene from Kids First Open Pediatric Cancer Atlas API [1].",
+            "process": "KidsFirstTumorExpr",
+            "args": [
+            ],
+            "text": "I queried gene expression in tumors for your gene from the Open Pediatric Cancer Atlas API ",
+            "questions": []
+        },
         "[Regulatory Elements]": {
             "gpt_desc": "Find regulatory elements that regulate a given gene",
             "process": "RegElementSetInfo",
