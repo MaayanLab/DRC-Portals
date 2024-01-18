@@ -133,7 +133,7 @@ export default async function Home() {
                         <Paper elevation={0}>
                           <Stack>
                             <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">COMMUNITY</Typography>
-                            <Link href='/info/coming_soon'>
+                            <Link href='/info/partnerships'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                 PARTNERSHIPS
                               </Button>
