@@ -56,7 +56,7 @@ for i in df.index:
     uid = str(uuid5(NAMESPACE_URL, title))
     v = {c: val[c] for c in outreach_columns}
     outreach_df.loc[uid] = val
-    if val["dcc"].strip() != '':
+    if type(val["dcc"]) == str and val["dcc"].strip() != '':
         for dcc in val["dcc"].split("; "):
             dcc_id = dcc_mapper[dcc]
             dcc_outreach_df.loc[ind] = [uid, dcc_mapper[dcc]]
@@ -94,16 +94,16 @@ cur.execute('''
 with open(outreach_file, 'r') as fr:
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image'),
+       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image)
+       start_date, end_date, application_start, application_end, link, image, carousel)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image
+       start_date, end_date, application_start, application_end, link, image, carousel
       from outreach_tmp
       on conflict (id)
         do update
@@ -119,7 +119,8 @@ cur.execute('''
             application_start = excluded.application_start,
             application_end = excluded.application_end,
             link = excluded.link,
-            image = excluded.image
+            image = excluded.image,
+            carousel = excluded.carousel
     ;
   ''')
 cur.execute('drop table outreach_tmp;')

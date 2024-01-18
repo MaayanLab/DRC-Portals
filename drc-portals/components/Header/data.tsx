@@ -11,9 +11,8 @@ import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
 import { Logo } from '../styled/Logo'
 import UserComponent from '../misc/LoginComponents/UserComponent'
-import NavBreadcrumbs from './breadcrumbs'
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
-
+import DataPortalButton from './dataportal_button'
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions) 
   return (
@@ -22,12 +21,15 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
-                <Logo href={`/info`} title="CFDE Workbench"  color="secondary"/>
+                <Logo href={`/data`} title="CFDE Workbench" size='large' color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  <Link href="/data/coming_soon">
+                  {/* <Link href="/data/coming_soon">
                     <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
+                  </Link> */}
+                  <Link href="/info">
+                    <Typography variant="nav">INFORMATION PORTAL</Typography>
                   </Link>
                   <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
@@ -42,14 +44,21 @@ export default async function InfoHeader() {
               <Grid item xs={12}></Grid>
               <Grid item>
                   <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                    <Link href="/info">
+                    {/* <Link href="/info">
                       <Typography variant="nav">INFORMATION PORTAL</Typography>
-                    </Link>
+                    </Link> */}
+                    <DataPortalButton />
                     <Link href="/data/matrix">
                       <Typography variant="nav">DATA MATRIX</Typography>
                     </Link>
                     <Link href="/data/tools_and_workflows">
                       <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
+                    </Link>
+                    <Link href="https://playbook-workflow-builder.cloud/playbooks">
+                      <Typography variant="nav">USE CASES</Typography>
+                    </Link>
+                    <Link href="/info/coming_soon">
+                      <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                     </Link>
                     {/* <Link href="/data/coming_soon">
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>

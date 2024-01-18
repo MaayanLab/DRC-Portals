@@ -109,6 +109,7 @@ interface Data {
     filetype: string;
     dcc?: {
         label: string;
+        short_label: string | null
     };
 }
 
@@ -136,7 +137,7 @@ const headCells: readonly HeadCell[] = [
         id: 'filetype',
         numeric: false,
         disablePadding: false,
-        label: 'File Type',
+        label: 'Asset Type',
     },
     {
         id: 'dcc',
@@ -170,7 +171,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                             direction={orderBy === headCell.id ? order : 'asc'}
                             onClick={createSortHandler(headCell.id)}
                         >
-                            {headCell.label}
+                            <strong>{headCell.label}</strong>
                             {orderBy === headCell.id ? (
                                 <Box component="span" sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -179,9 +180,9 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                         </TableSortLabel>
                     </TableCell>
                 ))}
-                <TableCell sx={{ fontSize: 14 }} align="center">DCC Status</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">DRC Status</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center">Current</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><strong>DCC Status</strong></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><strong>DRC Status</strong></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><strong>Current</strong></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"></TableCell>
             </TableRow>
         </TableHead>
@@ -191,17 +192,19 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 function dccCompare(a: {
     dcc: {
         label: string;
+        short_label: string | null
     } | null;
 } & DccAsset, b: {
     dcc: {
         label: string;
+        short_label: string | null
     } | null;
 } & DccAsset) {
-    if (!a.dcc?.label) return 0
-    if (!b.dcc?.label) return 0
-    if (a.dcc?.label < b.dcc?.label) {
+    if (!a.dcc?.short_label) return 0
+    if (!b.dcc?.short_label) return 0
+    if (a.dcc?.short_label < b.dcc?.short_label) {
         return -1;
-    } else if (a.dcc?.label > b.dcc?.label) {
+    } else if (a.dcc?.short_label > b.dcc?.short_label) {
         return 1;
     }
     return 0;
@@ -210,17 +213,19 @@ function dccCompare(a: {
 function dccCompareAsc(a: {
     dcc: {
         label: string;
+        short_label: string | null
     } | null;
 } & DccAsset, b: {
     dcc: {
         label: string;
+        short_label: string | null
     } | null;
 } & DccAsset) {
-    if (!a.dcc?.label) return 0
-    if (!b.dcc?.label) return 0
-    if (a.dcc?.label < b.dcc?.label) {
+    if (!a.dcc?.short_label) return 0
+    if (!b.dcc?.short_label) return 0
+    if (a.dcc?.short_label < b.dcc?.short_label) {
         return 1;
-    } else if (a.dcc?.label > b.dcc?.label) {
+    } else if (a.dcc?.short_label > b.dcc?.short_label) {
         return -1;
     }
     return 0;
@@ -229,6 +234,7 @@ function dccCompareAsc(a: {
 function filterSearch(item: ({
     dcc: {
         label: string;
+        short_label: string | null
     } | null;
 } & DccAsset), query: string) {
     return (item.filetype.toLowerCase().includes(query.toLowerCase())) || 
@@ -236,7 +242,7 @@ function filterSearch(item: ({
     (item.creator?.toLowerCase().includes(query.toLowerCase())) ||
     (item.lastmodified.toString().toLowerCase().includes(query.toLowerCase())) ||
     (item.link.toLowerCase().includes(query.toLowerCase())) ||
-    (item.dcc?.label.toLowerCase().includes(query.toLowerCase()))
+    (item.dcc?.short_label ? item.dcc?.short_label.toLowerCase().includes(query.toLowerCase()) : item.dcc?.label.toLowerCase().includes(query.toLowerCase()))
 
 }
 
@@ -244,6 +250,7 @@ export function PaginatedTable({ userFiles, role }: {
     userFiles: ({
         dcc: {
             label: string;
+            short_label: string | null;
         } | null;
     } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
 }) {
@@ -255,6 +262,7 @@ export function PaginatedTable({ userFiles, role }: {
     const [copyUserFiles, setCopyUserFiles] = React.useState<({
         dcc: {
             label: string;
+            short_label: string | null;
         } | null;
     } & DccAsset)[]>([])
 
@@ -367,7 +375,7 @@ export function PaginatedTable({ userFiles, role }: {
                     onInput={(e) => handleSearch((e.target as HTMLFormElement).value)}
                 />
             </Search>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <Table sx={{ minWidth: 650}} aria-label="uploaded files">
                 <EnhancedTableHead
                     order={order}
                     orderBy={orderBy}

@@ -24,7 +24,7 @@ export default async function InfoHeader() {
         <Toolbar>
             <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
               <Grid item>
-                <Logo href={`/info`} title="CFDE Workbench" color="secondary"/>
+                <Logo href={`/info`} title="CFDE Workbench" size='large' color="secondary"/>
               </Grid>
               <Grid item>
                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
@@ -57,17 +57,20 @@ export default async function InfoHeader() {
                   <Link href="/info/coming_soon">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
+                  <Link href="/data/tools_and_workflows">
+                    <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
+                  </Link>
                   <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                 </Stack>
               </Grid>
-              <Grid item>
+              {/* <Grid item>
                 <TextField sx={{width: 400}} color='secondary' placeholder='Search' InputProps={{
                     style: {borderRadius: 5, height: 50, color: "#336699", fontSize: 16},
                     color: "secondary",
                     endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>
                   }}
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
         </Toolbar>
       </AppBar>
