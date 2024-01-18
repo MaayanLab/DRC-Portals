@@ -2,6 +2,7 @@
 import React from 'react'
 import Message from './message'
 import Communicator from './Communicator'
+import ChatExample from './ChatExample'
 
 // Input processing functions
 import Gene from './Inputs/gene'
@@ -178,78 +179,11 @@ export default function Chat() {
         <button type="submit" className="btn btn-sm ml-2" disabled={!query && !chat.waitingForReply}>Send</button>
       </form>
       <div className='flex flex-wrap justify-center mt-2 mb-5'>
-        <div
-          data-te-chip-init
-          data-te-ripple-init
-          className="[word-wrap: break-word] my-[5px] mx-[5px] flex h-[32px] cursor-pointer items-center justify-between rounded-[16px] bg-[#eceff1] px-[12px] py-0 text-[13px] font-normal normal-case leading-loose text-[#4f4f4f] shadow-none transition-[opacity] duration-300 ease-linear hover:!shadow-none active:bg-[#cacfd1] dark:bg-neutral-600 dark:text-neutral-200"
-          data-te-close="true"
-          onClick={async (evt) => {
-            evt.preventDefault()
-            submit({
-              role: 'user',
-              content: "In which GTEx tissues is AKT1 most highly expressed?",
-              output: null,
-              options: null,
-              args: null
-            })
-          }}
-        >
-          In which GTEx tissues is AKT1 most highly expressed?
-        </div>
-        <div
-          data-te-chip-init
-          data-te-ripple-init
-          className="[word-wrap: break-word] my-[5px] mx-[5px] flex h-[32px] cursor-pointer items-center justify-between rounded-[16px] bg-[#eceff1] px-[12px] py-0 text-[13px] font-normal normal-case leading-loose text-[#4f4f4f] shadow-none transition-[opacity] duration-300 ease-linear hover:!shadow-none active:bg-[#cacfd1] dark:bg-neutral-600 dark:text-neutral-200"
-          data-te-close="true"
-          onClick={async (evt) => {
-            evt.preventDefault()
-            submit({
-              role: 'user',
-              content: "Which L1000 drugs most signfigantly up or down regulate STAT3?",
-              output: null,
-              options: null,
-              args: null
-            })
-          }}
-        >
-          Which L1000 drugs most signfigantly up or down regulate STAT3?
-        </div>
-        <div
-          data-te-chip-init
-          data-te-ripple-init
-          className="[word-wrap: break-word] my-[5px] mx-[5px] flex h-[32px] cursor-pointer items-center justify-between rounded-[16px] bg-[#eceff1] px-[12px] py-0 text-[13px] font-normal normal-case leading-loose text-[#4f4f4f] shadow-none transition-[opacity] duration-300 ease-linear hover:!shadow-none active:bg-[#cacfd1] dark:bg-neutral-600 dark:text-neutral-200"
-          data-te-close="true"
-          onClick={async (evt) => {
-            evt.preventDefault()
-            submit({
-              role: 'user',
-              content: "Which L1000 signatures up or down regulate my gene set?",
-              output: null,
-              options: null,
-              args: null
-            })
-          }}
-        >
-          Which L1000 signatures up or down regulate my gene set?
-        </div>
-        <div
-          data-te-chip-init
-          data-te-ripple-init
-          className="[word-wrap: break-word] my-[5px] mx-[5px] flex h-[32px] cursor-pointer items-center justify-between rounded-[16px] bg-[#eceff1] px-[12px] py-0 text-[13px] font-normal normal-case leading-loose text-[#4f4f4f] shadow-none transition-[opacity] duration-300 ease-linear hover:!shadow-none active:bg-[#cacfd1] dark:bg-neutral-600 dark:text-neutral-200"
-          data-te-close="true"
-          onClick={async (evt) => {
-            evt.preventDefault()
-            submit({
-              role: 'user',
-              content: "Which mouse phenotypes signfigantly associated with ACE2?",
-              output: null,
-              options: null,
-              args: null
-            })
-          }}
-        >
-          Which mouse phenotypes signfigantly associated with ACE2?
-        </div>
+        <ChatExample example={'In which GTEx tissues is AKT1 most highly expressed?'} submit={submit}/>
+        <ChatExample example={'Which L1000 drugs most signfigantly up or down regulate STAT3?'} submit={submit}/>
+        <ChatExample example={'Which L1000 signatures up or down regulate my gene set?'} submit={submit}/>
+        <ChatExample example={'Which mouse phenotypes signfigantly associated with ACE2?'} submit={submit}/>
+        <ChatExample example={'In which pediatric tumors is ACE2 expressed?'} submit={submit}/>
       </div>
     </div>
   )
