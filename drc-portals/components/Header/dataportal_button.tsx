@@ -8,7 +8,7 @@ export default function DataPortalButton() {
     if (path.split("/").length < 3) return null
     else return (
         <Link href="/data">
-            <Typography variant="nav">DATA PORTAL</Typography>
+            <Typography variant="nav">HOME</Typography>
         </Link>
     )
 }
