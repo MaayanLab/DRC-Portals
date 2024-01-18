@@ -27,14 +27,10 @@ export default function Standards() {
                 metadata annotations across Common Fund DCCs by the original CFDE 
                 Coordination Center. C2M2 datapackage files are usually a zipfile 
                 containing a set of TSV files already standardized to a set of known 
-                ontologies, along with a single JSON schema. </Typography>
-              <Typography sx={{m:2}} color="#666666">
-                The most current version of the C2M2 JSON schema can be 
-                accessed <Link color="#3470e5" href="https://osf.io/c63aw/" 
-                target="_blank" rel="noopener">here</Link>.
+                ontologies, along with a single JSON schema. 
                 <br /><br />
-                Learn more about the C2M2 technical specifications <Link 
-                href="/info/standards/c2m2" rel="noopener" color="#3470e5">here</Link>.
+                Learn more about generating a C2M2 datapackage <Link 
+                href="/info/standards/C2M2" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -45,18 +41,38 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Test
+                The CFDE RNA-seq Partnership aims to harmonize diverse RNA-seq 
+                datasets across the CFDE to improve their interoperability and 
+                reusability for the broader scientific research community. To this 
+                end, the partnership is developing common pipelines for both bulk 
+                and single cell RNA-seq data analysis, with the end goal of building 
+                a large, readily accessible, and harmonized resource of RNA-seq 
+                datasets and processing tools from various DCCs and CFDE projects. 
+                <br /><br />
+                More information about the standardized bulk and single cell RNA-seq 
+                pipelines will be available soon. 
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
 
           <StyledAccordion >
             <StyledAccordionSummary >
-                <Typography fontWeight="bold" color="#ffffff">OpenAPI</Typography>
+                <Typography fontWeight="bold" color="#ffffff">OpenAPI & SmartAPI</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Test
+                The OpenAPI specification allows for the standardization of 
+                application programming interfaces (APIs), and facilitates 
+                their interoperability. 
+                <br /><br />
+                The SmartAPI project builds on top of the OpenAPI specifications 
+                to maximize the findability, accessibility, interoperability, 
+                and reusability (FAIRness) of web-based tools, especially those 
+                within the biomedical sphere. Through richer metadata descriptions, 
+                SmartAPI enables users to search and use a connected network of tools. 
+                <br /><br />
+                Learn more about generating an OpenAPI or SmartAPI specification <Link
+                href="/info/standards/OpenAPI" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -67,7 +83,7 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Test
+                Coming Soon
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -78,7 +94,7 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Test
+                Coming Soon
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -89,7 +105,26 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Test
+                The Playbook Partnership Workflow Builder (PPWB) is a web-based 
+                knowledge resolution platform being developed by the CFDE Workflow 
+                Playbook Partnership and consisting of a growing network of datasets, 
+                semantically annotated API endpoints, and visualization tools 
+                from across the CFDE. 
+                <br /><br />
+                Users can construct workflows from the individual building blocks, 
+                termed "meta nodes", with little effort or technical expertise 
+                required. For more information, refer to the <Link
+                  href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/user/index.md"
+                  rel="noopener" color="#3470e5">
+                    User Guide
+                </Link>. Developers can refer to the <Link 
+                  href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/user/index.md"
+                  rel="noopener" color="#3470e5"
+                  >Developer Guide
+                </Link>.
+                <br /><br />
+                Learn more about building PWB meta nodes <Link
+                href="/info/standards/PWBMetanodes" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>

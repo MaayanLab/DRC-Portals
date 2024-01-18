@@ -1,12 +1,13 @@
-import { Grid, Container, Typography, Link } from "@mui/material";
+import { Grid, Typography, Link } from "@mui/material";
 import ReactMarkdown from 'react-markdown'
 import path from 'path'
 import { readFileSync } from 'fs'
 
-const markdown = readFileSync(
-  path.resolve('app/info/standards/c2m2', './c2m2.md'), {encoding:'utf8', flag:'r'})
-
 export default function C2M2Docs() {
+  const markdown = readFileSync(
+    path.resolve('app/info/standards/C2M2', './C2M2.md'), 
+    {encoding:'utf8', flag:'r'}
+  )
   return (
     <Grid container sx={{ml:3, mt:3}}>
       <Grid item xs={12}>
