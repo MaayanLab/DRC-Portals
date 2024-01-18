@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '@mdi/react';
 import { mdiEarHearing, mdiEarHearingOff } from '@mdi/js';
-import { set } from 'zod';
 const MicRecorder = require('mic-recorder-to-mp3')
 
 const recorder = new MicRecorder({
@@ -57,6 +56,7 @@ const Communicator = ({text2speech, setMessage}: {text2speech: string | null, se
                 const formData = new FormData();
                 formData.append("file", blob);
                 formData.append("model", "whisper-1");
+                setActive(false)
                 const response = await fetch("/chat/transcribe", { method: 'POST', body: formData });
                 const transcribed = await response.json()
                 setMessage(transcribed.text)    

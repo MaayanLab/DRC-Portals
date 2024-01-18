@@ -4,14 +4,14 @@
             "gpt_desc": "Gene expression across tissues from GTEx",
             "process": "GtexGeneExpression",
             "args": [],
-            "text": "I can query the expression your gene across tissues from GTEx version 8 and produced a plot of z-scored values:",
+            "text": "I queried the expression of your gene across tissues from GTEx version 8 and produced a plot of z-scored values:",
             "questions": []
         },
         "[Phenotypes]": {
             "gpt_desc": "Mouse phenotypes signfigantly associated with a gene",
             "process": "ImpcPhenotypes",
             "args": [],
-            "text": "I can query IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene",
+            "text": "I queried IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene",
             "questions": []
         },
         "[L1000 Search]": {
