@@ -82,10 +82,10 @@ export default async function InfoFooter() {
         </Grid>
         <Grid item xs={12} sx={{marginTop: 5, marginRight: 5, marginLeft: 6}}>
           <Stack spacing={2} direction={"row"} justifyContent="space-between">
-              <div className='flex space-x-5'>
+              {/* <div className='flex space-x-5'>
                 <Link href="/info/coming_soon"><Typography variant="caption">Terms of Service</Typography></Link>
                 <Link href="/info/coming_soon"><Typography variant="caption">Privacy Policy</Typography></Link>
-              </div>
+              </div> */}
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
           </Stack>
         </Grid>
