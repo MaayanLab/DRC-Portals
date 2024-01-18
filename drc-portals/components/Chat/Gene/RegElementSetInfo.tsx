@@ -89,6 +89,7 @@ export default function RegElementSetInfo(props: any) {
         return (
             <>
                 <TableView rowData={{}}></TableView>
+                <br></br>
                 <PlaybookButton id={data.id}></PlaybookButton>
             </>)
     }

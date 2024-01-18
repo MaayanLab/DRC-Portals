@@ -188,7 +188,7 @@ export default function Chat() {
         <ChatExample example={'Which L1000 signatures up or down regulate my gene set?'} submit={submit}/>
         <ChatExample example={'Which mouse phenotypes signfigantly associated with ACE2?'} submit={submit}/>
         <ChatExample example={'In which pediatric tumors is ACE2 expressed?'} submit={submit}/>
-        <ChatExample example={'Which regulatory elements are associated with STAT3?'} submit={submit}/>
+        <ChatExample example={'Which regulatory elements are associated with ACE2?'} submit={submit}/>
         <ChatExample example={'Can you provide information about the glycan G17689DH?'} submit={submit}/>
       </div>
     </div>
