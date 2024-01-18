@@ -60,7 +60,7 @@ export default function KidsFirstTumorExpr(props: any) {
 
     return (
         <>
-            <TableViewCol rowData={tableData} />
+            <TableViewCol rowData={tableData}/>
             <PlaybookButton id={data.id}></PlaybookButton>
         </>)
 }

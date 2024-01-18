@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 
-export default function TableViewIMPC({rowData, columns}: {rowData: any, columns: string[]}) {
+export default function TableViewIMPC({rowData, columns}: {rowData: any, columns?: string[] | null}) {
     const [currentPage, setCurrentPage] = useState(1);
 
-    console.log(rowData.length)
 
     if (rowData.length == 0) {
         return <>No associated phenotypes were found from IMPC.</>
@@ -24,13 +23,13 @@ export default function TableViewIMPC({rowData, columns}: {rowData: any, columns
         const startIndex = (currentPage - 1) * entriesPerPage;
         const endIndex = startIndex + entriesPerPage;
 
-        const tableHeader = columnNames.map((columnName) => (
+        const tableHeader = columnNames?.map((columnName) => (
             <th key={columnName} className='text-slate-800'>{columnName}</th>
         ));
 
         const tableRows = rowData.slice(startIndex, endIndex).map((row: any, i: number) => (
             <tr key={i}>
-                {columnNames.map((columnName) => {
+                {columnNames?.map((columnName) => {
                     const cellValue = row[columnName];
                     const formattedValue = typeof cellValue === 'number' && !Number.isInteger(cellValue) ? cellValue.toFixed(3) : cellValue;
                     if (formattedValue != null)
