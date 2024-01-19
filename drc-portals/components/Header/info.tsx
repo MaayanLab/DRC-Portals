@@ -54,7 +54,7 @@ export default async function InfoHeader() {
                   <Link href="/info/dcc">
                     <Typography variant="nav">DCCs</Typography>
                   </Link>
-                  <Link href="/info/coming_soon">
+                  <Link href="/info/standards">
                     <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                   </Link>
                   <Link href="/data/tools_and_workflows">

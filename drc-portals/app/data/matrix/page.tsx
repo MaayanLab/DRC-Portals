@@ -78,7 +78,7 @@ export default async function DataMatrix() {
         specifications. 
         <br /> <br />
         For more information about any of the asset types, please refer to 
-        the <Link href="/info/coming_soon" color="#3470e5">STANDARDS & PROTOCOLS</Link> section
+        the <Link href="/info/standards" color="#3470e5">STANDARDS & PROTOCOLS</Link> section
         of the CFDE Workbench <Link href="/info" color="#3470e5">
         Information Portal</Link>.</Typography> 
       
