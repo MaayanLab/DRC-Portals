@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DCCSelect from '../form/DCCSelect';
-import { $Enums } from '@prisma/client';
+import { $Enums, DccAsset } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -127,6 +127,7 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }));
 
+
 export function CodeForm(user: {
     id: string;
     name: string | null;
@@ -141,16 +142,16 @@ export function CodeForm(user: {
     const [status, setStatus] = React.useState<CodeUploadStatus>({})
     const [smartSelected, setSmartSelected] = React.useState(false)
     const [apiSelected, setApiSelected] = React.useState(false)
-    const [popOpen, setPopOpen] = React.useState(false)
+    // const [popOpen, setPopOpen] = React.useState(false)
 
 
-    const handlePopClose = () => {
-        setPopOpen(false);
-    };
+    // const handlePopClose = () => {
+    //     setPopOpen(false);
+    // };
 
-    const handlePopConfirm = async () => {
-        setPopOpen(false);
-    };
+    // const handlePopConfirm = async () => {
+    //     setPopOpen(false);
+    // };
 
     const handleChange = React.useCallback((event: SelectChangeEvent) => {
         setCodeType(event.target.value);
@@ -184,16 +185,47 @@ export function CodeForm(user: {
                         setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
                         return
                     }
-                    // TODO: change smartAPIURL here to null
-                    await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string)
-                    setStatus(() => ({ success: true }))
+                    try {
+                        await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs)
+                        setStatus(() => ({ success: true }))
+                    }
+                    catch (error) {
+                        if (error instanceof Error) {
+                            if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
+                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! Code Asset already exists in database.' } }));
+                                return
+                            } else {
+                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                                return
+                            }
+                        } else {
+                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                            return
+                        }
+                    }
                 } else {
                     if ((!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) || (!isValidHttpUrl(parsedAPIData.smartAPIUrl, parsedAPIData.assetType))) {
                         setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
                         return
                     }
-                    await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
-                    setStatus(() => ({ success: true }))
+                    try {
+                        await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
+                        setStatus(() => ({ success: true }))
+                    }
+                    catch (error) {
+                        if (error instanceof Error) {
+                            if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
+                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! Code Asset already exists in database.' } }));
+                                return
+                            } else {
+                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                                return
+                            }
+                        } else {
+                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                            return
+                        }
+                    }
                 }
             } else {
                 const parsedForm = OtherCodeData.parse(Object.fromEntries(formData));
@@ -204,9 +236,22 @@ export function CodeForm(user: {
                 try {
                     await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
                     setStatus(() => ({ success: true }))
-                } catch {
-                    setPopOpen(true);
                 }
+                catch (error) {
+                    if (error instanceof Error) {
+                        if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
+                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! Code Asset already exists in database.' } }));
+                            return
+                        } else {
+                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                            return
+                        }
+                    } else {
+                        console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                        return
+                    }
+                }
+
             }
 
         }}>
@@ -326,6 +371,7 @@ export function CodeForm(user: {
                                 InputLabelProps={{ style: { fontSize: 16 } }}
                             />
                         </Grid>
+                        <Status status={status} />
                         <Grid
                             container
                             direction="column"
@@ -340,6 +386,7 @@ export function CodeForm(user: {
                             </FormControl>
                             {/* </div> */}
                         </Grid>
+                        
                     </Grid>
                     {apiSelected && <Grid md={3} xs={12}>
                         <FormGroup>
@@ -349,8 +396,8 @@ export function CodeForm(user: {
                     </Grid>}
                 </Grid>
 
-                <Status status={status} />
-                <Dialog
+                
+                {/* <Dialog
                     open={popOpen}
                     onClose={handlePopClose}
                     aria-labelledby="alert-dialog-title"
@@ -370,7 +417,7 @@ export function CodeForm(user: {
                             Confirm
                         </Button>
                     </DialogActions>
-                </Dialog>
+                </Dialog> */}
             </Container>
 
         </form>

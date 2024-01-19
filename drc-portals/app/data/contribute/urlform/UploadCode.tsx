@@ -54,57 +54,15 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
         });
     }
     if (dcc === null) throw new Error('Failed to find DCC')
-
-    // const savedUpload = await prisma.dccAsset.upsert({
-    //     where: {
-    //         link: url,
-    //     }, // reject if file name is the same
-    //     update: {
-    //         filetype: filetype,
-    //         filename: filename,
-    //         lastmodified: new Date(),
-    //         creator: user.email,
-    //         annotation: {},
-    //         dcc_id: dcc.id,
-    //     },
-    //     create: {
-    //         link: url,
-    //         filetype: filetype,
-    //         filename: filename,
-    //         creator: user.email,
-    //         current: false,
-    //         annotation: {},
-    //         dcc_id: dcc.id,
-    //     }
-    // });
     const oldCode = await prisma.dccAsset.findMany({
         where: {
             link: url,
         },
     });
-    if (oldCode.length> 0) return oldCode
+    // if (oldCode.length> 0) return {oldCode: true, asset: oldCode}
 
-    const savedCode = await prisma.dccAsset.upsert({
-        where: {
-            link: url,
-        },
-        update: {
-            lastmodified: new Date(),
-            creator: user.email,
-            // Update description
-            codeAsset: {
-                delete: { link: url }, // Delete existing records first
-                create: { // Update by creating new records
-                    type: assetType,
-                    name: name,
-                    description: descripton,
-                    openAPISpec: openAPISpecs, 
-                    smartAPISpec: smartAPISpecs,
-                    smartAPIURL: smartAPIURL=== '' ? null : smartAPIURL
-                  }
-                }
-        },
-        create: {
+    const savedCode = await prisma.dccAsset.create({
+        data: {
             link: url,
             creator: user.email,
             current: false,
@@ -122,6 +80,5 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
         }
     })
 
-    return saveCodeAsset
-    // revalidatePath('/data/contribute/uploaded')
+    // return {oldCode: false, asset:saveCodeAsset}
 }

@@ -108,6 +108,10 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>SmartAPI URL</TableCell>
                                 <TableCell >{props.fileInfo.smartAPIURL ? props.fileInfo.smartAPIURL : ''}</TableCell>
                             </TableRow>
+                            <TableRow>
+                                <TableCell variant="head" align="left" style={{ width: 200 }}>Description</TableCell>
+                                <TableCell >{props.fileInfo.description}</TableCell>
+                            </TableRow>
                         </>}
                 </Table>
             </Box>}

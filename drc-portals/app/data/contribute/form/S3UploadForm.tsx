@@ -191,7 +191,7 @@ export function S3UploadForm(user: {
         catch (error) {
           if (error instanceof Error) {
             if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
-              console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! File already exists in database. If same file was uploaded today, delete the already uploaded version or rename file to upload' } }));
+              console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! File already exists in database. If same file was uploaded today, rename file to upload' } }));
               return
             } else {
               console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
