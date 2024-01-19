@@ -8,15 +8,15 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DCCSelect from '../form/DCCSelect';
-import { $Enums, DccAsset } from '@prisma/client';
+import { $Enums, CodeAsset, DccAsset, FileAsset } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { saveCodeAsset } from './UploadCode';
+import { findCodeAsset, saveCodeAsset, updateCodeAsset } from './UploadCode';
 import Status from './Status';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import { Link, Stack } from '@mui/material';
+import { Link, List, ListItemText, Stack } from '@mui/material';
 import AssetInfoDrawer from '../AssetInfo';
 import HelpIcon from '@mui/icons-material/Help';
 import { z } from 'zod';
@@ -28,7 +28,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-
+import { CheckCircle, Error } from '@mui/icons-material'
 
 const OtherCodeData = z.object({
     name: z.string(),
@@ -128,6 +128,14 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 
+type fullDCCAsset = {
+    dcc: {
+        short_label: string | null
+    } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
+} & DccAsset
+
 export function CodeForm(user: {
     id: string;
     name: string | null;
@@ -142,16 +150,57 @@ export function CodeForm(user: {
     const [status, setStatus] = React.useState<CodeUploadStatus>({})
     const [smartSelected, setSmartSelected] = React.useState(false)
     const [apiSelected, setApiSelected] = React.useState(false)
-    // const [popOpen, setPopOpen] = React.useState(false)
+    const [popOpen, setPopOpen] = React.useState(false)
+    const [oldVersion, setOldVersion] = React.useState<fullDCCAsset[]>([])
+    const [currentVersion, setCurrentVersion] = React.useState({})
 
 
-    // const handlePopClose = () => {
-    //     setPopOpen(false);
-    // };
+    const handlePopClose = () => {
+        setPopOpen(false);
+    };
 
-    // const handlePopConfirm = async () => {
-    //     setPopOpen(false);
-    // };
+    const handlePopConfirm = async (isAPI: boolean) => {
+        try {
+            if (currentVersion) {
+                if (!isAPI) {
+                    const parsedForm = OtherCodeData.parse(currentVersion)
+                    if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
+                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                        setCurrentVersion({})
+                        setOldVersion([])
+                        setPopOpen(false);
+                        return
+                    }
+                    await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
+                    setStatus(() => ({ success: true }))
+                    setCurrentVersion({})
+                    setOldVersion([])
+                } else {
+                    const parsedAPIData = APIData.parse(currentVersion)
+                    console.log(parsedAPIData)
+                    const openAPISpecs = parsedAPIData.openAPISpecs ? true : false
+                    const smartAPISpecs = parsedAPIData.smartAPISpecs ? true : false
+                    if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
+                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                        setCurrentVersion({})
+                        setOldVersion([])
+                        setPopOpen(false);
+                        return
+                    }
+                    await updateCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
+                    setStatus(() => ({ success: true }))
+                    setCurrentVersion({})
+                    setOldVersion([])
+                }
+            }
+
+        }
+        catch (error) {
+            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+            return
+        }
+        setPopOpen(false);
+    };
 
     const handleChange = React.useCallback((event: SelectChangeEvent) => {
         setCodeType(event.target.value);
@@ -175,56 +224,29 @@ export function CodeForm(user: {
         <form onSubmit={async (evt) => {
             evt.preventDefault()
             const formData = new FormData(evt.currentTarget)
-            console.log(formData)
             if (apiSelected) {
                 const parsedAPIData = APIData.parse(Object.fromEntries(formData));
                 const openAPISpecs = parsedAPIData.openAPISpecs ? true : false
                 const smartAPISpecs = parsedAPIData.smartAPISpecs ? true : false
-                if (!(parsedAPIData.smartAPIUrl)) {
-                    if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
-                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
-                        return
-                    }
-                    try {
-                        await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs)
-                        setStatus(() => ({ success: true }))
-                    }
-                    catch (error) {
-                        if (error instanceof Error) {
-                            if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
-                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! Code Asset already exists in database.' } }));
-                                return
-                            } else {
-                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
-                                return
-                            }
-                        } else {
-                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
-                            return
-                        }
-                    }
+                const smartAPIUrl = parsedAPIData.smartAPIUrl ? parsedAPIData.smartAPIUrl : ''
+                if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
+                    setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                    return
+                }
+                const foundVersions = await findCodeAsset(parsedAPIData.url)
+                if (foundVersions.length > 0) {
+                    console.log(foundVersions)
+                    setPopOpen(true)
+                    setOldVersion(foundVersions)
+                    setCurrentVersion(parsedAPIData)
                 } else {
-                    if ((!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) || (!isValidHttpUrl(parsedAPIData.smartAPIUrl, parsedAPIData.assetType))) {
-                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
-                        return
-                    }
                     try {
-                        await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
+                        await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, smartAPIUrl)
                         setStatus(() => ({ success: true }))
                     }
                     catch (error) {
-                        if (error instanceof Error) {
-                            if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
-                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! Code Asset already exists in database.' } }));
-                                return
-                            } else {
-                                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
-                                return
-                            }
-                        } else {
-                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
-                            return
-                        }
+                        console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                        return
                     }
                 }
             } else {
@@ -233,20 +255,17 @@ export function CodeForm(user: {
                     setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
                     return
                 }
-                try {
-                    await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
-                    setStatus(() => ({ success: true }))
-                }
-                catch (error) {
-                    if (error instanceof Error) {
-                        if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
-                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! Code Asset already exists in database.' } }));
-                            return
-                        } else {
-                            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
-                            return
-                        }
-                    } else {
+                const foundVersions = await findCodeAsset(parsedForm.url)
+                if (foundVersions.length > 0) {
+                    setPopOpen(true)
+                    setOldVersion(foundVersions)
+                    setCurrentVersion(parsedForm)
+                } else {
+                    try {
+                        await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
+                        setStatus(() => ({ success: true }))
+                    }
+                    catch (error) {
                         console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
                         return
                     }
@@ -386,7 +405,7 @@ export function CodeForm(user: {
                             </FormControl>
                             {/* </div> */}
                         </Grid>
-                        
+
                     </Grid>
                     {apiSelected && <Grid md={3} xs={12}>
                         <FormGroup>
@@ -396,8 +415,8 @@ export function CodeForm(user: {
                     </Grid>}
                 </Grid>
 
-                
-                {/* <Dialog
+
+                <Dialog
                     open={popOpen}
                     onClose={handlePopClose}
                     aria-labelledby="alert-dialog-title"
@@ -409,15 +428,38 @@ export function CodeForm(user: {
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
                             An existing version of this code asset already exists in the database. Do you want to update it?
+                            {oldVersion.map((asset) => <List>
+                                <ListItemText>
+                                    Name: {asset.codeAsset?.name}
+                                </ListItemText>
+                                <ListItemText>
+                                    URL: <Link color="secondary" href={asset.link} target="_blank">{asset.link}</Link>
+                                </ListItemText>
+                                <ListItemText>
+                                    Last Modified: {asset.lastmodified.toUTCString()}
+                                </ListItemText>
+                                <ListItemText>
+                                    DCC: {asset.dcc?.short_label}
+                                </ListItemText>
+                                {asset.codeAsset?.type === 'API' && <><ListItemText>
+                                    openAPISpecs: {asset.codeAsset.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
+                                </ListItemText>
+                                    <ListItemText>
+                                        smartAPISpecs: {asset.codeAsset.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
+                                    </ListItemText>
+                                    <ListItemText>
+                                        smartAPIURL: {asset.codeAsset.smartAPIURL ? asset.codeAsset.smartAPIURL : ''}
+                                    </ListItemText> </>}
+                            </List>)}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button color="secondary" onClick={handlePopClose}>No</Button>
-                        <Button color="secondary" onClick={handlePopConfirm} autoFocus>
+                        <Button color="secondary" onClick={() => handlePopConfirm(oldVersion[0].codeAsset?.type === 'API')} autoFocus>
                             Confirm
                         </Button>
                     </DialogActions>
-                </Dialog> */}
+                </Dialog>
             </Container>
 
         </form>

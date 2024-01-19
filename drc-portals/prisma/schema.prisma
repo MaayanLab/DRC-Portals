@@ -176,8 +176,8 @@ model CodeAsset {
   name         String
   link         String    @unique
   description  String?   @db.Text
-  openAPISpec  Boolean?  @default(false)
-  smartAPISpec Boolean?  @default(false)
+  openAPISpec  Boolean?  
+  smartAPISpec Boolean?  
   smartAPIURL  String?
   dccAsset     DccAsset? @relation(fields: [link], references: [link])
 
