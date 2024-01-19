@@ -19,6 +19,36 @@ import { styled } from '@mui/material/styles';
 import { Link, Stack } from '@mui/material';
 import AssetInfoDrawer from '../AssetInfo';
 import HelpIcon from '@mui/icons-material/Help';
+import { z } from 'zod';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+
+
+const OtherCodeData = z.object({
+    name: z.string(),
+    url: z.string(),
+    assetType: z.string(),
+    dcc: z.string(),
+    description: z.string().optional()
+});
+
+
+const APIData = z.object({
+    name: z.string(),
+    url: z.string(),
+    assetType: z.string(),
+    dcc: z.string(),
+    description: z.string().optional(),
+    openAPISpecs: z.string().optional(),
+    smartAPISpecs: z.string().optional(),
+    smartAPIUrl: z.string().optional(),
+});
 
 
 export const assetOptions = [
@@ -30,13 +60,13 @@ export const assetOptions = [
     },
     {
         asset: 'API',
-        description: 
-        <Typography fontSize={12}> It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these APIs into the SmartAPI repository.
-        <br></br>
-        <b>SmartAPI: </b> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features additional metadata elements and value sets to promote the interoperability of RESTful APIs. See the <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/534f778052f98ec49088e1c7f22b53914a52f8d7/versions/3.0.0.md#versions" color="secondary" target="_blank">SmartAPI specifications</Link> specifications for more information on how to deposit your API into SmartAPI.  
-        <br></br>
-        <b>OpenAPI:</b> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/a1c2b7523a29574308f4bf1e3909a43262a5a6b2/versions/3.1.0.md" color="secondary" target="_blank" >current OpenAPI Specs</Link> for more information on how to generate your DCC OpenAPI document.</Typography>,
-        example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="secondary">exRNA openAPI link </Link> 
+        description:
+            <Typography fontSize={12}> It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these APIs into the SmartAPI repository.
+                <br></br>
+                <b>SmartAPI: </b> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features additional metadata elements and value sets to promote the interoperability of RESTful APIs. See the <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/534f778052f98ec49088e1c7f22b53914a52f8d7/versions/3.0.0.md#versions" color="secondary" target="_blank">SmartAPI specifications</Link> specifications for more information on how to deposit your API into SmartAPI.
+                <br></br>
+                <b>OpenAPI:</b> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/a1c2b7523a29574308f4bf1e3909a43262a5a6b2/versions/3.1.0.md" color="secondary" target="_blank" >current OpenAPI Specs</Link> for more information on how to generate your DCC OpenAPI document.</Typography>,
+        example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="secondary">exRNA openAPI link </Link>
     },
     {
         asset: 'Playbook Workflow Builder (PWB) Metanodes',
@@ -109,8 +139,18 @@ export function CodeForm(user: {
 
     const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<CodeUploadStatus>({})
+    const [smartSelected, setSmartSelected] = React.useState(false)
     const [apiSelected, setApiSelected] = React.useState(false)
+    const [popOpen, setPopOpen] = React.useState(false)
 
+
+    const handlePopClose = () => {
+        setPopOpen(false);
+    };
+
+    const handlePopConfirm = async () => {
+        setPopOpen(false);
+    };
 
     const handleChange = React.useCallback((event: SelectChangeEvent) => {
         setCodeType(event.target.value);
@@ -121,159 +161,219 @@ export function CodeForm(user: {
         }
     }, []);
 
+    const handleSmartSelect = React.useCallback((event: React.SyntheticEvent<Element, Event>, checked: boolean) => {
+        if (checked) {
+            setSmartSelected(true)
+        } else {
+            setSmartSelected(false)
+        }
+    }, []);
+
     return (
+
         <form onSubmit={async (evt) => {
             evt.preventDefault()
             const formData = new FormData(evt.currentTarget)
             console.log(formData)
-            if (apiSelected){
-                let dcc = formData.get('dcc')?.toString()
-                let assetType = formData.get('asset-type')?.toString()
-                let openApiUrl = formData.get('openapi-url')?.toString()
-                let smartApiUrl = formData.get('smartapi-url')?.toString()
-                if ((!dcc) || (!assetType) || (!openApiUrl) || (!smartApiUrl)) {
-                    setStatus(({ error: { selected: true, message: 'Error! Please make sure that all fields are filled' } }))
-                    return
+            if (apiSelected) {
+                const parsedAPIData = APIData.parse(Object.fromEntries(formData));
+                const openAPISpecs = parsedAPIData.openAPISpecs ? true : false
+                const smartAPISpecs = parsedAPIData.smartAPISpecs ? true : false
+                if (!(parsedAPIData.smartAPIUrl)) {
+                    if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
+                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                        return
+                    }
+                    // TODO: change smartAPIURL here to null
+                    await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string)
+                    setStatus(() => ({ success: true }))
+                } else {
+                    if ((!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) || (!isValidHttpUrl(parsedAPIData.smartAPIUrl, parsedAPIData.assetType))) {
+                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                        return
+                    }
+                    await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
+                    setStatus(() => ({ success: true }))
                 }
-                if ((!isValidHttpUrl(openApiUrl, assetType)) || (!isValidHttpUrl(smartApiUrl, assetType))) {
-                    setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
-                    return
-                }
-                await saveCodeAsset('OpenAPI URL', assetType, openApiUrl, dcc)
-                await saveCodeAsset('SmartAPI URL', assetType, smartApiUrl, dcc)
-                setStatus(() => ({ success: true }))
             } else {
-                let dcc = formData.get('dcc')?.toString()
-                let assetType = formData.get('asset-type')?.toString()
-                let url = formData.get('url')?.toString()
-                // let filename = formData.get('filename')?.toString()
-                let filename = formData.get('url')?.toString()
-                if ((!dcc) || (!assetType) || (!url) || (!filename)) {
-                    setStatus(({ error: { selected: true, message: 'Error! Please make sure that all fields are correctly filled' } }))
-                    return
-                }
-                if (!isValidHttpUrl(url, assetType)) {
+                const parsedForm = OtherCodeData.parse(Object.fromEntries(formData));
+                if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
                     setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
                     return
                 }
-                await saveCodeAsset(filename, assetType, url, dcc)
-                setStatus(() => ({ success: true }))
+                try {
+                    await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
+                    setStatus(() => ({ success: true }))
+                } catch {
+                    setPopOpen(true);
+                }
             }
 
         }}>
+
+
             <Container>
-            <Stack direction="row" alignItems="center" gap={1}>
-            <Typography variant="h3" color="secondary.dark" sx={{mb:2, ml:2, mt:2}}>CODE ASSETS UPLOAD FORM </Typography>
-            <AssetInfoDrawer assetOptions={assetOptions} buttonText={<HelpIcon sx={{mb:2, mt:2}}/>}/>
-            </Stack>
+                <Stack direction="row" alignItems="center" gap={1}>
+                    <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }}>CODE ASSETS FORM </Typography>
+                    <AssetInfoDrawer assetOptions={assetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
+                </Stack>
 
                 <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
                     This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC.
-                <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Typography >Click here for more information on code asset types</Typography>}/>
+                    <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Typography >Click here for more information on code asset types</Typography>} />
                 </Typography>
-                <Grid container className='p-5' justifyContent="center" sx={{ mt: 3 }}>
-                    <TextField
-                        label="Uploader Name"
-                        disabled
-                        defaultValue={user.name}
-                        inputProps={{ style: { fontSize: 16 } }} // font size of input text
-                        InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
-                    />
-                    <TextField
-                        label="Email"
-                        disabled
-                        defaultValue={user.email}
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                        sx={{ mx: 2 }}
-                    />
-                    <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
-                </Grid>
-                <Grid container justifyContent="center">
-                    <div>
-                        <FormControl sx={{ minWidth: 200 }}>
-                            <InputLabel id="select-url"
-                                sx={{ fontSize: 16 }} color='secondary'
-                            >Code Asset Type</InputLabel>
-                            <Select
-                                labelId="select-url"
-                                id="simple-select"
-                                value={codeType}
-                                onChange={handleChange}
-                                autoWidth
-                                required
-                                label="Code Asset Type"
-                                name="asset-type"
-                                sx={{ fontSize: 16 }}
-                                color='secondary'
-                            >
-                                {assetOptions.map((asset) => {
-                                    return <MenuItem key={asset.asset} value={asset.asset} sx={{ fontSize: 16 }}><HtmlTooltip
-                                        title={
-                                            <React.Fragment>
-                                                <Typography>{asset.asset}</Typography>
-                                                {asset.description} <br></br>
-                                                {'Example:'} {asset.example}
-                                            </React.Fragment>
-                                        }
-                                        placement="left"
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                    <Grid md={9} xs={12}>
+                        <Grid container className='p-5' justifyContent="center" sx={{ mt: 3 }}>
+                            <TextField
+                                label="Uploader Name"
+                                disabled
+                                defaultValue={user.name}
+                                inputProps={{ style: { fontSize: 16 } }} // font size of input text
+                                InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
+                            />
+                            <TextField
+                                label="Email"
+                                disabled
+                                defaultValue={user.email}
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                                sx={{ mx: 2 }}
+                            />
+                            <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+                        </Grid>
+                        <Grid container justifyContent="center" className='mb-5'>
+                            <div>
+                                <FormControl sx={{ minWidth: 200 }}>
+                                    <InputLabel id="select-url"
+                                        sx={{ fontSize: 16 }} color='secondary'
+                                    >Code Asset Type</InputLabel>
+                                    <Select
+                                        labelId="select-url"
+                                        id="simple-select"
+                                        value={codeType}
+                                        onChange={handleChange}
+                                        autoWidth
+                                        required
+                                        label="Code Asset Type"
+                                        name="assetType"
+                                        sx={{ fontSize: 16 }}
+                                        color='secondary'
                                     >
-                                        <Typography sx={{ color: 'black', fontSize: 16 }}>{asset.asset}</Typography>
-                                    </HtmlTooltip></MenuItem>
-                                })}
-                            </Select>
-                        </FormControl>
-                    </div>
-                    {/* <TextField sx={{ minWidth: 440 }}
-                        label="File Name"
-                        name='filename'
-                        required
-                        color='secondary'
-                        placeholder='Enter file name here'
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                    /> */}
-                    {!apiSelected && <TextField sx={{ minWidth: 440 }}
-                        label="URL"
-                        name='url'
-                        required
-                        color='secondary'
-                        placeholder='Enter URL here'
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                    />}
-                    
-                    {apiSelected && <>
-                        <TextField sx={{ minWidth: 220 }}
-                        label="OpenAPI URL"
-                        name='openapi-url'
-                        required
-                        color='secondary'
-                        placeholder='Enter URL here'
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                    />
-                    <TextField sx={{ minWidth: 220 }}
-                        label="SmartAPI URL"
-                        name='smartapi-url'
-                        required
-                        color='secondary'
-                        placeholder='Enter URL here'
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                    />
-                    </>}
-                </Grid>
-                <Status status={status} />
-                <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
-                    <FormControl>
-                        <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
-                            Submit
-                        </Button>
-                    </FormControl>
-                </div>
+                                        {assetOptions.map((asset) => {
+                                            return <MenuItem key={asset.asset} value={asset.asset} sx={{ fontSize: 16 }}><HtmlTooltip
+                                                title={
+                                                    <React.Fragment>
+                                                        <Typography>{asset.asset}</Typography>
+                                                        {asset.description} <br></br>
+                                                        {'Example:'} {asset.example}
+                                                    </React.Fragment>
+                                                }
+                                                placement="left"
+                                            >
+                                                <Typography sx={{ color: 'black', fontSize: 16 }}>{asset.asset}</Typography>
+                                            </HtmlTooltip></MenuItem>
+                                        })}
+                                    </Select>
+                                </FormControl>
+                            </div>
 
+                            <TextField sx={{ minWidth: 440 }}
+                                label="Name"
+                                name='name'
+                                required
+                                color='secondary'
+                                placeholder='Enter asset name here'
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                            />
+
+                        </Grid>
+
+                        <Grid container justifyContent="center" className='mb-5'>
+                            <TextField sx={{ minWidth: 640 }}
+                                label="URL"
+                                name='url'
+                                required
+                                color='secondary'
+                                placeholder='Enter URL here'
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                            />
+                        </Grid>
+
+                        {smartSelected && <Grid container justifyContent="center" className='mb-5'>
+                            <TextField sx={{ minWidth: 640 }}
+                                label="SmartAPI URL"
+                                name='smartAPIUrl'
+                                required
+                                color='secondary'
+                                placeholder='Enter SmartAPI URL here'
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                            />
+                        </Grid>}
+
+                        <Grid container justifyContent="center">
+                            <TextField sx={{ minWidth: 640 }}
+                                multiline
+                                rows={4}
+                                label="Description"
+                                name='description'
+                                color='secondary'
+                                placeholder='Enter short description here'
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                            />
+                        </Grid>
+                        <Grid
+                            container
+                            direction="column"
+                            alignItems="center"
+                        // justifyContent="center"
+                        >
+                            {/* <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'> */}
+                            <FormControl>
+                                <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+                                    Submit
+                                </Button>
+                            </FormControl>
+                            {/* </div> */}
+                        </Grid>
+                    </Grid>
+                    {apiSelected && <Grid md={3} xs={12}>
+                        <FormGroup>
+                            <FormControlLabel control={<Checkbox />} label="OpenAPI Specifications" name="openAPISpecs" />
+                            <FormControlLabel control={<Checkbox />} label="SmartAPI Specifications" name="smartAPISpecs" onChange={handleSmartSelect} />
+                        </FormGroup>
+                    </Grid>}
+                </Grid>
+
+                <Status status={status} />
+                <Dialog
+                    open={popOpen}
+                    onClose={handlePopClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Update Version of Code Asset?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            An existing version of this code asset already exists in the database. Do you want to update it?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="secondary" onClick={handlePopClose}>No</Button>
+                        <Button color="secondary" onClick={handlePopConfirm} autoFocus>
+                            Confirm
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
+
         </form>
+
     );
 }

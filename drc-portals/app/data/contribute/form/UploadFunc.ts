@@ -8,6 +8,8 @@ import {
     getSignedUrl,
 } from "@aws-sdk/s3-request-presigner";
 import { revalidatePath } from 'next/cache';
+import type { FileAsset, } from '@prisma/client'
+
 
 async function verifyUser() {
     const session = await getServerSession(authOptions)
@@ -44,7 +46,7 @@ export const createPresignedUrl = async (filepath: string, checksumHash: string)
         Key: filepath,
         ChecksumSHA256: checksumHash
     });
-    return getSignedUrl(s3, command, { expiresIn: 3600 , unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
+    return getSignedUrl(s3, command, { expiresIn: 3600, unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
 };
 
 
@@ -66,45 +68,57 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     });
     // in  development, if dcc not ingested into database
     if (process.env.NODE_ENV === 'development' && dcc === null) {
-        const dccInfo = await prisma.dCC.findMany()
-        const dccMapping: { [key: string]: string } = {}
-        dccInfo.map((dcc) => {
-            dcc.short_label ? dccMapping[dcc.short_label] = dcc.label : dccMapping[dcc.label] = dcc.label
-            })
+        const dccMapping : {[key: string]: string} = {
+            'LINCS': 'Library of Integrated Network-based Cellular Signatures',
+            '4DN': '4D Nucleome',
+            'Bridge2AI': 'Bridge to Artificial Intelligence',
+            'A2CPS': 'Acute to Chronic Pain Signatures',
+            'ExRNA': 'Extracellular RNA Communication',
+            'GTEx': 'Genotype Tissue Expression',
+            'HMP': 'The Human Microbiome Project',
+            'HuBMAP': 'Human BioMolecular Atlas Program',
+            'IDG': 'Illuminating the Druggable Genome',
+            'Kids First': 'Gabriella Miller Kids First Pediatric Research',
+            'MoTrPAC': 'Molecular Transducers of Physical Activity Consortium',
+            'Metabolomics': 'Metabolomics',
+            'SenNet': 'The Cellular Senescence Network',
+            'Glycoscience': 'Glycoscience', 
+            'KOMP2': 'Knockout Mouse Phenotyping Program',
+            'H3Africa': 'Human Heredity & Health in Africa', 
+            'UDN': 'Undiagnosed Diseases Network',
+            'SPARC': 'Stimulating Peripheral Activity to Relieve Conditions',
+            'iHMP': 'NIH Integrative Human Microbiome Project'
+        }
         dcc = await prisma.dCC.create({
             data: {
-                label: dccMapping[formDcc], 
+                label: dccMapping[formDcc],
                 short_label: formDcc,
                 homepage: 'https://lincsproject.org'
             }
         });
     }
     if (dcc === null) throw new Error('Failed to find DCC')
-    const savedUpload = await prisma.dccAsset.upsert({
-        where: {
+
+    const savedUpload = await prisma.dccAsset.create({
+        data: {
             link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
-        },
-        update: {
-            filetype: filetype,
-            filename: filename,
-            lastmodified: new Date(),
-            creator: user.email,
-            annotation: {},
-            size: filesize,
-            dcc_id: dcc.id,
-            sha256checksum: checksumHash
-        },
-        create: {
-            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
-            filetype: filetype,
-            filename: filename,
             creator: user.email,
             current: false,
-            annotation: {},
-            size: filesize,
             dcc_id: dcc.id,
-            sha256checksum: checksumHash
-        }
-    });
+            fileAsset: {
+                create: {
+                    size: BigInt(filesize),
+                    sha256checksum: checksumHash,
+                    filetype: filetype,
+                    filename: filename,
+                },
+            }
+        },
+        include: {
+            fileAsset: true,
+        },
+    })
+
+    return savedUpload
     // revalidatePath('/data/contribute/uploaded')
 }

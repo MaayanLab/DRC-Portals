@@ -138,7 +138,7 @@ export function S3UploadForm(user: {
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
- 
+
 
     await axios.put(presignedurl, file, {
       headers: {
@@ -147,8 +147,8 @@ export function S3UploadForm(user: {
       },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
-            const newProgress = ((fileNumber - 1) * progressAlloc) + ((0.667 * progressAlloc)) + ((progressEvent.loaded / progressEvent.total) * (0.333 * progressAlloc))
-            setProgress(newProgress);
+          const newProgress = ((fileNumber - 1) * progressAlloc) + ((0.667 * progressAlloc)) + ((progressEvent.loaded / progressEvent.total) * (0.333 * progressAlloc))
+          setProgress(newProgress);
         }
       },
     }).catch(function (error) {
@@ -185,12 +185,22 @@ export function S3UploadForm(user: {
         try {
           let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
           if (!dcc) throw new Error('no dcc entered')
-          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length), i+1)
+          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length), i + 1)
           await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
         }
         catch (error) {
-          console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
-          return
+          if (error instanceof Error) {
+            if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
+              console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! File already exists in database. If same file was uploaded today, delete the already uploaded version or rename file to upload' } }));
+              return
+            } else {
+              console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+              return
+            }
+          } else {
+            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+            return
+          }
         }
       }
       setStatus(() => ({ success: true }))

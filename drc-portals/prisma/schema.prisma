@@ -13,14 +13,14 @@ datasource db {
 }
 
 model DCC {
-  id            String           @id @default(uuid())
+  id            String            @id @default(uuid())
   label         String
   short_label   String?
   description   String?
   homepage      String
   icon          String?
   annotation    Json?
-  cfde_partner  Boolean          @default(false)
+  cfde_partner  Boolean           @default(false)
   cf_site       String?
   publications  DCCPublication[]
   assets        DccAsset[]
@@ -33,7 +33,7 @@ model DCC {
 }
 
 model Publication {
-  id            String           @id @default(uuid())
+  id            String                    @id @default(uuid())
   title         String
   year          String?
   page          String?
@@ -45,10 +45,10 @@ model Publication {
   doi           String?
   authors       String
   tool_id       String?
-  landmark      Boolean @default(false)
+  landmark      Boolean                   @default(false)
   dccs          DCCPublication[]
   partnertships PartnershipPublications[]
-  tool    Tool?            @relation(fields: [tool_id], references: [id])
+  tool          Tool?                     @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
 }
@@ -93,14 +93,14 @@ model DCCOutreach {
 }
 
 model Partnerships {
-  id                String        @id @default(uuid())
-  title             String
-  description       String?
-  status            String?
-  website           String?
-  image             String?
-  dccs              DCCPartnerships[]
-  publications      PartnershipPublications[]
+  id           String                    @id @default(uuid())
+  title        String
+  description  String?
+  status       String?
+  website      String?
+  image        String?
+  dccs         DCCPartnerships[]
+  publications PartnershipPublications[]
 
   @@map("partnerships")
 }
@@ -108,8 +108,8 @@ model Partnerships {
 model DCCPartnerships {
   partnership    Partnerships @relation(fields: [partnership_id], references: [id])
   partnership_id String
-  dcc         DCC      @relation(fields: [dcc_id], references: [id])
-  dcc_id      String
+  dcc            DCC          @relation(fields: [dcc_id], references: [id])
+  dcc_id         String
 
   @@id([partnership_id, dcc_id])
   @@map("dcc_partnerships")
@@ -118,8 +118,8 @@ model DCCPartnerships {
 model PartnershipPublications {
   partnership    Partnerships @relation(fields: [partnership_id], references: [id])
   partnership_id String
-  publication         Publication      @relation(fields: [publication_id], references: [id])
-  publication_id      String
+  publication    Publication  @relation(fields: [publication_id], references: [id])
+  publication_id String
 
   @@id([partnership_id, publication_id])
   @@map("partnership_publications")
@@ -139,25 +139,51 @@ model Tool {
 model DccAsset {
   dcc_id           String
   dcc              DCC?                @relation(fields: [dcc_id], references: [id])
-  filetype         String
-  filename         String
   link             String              @unique
-  size             BigInt?
   lastmodified     DateTime            @default(now())
   current          Boolean             @default(true)
   creator          String?
   creatorId        User?               @relation(fields: [creator], references: [email])
   dccapproved      Boolean             @default(false)
   drcapproved      Boolean             @default(false)
-  annotation       Json?               @db.JsonB
   library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
-  sha256checksum      String?
-  deleted          Boolean            @default(false)
-  @@id([dcc_id, filetype, link, lastmodified])
-  @@unique([dcc_id, filetype, link, lastmodified])
+  deleted          Boolean             @default(false)
+  fileAsset        FileAsset?
+  codeAsset        CodeAsset?
+
+  @@id([dcc_id, link, lastmodified])
+  @@unique([dcc_id, link, lastmodified])
   @@map("dcc_assets")
+}
+
+model FileAsset {
+  filetype       String
+  filename       String
+  link           String    @unique
+  size           BigInt?
+  sha256checksum String?
+  dccAsset       DccAsset? @relation(fields: [link], references: [link])
+
+  @@id([filetype, link])
+  @@unique([filetype, link])
+  @@map("file_assets")
+}
+
+model CodeAsset {
+  type         String
+  name         String
+  link         String    @unique
+  description  String?   @db.Text
+  openAPISpec  Boolean?  @default(false)
+  smartAPISpec Boolean?  @default(false)
+  smartAPIURL  String?
+  dccAsset     DccAsset? @relation(fields: [link], references: [link])
+
+  @@id([type, link])
+  @@unique([type, link])
+  @@map("code_assets")
 }
 
 // Processed data search

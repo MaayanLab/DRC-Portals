@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import type { DccAsset } from '@prisma/client'
+import type { CodeAsset, DccAsset, FileAsset } from '@prisma/client'
 
 // export async function getDCCAsset(file: {
 //     dcc_id: string
@@ -84,12 +84,11 @@ export async function updateAssetApproval(file: {
 
     // if user is not an uploader or approver, then they should not have acccess to this function 
     if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
-
     if (file.dcc_drc === 'drc') {
         const approved = await prisma.dccAsset.updateMany({
             where: {
                 dcc_id: file.dcc_id,
-                filetype: file.filetype,
+                // filetype: file.filetype,
                 link: file.link,
                 lastmodified: new Date(file.lastmodified),
                 dccapproved: file.dccapproved,
@@ -108,7 +107,7 @@ export async function updateAssetApproval(file: {
         const approved = await prisma.dccAsset.updateMany({
             where: {
                 dcc_id: file.dcc_id,
-                filetype: file.filetype,
+                // filetype: file.filetype,
                 link: file.link,
                 lastmodified: new Date(file.lastmodified),
                 dccapproved: file.dccapproved,
@@ -141,7 +140,7 @@ export async function updateAssetCurrent(file: DccAsset) {
     const approved = await prisma.dccAsset.updateMany({
         where: {
             dcc_id: file.dcc_id,
-            filetype: file.filetype,
+            // filetype: file.filetype,
             link: file.link,
             lastmodified: new Date(file.lastmodified),
             dccapproved: file.dccapproved,
@@ -174,7 +173,7 @@ export async function deleteAsset(file: DccAsset){
     const deleted = await prisma.dccAsset.updateMany({
         where: {
             dcc_id: file.dcc_id,
-            filetype: file.filetype,
+            // filetype: file.filetype,
             link: file.link,
             lastmodified: new Date(file.lastmodified),
             dccapproved: file.dccapproved,
