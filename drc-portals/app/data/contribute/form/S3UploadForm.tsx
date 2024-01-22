@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { saveChecksumDb } from './UploadFunc'
+import { findFileAsset, saveChecksumDb } from './UploadFunc'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';
@@ -182,6 +182,16 @@ export function S3UploadForm(user: {
       }
 
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+        if (!dcc) throw new Error('no dcc entered')
+        let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
+        const foundVersions = await findFileAsset(filetype, dcc, uploadedfiles[i].name)
+        if (foundVersions.length > 0 ) {
+          setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfiles[i].name} already exists in database. Rename file to upload` } }));
+          return
+        }
+      }
+
+      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
         try {
           let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
           if (!dcc) throw new Error('no dcc entered')
@@ -189,20 +199,10 @@ export function S3UploadForm(user: {
           await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
         }
         catch (error) {
-          if (error instanceof Error) {
-            if (error.message === "\nInvalid `prisma.dccAsset.create()` invocation:\n\n\nUnique constraint failed on the fields: (`link`)") {
-              console.log({ error }); setStatus(({ error: { selected: true, message: 'Error! File already exists in database. Rename file to upload' } }));
-              return
-            } else {
-              console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
-              return
-            }
-          } else {
             console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
             return
-          }
-        }
       }
+    }
       setStatus(() => ({ success: true }))
       setProgress(0)
     }}>

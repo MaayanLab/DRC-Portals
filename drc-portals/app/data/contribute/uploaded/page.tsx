@@ -98,8 +98,8 @@ export default async function UserFiles() {
 
         // userFiles = allFiles
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            These are all files that have been you have uploaded for all the DCCs you are affiliated with.
-            Expand each file to download or view the SHA256 checksum of each file.
+            These are all assets that you have uploaded/submitted for all the DCCs you are affiliated with.
+            Expand a row to see additional information for a file or code asset.
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
@@ -109,8 +109,8 @@ export default async function UserFiles() {
     } else if (user.role === 'DCC_APPROVER') {
         userFiles = allFiles.map(obj => ({ ...obj, assetType:  obj.fileAsset ? obj.fileAsset?.filetype :  obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            These are all files that have been uploaded for your affiliated DCCs.
-            Expand each file to download or view the SHA256 checksum of each file.
+            These are all assets that have been uploaded/submitted for your affiliated DCCs.
+            Expand a row to see additional information for a file or code asset.
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
@@ -119,8 +119,8 @@ export default async function UserFiles() {
     } else {
         userFiles = allFiles.map(obj => ({ ...obj, assetType:  obj.fileAsset ? obj.fileAsset?.filetype :  obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            These are all files that have been uploaded for all the DCCs.
-            Expand each file to download or view the SHA256 checksum of each file.
+            These are all assets that have been uploaded/submitted for all the DCCs.
+            Expand a row to see additional information for a file or code asset.
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
@@ -139,7 +139,7 @@ export default async function UserFiles() {
                     <Container className="justify-content-center">
                         <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
-                        {userFiles.length < 1  ?  <PaginatedTable userFiles={[]} role={user.role} /> :  <PaginatedTable userFiles={userFiles} role={user.role} />}
+                        <PaginatedTable userFiles={userFiles} role={user.role} />
                     </Container>
                 </Grid>
             </Grid>

@@ -443,7 +443,7 @@ export function CodeForm(user: {
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
                             An existing version of this code asset already exists in the database. Do you want to update it?
-                            {oldVersion.map((asset) => <List>
+                            {oldVersion.map((asset, i) => <List key={i}>
                                 <ListItemText>
                                     <strong>Name:</strong> {asset.codeAsset?.name}
                                 </ListItemText>

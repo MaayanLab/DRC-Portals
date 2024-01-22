@@ -50,6 +50,34 @@ export const createPresignedUrl = async (filepath: string, checksumHash: string)
 };
 
 
+export const findFileAsset = async(filetype: string, formDcc: string, filename: string) => {
+    await verifyUser();
+    let dcc = await prisma.dCC.findFirst({
+        where: {
+            short_label: formDcc,
+        },
+    });
+
+    if (dcc === null) throw new Error('Failed to find DCC')
+
+    const S3Link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
+    const fileAsset = await prisma.dccAsset.findMany({
+        where: {
+          link: S3Link,
+        },
+        include:{
+            fileAsset: true,
+            codeAsset: true,
+            dcc: {
+                select:{
+                    short_label: true
+                }
+            }
+        }
+      })
+    return fileAsset
+}
+
 export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
