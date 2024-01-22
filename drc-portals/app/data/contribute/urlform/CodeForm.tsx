@@ -50,6 +50,25 @@ const APIData = z.object({
     smartAPIUrl: z.string().optional(),
 });
 
+type OtherCodeDataType = {
+    name: string
+    url: string
+    assetType: string
+    dcc: string
+    description?: string
+}
+
+type APIDataType = {
+    name: string
+    url: string
+    assetType: string
+    dcc: string
+    description?: string
+    openAPISpecs?: string
+    smartAPISpecs?: string
+    smartAPIUrl?: string
+}
+
 
 export const assetOptions = [
     {
@@ -152,54 +171,55 @@ export function CodeForm(user: {
     const [apiSelected, setApiSelected] = React.useState(false)
     const [popOpen, setPopOpen] = React.useState(false)
     const [oldVersion, setOldVersion] = React.useState<fullDCCAsset[]>([])
-    const [currentVersion, setCurrentVersion] = React.useState({})
+    const [currentVersion, setCurrentVersion] = React.useState<OtherCodeDataType | APIDataType | null>(null)
 
 
     const handlePopClose = () => {
         setPopOpen(false);
     };
 
-    const handlePopConfirm = async (isAPI: boolean) => {
-        try {
-            if (currentVersion) {
-                if (!isAPI) {
-                    const parsedForm = OtherCodeData.parse(currentVersion)
-                    if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
-                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
-                        setCurrentVersion({})
+    const handlePopConfirm = async (isAPI: boolean | undefined) => {
+        if (isAPI !== undefined) {
+            try {
+                if (currentVersion) {
+                    if (!isAPI) {
+                        const parsedForm = OtherCodeData.parse(currentVersion)
+                        if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
+                            setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                            setCurrentVersion(null)
+                            setOldVersion([])
+                            setPopOpen(false);
+                            return
+                        }
+                        await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
+                        setStatus(() => ({ success: true }))
+                        setCurrentVersion(null)
                         setOldVersion([])
-                        setPopOpen(false);
-                        return
-                    }
-                    await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
-                    setStatus(() => ({ success: true }))
-                    setCurrentVersion({})
-                    setOldVersion([])
-                } else {
-                    const parsedAPIData = APIData.parse(currentVersion)
-                    console.log(parsedAPIData)
-                    const openAPISpecs = parsedAPIData.openAPISpecs ? true : false
-                    const smartAPISpecs = parsedAPIData.smartAPISpecs ? true : false
-                    if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
-                        setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
-                        setCurrentVersion({})
+                    } else {
+                        const parsedAPIData = APIData.parse(currentVersion)
+                        console.log(parsedAPIData)
+                        const openAPISpecs = parsedAPIData.openAPISpecs ? true : false
+                        const smartAPISpecs = parsedAPIData.smartAPISpecs ? true : false
+                        if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
+                            setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                            setCurrentVersion(null)
+                            setOldVersion([])
+                            setPopOpen(false);
+                            return
+                        }
+                        await updateCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
+                        setStatus(() => ({ success: true }))
+                        setCurrentVersion(null)
                         setOldVersion([])
-                        setPopOpen(false);
-                        return
                     }
-                    await updateCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
-                    setStatus(() => ({ success: true }))
-                    setCurrentVersion({})
-                    setOldVersion([])
                 }
             }
-
+            catch (error) {
+                console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                return
+            }
+            setPopOpen(false);
         }
-        catch (error) {
-            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
-            return
-        }
-        setPopOpen(false);
     };
 
     const handleChange = React.useCallback((event: SelectChangeEvent) => {
@@ -220,7 +240,6 @@ export function CodeForm(user: {
     }, []);
 
     return (
-
         <form onSubmit={async (evt) => {
             evt.preventDefault()
             const formData = new FormData(evt.currentTarget)
@@ -235,7 +254,6 @@ export function CodeForm(user: {
                 }
                 const foundVersions = await findCodeAsset(parsedAPIData.url)
                 if (foundVersions.length > 0) {
-                    console.log(foundVersions)
                     setPopOpen(true)
                     setOldVersion(foundVersions)
                     setCurrentVersion(parsedAPIData)
@@ -370,7 +388,6 @@ export function CodeForm(user: {
                             <TextField sx={{ minWidth: 640 }}
                                 label="SmartAPI URL"
                                 name='smartAPIUrl'
-                                required
                                 color='secondary'
                                 placeholder='Enter SmartAPI URL here'
                                 inputProps={{ style: { fontSize: 16 } }}
@@ -395,9 +412,7 @@ export function CodeForm(user: {
                             container
                             direction="column"
                             alignItems="center"
-                        // justifyContent="center"
                         >
-                            {/* <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'> */}
                             <FormControl>
                                 <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
                                     Submit
@@ -430,32 +445,35 @@ export function CodeForm(user: {
                             An existing version of this code asset already exists in the database. Do you want to update it?
                             {oldVersion.map((asset) => <List>
                                 <ListItemText>
-                                    Name: {asset.codeAsset?.name}
+                                    <strong>Name:</strong> {asset.codeAsset?.name}
                                 </ListItemText>
                                 <ListItemText>
-                                    URL: <Link color="secondary" href={asset.link} target="_blank">{asset.link}</Link>
+                                    <strong>Type:</strong> {asset.codeAsset?.type}
                                 </ListItemText>
                                 <ListItemText>
-                                    Last Modified: {asset.lastmodified.toUTCString()}
+                                    <strong>URL: </strong><Link color="secondary" href={asset.link} target="_blank">{asset.link}</Link>
                                 </ListItemText>
                                 <ListItemText>
-                                    DCC: {asset.dcc?.short_label}
+                                    <strong>Last Modified: </strong>{asset.lastmodified.toUTCString()}
+                                </ListItemText>
+                                <ListItemText>
+                                    <strong>DCC:</strong> {asset.dcc?.short_label}
                                 </ListItemText>
                                 {asset.codeAsset?.type === 'API' && <><ListItemText>
-                                    openAPISpecs: {asset.codeAsset.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
+                                    <strong>OpenAPISpecs:</strong> {asset.codeAsset.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
                                 </ListItemText>
                                     <ListItemText>
-                                        smartAPISpecs: {asset.codeAsset.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
+                                        <strong>SmartAPISpecs:</strong> {asset.codeAsset.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
                                     </ListItemText>
                                     <ListItemText>
-                                        smartAPIURL: {asset.codeAsset.smartAPIURL ? asset.codeAsset.smartAPIURL : ''}
+                                        <strong>SmartAPIURL:</strong> {asset.codeAsset.smartAPIURL ? asset.codeAsset.smartAPIURL : ''}
                                     </ListItemText> </>}
                             </List>)}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button color="secondary" onClick={handlePopClose}>No</Button>
-                        <Button color="secondary" onClick={() => handlePopConfirm(oldVersion[0].codeAsset?.type === 'API')} autoFocus>
+                        <Button color="secondary" onClick={() => handlePopConfirm(currentVersion ? currentVersion.assetType === 'API' : undefined)} autoFocus>
                             Confirm
                         </Button>
                     </DialogActions>
