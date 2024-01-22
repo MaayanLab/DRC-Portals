@@ -46,7 +46,7 @@ export default function GlyGenbyGlyTouCan(props: any) {
             }
         ]
     }
-    
+
     const { data, isLoading, error } = useSWR([body], () => getPlaybookGlycanInfo(body));
 
     if (error) {
@@ -56,11 +56,18 @@ export default function GlyGenbyGlyTouCan(props: any) {
     }
 
     const tableData = data.data[1].process.output.value;
-    
-    return (
-        <>
-            <GlyGenVis data={tableData} />
-            <PlaybookButton id={data.id}></PlaybookButton>
-        </>
-    )
+    try {
+        return (
+            <>
+                <GlyGenVis data={tableData} />
+                <PlaybookButton id={data.id}></PlaybookButton>
+            </>
+        )
+    } catch (error) {
+        return (
+            <>No data found for {glycan}
+                <PlaybookButton id={data.id}></PlaybookButton>
+            </>
+        )
+    }
 }
