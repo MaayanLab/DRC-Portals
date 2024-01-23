@@ -13,7 +13,7 @@ import { FaCircleExclamation } from "react-icons/fa6";
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
-import type { DccAsset } from '@prisma/client'
+import type { DccAsset, FileAsset, CodeAsset } from '@prisma/client'
 import { visuallyHidden } from '@mui/utils';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
@@ -106,11 +106,11 @@ interface EnhancedTableProps {
 interface Data {
     lastmodified: Date;
     creator: string;
-    filetype: string;
     dcc?: {
         label: string;
         short_label: string | null
     };
+    assetType: FileAsset | CodeAsset | null;
 }
 
 interface HeadCell {
@@ -134,7 +134,7 @@ const headCells: readonly HeadCell[] = [
         label: 'Uploaded By',
     },
     {
-        id: 'filetype',
+        id: 'assetType',
         numeric: false,
         disablePadding: false,
         label: 'Asset Type',
@@ -194,11 +194,15 @@ function dccCompare(a: {
         label: string;
         short_label: string | null
     } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
 } & DccAsset, b: {
     dcc: {
         label: string;
         short_label: string | null
     } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
 } & DccAsset) {
     if (!a.dcc?.short_label) return 0
     if (!b.dcc?.short_label) return 0
@@ -215,11 +219,15 @@ function dccCompareAsc(a: {
         label: string;
         short_label: string | null
     } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
 } & DccAsset, b: {
     dcc: {
         label: string;
         short_label: string | null
     } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
 } & DccAsset) {
     if (!a.dcc?.short_label) return 0
     if (!b.dcc?.short_label) return 0
@@ -236,9 +244,13 @@ function filterSearch(item: ({
         label: string;
         short_label: string | null
     } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
+    assetType: string | null;
 } & DccAsset), query: string) {
-    return (item.filetype.toLowerCase().includes(query.toLowerCase())) || 
-    (item.filename.toLowerCase().includes(query.toLowerCase())) ||
+    return (item.assetType?.toLowerCase().includes(query.toLowerCase())) || 
+    (item.codeAsset?.name.toLowerCase().includes(query.toLowerCase())) ||
+    (item.fileAsset?.filename.toLowerCase().includes(query.toLowerCase())) ||
     (item.creator?.toLowerCase().includes(query.toLowerCase())) ||
     (item.lastmodified.toString().toLowerCase().includes(query.toLowerCase())) ||
     (item.link.toLowerCase().includes(query.toLowerCase())) ||
@@ -252,6 +264,9 @@ export function PaginatedTable({ userFiles, role }: {
             label: string;
             short_label: string | null;
         } | null;
+        fileAsset: FileAsset | null;
+        codeAsset: CodeAsset | null;
+        assetType: string | null;
     } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
 }) {
 
@@ -264,6 +279,9 @@ export function PaginatedTable({ userFiles, role }: {
             label: string;
             short_label: string | null;
         } | null;
+        fileAsset: FileAsset | null;
+        codeAsset: CodeAsset | null;
+        assetType: string | null;
     } & DccAsset)[]>([])
 
     React.useEffect(() => {
