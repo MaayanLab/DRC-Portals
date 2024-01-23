@@ -24,6 +24,6 @@ with dcc_asset_helper.writer() as dcc_asset:
         dcc_id=file['dcc_id'],
         id=dcc_asset_id,
         type='dcc_asset',
-        label=f"{file['dcc_short_label']} {file['filetype']} {file['filename']}",
-        description='TODO',
+        label=f"{file['dcc_short_label']}_{file['filename']}",
+        description=f"A {file['filetype']} processed data file from {file['dcc_short_label']}.",
       ))

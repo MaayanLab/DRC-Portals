@@ -52,12 +52,25 @@ with c2m2_file_helper.writer() as c2m2_file:
           for file in tqdm(c2m2_files_reader, desc=f"Processing {c2m2['dcc_short_label']}/{c2m2['filename']}..."):
             c2m2_file_id = str(uuid5(uuid0, '\t'.join((c2m2_datapackage_id, file['id_namespace'], file['local_id']))))
             # try to resolve ontologies labels
-            try: file_format = f"{c2m2_extracted_file_format.at[file['file_format'], 'name']} (EDAM:{file['file_format']})"
-            except KeyError: file_format = file['file_format']
-            try: data_type = f"{c2m2_extracted_data_type.at[file['data_type'], 'name']} (EDAM:{file['data_type']})"
-            except KeyError: data_type = file['data_type']
-            try: assay_type = f"{c2m2_extracted_assay_type.at[file['assay_type'], 'name']} ({file['assay_type']})"
-            except KeyError: assay_type = file['assay_type']
+            try:
+              file_format = f"{c2m2_extracted_file_format.at[file['file_format'], 'name']} (EDAM:{file['file_format']})"
+              description = f"A {c2m2_extracted_file_format.at[file['file_format'], 'name']} file"
+            except KeyError:
+              file_format = file['file_format']
+              description = f"A file"
+            try:
+              data_type = f"{c2m2_extracted_data_type.at[file['data_type'], 'name']} (EDAM:{file['data_type']})"
+              description += f" containing {c2m2_extracted_data_type.at[file['data_type'], 'name'].lower()} data"
+            except KeyError:
+              data_type = file['data_type']
+            try:
+              assay_type = f"{c2m2_extracted_assay_type.at[file['assay_type'], 'name']} ({file['assay_type']})"
+              description += f" produced with {c2m2_extracted_data_type.at[file['assay_type'], 'name'].lower()}"
+            except KeyError:
+              assay_type = file['assay_type']
+            #
+            description += f" from {c2m2['dcc_short_label']}."
+            #
             c2m2_file.writerow(dict(
               id=c2m2_file_id,
               c2m2_datapackage_id=c2m2_datapackage_id,
@@ -72,6 +85,6 @@ with c2m2_file_helper.writer() as c2m2_file:
               dcc_id=c2m2['dcc_id'],
               id=c2m2_file_id,
               type='c2m2_file',
-              label=file['local_id'],
-              description=file['filename'],
+              label=file['filename'],
+              description=description,
             ))

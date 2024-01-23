@@ -24,27 +24,26 @@ map_type = {
   'Body Substance': 'Body Substance',
   'Cell Type': 'Cell Type',
   'Cell': 'Cell',
-  'CLINGEN ALLELE REGISTRY': 'CLINGEN ALLELE REGISTRY',
+  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
   'Congenital Abnormality': 'Congenital Abnormality',
   'Diagnostic Procedure': 'Diagnostic Procedure',
   'Disease or Syndrome': 'Disease',
   'Disease': 'Disease',
   'Drug': 'Drug',
-  'ENCODE CCRE': 'ENCODE CCRE',
-  'ENSEMBL': 'ENSEMBL',
+  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
+  'ENSEMBL': 'Transcript',
   'gene': 'gene',
-  'GLYCAN MOTIF': 'GLYCAN MOTIF',
-  'GLYCAN': 'GLYCAN',
-  'GLYCOSYLTRANSFERASE REACTION': 'GLYCOSYLTRANSFERASE REACTION',
-  'GLYGEN GLYCOSEQUENCE': 'GLYGEN GLYCOSEQUENCE',
-  'GLYGEN GLYCOSYLATION': 'GLYGEN GLYCOSYLATION',
-  'GLYGEN RESIDUE': 'GLYGEN RESIDUE',
-  'GLYTOUCAN': 'GLYTOUCAN',
-  'GTEXEQTL': 'GTEXEQTL',
+  'GLYCAN MOTIF': 'Glycan Motif',
+  'GLYCAN': 'Glycan',
+  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
+  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
+  'GLYGEN GLYCOSYLATION': 'Glycosylation',
+  'GLYGEN RESIDUE': 'Residue',
+  'GLYTOUCAN': 'Glytoucan',
+  'GTEXEQTL': 'eQTL',
   'Hormone': 'Hormone',
   'Injury or Poisoning': 'Injury or Poisoning',
   'Inorganic Chemical': 'Inorganic Chemical',
-  'KFVARBIN': 'KFVARBIN',
   'Laboratory Procedure': 'Laboratory Procedure',
   'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
   'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
@@ -71,7 +70,7 @@ with kg_assertion_helper.writer() as kg_assertion:
       with kg_relation_helper.writer() as kg_relation:
         kg_relations = set()
         with node_helper.writer() as node:
-          def ensure_entity(entity_type, entity_label, entity_description='TODO'):
+          def ensure_entity(entity_type, entity_label, entity_description=None):
             if entity_type in {'Gene', 'ENSEMBL'}:
               for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
@@ -109,7 +108,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                     id=entity_id,
                     type='entity',
                     label=entity_label,
-                    description=entity_description,
+                    description=entity_description or f"A knowledge graph {entity_type}.",
                   ))
                 return entity_id
               yield ensure
@@ -149,7 +148,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                         id=relation_id,
                         type='kg_relation',
                         label=assertion['relation'],
-                        description='TODO',
+                        description="A knowledge graph relationship.",
                       ))
                     if assertion['evidence'] == 'nan':
                       assertion['evidence'] = None
