@@ -27,9 +27,9 @@ export default function Documentation() {
 
 #### API Code Asset Submission Steps
 1. Follow Steps 1-3 of the *Code Asset Submission Steps* section. 
-2.Enter the URL of the page that documents the DCC APIs. 
-    - If the API documentation meets OpenAPI specification, please check the OpenAPI Specifications box.
-    - If the API documentation meets SmartAPI specification, please check the SmartAPI Specifications box.
+2. Enter the URL of the page that documents the DCC APIs. 
+    - If the API documentation meets OpenAPI specification, check the OpenAPI Specifications box.
+    - If the API documentation meets SmartAPI specification, check the SmartAPI Specifications box.
     - Insert the SmartAPI URL of the API if the SmartAPI URL is different from the API URL entered in the URL field of the form. Otherwise, leave the SmartAPI URL field empty.
 
 #### Asset Upload Submission Troubleshooting/FAQ: 
@@ -192,7 +192,7 @@ The Entity Page Template and Example are  links to:
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Entity Page Template and Example</Typography>
-                                <Markdown className="prose min-w-full p-2">{entityPageText}</Markdown>
+                                <Markdown className="prose min-w-full p-2" >{entityPageText}</Markdown>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Chatbot Specifications</Typography>
@@ -337,26 +337,26 @@ The Entity Page Template and Example are  links to:
                                 <Box sx={{ p: 1, m: 1, }}>
                                     <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>File Upload Steps</Typography>
                                     <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Go to the <Link href="/data/contribute/form" color="#111827" target="_blank">Data and Metadata Upload Form</Link> OR Click on the “Contribute” option in the navigation bar or in the footer
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             On the Upload Form page, upload your data and metadata files by either dragging and dropping them in the upload box, or clicking in the box or on the "Choose Files" button.
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             The files you have selected should appear under “Files to Upload”
                                             If you select a wrong file, you can delete it by clicking on the delete icon next to the file name
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Select the DCC that the files to upload were generated from. Only DCCs that you are affiliated with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option is not provided, please contact the DRC to update this information.
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             After clicking on the “Submit Form” button:
                                             If an upload is successful, a green banner with “Success! File Uploaded” should appear.
                                             If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error.
                                             Ensure that all the files you have selected for upload files are either .csv, .txt, .zip or .(x)mt files and are not larger than 500MB.
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Details of your uploaded file should appear on the <Link href="data/contribute/uploaded" color="#111827" target="_blank">Uploaded Assets</Link> page.
                                         </ListItem>
                                     </List>
@@ -373,21 +373,21 @@ The Entity Page Template and Example are  links to:
                                         if the values are different, the system will throw an error.
                                     </Typography>
                                     <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             The checksum of a successfully uploaded file is displayed on the Uploaded Assets page under the File Info dropdown of each file.
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             To verify file integrity after downloading a file from the portal:
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Download the intended file
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Calculate the checksum in your terminal using the <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <Markdown className="prose">{markdown}</Markdown> command
                                                 </span>
                                         </ListItem>
-                                        <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
                                         </ListItem>
                                     </List>
