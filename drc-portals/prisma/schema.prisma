@@ -20,6 +20,7 @@ model analysis_type {
   @@schema("c2m2")
 }
 
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model anatomy {
   id                                                     String               @id @db.VarChar
   name                                                   String               @db.VarChar
@@ -303,6 +304,7 @@ model dcc {
   @@schema("c2m2")
 }
 
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model disease {
   id                                                     String               @id @db.VarChar
   name                                                   String               @db.VarChar
@@ -997,7 +999,7 @@ model VerificationToken {
   @@schema("public")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client. @@id([id_namespace, local_id])
 model fl_biosample {
   id_namespace            String? @db.VarChar
   local_id                String? @db.VarChar
@@ -1017,7 +1019,6 @@ model fl_biosample {
   collection_local_id     String? @db.VarChar
   substance               String? @db.VarChar
 
-
   @@id([id_namespace, local_id])
   @@schema("c2m2")
 }
@@ -1030,6 +1031,32 @@ model partnership_publications {
 
   @@id([partnership_id, publication_id])
   @@schema("public")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model fl2_biosample {
+  id_namespace            String?                  @db.VarChar
+  local_id                String?                  @db.VarChar
+  project_id_namespace    String?                  @db.VarChar
+  project_local_id        String?                  @db.VarChar
+  persistent_id           String?                  @db.VarChar
+  creation_time           String?                  @db.VarChar
+  sample_prep_method      String?                  @db.VarChar
+  anatomy                 String?                  @db.VarChar
+  association_type        String?                  @db.VarChar
+  disease                 String?                  @db.VarChar
+  subject_id_namespace    String?                  @db.VarChar
+  subject_local_id        String?                  @db.VarChar
+  age_at_sampling         String?                  @db.VarChar
+  gene                    String?                  @db.VarChar
+  collection_id_namespace String?                  @db.VarChar
+  collection_local_id     String?                  @db.VarChar
+  substance               String?                  @db.VarChar
+  
+
+  @@id([id_namespace, local_id])
+  @@index([searchable], map: "idx_searchable", type: Gin)
+  @@schema("c2m2")
 }
 
 enum NodeType {

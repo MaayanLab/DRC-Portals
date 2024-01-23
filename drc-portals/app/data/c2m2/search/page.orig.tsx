@@ -22,14 +22,17 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function Page(props: PageProps) {
+  console.log(props)
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*searchParams.r
+
+  console.log(searchParams.q)
+  const offset = (searchParams.p - 1) * searchParams.r
   const limit = searchParams.r
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-    items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    items: { id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null }[],
     count: number,
-    type_counts: {type: NodeType, entity_type: string | null, count: number}[],
-    dcc_counts: {id: string, short_label: string, count: number}[],
+    type_counts: { type: NodeType, entity_type: string | null, count: number }[],
+    dcc_counts: { id: string, short_label: string, count: number }[],
   }>>`
     with results as (
       select
@@ -52,11 +55,11 @@ export default async function Page(props: PageProps) {
       from "results"
       ${searchParams.t ? Prisma.sql`
       where
-        ${Prisma.join(searchParams.t.map(t => t.type === 'dcc' ? 
-          Prisma.sql`
+        ${Prisma.join(searchParams.t.map(t => t.type === 'dcc' ?
+    Prisma.sql`
           "results"."dcc_id" = ${t.entity_type}
           `
-        : Prisma.sql`
+    : Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
           ${t.entity_type ? Prisma.sql`
@@ -73,11 +76,11 @@ export default async function Page(props: PageProps) {
       from "results"
       ${searchParams.t ? Prisma.sql`
       where
-        ${Prisma.join(searchParams.t.map(t =>  t.type === 'dcc' ? 
-          Prisma.sql`
+        ${Prisma.join(searchParams.t.map(t => t.type === 'dcc' ?
+      Prisma.sql`
           "results"."dcc_id" = ${t.entity_type}
           `
-        : Prisma.sql`
+      : Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
           ${t.entity_type ? Prisma.sql`
@@ -133,11 +136,11 @@ export default async function Page(props: PageProps) {
       footer={
         <Link href="/data">
           <Button
-            sx={{textTransform: "uppercase"}}
+            sx={{ textTransform: "uppercase" }}
             color="primary"
             variant="contained"
             startIcon={<Icon path={mdiArrowLeft} size={1} />}>
-              BACK TO SEARCH
+            BACK TO SEARCH
           </Button>
         </Link>
       }
@@ -154,13 +157,13 @@ export default async function Page(props: PageProps) {
         ]}
         rows={results?.items.map(item => [
           item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
-            : item.type === 'entity' ? 
+            : item.type === 'entity' ?
               item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
-              : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
-              : null
-            : null,
+                : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
+                  : null
+              : null,
           <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
-          <Description description={item.description}/>,
+          <Description description={item.description} />,
         ]) ?? []}
       />
     </ListingPageLayout>
