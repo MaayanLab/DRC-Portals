@@ -28,13 +28,13 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
           {props.fileInfo.map((item, idx) => {
             return (
               <TableRow key={idx}>
-                <TableCell width='30%' sx={{border:0}}>
+                <TableCell style={{wordBreak: "break-word"}} width='30%' sx={{border:0}}>
                   <Link color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener">
                     {item.filename}
                   </Link>
                 </TableCell>
                 <TableCell align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
-                <TableCell align="center" sx={{border:0, fontSize: '11pt'}}>{item.creator}</TableCell>
+                <TableCell style={{wordBreak: "break-word"}} align="center" sx={{border:0, fontSize: '11pt'}}>{item.creator}</TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
                   {item.dccapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
                 </TableCell>
@@ -62,14 +62,14 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
           {props.fileInfo.map((item, idx) => {
             return (
               <TableRow key={idx}>
-                <TableCell width='30%' sx={{border:0}}>
+                <TableCell style={{wordBreak: "break-word"}} width='30%' sx={{border:0}}>
                   <Link color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener">
                     {item.filename}
                   </Link>
                 </TableCell>
                 <TableCell width="10%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.size}</TableCell>
                 <TableCell width="15%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
-                <TableCell align="center" sx={{border:0, fontSize: '11pt'}}>{item.creator}</TableCell>
+                <TableCell style={{wordBreak: "break-word"}} align="center" sx={{border:0, fontSize: '11pt'}}>{item.creator}</TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
                   {item.dccapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
                 </TableCell>
