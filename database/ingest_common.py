@@ -90,18 +90,18 @@ def ensure_file_factory(url, path):
 
 #%%
 # Fetch data for ingest
-dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/DCC.tsv', 'DCC.tsv')
-dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_publications.tsv', 'dcc_publications.tsv')
-publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/publications.tsv', 'publications.tsv')
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/DCC.tsv', 'DCC.tsv')
+dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_publications.tsv', 'dcc_publications.tsv')
+publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/publications.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
 dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/DccAssets.tsv', 'DccAssets.tsv')
 file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/FileAssets.tsv', 'FileAssets.tsv')
 code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/CodeAssets.tsv', 'CodeAssets.tsv')
-dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
-partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'partnerships.tsv')
-partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnership_publications.tsv', 'partnership_publications.tsv')
-tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/tools.tsv', 'tools.tsv')
+dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/partnerships.tsv', 'partnerships.tsv')
+partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/partnership_publications.tsv', 'partnership_publications.tsv')
+tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/tools.tsv', 'tools.tsv')
 #%%
 def current_dcc_assets():
   dcc_assets = pd.merge(
