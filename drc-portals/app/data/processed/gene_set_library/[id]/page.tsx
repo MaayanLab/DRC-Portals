@@ -109,7 +109,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={library_sets.gene_sets.map(gene_set => [
-          <LinkedTypedNode type="gene_set" id={gene_set.id} label={gene_set.node.label} />,
+          <LinkedTypedNode type="gene_set" id={gene_set.id} label={gene_set.node.label} search={searchParams.q ?? ''} />,
           format_description(gene_set.node.description),
         ])}
       />

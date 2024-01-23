@@ -59,8 +59,8 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
-          <Description description={item.node.description}/>,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} search={searchParams.q ?? ''} />,
+          <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
       />
     </ListingPageLayout>

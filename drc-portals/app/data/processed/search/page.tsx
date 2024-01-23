@@ -159,8 +159,8 @@ export default async function Page(props: PageProps) {
               : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
               : null
             : null,
-          <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
-          <Description description={item.description}/>,
+          <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
+          <Description description={item.description} search={searchParams.q ?? ''} />,
         ]) ?? []}
       />
     </ListingPageLayout>
