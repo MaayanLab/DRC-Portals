@@ -48,7 +48,7 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                     id=gene_set_library_id,
                     type="gene_set_library",
                     label=gmt_path.stem.replace('_', ' '),
-                    description=f"A gene set library provided by {gmt['dcc_short_label']}.",
+                    description=f"A gene set library provided by {gmt['dcc_short_label']}",
                   ))
                 else:
                   raise NotImplementedError(gmt_path.suffix)
@@ -68,7 +68,7 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                       id=gene_set_id,
                       type='gene_set',
                       label=gene_set_label.replace('_', ' '),
-                      description=gene_set_description or f"A gene set from {gmt_path.stem.replace('_',' ')} provided by {gmt['dcc_short_label']}.",
+                      description=gene_set_description or f"A gene set from {gmt_path.stem.replace('_',' ')} provided by {gmt['dcc_short_label']}",
                     ))
                     gene_set_genes = {gene_id for raw_gene in gene_set_genes if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
                     #

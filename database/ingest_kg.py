@@ -107,8 +107,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                   node.writerow(dict(
                     id=entity_id,
                     type='entity',
-                    label=entity_label,
-                    description=entity_description or f"A knowledge graph {entity_type}.",
+                    label=entity_label.capitalize().replace('_', ' '),
+                    description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                   ))
                 return entity_id
               yield ensure
@@ -147,8 +147,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                       node.writerow(dict(
                         id=relation_id,
                         type='kg_relation',
-                        label=assertion['relation'],
-                        description="A knowledge graph relationship.",
+                        label=assertion['relation'].capitalize().replace('_', ' '),
+                        description="A relationship in the knowledge graph",
                       ))
                     if assertion['evidence'] == 'nan':
                       assertion['evidence'] = None

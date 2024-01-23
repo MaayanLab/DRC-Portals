@@ -69,7 +69,7 @@ with c2m2_file_helper.writer() as c2m2_file:
             except KeyError:
               assay_type = file['assay_type']
             #
-            description += f" from {c2m2['dcc_short_label']}."
+            description += f" from {c2m2['dcc_short_label']}"
             #
             c2m2_file.writerow(dict(
               id=c2m2_file_id,
