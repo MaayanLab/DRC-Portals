@@ -6,7 +6,7 @@ import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import Icon from "@mdi/react";
@@ -114,17 +114,15 @@ export default async function Page(props: PageProps) {
       count={results?.count}
       filters={
         <>
-          {/* <Typography className="caption">Type</Typography> */}
-          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
-          )}
-          {/* <hr className="m-2" />
-          <Typography className="caption">Program</Typography> */}
+          <Typography className="subtitle1">Program</Typography>
           {results?.dcc_counts.map((dcc_count) =>
             <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
           )}
-          {/* <hr className="m-2" />
-          <Typography className="caption">Entity</Typography> */}
+          <hr className="m-2" />
+          <Typography className="subtitle1">Type</Typography>
+          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+          )}
           {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
             <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
           )}
