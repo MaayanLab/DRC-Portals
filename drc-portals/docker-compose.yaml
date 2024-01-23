@@ -134,3 +134,7 @@ volumes:
     x-kubernetes:
       size: 40Gi
       class: gp2
+
+x-kubernetes:
+  name: drc-portal
+  namespace: drc
