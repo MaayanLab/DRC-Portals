@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
@@ -121,10 +121,10 @@ export default async function Page(props: PageProps) {
           <hr className="m-2" />
           <Typography className="subtitle1">Type</Typography>
           {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
           )}
           {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} />
+            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
           )}
         </>
       }

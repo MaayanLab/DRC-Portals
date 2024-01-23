@@ -5,7 +5,7 @@ import SearchField from "./SearchField"
 import Link from "next/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
-import { type_to_string } from "./utils"
+import { type_to_color, type_to_string } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"
 
 export function LinkedTypedNode({
@@ -26,7 +26,7 @@ export function LinkedTypedNode({
   return (
     <div className="flex flex-col">
       <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color="secondary"><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }
