@@ -12,6 +12,7 @@ type dccMatrix = {
 async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
   const res = is_code ? await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dcc_id, 
       codeAsset: {
         type: ft
@@ -19,6 +20,7 @@ async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
     }
   }) : await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dcc_id,
       fileAsset: {
         filetype: ft

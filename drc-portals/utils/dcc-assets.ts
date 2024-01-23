@@ -36,6 +36,7 @@ async function getFile(
 ) {
   const res = await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dccId, 
       fileAsset: {
         filetype: ft
@@ -76,6 +77,7 @@ async function getCode(
 ) {
   const res = await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dccId, 
       codeAsset: {
         type: ft
