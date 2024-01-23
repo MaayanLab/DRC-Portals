@@ -104,10 +104,13 @@ partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazona
 tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/tools.tsv', 'tools.tsv')
 #%%
 def current_dcc_assets():
-  dcc_assets = pd.read_csv(dcc_assets_path(), sep='\t', names=[
-    'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
-    'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
-  ])
+  dcc_assets = pd.merge(
+    left=pd.read_csv(file_assets_path(), sep='\t'),
+    left_on='link',
+    right=pd.read_csv(dcc_assets_path(), sep='\t'),
+    right_on='link',
+    how='inner',
+  )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
-  dcc_assets = dcc_assets[dcc_assets['current']]
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
   return dcc_assets
