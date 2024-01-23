@@ -17,29 +17,29 @@ export default function Documentation() {
     const codeAssetSubmission = `
 1. Go to the [Code Asset Form](urlform) page OR Click on the “Contribute” option in the navigation bar or in the footer: 
 2. On the Code Asset Form, fill out all the fields: 
-- Select the DCC for which the asset is affiliated with
-- Select the code asset type you wish to submit from the available options ETL, API, PWB Metanode, Entity Page Template, Chatbot Specifications and Apps URL. If submitting an API asset. Please see the *API Code Asset Submission Steps* section
-- Enter the URL for the code asset in the URL field. Only valid HTTPS URLs are accepted.
+    - Select the DCC for which the asset is affiliated with
+    - Select the code asset type you wish to submit from the available options ETL, API, PWB Metanode, Entity Page Template, Chatbot Specifications and Apps URL. If submitting an API asset. Please see the *API Code Asset Submission Steps* section
+    - Enter the URL for the code asset in the URL field. Only valid HTTPS URLs are accepted.
 3. After clicking on the “Submit Form” button: 
-- If an upload is successful, a green banner with “Success! Code Asset Uploaded” should appear. 
-- If an upload is unsuccessful, a red banner with an error message will appear.
+    - If an upload is successful, a green banner with “Success! Code Asset Uploaded” should appear. 
+    - If an upload is unsuccessful, a red banner with an error message will appear.
 4. Details of your uploaded code asset should appear on the [Uploaded Assets](uploaded) page. 
 
 #### API Code Asset Submission Steps
-1. Follow Steps 1-3 of the “Code Asset Submission Steps” section. 
+1. Follow Steps 1-3 of the *Code Asset Submission Steps* section. 
 2.Enter the URL of the page that documents the DCC APIs. 
-- If the API documentation meets OpenAPI specification, please check the OpenAPI Specifications box.
-- If the API documentation meets SmartAPI specification, please check the SmartAPI Specifications box.
-- Insert the SmartAPI URL of the API if the SmartAPI URL is different from the API URL entered in the URL field of the form. Otherwise, leave the SmartAPI URL field empty.
+    - If the API documentation meets OpenAPI specification, please check the OpenAPI Specifications box.
+    - If the API documentation meets SmartAPI specification, please check the SmartAPI Specifications box.
+    - Insert the SmartAPI URL of the API if the SmartAPI URL is different from the API URL entered in the URL field of the form. Otherwise, leave the SmartAPI URL field empty.
 
 #### Asset Upload Submission Troubleshooting/FAQ: 
 1. Before uploading, ensure that all your account information has been entered/is accurate on the[ My Account](account) page
-- If your email is missing, please fill it out and click 'Save Changes' 
-- If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
-- If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
-- If Role is inaccurate, please contact the DRC to update your information.
+    - If your email is missing, please fill it out and click 'Save Changes' 
+    - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
+    - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
+    - If Role is inaccurate, please contact the DRC to update your information.
 2. If you are to be an Uploader for your DCC and have “Access Denied” on the Code Assets Form and Uploaded pages, please contact the DRC through email to grant you access.
-3. If a mistake has been made in an upload, go to the Uploaded Assets page, delete the incorrectly uploaded file by clicking on the delete icon on the row of the given file and reupload the corrected file.
+3. If a mistake has been made in an upload, go to the [Uploaded Assets](uploaded) page, delete the incorrectly uploaded file by clicking on the delete icon on the row of the given file and reupload the corrected file.
     `
 
     const assetApproval = `
@@ -235,7 +235,7 @@ The Entity Page Template and Example are  links to:
                                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <BsCheckCircleFill />
                                         </span>
-                                        {' '}icon under the DCC Status column on the Uploaded Assets page.
+                                        {' '}icon under the DCC Status column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page.
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
@@ -258,14 +258,21 @@ The Entity Page Template and Example are  links to:
                                 <Box sx={{ p: 1, m: 1, }}>
                                     <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Current</Typography>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                        An asset tagged by the  icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page is considered the current version
+                                        An asset tagged by the {' '}
+                                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                            <BsCheckCircleFill />
+                                        </span> icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page is considered the current version
                                         of that file type for a given DCC. DCC and DRC approvers both have the right to change the current/archived status of an asset.
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
                                     <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Archived</Typography>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                        An asset tagged by the   icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page, 
+                                        An asset tagged by the  {' '}
+                                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                            <FaCircleExclamation />
+                                        </span>
+                                        {' '} icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page, 
                                         is considered an archived version of that asset type.
                                         Please note that both DCC and DRC approvers can change the current status of an asset.
                                     </Typography>
@@ -298,6 +305,7 @@ The Entity Page Template and Example are  links to:
                                         Can approve a submitted package, but can’t submit new packages. You can have as many users in this role as you want.
                                     </Typography>
                                 </Box>
+                                <Box sx={{ p: 1, m: 1, }}>
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                     Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges:
                                     Contact the DRC via email with the following information about the member:
@@ -319,6 +327,7 @@ The Entity Page Template and Example are  links to:
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                     Please also indicate if the user has already logged into the portal (is a registered user) or has never accessed the portal (is a new user).
                                 </Typography>
+                                </Box>
                             </>
                         } />
 
@@ -374,7 +383,9 @@ The Entity Page Template and Example are  links to:
                                             Download the intended file
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
-                                            Calculate the checksum in your terminal using the <Markdown className="prose">{markdown}</Markdown> command
+                                            Calculate the checksum in your terminal using the <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                            <Markdown className="prose">{markdown}</Markdown> command
+                                                </span>
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", fontWeight: 'lighter' }}>
                                             If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
