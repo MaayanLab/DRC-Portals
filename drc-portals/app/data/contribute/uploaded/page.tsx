@@ -31,7 +31,9 @@ export default async function UserFiles() {
                             label: true,
                             short_label:true
                         }
-                    }
+                    }, 
+                    fileAsset: true,
+                    codeAsset: true,
                 }
             },
         },
@@ -70,7 +72,9 @@ export default async function UserFiles() {
                     label: true,
                     short_label:true
                 }
-            }
+            }, 
+            fileAsset: true,
+            codeAsset: true,
         },
         where: {
             ...(user.role === 'DCC_APPROVER' ? {
@@ -90,11 +94,12 @@ export default async function UserFiles() {
     let headerText;
 
     if (user.role === 'UPLOADER') {
-        userFiles = user.dccAsset.filter((asset) => asset.deleted === false)
+        userFiles = user.dccAsset.filter((asset) => asset.deleted === false).map(obj => ({ ...obj, assetType:  obj.fileAsset ? obj.fileAsset?.filetype :  obj.codeAsset?.type ?? '' }))
+
         // userFiles = allFiles
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            These are all files that have been you have uploaded for all the DCCs you are affiliated with.
-            Expand each file to download or view the SHA256 checksum of each file.
+            These are all assets that you have uploaded/submitted for all the DCCs you are affiliated with.
+            Expand a row to see additional information for a file or code asset.
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
@@ -102,20 +107,20 @@ export default async function UserFiles() {
         </Typography>
 
     } else if (user.role === 'DCC_APPROVER') {
-        userFiles = allFiles
+        userFiles = allFiles.map(obj => ({ ...obj, assetType:  obj.fileAsset ? obj.fileAsset?.filetype :  obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            These are all files that have been uploaded for your affiliated DCCs.
-            Expand each file to download or view the SHA256 checksum of each file.
+            These are all assets that have been uploaded/submitted for your affiliated DCCs.
+            Expand a row to see additional information for a file or code asset.
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
             and current statuses of each file and the steps to approve a file or change its current status.
         </Typography>
     } else {
-        userFiles = allFiles
+        userFiles = allFiles.map(obj => ({ ...obj, assetType:  obj.fileAsset ? obj.fileAsset?.filetype :  obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            These are all files that have been uploaded for all the DCCs.
-            Expand each file to download or view the SHA256 checksum of each file.
+            These are all assets that have been uploaded/submitted for all the DCCs.
+            Expand a row to see additional information for a file or code asset.
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval

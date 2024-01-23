@@ -4,12 +4,14 @@ import { Button } from "@mui/material"
 import { useCallback, useEffect, useState } from "react"
 import { BsCheckCircleFill } from "react-icons/bs";
 import { updateAssetApproval } from "./getDCCAsset";
-import type { DccAsset } from '@prisma/client'
+import type { DccAsset, FileAsset, CodeAsset } from '@prisma/client'
 
 export default function ApprovalBtn(userFile: {
     dcc: {
         label: string;
     } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
 } & DccAsset & {
     dcc_drc: string
 }) {

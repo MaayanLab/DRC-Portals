@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { saveChecksumDb } from './UploadFunc'
+import { findFileAsset, saveChecksumDb } from './UploadFunc'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';
@@ -138,7 +138,7 @@ export function S3UploadForm(user: {
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
     setProgress(oldProgress => oldProgress + progressAlloc / 3)
- 
+
 
     await axios.put(presignedurl, file, {
       headers: {
@@ -147,8 +147,8 @@ export function S3UploadForm(user: {
       },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
-            const newProgress = ((fileNumber - 1) * progressAlloc) + ((0.667 * progressAlloc)) + ((progressEvent.loaded / progressEvent.total) * (0.333 * progressAlloc))
-            setProgress(newProgress);
+          const newProgress = ((fileNumber - 1) * progressAlloc) + ((0.667 * progressAlloc)) + ((progressEvent.loaded / progressEvent.total) * (0.333 * progressAlloc))
+          setProgress(newProgress);
         }
       },
     }).catch(function (error) {
@@ -182,17 +182,27 @@ export function S3UploadForm(user: {
       }
 
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-        try {
-          let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
-          if (!dcc) throw new Error('no dcc entered')
-          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length), i+1)
-          await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
-        }
-        catch (error) {
-          console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+        if (!dcc) throw new Error('no dcc entered')
+        let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
+        const foundVersions = await findFileAsset(filetype, dcc, uploadedfiles[i].name)
+        if (foundVersions.length > 0 ) {
+          setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfiles[i].name} already exists in database. Rename file to upload` } }));
           return
         }
       }
+
+      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+        try {
+          let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
+          if (!dcc) throw new Error('no dcc entered')
+          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length), i + 1)
+          await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
+        }
+        catch (error) {
+            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+            return
+      }
+    }
       setStatus(() => ({ success: true }))
       setProgress(0)
     }}>
