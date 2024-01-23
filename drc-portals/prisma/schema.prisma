@@ -1052,7 +1052,7 @@ model fl2_biosample {
   collection_id_namespace String?                  @db.VarChar
   collection_local_id     String?                  @db.VarChar
   substance               String?                  @db.VarChar
-  
+  searchable              Unsupported("tsvector")?              
 
   @@id([id_namespace, local_id])
   @@index([searchable], map: "idx_searchable", type: Gin)
