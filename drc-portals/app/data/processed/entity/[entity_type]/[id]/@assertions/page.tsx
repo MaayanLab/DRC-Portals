@@ -110,7 +110,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
       rows={results.assertions.map(assertion => [
         assertion.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
         <LinkedTypedNode type="entity" entity_type={assertion.source.type} id={assertion.source.id} focus={assertion.source.id === props.params.id} label={assertion.source.label} />,
-        <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} />,
+        <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} search={searchParams.q ?? ''} />,
         <LinkedTypedNode type="entity" entity_type={assertion.target.type} id={assertion.target.id} focus={assertion.target.id === props.params.id} label={assertion.target.label} />,
         assertion.evidence?.toString(),
       ])}

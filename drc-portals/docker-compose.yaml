@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.2.20
+    image: maayanlab/drc-portal:0.2.47
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -21,6 +21,7 @@ services:
       - S3_SECRET_KEY
       - S3_ENDPOINT
       - S3_BUCKET
+      - S3_REGION
       - OPENAI_API_KEY
 
   drc-portal-data-proxy:
@@ -106,7 +107,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     ports:
-      - 5432:5432
+      - 5433:5432
     volumes:
       - drc-portal-postgres:/var/lib/postgresql/data
 
@@ -133,3 +134,7 @@ volumes:
     x-kubernetes:
       size: 40Gi
       class: gp2
+
+x-kubernetes:
+  name: drc-portal
+  namespace: drc

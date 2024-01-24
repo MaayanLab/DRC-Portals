@@ -12,7 +12,7 @@ export default function Twitter() {
                         <Typography variant="h2" color="secondary">Social Media</Typography>
                     </Grid>
                     <Grid item>
-                        <TwitterFollowButton screenName={'CfdeNih'}/>
+                        <TwitterFollowButton screenName={'CFDEWorkbench'}/>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="body1">
@@ -23,8 +23,8 @@ export default function Twitter() {
                         <div>
                             <TwitterTimelineEmbed
                                 sourceType="profile"
-                                screenName="CfdeNih"
-                                options={{height: 500, width: 300}}
+                                screenName="CFDEWorkbench"
+                                options={{height: 500, width: 500}}
                             />
                         </div>
                     </Grid>

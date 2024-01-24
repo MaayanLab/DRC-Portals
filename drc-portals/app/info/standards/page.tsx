@@ -1,0 +1,134 @@
+import { Grid, Typography, Link } from "@mui/material";
+import { StyledAccordion, StyledAccordionSummary, StyledAccordionDetails } from "@/components/misc/StyledAccordion";
+
+export default function Standards() {
+  return (
+    <Grid container direction="row">
+      <Grid item xs={12} >
+        <Typography sx={{ml:3, mt:2, color: "secondary.dark"}} variant="h2">
+          Standards & Protocols
+        </Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Typography sx={{ml:3, mt:2}} fontSize="12pt" color="#666666">
+          This page contains descriptions of common standards, protocols, and other assets
+          generated from any of the CFDE partnered Data Coordination Centers (DCCs), 
+          partnership activities, or the Data Resource Center (DRC) and Knowledge Center (KC).
+        </Typography>
+      </Grid>
+      <Grid item xs={12} sx={{mt:3, mb:4}}>
+          <StyledAccordion >
+            <StyledAccordionSummary>
+              <Typography fontWeight="bold" color="#ffffff">C2M2</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                The Crosscut Metadata Model (C2M2) was designed to standardize 
+                metadata annotations across Common Fund DCCs by the original CFDE 
+                Coordination Center. C2M2 datapackage files are usually a zipfile 
+                containing a set of TSV files already standardized to a set of known 
+                ontologies, along with a single JSON schema. 
+                <br /><br />
+                Learn more about generating a C2M2 datapackage <Link 
+                href="/info/standards/C2M2" rel="noopener" color="#3470e5">here</Link>.
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+
+          <StyledAccordion >
+            <StyledAccordionSummary>
+              <Typography fontWeight="bold" color="#ffffff">RNA-seq Standard Pipeline</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                The CFDE RNA-seq Partnership aims to harmonize diverse RNA-seq 
+                datasets across the CFDE to improve their interoperability and 
+                reusability for the broader scientific research community. To this 
+                end, the partnership is developing common pipelines for both bulk 
+                and single cell RNA-seq data analysis, with the end goal of building 
+                a large, readily accessible, and harmonized resource of RNA-seq 
+                datasets and processing tools from various DCCs and CFDE projects. 
+                <br /><br />
+                More information about the standardized bulk and single cell RNA-seq 
+                pipelines will be available soon. 
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+
+          <StyledAccordion >
+            <StyledAccordionSummary >
+                <Typography fontWeight="bold" color="#ffffff">OpenAPI & SmartAPI</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                The OpenAPI specification allows for the standardization of 
+                application programming interfaces (APIs), and facilitates 
+                their interoperability. 
+                <br /><br />
+                The SmartAPI project builds on top of the OpenAPI specifications 
+                to maximize the findability, accessibility, interoperability, 
+                and reusability (FAIRness) of web-based tools, especially those 
+                within the biomedical sphere. Through richer metadata descriptions, 
+                SmartAPI enables users to search and use a connected network of tools. 
+                <br /><br />
+                Learn more about generating an OpenAPI or SmartAPI specification <Link
+                href="/info/standards/OpenAPI" rel="noopener" color="#3470e5">here</Link>.
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+
+          <StyledAccordion >
+            <StyledAccordionSummary >
+                <Typography fontWeight="bold" color="#ffffff">Knowledge Graph Assertions</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                Coming Soon
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+
+          <StyledAccordion >
+            <StyledAccordionSummary >
+                <Typography fontWeight="bold" color="#ffffff">FAIR Evaluations with FAIRshake</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                Coming Soon
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+
+          <StyledAccordion >
+            <StyledAccordionSummary >
+                <Typography fontWeight="bold" color="#ffffff">Playbook Metanodes</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                The Playbook Partnership Workflow Builder (PPWB) is a web-based 
+                knowledge resolution platform being developed by the CFDE Workflow 
+                Playbook Partnership and consisting of a growing network of datasets, 
+                semantically annotated API endpoints, and visualization tools 
+                from across the CFDE. 
+                <br /><br />
+                Users can construct workflows from the individual building blocks, 
+                termed "meta nodes", with little effort or technical expertise 
+                required. For more information, refer to the <Link
+                  href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/user/index.md"
+                  rel="noopener" color="#3470e5">
+                    User Guide
+                </Link>. Developers can refer to the <Link 
+                  href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/user/index.md"
+                  rel="noopener" color="#3470e5"
+                  >Developer Guide
+                </Link>.
+                <br /><br />
+                Learn more about building PWB meta nodes <Link
+                href="/info/standards/PWBMetanodes" rel="noopener" color="#3470e5">here</Link>.
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+      </Grid>
+    </Grid>   
+  )
+}

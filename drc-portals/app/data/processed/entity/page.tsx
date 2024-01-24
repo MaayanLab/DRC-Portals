@@ -66,7 +66,7 @@ export default async function Page(props: PageProps) {
       count={results.count}
     >
       <SearchablePagedTable
-        label={type_to_string('entity', null)}
+        label={`${type_to_string('entity', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -76,8 +76,8 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results.items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} />,
-          <Description description={item.node.description}/>,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} search={searchParams.q ?? ''} />,
+          <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
       />
     </ListingPageLayout>

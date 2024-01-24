@@ -48,8 +48,7 @@ export default async function InfoFooter() {
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
-                  <Link href="/data/coming_soon"><Typography variant="footer">About</Typography></Link>
-                  <Link href="/info" target="_blank" rel="noopener noreferrer">
+                  <Link href="/info">
                     <Typography variant="footer">Information Portal</Typography>
                   </Link>
               </Stack>
@@ -57,7 +56,7 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Data & Metadata</b></Typography>
-              <Link href="/data/coming_soon"><Typography variant="footer">Metadata Search Engine</Typography></Link>
+              <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
               <Link href="/data/matrix"><Typography variant="footer">Data Matrix</Typography></Link>
               <Link href="/data/contribute/form"><Typography variant="footer">Contribute</Typography></Link>
             </Stack>
@@ -65,9 +64,12 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Tools & Usecases</b></Typography>
-              <Link href="/data/coming_soon"><Typography variant="footer">Tools and Workflows</Typography></Link>
+              <Link href="/data/tools_and_workflows"><Typography variant="footer">Tools and Workflows</Typography></Link>
+              <Link href="https://playbook-workflow-builder.cloud/playbooks">
+                <Typography variant="footer">Use Cases</Typography>
+              </Link>
               <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
-              <Link href="/data/coming_soon"><Typography variant="footer">Cross DCC Use Cases</Typography></Link>
+              {/* <Link href="/data/coming_soon"><Typography variant="footer">Cross DCC Use Cases</Typography></Link> */}
             </Stack>
           </Grid>
         </Grid>

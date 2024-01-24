@@ -53,9 +53,16 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         cfde: {
+            fontSize: "40px",
+            fontStyle: "normal",
+            fontWeight: 500,
+            textTransform: "uppercase"
+        },
+        cfde_small: {
             fontSize: 24,
             fontStyle: "normal",
             fontWeight: 500,
+            textTransform: "uppercase"
         },
         subtitle1: {
             fontSize: 16,
@@ -81,7 +88,7 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         nav: {
-            fontSize: 14,
+            fontSize: 16,
             fontStyle: "normal",
             fontWeight: 600,
             textTransform: "uppercase",
@@ -252,6 +259,7 @@ export const cfde_theme = createTheme({
 declare module '@mui/material/styles' {
     interface TypographyVariants {
       cfde: React.CSSProperties;
+      cfde_small: React.CSSProperties;
       nav: React.CSSProperties;
       footer: React.CSSProperties;
       stats_h3: React.CSSProperties;
@@ -261,6 +269,7 @@ declare module '@mui/material/styles' {
     // allow configuration using `createTheme`
     interface TypographyVariantsOptions {
       cfde?: React.CSSProperties;
+      cfde_small?: React.CSSProperties;
       nav?: React.CSSProperties;
       footer?: React.CSSProperties;
       stats_h3?: React.CSSProperties;
@@ -292,6 +301,7 @@ declare module '@mui/material/styles' {
   declare module '@mui/material/Typography' {
     interface TypographyPropsVariantOverrides {
       cfde: true;
+      cfde_small: true;
       nav: true;
       footer: true;
       stats_h3: true;
