@@ -37,7 +37,10 @@ export default async function Page(props: PageProps) {
       select
         "node".*,
         "entity_node"."type" as "entity_type",
-        ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) as "rank"
+        row_number() over (
+          partition by "node"."type", "node"."dcc_id"
+          order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q}))
+        ) as "rank"
       from "node"
       left join "entity_node" on "entity_node"."id" = "node"."id"
       where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
