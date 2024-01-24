@@ -1,5 +1,6 @@
 import { Grid, Typography, Link } from "@mui/material";
 import ReactMarkdown from 'react-markdown'
+import { LinkRenderer, HeadingRenderer } from '@/components/misc/ReactMarkdownRenderers'
 import path from 'path'
 import { readFileSync } from 'fs'
 
@@ -15,7 +16,12 @@ export default function OpenAPIDocs() {
       </Grid>
       <Grid item sx={{mb:5}}>
         <br/>
-        <ReactMarkdown className="prose">
+        <ReactMarkdown 
+        components={{ 
+          a: LinkRenderer, 
+          h2: HeadingRenderer,
+          h3: HeadingRenderer,
+        }} className="prose">
           {markdown}
         </ReactMarkdown>
       </Grid>
