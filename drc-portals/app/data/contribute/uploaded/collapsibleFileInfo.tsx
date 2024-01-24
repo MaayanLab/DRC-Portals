@@ -54,7 +54,6 @@ type CodeAssetInfo = {
     fileInfo: CodeAsset;
     type: 'CodeAsset'
 }
-type assetFormType = "FileAsset" | "CodeAsset"
 
 export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
     return (
@@ -66,14 +65,14 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                 <Table>
                     <TableRow>
                         <TableCell variant="head">File</TableCell>
-                        <TableCell><Link color="secondary" href={props.fileInfo.link} target="_blank" rel="noopener">{props.fileInfo.filename}</Link></TableCell>
+                        <TableCell><Link color="secondary" href={props.fileInfo.link} target="_blank" rel="noopener" style={{ width: 200 }}>{props.fileInfo.filename}</Link></TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell variant="head">File size</TableCell>
+                        <TableCell variant="head" style={{ width: 200 }}>File size</TableCell>
                         <TableCell>{props.fileInfo.size ? formatBytes(parseInt(props.fileInfo.size.toString()), 2).toString() : ''}</TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell variant="head">Checksum (SHA256)</TableCell>
+                        <TableCell variant="head" style={{ width: 200 }}>Checksum (SHA256)</TableCell>
                         <TableCell>{props.fileInfo.sha256checksum ? Buffer.from(props.fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
                     </TableRow>
                 </Table>
