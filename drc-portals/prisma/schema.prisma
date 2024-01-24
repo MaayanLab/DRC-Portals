@@ -707,6 +707,22 @@ model Publication {
   dccs          DCCPublication[]
   partnertships PartnershipPublications[]
   tool          Tool?                     @relation(fields: [tool_id], references: [id])
+  id                       String                     @id @default(uuid())
+  authors                  String
+  doi                      String?
+  issue                    String?
+  journal                  String?
+  page                     String?
+  pmcid                    String?
+  pmid                     String?
+  title                    String
+  volume                   String?
+  year                     String?
+  tool_id                  String?
+  landmark                 Boolean                    @default(false)
+  dccs                     DCCPublication[]
+  partnership_publications partnership_publications[]
+  tool                     Tool?                      @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
   @@schema("public")
@@ -728,15 +744,10 @@ model Outreach {
   title             String
   description       String
   featured          Boolean       @default(false)
-  active            Boolean       @default(false)
-  carousel          Boolean       @default(false)
-  start_date        DateTime?     @db.Timestamptz(3)
-  end_date          DateTime?     @db.Timestamptz(3)
-  application_start DateTime?     @db.Timestamptz(3)
-  application_end   DateTime?     @db.Timestamptz(3)
   link              String?
   short_description String
   end_date          DateTime?     @db.Timestamptz(3)
+  carousel          Boolean       @default(false)
   start_date        DateTime?     @db.Timestamptz(3)
   image             String?
   active            Boolean       @default(false)
@@ -776,12 +787,53 @@ model Partnerships {
 
 model DCCPartnerships {
   partnership_id String
+  dcc_id         String
+  dcc            DCC          @relation(fields: [dcc_id], references: [id])
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
   dcc            DCC          @relation(fields: [dcc_id], references: [id])
   dcc_id         String
 
   @@id([partnership_id, dcc_id])
   @@map("dcc_partnerships")
   @@schema("public")
+}
+
+model PartnershipPublications {
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
+  publication    Publication  @relation(fields: [publication_id], references: [id])
+  publication_id String
+
+  @@id([partnership_id, publication_id])
+  @@map("partnership_publications")
+}
+
+model UseCase {
+  id                String        @id @default(uuid())
+  title             String
+  short_description String
+  description       String
+  inputs            Json
+  outputs           Json
+  sources           Json
+  link              String?
+  image             String?
+  tutorial          String?
+  creator_dcc_id    String?
+  creator_dcc       DCC?      @relation(fields: [creator_dcc_id], references: [id])
+  source_dccs       DCCUseCase[]
+  @@map("usecase")
+}
+
+model DCCUseCase {
+  usecase    UseCase @relation(fields: [usecase_id], references: [id])
+  usecase_id String
+  dcc         DCC      @relation(fields: [dcc_id], references: [id])
+  dcc_id      String
+
+  @@id([usecase_id, dcc_id])
+  @@map("dcc_usecase")
 }
 
 model PartnershipPublications {
@@ -840,9 +892,10 @@ model DccAsset {
   lastmodified     DateTime            @default(now())
   current          Boolean             @default(true)
   creator          String?
-  creatorId        User?               @relation(fields: [creator], references: [email])
-  dccapproved      Boolean             @default(false)
-  drcapproved      Boolean             @default(false)
+  creatorId        User?                @relation(fields: [creator], references: [email])
+  dccapproved      Boolean              @default(false)
+  drcapproved      Boolean              @default(false)
+  annotation       Json?                @db.JsonB
   library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
@@ -853,7 +906,6 @@ model DccAsset {
   @@id([dcc_id, link, lastmodified])
   @@unique([dcc_id, link, lastmodified])
   @@map("dcc_assets")
-  @@schema("public")
 }
 
 model FileAsset {
