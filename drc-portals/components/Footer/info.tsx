@@ -50,42 +50,42 @@ export default async function InfoFooter() {
               <Link href="/info/dcc">
                 <Typography variant="footer">CF-DCCs</Typography>
               </Link>
-              <Link href="/data" target="_blank" rel="noopener noreferrer">
+              <Link href="/data">
                 <Typography variant="footer">Data Portal</Typography>
               </Link>
-              <Link href="/info/coming_soon">
+              {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Knowledge Portal</Typography>
-              </Link>
-              <Link href="/info/coming_soon"><Typography variant="footer">Partnerships</Typography></Link>
+              </Link> */}
+              <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
               <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
-              <Link href="/info/coming_soon">
+              {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
-              </Link>
-              <Link href="/info/coming_soon"><Typography variant="footer">Standards & Protocols</Typography></Link>
+              </Link> */}
+              <Link href="/info/standards"><Typography variant="footer">Standards & Protocols</Typography></Link>
               <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="subtitle1"><b>Assets</b></Typography>
-                  <Link href="/data/coming_soon"><Typography variant="footer">Data & Metadata</Typography></Link>
-                  <Link href="/data/coming_soon"><Typography variant="footer">Tools</Typography></Link>
+                  <Link href="/data"><Typography variant="footer">Data & Metadata</Typography></Link>
+                  <Link href="/data/tools_and_workflows"><Typography variant="footer">Tools</Typography></Link>
                   <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
-                  <Link href="/data/coming_soon"><Typography variant="footer">Use Cases</Typography></Link>
+                  <Link href="https://playbook-workflow-builder.cloud/playbooks"><Typography variant="footer">Use Cases</Typography></Link>
               </Stack>
           </Grid>
         </Grid>
         <Grid item xs={12} sx={{marginTop: 5, marginRight: 5, marginLeft: 6}}>
           <Stack spacing={2} direction={"row"} justifyContent="space-between">
-              <div className='flex space-x-5'>
+              {/* <div className='flex space-x-5'>
                 <Link href="/info/coming_soon"><Typography variant="caption">Terms of Service</Typography></Link>
                 <Link href="/info/coming_soon"><Typography variant="caption">Privacy Policy</Typography></Link>
-              </div>
+              </div> */}
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
           </Stack>
         </Grid>

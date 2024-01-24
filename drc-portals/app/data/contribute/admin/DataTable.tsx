@@ -12,7 +12,6 @@ import { createOneUser, deleteUsers, updateUserInfo } from './actions';
 import type { User } from '@prisma/client'
 import ActionAlert from './ActionAlert';
 
-
 export interface UserInfo {
     id: number;
     name: string | null;
@@ -42,26 +41,10 @@ const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'name', headerName: 'Name', width: 200 },
     { field: 'email', headerName: 'Email', width: 250 },
-    { field: 'dcc', headerName: 'DCC', width: 300 },
+    { field: 'dcc', headerName: 'DCC', width: 200 },
     { field: 'role', headerName: 'Role', width: 200 },
 
 ];
-
-const dccs = [
-    'LINCS',
-    '4DN',
-    'A2CPS',
-    'ExRNA',
-    'GlyGen',
-    'GTEx',
-    'HMP',
-    'HuBMAP',
-    'IDG',
-    'KidsFirst',
-    'MoTrPAC',
-    'Metabolomics',
-    'SenNet',
-]
 
 
 export default function DataTable(props: {
@@ -71,7 +54,8 @@ export default function DataTable(props: {
         email: string | null;
         dcc: string | null;
         role: string;
-    }[], users: User[]
+    }[], users: User[],
+    dccMapping: { [key: string]: string };
 }) {
     const [selection, setSelection] = React.useState<UserInfo[]>([]);
     const [createFormData, setCreateFormData] = React.useState({ name: '', email: '', role: '', DCC: '' });
@@ -136,7 +120,7 @@ export default function DataTable(props: {
 
     return (
         <>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ ml: 3 }}>
                 {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
                 <div>
                     <Dialog open={createOpen} onClose={handleCreateClose} fullWidth>
@@ -161,6 +145,7 @@ export default function DataTable(props: {
                                     id="input-email"
                                     label="Email"
                                     name='email'
+                                    type='email'
                                     inputProps={{ style: { fontSize: 16 } }}
                                     InputLabelProps={{ style: { fontSize: 16 } }}
                                     required
@@ -172,7 +157,7 @@ export default function DataTable(props: {
                                 <MultiSelect
                                     name='DCC'
                                     label="DCC"
-                                    options={dccs}
+                                    options={Object.keys(props.dccMapping)}
                                     formData={createFormData}
                                     setFormData={setCreateFormData}
                                     type='createUserForm'
@@ -208,7 +193,7 @@ export default function DataTable(props: {
                                                 <MultiSelect
                                                     name='DCC'
                                                     label="DCC"
-                                                    options={dccs}
+                                                    options={Object.keys(props.dccMapping)}
                                                     defaultValue={user.dcc?.split(',')}
                                                     formData={updateFormData}
                                                     setFormData={setUpdateFormData}
@@ -244,7 +229,13 @@ export default function DataTable(props: {
                     pageSizeOptions={[5, 10]}
                     checkboxSelection
                     onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
-                    sx={{ fontSize: 14 }}
+                    sx={{
+                        fontSize: 14,
+                        '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                            backgroundColor: "white",
+                        },
+                        ml: 3
+                    }}
                 />
             </div>
         </>

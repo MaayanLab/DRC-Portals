@@ -8,6 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import { Session } from 'next-auth';
 import { SignOutLink } from '@/lib/auth/links';
+import { AccountLink } from './MyAccount';
 // some code taken from MUI
 
 function stringToColor(string: string) {
@@ -77,7 +78,9 @@ export default function UserAvatar ({session}: {session: Session}) {
                 'aria-labelledby': 'user-button',
                 }}
             >
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleClose}>
+                    <AccountLink>My account</AccountLink>
+                    </MenuItem>
                 <MenuItem onClick={handleClose}>
                     <SignOutLink>Logout</SignOutLink>
                 </MenuItem>

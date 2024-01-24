@@ -13,9 +13,13 @@ const getItem = cache((id: string) => prisma.dCCAssetNode.findUniqueOrThrow({
     dcc_asset: {
       select: {
         link: true,
-        filetype: true,
         lastmodified: true,
-        size: true,
+        fileAsset: {
+          select: {
+            filetype: true,
+            size: true,
+          },
+        },
       },
     },
     node: {
@@ -53,11 +57,11 @@ export default async function Page(props: { params: { id: string } }) {
       metadata={[
         ...(item.node.dcc?.label ? [
           { label: 'Project', value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link> },
-          { label: 'Asset', value:  <Link href={`/data/matrix/${item.node.dcc.short_label}#${item.dcc_asset.filetype}`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
+          item.dcc_asset.fileAsset ? { label: 'Asset', value:  <Link href={`/data/matrix/${item.node.dcc.short_label}#${item.dcc_asset.fileAsset.filetype}`} className="underline cursor-pointer text-blue-600">Asset Page</Link> } : null,
          ] : []),
         { label: 'Link', value: <Link href={item.dcc_asset.link} className="underline cursor-pointer text-blue-600">{item.dcc_asset.link}</Link> },
-        { label: 'File Type', value: item.dcc_asset.filetype },
-        { label: 'Size in Bytes', value: item.dcc_asset.size?.toLocaleString() ?? 'unknown' },
+        item.dcc_asset.fileAsset ? { label: 'File Type', value: item.dcc_asset.fileAsset.filetype } : null,
+        item.dcc_asset.fileAsset ? { label: 'Size in Bytes', value: item.dcc_asset.fileAsset.size?.toLocaleString() ?? 'unknown' } : null,
         { label: 'Last Modified', value: item.dcc_asset.lastmodified.toLocaleDateString() },
       ]}
     />

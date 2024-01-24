@@ -60,7 +60,7 @@ export default async function Page(props: PageProps) {
       count={results.count}
     >
       <SearchablePagedTable
-        label={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
+        label={`${type_to_string('entity', decodeURIComponent(props.params.entity_type))} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -70,7 +70,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results.items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={decodeURIComponent(props.params.entity_type)} />,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={decodeURIComponent(props.params.entity_type)} search={searchParams.q ?? ''} />,
           format_description(item.node.description),
         ])}
       />

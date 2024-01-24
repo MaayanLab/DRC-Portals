@@ -3,8 +3,25 @@ import Typography from "@mui/material/Typography"
 import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
 import Link from "next/link"
-
-export default function ServerCarousel () {
+import prisma from "@/lib/prisma"
+import { shuffle } from "../Outreach"
+export default async function ServerCarousel () {
+    let outreach = await prisma.outreach.findMany({
+        where: {
+          active: true,
+          carousel: true
+        },
+        orderBy: {
+          start_date: { sort: 'desc', nulls: 'last' },
+        }
+      })
+    outreach = shuffle(outreach)
+    const outreach_items = outreach.map(o=>({
+        name: o.title,
+        description: o.short_description,
+        icon: o.image || '',
+        url: o.link || '',
+    }))
     const items = [
         {
             name: "Playbook Workflow Builder",
@@ -38,8 +55,8 @@ export default function ServerCarousel () {
         }
       ]
       
-      
-    const children = items.map( (item, i) => (
+    
+    const children = [...items, ...outreach_items].map( (item, i) => (
         <Box key={i} sx={{
             minHeight: 300, 
             width: 640,
@@ -50,7 +67,7 @@ export default function ServerCarousel () {
             padding: 2
         }}>
             <Link href={item.url} target="_blank" rel="noopener noreferrer">
-                <Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none"}}>
+                <Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none", background: "#FFF"}}>
                     <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
                     <div className="flex grow items-center justify-center relative">
                         <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>

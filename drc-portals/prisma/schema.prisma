@@ -669,17 +669,20 @@ model substance {
 model DCC {
   id            String            @id @default(uuid())
   label         String
+  short_label   String?
   description   String?
   homepage      String
   icon          String?
   annotation    Json?
-  short_label   String?
   cfde_partner  Boolean           @default(false)
   cf_site       String?
+  publications  DCCPublication[]
   assets        DccAsset[]
   outreach      DCCOutreach[]
   partnerships  DCCPartnerships[]
-  publications  DCCPublication[]
+  usecases_created      UseCase[]
+  usecases      DCCUseCase[]
+  nodes         Node[]
   kg_assertions KGAssertion[]
   nodes         Node[]
 
@@ -688,22 +691,22 @@ model DCC {
 }
 
 model Publication {
-  id                       String                     @id @default(uuid())
-  authors                  String
-  doi                      String?
-  issue                    String?
-  journal                  String?
-  page                     String?
-  pmcid                    String?
-  pmid                     String?
-  title                    String
-  volume                   String?
-  year                     String?
-  tool_id                  String?
-  landmark                 Boolean                    @default(false)
-  dccs                     DCCPublication[]
-  partnership_publications partnership_publications[]
-  tool                     Tool?                      @relation(fields: [tool_id], references: [id])
+  id            String                    @id @default(uuid())
+  title         String
+  year          String?
+  page          String?
+  volume        String?
+  issue         String?
+  journal       String?
+  pmid          String?
+  pmcid         String?
+  doi           String?
+  authors       String
+  tool_id       String?
+  landmark      Boolean                   @default(false)
+  dccs          DCCPublication[]
+  partnertships PartnershipPublications[]
+  tool          Tool?                     @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
   @@schema("public")
@@ -725,6 +728,12 @@ model Outreach {
   title             String
   description       String
   featured          Boolean       @default(false)
+  active            Boolean       @default(false)
+  carousel          Boolean       @default(false)
+  start_date        DateTime?     @db.Timestamptz(3)
+  end_date          DateTime?     @db.Timestamptz(3)
+  application_start DateTime?     @db.Timestamptz(3)
+  application_end   DateTime?     @db.Timestamptz(3)
   link              String?
   short_description String
   end_date          DateTime?     @db.Timestamptz(3)
@@ -752,14 +761,14 @@ model DCCOutreach {
 }
 
 model Partnerships {
-  id                       String                     @id @default(uuid())
-  title                    String
-  description              String?
-  image                    String?
-  status                   String?
-  website                  String?
-  dccs                     DCCPartnerships[]
-  partnership_publications partnership_publications[]
+  id           String                    @id @default(uuid())
+  title        String
+  description  String?
+  status       String?
+  website      String?
+  image        String?
+  dccs         DCCPartnerships[]
+  publications PartnershipPublications[]
 
   @@map("partnerships")
   @@schema("public")
@@ -767,13 +776,49 @@ model Partnerships {
 
 model DCCPartnerships {
   partnership_id String
-  dcc_id         String
   dcc            DCC          @relation(fields: [dcc_id], references: [id])
-  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  dcc_id         String
 
   @@id([partnership_id, dcc_id])
   @@map("dcc_partnerships")
   @@schema("public")
+}
+
+model PartnershipPublications {
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
+  publication    Publication  @relation(fields: [publication_id], references: [id])
+  publication_id String
+
+  @@id([partnership_id, publication_id])
+  @@map("partnership_publications")
+}
+
+model UseCase {
+  id                String        @id @default(uuid())
+  title             String
+  short_description String
+  description       String
+  inputs            Json
+  outputs           Json
+  sources           Json
+  link              String?
+  image             String?
+  tutorial          String?
+  creator_dcc_id    String?
+  creator_dcc       DCC?      @relation(fields: [creator_dcc_id], references: [id])
+  source_dccs       DCCUseCase[]
+  @@map("usecase")
+}
+
+model DCCUseCase {
+  usecase    UseCase @relation(fields: [usecase_id], references: [id])
+  usecase_id String
+  dcc         DCC      @relation(fields: [dcc_id], references: [id])
+  dcc_id      String
+
+  @@id([usecase_id, dcc_id])
+  @@map("dcc_usecase")
 }
 
 model Tool {
@@ -789,32 +834,66 @@ model Tool {
 }
 
 model DccAsset {
-  filetype         String
-  filename         String
+  dcc_id           String
+  dcc              DCC?                @relation(fields: [dcc_id], references: [id])
   link             String              @unique
-  size             BigInt?
   lastmodified     DateTime            @default(now())
   current          Boolean             @default(true)
   creator          String?
-  annotation       Json?
-  dcc_id           String
-  drcapproved      Boolean             @default(false)
+  creatorId        User?               @relation(fields: [creator], references: [email])
   dccapproved      Boolean             @default(false)
-  sha256checksum   String?
-  deleted          Boolean             @default(false)
+  drcapproved      Boolean             @default(false)
+  library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
   node             DCCAssetNode?
-  creatorId        User?               @relation(fields: [creator], references: [email])
-  dcc              DCC                 @relation(fields: [dcc_id], references: [id])
-  library          GeneSetLibraryNode?
+  deleted          Boolean             @default(false)
+  fileAsset        FileAsset?
+  codeAsset        CodeAsset?
 
-  @@id([dcc_id, filetype, link, lastmodified])
-  @@unique([dcc_id, filetype, link, lastmodified])
+  @@id([dcc_id, link, lastmodified])
+  @@unique([dcc_id, link, lastmodified])
   @@map("dcc_assets")
   @@schema("public")
 }
 
-/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model FileAsset {
+  filetype       String
+  filename       String
+  link           String    @unique
+  size           BigInt?
+  sha256checksum String?
+  dccAsset       DccAsset? @relation(fields: [link], references: [link])
+
+  @@id([filetype, link])
+  @@unique([filetype, link])
+  @@map("file_assets")
+}
+
+model CodeAsset {
+  type         String
+  name         String
+  link         String    @unique
+  description  String?   @db.Text
+  openAPISpec  Boolean?  
+  smartAPISpec Boolean?  
+  smartAPIURL  String?
+  dccAsset     DccAsset? @relation(fields: [link], references: [link])
+
+  @@id([type, link])
+  @@unique([type, link])
+  @@map("code_assets")
+}
+
+// Processed data search
+enum NodeType {
+  entity
+  gene_set
+  gene_set_library
+  c2m2_file
+  kg_relation
+  dcc_asset
+}
+
 model Node {
   dcc_id           String?
   id               String                   @id @db.Uuid

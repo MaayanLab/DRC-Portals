@@ -18,7 +18,7 @@ export default function DCCSelect(props: { dccOptions: string }) {
     <div>
       <FormControl sx={{ minWidth: 80 }}>
         <InputLabel id="select-dcc"
-          sx={{fontSize: 16 }}
+          sx={{fontSize: 16 }} color='secondary' 
         >DCC</InputLabel>
         <Select
           labelId="select-dcc"
@@ -30,6 +30,7 @@ export default function DCCSelect(props: { dccOptions: string }) {
           label="DCC"
           name="dcc"
           sx={{fontSize: 16}}
+          color='secondary' 
         >
           {dccArray.map((dcc) => {
             return <MenuItem key={dcc} value={dcc} sx={{fontSize: 16}}>{dcc}</MenuItem>

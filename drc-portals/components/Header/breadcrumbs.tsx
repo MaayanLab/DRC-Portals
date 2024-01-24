@@ -13,8 +13,8 @@ export default function NavBreadcrumbs() {
         const path_split = path.replace("/", "").split("/")
         const format_path_split = path_split.map(p => decodeURIComponent(p).replace('_', ' '))
         if (path_split[0] === 'data' && path_split[1] === 'processed') {
-            if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', path_split[3])
-            if (path_split[2]) format_path_split[2] = type_to_string(path_split[2], null)
+            if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', decodeURIComponent(path_split[3]))
+            if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), null)
         }
         return {path_split, format_path_split}
     }, [path])
@@ -26,7 +26,7 @@ export default function NavBreadcrumbs() {
                     key={i}
                     href={`/${path_split.slice(0, i+1).join("/")}`}
                 >
-                    <Typography variant='caption' sx={{textTransform: 'capitalize'}} color={i===path_split.length-1 ? 'secondary': 'inherit'}>{p}</Typography>
+                    <Typography variant='caption' sx={{textTransform: 'uppercase'}} color={i===path_split.length-1 ? 'secondary': 'inherit'}>{p}</Typography>
                 </Link>
             ))}
         </Breadcrumbs>

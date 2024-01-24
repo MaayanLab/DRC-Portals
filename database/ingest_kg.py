@@ -24,32 +24,31 @@ map_type = {
   'Body Substance': 'Body Substance',
   'Cell Type': 'Cell Type',
   'Cell': 'Cell',
-  'CLINGEN ALLELE REGISTRY': 'CLINGEN ALLELE REGISTRY',
+  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
   'Congenital Abnormality': 'Congenital Abnormality',
   'Diagnostic Procedure': 'Diagnostic Procedure',
   'Disease or Syndrome': 'Disease',
   'Disease': 'Disease',
   'Drug': 'Drug',
-  'ENCODE CCRE': 'ENCODE CCRE',
-  'ENSEMBL': 'ENSEMBL',
+  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
+  'ENSEMBL': 'Transcript',
   'gene': 'gene',
-  'GLYCAN MOTIF': 'GLYCAN MOTIF',
-  'GLYCAN': 'GLYCAN',
-  'GLYCOSYLTRANSFERASE REACTION': 'GLYCOSYLTRANSFERASE REACTION',
-  'GLYGEN GLYCOSEQUENCE': 'GLYGEN GLYCOSEQUENCE',
-  'GLYGEN GLYCOSYLATION': 'GLYGEN GLYCOSYLATION',
-  'GLYGEN RESIDUE': 'GLYGEN RESIDUE',
-  'GLYTOUCAN': 'GLYTOUCAN',
-  'GTEXEQTL': 'GTEXEQTL',
+  'GLYCAN MOTIF': 'Glycan Motif',
+  'GLYCAN': 'Glycan',
+  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
+  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
+  'GLYGEN GLYCOSYLATION': 'Glycosylation',
+  'GLYGEN RESIDUE': 'Residue',
+  'GLYTOUCAN': 'Glytoucan',
+  'GTEXEQTL': 'eQTL',
   'Hormone': 'Hormone',
   'Injury or Poisoning': 'Injury or Poisoning',
-  'Inorganic Chemical': 'Drug',
-  'KFVARBIN': 'KFVARBIN',
+  'Inorganic Chemical': 'Inorganic Chemical',
   'Laboratory Procedure': 'Laboratory Procedure',
   'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
   'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
-  'Organic Chemical': 'Drug',
-  'Pharmacologic Substance': 'Drug',
+  'Organic Chemical': 'Organic Chemical',
+  'Pharmacologic Substance': 'Pharmacologic Substance',
   'Phenotype': 'Phenotype',
   'Sign or Symptom': 'Phenotype',
   'Therapeutic or Preventive Procedure': 'Laboratory Procedure',
@@ -71,7 +70,7 @@ with kg_assertion_helper.writer() as kg_assertion:
       with kg_relation_helper.writer() as kg_relation:
         kg_relations = set()
         with node_helper.writer() as node:
-          def ensure_entity(entity_type, entity_label, entity_description='TODO'):
+          def ensure_entity(entity_type, entity_label, entity_description=None):
             if entity_type in {'Gene', 'ENSEMBL'}:
               for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
@@ -108,8 +107,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                   node.writerow(dict(
                     id=entity_id,
                     type='entity',
-                    label=entity_label,
-                    description=entity_description,
+                    label=entity_label.capitalize().replace('_', ' '),
+                    description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                   ))
                 return entity_id
               yield ensure
@@ -148,8 +147,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                       node.writerow(dict(
                         id=relation_id,
                         type='kg_relation',
-                        label=assertion['relation'],
-                        description='TODO',
+                        label=assertion['relation'].capitalize().replace('_', ' '),
+                        description="A relationship in the knowledge graph",
                       ))
                     if assertion['evidence'] == 'nan':
                       assertion['evidence'] = None

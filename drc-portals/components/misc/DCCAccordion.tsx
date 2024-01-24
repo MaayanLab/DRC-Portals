@@ -9,10 +9,22 @@ import { dccAsset, dccAssetObj, dccAssetRecord } from '@/utils/dcc-assets';
 function AccordionHeader(
   props: {assetInfo: {current: dccAsset[], archived: dccAsset[]}, label: string, exp: boolean}
 ) {
+  const label_map = {
+    C2M2: 'C2M2',
+    XMT: 'XMT',
+    AttributeTables: 'Attribute Tables',
+    KGAssertions: 'Knowledge Graph Assertions',
+    ETL: 'ETL Scripts',
+    API: 'API Specifications',
+    EntityPages: 'Entity Pages',
+    PWBMetanodes: 'PWB Metanodes',
+    ChatbotSpecs: 'Chatbot Specifications'
+  }
+  const label = label_map[props.label as keyof typeof label_map]
   if (props.assetInfo.current.length + props.assetInfo.archived.length < 1) {
     return (
       <AccordionSummary sx={{ backgroundColor: "#b8c4e1"}}>
-        <Typography sx={{ color: '#ffffff', width: '32%', fontSize: '12pt'}}>{props.label}</Typography>
+        <Typography sx={{ color: '#ffffff', width: '32%', fontSize: '12pt'}}>{label}</Typography>
         <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>0 Available Files</Typography>
       </AccordionSummary>
     )
@@ -27,7 +39,7 @@ function AccordionHeader(
         expandIcon={<ExpandMore />}
         aria-controls="panel1bh-content"
       >
-        <Typography sx={{ color: '#ffffff', width: '33%', fontSize: '12pt' }}>{props.label}</Typography>
+        <Typography sx={{ color: '#ffffff', width: '33%', fontSize: '12pt' }}>{label}</Typography>
         <Typography sx={{ color: '#ffffff', width: '45%', fontSize: '12pt'}}>
           {props.assetInfo.current.length} Current File(s) | {props.assetInfo.archived.length} Archived File(s)
         </Typography>
@@ -96,7 +108,7 @@ export function DCCAccordion(
     <Container>
       <Typography variant="h3" color="secondary.dark" gutterBottom>Metadata and Processed Data Files</Typography>
       {Object.keys(data).map((key: keyof dccAssetRecord) => (
-          <div id={key}>
+          <div key={key} id={key}>
             <FileAccordion 
               label={key}
               isCode={data[key].isCode} 
@@ -106,7 +118,7 @@ export function DCCAccordion(
       ))}
       <Typography sx={{mt:2}} variant="h3" color="secondary.dark" gutterBottom>Interoperability Assets</Typography>
       {Object.keys(code).map((key: keyof dccAssetRecord) => (
-          <div id={key}>
+          <div key={key} id={key}>
             <FileAccordion 
               label={key}
               isCode={code[key].isCode} 
