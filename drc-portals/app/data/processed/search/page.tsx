@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
+import KGNode from '@/public/img/icons/KGNode.png'
+import KGEdge from '@/public/img/icons/KGEdge.png'
 import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
@@ -155,7 +157,8 @@ export default async function Page(props: PageProps) {
             : item.type === 'entity' ? 
               item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
               : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
-              : null
+              : <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
+            : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
             : null,
           <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
           <Description description={item.description} search={searchParams.q ?? ''} />,
