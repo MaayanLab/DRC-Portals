@@ -19,7 +19,7 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
   }, [id, rawSearchParams])
   return (
     <Link href={`?${searchParams.toString()}`}>
-      <FormControlLabel control={<Checkbox/>} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
+      <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
     </Link>
   )
 }
