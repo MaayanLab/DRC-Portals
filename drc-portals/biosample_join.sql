@@ -6,7 +6,7 @@
 have the same colum name and we want one in the output, then it is easier to 
 refer by the alias instead of along table name. */
 
-CREATE TABLE c2m2.fl_biosample as (SELECT DISTINCT
+CREATE TABLE c2m2.fl2_biosample as (SELECT DISTINCT
 id_namespace, local_id, project_id_namespace, project_local_id, persistent_id, creation_time, sample_prep_method, anatomy,
 association_type, disease,
 subject_id_namespace, subject_local_id, age_at_sampling,

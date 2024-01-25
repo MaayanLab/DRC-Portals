@@ -30,30 +30,96 @@ function convertBytes(b: bigint | null) {
   } 
 }
 
-async function getData(
-  prisma: PrismaClient, dccId: string, dccName: string, ft: string, isCurr: boolean
+async function getFile(
+  prisma: PrismaClient, dccId: string, dccName: string,
+  ft: string, isCurr: boolean
 ) {
   const res = await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dccId, 
-      filetype: ft,
+      fileAsset: {
+        filetype: ft
+      },
       current: isCurr
+    },
+    include: {
+      fileAsset: {
+        select: {
+          filename: true,
+          size: true
+        }
+      }
     }
   })
   const data = [] as dccAsset[];
   res.map(item => {
-    data.push({
-      dcc_id: dccName,
-      filetype: ft,
-      filename: item.filename,
-      link: item.link,
-      size: convertBytes(item.size),
-      lastmodified: item.lastmodified.toLocaleDateString("en-US"),
-      creator: item.creator,
-      dccapproved: item.dccapproved,
-      drcapproved: item.drcapproved
-    })
+    if (item.fileAsset) {
+      data.push({
+        dcc_id: dccName,
+        filetype: ft,
+        filename: (item.fileAsset.filename),
+        link: item.link,
+        size: convertBytes(item.fileAsset.size),
+        lastmodified: item.lastmodified.toLocaleDateString("en-US"),
+        creator: item.creator,
+        dccapproved: item.dccapproved,
+        drcapproved: item.drcapproved,
+      })
+    }
   })
+  return data
+}
+
+async function getCode(
+  prisma: PrismaClient, dccId: string, dccName: string,
+  ft: string, isCurr: boolean
+) {
+  const res = await prisma.dccAsset.findMany({
+    where: {
+      deleted: false,
+      dcc_id: dccId, 
+      codeAsset: {
+        type: ft
+      },
+      current: isCurr
+    },
+    include: {
+      codeAsset: {
+        select: {
+          name: true
+        }
+      }
+    }
+  })
+  const data = [] as dccAsset[];
+  res.map(item => {
+    if (item.codeAsset) {
+      data.push({
+        dcc_id: dccName,
+        filetype: ft,
+        filename: (item.codeAsset.name),
+        link: item.link,
+        size: undefined,
+        lastmodified: item.lastmodified.toLocaleDateString("en-US"),
+        creator: item.creator,
+        dccapproved: item.dccapproved,
+        drcapproved: item.drcapproved
+      })
+    }
+  })
+  return data
+}
+
+async function getData(
+  prisma: PrismaClient, dccId: string, dccName: string, 
+  ft: string, isCurr: boolean, isCode: boolean
+) {
+  const data = isCode ? await getCode(
+      prisma, dccId, dccName, ft, isCurr
+    ) : await getFile(
+      prisma, dccId, dccName, ft, isCurr
+    )
   return data
 }
 
@@ -64,8 +130,8 @@ async function getDataObj(
   const is_code = codetypes.includes(ft)
   return (
     {
-      current: await getData(prisma, dccId, dccName, ft, true),
-      archived: await getData(prisma, dccId, dccName, ft, false),
+      current: await getData(prisma, dccId, dccName, ft, true, is_code),
+      archived: await getData(prisma, dccId, dccName, ft, false, is_code),
       isCode: is_code
     }
   )

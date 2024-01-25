@@ -128,7 +128,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={genes.genes.map(gene => [
-          <LinkedTypedNode type="entity" id={gene.id} label={gene.entity.node.label} entity_type="gene" />,
+          <LinkedTypedNode type="entity" id={gene.id} label={gene.entity.node.label} entity_type="gene" search={searchParams.q ?? ''} />,
           format_description(gene.entity.node.description),
         ])}
       />

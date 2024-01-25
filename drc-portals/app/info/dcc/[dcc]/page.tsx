@@ -12,10 +12,12 @@ import CardActions from "@mui/material/CardActions";
 import { notFound } from 'next/navigation'
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import Icon from "@mdi/react";
 import { mdiArrowRight } from "@mdi/js";
-import PublicationComponent from "@/components/misc/PublicationComponent";
+import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
+import { DCCAccordion } from '@/components/misc/DCCAccordion';
+import { getDccDataObj } from '@/utils/dcc-assets';
+
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
@@ -54,6 +56,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
     const outreach = dcc?.outreach || []
     const publications = dcc?.publications.map(i=>i.publication) || []
     if (!dcc) return notFound()
+    const assets = await getDccDataObj(prisma, dcc.id, params.dcc)
     return (
     <Paper sx={{
         boxShadow: "none", 
@@ -80,21 +83,27 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description}
+                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
                         <CardActions>
                             <Link href={dcc.homepage}>
                                 <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                    Homepage
+                                    {dcc.short_label} DCC Portal
                                 </Button>
                             </Link>
+                            {dcc.cf_site && <Link href={dcc.cf_site}>
+                                <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                    {dcc.short_label} Program on the NIH Common Fund Website
+                                </Button>
+                            </Link>
+                            }
                         </CardActions>
                     </Card>
                 </Grid>
                 {(outreach.length > 0) && 
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} md={(publications.length > 0 || Object.keys(assets).length > 0) ? 3:12}>
                         <Paper sx={{padding: 2, textAlign: "center"}}>
                             <Typography sx={{color: "#FFF", background: "#7187c3", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
                             { (outreach === undefined || outreach.length === 0) ?
@@ -135,12 +144,28 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         </Paper>
                     </Grid>
                 }
-                <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
-                    <Paper sx={{padding: 2, height: "100%"}}>
-                        <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
-                        <PublicationComponent publications={publications} chipped={true}/>
-                    </Paper>
-                </Grid>
+                { (publications.length > 0 || Object.keys(assets).length > 0) && 
+                    <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
+                        <Grid container spacing={2}>
+                            {publications.length > 0 && <Grid item xs={12}>
+                                <Paper sx={{padding: 2, height: "100%"}}>
+                                    <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
+                                    <SimplePublicationComponent publications={publications}/>
+                                </Paper>
+                            </Grid>}
+                            <Grid item xs={12}>
+                                <Paper sx={{padding: 2, height: "100%"}}>
+                                    <DCCAccordion dcc={params.dcc} fulldata={assets} />
+                                    <Link href="/data/matrix">
+                                        <Button sx={{marginLeft: 2}}>
+                                            <Typography variant={'subtitle1'} color="secondary">Go to data matrix</Typography>
+                                        </Button>
+                                    </Link>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                }
             </Grid>
         </Container>
     </Paper>

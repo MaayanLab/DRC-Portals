@@ -83,7 +83,7 @@ export default async function Page(props: PageProps) {
       count={results.count}
     >
       <SearchablePagedTable
-        label={type_to_string('c2m2_file', null)}
+        label={`${type_to_string('c2m2_file', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -97,8 +97,8 @@ export default async function Page(props: PageProps) {
         ]}
         rows={results.items.map(item => [
           item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} />,
-          <Description description={item.node.description}/>,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} search={searchParams.q ?? ''} />,
+          <Description description={item.node.description} search={searchParams.q ?? ''} />,
           <Typography variant={'body1'} color="secondary">{item.data_type}</Typography>,
           <Typography variant={'body1'} color="secondary">{item.assay_type}</Typography>,,
         ])}
