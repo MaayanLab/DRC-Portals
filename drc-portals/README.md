@@ -17,6 +17,9 @@ npm i
 # Before that make sure you have all the migrations in prisma/migrations folder.
 # Another useful option: npx prisma migrate deploy # deploy means: it will only update the public schema
 # dev means it will update all schemas.
+# It it still gives issues, you may have to clean the DB completely by removing the public schema as well in psql:
+# DROP SCHEMA IF EXISTS public CASCADE; then, after the 'npx prisma migrate dev',
+# go to database folder and re-populate by 'python3 ingestion.py' or 'python ingestion.py'
 npx prisma migrate dev
 # run dev server
 npm run dev
