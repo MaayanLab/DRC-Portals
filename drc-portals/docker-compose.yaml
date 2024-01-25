@@ -107,7 +107,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     ports:
-      - 5433:5432
+      - 5432:5432
     volumes:
       - drc-portal-postgres:/var/lib/postgresql/data
 
@@ -127,12 +127,12 @@ services:
 volumes:
   drc-portal-postgres:
     x-kubernetes:
-      size: 40Gi
+      size: 60Gi
       class: gp2
 
   drc-portal-postgres-2:
     x-kubernetes:
-      size: 40Gi
+      size: 60Gi
       class: gp2
 
 x-kubernetes:
