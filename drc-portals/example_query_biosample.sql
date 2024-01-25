@@ -1,3 +1,27 @@
+
+--- The query below as a starting point to write the sql code to 
+--- generat the table c2m2.ffl_biosample in the file biosample_fully_flattened.sql.
+
+--- some queries on the ffl_biosample table;
+
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & brain');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & organ');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & mouse');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & human');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & homo sapiens');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & homo & sapiens');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & male');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer');
+select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain');
+
+--- add a filter on anatomy
+select project_name,anatomy_name,disease_name,subject_local_id,dcc_name from 
+c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain') and 
+anatomy_name ilike '%liver%';
+
+--- kept here for reference
+
 --- COLUMNS TO SHOW TO USER ---
 
 select 
@@ -50,49 +74,47 @@ from c2m2.fl_biosample
 
 --- JOIN ALL TABLES --- full outer join or inner join or left join or right join?
 
-    full join c2m2.dcc
+    left join c2m2.dcc
         on (c2m2.fl_biosample.project_id_namespace = c2m2.dcc.project_id_namespace)
 
-    full join c2m2.anatomy
+    left join c2m2.anatomy
         on (c2m2.fl_biosample.anatomy = c2m2.anatomy.id)
 
-    full join c2m2.disease
+    left join c2m2.disease
         on (c2m2.fl_biosample.disease = c2m2.disease.id)
 
-    full join c2m2.gene
+    left join c2m2.gene
         on (c2m2.fl_biosample.gene = c2m2.gene.id)
 
-    full join c2m2.substance
+    left join c2m2.substance
         on (c2m2.fl_biosample.substance = c2m2.substance.id)
 
-    full join c2m2.compound
+    left join c2m2.compound
         on (c2m2.substance.compound = c2m2.compound.id)
 
-    -- join c2m2.compound as well?
-
-    full join c2m2.project
+    left join c2m2.project
         on (c2m2.fl_biosample.project_local_id = c2m2.project.local_id and
         c2m2.fl_biosample.project_id_namespace = c2m2.project.id_namespace) 
         /* we are not defining the new table fl_biosample; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
     
-    full join c2m2.subject
+    left join c2m2.subject /* Could right-join make more sense here; likely no */
         on (c2m2.fl_biosample.subject_local_id = c2m2.subject.local_id and
         c2m2.fl_biosample.project_id_namespace = c2m2.subject.project_id_namespace)
 
     /* join with subject_role_taxonomy and ncbi_taxonomy */
-    full join c2m2.subject_role_taxonomy
+    left join c2m2.subject_role_taxonomy
         on (c2m2.fl_biosample.subject_local_id = c2m2.subject_role_taxonomy.subject_local_id and
         c2m2.subject.id_namespace = c2m2.subject_role_taxonomy.subject_id_namespace)
 
-    full join c2m2.ncbi_taxonomy
+    left join c2m2.ncbi_taxonomy
         on (c2m2.subject_role_taxonomy.taxonomy_id = c2m2.ncbi_taxonomy.id)
 
-    full join c2m2.collection
+    left join c2m2.collection
         on (c2m2.fl_biosample.collection_local_id = c2m2.collection.local_id and
         c2m2.fl_biosample.collection_id_namespace = c2m2.collection.id_namespace)
     
-    full join c2m2.sample_prep_method
+    left join c2m2.sample_prep_method
         on (c2m2.fl_biosample.sample_prep_method = c2m2.sample_prep_method.id)
 
     /* Do not join with subject_race yet since race.tsv is not created and ingested (or directly created using psql) */
