@@ -6,7 +6,8 @@
 cp .env.example .env
 # start database
 #  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
-# Nore that in line 10 (around that) you set
+# Note that in line 110 (around that) for integration with other postgres containers, one may map other ports to 5432.
+# The UCSD team will just use 5432:5432 port-binding to avoid confusion.
 #  ports:
 #      - 5432:5432
 docker-compose up -d drc-portal-postgres
