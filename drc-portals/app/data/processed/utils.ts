@@ -59,6 +59,15 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       z.string(),
       z.undefined(),
     ]),
+    s: z.union([
+      z.array(z.string()).transform(ss => ss[ss.length-1]),
+      z.string(),
+      z.undefined(),
+    ]).transform(ss => {
+      if (!ss) return undefined
+      const [type, entity_type] = ss.split(':')
+      return { type, entity_type: entity_type ? entity_type : null }
+    }),
     p: z.union([
       z.array(z.string()).transform(ps => +ps[ps.length-1]),
       z.string().transform(p => +p),
