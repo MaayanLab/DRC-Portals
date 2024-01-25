@@ -10,7 +10,6 @@ import { getServerSession } from "next-auth";
 import MultiSelect from './MultiSelect';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import Nav from '../Nav';
 
 const names = [
     'LINCS',
@@ -60,61 +59,58 @@ export default async function AccountPage() {
 
 
     return (
-        <>
-        <Nav />
-            <Container className="justify-content-center">
-                <Typography variant="h3" color="secondary.dark" className='p-5'>ACCOUNT INFORMATION</Typography>
-                <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
-                Please complete account email information before approving or the uploading forms. If the email field is empty, this information can only be saved once. For all other information updates to your user account (role or DCC), please contact the DRC to update your information. 
-                </Typography>
-                <Box
-                    component="form"
-                    noValidate
-                    autoComplete="off"
-                    sx={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', '& > :not(style)': { m: 1, width: '50ch' } }}
-                    justifyContent='center'
-                    action={saveuser}
-                >
-                    <TextField
-                        disabled
-                        id="input-name"
-                        label="Name"
-                        name='name'
-                        defaultValue={user.name}
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                    />
-                    <TextField
-                        id="input-email"
-                        label="Email"
-                        name='email'
-                        defaultValue={user.email}
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                        disabled={user.email ? true : false}
-                        required
-                    />
-                    <MultiSelect
-                        name='DCC'
-                        label="DCC"
-                        options={names}
-                        defaultValue={user.dcc?.split(',')}
-                    />
-                    <TextField
-                        id="input-role"
-                        label="Role"
-                        name='role'
-                        defaultValue={user.role}
-                        inputProps={{ style: { fontSize: 16 } }}
-                        InputLabelProps={{ style: { fontSize: 16 } }}
-                        disabled
-                    />
+                <Container className="justify-content-center">
+                    <Typography variant="h3" color="secondary.dark" className='p-5'>ACCOUNT INFORMATION</Typography>
+                    <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
+                        Please complete account email information before approving or the uploading forms. If the email field is empty, this information can only be saved once. For all other information updates to your user account (role or DCC), please contact the DRC to update your information.
+                    </Typography>
+                    <Box
+                        component="form"
+                        noValidate
+                        autoComplete="off"
+                        sx={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', '& > :not(style)': { m: 1, width: '50ch' } }}
+                        justifyContent='center'
+                        action={saveuser}
+                    >
+                        <TextField
+                            disabled
+                            id="input-name"
+                            label="Name"
+                            name='name'
+                            defaultValue={user.name}
+                            inputProps={{ style: { fontSize: 16 } }}
+                            InputLabelProps={{ style: { fontSize: 16 } }}
+                        />
+                        <TextField
+                            id="input-email"
+                            label="Email"
+                            name='email'
+                            defaultValue={user.email}
+                            inputProps={{ style: { fontSize: 16 } }}
+                            InputLabelProps={{ style: { fontSize: 16 } }}
+                            disabled={user.email ? true : false}
+                            required
+                        />
+                        <MultiSelect
+                            name='DCC'
+                            label="DCC"
+                            options={names}
+                            defaultValue={user.dcc?.split(',')}
+                        />
+                        <TextField
+                            id="input-role"
+                            label="Role"
+                            name='role'
+                            defaultValue={user.role}
+                            inputProps={{ style: { fontSize: 16 } }}
+                            InputLabelProps={{ style: { fontSize: 16 } }}
+                            disabled
+                        />
 
-                    <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>
-                        Save Changes
-                    </Button>
-                </Box>
-            </Container>
-        </>
+                        <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>
+                            Save Changes
+                        </Button>
+                    </Box>
+                </Container>
     );
 }

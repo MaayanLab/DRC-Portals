@@ -42,6 +42,11 @@ git pull
 # update your database to match any added fields/tables
 npx prisma migrate deploy
 # then rerun-ingest as during Provisioning the Database above
+
+# if the above doesn't work, you may need to run the below
+#  command to completely recreate the database followed
+#  by the ingest steps
+npx prisma migrate reset
 ```
 
 ## Learn More
