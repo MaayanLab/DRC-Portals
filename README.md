@@ -19,3 +19,6 @@ git status
 git checkout C2M2
 ### Make sure, head is C2M2, then
 git push # or?: git add * && git commit -m 'Some message' && git push
+
+## To get the latest changes from C2M2 branch, just do
+git pull # If more recent local changes, then it might ask to do: git add --all * && git stash
