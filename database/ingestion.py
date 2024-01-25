@@ -22,9 +22,9 @@ cur.execute('''
 ''')
 
 with open(dcc_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_tmp',
-      columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner', 'cf_site'),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -56,9 +56,9 @@ cur.execute('''
 ''')
 
 with open(tools_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'tool_tmp',
-      columns=("id", "label", "description", "url", "icon"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -88,9 +88,9 @@ cur.execute('''
 ''')
 
 with open(publications_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'publication_tmp',
-      columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark", "tool_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -127,9 +127,9 @@ cur.execute('''
 ''')
 
 with open(dcc_publications_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_publication_tmp',
-      columns=("publication_id", "dcc_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -153,10 +153,9 @@ cur.execute('''
 ''')
 
 with open(outreach_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'outreach_tmp',
-      columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -196,9 +195,9 @@ cur.execute('''
 ''')
 
 with open(dcc_outreach_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_outreach_tmp',
-      columns=("outreach_id", "dcc_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -228,9 +227,9 @@ cur.execute('''
 ''')
 
 with open(partnerships_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'partnerships_tmp',
-      columns=('id', 'title', 'description', 'status', 'website', 'image'),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -260,9 +259,9 @@ cur.execute('''
 ''')
 
 with open(dcc_partnerships_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_partnerships_tmp',
-      columns=("partnership_id", "dcc_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -286,9 +285,9 @@ cur.execute('''
 ''')
 
 with open(partnership_publications_path(), 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'partnership_publications_tmp',
-      columns=("partnership_id", "publication_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -313,12 +312,9 @@ cur.execute('''
 ''')
 
 with open(dcc_assets_path(), 'r') as fr:
-  next(fr)
+  columns = next(fr).strip().split('\t')
   cur.copy_from(fr, 'dcc_assets_tmp',
-    columns=(
-      'link', 'lastmodified', 'current', 'creator',
-      'dcc_id', 'drcapproved', 'dccapproved', 'deleted'
-    ),
+    columns=columns,
     null='',
     sep='\t',
   )
@@ -349,11 +345,9 @@ cur.execute('''
   with no data;
 ''')
 with open(file_assets_path(), 'r') as fr:
-  next(fr)
+  columns = next(fr).strip().split('\t')
   cur.copy_from(fr, 'file_assets_tmp',
-    columns=(
-      'filetype', 'filename', 'link', 'size', 'sha256checksum'
-    ),
+    columns=columns,
     null='',
     sep='\t',
   )
@@ -379,17 +373,9 @@ cur.execute('''
   with no data;
 ''')
 with open(code_assets_path(), 'r') as fr:
-  next(fr)
+  columns = next(fr).strip().split('\t')
   cur.copy_from(fr, 'code_assets_tmp',
-    columns=(
-      'type',
-      'name',
-      'link',
-      'description',
-      'openAPISpec',
-      'smartAPISpec',
-      'smartAPIURL'
-    ),
+    columns=columns,
     null='',
     sep='\t',
   )
