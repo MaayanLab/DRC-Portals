@@ -10,6 +10,7 @@
 
 ## To safely merge recent changes at main into our local repo
 git fetch origin main
+
 git merge origin/main
 
 ## To push these changes to the C2M2 branch of the GitHub repo
