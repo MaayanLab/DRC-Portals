@@ -9,7 +9,7 @@ cp .env.example .env
 docker-compose up -d drc-portal-postgres
 # install node modules
 npm i
-# initialize prisma
+# initialize prisma: Sometimes, if many changes happened, it may help to do: npx prisma migrate reset
 npx prisma migrate dev
 # run dev server
 npm run dev
