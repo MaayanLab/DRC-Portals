@@ -10,7 +10,8 @@ docker-compose up -d drc-portal-postgres
 # install node modules
 npm i
 # initialize prisma: Sometimes, if many changes happened, it may help to do: npx prisma migrate reset
-# Another useful option: npx prisma migrate deploy # deploy means: it will only update the public schema # dev means it will update all schemas.
+# Another useful option: npx prisma migrate deploy # deploy means: it will only update the public schema
+# dev means it will update all schemas.
 npx prisma migrate dev
 # run dev server
 npm run dev
