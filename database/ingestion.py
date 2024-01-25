@@ -22,6 +22,7 @@ cur.execute('''
 ''')
 
 with open(dcc_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'dcc_tmp',
       columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner', 'cf_site'),
       null='',
@@ -55,6 +56,7 @@ cur.execute('''
 ''')
 
 with open(tools_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'tool_tmp',
       columns=("id", "label", "description", "url", "icon"),
       null='',
@@ -86,6 +88,7 @@ cur.execute('''
 ''')
 
 with open(publications_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'publication_tmp',
       columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark", "tool_id"),
       null='',
@@ -124,6 +127,7 @@ cur.execute('''
 ''')
 
 with open(dcc_publications_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'dcc_publication_tmp',
       columns=("publication_id", "dcc_id"),
       null='',
@@ -149,6 +153,7 @@ cur.execute('''
 ''')
 
 with open(outreach_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
        'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
@@ -191,6 +196,7 @@ cur.execute('''
 ''')
 
 with open(dcc_outreach_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'dcc_outreach_tmp',
       columns=("outreach_id", "dcc_id"),
       null='',
@@ -222,6 +228,7 @@ cur.execute('''
 ''')
 
 with open(partnerships_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'partnerships_tmp',
       columns=('id', 'title', 'description', 'status', 'website', 'image'),
       null='',
@@ -253,6 +260,7 @@ cur.execute('''
 ''')
 
 with open(dcc_partnerships_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'dcc_partnerships_tmp',
       columns=("partnership_id", "dcc_id"),
       null='',
@@ -278,6 +286,7 @@ cur.execute('''
 ''')
 
 with open(partnership_publications_path(), 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'partnership_publications_tmp',
       columns=("partnership_id", "publication_id"),
       null='',
