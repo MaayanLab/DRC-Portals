@@ -10,7 +10,7 @@
 ## Introduction
 The FAIR data principles -- findability, accessibility, interoperability, and resuability -- were first proposed by [Wilkinson et al. (*Scientific Data*, 2016)](https://www.nature.com/articles/sdata201618) to set guidelines for improving data reuse infrastructure in academia. In other words, the FAIR guidelines aim to facilitate continuous reuse of digital objects or re-analysis of data, improve automated knowledge integration, and simplify access to various tools and resources.
 
-Within the CFDE, the FAIR principles are a critical component of our goal to meaningfully synthesize information across Common Fund DCCs to maximize knowledge extraction and promote novel hypothesis generation. 
+Within the CFDE, the FAIR principles are a critical component of our goal to meaningfully synthesize information across Common Fund DCCs to maximize knowledge extraction and promote novel hypothesis generation. To learn more about how DCCs can improve the FAIRness of their digital objects, please see the example code and datasets available in the [NIH-CFDE FAIR Cookbook](https://fairshake.cloud/the-fair-cookbook/intro.html). 
 
 ## Resources
 
