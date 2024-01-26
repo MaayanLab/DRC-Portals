@@ -1,27 +1,29 @@
-import { Grid, Typography, Link } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import ReactMarkdown from 'react-markdown'
 import { LinkRenderer, HeadingRenderer } from '@/components/misc/ReactMarkdownRenderers'
 import path from 'path'
 import { readFileSync } from 'fs'
 
-export default function C2M2Docs() {
+const title_map: { [ key: string ]: string }= {
+  'OpenAPI': 'OpenAPI and SmartAPI',
+  'PWBMetanodes': 'Playbook Partnership Workflow Builder',
+}
+
+export default function StandardsPage(
+  { params } : { params: { doc: string } }
+) {
   const markdown = readFileSync(
-    path.resolve('app/info/standards/C2M2', './C2M2.md'), 
+    path.resolve('app/info/standards/markdown', './doc.md'.replace('doc', params.doc)), 
     {encoding:'utf8', flag:'r'}
   )
+  var title = (params.doc in title_map) ? title_map[params.doc] : params.doc
   return (
     <Grid container sx={{ml:3, mt:3}}>
       <Grid item xs={12}>
-        <Typography variant="h1" color="secondary.dark">C2M2 Overview</Typography>
-      </Grid>
-      <Grid item xs={12} sx={{mb:2}}>
-        <Typography fontStyle="italic" color="secondary">Partially adapted from <Link 
-            color="secondary" 
-            href="https:docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/">
-          CFDE C2M2 Documentation</Link> 
-        </Typography>
+        <Typography variant="h1" color="secondary.dark">{title}</Typography>
       </Grid>
       <Grid item sx={{mb:5}}>
+        <br/>
         <ReactMarkdown 
           components={{ 
             a: LinkRenderer,
