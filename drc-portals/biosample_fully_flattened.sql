@@ -173,6 +173,13 @@ from c2m2.fl_biosample
     --- c2m2.phenotype_association_type for subject
 );
 
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' AND indexname = 'ffl_biosample_idx_searchable') THEN
+        CREATE INDEX ffl_biosample_idx_searchable ON c2m2.ffl_biosample USING gin(searchable);
+    END IF;
+END $$;
+
 /* for syntax: 
 where
         c2m2.ncbi_taxonomy.name like '%liver biopsy%' or
