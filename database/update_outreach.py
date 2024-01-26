@@ -36,7 +36,7 @@ def upload_file(file_name, bucket, object_name=None):
 bucket = 'cfde-drc'
 
 filename = sys.argv[1]
-dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=None)
+dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=0)
 # map dcc names to their respective ids
 dcc_mapper = {}
 for i, v in dccs.iloc[:,1].items():
@@ -63,8 +63,8 @@ for i in df.index:
             ind += 1
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
-outreach_df.to_csv(outreach_file, sep="\t", header=None, quoting=csv.QUOTE_NONE)
-dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=None, index=None)
+outreach_df.to_csv(outreach_file, sep="\t", header=True, quoting=csv.QUOTE_NONE)
+dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=True, index=None)
 
 print("Uploading to s3")
 
@@ -92,6 +92,7 @@ cur.execute('''
 ''')
 
 with open(outreach_file, 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
        'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
@@ -134,6 +135,7 @@ cur.execute('''
 ''')
 
 with open(dcc_outreach_file, 'r') as fr:
+    next(fr)
     cur.copy_from(fr, 'dcc_outreach_tmp',
       columns=("outreach_id", "dcc_id"),
       null='',

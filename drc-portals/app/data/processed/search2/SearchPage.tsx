@@ -1,5 +1,6 @@
+import React from 'react'
 import prisma from "@/lib/prisma";
-import { pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import KGNode from '@/public/img/icons/KGNode.png'
@@ -9,18 +10,14 @@ import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
-import { redirect } from "next/navigation";
-import { Metadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 
-type PageProps = { searchParams: Record<string, string> }
-
-export async function generateMetadata(props: PageProps): Promise<Metadata> {
-  return {
-    title: `Search ${props.searchParams.q ?? ''}`,
-  }
+type PageProps = {
+  searchParams: Record<string, string>,
+  type: string,
+  entity_type: string | null,
 }
 
 export default async function Page(props: PageProps) {
@@ -30,20 +27,28 @@ export default async function Page(props: PageProps) {
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
-    type_counts: {type: NodeType, entity_type: string | null, count: number}[],
     dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
     with results as (
       select
         "node".*,
+      ${props.entity_type !== null ? Prisma.sql`
         "entity_node"."type" as "entity_type",
+      ` : Prisma.sql`
+        null as "entity_type",
+      `}
         row_number() over (
-          partition by "node"."type", "node"."dcc_id"
+          partition by "node"."dcc_id"
           order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q}))
         ) as "rank"
       from "node"
       left join "entity_node" on "entity_node"."id" = "node"."id"
-      where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
+      where
+        "node"."type" = ${props.type}::"NodeType"
+        ${props.entity_type !== null ? Prisma.sql`
+        and "entity_node"."type" = ${props.entity_type}
+        ` : Prisma.empty}
+        and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
     ), items as (
       select id, type, entity_type, label, description, (
         select jsonb_build_object(
@@ -91,11 +96,6 @@ export default async function Page(props: PageProps) {
         )
         `), ' or ')}
       ` : Prisma.empty}
-    ), type_counts as (
-      select "type", "entity_type", count(*)::int as count
-      from "results"
-      group by "type", "entity_type"
-      order by count(*) desc
     ), dcc_id_counts as (
       select "dcc_id", count(*)::int as count
       from "results"
@@ -108,31 +108,20 @@ export default async function Page(props: PageProps) {
     select 
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
       (select count from total_count) as count,
-      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
-  if (!results) redirect('/data')
-  else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
       count={results?.count}
-      filters={
+      filters={results?.dcc_counts.length ?
         <>
           <Typography className="subtitle1">Program</Typography>
           {results?.dcc_counts.map((dcc_count) =>
             <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
           )}
-          <hr className="m-2" />
-          <Typography className="subtitle1">Type</Typography>
-          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
-          )}
-          {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
-          )}
         </>
-      }
+      : undefined}
       footer={
         <Link href="/data">
           <Button
@@ -145,28 +134,30 @@ export default async function Page(props: PageProps) {
         </Link>
       }
     >
-      <SearchablePagedTable
-        q={searchParams.q ?? ''}
-        p={searchParams.p}
-        r={searchParams.r}
-        count={results?.count}
-        columns={[
-          <>&nbsp;</>,
-          <>Label</>,
-          <>Description</>,
-        ]}
-        rows={results?.items.map(item => [
-          item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
-            : item.type === 'entity' ? 
-              item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
-              : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
-              : <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
-            : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
-            : null,
-          <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
-          <Description description={item.description} search={searchParams.q ?? ''} />,
-        ]) ?? []}
-      />
+      <React.Suspense fallback={'Loading...'}>
+        <SearchablePagedTable
+          q={searchParams.q ?? ''}
+          p={searchParams.p}
+          r={searchParams.r}
+          count={results?.count}
+          columns={[
+            <>&nbsp;</>,
+            <>Label</>,
+            <>Description</>,
+          ]}
+          rows={results?.items.map(item => [
+            item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
+              : item.type === 'entity' ? 
+                item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
+                : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
+                : <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
+              : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
+              : null,
+            <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
+            <Description description={item.description} search={searchParams.q ?? ''} />,
+          ]) ?? []}
+        />
+      </React.Suspense>
     </ListingPageLayout>
   )
 }
