@@ -83,7 +83,15 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Coming Soon
+                The CFDE Data Distillery Partnership aims to integrate data assertions 
+                across DCCs into a functional knowledge graph for knowledge query 
+                and discovery. The partnership has collected "distilled" data relationships 
+                from each DCC to be unified in a knowledge graph model with controlled
+                ontology and vocabulary terms for exploring pre-defined, biologically 
+                relevant use cases. 
+                <br /><br />
+                More information about generating knowledge graph assertions will 
+                be available soon.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -94,7 +102,16 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                Coming Soon
+                The FAIRshake toolkit enables manual and automated assessments of 
+                the findability, accessibility, interoperability, and reusability 
+                (FAIRness) of digital resources. FAIRshake provides community-driven 
+                metrics and rubrics for evaluation, and visualizes the results with 
+                a characteristic embeddable insignia. The primary goal of FAIRshake 
+                is to enable researchers and developers to objectively measure and 
+                improve the FAIRness of their tools. 
+                <br /><br />
+                Learn more about performing FAIR assessments with FAIRshake <Link
+                href="/info/standards/FAIRshake" rel="noopener" color="#3470e5">here</Link>. 
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -109,19 +126,9 @@ export default function Standards() {
                 knowledge resolution platform being developed by the CFDE Workflow 
                 Playbook Partnership and consisting of a growing network of datasets, 
                 semantically annotated API endpoints, and visualization tools 
-                from across the CFDE. 
-                <br /><br />
-                Users can construct workflows from the individual building blocks, 
+                from across the CFDE. Users can construct workflows from the individual building blocks, 
                 termed "meta nodes", with little effort or technical expertise 
-                required. For more information, refer to the <Link
-                  href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/user/index.md"
-                  rel="noopener" color="#3470e5">
-                    User Guide
-                </Link>. Developers can refer to the <Link 
-                  href="https://github.com/nih-cfde/playbook-partnership/blob/main/docs/user/index.md"
-                  rel="noopener" color="#3470e5"
-                  >Developer Guide
-                </Link>.
+                required. 
                 <br /><br />
                 Learn more about building PWB meta nodes <Link
                 href="/info/standards/PWBMetanodes" rel="noopener" color="#3470e5">here</Link>.
