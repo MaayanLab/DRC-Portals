@@ -32,6 +32,7 @@ export default async function Page(props: PageProps) {
   const offset = (searchParams.p - 1) * searchParams.r
   const limit = searchParams.r
 
+
   const results = searchParams.q ? await prisma.$queryRaw<Array<{
     anatomy_name: string,
     anatomy_desc: string,
@@ -48,9 +49,12 @@ export default async function Page(props: PageProps) {
        c2m2.ffl_biosample.dcc_abbreviation AS dcc_abbreviation,
        c2m2.ffl_biosample.disease_name AS disease_name,
        c2m2.ffl_biosample.project_name AS project_name,
-       count (*) AS count FROM c2m2.ffl_biosample
+       c2m2.project.description as project_description,
+       count (*)::int AS count
+  FROM c2m2.ffl_biosample
+  LEFT JOIN c2m2.project ON c2m2.ffl_biosample.project_local_id = c2m2.project.local_id
   WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
-  GROUP BY dcc_name, anatomy_name, disease_name, project_name, dcc_abbreviation
+  GROUP BY dcc_name, anatomy_name, disease_name, project_name, dcc_abbreviation, project_description
   ;
   
   ` : [undefined];
@@ -60,11 +64,11 @@ export default async function Page(props: PageProps) {
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
-      count={results.map((res) => Number(res.count)).reduce((a, b) => Number(a) + Number(b), 0)} // need to sum, but OK as a place-holder
+      count={results.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0)} // need to sum, but OK as a place-holder
       filters={
         <>
           {results.map((res) =>
-            <SearchFilter key={`ID:${res.dcc_name}`} id={`DCC:${res.dcc_name}`} count={res.count} label={`Abbreviation:${res.dcc_abbreviation}`} />
+            <SearchFilter key={`ID:${res.dcc_name}`} id={`DCC:${res.dcc_name}`} count={res.count} label={`${res.dcc_abbreviation}`} />
           )}
 
         </>
@@ -87,15 +91,15 @@ export default async function Page(props: PageProps) {
         r={searchParams.r}
         count={0}
         columns={[
-          <>DCC:Project</>,
+          <>DCC</>,
           <>Anatomy</>,
-          <>Disease</>,
+          <>Project Description</>,
         ]}
         rows={results ? results.map(result => [
           // [
-          <>"{result.dcc_abbreviation}:{result.project_name}"</>,
-          <LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={result.project_name} label={result.anatomy_name} />,
-          <Description description={result.disease_name} />,
+          <>"{result.dcc_abbreviation}"</>,
+          <LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={result.anatomy_name} label={result.anatomy_name} />,
+          <Description description={result.project_description} />,
           //]
         ]) : []}
       />
