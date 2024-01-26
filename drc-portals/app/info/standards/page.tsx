@@ -110,8 +110,8 @@ export default function Standards() {
                 is to enable researchers and developers to objectively measure and 
                 improve the FAIRness of their tools. 
                 <br /><br />
-                More information about performing FAIR assessments with FAIRshake 
-                will be available soon. 
+                Learn more about performing FAIR assessments with FAIRshake <Link
+                href="/info/standards/FAIRshake" rel="noopener" color="#3470e5">here</Link>. 
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
