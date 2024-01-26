@@ -43,29 +43,34 @@ export default async function Page(props: PageProps) {
   }
   >>`
   SELECT 
-       c2m2.ffl_biosample.anatomy_name AS anatomy_name, 
-       c2m2.ffl_biosample.dcc_name AS dcc_name,
-       c2m2.ffl_biosample.dcc_abbreviation AS dcc_abbreviation,
-       c2m2.ffl_biosample.disease_name AS disease_name,
-       c2m2.ffl_biosample.project_name AS project_name,
-       count (*) AS count FROM c2m2.ffl_biosample
+       c2m2.anatomy.name AS anatomy_name, 
+       c2m2.anatomy.description AS anatomy_desc,
+       c2m2.dcc.dcc_name AS dcc_name,
+       c2m2.dcc.dcc_abbreviation AS dcc_abbreviation,
+       c2m2.disease.name AS disease_name,
+       c2m2.disease.description AS disease_desc,
+       count (*) AS count
+  FROM c2m2.fl2_biosample
+  LEFT JOIN c2m2.anatomy ON c2m2.fl2_biosample.anatomy = c2m2.anatomy.id
+  LEFT JOIN c2m2.dcc ON c2m2.fl2_biosample.project_id_namespace = c2m2.dcc.project_id_namespace
+  LEFT JOIN c2m2.disease ON c2m2.fl2_biosample.disease = c2m2.disease.id
   WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
-  GROUP BY dcc_name, anatomy_name, disease_name, project_name, dcc_abbreviation
+  GROUP BY dcc_name, anatomy_name, disease_name, anatomy_desc, dcc_abbreviation, disease_desc 
   ;
   
   ` : [undefined];
   if (!results) redirect('/data')
   console.log(results)
-
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
-      count={results.map((res) => Number(res.count)).reduce((a, b) => Number(a) + Number(b), 0)} // need to sum, but OK as a place-holder
+      count={5}
       filters={
         <>
-          {results.map((res) =>
-            <SearchFilter key={`ID:${res.dcc_name}`} id={`DCC:${res.dcc_name}`} count={res.count} label={`Abbreviation:${res.dcc_abbreviation}`} />
-          )}
+          {/* <Typography className="caption">DCC</Typography> */}
+          {
+            <SearchFilter key={`dcc-2`} id={`dcc:3`} count={5} label={'MW'} />
+          }
 
         </>
       }
@@ -87,14 +92,14 @@ export default async function Page(props: PageProps) {
         r={searchParams.r}
         count={0}
         columns={[
-          <>DCC:Project</>,
+          <>DCC</>,
           <>Anatomy</>,
           <>Disease</>,
         ]}
         rows={results ? results.map(result => [
           // [
-          <>"{result.dcc_abbreviation}:{result.project_name}"</>,
-          <LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={result.project_name} label={result.anatomy_name} />,
+          <>{result.dcc_abbreviation}</>,
+          <LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={result.dcc_name} label={result.anatomy_name} />,
           <Description description={result.disease_name} />,
           //]
         ]) : []}

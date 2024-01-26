@@ -34,7 +34,7 @@ WHERE c2m2.fl2_biosample.anatomy = c2m2.anatomy.id
 -- Step 5: Check and Create Index on the Searchable Column
 DO $$ 
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename = 'fl2_biosample' AND indexname = 'idx_searchable') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename = 'c2m2.fl2_biosample' AND indexname = 'idx_searchable') THEN
         CREATE INDEX idx_searchable ON c2m2.fl2_biosample USING gin(searchable);
     END IF;
 END $$;

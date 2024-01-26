@@ -25,6 +25,18 @@ npx prisma migrate dev
 npm run dev
 ```
 
+## Pulling and pushing from database via Prisma
+```bash
+# To describe models from the latest version of the database, use:
+npx prisma db pull
+# This will update column names, primary and foreign key relations etc from the database into the schema.prisma file.
+
+# To write to the database from the latest version of the schema.prisma file, use:
+npx prisma db push
+# This will update column names, primary and foreign key relations etc from the schema.prisma file into the database. However, check docs to make sure data is not lost while updating columns.
+```
+
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the platform.
 
 The pages will auto-update as you edit the files.

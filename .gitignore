@@ -6,3 +6,4 @@ output/
 kub/
 venv
 outreach_files/
+package-lock.json
