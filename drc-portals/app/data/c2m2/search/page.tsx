@@ -6,7 +6,7 @@ import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import Icon from "@mdi/react";
@@ -33,42 +33,78 @@ export default async function Page(props: PageProps) {
   const limit = searchParams.r
 
 
-  const results = searchParams.q ? await prisma.$queryRaw<Array<{
-    anatomy_name: string,
-    anatomy_desc: string,
+  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+  records: {
     dcc_name: string,
     dcc_abbreviation: string,
+    taxonomy_name: string,
     disease_name: string,
-    disease_desc: string,
+    anatomy_name: string,
+    project_name: string,
+    project_description: string,
     count: number,
-  }
-  >>`
-  SELECT 
-       c2m2.ffl_biosample.anatomy_name AS anatomy_name, 
-       c2m2.ffl_biosample.dcc_name AS dcc_name,
-       c2m2.ffl_biosample.dcc_abbreviation AS dcc_abbreviation,
-       c2m2.ffl_biosample.disease_name AS disease_name,
-       c2m2.ffl_biosample.project_name AS project_name,
-       c2m2.project.description as project_description,
-       count (*)::int AS count
-  FROM c2m2.ffl_biosample
-  LEFT JOIN c2m2.project ON c2m2.ffl_biosample.project_local_id = c2m2.project.local_id
-  WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
-  GROUP BY dcc_name, anatomy_name, disease_name, project_name, dcc_abbreviation, project_description
-  ;
-  
+  }[],
+  dcc_filters:{dcc_name: string, dcc_abbreviation: string, count: number,}[],
+  taxonomy_filters:{taxonomy_name: string, count: number,}[],
+  disease_filters:{disease_name: string, count: number,}[],
+  anatomy_filters:{anatomy_name: string, count: number,}[],
+}>>`
+with allres as (SELECT 
+  c2m2.ffl_biosample.dcc_name AS dcc_name,
+  c2m2.ffl_biosample.dcc_abbreviation AS dcc_abbreviation,
+  c2m2.ffl_biosample.ncbi_taxonomy_name AS taxonomy_name,
+  c2m2.ffl_biosample.disease_name AS disease_name,
+  c2m2.ffl_biosample.anatomy_name AS anatomy_name, 
+  c2m2.ffl_biosample.project_name AS project_name,
+  c2m2.project.description as project_description,
+  count (*)::int AS count
+FROM c2m2.ffl_biosample
+LEFT JOIN c2m2.project ON c2m2.ffl_biosample.project_local_id = c2m2.project.local_id
+  WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
+/* WHERE searchable @@ websearch_to_tsquery('english', 'liver & cancer') */
+GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description
+),
+dcc_name_count as (select distinct dcc_name, dcc_abbreviation, count(*) as count from allres group by dcc_name, dcc_abbreviation),
+taxonomy_name_count as (select distinct taxonomy_name, count(*) as count from allres group by taxonomy_name),
+disease_name_count as (select distinct disease_name, count(*) as count from allres group by disease_name),
+anatomy_name_count as (select distinct anatomy_name, count(*) as count from allres group by anatomy_name)
+select
+(select coalesce(jsonb_agg(allres.*), '[]'::jsonb) from allres) as records, 
+(select coalesce(jsonb_agg(dcc_name_count.*), '[]'::jsonb) from dcc_name_count) as dcc_filters,
+(select coalesce(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) from taxonomy_name_count) as taxonomy_filters,
+(select coalesce(jsonb_agg(disease_name_count.*), '[]'::jsonb) from disease_name_count) as disease_filters,
+(select coalesce(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) from anatomy_name_count) as anatomy_filters
+;
+
   ` : [undefined];
   if (!results) redirect('/data')
-  console.log(results)
-
+//  console.log(results)
+console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
+console.log(results.records.map(res => res.count))
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
-      count={results.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0)} // need to sum, but OK as a place-holder
+      count={results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0)} // need to sum, but OK as a place-holder
       filters={
         <>
-          {results.map((res) =>
+          <Typography className="subtitle1">CF Program/DCC</Typography>
+          {results?.dcc_filters.map((res) =>
             <SearchFilter key={`ID:${res.dcc_name}`} id={`DCC:${res.dcc_name}`} count={res.count} label={`${res.dcc_abbreviation}`} />
+          )}
+          <hr className="m-2" />
+          <Typography className="subtitle1">Taxonomy</Typography>
+          {results?.taxonomy_filters.map((res) =>
+            <SearchFilter key={`ID:${res.taxonomy_name}`} id={`DCC:${res.taxonomy_name}`} count={res.count} label={`${res.taxonomy_name}`} />
+          )}
+          <hr className="m-2" />
+          <Typography className="subtitle1">Disease</Typography>
+          {results?.disease_filters.map((res) =>
+            <SearchFilter key={`ID:${res.disease_name}`} id={`DCC:${res.disease_name}`} count={res.count} label={`${res.disease_name}`} />
+          )}
+          <hr className="m-2" />
+          <Typography className="subtitle1">Anatomy</Typography>
+          {results?.anatomy_filters.map((res) =>
+            <SearchFilter key={`ID:${res.anatomy_name}`} id={`DCC:${res.anatomy_name}`} count={res.count} label={`${res.anatomy_name}`} />
           )}
 
         </>
@@ -91,15 +127,26 @@ export default async function Page(props: PageProps) {
         r={searchParams.r}
         count={0}
         columns={[
+          <>View</>,
           <>DCC</>,
+          <>Taxonomy</>,
+          <>Disease</>,
           <>Anatomy</>,
           <>Project Description</>,
         ]}
-        rows={results ? results.map(result => [
+        rows={results ? results?.records.map(res => [
           // [
-          <>"{result.dcc_abbreviation}"</>,
-          <LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={result.anatomy_name} label={result.anatomy_name} />,
-          <Description description={result.project_description} />,
+          <>"Subjects: 10"
+          "Biosamples: 20" 
+          "Collections: 40" 
+          </>,
+          //<>{res.dcc_abbreviation}</>,
+          <Description description={res.dcc_abbreviation} />,
+          //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
+          <Description description={res.taxonomy_name} />,
+          <Description description={res.disease_name} />,
+          <Description description={res.anatomy_name} />,
+          <Description description={res.project_name} />,
           //]
         ]) : []}
       />

@@ -1,4 +1,7 @@
 /* run in psql as \i biosample_fully_flattened.sql */
+---
+--- Make it project cetnric; most tables are already included in this biosample centrix flattening
+---
 --- table name c2m2.ffl_biosample means fully flattened biosample
 DROP TABLE IF EXISTS c2m2.ffl_biosample;
 CREATE TABLE c2m2.ffl_biosample as (
