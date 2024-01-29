@@ -33,7 +33,7 @@ The following tutorial, adapted from the PWB User Guide linked above, walks thro
   - As an example, we can select the **Query GTEx Median Tissue Expression** card, which displays a table of tissues from GTEx where the input gene is most significantly expressed. 
   - Some operations, including the example, rely on on-demand API calls, and can be re-computed or updated using the **Recompute** button at the bottom of the page. 
 
-6. To continue the workflow, click the **+** breadcrumb at the top of the page to choose froma new set of option cards, and continue with the analysis. 
+6. To continue the workflow, click the **+** breadcrumb at the top of the page to choose from a new set of option cards, and continue with the analysis. 
 
 5. If you have reached the end of a workflow, you have two main options:
   - You may return to any of the previous nodes by clicking on the corresponding "breadcrumb" graph at the top of the page, and select more operations from a previous node. All "branches" of the workflow, and their results, will be saved. 

@@ -23,7 +23,7 @@ The steps below are adapted from the [FAIRshake User Guide V2](https://fairshake
 
 ### Starting Projects
 
-1. Navigate to the [FAIRshake website](https://fairshake.cloud) and create a user account if you do not already have one. N
+1. Navigate to the [FAIRshake website](https://fairshake.cloud) and create a user account if you do not already have one. 
 
 2. Select the **Projects** page from the menu at the top of the page, then click on the **Create New Project** card in the bottom right corner. A project can be used to house a collection of related digital objects that are each associated with at least one FAIR rubric. 
 
@@ -39,7 +39,7 @@ The steps below are adapted from the [FAIRshake User Guide V2](https://fairshake
 
 6. To create a new rubric for evaluating your digital object, navigate to the **Rubrics** page via the menu bar, and select the **Create New Rubric** card in the bottom right. 
 
-7. Use the autocomplete **Metrics** field to identify existing metrics, or specific assessment questions, that may be relevant for your rubric. Select as many metrics as you would like; these will be included in your FAIR assessment for the digital objects associated with you rubric. 
+7. Use the autocomplete **Metrics** field to identify existing metrics, or specific assessment questions, that may be relevant for your rubric. Select as many metrics as you would like; these will be included in your FAIR assessment for the digital objects associated with your rubric. 
 
   - A pre-existing rubric with list of universal FAIR metrics developed by [Wilkinson et al. (*Scientific Data*, 2018)](https://www.nature.com/articles/sdata2018118) can be found [here](https://fairshake.cloud/rubric/25/).
 

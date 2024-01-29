@@ -369,7 +369,7 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
                             items:
                               type: string
   ```
-  Note that OpenAPI/SmartAPI allow for the definition of `Components`, which are reusable objects within a single a API specification. These can be `schemas`, `parameters`, `requestBodies`, or other objects that may come up in multiple paths. In the examples above, the digital object schema could have been defined as a `schema` component, and the reference `#/components/schemas/DigitalObject` could have been used in place of its full definition under the `create_digital_object` `requestBody` and `responses` as well as the `get_digital_object` `responses`.
+  Note that OpenAPI/SmartAPI allow for the definition of `Components`, which are reusable objects within a single API specification. These can be `schemas`, `parameters`, `requestBodies`, or other objects that may come up in multiple paths. In the examples above, the digital object schema could have been defined as a `schema` component, and the reference `#/components/schemas/DigitalObject` could have been used in place of its full definition under the `create_digital_object` `requestBody` and `responses` as well as the `get_digital_object` `responses`.
 
   - For error codes (4XX, 5XX), you may choose to “catch” these errors by defining some behavior that should occur if the error is triggered. 
 
