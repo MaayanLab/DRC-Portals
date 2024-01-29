@@ -33,13 +33,13 @@ export default function Documentation() {
     - Insert the SmartAPI URL of the API if the SmartAPI URL is different from the API URL entered in the URL field of the form. Otherwise, leave the SmartAPI URL field empty.
 
 #### Asset Upload Submission Troubleshooting/FAQ: 
-1. Before uploading, ensure that all your account information has been entered/is accurate on the[ My Account](account) page
+1. Before uploading, ensure that all your account information has been entered/is accurate on the [My Account](account) page
     - If your email is missing, please fill it out and click 'Save Changes' 
     - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
     - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
     - If Role is inaccurate, please contact the DRC to update your information.
-2. If you are to be an Uploader for your DCC and have “Access Denied” on the Code Assets Form and Uploaded pages, please contact the DRC through email to grant you access.
-3. If a mistake has been made in an upload, go to the [Uploaded Assets](uploaded) page, delete the incorrectly uploaded file by clicking on the delete icon on the row of the given file and reupload the corrected file.
+2. If you are to be an Uploader for your DCC and have “Access Denied” on the [Code Assets Form](urlform) and [Uploaded Assets](uploaded) pages, please contact the DRC through email to grant you access.
+3. If a mistake has been made in a submission, go to the [Uploaded Assets](uploaded) page, delete the incorrectly submitted asset by clicking on the delete icon on the row of the given file and reupload the corrected file.
     `
 
     const assetApproval = `
@@ -49,15 +49,15 @@ export default function Documentation() {
     - For DRC Approvers, these are all assets that have been uploaded/submitted by uploaders across all DCCs. 
 3. All unapproved assets that you are authorized to approve will be marked by the “Approve Upload” button under the DCC status or DRC status columns for DCC and DRC Approvers respectively. 
 4. To approve an asset, click on the “Approve Upload” button to approve the file. 
-5. To remove the approved status of a asset, click on the button. This reverses the Approval action. 
+5. To remove the approved status of a asset, click on the button under the DCC/DRC status column. This reverses the Approval action. 
 6. Similar steps are done to set an asset as the most current version. 
     - To toggle between setting an asset as Current and Archived, click on the button under Current column. Please note that:
-    - Multiple assets of the same asset type can be set as current for a DCC. 
-    - DCC and DRC approvers are authorized to change the current status of assets for affiliated DCCs/all DCCs respectively.
+        - Multiple assets of the same asset type can be set as current for a DCC. 
+        - DCC and DRC approvers are authorized to change the current status of assets for affiliated DCCs/all DCCs respectively.
 
 #### Troubleshooting/FAQ: 
-1. If you are to be a DCC or DRC Approver and have “Access Denied” on the [Uploaded Assets](uploaded) pages, please contact the DRC through email to change your role and grant you access.
-2. If a DCC that you are affiliated with is not listed as one of your DCC options on the Accounts page, please contact the DRC through email to update your information. You will not be allowed to approve uploaded files for this DCC otherwise.
+1. If you are to be a DCC or DRC Approver and have “Access Denied” on the [Uploaded Assets](uploaded) page, please contact the DRC through email to change your role and grant you access.
+2. If a DCC that you are affiliated with is not listed as one of your DCC options on the [My Account](/account) page, please contact the DRC through email to update your information. You will not be allowed to approve uploaded files for this DCC otherwise.
 3. DCC Approvers do not have access to the File Upload and Code Submission Forms . This page is only available to DCC Uploaders and DRC Approvers.
 `
 
@@ -66,7 +66,7 @@ Both Uploaders and Approvers can delete uploaded assets.
 1. On the [Uploaded Assets](uploaded) page, click on the delete icon next to the asset you wish to delete
 2. A pop up will appear verifying your decision to delete the given asset. 
 3. Click on "Yes, Delete" to confirm the deletion of the asset. **Please note that the delete operation is permanent**.
-4. **For DCC and DRC approvers**: If a current asset is deleted, please update the current status of the otherwise most to update DCC asset of that type
+4. **For DCC and DRC approvers**: If a current asset is deleted, please update the current status of the otherwise most to update DCC asset of that type.
 `
 
     const adminUsers = `
@@ -262,7 +262,7 @@ The Entity Page Template and Example are  links to:
                                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <BsCheckCircleFill />
                                         </span> icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page is considered the current version
-                                        of that file type for a given DCC. DCC and DRC approvers both have the right to change the current/archived status of an asset.
+                                        of that file type for a given DCC. 
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
@@ -300,7 +300,7 @@ The Entity Page Template and Example are  links to:
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
-                                    <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Uploader</Typography>
+                                    <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Approver</Typography>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                         Can approve a submitted package, but can’t submit new packages. You can have as many users in this role as you want.
                                     </Typography>
@@ -344,7 +344,7 @@ The Entity Page Template and Example are  links to:
                                             On the Upload Form page, upload your data and metadata files by either dragging and dropping them in the upload box, or clicking in the box or on the "Choose Files" button.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            The files you have selected should appear under “Files to Upload”
+                                            The files you have selected should appear under “Files to Upload”.
                                             If you select a wrong file, you can delete it by clicking on the delete icon next to the file name
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
@@ -374,11 +374,12 @@ The Entity Page Template and Example are  links to:
                                     </Typography>
                                     <List sx={{ listStyle: "decimal", pl: 4 }}>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            The checksum of a successfully uploaded file is displayed on the Uploaded Assets page under the File Info dropdown of each file.
+                                            The checksum of a successfully uploaded file is displayed on the <Link href="/data/contribute/uploaded" target="_blank" color="#111827">Uploaded Assets</Link> page under the File Info dropdown of each file.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             To verify file integrity after downloading a file from the portal:
                                         </ListItem>
+                                        <List sx={{ listStyle: "disc", pl: 4 }}>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Download the intended file
                                         </ListItem>
@@ -390,6 +391,8 @@ The Entity Page Template and Example are  links to:
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
                                         </ListItem>
+                                        </List>
+
                                     </List>
                                 </Box>
 
