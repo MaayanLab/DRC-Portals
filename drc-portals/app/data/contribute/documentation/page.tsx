@@ -13,7 +13,15 @@ import Markdown from 'react-markdown'
 
 
 export default function Documentation() {
-    const markdown = "`shasum -a <file path>`"
+    const macMarkdown = `
+    shasum -a 256 [file location]
+    `
+    const linuxMarkdown = `
+    sha256sum [file location]
+    `
+    const windowsMarkdown = `
+    certutil -hashfile [file location] SHA256
+    `
     const codeAssetSubmission = `
 1. Go to the [Code Asset Form](urlform) page OR Click on the “Contribute” option in the navigation bar or in the footer: 
 2. On the Code Asset Form, fill out all the fields: 
@@ -171,11 +179,11 @@ The Entity Page Template and Example are  links to:
                                     It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs
                                     should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these
                                     API into the API repository SmartAPI. <br></br>
-                                    <strong>OpenAPI</strong> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written
+                                    <strong>OpenAPI: </strong> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written
                                     in YAML or JSON. <br></br>
-                                    <strong>SmartAPI:</strong> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features
+                                    <strong>SmartAPI: </strong> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features
                                     additional metadata elements and value sets to promote the interoperability of RESTful APIs. <br></br>
-                                    Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page.
+                                    Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/standards/OpenAPI" color='#111827' target='_blank'>Standards and Protocols</Link> page.
                                     <br></br>Example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="#111827">exRNA openAPI link </Link>
                                 </Typography>
                             </Box>
@@ -384,9 +392,13 @@ The Entity Page Template and Example are  links to:
                                             Download the intended file
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Calculate the checksum in your terminal using the <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                            <Markdown className="prose">{markdown}</Markdown> command
-                                                </span>
+                                            Calculate the checksum in your terminal: 
+                                            <br></br>
+                                            For Windows: <Markdown className="prose">{windowsMarkdown}</Markdown>
+                                            <br></br>
+                                            For Linux: <Markdown className="prose">{linuxMarkdown}</Markdown>
+                                            <br></br>
+                                            For MacOS: <Markdown className="prose">{macMarkdown}</Markdown>
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
