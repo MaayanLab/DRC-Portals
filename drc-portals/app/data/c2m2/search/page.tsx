@@ -32,6 +32,12 @@ export default async function Page(props: PageProps) {
   const offset = (searchParams.p - 1) * searchParams.r
   const limit = searchParams.r
 
+  // searchParamsT which will helpa pply both and (across filter types) and or operator (within same filter type) 
+  // for this URL: http://localhost:3000/data/c2m2/search?q=blood&t=dcc%3AUCSD+Metabolomics+Workbench%7Cdcc%3AThe+Human+Microbiome+Project%7Cspecies%3AHomo+sapiens&p=1
+  // searchParams.t is [{type: 'dcc', enttity_type: 'UCSD+Metabolomics+Workbench'}, 
+  // {type: 'dcc', enttity_type: 'The+Human+Microbiome+Project'}, {type: 'species', enttity_type: 'Homo+sapiens'}]
+  // searchParamsT should be:
+  // {dcc: ['UCSD+Metabolomics+Workbench', 'The+Human+Microbiome+Project'], species: ['Homo+sapiens'], disease: [] }
 
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
   records: {
@@ -90,7 +96,7 @@ SELECT
     switch (t.type) {
         case 'dcc':
             return Prisma.sql`"allres"."dcc_name" = ${t.entity_type}`;
-        case 'species':
+        case 'taxonomy':
             return Prisma.sql`"allres"."taxonomy_name" = ${t.entity_type}`;
         case 'disease':
             return Prisma.sql`"allres"."disease_name" = ${t.entity_type}`;
@@ -124,7 +130,7 @@ console.log(results.records.map(res => res.count))
           <hr className="m-2" />
           <Typography className="subtitle1">Taxonomy</Typography>
           {results?.taxonomy_filters.map((res) =>
-            <SearchFilter key={`ID:${res.taxonomy_name}`} id={`species:${res.taxonomy_name}`} count={res.count} label={`${res.taxonomy_name}`} />
+            <SearchFilter key={`ID:${res.taxonomy_name}`} id={`taxonomy:${res.taxonomy_name}`} count={res.count} label={`${res.taxonomy_name}`} />
           )}
           <hr className="m-2" />
           <Typography className="subtitle1">Disease</Typography>
