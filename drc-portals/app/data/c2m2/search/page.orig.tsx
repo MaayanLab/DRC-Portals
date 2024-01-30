@@ -57,13 +57,12 @@ export default async function Page(props: PageProps) {
       where
         ${Prisma.join(searchParams.t.map(t => t.type === 'dcc' ?
     Prisma.sql`
-          "results"."dcc_id" = ${t.entity_type}
+          "results"."dcc_" = ${t.entity_type}
           `
     : Prisma.sql`
         (
-          "results"."type" = ${t.type}::"NodeType"
           ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
+            and "results"."species_name" = ${t.entity_type}
           ` : Prisma.empty}
         )
         `), ' or ')}
