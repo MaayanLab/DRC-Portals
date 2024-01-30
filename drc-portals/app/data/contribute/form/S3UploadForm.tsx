@@ -175,8 +175,8 @@ export function S3UploadForm(user: {
       }
 
       for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-        if (uploadedfiles[i].size > 500000000) {
-          setStatus(({ error: { selected: true, message: 'File too large! Make sure that each file is less than 500MB' } }))
+        if (uploadedfiles[i].size > 5000000000) {
+          setStatus(({ error: { selected: true, message: 'File too large! Make sure that each file is less than 5GB' } }))
           return
         }
       }
@@ -185,7 +185,7 @@ export function S3UploadForm(user: {
         if (!dcc) throw new Error('no dcc entered')
         let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
         const foundVersions = await findFileAsset(filetype, dcc, uploadedfiles[i].name)
-        if (foundVersions.length > 0 ) {
+        if (foundVersions.length > 0) {
           setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfiles[i].name} already exists in database. Rename file to upload` } }));
           return
         }
@@ -199,10 +199,10 @@ export function S3UploadForm(user: {
           await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
         }
         catch (error) {
-            console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
-            return
+          console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+          return
+        }
       }
-    }
       setStatus(() => ({ success: true }))
       setProgress(0)
     }}>
