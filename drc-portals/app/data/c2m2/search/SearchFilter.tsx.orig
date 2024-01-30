@@ -47,7 +47,7 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
     searchParams.set('p', '1')
     return { searchParams, currentFilterSet }
   }, [id, rawSearchParams])
-
+  
   return (
     <Link href={`?${searchParams.toString()}`}>
       <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
@@ -55,7 +55,7 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
   )
 }
 
-export function FilterAccordion({ id, label, count }: { id: string, label: string, count: number }) {
+export function FilterAccordion() {
   return (
     <Accordion>
       <AccordionSummary
@@ -69,7 +69,7 @@ export function FilterAccordion({ id, label, count }: { id: string, label: strin
         <Autocomplete
           multiple
           id="checkbox-filters"
-          options={filterOptions}
+          options={filterOptions} 
           getOptionLabel={(option) => option.label}
           renderInput={(params) => (
             <TextField {...params} label="Filter Options" />
@@ -80,10 +80,10 @@ export function FilterAccordion({ id, label, count }: { id: string, label: strin
         />
       </AccordionDetails>
       <AccordionDetails>
-        { }
+        {}
         <SearchFilter id="filter1" label="Filter 1" count={10} />
         <SearchFilter id="filter2" label="Filter 2" count={20} />
-        { }
+        {}
       </AccordionDetails>
     </Accordion>
   );

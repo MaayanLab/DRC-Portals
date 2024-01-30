@@ -37,20 +37,46 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function SearchFilter({ id, label, count }: { id: string, label: string, count: number }) {
   const rawSearchParams = useSearchParams()
-  const { searchParams, currentFilterSet } = React.useMemo(() => {
+  const { searchParams, currentFilters } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)
     const currentRawFilters = searchParams.get('t')
-    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : []
-    const currentFilterSet = currentFilters.includes(id)
-    const newFilters = currentFilterSet ? currentFilters.filter(t => t !== id) : [...currentFilters, id]
-    searchParams.set('t', newFilters.join('|'))
+    const currentFilters: Record<string, string[]> = {}
+    if (currentRawFilters) {
+      currentRawFilters.split('|').forEach(filter => {
+        const [type, value] = filter.split(':')
+        if (!currentFilters[type]) {
+          currentFilters[type] = []
+        }
+        currentFilters[type].push(decodeURIComponent(value))
+      })
+    }
+    return { searchParams, currentFilters }
+  }, [rawSearchParams])
+
+  const toggleFilter = (type: string, value: string) => {
+    const newFilters = { ...currentFilters }
+    if (!newFilters[type]) {
+      newFilters[type] = []
+    }
+    const index = newFilters[type].indexOf(value)
+    if (index === -1) {
+      newFilters[type].push(value)
+    } else {
+      newFilters[type].splice(index, 1)
+    }
+    const filtersArray = Object.entries(newFilters).map(([type, values]) => `${type}:${values.join('+')}`)
+    searchParams.set('t', filtersArray.join('|'))
     searchParams.set('p', '1')
-    return { searchParams, currentFilterSet }
-  }, [id, rawSearchParams])
+    return `?${searchParams.toString()}`
+  }
 
   return (
-    <Link href={`?${searchParams.toString()}`}>
-      <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
+    <Link href={toggleFilter(id, label)}>
+      <FormControlLabel
+        control={<Checkbox />}
+        label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>}
+        checked={currentFilters[id]?.includes(label)}
+      />
     </Link>
   )
 }
