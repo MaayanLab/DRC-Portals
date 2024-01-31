@@ -22,78 +22,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 }
 
-
-
-
-export default async function Page(props: PageProps) {
-  const searchParams = useSanitizedSearchParams(props)
-  console.log(searchParams.q)
-  const searchStr = searchParams.q
-  const offset = (searchParams.p - 1) * searchParams.r
-  const limit = searchParams.r
-
-  // searchParamsT which will helpa pply both and (across filter types) and or operator (within same filter type) 
-  // for this URL: http://localhost:3000/data/c2m2/search?q=blood&t=dcc%3AUCSD+Metabolomics+Workbench%7Cdcc%3AThe+Human+Microbiome+Project%7Cspecies%3AHomo+sapiens&p=1
-  // searchParams.t is [{type: 'dcc', enttity_type: 'UCSD+Metabolomics+Workbench'}, 
-  // {type: 'dcc', enttity_type: 'The+Human+Microbiome+Project'}, {type: 'species', enttity_type: 'Homo+sapiens'}]
-  // searchParamsT should be:
-  // {dcc: ['UCSD+Metabolomics+Workbench', 'The+Human+Microbiome+Project'], species: ['Homo+sapiens'], disease: [] }
-
-  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-  records: {
-    dcc_name: string,
-    dcc_abbreviation: string,
-    taxonomy_name: string,
-    disease_name: string,
-    anatomy_name: string,
-    project_name: string,
-    project_description: string,
-    count: number,
-  }[],
-  dcc_filters:{dcc_name: string, dcc_abbreviation: string, count: number,}[],
-  taxonomy_filters:{taxonomy_name: string, count: number,}[],
-  disease_filters:{disease_name: string, count: number,}[],
-  anatomy_filters:{anatomy_name: string, count: number,}[],
-}>>`
-WITH allres AS (
-  SELECT 
-      c2m2.ffl_biosample.dcc_name AS dcc_name,
-      c2m2.ffl_biosample.dcc_abbreviation AS dcc_abbreviation,
-      c2m2.ffl_biosample.ncbi_taxonomy_name AS taxonomy_name,
-      c2m2.ffl_biosample.disease_name AS disease_name,
-      c2m2.ffl_biosample.anatomy_name AS anatomy_name, 
-      c2m2.ffl_biosample.project_name AS project_name,
-      c2m2.project.description AS project_description,
-      COUNT(*)::INT AS count
-  FROM c2m2.ffl_biosample
-  LEFT JOIN c2m2.project ON c2m2.ffl_biosample.project_local_id = c2m2.project.local_id
-  WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
-  GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description
-),
-dcc_name_count AS (
-  SELECT DISTINCT dcc_name, dcc_abbreviation, COUNT(*) AS count 
-  FROM allres 
-  GROUP BY dcc_name, dcc_abbreviation
-),
-taxonomy_name_count AS (
-  SELECT DISTINCT taxonomy_name, COUNT(*) AS count 
-  FROM allres 
-  GROUP BY taxonomy_name
-),
-disease_name_count AS (
-  SELECT DISTINCT disease_name, COUNT(*) AS count 
-  FROM allres 
-  GROUP BY disease_name
-),
-anatomy_name_count AS (
-  SELECT DISTINCT anatomy_name, COUNT(*) AS count 
-  FROM allres 
-  GROUP BY anatomy_name
-)
-SELECT
-  (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) FROM allres ${searchParams.t ? Prisma.sql`
-  WHERE ${Prisma.join(searchParams.t.map(t => {
+export async function generateFilterQueryString(sParams: Record<string, string>, tablename: string): Promise<Sql> {
+  return (Prisma.join(sParams.t.map(t => {
     switch (t.type) {
+      // Do we need the table name allres in the lines below. To allow download of 
+      // fully expanded table after applying filters, allres_full_filtered, we need 
+      // to apply these filters on allres_full ass well [only if user clicks on download button]. 
+      // So, it will be useful if this condition part can be saved as a string and reused at both places.
         case 'dcc':
             return Prisma.sql`"allres"."dcc_name" = ${t.entity_type}`;
         case 'taxonomy':
@@ -105,8 +40,146 @@ SELECT
         default:
             return Prisma.empty;
     }
-  }), ' or ')}
-  ` : Prisma.empty} LIMIT 10) AS records, 
+  }), ' or '))
+}
+
+export default async function Page(props: PageProps) {
+  const searchParams = useSanitizedSearchParams(props)
+  console.log(searchParams.q)
+  const searchStr = searchParams.q
+  const offset = (searchParams.p - 1) * searchParams.r
+  const limit = searchParams.r
+
+  // Mano: Please do not delete the comments.
+  // Do not delete commented lines as they may have related code to another/related task/item
+
+  const filters: string[] = [];
+
+  if (searchParams.t) {
+    const typeFilters: { [key: string]: string[] } = {};
+
+    searchParams.t.forEach(t => {
+      if (!typeFilters[t.type]) {
+        typeFilters[t.type] = [];
+      }
+      if (t.entity_type) {
+        typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+      }
+    });
+
+    for (const type in typeFilters) {
+      if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
+        filters.push(`(${typeFilters[type].join(' OR ')})`);
+      }
+    }
+  }
+  const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+
+  /*  USAGE: SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10 */
+
+
+  /* const filters: string[] = [];
+
+  if (searchParams.t) {
+    const typeFilters: { [key: string]: string[] } = {};
+
+    searchParams.t.forEach(t => {
+      if (!typeFilters[t.type]) {
+        typeFilters[t.type] = [];
+      }
+      if (t.entity_type) {
+        typeFilters[t.type].push(`"allres"."${t.type}_name" = ${Prisma.sql`'${t.entity_type}'`}`);
+      }
+    });
+
+    for (const type in typeFilters) {
+      if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
+        filters.push(`(${Prisma.join(typeFilters[type], ' OR ')})`);
+      }
+    }
+  }
+
+  const filterClause = filters.length ? Prisma.sql`WHERE ${Prisma.join(filters, ' AND ')}` : Prisma.empty; */
+
+
+
+
+  console.log("#####")
+  console.log(filterClause)
+  console.log("###")
+  const query = `SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) FROM allres AS records ${Prisma.sql([filterClause])} LIMIT 10 `;
+  console.log("----")
+  console.log(query);
+  console.log("----")
+  // searchParamsT which will helpa pply both and (across filter types) and or operator (within same filter type) 
+  // for this URL: http://localhost:3000/data/c2m2/search?q=blood&t=dcc%3AUCSD+Metabolomics+Workbench%7Cdcc%3AThe+Human+Microbiome+Project%7Cspecies%3AHomo+sapiens&p=1
+  // searchParams.t is [{type: 'dcc', enttity_type: 'UCSD+Metabolomics+Workbench'}, 
+  // {type: 'dcc', enttity_type: 'The+Human+Microbiome+Project'}, {type: 'species', enttity_type: 'Homo+sapiens'}]
+  // searchParamsT should be:
+  // {dcc: ['UCSD+Metabolomics+Workbench', 'The+Human+Microbiome+Project'], species: ['Homo+sapiens'], disease: [] }
+
+  // Mano: In the queries below, please note that GROUP BY automatically means as if DISTINCT was applied
+  // When filter values are selected, only the table displayed on the right (records) is updated; 
+  // the list of distinct items in the filter is not updated.
+  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+  records: {
+    dcc_name: string,
+    dcc_abbreviation: string,
+    taxonomy_name: string,
+    disease_name: string,
+    anatomy_name: string,
+    project_name: string,
+    project_description: string,
+    count: number, // this is based on across all-columns of ffl_biosample
+  }[],
+  // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
+  // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
+  dcc_filters:{dcc_name: string, dcc_abbreviation: string, count: number,}[],
+  taxonomy_filters:{taxonomy_name: string, count: number,}[],
+  disease_filters:{disease_name: string, count: number,}[],
+  anatomy_filters:{anatomy_name: string, count: number,}[],
+}>>`
+WITH allres_full AS (
+  SELECT c2m2.ffl_biosample.* FROM c2m2.ffl_biosample
+    WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
+),
+allres AS (
+  SELECT 
+    allres_full.dcc_name AS dcc_name,
+    allres_full.dcc_abbreviation AS dcc_abbreviation,
+    allres_full.ncbi_taxonomy_name AS taxonomy_name,
+    allres_full.disease_name AS disease_name,
+    allres_full.anatomy_name AS anatomy_name, 
+    allres_full.project_name AS project_name,
+    c2m2.project.description AS project_description,
+    COUNT(*)::INT AS count
+  FROM allres_full
+  LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+    allres_full.project_local_id = c2m2.project.local_id)
+  GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description
+),
+dcc_name_count AS (
+  SELECT dcc_name, dcc_abbreviation, COUNT(*) AS count 
+  FROM allres 
+  GROUP BY dcc_name, dcc_abbreviation
+),
+taxonomy_name_count AS (
+  SELECT taxonomy_name, COUNT(*) AS count 
+  FROM allres 
+  GROUP BY taxonomy_name
+),
+disease_name_count AS (
+  SELECT disease_name, COUNT(*) AS count 
+  FROM allres 
+  GROUP BY disease_name
+),
+anatomy_name_count AS (
+  SELECT anatomy_name, COUNT(*) AS count 
+  FROM allres 
+  GROUP BY anatomy_name
+)
+SELECT
+(SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10) , 
   (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
   (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
   (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
@@ -117,11 +190,14 @@ SELECT
 //  console.log(results)
 console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
 console.log(results.records.map(res => res.count))
+console.log(results.dcc_filters)
+
+  const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
-      count={results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0)} // need to sum, but OK as a place-holder
-      filters={
+    count={results?.records.length} // This matches with #records in the table on the right (without filters applied)
+    filters={
         <>
           <Typography className="subtitle1">CF Program/DCC</Typography>
           {results?.dcc_filters.map((res) =>
@@ -156,33 +232,41 @@ console.log(results.records.map(res => res.count))
           </Button>
         </Link>
       }
-    >
+    >      
+      {/* Total matching records across C2M2: {total_matches}. 
+      Download fully expanded table allres_full. Download compact table allres.<br></br>
+      LIST THE FILTERS APPLIED [IF POSSIBLE, ALLOW THE FILTERS TO BE DESELECTED FROM HERE.] */}
       <SearchablePagedTable
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
         count={0}
         columns={[
-          <>View</>,
           <>DCC</>,
-          <>Taxonomy</>,
-          <>Disease</>,
-          <>Anatomy</>,
           <>Project Description</>,
+          //<>Taxonomy</>,
+          //<>Disease</>,
+          //<>Anatomy</>,
+          <>Attributes</>,
+          <>Assets</>,
         ]}
         rows={results ? results?.records.map(res => [
           // [
-          <>"Subjects: 10"
-          "Biosamples: 20" 
-          "Collections: 40" 
-          </>,
           //<>{res.dcc_abbreviation}</>,
           <Description description={res.dcc_abbreviation} />,
-          //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
-          <Description description={res.taxonomy_name} />,
-          <Description description={res.disease_name} />,
-          <Description description={res.anatomy_name} />,
           <Description description={res.project_name} />,
+          //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
+          //<Description description={res.taxonomy_name} />,
+          //<Description description={res.disease_name} />,
+          //<Description description={res.anatomy_name} />,
+          <>Taxonomy: {res.taxonomy_name},<br></br>
+          Disease: {res.disease_name},<br></br>
+          Anatomy: {res.anatomy_name}</>,
+          <>Subjects: 10<br></br>
+          Biosamples: 20<br></br>
+          Collections: 40<br></br>
+          { /* #Matches: {res.count} */ }
+          </>,
           //]
         ]) : []}
       />
