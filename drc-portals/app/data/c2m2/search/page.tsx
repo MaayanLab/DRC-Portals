@@ -177,9 +177,9 @@ allres AS (
   SELECT 
     allres_full.dcc_name AS dcc_name,
     allres_full.dcc_abbreviation AS dcc_abbreviation,
-    allres_full.ncbi_taxonomy_name AS taxonomy_name,
-    allres_full.disease_name AS disease_name,
-    allres_full.anatomy_name AS anatomy_name, 
+    CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
+    CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
+    CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
     allres_full.project_name AS project_name,
     c2m2.project.description AS project_description,
     COUNT(*)::INT AS count,
@@ -330,8 +330,8 @@ console.log(results.taxonomy_filters)
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
-          <>Taxonomy: {res.taxonomy_name},<br></br>
-            Disease: {res.disease_name},<br></br>
+          <>Taxonomy: {res.taxonomy_name}<br></br>
+            Disease: {res.disease_name}<br></br>
             Anatomy: {res.anatomy_name}</>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>

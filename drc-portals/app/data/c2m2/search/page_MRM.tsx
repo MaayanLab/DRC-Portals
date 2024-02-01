@@ -157,6 +157,9 @@ export default async function Page(props: PageProps) {
     project_name: string,
     project_description: string,
     count: number, // this is based on across all-columns of ffl_biosample
+    count_bios: number, 
+    count_sub: number, 
+    count_col: number, 
   }[],
   // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
   // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
@@ -167,19 +170,22 @@ export default async function Page(props: PageProps) {
   project_filters:{project_name: string, count: number,}[],
 }>>`
 WITH allres_full AS (
-  SELECT c2m2.ffl2_biosample.* FROM c2m2.ffl2_biosample
+  SELECT c2m2.ffl_biosample.* FROM c2m2.ffl_biosample
     WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
 ),
 allres AS (
   SELECT 
     allres_full.dcc_name AS dcc_name,
     allres_full.dcc_abbreviation AS dcc_abbreviation,
-    allres_full.ncbi_taxonomy_name AS taxonomy_name,
-    allres_full.disease_name AS disease_name,
-    allres_full.anatomy_name AS anatomy_name, 
+    CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
+    CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
+    CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
     allres_full.project_name AS project_name,
     c2m2.project.description AS project_description,
-    COUNT(*)::INT AS count
+    COUNT(*)::INT AS count,
+    COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+    COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+    COUNT(DISTINCT collection_local_id)::INT AS count_col
   FROM allres_full
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id)
@@ -324,12 +330,12 @@ console.log(results.taxonomy_filters)
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
-          <>Taxonomy: {res.taxonomy_name},<br></br>
-            Disease: {res.disease_name},<br></br>
+          <>Taxonomy: {res.taxonomy_name}<br></br>
+            Disease: {res.disease_name}<br></br>
             Anatomy: {res.anatomy_name}</>,
-          <>Subjects: 10<br></br>
-            Biosamples: 20<br></br>
-            Collections: 40<br></br>
+          <>Subjects: {res.count_sub}<br></br>
+            Biosamples: {res.count_bios}<br></br>
+            Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
           </>,
           //]
