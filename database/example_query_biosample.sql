@@ -20,6 +20,48 @@ biosample_local_id from c2m2.ffl2_biosample where searchable @@ websearch_to_tsq
 select count(*) from (select dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
 biosample_local_id from c2m2.ffl2_biosample where searchable @@ websearch_to_tsquery('english', 'blood'));
 
+--- To generate count of unique subject, biosample, etc, grouped by another set of columns
+--- from fl_biosample local_id is biosample_local_id
+select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.fl_biosample 
+where project_id_namespace ilike '%metab%' group by 
+id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+--- crosscheck as:
+select count(*) from c2m2.biosample where project_local_id = 'PR000024';
+
+select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.fl_biosample 
+where project_id_namespace ilike '%4dn%' group by 
+id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+--- crosscheck as:
+select count(*) from c2m2.biosample where project_local_id = '12a92962-8265-4fc0-b2f8-cf14f05db58b' and anatomy = 'CL:0000081';
+
+--- from ffl_biosample
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
+where project_id_namespace ilike '%metab%' group by 
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
+where project_id_namespace ilike '%4dn%' group by 
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
+where project_id_namespace ilike '%4dn%' and subject_local_id = '0f011b1e-b772-4f2a-8c24-cc55de28a994' group by 
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+--- crosscheck as:
+select count(distinct collection_local_id) from c2m2.biosample_in_collection inner join c2m2.biosample_from_subject 
+on c2m2.biosample_in_collection.biosample_local_id = c2m2.biosample_from_subject.biosample_local_id 
+where subject_local_id = '0f011b1e-b772-4f2a-8c24-cc55de28a994';
+
+
 --- add a filter on anatomy
 select project_name,anatomy_name,disease_name,subject_local_id,dcc_name from 
 c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain') and 
