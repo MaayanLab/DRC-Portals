@@ -22,25 +22,37 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 }
 
-export async function generateFilterQueryString(sParams: Record<string, string>, tablename: string): Promise<Sql> {
-  return (Prisma.join(sParams.t.map(t => {
-    switch (t.type) {
-      // Do we need the table name allres in the lines below. To allow download of 
-      // fully expanded table after applying filters, allres_full_filtered, we need 
-      // to apply these filters on allres_full ass well [only if user clicks on download button]. 
-      // So, it will be useful if this condition part can be saved as a string and reused at both places.
-        case 'dcc':
-            return Prisma.sql`"allres"."dcc_name" = ${t.entity_type}`;
-        case 'taxonomy':
-            return Prisma.sql`"allres"."taxonomy_name" = ${t.entity_type}`;
-        case 'disease':
-            return Prisma.sql`"allres"."disease_name" = ${t.entity_type}`;
-        case 'anatomy':
-            return Prisma.sql`"allres"."anatomy_name" = ${t.entity_type}`;
-        default:
-            return Prisma.empty;
+// Mano: Not sure if use of this function is sql-injection safe
+//export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
+export function generateFilterQueryString(searchParams: any, tablename: string) {
+    const filters: string[] = [];
+
+  //const tablename = "allres";
+  if (searchParams.t) {
+    const typeFilters: { [key: string]: string[] } = {};
+
+    searchParams.t.forEach(t => {
+      if (!typeFilters[t.type]) {
+        typeFilters[t.type] = [];
+      }
+      if (t.entity_type) {
+        //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+        if(t.entity_type !== "null"){
+          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+        } else{
+          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
+        }
+      }
+    });
+
+    for (const type in typeFilters) {
+      if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
+        filters.push(`(${typeFilters[type].join(' OR ')})`);
+      }
     }
-  }), ' or '))
+  }
+  const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  return filterClause;
 }
 
 export default async function Page(props: PageProps) {
@@ -55,6 +67,7 @@ export default async function Page(props: PageProps) {
 
   const filters: string[] = [];
 
+  const tablename = "allres";
   if (searchParams.t) {
     const typeFilters: { [key: string]: string[] } = {};
 
@@ -63,7 +76,8 @@ export default async function Page(props: PageProps) {
         typeFilters[t.type] = [];
       }
       if (t.entity_type) {
-        typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+        //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+        typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
       }
     });
 
@@ -73,7 +87,8 @@ export default async function Page(props: PageProps) {
       }
     }
   }
-  const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  const filterClause = generateFilterQueryString(searchParams, "allres"); // Mano: using a function now
 
   /*  USAGE: SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10 */
 
@@ -100,9 +115,6 @@ export default async function Page(props: PageProps) {
   }
 
   const filterClause = filters.length ? Prisma.sql`WHERE ${Prisma.join(filters, ' AND ')}` : Prisma.empty; */
-
-
-
 
   console.log("#####")
   console.log(filterClause)
@@ -138,9 +150,10 @@ export default async function Page(props: PageProps) {
   taxonomy_filters:{taxonomy_name: string, count: number,}[],
   disease_filters:{disease_name: string, count: number,}[],
   anatomy_filters:{anatomy_name: string, count: number,}[],
+  project_filters:{project_name: string, count: number,}[],
 }>>`
 WITH allres_full AS (
-  SELECT c2m2.ffl_biosample.* FROM c2m2.ffl_biosample
+  SELECT c2m2.ffl2_biosample.* FROM c2m2.ffl2_biosample
     WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
 ),
 allres AS (
@@ -161,29 +174,35 @@ allres AS (
 dcc_name_count AS (
   SELECT dcc_name, dcc_abbreviation, COUNT(*) AS count 
   FROM allres 
-  GROUP BY dcc_name, dcc_abbreviation
+  GROUP BY dcc_name, dcc_abbreviation ORDER BY dcc_abbreviation, dcc_name
 ),
 taxonomy_name_count AS (
   SELECT taxonomy_name, COUNT(*) AS count 
   FROM allres 
-  GROUP BY taxonomy_name
+  GROUP BY taxonomy_name ORDER BY taxonomy_name
 ),
 disease_name_count AS (
   SELECT disease_name, COUNT(*) AS count 
   FROM allres 
-  GROUP BY disease_name
+  GROUP BY disease_name ORDER BY disease_name
 ),
 anatomy_name_count AS (
   SELECT anatomy_name, COUNT(*) AS count 
   FROM allres 
-  GROUP BY anatomy_name
+  GROUP BY anatomy_name ORDER BY anatomy_name
+),
+project_name_count AS (
+  SELECT project_name, COUNT(*) AS count 
+  FROM allres 
+  GROUP BY project_name ORDER BY project_name
 )
 SELECT
 (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10) , 
   (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
   (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
   (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
-  (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters
+  (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
+  (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters
   
   ` : [undefined];
   if (!results) redirect('/data')
@@ -191,6 +210,7 @@ SELECT
 console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
 console.log(results.records.map(res => res.count))
 console.log(results.dcc_filters)
+console.log(results.taxonomy_filters)
 
   const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
@@ -217,6 +237,11 @@ console.log(results.dcc_filters)
           <Typography className="subtitle1">Anatomy</Typography>
           {results?.anatomy_filters.map((res) =>
             <SearchFilter key={`ID:${res.anatomy_name}`} id={`anatomy:${res.anatomy_name}`} count={res.count} label={`${res.anatomy_name}`} />
+          )}
+          <hr className="m-2" />
+          <Typography className="subtitle1">Project</Typography>
+          {results?.project_filters.map((res) =>
+            <SearchFilter key={`ID:${res.project_name}`} id={`anatomy:${res.project_name}`} count={res.count} label={`${res.project_name}`} />
           )}
 
         </>

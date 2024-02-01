@@ -15,10 +15,21 @@ select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english'
 select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer');
 select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain');
 
+select dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
+biosample_local_id from c2m2.ffl2_biosample where searchable @@ websearch_to_tsquery('english', 'blood');
+select count(*) from (select dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
+biosample_local_id from c2m2.ffl2_biosample where searchable @@ websearch_to_tsquery('english', 'blood'));
+
 --- add a filter on anatomy
 select project_name,anatomy_name,disease_name,subject_local_id,dcc_name from 
 c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain') and 
 anatomy_name ilike '%liver%';
+
+--- to debug whu null was showing up in DCC name/abbreviation
+--- join with project_in_project was needed since parent_project_id_namespace is what is connected to dcc.project_id_namespace
+--- hmp has nested parent-child project structure
+
+select * from c2m2.project_in_project where child_project_id_namespace ilike '%hmp%';
 
 --- kept here for reference
 

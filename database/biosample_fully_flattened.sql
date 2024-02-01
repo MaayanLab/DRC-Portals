@@ -105,8 +105,7 @@ from c2m2.fl_biosample
 
 --- JOIN ALL TABLES --- full outer join or inner join or left join or right join?
 
-    left join c2m2.dcc
-        on (c2m2.fl_biosample.project_id_namespace = c2m2.dcc.project_id_namespace)
+    --- Moved dcc to after project & project_in_project
 
     left join c2m2.anatomy
         on (c2m2.fl_biosample.anatomy = c2m2.anatomy.id)
@@ -130,7 +129,22 @@ from c2m2.fl_biosample
         c2m2.fl_biosample.project_id_namespace = c2m2.project.id_namespace) 
         /* we are not defining the new table fl_biosample; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
-    
+
+    /* Mano: 2024/01/31: added project_in_project else cannot link to dcc ; without this was getting null for dcc */
+    left join c2m2.project_in_project
+        on (c2m2.project_in_project.child_project_local_id = c2m2.project.local_id and
+        c2m2.project_in_project.child_project_id_namespace = c2m2.project.id_namespace) 
+
+    /* Mano: 2024/01/31: Moved dcc to here. */
+    /* If only single project then project_in_project will be empty (only header row, so, 
+    use OR to match with project.project.id_namespace. Should we require that there be at least one parent (dummy) project. */
+    /* HMP has complex parent-child project structure; so don't match on project_local_id */
+    left join c2m2.dcc
+        on (( ---c2m2.project_in_project.parent_project_local_id = c2m2.dcc.project_local_id and
+        c2m2.project_in_project.parent_project_id_namespace = c2m2.dcc.project_id_namespace) OR 
+            (---c2m2.project.local_id = c2m2.dcc.project_local_id and
+        c2m2.project.id_namespace = c2m2.dcc.project_id_namespace))
+
     left join c2m2.subject /* Could right-join make more sense here; likely no */
         on (c2m2.fl_biosample.subject_local_id = c2m2.subject.local_id and
         c2m2.fl_biosample.project_id_namespace = c2m2.subject.project_id_namespace)
