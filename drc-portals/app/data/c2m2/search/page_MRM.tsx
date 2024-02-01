@@ -3,6 +3,7 @@ import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
+import FilterSet from "./FilterSet"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
@@ -15,6 +16,12 @@ import Link from "next/link";
 import { relayout } from "plotly.js";
 
 type PageProps = { searchParams: Record<string, string> }
+
+type FilterObject = {
+  id: string;
+  name: string;
+  count: number;
+};
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return {
@@ -37,7 +44,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
       }
       if (t.entity_type) {
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        if(t.entity_type !== "null"){
+        if(t.entity_type !== "Unspecified"){ // was using "null"
           typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
         } else{
           typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
@@ -77,8 +84,15 @@ export default async function Page(props: PageProps) {
       }
       if (t.entity_type) {
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+        if (t.entity_type !== "null") { 
+          typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+        } else {
+          typeFilters[t.type].push(`"allres"."${t.type}_name" is null`);
+        }
       }
+      // if (t.entity_type) {
+      //   typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+      // }
     });
 
     for (const type in typeFilters) {
@@ -172,22 +186,25 @@ allres AS (
   GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description
 ),
 dcc_name_count AS (
-  SELECT dcc_name, dcc_abbreviation, COUNT(*) AS count 
+  SELECT dcc_name, SPLIT_PART(dcc_abbreviation, '_', 1) as dcc_abbreviation, COUNT(*) AS count 
   FROM allres 
   GROUP BY dcc_name, dcc_abbreviation ORDER BY dcc_abbreviation, dcc_name
 ),
 taxonomy_name_count AS (
-  SELECT taxonomy_name, COUNT(*) AS count 
+  /* SELECT taxonomy_name, COUNT(*) AS count */
+  SELECT CASE WHEN taxonomy_name IS NULL THEN 'Unspecified' ELSE taxonomy_name END AS taxonomy_name, COUNT(*) AS count
   FROM allres 
   GROUP BY taxonomy_name ORDER BY taxonomy_name
 ),
 disease_name_count AS (
-  SELECT disease_name, COUNT(*) AS count 
+  /* SELECT disease_name, COUNT(*) AS count */
+  SELECT CASE WHEN disease_name IS NULL THEN 'Unspecified' ELSE disease_name END AS disease_name, COUNT(*) AS count
   FROM allres 
   GROUP BY disease_name ORDER BY disease_name
 ),
 anatomy_name_count AS (
-  SELECT anatomy_name, COUNT(*) AS count 
+  /* SELECT anatomy_name, COUNT(*) AS count  */
+  SELECT CASE WHEN anatomy_name IS NULL THEN 'Unspecified' ELSE anatomy_name END AS anatomy_name, COUNT(*) AS count
   FROM allres 
   GROUP BY anatomy_name ORDER BY anatomy_name
 ),
@@ -196,8 +213,9 @@ project_name_count AS (
   FROM allres 
   GROUP BY project_name ORDER BY project_name
 )
+
 SELECT
-(SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10) , 
+(SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10), 
   (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
   (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
   (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
@@ -214,35 +232,57 @@ console.log(results.taxonomy_filters)
 
   const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  const DccFilters: FilterObject[] = results?.dcc_filters.map((dccFilter) => ({
+    id: dccFilter.dcc_abbreviation,
+    name: dccFilter.dcc_name, // Use dcc_abbreviation as the name
+    count: dccFilter.count,
+  }));
+  const TaxonomyFilters: FilterObject[] = results?.taxonomy_filters.map((taxFilter) => ({
+    id: taxFilter.taxonomy_name, // Use taxonomy_name as id
+    name: taxFilter.taxonomy_name,
+    count: taxFilter.count,
+  }));
+  const DiseaseFilters: FilterObject[] = results?.disease_filters.map((disFilter) => ({
+    id: disFilter.disease_name, // Use disease_name as id
+    name: disFilter.disease_name,
+    count: disFilter.count,
+  }));
+  const AnatomyFilters: FilterObject[] = results?.anatomy_filters.map((anaFilter) => ({
+    id: anaFilter.anatomy_name, // Use anatomy_name as id
+    name: anaFilter.anatomy_name,
+    count: anaFilter.count,
+  }));
+  const ProjectFilters: FilterObject[] = results?.project_filters.map((projFilter) => ({
+    id: projFilter.project_name, // Use anatomy_name as id
+    name: projFilter.project_name,
+    count: projFilter.count,
+  }));
+  console.log("Length of DCC Filters")
+  console.log(DccFilters.length)
   return (
     <ListingPageLayout
-    count={results?.records.length} // This matches with #records in the table on the right (without filters applied)
-    filters={
+      count={results?.records.length} // This matches with #records in the table on the right (without filters applied)
+      filters={
         <>
-          <Typography className="subtitle1">CF Program/DCC</Typography>
-          {results?.dcc_filters.map((res) =>
-            <SearchFilter key={`ID:${res.dcc_name}`} id={`dcc:${res.dcc_name}`} count={res.count} label={`${res.dcc_abbreviation}`} />
-          )}
+          {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
+          <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="DCC" />
           <hr className="m-2" />
-          <Typography className="subtitle1">Taxonomy</Typography>
-          {results?.taxonomy_filters.map((res) =>
-            <SearchFilter key={`ID:${res.taxonomy_name}`} id={`taxonomy:${res.taxonomy_name}`} count={res.count} label={`${res.taxonomy_name}`} />
-          )}
+          {/* <Typography className="subtitle1">Taxonomy</Typography> */}
+          <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Taxonomy" />
           <hr className="m-2" />
-          <Typography className="subtitle1">Disease</Typography>
-          {results?.disease_filters.map((res) =>
-            <SearchFilter key={`ID:${res.disease_name}`} id={`disease:${res.disease_name}`} count={res.count} label={`${res.disease_name}`} />
-          )}
+          {/* <Typography className="subtitle1">Disease</Typography> */}
+          <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" />
           <hr className="m-2" />
-          <Typography className="subtitle1">Anatomy</Typography>
-          {results?.anatomy_filters.map((res) =>
-            <SearchFilter key={`ID:${res.anatomy_name}`} id={`anatomy:${res.anatomy_name}`} count={res.count} label={`${res.anatomy_name}`} />
-          )}
+          {/* <Typography className="subtitle1">Anatomy</Typography> */}
+          <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" />
           <hr className="m-2" />
-          <Typography className="subtitle1">Project</Typography>
-          {results?.project_filters.map((res) =>
+          <Typography variant="h5">Core filters</Typography>
+          <hr className="m-2" />
+          {/* <Typography className="subtitle1">Project</Typography> */}
+          <FilterSet key={`ID:$project`} id={`project`} filterList={ProjectFilters} filter_title="Project" />
+          {/* results?.project_filters.map((res) =>
             <SearchFilter key={`ID:${res.project_name}`} id={`anatomy:${res.project_name}`} count={res.count} label={`${res.project_name}`} />
-          )}
+      ) */}
 
         </>
       }
@@ -257,7 +297,7 @@ console.log(results.taxonomy_filters)
           </Button>
         </Link>
       }
-    >      
+    >
       {/* Total matching records across C2M2: {total_matches}. 
       Download fully expanded table allres_full. Download compact table allres.<br></br>
       LIST THE FILTERS APPLIED [IF POSSIBLE, ALLOW THE FILTERS TO BE DESELECTED FROM HERE.] */}
@@ -278,19 +318,19 @@ console.log(results.taxonomy_filters)
         rows={results ? results?.records.map(res => [
           // [
           //<>{res.dcc_abbreviation}</>,
-          <Description description={res.dcc_abbreviation} />,
+          <Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
           <>Taxonomy: {res.taxonomy_name},<br></br>
-          Disease: {res.disease_name},<br></br>
-          Anatomy: {res.anatomy_name}</>,
+            Disease: {res.disease_name},<br></br>
+            Anatomy: {res.anatomy_name}</>,
           <>Subjects: 10<br></br>
-          Biosamples: 20<br></br>
-          Collections: 40<br></br>
-          { /* #Matches: {res.count} */ }
+            Biosamples: 20<br></br>
+            Collections: 40<br></br>
+            { /* #Matches: {res.count} */}
           </>,
           //]
         ]) : []}

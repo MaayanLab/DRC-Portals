@@ -32,7 +32,7 @@
 import React from 'react'
 import { useSearchParams } from "next/navigation"
 import Link from 'next/link'
-import { Checkbox, FormControlLabel, Typography, Accordion, AccordionSummary, AccordionDetails, TextField, Autocomplete } from '@mui/material'
+import { Checkbox, FormControlLabel, Typography, TextField, Autocomplete } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function SearchFilter({ id, label, count }: { id: string, label: string, count: number }) {
@@ -53,39 +53,5 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
       <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
     </Link>
   )
-}
-
-export function FilterAccordion({ id, label, count }: { id: string, label: string, count: number }) {
-  return (
-    <Accordion>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel1a-content"
-        id="panel1a-header"
-      >
-        <Typography>Filters</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Autocomplete
-          multiple
-          id="checkbox-filters"
-          options={filterOptions}
-          getOptionLabel={(option) => option.label}
-          renderInput={(params) => (
-            <TextField {...params} label="Filter Options" />
-          )}
-          onChange={(event, newValue) => {
-            console.log(newValue);
-          }}
-        />
-      </AccordionDetails>
-      <AccordionDetails>
-        { }
-        <SearchFilter id="filter1" label="Filter 1" count={10} />
-        <SearchFilter id="filter2" label="Filter 2" count={20} />
-        { }
-      </AccordionDetails>
-    </Accordion>
-  );
 }
 
