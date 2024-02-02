@@ -5,8 +5,9 @@ import { getItem } from './item'
 
 export default async function Layout(props: {
   children: React.ReactNode,
-  assertions: React.ReactNode,
+  analyze: React.ReactNode,
   gene_sets: React.ReactNode,
+  assertions: React.ReactNode,
   params: { entity_type: string, id: string },
 }) {
   const item = await getItem(props.params.id)
@@ -16,6 +17,7 @@ export default async function Layout(props: {
       subtitle={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
       description={format_description(item.node.description)}
     >
+      {props.analyze}
       {props.children}
       {props.gene_sets}
       {props.assertions}
