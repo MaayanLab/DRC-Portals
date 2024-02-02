@@ -39,7 +39,7 @@ export default function Status() {
                     >
                         <CloseIcon fontSize="inherit" />
                     </IconButton>
-                } sx={{fontSize:14}}>Upload in Progress!</Alert>}
+                } sx={{fontSize:14}}>{status.loading.message}</Alert>}
             {open && status.success && <Alert onClose={() => { }}
                 action={
                     <IconButton
