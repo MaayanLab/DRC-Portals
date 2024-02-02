@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import { FileDrop } from './FileDrop'
 import ThemedStack from './ThemedStack';
 import Status from './Status';
-import DCCSelect from './DCCSelect';
+import { DCCSelect, FileTypeSelect } from './DCCSelect';
 import { $Enums } from '@prisma/client';
 import { Box, Link, Stack } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
@@ -54,7 +54,10 @@ export const metaDataAssetOptions = [
 
 export type S3UploadStatus = {
   success?: boolean,
-  loading?: boolean,
+  loading?: {
+    selected: boolean;
+    message: string
+  },
   error?: {
     selected: boolean;
     message: string
@@ -114,13 +117,15 @@ export function S3UploadForm(user: {
 ) {
 
   const [status, setStatus] = React.useState<S3UploadStatus>({})
-  const [uploadedfiles, setUploadedfiles] = React.useState<FileList | []>([]);
+  const [uploadedfile, setUploadedfile] = React.useState<File | null>(null);
   const [progress, setProgress] = React.useState(0);
 
 
-  const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>, progressAlloc: number, fileNumber: number) => {
+
+  const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>) => {
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
     const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
+    setStatus(() => ({ loading: {selected: true, message: 'Hashing File...'} }))
     for (let start = 0; start < file.size; start += chunkSize) {
       const end = Math.min(start + chunkSize, file.size)
       await new Promise<void>((resolve, reject) => {
@@ -129,17 +134,25 @@ export function S3UploadForm(user: {
           hash.update(new Uint8Array(fr.result as ArrayBuffer));
           resolve();
         }
+
+        fr.onprogress = (data) => {
+          if (data.lengthComputable) {                                            
+              const newProgress = (start / end) * 100;
+              setProgress(newProgress)
+          }
+      }
         fr.readAsArrayBuffer(file.slice(start, end))
       })
     }
     const checksumHash = hash.getHash('B64')
+    console.log(checksumHash)
     let date = new Date().toJSON().slice(0, 10)
     let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
-    setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    // setProgress(oldProgress => oldProgress + progressAlloc / 3)
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
-    setProgress(oldProgress => oldProgress + progressAlloc / 3)
+    // setProgress(oldProgress => oldProgress + progressAlloc / 3)
 
-
+    setStatus(() => ({ loading: {selected: true, message: 'Uploading File to S3'} }))
     await axios.put(presignedurl, file, {
       headers: {
         'Content-Type': 'application/octet-stream',
@@ -147,7 +160,7 @@ export function S3UploadForm(user: {
       },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
-          const newProgress = ((fileNumber - 1) * progressAlloc) + ((0.667 * progressAlloc)) + ((progressEvent.loaded / progressEvent.total) * (0.333 * progressAlloc))
+          const newProgress = ((progressEvent.loaded / progressEvent.total) * 100)
           setProgress(newProgress);
         }
       },
@@ -163,46 +176,45 @@ export function S3UploadForm(user: {
   return (
     <form onSubmit={async (evt) => {
       evt.preventDefault()
-      setStatus(() => ({ loading: true }))
+      setStatus(() => ({ loading: {selected: true, message: 'File Upload in Progress'} }))
       const formData = new FormData(evt.currentTarget)
       let dcc = formData.get('dcc')?.toString()
-      if (uploadedfiles.length === 0) return setStatus(({ error: { selected: true, message: 'No files selected!' } }))
-      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-        if (parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type) === '') {
+      if (!uploadedfile) return setStatus(({ error: { selected: true, message: 'No files selected!' } }))
+        if (parseFileTypeClient(uploadedfile.name, uploadedfile.type) === '') {
           setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .(x)mt' } }))
           return
         }
-      }
 
-      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
-        if (uploadedfiles[i].size > 5000000000) {
+
+  
+        if (uploadedfile.size > 5000000000) {
           setStatus(({ error: { selected: true, message: 'File too large! Make sure that each file is less than 5GB' } }))
           return
         }
-      }
+    
 
-      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+
         if (!dcc) throw new Error('no dcc entered')
-        let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
-        const foundVersions = await findFileAsset(filetype, dcc, uploadedfiles[i].name)
+        let filetype = parseFileTypeClient(uploadedfile.name, uploadedfile.type)
+        const foundVersions = await findFileAsset(filetype, dcc, uploadedfile.name)
         if (foundVersions.length > 0) {
-          setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfiles[i].name} already exists in database. Rename file to upload` } }));
+          setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfile.name} already exists in database. Rename file to upload` } }));
           return
-        }
+        
       }
 
-      for (var i = 0, l = uploadedfiles.length; i < l; i++) {
+
         try {
-          let filetype = parseFileTypeClient(uploadedfiles[i].name, uploadedfiles[i].type)
+          let filetype = parseFileTypeClient(uploadedfile.name, uploadedfile.type)
           if (!dcc) throw new Error('no dcc entered')
-          let digest = await uploadAndComputeSha256(uploadedfiles[i], filetype, dcc, setProgress, 100 / (uploadedfiles.length), i + 1)
-          await saveChecksumDb(digest, uploadedfiles[i].name, uploadedfiles[i].size, filetype, dcc)
+          let digest = await uploadAndComputeSha256(uploadedfile, filetype, dcc, setProgress)
+          await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, filetype, dcc)
         }
         catch (error) {
           console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
           return
         }
-      }
+      
       setStatus(() => ({ success: true }))
       setProgress(0)
     }}>
@@ -227,28 +239,36 @@ export function S3UploadForm(user: {
             <br></br>
             <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
           </Typography>
-          <Grid container spacing={4} justifyContent="center" sx={{ p: 5 }}>
-            <TextField
-              label="Uploader Name"
-              name='name'
-              disabled
-              defaultValue={user.name}
-              inputProps={{ style: { fontSize: 16 } }} // font size of input text
-              InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
-            />
-            <TextField
-              label="Email"
-              name='email'
-              disabled
-              defaultValue={user.email}
-              inputProps={{ style: { fontSize: 16 } }}
-              InputLabelProps={{ style: { fontSize: 16 } }}
-              sx={{ mx: 3 }}
-            />
-            <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+          <Grid container spacing={2} justifyContent="center" sx={{ p: 5 }}>
+            <Grid item>
+              <TextField
+                label="Uploader Name"
+                name='name'
+                disabled
+                defaultValue={user.name}
+                inputProps={{ style: { fontSize: 16 } }} // font size of input text
+                InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
+              />
+            </Grid>
+            <Grid item>
+              <TextField
+                label="Email"
+                name='email'
+                disabled
+                defaultValue={user.email}
+                inputProps={{ style: { fontSize: 16 } }}
+                InputLabelProps={{ style: { fontSize: 16 } }}
+              />
+            </Grid>
+            <Grid item>
+              <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+            </Grid>
+            <Grid item>
+              <FileTypeSelect />
+            </Grid>
           </Grid>
           <ThemedStack>
-            <FileDrop name="currentData" setUploadedFiles={setUploadedfiles} />
+            <FileDrop name="currentData" setUploadedFile={setUploadedfile} />
           </ThemedStack>
           <Status />
           <div className='flex justify-center'>
