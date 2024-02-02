@@ -30,7 +30,8 @@ export async function GET(request: Request, { params }: { params: { object_id: s
     "id": object.id,
     "name": object.dcc_asset.fileAsset.filename,
     "self_uri": `${public_url.replace(/^https?/g, 'drs')}/${object.id}`,
-    "size": object.dcc_asset.fileAsset.size,
+    // TODO: worry about overflow (?)
+    "size": Number(object.dcc_asset.fileAsset.size),
     // TODO
     "created_time": object.dcc_asset.lastmodified.toISOString(),
     "updated_time": object.dcc_asset.lastmodified.toISOString(),
