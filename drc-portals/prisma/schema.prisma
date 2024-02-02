@@ -326,10 +326,14 @@ model C2M2FileNode {
   c2m2_datapackage_id String    @db.Uuid
   creation_time       DateTime? @db.Timestamptz()
   persistent_id       String?
+  access_url          String?
   size_in_bytes       BigInt?
   file_format         String?
   data_type           String?
   assay_type          String?
+  mime_type           String?
+  md5                 String?
+  sha256              String?
 
   node             Node            @relation(fields: [id], references: [id])
   c2m2_datapackage C2M2Datapackage @relation(fields: [c2m2_datapackage_id], references: [id], onDelete: Cascade)
