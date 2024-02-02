@@ -1,10 +1,9 @@
 import prisma from "@/lib/prisma"
 
-export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
-  if (params.access_id !== 'primary') return Response.json({ 'error': 'Not Found' }, { status: 404 })
+async function getDccAssetUrl(object_id: string) {
   const object = await prisma.dCCAssetNode.findUnique({
     where: {
-      id: params.object_id,
+      id: object_id,
     },
     select: {
       dcc_asset: {
@@ -18,8 +17,14 @@ export async function GET(request: Request, { params }: { params: { object_id: s
       },
     },
   })
-  if (!object?.dcc_asset.fileAsset?.link) return Response.json({ 'error': 'Not Found' }, { status: 404 })
-  return Response.json({
-    url: object.dcc_asset.fileAsset.link,
-  })
+  if (!object?.dcc_asset.fileAsset?.link) return null
+  return { url: object.dcc_asset.fileAsset.link }
+}
+
+export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
+  if (params.access_id !== 'primary') return Response.json({ msg: 'Access ID Not Found', status_code: 404 }, { status: 404 })
+  let access_url
+  access_url = await getDccAssetUrl(params.object_id)
+  if (access_url) return Response.json(access_url)
+  return Response.json({ 'error': 'Not Found' }, { status: 404 })
 }
