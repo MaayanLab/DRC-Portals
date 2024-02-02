@@ -70,7 +70,7 @@ async function getC2M2File(object_id: string) {
   if (!object?.node.label || !object.access_url) return null
   if (object.access_url.startsWith('drs://')) {
     // redirect request to the DRS
-    return Response.redirect(object.access_url, 307)
+    return Response.redirect(object.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, 'https://$1/ga4gh/drs/v1/objects/$2'), 307)
   }
   return Response.json({
     "id": object_id,
