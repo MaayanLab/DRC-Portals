@@ -5,8 +5,8 @@ import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
 import FilterSet from "./FilterSet"
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
+import ListingPageLayout from "@/app/data/c2m2/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -311,7 +311,7 @@ console.log(results.taxonomy_filters)
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={0}
+        count={results?.records.length}
         columns={[
           <>DCC</>,
           <>Project Description</>,
