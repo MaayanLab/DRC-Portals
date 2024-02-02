@@ -3,7 +3,6 @@
  *  and the button defines what to show.
  */
 import Image from "next/image"
-import Link from "next/link"
 import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
 import GDLPAIcon from '@/public/img/icons/gdlpa.png'
@@ -22,7 +21,11 @@ const modules: {
       title="CFDE DD-Knowledge Graph"
       description={<>The CFDE Data Distillery Knowledge Graph contains entities and relationships across the CFDE. View {item.node.label}'s neighborhood in the knowledge graph.</>}
     >
-      <Button color="secondary" size="small" disabled>Coming Soon</Button>
+      <Button
+        color="secondary"
+        size="small"
+        disabled
+      >Coming Soon</Button>
     </CardButton>,
   },
   {
@@ -58,9 +61,12 @@ const modules: {
         title="CFDE Gene-Centric Appyter"
         description={<>The CFDE Gene Centric Appyter Resolves and Displays Gene-Centric information from CFDE APIs. Execute the Appyter using {item.node.label}.</>}
       >
-      <Link href={`https://appyters.maayanlab.cloud/CFDE-Gene-Partnership/#?args.gene=${encodeURIComponent(item.node.label)}&submit`} legacyBehavior target="_blank">
-        <Button color="secondary" size="small">Submit</Button>
-      </Link>
+      <Button
+        color="secondary"
+        size="small"
+        href={`https://appyters.maayanlab.cloud/CFDE-Gene-Partnership/#?args.gene=${encodeURIComponent(item.node.label)}&submit`}
+        target="_blank"
+      >Submit</Button>
     </CardButton>,
   },
   {
@@ -70,9 +76,12 @@ const modules: {
       title="GDLPA Landing Pages Links"
       description={<>The Gene and Drug Landing Page Aggregator (GDLPA) finds links to primary and secondary source information from CFDE and other resources. Discover landing pages for {item.node.label}.</>}
     >
-      <Link href={`https://cfde-gene-pages.cloud/gene/${encodeURIComponent(item.node.label)}`} legacyBehavior target="_blank">
-        <Button color="secondary" size="small">Submit</Button>
-      </Link>
+      <Button
+        color="secondary"
+        size="small"
+        href={`https://cfde-gene-pages.cloud/gene/${encodeURIComponent(item.node.label)}`}
+        target="_blank"
+      >Submit</Button>
     </CardButton>,
   },
   {
@@ -82,9 +91,12 @@ const modules: {
       title="GDLPA Landing Pages Links"
       description={<>The Gene and Drug Landing Page Aggregator (GDLPA) finds links to primary and secondary source information from CFDE and other resources. Discover landing pages for {item.node.label}.</>}
     >
-      <Link href={`https://cfde-gene-pages.cloud/drug/${encodeURIComponent(item.node.label)}`} legacyBehavior target="_blank">
-        <Button color="secondary" size="small">Submit</Button>
-      </Link>
+      <Button
+        color="secondary"
+        size="small"
+        href={`https://cfde-gene-pages.cloud/drug/${encodeURIComponent(item.node.label)}`}
+        target="_blank"
+      >Submit</Button>
     </CardButton>,
   },
 ]
