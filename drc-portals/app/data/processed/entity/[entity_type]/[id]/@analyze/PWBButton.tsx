@@ -24,7 +24,7 @@ export default function PWBButton(props: React.PropsWithChildren<{ title: React.
           body: JSON.stringify(props.body),
         })
         const res = await req.json()
-        window.open(`https://playbook-workflow-builder.cloud/graph/${res}/extend`, '_blank')
+        window.open(`https://playbook-workflow-builder.cloud/graph/${res}`, '_blank')
       }}
     >Submit</Button>
   </CardButton>
