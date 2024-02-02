@@ -8,7 +8,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
   return (
     <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
       <Grid item xs={12} sx={{marginBottom: 5}}>
-        <Typography variant="h2" color="secondary" className="whitespace-nowrap">Analyze</Typography>
+        <Typography variant="h2" color="secondary">Analyze</Typography>
       </Grid>
       <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {modules
