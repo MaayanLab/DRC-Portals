@@ -37,26 +37,22 @@ function Item(props: BoxProps) {
 
 
 
-function FileList(prop: { files: string[], setFile: React.Dispatch<React.SetStateAction<FileList | []>>, fileObjects: FileList | [] }) {
+function FileList(prop: { file: string, setFile: React.Dispatch<React.SetStateAction<File | null>>, fileObject: File | null}) {
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(false);
   const [fileUploaded, setFileUploaded] = React.useState<boolean>(false);
 
-  function handleDelete(index: number, fileObjects: FileList | [], setFile: React.Dispatch<React.SetStateAction<FileList | []>>) {
-    if (fileObjects.length > 0) {
-      const fileObjectArray = Array.from(fileObjects)
-      const newFileList = fileObjectArray.filter(file => file.name != fileObjectArray[index].name);
-      setFile(arrayToFileList(newFileList))
-    }
+  function handleDelete(setFile: React.Dispatch<React.SetStateAction<File | null>>) {
+      setFile(null)
   }
 
   useEffect(() => {
-    if (prop.files.length > 0) {
+    if (prop.file) {
       setFileUploaded(true)
     } else {
       setFileUploaded(false)
     }
-  }, [prop.files]);
+  }, [prop.file]);
 
   return (<Grid>
     <Typography style={{ display: 'inline-block' }} variant="body2" component="span">
@@ -64,10 +60,9 @@ function FileList(prop: { files: string[], setFile: React.Dispatch<React.SetStat
     </Typography>
 
     {fileUploaded && <List dense={dense}>
-      {prop.files.map((file, index) => (
-        <ListItem key={index}
+        <ListItem
           secondaryAction={
-              <IconButton edge="end" aria-label="delete" onClick={() => { handleDelete(index, prop.fileObjects, prop.setFile) }}>
+              <IconButton edge="end" aria-label="delete" onClick={() => { handleDelete(prop.setFile) }}>
                 <DeleteIcon />
               </IconButton>
 
@@ -79,13 +74,12 @@ function FileList(prop: { files: string[], setFile: React.Dispatch<React.SetStat
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={file.toString()}
+            primary={prop.file.toString()}
             secondary={secondary ? 'Secondary text' : null}
             primaryTypographyProps={{ fontSize: '15px' }}
           />
 
-        </ListItem>)
-      )}
+        </ListItem>
     </List>}
   </Grid>);
 
@@ -100,14 +94,18 @@ export function arrayToFileList(arrayOfFiles: File[]) {
 }
 
 
-export function FileDrop({ name, setUploadedFiles }: { name: string, setUploadedFiles: React.Dispatch<React.SetStateAction<FileList | []>> }) {
+export function FileDrop({ name, setUploadedFile }: { name: string, setUploadedFile: React.Dispatch<React.SetStateAction< File | null>> }) {
   const [isOver, setIsOver] = React.useState(false);
-  const [files, setFile] = React.useState<FileList | []>([]);
-  const renderedFile = React.useMemo(() => files != null ? Array.from(files).map((file: File) => { return file.name }) : [], [files])
+  // const [files, setFile] = React.useState<FileList | []>([]);
+  // const renderedFile = React.useMemo(() => files != null ? Array.from(files).map((file: File) => { return file.name }) : [], [files])
+  const [file, setFile] = React.useState<File | null>(null);
+  const renderedFile = React.useMemo(() => ((file != null) ? file.name : ''), [file])
 
   React.useEffect(()=> {
-    setUploadedFiles(files)
-  }, [files])
+    if (file) {
+      setUploadedFile(file)
+    }
+  }, [file])
 
   const commonStyles = {
     bgcolor: 'background.paper',
@@ -152,13 +150,10 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
             onDragLeave={() => { setIsOver(false) }}
             onDrop={() => { setIsOver(false) }}
             type="file"
-            multiple
             name={name}
             onChange={evt => {
-              const oldFileList = files
-              if (evt.target.files != null) {
-                const newFileList = Array.from(oldFileList).concat(...Array.from(evt.target.files))
-                setFile(arrayToFileList(newFileList))
+              if (evt.target.files) {
+                setFile(evt.target.files[0])
               }
             }}
           />
@@ -174,7 +169,7 @@ export function FileDrop({ name, setUploadedFiles }: { name: string, setUploaded
         </FormControl>
       </Item>
       <Item>
-        <FileList files={renderedFile} setFile={setFile} fileObjects={files} />
+        <FileList file={renderedFile} setFile={setFile} fileObject={file} />
       </Item>
     </>
   );
