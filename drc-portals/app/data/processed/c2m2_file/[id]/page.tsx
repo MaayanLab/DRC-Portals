@@ -11,6 +11,7 @@ const getItem = cache((id: string) => prisma.c2M2FileNode.findUniqueOrThrow({
   where: { id },
   select: {
     persistent_id: true,
+    access_url: true,
     size_in_bytes: true,
     file_format: true,
     assay_type: true,
@@ -58,6 +59,7 @@ export default async function Page(props: PageProps) {
             <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
             : item.persistent_id,
         } : null,
+        process.env.PUBLIC_URL && item.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
         item.size_in_bytes ? {
           label: 'Size in Bytes',
           value: item.size_in_bytes.toLocaleString(),
