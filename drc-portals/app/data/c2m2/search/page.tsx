@@ -5,8 +5,8 @@ import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
 import FilterSet from "./FilterSet"
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
+import ListingPageLayout from "../ListingPageLayout";
 import { Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -22,6 +22,10 @@ type FilterObject = {
   name: string;
   count: number;
 };
+
+interface HashTable {
+  [key: string]: string;
+}
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return {
@@ -265,9 +269,27 @@ console.log(results.taxonomy_filters)
   }));
   console.log("Length of DCC Filters")
   console.log(DccFilters.length)
+  const dccIconTable: HashTable = {};
+
+  // Populate the hash table with key-value pairs
+  dccIconTable["4DN"] = "/img/4DN.png";
+  dccIconTable["ERCC"] = "/img/exRNA.png";
+  dccIconTable["GTEx"] = "/img/GTEx.png";
+  dccIconTable["GlyGen"] = "/img/glygen-2023-workshop.png";
+  dccIconTable["HMP"] = "/img/HMP.png";
+  dccIconTable["HuBMAP"] = "/img/HuBMAP.png";
+  dccIconTable["IDG"] = "/img/IDG.png ";
+  dccIconTable["KFDRC"] = "/img/KOMP2.png";
+  dccIconTable["LINCS"] = "/img/LINCS.gif";
+  dccIconTable["MW"] = "/img/Metabolomics.png";
+  dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
+  dccIconTable["SPARC"] = "/img/SPARC.svg";
+  
+
   return (
     <ListingPageLayout
       count={results?.records.length} // This matches with #records in the table on the right (without filters applied)
+      searchText={searchParams.q}
       filters={
         <>
           {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
@@ -324,7 +346,8 @@ console.log(results.taxonomy_filters)
         rows={results ? results?.records.map(res => [
           // [
           //<>{res.dcc_abbreviation}</>,
-          <Description description={res.dcc_abbreviation.split("_")[0]} />,
+          <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
+          //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,

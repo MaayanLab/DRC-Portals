@@ -31,11 +31,15 @@
 
 import React from 'react'
 import { useSearchParams } from "next/navigation"
+import { useState, useEffect } from 'react';
 import Link from 'next/link'
 import { Checkbox, FormControlLabel, Typography, TextField, Autocomplete } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-export default function SearchFilter({ id, label, count }: { id: string, label: string, count: number }) {
+
+export default function SearchFilter({ id, label, count, props }: { id: string, label: string, count: number, props: React.HTMLAttributes<HTMLLIElement> }) {
   const rawSearchParams = useSearchParams()
   const { searchParams, currentFilterSet } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)
@@ -48,9 +52,29 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
     return { searchParams, currentFilterSet }
   }, [id, rawSearchParams])
 
+  const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+  const checkedIcon = <CheckBoxIcon fontSize="small" />;
+  console.log("*********");
+  console.log("currentFilterSet state");
+  console.log(currentFilterSet);
+  console.log("*********");
   return (
-    <Link href={`?${searchParams.toString()}`}>
-      <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
+    <Link href={`?${searchParams.toString()}`}>  
+        
+      <FormControlLabel 
+        control={
+          <li {...props}>
+          <Checkbox 
+            icon={icon}
+            checkedIcon={checkedIcon}
+            style={{ marginRight: 8 }}
+            checked={currentFilterSet}
+          />
+           </li>
+        }   
+        label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>}  
+      /> 
+       
     </Link>
   )
 }
