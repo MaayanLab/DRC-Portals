@@ -333,7 +333,7 @@ console.log(results.taxonomy_filters)
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={0}
+        count={results?.records.length}
         columns={[
           <>DCC</>,
           <>Project Description</>,
