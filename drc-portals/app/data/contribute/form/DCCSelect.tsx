@@ -63,7 +63,7 @@ export function FileTypeSelect() {
         >File Asset Type</InputLabel>
         <Select
           labelId="select-file-asset-type"
-          id="simple-select"
+          id="filetype-select"
           value={filetype}
           onChange={handleChange}
           autoWidth

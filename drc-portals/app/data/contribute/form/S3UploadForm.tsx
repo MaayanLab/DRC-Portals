@@ -13,38 +13,43 @@ import ThemedStack from './ThemedStack';
 import Status from './Status';
 import { DCCSelect, FileTypeSelect } from './DCCSelect';
 import { $Enums } from '@prisma/client';
-import { Box, Link, Stack } from '@mui/material';
+import { Box, Link, List, ListItem, Stack } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
 import AssetInfoDrawer from '../AssetInfo';
 import HelpIcon from '@mui/icons-material/Help';
 import axios from "axios";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 export const metaDataAssetOptions = [
   {
     asset: 'XMT',
-    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character. All uploaded files with an extension that ends with the letters “mt” are considered as XMT files by the ingestion system.
+    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character.
     </Typography>,
     example: <Link href="https://cfde-drc.s3.amazonaws.com/GTEx/XMT/2023-03-10/GTEx_XMT_2023-03-10_GTEx_Tissues_V8_2023.gmt" color="secondary" target="_blank">GTEx_Tissues_V8_2023.gmt</Link>
   },
   {
     asset: 'C2M2',
     description:
-      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Standards and Protocols page of the CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the ingestion system.
+      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Standards and Protocols page of the CFDE Workbench portal on how to create C2M2 files. 
       </Typography>,
     example: <Link href="https://cfde-drc.s3.amazonaws.com/MoTrPAC/C2M2/2023-07-14/MoTrPAC_C2M2_2023-07-14_datapackage.zip" color="secondary">datapackage.zip</Link>
   },
   {
     asset: 'KG Assertions',
     description: <Typography fontSize={12}>A knowledge graph is a network that illustrates the relationship between different entities which may come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the entities represented in the knowledge graph e.g GO Ontology terms and edges characterize the relationship between nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and edges that could be used to create a knowledge graph.
-      For example, a KG Assertion file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship. All uploaded files with .csv extensions are considered KG Assertion files by the ingestion system.
+      For example, a KG Assertion file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship.
     </Typography>,
     example: <Link href='https://cfde-drc.s3.amazonaws.com/GTEx/KG/2023-10-26/GTEx_KG_2023-10-26_GTEX.edges.csv' target="_blank" color="secondary"><u>GTEX.edges.csv</u></Link>
   },
   {
     asset: 'Attribute Table',
-    description: <Typography fontSize={12}>Attribute tables are files containing tables that describe the relationship between two entities with one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a given row and column is then a value defining nature of the relationship between the row entity and the column entity e.g. the qualitative score of similarity between a given gene and a given tissue type. All uploaded files with .txt extensions are considered Attribute Table files by the ingestion system. </Typography>,
+    description: <Typography fontSize={12}>Attribute tables are files containing tables that describe the relationship between two entities with one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a given row and column is then a value defining nature of the relationship between the row entity and the column entity e.g. the qualitative score of similarity between a given gene and a given tissue type. </Typography>,
     example: <Link href='' color="secondary" target="_blank"><u></u></Link>
   },
 
@@ -67,19 +72,20 @@ export type S3UploadStatus = {
 
 const S3UploadStatusContext = React.createContext({} as S3UploadStatus)
 
-function parseFileTypeClient(filename: string, filetype: string) {
+function parseFileTypeClient(filename: string, filetype: string, enteredFileType: string) {
   let parsedFileType = ''
   let extension = filename.split('.')[1]
   if (extension.slice(-2) === 'mt') {
     parsedFileType = 'XMT'
   } else if (filetype === 'text/csv') {
     parsedFileType = 'KG Assertions'
-  } else if (filetype === 'text/plain') {
+  } else if ((extension === 'h5') || (extension === 'hdf5')) {
     parsedFileType = 'Attribute Table'
   } else if ((filetype === 'zip') || (filetype === 'application/zip') || (filetype === 'application/x-zip') || (filetype === "application/x-zip-compressed")) {
     parsedFileType = 'C2M2'
   }
-  return parsedFileType
+
+  return parsedFileType === enteredFileType ? true : false
 }
 
 async function alternativeHash(file: File) {
@@ -95,6 +101,13 @@ async function alternativeHash(file: File) {
   await computeHash
   const checksumHash = hash.getHash('B64')
   return checksumHash
+}
+
+const assetTypeExtensionMap: { [key: string]: string } = {
+  'KG Assertion': '.csv',
+  'C2M2': '.zip',
+  'XMT': '.gmt or .dmt',
+  'Attribute Table': '.h5'
 }
 
 /**
@@ -119,13 +132,15 @@ export function S3UploadForm(user: {
   const [status, setStatus] = React.useState<S3UploadStatus>({})
   const [uploadedfile, setUploadedfile] = React.useState<File | null>(null);
   const [progress, setProgress] = React.useState(0);
+  const [popOpen, setPopOpen] = React.useState(false)
+  const [fileTypeMatch, setFileTypeMatch] = React.useState({ 'dcc': '', 'filetype': '', 'expected': '', 'parsed': '' })
 
 
 
   const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>) => {
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
     const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
-    setStatus(() => ({ loading: {selected: true, message: 'Hashing File...'} }))
+    setStatus(() => ({ loading: { selected: true, message: 'Hashing File...' } }))
     for (let start = 0; start < file.size; start += chunkSize) {
       const end = Math.min(start + chunkSize, file.size)
       await new Promise<void>((resolve, reject) => {
@@ -136,23 +151,20 @@ export function S3UploadForm(user: {
         }
 
         fr.onprogress = (data) => {
-          if (data.lengthComputable) {                                            
-              const newProgress = (start / end) * 100;
-              setProgress(newProgress)
+          if (data.lengthComputable) {
+            const newProgress = (start / end) * 100;
+            setProgress(newProgress)
           }
-      }
+        }
         fr.readAsArrayBuffer(file.slice(start, end))
       })
     }
     const checksumHash = hash.getHash('B64')
-    console.log(checksumHash)
     let date = new Date().toJSON().slice(0, 10)
     let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
-    // setProgress(oldProgress => oldProgress + progressAlloc / 3)
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
-    // setProgress(oldProgress => oldProgress + progressAlloc / 3)
 
-    setStatus(() => ({ loading: {selected: true, message: 'Uploading File to S3'} }))
+    setStatus(() => ({ loading: { selected: true, message: 'Uploading File to S3...' } }))
     await axios.put(presignedurl, file, {
       headers: {
         'Content-Type': 'application/octet-stream',
@@ -173,40 +185,57 @@ export function S3UploadForm(user: {
   }, [])
 
 
+  const handlePopClose = React.useCallback(() => {
+    setPopOpen(false);
+  }, []);
+
+  const handleContinue = React.useCallback(async () => {
+    setPopOpen(false);
+    setStatus(() => ({ loading: { selected: true, message: 'File Upload in Progress' } }))
+    if (!uploadedfile) return setStatus(({ error: { selected: true, message: 'No files selected!' } }))
+    try {
+      let digest = await uploadAndComputeSha256(uploadedfile, fileTypeMatch.filetype, fileTypeMatch.dcc, setProgress)
+      await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, fileTypeMatch.filetype, fileTypeMatch.dcc)
+    }
+    catch (error) {
+      console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
+      return
+    }
+    setStatus(() => ({ success: true }))
+    setProgress(0)
+  }, [uploadedfile, fileTypeMatch]);
+
+
   return (
     <form onSubmit={async (evt) => {
       evt.preventDefault()
-      setStatus(() => ({ loading: {selected: true, message: 'File Upload in Progress'} }))
       const formData = new FormData(evt.currentTarget)
       let dcc = formData.get('dcc')?.toString()
+      let filetype = formData.get('fileAssetType')?.toString()
+      if (!filetype) throw new Error('no file type entered')
       if (!uploadedfile) return setStatus(({ error: { selected: true, message: 'No files selected!' } }))
-        if (parseFileTypeClient(uploadedfile.name, uploadedfile.type) === '') {
-          setStatus(({ error: { selected: true, message: 'Error! Please make sure files are either .csv, .txt, .zip or .(x)mt' } }))
-          return
-        }
 
-
-  
-        if (uploadedfile.size > 5000000000) {
-          setStatus(({ error: { selected: true, message: 'File too large! Make sure that each file is less than 5GB' } }))
-          return
-        }
-    
-
-
-        if (!dcc) throw new Error('no dcc entered')
-        let filetype = parseFileTypeClient(uploadedfile.name, uploadedfile.type)
-        const foundVersions = await findFileAsset(filetype, dcc, uploadedfile.name)
-        if (foundVersions.length > 0) {
-          setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfile.name} already exists in database. Rename file to upload` } }));
-          return
-        
+      // file size check
+      if (uploadedfile.size > 5000000000) {
+        setStatus(({ error: { selected: true, message: 'File too large! Make sure that each file is less than 5GB' } }))
+        return
       }
 
+      // other version of asset error check
+      if (!dcc) throw new Error('no dcc entered')
+      const foundVersions = await findFileAsset(filetype, dcc, uploadedfile.name)
+      if (foundVersions.length > 0) {
+        setStatus(({ error: { selected: true, message: `Error! File: ${uploadedfile.name} already exists in database. Rename file to upload` } }));
+        return
+      }
 
+      const fileAssetTypeCheck = parseFileTypeClient(uploadedfile.name, uploadedfile.type, filetype)
+      if (!fileAssetTypeCheck) {
+        setFileTypeMatch({ dcc: dcc, filetype: filetype, expected: assetTypeExtensionMap[filetype], parsed: uploadedfile.type ? uploadedfile.type : '.' + uploadedfile.name.split('.')[1] })
+        setPopOpen(true)
+      } else {
+        setStatus(() => ({ loading: { selected: true, message: 'File Upload in Progress' } }))
         try {
-          let filetype = parseFileTypeClient(uploadedfile.name, uploadedfile.type)
-          if (!dcc) throw new Error('no dcc entered')
           let digest = await uploadAndComputeSha256(uploadedfile, filetype, dcc, setProgress)
           await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, filetype, dcc)
         }
@@ -214,9 +243,12 @@ export function S3UploadForm(user: {
           console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
           return
         }
-      
-      setStatus(() => ({ success: true }))
-      setProgress(0)
+        setStatus(() => ({ success: true }))
+        setProgress(0)
+      }
+
+
+
     }}>
       <S3UploadStatusContext.Provider value={status}>
         <Container>
@@ -225,14 +257,25 @@ export function S3UploadForm(user: {
             <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
           </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            This is the form to upload the data/metadata files for your DCC. Select the DCC for which the files belong and
-            drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not leave
-            the page until all files have been successfully uploaded.
+            This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the 
+            asset type of the file. Then drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not refresh
+            during the upload process.
             <br></br>
-            All uploaded files with .csv extensions are tagged as KG Assertion files. All uploaded files with .txt
-            extensions are tagged as Attribute Table files. All uploaded zipped files are tagged as C2M2 files.
-            All uploaded files with a .gmt or .dmt extension are tagged as XMT files. All uploaded files with .txt
-            extensions are tagged as Attribute Table files.
+            The recommended extensions for each file asset type are: 
+            <List  sx={{ listStyleType: 'disc', pl: 3 }}>
+            <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                C2M2: .zip
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                KG Assertion: .csv
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                Attribute Table: .h5
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                XMT: .(x)mt e.g .gmt or .dmt
+              </ListItem>
+            </List> 
             <br></br>
             See the {' '}
             <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
@@ -283,6 +326,27 @@ export function S3UploadForm(user: {
               </Button>
             </FormControl>
           </div>
+          <Dialog
+            open={popOpen}
+            onClose={handlePopClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Not Expected Filetype"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                The expected file extension for {fileTypeMatch.filetype} file is {fileTypeMatch.expected} but received {fileTypeMatch.parsed} file. Would you still like to proceed with the upload?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button color="secondary" onClick={handlePopClose}>No</Button>
+              <Button color="secondary" autoFocus onClick={handleContinue}>
+                Yes, Continue
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Container>
       </S3UploadStatusContext.Provider>
     </form>
