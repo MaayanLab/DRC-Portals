@@ -101,7 +101,7 @@ The Entity Page Template and Example are  links to:
 
     return (
         <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid md={2} xs={12}>
+            <Grid item container md={2} xs={12}>
                 <Nav />
             </Grid>
             <Grid md={10} xs={12}>
@@ -122,7 +122,7 @@ The Entity Page Template and Example are  links to:
                                     .dmt files are XMT files that contain a collection of drug sets.
                                     On each row of the XMT file, the first column contains the Term associated with the set while all other
                                     columns contain the set entities.
-                                    All uploaded files with a .gmt or .dmt extension are tagged as XMT files by default.
+
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
@@ -132,8 +132,7 @@ The Entity Page Template and Example are  links to:
                                     The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies.
                                     Please explore the C2M2 technical wiki for more information about how to prepare your
                                     metadata into C2M2 compatible files. Please also see the C2M2 section in the <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page of the
-                                    CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the
-                                    ingestion system.
+                                    CFDE Workbench portal on how to create C2M2 files.
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
@@ -147,7 +146,7 @@ The Entity Page Template and Example are  links to:
                                     For example, a KG Assertion file for nodes would contain columns which define information about each node:
                                     id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary
                                     information about each edge: its source and target nodes, the labels for these nodes and their relationship.
-                                    All uploaded files with .csv extensions are considered KG Assertion files by the ingestion system.
+
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
@@ -157,8 +156,25 @@ The Entity Page Template and Example are  links to:
                                     entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a
                                     given row and column is then a value defining nature of the relationship between the row entity and the
                                     column entity e.g. the qualitative score of similarity between a given gene and a given tissue type.
-                                    All uploaded files with .txt extensions are considered Attribute Table files by the ingestion system.
+
                                 </Typography>
+                            </Box>
+                            <Box sx={{ p: 1, m: 1, }}>
+                            The recommended extensions for each file asset type are:
+                            <List sx={{ listStyleType: 'disc', pl: 3 }}>
+                                <ListItemText sx={{ display: 'list-item', padding: 0 }} color="#374151">
+                                    C2M2: .zip
+                                </ListItemText>
+                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                    KG Assertion: .csv
+                                </ListItemText>
+                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                    Attribute Table: .h5 or .hdf5
+                                </ListItemText>
+                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                    XMT: .(x)mt e.g .gmt or .dmt
+                                </ListItemText>
+                            </List>
                             </Box>
                         </>
                         } />
@@ -191,7 +207,7 @@ The Entity Page Template and Example are  links to:
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Playbook Workflow Builder (PWB) Metanodes</Typography>
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                     A PWB metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type,
-                                    and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/standards"  color='#111827' target='_blank'>Standards and Protocols</Link> page 
+                                    and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page
                                     for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook
                                     metanode.
                                     <br></br>Example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' color="#111827" target="_blank"><u>PWB Metanode</u></Link> created by the Metabolomics DCC
@@ -270,7 +286,7 @@ The Entity Page Template and Example are  links to:
                                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <BsCheckCircleFill />
                                         </span> icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page is considered the current version
-                                        of that file type for a given DCC. 
+                                        of that file type for a given DCC.
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
@@ -280,7 +296,7 @@ The Entity Page Template and Example are  links to:
                                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <FaCircleExclamation />
                                         </span>
-                                        {' '} icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page, 
+                                        {' '} icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page,
                                         is considered an archived version of that asset type.
                                         Please note that both DCC and DRC approvers can change the current status of an asset.
                                     </Typography>
@@ -314,27 +330,27 @@ The Entity Page Template and Example are  links to:
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges:
-                                    Contact the DRC via email with the following information about the member:
-                                </Typography>
-                                <List sx={{ listStyleType: 'disc', pl: 3 }}>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        Name
-                                    </ListItemText>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        Email
-                                    </ListItemText>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        Role
-                                    </ListItemText>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        DCC
-                                    </ListItemText>
-                                </List>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    Please also indicate if the user has already logged into the portal (is a registered user) or has never accessed the portal (is a new user).
-                                </Typography>
+                                    <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
+                                        Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges:
+                                        Contact the DRC via email with the following information about the member:
+                                    </Typography>
+                                    <List sx={{ listStyleType: 'disc', pl: 3 }}>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            Name
+                                        </ListItemText>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            Email
+                                        </ListItemText>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            Role
+                                        </ListItemText>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            DCC
+                                        </ListItemText>
+                                    </List>
+                                    <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
+                                        Please also indicate if the user has already logged into the portal (is a registered user) or has never accessed the portal (is a new user).
+                                    </Typography>
                                 </Box>
                             </>
                         } />
@@ -388,21 +404,21 @@ The Entity Page Template and Example are  links to:
                                             To verify file integrity after downloading a file from the portal:
                                         </ListItem>
                                         <List sx={{ listStyle: "disc", pl: 4 }}>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Download the intended file
-                                        </ListItem>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Calculate the checksum in your terminal: 
-                                            <br></br>
-                                            For Windows: <Markdown className="prose">{windowsMarkdown}</Markdown>
-                                            <br></br>
-                                            For Linux: <Markdown className="prose">{linuxMarkdown}</Markdown>
-                                            <br></br>
-                                            For MacOS: <Markdown className="prose">{macMarkdown}</Markdown>
-                                        </ListItem>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
-                                        </ListItem>
+                                            <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                                Download the intended file
+                                            </ListItem>
+                                            <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                                Calculate the checksum in your terminal:
+                                                <br></br>
+                                                For Windows: <Markdown className="prose">{windowsMarkdown}</Markdown>
+                                                <br></br>
+                                                For Linux: <Markdown className="prose">{linuxMarkdown}</Markdown>
+                                                <br></br>
+                                                For MacOS: <Markdown className="prose">{macMarkdown}</Markdown>
+                                            </ListItem>
+                                            <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                                If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
+                                            </ListItem>
                                         </List>
 
                                     </List>
