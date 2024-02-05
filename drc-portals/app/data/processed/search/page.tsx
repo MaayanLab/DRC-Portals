@@ -23,6 +23,14 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 }
 
+/**
+ * Like Prisma.join -- but filters out Prisma.empty, and supports empty/singular lists
+ */
+function Prisma_join<T>(L: T[], sep: string) {
+  L = L.filter(el => el !== Prisma.empty)
+  return L.length === 0 ? Prisma.empty : L.length === 1 ? L[0] : Prisma.join(L, sep)
+}
+
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
@@ -57,18 +65,20 @@ export default async function Page(props: PageProps) {
       from "results"
       ${searchParams.t ? Prisma.sql`
       where
-        ${Prisma.join(searchParams.t.map(t => t.type === 'dcc' ? 
-          Prisma.sql`
-          "results"."dcc_id" = ${t.entity_type}
-          `
-        : Prisma.sql`
-        (
-          "results"."type" = ${t.type}::"NodeType"
-          ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
-          ` : Prisma.empty}
-        )
-        `), ' or ')}
+        ${Prisma_join([
+          searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
+            searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
+            ' or '
+          ) : Prisma.empty,
+          Prisma_join(searchParams.t.filter(t => t.type !== 'dcc').map(t => Prisma.sql`
+            (
+              "results"."type" = ${t.type}::"NodeType"
+              ${t.entity_type ? Prisma.sql`
+                and "results"."entity_type" = ${t.entity_type}
+              ` : Prisma.empty}
+            )
+          `), ' or '),
+        ], ' and ')}
       ` : Prisma.empty}
       order by "results"."rank"
       offset ${offset}
