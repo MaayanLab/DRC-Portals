@@ -56,7 +56,7 @@ function FileList(prop: { file: string, setFile: React.Dispatch<React.SetStateAc
 
   return (<Grid>
     <Typography style={{ display: 'inline-block' }} variant="body2" component="span">
-      Files to Upload
+      File to Upload
     </Typography>
 
     {fileUploaded && <List dense={dense}>
@@ -130,7 +130,7 @@ export function FileDrop({ name, setUploadedFile }: { name: string, setUploadedF
           }}
         >
           <div>
-            <Typography variant="h6" className='text-center align-center'> Drag and drop files here </Typography>
+            <Typography variant="h6" className='text-center align-center'> Drag and drop file here </Typography>
             <div className='flex justify-center'>
               <MdUploadFile size={70} />
             </div>
@@ -163,7 +163,7 @@ export function FileDrop({ name, setUploadedFile }: { name: string, setUploadedF
         <FormControl>
           <label htmlFor="raised-button-file">
             <Button variant="contained" color="primary" component="span">
-              Choose Files
+              Choose File
             </Button>
           </label>
         </FormControl>
