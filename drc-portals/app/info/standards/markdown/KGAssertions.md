@@ -14,7 +14,7 @@ The CFDE Data Distillery Partnership is building a **Data Distillery Knowledge G
 1. Before generating any assertions, identify the type of data and knowledge you want to capture -- what data sources are you using? What type of data does each source provide? What types of relationships exist between the different data types and data sources? 
   - These assertions will usually take the form of a **triple** consisting of a **subject**, **predicate**, and **object**. As an example, the Illuminating the Druggable Genome (IDG) DCC provides data on the relationships between compounds, diseases, and understudied proteins. An assertion that bipolar disorder is an indication for the drug aripiprazole may be represented as follows using PubChem and SNOMED ontology terms:
   ```
-  PUBCHEM:60795    indication    SNOMED:13746004
+  PUBCHEM 60795    indication    SNOMED 13746004
   ```
 
 2. Review the list of ontologies and vocabularies currently supported by the DDKG [here](https://github.com/TaylorResearchLab/CFDE_DataDistillery/blob/main/user_guide/ontology%20neo4j%20SABs%20and%20sample%20codes%20-%20ontology%20neo4j%20SABs%20and%20sample%20codes.csv), and make note of the overlap with your dataset. While edges/relationships can be described with a string, node identifiers should be an Internationalized Resource Identifier (IRI) or an ontology term from an integrated Source Abbreviation (SAB). 
