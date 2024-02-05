@@ -35,6 +35,23 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
+  const filterClause = searchParams.t ? Prisma.sql`
+  where
+    ${Prisma_join([
+      searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
+        searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
+        ' or '
+      ) : Prisma.empty,
+      Prisma_join(searchParams.t.filter(t => t.type !== 'dcc').map(t => Prisma.sql`
+        (
+          "results"."type" = ${t.type}::"NodeType"
+          ${t.entity_type ? Prisma.sql`
+            and "results"."entity_type" = ${t.entity_type}
+          ` : Prisma.empty}
+        )
+      `), ' or '),
+    ], ' and ')}
+  ` : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
@@ -63,44 +80,14 @@ export default async function Page(props: PageProps) {
         where "dccs".id = "dcc_id"
       ) as dcc
       from "results"
-      ${searchParams.t ? Prisma.sql`
-      where
-        ${Prisma_join([
-          searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
-            searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
-            ' or '
-          ) : Prisma.empty,
-          Prisma_join(searchParams.t.filter(t => t.type !== 'dcc').map(t => Prisma.sql`
-            (
-              "results"."type" = ${t.type}::"NodeType"
-              ${t.entity_type ? Prisma.sql`
-                and "results"."entity_type" = ${t.entity_type}
-              ` : Prisma.empty}
-            )
-          `), ' or '),
-        ], ' and ')}
-      ` : Prisma.empty}
+      ${filterClause}
       order by "results"."rank"
       offset ${offset}
       limit ${limit}
     ), total_count as (
       select count(*)::int as count
       from "results"
-      ${searchParams.t ? Prisma.sql`
-      where
-        ${Prisma.join(searchParams.t.map(t =>  t.type === 'dcc' ? 
-          Prisma.sql`
-          "results"."dcc_id" = ${t.entity_type}
-          `
-        : Prisma.sql`
-        (
-          "results"."type" = ${t.type}::"NodeType"
-          ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
-          ` : Prisma.empty}
-        )
-        `), ' or ')}
-      ` : Prisma.empty}
+      ${filterClause}
     ), type_counts as (
       select "type", "entity_type", count(*)::int as count
       from "results"
