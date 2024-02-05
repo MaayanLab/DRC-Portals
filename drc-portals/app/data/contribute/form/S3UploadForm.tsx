@@ -107,7 +107,7 @@ const assetTypeExtensionMap: { [key: string]: string } = {
   'KG Assertion': '.csv',
   'C2M2': '.zip',
   'XMT': '.gmt or .dmt',
-  'Attribute Table': '.h5'
+  'Attribute Table': '.h5 or hdf5'
 }
 
 /**
