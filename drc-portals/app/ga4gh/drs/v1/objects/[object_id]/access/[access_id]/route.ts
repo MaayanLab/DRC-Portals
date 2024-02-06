@@ -33,8 +33,11 @@ async function getC2M2FileUrl(object_id: string, access_id: string) {
   })
   if (!object?.access_url) return null
   if (object.access_url.startsWith('drs://')) {
-    // redirect request to the DRS
-    return Response.redirect(object.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`), 307)
+    // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
+    const upstreamDRS = object.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
+    const req = await fetch(upstreamDRS)
+    if (req.ok) return Response.json(await req.json(), { status: req.status })
+    else return req
   }
   return { url: object.access_url }
 }
