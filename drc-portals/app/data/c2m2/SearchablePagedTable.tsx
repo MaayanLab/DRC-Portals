@@ -5,7 +5,7 @@ import SearchField from "./SearchField"
 import Link from "next/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
-import { type_to_string } from "./utils"
+import { type_to_string } from "../processed/utils"
 
 export function LinkedTypedNode({
   id,
