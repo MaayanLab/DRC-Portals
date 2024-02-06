@@ -258,8 +258,8 @@ export function S3UploadForm(user: {
           </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the 
-            asset type of the file. Then drop your files in the upload box or click on the 'Choose Files' to select files for upload. Please do not refresh
-            during the upload process.
+            asset type of the file. Then drop your file in the upload box or click on the 'Choose File' to select file for upload. Please do not refresh
+            your browser during the upload process.
             <br></br>
             The recommended extensions for each file asset type are: 
             <List  sx={{ listStyleType: 'disc', pl: 3 }}>
@@ -270,7 +270,7 @@ export function S3UploadForm(user: {
                 KG Assertion: .csv
               </ListItem>
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                Attribute Table: .h5
+                Attribute Table: .h5 or .hdf5
               </ListItem>
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
                 XMT: .(x)mt e.g .gmt or .dmt
@@ -278,7 +278,7 @@ export function S3UploadForm(user: {
             </List> 
             <br></br>
             See the {' '}
-            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information the steps to upload files.
+            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the steps to upload files.
             <br></br>
             <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
           </Typography>
@@ -333,7 +333,7 @@ export function S3UploadForm(user: {
             aria-describedby="alert-dialog-description"
           >
             <DialogTitle id="alert-dialog-title">
-              {"Not Expected Filetype"}
+              {"Unexpected File Type"}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">

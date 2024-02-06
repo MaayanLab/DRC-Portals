@@ -296,7 +296,7 @@ export function CodeForm(user: {
 
             <Container>
                 <Stack direction="row" alignItems="center" gap={1}>
-                    <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }}>CODE ASSETS FORM </Typography>
+                    <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }}>CODE ASSETS UPLOAD FORM </Typography>
                     <AssetInfoDrawer assetOptions={assetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
                 </Stack>
 
