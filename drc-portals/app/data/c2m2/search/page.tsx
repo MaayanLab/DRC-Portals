@@ -67,9 +67,9 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
 }
 
 export default async function Page(props: PageProps) {
+  console.log(props)
   const searchParams = useSanitizedSearchParams(props)
   console.log(searchParams.q)
-  const searchStr = searchParams.q
   const offset = (searchParams.p - 1) * searchParams.r
   const limit = searchParams.r
 
@@ -134,13 +134,6 @@ export default async function Page(props: PageProps) {
 
   const filterClause = filters.length ? Prisma.sql`WHERE ${Prisma.join(filters, ' AND ')}` : Prisma.empty; */
 
-  console.log("#####")
-  console.log(filterClause)
-  console.log("###")
-  const query = `SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) FROM allres AS records ${Prisma.sql([filterClause])} LIMIT 10 `;
-  console.log("----")
-  console.log(query);
-  console.log("----")
   // searchParamsT which will helpa pply both and (across filter types) and or operator (within same filter type) 
   // for this URL: http://localhost:3000/data/c2m2/search?q=blood&t=dcc%3AUCSD+Metabolomics+Workbench%7Cdcc%3AThe+Human+Microbiome+Project%7Cspecies%3AHomo+sapiens&p=1
   // searchParams.t is [{type: 'dcc', enttity_type: 'UCSD+Metabolomics+Workbench'}, 
@@ -165,6 +158,7 @@ export default async function Page(props: PageProps) {
     count_sub: number, 
     count_col: number, 
   }[],
+  count: number,
   // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
   // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
   dcc_filters:{dcc_name: string, dcc_abbreviation: string, count: number,}[],
@@ -174,11 +168,14 @@ export default async function Page(props: PageProps) {
   project_filters:{project_name: string, count: number,}[],
 }>>`
 WITH allres_full AS (
-  SELECT c2m2.ffl_biosample.* FROM c2m2.ffl_biosample
+  SELECT c2m2.ffl_biosample.*,
+    ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
+    FROM c2m2.ffl_biosample
     WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
 ),
 allres AS (
   SELECT 
+    allres_full.rank AS rank,
     allres_full.dcc_name AS dcc_name,
     allres_full.dcc_abbreviation AS dcc_abbreviation,
     CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
@@ -193,7 +190,14 @@ allres AS (
   FROM allres_full
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id)
-  GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description
+  GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description,rank
+  ORDER BY rank
+  OFFSET ${offset}
+  LIMIT ${limit}
+),
+total_count as (
+  select count(*)::int as count
+  from allres_full
 ),
 dcc_name_count AS (
   SELECT dcc_name, SPLIT_PART(dcc_abbreviation, '_', 1) as dcc_abbreviation, COUNT(*) AS count 
@@ -225,7 +229,8 @@ project_name_count AS (
 )
 
 SELECT
-(SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10), 
+(SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])}), 
+  (SELECT count FROM total_count) as count,
   (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
   (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
   (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
@@ -333,13 +338,10 @@ console.log(results.taxonomy_filters)
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.records.length}
+        count={results?.count}
         columns={[
           <>DCC</>,
           <>Project Description</>,
-          //<>Taxonomy</>,
-          //<>Disease</>,
-          //<>Anatomy</>,
           <>Attributes</>,
           <>Assets</>,
         ]}
@@ -367,14 +369,4 @@ console.log(results.taxonomy_filters)
     </ListingPageLayout>
   )
 }
-// //
-// rows={results?.items.map(item => [
-//   item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
-//     : item.type === 'entity' ?
-//       item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
-//         : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
-//           : null
-//       : null,
-//   <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} />,
-//   <Description description={item.description} />,
-// ]) ?? []}
+
