@@ -32,7 +32,7 @@ export default function FilterSet({ id, filterList, filter_title }: { id: string
       disableCloseOnSelect
       getOptionLabel={(option) => option.name}
       renderOption={(props, option: FilterObject, {selected}) => (
-        <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} props={props} />
+        <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
       )}
       style={{ width: 'auto' }}
       renderInput={(params) => (
