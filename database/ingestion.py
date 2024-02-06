@@ -320,9 +320,9 @@ with open(dcc_assets_path(), 'r') as fr:
   )
 cur.execute('''
     insert into dcc_assets (link, lastmodified, current, creator, 
-            dcc_id, drcapproved, dccapproved, deleted)
+            dcc_id, drcapproved, dccapproved, deleted, created)
     select link, lastmodified, current, creator, 
-            dcc_id, drcapproved, dccapproved, deleted
+            dcc_id, drcapproved, dccapproved, deleted, created
     from dcc_assets_tmp
     on conflict (link)
       do update
@@ -332,7 +332,8 @@ cur.execute('''
           dcc_id = excluded.dcc_id,
           drcapproved = excluded.drcapproved,
           dccapproved = excluded.dccapproved,
-          deleted = excluded.deleted
+          deleted = excluded.deleted, 
+          created = excluded.created
   ''')
 cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
