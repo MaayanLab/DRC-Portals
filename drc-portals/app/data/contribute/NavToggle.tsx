@@ -28,7 +28,7 @@ export default function ColorToggleButton({ userAdmin }: { userAdmin: boolean })
                 <Typography variant="nav" align='center'>DATA AND METADATA UPLOAD FORM</Typography>
             </ToggleButton>
             <ToggleButton value="/data/contribute/urlform" href="/data/contribute/urlform">
-                <Typography variant="nav" align='center'>CODE ASSETS FORM</Typography>
+                <Typography variant="nav" align='center'>CODE ASSETS UPLOAD FORM</Typography>
             </ToggleButton>
             <ToggleButton value="/data/contribute/uploaded" href="/data/contribute/uploaded">
                 <Typography variant="nav" align='center'>UPLOADED ASSETS</Typography>
