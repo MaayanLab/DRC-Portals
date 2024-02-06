@@ -6,9 +6,13 @@
 have the same colum name and we want one in the output, then it is easier to 
 refer by the alias instead of along table name. */
 
+--- Mano: 2024/02/02: in the output, now using association_type as disease_association_type
+--- Mano: 2024/02/03: in the output, now using disease as biosample_disease
+--- Made the corresponding change in the sql file biosample_fully_flattened.sql
+
 CREATE TABLE c2m2.fl_biosample as (SELECT DISTINCT
 id_namespace, local_id, project_id_namespace, project_local_id, persistent_id, creation_time, sample_prep_method, anatomy,
-association_type, disease,
+association_type as disease_association_type, disease as biosample_disease,
 subject_id_namespace, subject_local_id, age_at_sampling,
 gene,
 collection_id_namespace, collection_local_id,

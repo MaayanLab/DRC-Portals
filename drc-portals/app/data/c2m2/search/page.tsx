@@ -45,7 +45,8 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
       if (t.entity_type) {
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
         if(t.entity_type !== "Unspecified"){ // was using "null"
-          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+          //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type.replace(/'/g, "''")}'`);          
         } else{
           typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
         }
