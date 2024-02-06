@@ -149,6 +149,7 @@ export default async function Page(props: PageProps) {
   records: {
     dcc_name: string,
     dcc_abbreviation: string,
+    dcc_short_label: string,
     taxonomy_name: string,
     disease_name: string,
     anatomy_name: string,
@@ -162,14 +163,14 @@ export default async function Page(props: PageProps) {
   count: number,
   // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
   // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
-  dcc_filters:{dcc_name: string, dcc_abbreviation: string, count: number,}[],
+  dcc_filters:{dcc_name: string, dcc_short_label: string, count: number,}[],
   taxonomy_filters:{taxonomy_name: string, count: number,}[],
   disease_filters:{disease_name: string, count: number,}[],
   anatomy_filters:{anatomy_name: string, count: number,}[],
   project_filters:{project_name: string, count: number,}[],
 }>>`
 WITH allres_full AS (
-  SELECT c2m2.ffl_biosample.*,
+  SELECT DISTINCT c2m2.ffl_biosample.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
     FROM c2m2.ffl_biosample
     WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
@@ -179,6 +180,7 @@ allres AS (
     allres_full.rank AS rank,
     allres_full.dcc_name AS dcc_name,
     allres_full.dcc_abbreviation AS dcc_abbreviation,
+    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
     CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
     CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
     CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
@@ -191,19 +193,20 @@ allres AS (
   FROM allres_full
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id)
-  GROUP BY dcc_name, dcc_abbreviation, taxonomy_name, disease_name, anatomy_name, project_name, project_description,rank
+  GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description,rank
   ORDER BY rank
   OFFSET ${offset}
   LIMIT ${limit}
 ),
 total_count as (
   select count(*)::int as count
-  from allres_full
+  from allres_full 
+  /* You likely want num rows in allres (the table that is displayed on the right-side); allres_full has too many rows, so too many pages */
 ),
 dcc_name_count AS (
-  SELECT dcc_name, SPLIT_PART(dcc_abbreviation, '_', 1) as dcc_abbreviation, COUNT(*) AS count 
+  SELECT dcc_name, dcc_short_label, COUNT(*) AS count 
   FROM allres 
-  GROUP BY dcc_name, dcc_abbreviation ORDER BY dcc_abbreviation, dcc_name
+  GROUP BY dcc_name, dcc_short_label ORDER BY dcc_short_label, dcc_name
 ),
 taxonomy_name_count AS (
   /* SELECT taxonomy_name, COUNT(*) AS count */
@@ -249,7 +252,7 @@ console.log(results.taxonomy_filters)
   const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   const DccFilters: FilterObject[] = results?.dcc_filters.map((dccFilter) => ({
-    id: dccFilter.dcc_abbreviation,
+    id: dccFilter.dcc_short_label,
     name: dccFilter.dcc_name, // Use dcc_abbreviation as the name
     count: dccFilter.count,
   }));
@@ -291,7 +294,6 @@ console.log(results.taxonomy_filters)
   dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
   dccIconTable["SPARC"] = "/img/SPARC.svg";
   
-
   return (
     <ListingPageLayout
       count={results?.records.length} // This matches with #records in the table on the right (without filters applied)
@@ -349,7 +351,8 @@ console.log(results.taxonomy_filters)
         rows={results ? results?.records.map(res => [
           // [
           //<>{res.dcc_abbreviation}</>,
-          <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
+          //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
+          <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={dccIconTable[res.dcc_short_label]} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
