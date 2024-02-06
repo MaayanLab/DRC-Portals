@@ -365,7 +365,7 @@ The Entity Page Template and Example are  links to:
                                             Go to the <Link href="/data/contribute/form" color="#111827" target="_blank">Data and Metadata Upload Form</Link> OR Click on the “Contribute” option in the navigation bar or in the footer
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            On the Upload Form page, upload your data and metadata file by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
+                                            On the Upload Form page, upload your processed data by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             The file you have selected should appear under “File to Upload”.
