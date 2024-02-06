@@ -73,6 +73,7 @@ async function getC2M2File(object_id: string) {
     const upstreamDRS = object.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, 'https://$1/ga4gh/drs/v1/objects/$2')
     const req = await fetch(upstreamDRS)
     if (req.ok) return Response.json(await req.json(), { status: req.status })
+    else if (req.status === 404) return null
     else return req
   }
   return Response.json({
