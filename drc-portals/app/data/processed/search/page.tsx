@@ -38,16 +38,23 @@ export default async function Page(props: PageProps) {
   const filterClause = searchParams.t ? Prisma.sql`
   where
     ${Prisma_join([
-      searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
-        searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
-        ' or '
-      ) : Prisma.empty,
-      Prisma_join(searchParams.t.filter(t => t.type !== 'dcc').map(t => Prisma.sql`
+      Prisma_join([
+        searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
+          searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
+          ' or '
+        ) : Prisma.empty,
+        Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+          (
+            "results"."type" = 'entity'::"NodeType"
+            ${t.entity_type ? Prisma.sql`
+              and "results"."entity_type" = ${t.entity_type}
+            ` : Prisma.empty}
+          )
+        `), ' or ')
+      ], ' or '),
+      Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
-          ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
-          ` : Prisma.empty}
         )
       `), ' or '),
     ], ' and ')}
