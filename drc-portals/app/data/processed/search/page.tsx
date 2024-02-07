@@ -43,21 +43,21 @@ export default async function Page(props: PageProps) {
           searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
           ' or '
         ) : Prisma.empty,
-        Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+        Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
           (
-            "results"."type" = 'entity'::"NodeType"
-            ${t.entity_type ? Prisma.sql`
-              and "results"."entity_type" = ${t.entity_type}
-            ` : Prisma.empty}
+            "results"."type" = ${t.type}::"NodeType"
           )
-        `), ' or ')
-      ], ' or '),
-      Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+          `), ' or '),
+      ], ' and '),
+      Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
         (
-          "results"."type" = ${t.type}::"NodeType"
+          "results"."type" = 'entity'::"NodeType"
+          ${t.entity_type ? Prisma.sql`
+            and "results"."entity_type" = ${t.entity_type}
+          ` : Prisma.empty}
         )
-      `), ' or '),
-    ], ' and ')}
+      `), ' or ')
+    ], ' or ')}
   ` : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
