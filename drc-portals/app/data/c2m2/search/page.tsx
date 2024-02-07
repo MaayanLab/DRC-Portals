@@ -144,7 +144,7 @@ export default async function Page(props: PageProps) {
   // Mano: In the queries below, please note that GROUP BY automatically means as if DISTINCT was applied
   // When filter values are selected, only the table displayed on the right (records) is updated; 
   // the list of distinct items in the filter is not updated.
-  const cascading:boolean = false;
+  const cascading:boolean = true;
   const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
   records: {
@@ -312,22 +312,22 @@ console.log(results.taxonomy_filters)
       searchText={searchParams.q}
       filters={
         <>
-          {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
-          <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="DCC" />
-          <hr className="m-2" />
-          {/* <Typography className="subtitle1">Taxonomy</Typography> */}
-          <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Taxonomy" />
-          <hr className="m-2" />
           {/* <Typography className="subtitle1">Disease</Typography> */}
           <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" />
+          <hr className="m-2" />
+          {/* <Typography className="subtitle1">Taxonomy</Typography> */}
+          <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Species" />
           <hr className="m-2" />
           {/* <Typography className="subtitle1">Anatomy</Typography> */}
           <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" />
           <hr className="m-2" />
-          <Typography variant="h5">Core filters</Typography>
+          {/* <Typography variant="h5">Core filters</Typography> */}
+          {/* <hr className="m-2" /> */}
+          {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
+          <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="Common Fund Program" />
           <hr className="m-2" />
           {/* <Typography className="subtitle1">Project</Typography> */}
-          <FilterSet key={`ID:$project`} id={`project`} filterList={ProjectFilters} filter_title="Project" />
+          {/* <FilterSet key={`ID:$project`} id={`project`} filterList={ProjectFilters} filter_title="Project" /> */}
           {/* results?.project_filters.map((res) =>
             <SearchFilter key={`ID:${res.project_name}`} id={`anatomy:${res.project_name}`} count={res.count} label={`${res.project_name}`} />
       ) */}
