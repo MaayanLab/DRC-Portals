@@ -49,7 +49,8 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
       if (t.entity_type) {
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
         if(t.entity_type !== "Unspecified"){ // was using "null"
-          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+          //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type.replace(/'/g, "''")}'`);          
         } else{
           typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
         }
@@ -171,6 +172,7 @@ export default async function Page(props: PageProps) {
   project_filters:{project_name: string, count: number,}[],
 }>>`
 WITH allres_full AS (
+  SELECT DISTINCT c2m2.ffl_biosample.*,
   SELECT DISTINCT c2m2.ffl_biosample.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
     FROM c2m2.ffl_biosample
@@ -305,7 +307,6 @@ console.log(results.taxonomy_filters)
   dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
   dccIconTable["SPARC"] = "/img/SPARC.svg";
   
-
   return (
     <ListingPageLayout
       count={results?.count} // This matches with #records in the table on the right (without filters applied)

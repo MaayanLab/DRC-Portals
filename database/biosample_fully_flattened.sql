@@ -3,6 +3,9 @@
 --- Make it project cetnric; most tables are already included in this biosample centrix flattening
 ---
 --- table name c2m2.ffl_biosample means fully flattened biosample
+
+--- Mano: 2024/02/02: changed c2m2.fl_biosample.association_type to c2m2.fl_biosample.disease_association_type
+
 DROP TABLE IF EXISTS c2m2.ffl_biosample;
 CREATE TABLE c2m2.ffl_biosample as (
 select distinct
@@ -12,7 +15,7 @@ select distinct
     c2m2.fl_biosample.project_id_namespace, c2m2.fl_biosample.project_local_id, 
     c2m2.fl_biosample.persistent_id, c2m2.fl_biosample.creation_time, 
     c2m2.fl_biosample.sample_prep_method, c2m2.fl_biosample.anatomy, 
-    c2m2.fl_biosample.association_type, c2m2.fl_biosample.disease,
+    c2m2.fl_biosample.disease_association_type, c2m2.fl_biosample.biosample_disease,
     c2m2.fl_biosample.subject_id_namespace, c2m2.fl_biosample.subject_local_id, 
     c2m2.fl_biosample.age_at_sampling,
     c2m2.fl_biosample.gene,
@@ -57,12 +60,12 @@ select distinct
 
     c2m2.disease_association_type.name, c2m2.disease_association_type.description
     )) as searchable,
-    -- sample_prep_method, anatomy, disease, gene, substance, sample_prep_method, association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
+    -- sample_prep_method, anatomy, disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
     c2m2.fl_biosample.id_namespace as biosample_id_namespace, c2m2.fl_biosample.local_id as biosample_local_id, 
     c2m2.fl_biosample.project_id_namespace as project_id_namespace, c2m2.fl_biosample.project_local_id as project_local_id, 
     c2m2.fl_biosample.persistent_id as biosample_persistent_id, c2m2.fl_biosample.creation_time as biosample_creation_time, 
     c2m2.fl_biosample.sample_prep_method as sample_prep_method, c2m2.fl_biosample.anatomy as anatomy, 
-    c2m2.fl_biosample.association_type AS biosample_disease_association_type, c2m2.fl_biosample.disease as disease,
+    c2m2.fl_biosample.disease_association_type AS biosample_disease_association_type, c2m2.fl_biosample.biosample_disease as disease,
     c2m2.fl_biosample.subject_id_namespace as subject_id_namespace, c2m2.fl_biosample.subject_local_id as subject_local_id, 
     c2m2.fl_biosample.age_at_sampling as biosample_age_at_sampling,
     c2m2.fl_biosample.gene as gene,
@@ -111,7 +114,7 @@ from c2m2.fl_biosample
         on (c2m2.fl_biosample.anatomy = c2m2.anatomy.id)
 
     left join c2m2.disease
-        on (c2m2.fl_biosample.disease = c2m2.disease.id)
+        on (c2m2.fl_biosample.biosample_disease = c2m2.disease.id)
 
     --- c2m2.phenotype in case of subject
 
@@ -129,6 +132,7 @@ from c2m2.fl_biosample
         c2m2.fl_biosample.project_id_namespace = c2m2.project.id_namespace) 
         /* we are not defining the new table fl_biosample; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
+        --- THIS CAN BE A PROBLEM
 
     /* Mano: 2024/01/31: added project_in_project else cannot link to dcc ; without this was getting null for dcc */
     left join c2m2.project_in_project
@@ -145,13 +149,22 @@ from c2m2.fl_biosample
             (---c2m2.project.local_id = c2m2.dcc.project_local_id and
         c2m2.project.id_namespace = c2m2.dcc.project_id_namespace))
 
+    --------------------Mano 2024/02/02 WARNING CHECK 2ND CONDITION OF JOIN ON
     left join c2m2.subject /* Could right-join make more sense here; likely no */
         on (c2m2.fl_biosample.subject_local_id = c2m2.subject.local_id and
-        c2m2.fl_biosample.project_id_namespace = c2m2.subject.project_id_namespace)
+        c2m2.fl_biosample.subject_id_namespace = c2m2.subject.id_namespace)
+        --- original, till 2024/02/03: c2m2.fl_biosample.project_id_namespace = c2m2.subject.project_id_namespace)
+
+    --- Mano: 2024/02/02 add subject_disease
+    left join c2m2.subject_disease /* Could right-join make more sense here; likely no */
+        on (c2m2.subject.local_id = c2m2.subject_disease.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.subject_disease.subject_id_namespace)
 
     /* join with subject_role_taxonomy and ncbi_taxonomy */
+    --------------------Mano 2024/02/02 WARNING CHECK JOIN CONDITION use subject table instead of fl_biosample?
     left join c2m2.subject_role_taxonomy
-        on (c2m2.fl_biosample.subject_local_id = c2m2.subject_role_taxonomy.subject_local_id and
+        --- till 2024/02/03 on (c2m2.fl_biosample.subject_local_id = c2m2.subject_role_taxonomy.subject_local_id and
+        on (c2m2.subject.local_id = c2m2.subject_role_taxonomy.subject_local_id and
         c2m2.subject.id_namespace = c2m2.subject_role_taxonomy.subject_id_namespace)
 
     left join c2m2.ncbi_taxonomy
@@ -184,8 +197,11 @@ from c2m2.fl_biosample
     left join c2m2.subject_role
         on (c2m2.subject_role_taxonomy.role_id = c2m2.subject_role.id)
 
+    --- Mano: 2024/02/03: Now we have both biosample_disease and subject_disease
     left join c2m2.disease_association_type
-        on(c2m2.fl_biosample.association_type = c2m2.disease_association_type.id)
+        --- till 2024/02/03 on(c2m2.fl_biosample.disease_association_type = c2m2.disease_association_type.id)
+        on(c2m2.fl_biosample.disease_association_type = c2m2.disease_association_type.id OR
+        c2m2.subject_disease.association_type = c2m2.disease_association_type.id)
 
     --- c2m2.phenotype_association_type for subject
 );
@@ -209,7 +225,7 @@ where
     c2m2.fl_biosample.project_id_namespace as project_id_namespace, c2m2.fl_biosample.project_local_id as project_local_id, 
     c2m2.fl_biosample.persistent_id as biosample_persistent_id, c2m2.fl_biosample.creation_time as biosample_creation_time, 
     c2m2.fl_biosample.sample_prep_method as sample_prep_method, c2m2.fl_biosample.anatomy as anatomy, 
-    c2m2.fl_biosample.association_type AS biosample_disease_association_type, c2m2.fl_biosample.disease as disease,
+    c2m2.fl_biosample.disease_association_type AS biosample_disease_association_type, c2m2.fl_biosample.disease as disease,
     c2m2.fl_biosample.subject_id_namespace as subject_id_namespace, c2m2.fl_biosample.subject_local_id as subject_local_id, 
     c2m2.fl_biosample.age_at_sampling as biosample_age_at_sampling,
     c2m2.fl_biosample.gene as gene,
