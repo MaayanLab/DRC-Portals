@@ -69,21 +69,25 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       </Grid>
       }
       <Grid item xs={12}>
-        {props.rows.length === 0 ? <>No results</> : (
-          <Stack spacing={1}>
-            <TableContainer component={Paper} elevation={0} variant="rounded-top">
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    {props.columns.map((column, i) => (
-                      <TableCell key={i} component="th">
-                        <Typography variant='body1' color="secondary">{column}</Typography>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {props.rows.map((row, i) => (
+        <Stack spacing={1}>
+          <TableContainer component={Paper} elevation={0} variant="rounded-top">
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  {props.columns.map((column, i) => (
+                    <TableCell key={i} component="th">
+                      <Typography variant='body1' color="secondary">{column}</Typography>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {props.rows.length === 0 ? <TableRow>
+                  <TableCell colSpan={props.columns.length} align="center">
+                    No results satisfy the query and filters
+                  </TableCell>
+                </TableRow> :
+                  props.rows.map((row, i) => (
                     <TableRow
                       key={i}
                       sx={{ 
@@ -95,12 +99,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                       </TableCell>)}
                     </TableRow>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <FormPagination p={props.p} r={props.r} count={props.count} />
-          </Stack>
-        )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <FormPagination p={props.p} r={props.r} count={props.count} />
+        </Stack>
       </Grid>
     </Grid>
   )
