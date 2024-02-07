@@ -22,13 +22,13 @@ export function LinkedTypedNode({
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
+      <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{ overflowWrap: "break-word", maxWidth: 300 }} color="secondary" fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
       <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color="secondary">{type_to_string(type, entity_type)}</Typography></Link>
     </div>
   )
 }
 
-export function Description({description}: {description: string}) {
+export function Description({ description }: { description: string }) {
   if (description === 'TODO') return null
   else {
     return <Typography variant="body1" color="secondary">{description}</Typography>
@@ -55,15 +55,15 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
 }>) {
   return (
     <Grid container justifyContent={'space-between'}>
-      {props.label && 
-      <Grid item xs={12} sx={{marginBottom: 5}}>
-        <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
-          <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <form action="" method="GET">
-            <SearchField q={props.q} placeholder={`Search ${props.label}`} />
-          </form>
-        </Stack>
-      </Grid>
+      {props.label &&
+        <Grid item xs={12} sx={{ marginBottom: 5 }}>
+          <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
+            <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
+            <form action="" method="GET">
+              <SearchField q={props.q} placeholder={`Search ${props.label}`} />
+            </form>
+          </Stack>
+        </Grid>
       }
       <Grid item xs={12}>
         {props.rows.length === 0 ? <>No results</> : (
@@ -83,11 +83,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                   {props.rows.map((row, i) => (
                     <TableRow
                       key={i}
-                      sx={{ 
+                      sx={{
                         '&:last-child td, &:last-child th': { border: 0 },
                       }}
                     >
-                      {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
+                      {row.map((cell, j) => <TableCell sx={{ maxWidth: 300, overflowWrap: 'break-word' }} key={j}>
                         {cell}
                       </TableCell>)}
                     </TableRow>
