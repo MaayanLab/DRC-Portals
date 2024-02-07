@@ -24,6 +24,7 @@ services:
       - S3_BUCKET
       - S3_REGION
       - OPENAI_API_KEY
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
