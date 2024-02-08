@@ -66,10 +66,11 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
       }
     }
   }
-  const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
   console.log("FILTERS LENGTH =");
   console.log(filters.length)
-  return filterClause;
+  return filterConditionStr;
 }
 
 export default async function Page(props: PageProps) {
@@ -82,37 +83,8 @@ export default async function Page(props: PageProps) {
   // Mano: Please do not delete the comments.
   // Do not delete commented lines as they may have related code to another/related task/item
 
-  const filters: string[] = [];
-
-  const tablename = "allres";
-  if (searchParams.t) {
-    const typeFilters: { [key: string]: string[] } = {};
-
-    searchParams.t.forEach(t => {
-      if (!typeFilters[t.type]) {
-        typeFilters[t.type] = [];
-      }
-      if (t.entity_type) {
-        //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        if (t.entity_type !== "null") {
-          typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        } else {
-          typeFilters[t.type].push(`"allres"."${t.type}_name" is null`);
-        }
-      }
-      // if (t.entity_type) {
-      //   typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-      // }
-    });
-
-    for (const type in typeFilters) {
-      if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
-        filters.push(`(${typeFilters[type].join(' OR ')})`);
-      }
-    }
-  }
-  //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
-  const filterClause = generateFilterQueryString(searchParams, "allres"); // Mano: using a function now
+  const filterConditionStr = generateFilterQueryString(searchParams, "allres"); // Mano: using a function now
+  const filterClause = filterConditionStr.length ? `WHERE ${filterConditionStr}` : ''; 
 
   /*  USAGE: SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10 */
 
@@ -150,6 +122,10 @@ export default async function Page(props: PageProps) {
   // Mano: In the queries below, please note that GROUP BY automatically means as if DISTINCT was applied
   // When filter values are selected, only the table displayed on the right (records) is updated; 
   // the list of distinct items in the filter is not updated.
+
+  // See if it is possible to actually include the ts_rank_cd and searchable in allres and then get away with allres_full. */
+  // Don't do that since #row allres_full is much smaller than in c2m2.ffl_biosample, so that merge c2m2.project is faster if done later. */
+
   const cascading: boolean = true;
   const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
