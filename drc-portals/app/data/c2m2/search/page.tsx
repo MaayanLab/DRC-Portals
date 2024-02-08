@@ -52,7 +52,8 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
           //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
           typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type.replace(/'/g, "''")}'`);          
         } else{
-          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
+          //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
+          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
         }
       }
     });
@@ -149,6 +150,7 @@ export default async function Page(props: PageProps) {
   const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
   records: {
+    rank: number,
     dcc_name: string,
     dcc_abbreviation: string,
     dcc_short_label: string,
@@ -161,6 +163,7 @@ export default async function Page(props: PageProps) {
     count_bios: number, 
     count_sub: number, 
     count_col: number, 
+    record_info_url: string,
   }[],
   count: number,
   // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
@@ -172,7 +175,6 @@ export default async function Page(props: PageProps) {
   project_filters:{project_name: string, count: number,}[],
 }>>`
 WITH allres_full AS (
-  SELECT DISTINCT c2m2.ffl_biosample.*,
   SELECT DISTINCT c2m2.ffl_biosample.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
     FROM c2m2.ffl_biosample
@@ -197,21 +199,22 @@ allres AS (
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id) 
   GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank
+  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, dcc_short_label, project_name
 ),
 allres_filtered AS (
-  SELECT * 
-  FROM allres
+  SELECT allres.*, 
+  concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc:', allres.dcc_name, '|', 'project:', allres.project_name,
+  '|', 'disease:', allres.disease_name, '|', 'taxonomy:', allres.taxonomy_name, '|', 'anatomy:', anatomy_name) AS record_info_url
+FROM allres
   ${Prisma.sql([filterClause])}
 ),
 allres_limited AS (
   SELECT *
   FROM allres_filtered
-  ORDER BY rank
+  /* ORDER BY rank DESC */
   OFFSET ${offset}
   LIMIT ${limit}   
 ),
-
-
 total_count as (
   select count(*)::int as count
   from allres_filtered
@@ -306,6 +309,8 @@ console.log(results.taxonomy_filters)
   dccIconTable["MW"] = "/img/Metabolomics.png";
   dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
   dccIconTable["SPARC"] = "/img/SPARC.svg";
+
+  const file_icon_path = "/img/icons/file.jpg";
   
   return (
     <ListingPageLayout
@@ -356,12 +361,15 @@ console.log(results.taxonomy_filters)
         r={searchParams.r}
         count={results?.count}
         columns={[
+          <>Details</>,
           <>DCC</>,
           <>Project Description</>,
           <>Attributes</>,
           <>Assets</>,
+          <>Rank</>
         ]}
         rows={results ? results?.records.map(res => [
+          <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
           // [
           //<>{res.dcc_abbreviation}</>,
           //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
@@ -380,7 +388,8 @@ console.log(results.taxonomy_filters)
             Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
           </>,
-          //]
+          <>{res.rank}</>
+            //]
         ]) : []}
       />
     </ListingPageLayout>

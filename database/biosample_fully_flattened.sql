@@ -22,6 +22,7 @@ select distinct
     c2m2.fl_biosample.collection_id_namespace, c2m2.fl_biosample.collection_local_id,
     c2m2.fl_biosample.substance,
 
+    /* Include dcc_name and dcc_abbreviation in searchable or not */
     c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, /* no need to include c2m2.dcc.dcc_description, */
 
     c2m2.anatomy.name, c2m2.anatomy.description, c2m2.anatomy.synonyms,
