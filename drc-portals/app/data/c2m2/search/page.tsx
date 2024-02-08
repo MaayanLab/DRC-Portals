@@ -385,7 +385,7 @@ SELECT
           //    <Description description={res.project_description} />
           //  </Typography>
           //</Box>,
-          <TruncatedText text={res.project_description} maxLength={50} />,
+          <TruncatedText text={res.project_description} maxLength={100} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
