@@ -7,6 +7,7 @@ import FilterSet from "./FilterSet"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
+import TruncatedText from "../TruncatedText"
 import { Box, Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -198,7 +199,8 @@ allres AS (
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id) 
   GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank
-),
+  ORDER BY rank DESC
+  ),
 allres_filtered AS (
   SELECT * 
   FROM allres
@@ -207,7 +209,6 @@ allres_filtered AS (
 allres_limited AS (
   SELECT *
   FROM allres_filtered
-  ORDER BY rank
   OFFSET ${offset}
   LIMIT ${limit}   
 ),
@@ -371,11 +372,12 @@ SELECT
           <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={dccIconTable[res.dcc_short_label]} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
-          <Box sx={{ width: 300 }}>
-            <Typography noWrap>
-              <Description description={res.project_description} />
-            </Typography>
-          </Box>,
+          //<Box sx={{ width: 300 }}>
+          //  <Typography noWrap>
+          //    <Description description={res.project_description} />
+          //  </Typography>
+          //</Box>,
+          <TruncatedText text={res.project_description} maxLength={50} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
