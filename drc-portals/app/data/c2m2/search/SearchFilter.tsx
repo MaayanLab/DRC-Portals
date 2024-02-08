@@ -39,7 +39,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 
-export default function SearchFilter({ id, label, count, props }: { id: string, label: string, count: number}) {
+export default function SearchFilter({ id, label, count }: { id: string, label: string, count: number }) {
   const rawSearchParams = useSearchParams()
   const { searchParams, currentFilterSet } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)
@@ -54,24 +54,24 @@ export default function SearchFilter({ id, label, count, props }: { id: string, 
 
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
-  
+
   return (
-    <Link href={`?${searchParams.toString()}`}>  
-       
-      <FormControlLabel 
+    <Link href={`?${searchParams.toString()}`}>
+
+      <FormControlLabel
         control={
-          
-          <Checkbox 
-          
-            
+
+          <Checkbox
+
+
           />
-          
-        }   
-        label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>}  
+
+        }
+        label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>}
         checked={currentFilterSet}
-      /> 
-      
-       
+      />
+
+
     </Link>
   )
 }

@@ -7,7 +7,8 @@ import FilterSet from "./FilterSet"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
-import { Button, Typography } from "@mui/material";
+import TruncatedText from "../TruncatedText"
+import { Box, Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import Icon from "@mdi/react";
@@ -36,7 +37,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 // Mano: Not sure if use of this function is sql-injection safe
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
 export function generateFilterQueryString(searchParams: any, tablename: string) {
-    const filters: string[] = [];
+  const filters: string[] = [];
 
   //const tablename = "allres";
   if (searchParams.t) {
@@ -47,6 +48,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
         typeFilters[t.type] = [];
       }
       if (t.entity_type) {
+
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
         if(t.entity_type !== "Unspecified"){ // was using "null"
           //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
@@ -65,6 +67,8 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
     }
   }
   const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  console.log("FILTERS LENGTH =");
+  console.log(filters.length)
   return filterClause;
 }
 
@@ -90,7 +94,7 @@ export default async function Page(props: PageProps) {
       }
       if (t.entity_type) {
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        if (t.entity_type !== "null") { 
+        if (t.entity_type !== "null") {
           typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
         } else {
           typeFilters[t.type].push(`"allres"."${t.type}_name" is null`);
@@ -146,7 +150,7 @@ export default async function Page(props: PageProps) {
   // Mano: In the queries below, please note that GROUP BY automatically means as if DISTINCT was applied
   // When filter values are selected, only the table displayed on the right (records) is updated; 
   // the list of distinct items in the filter is not updated.
-  const cascading:boolean = true;
+  const cascading: boolean = true;
   const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
   records: {
@@ -211,7 +215,6 @@ FROM allres
 allres_limited AS (
   SELECT *
   FROM allres_filtered
-  /* ORDER BY rank DESC */
   OFFSET ${offset}
   LIMIT ${limit}   
 ),
@@ -259,11 +262,11 @@ SELECT
   
   ` : [undefined];
   if (!results) redirect('/data')
-//  console.log(results)
-console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
-console.log(results.records.map(res => res.count))
-console.log(results.dcc_filters)
-console.log(results.taxonomy_filters)
+  //  console.log(results)
+  console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
+  console.log(results.records.map(res => res.count))
+  console.log(results.dcc_filters)
+  console.log(results.taxonomy_filters)
 
   const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
@@ -363,6 +366,7 @@ console.log(results.taxonomy_filters)
         columns={[
           <>Details</>,
           <>DCC</>,
+          <>Project Name</>,
           <>Project Description</>,
           <>Attributes</>,
           <>Assets</>,
@@ -376,6 +380,12 @@ console.log(results.taxonomy_filters)
           <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={dccIconTable[res.dcc_short_label]} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
+          //<Box sx={{ width: 300 }}>
+          //  <Typography noWrap>
+          //    <Description description={res.project_description} />
+          //  </Typography>
+          //</Box>,
+          <TruncatedText text={res.project_description} maxLength={50} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
