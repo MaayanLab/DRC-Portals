@@ -35,30 +35,36 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const filterClause = searchParams.t ? Prisma.sql`
-  where
-    ${Prisma_join([
-      Prisma_join([
-        searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
-          searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
-          ' or '
-        ) : Prisma.empty,
-        Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
-          (
-            "results"."type" = ${t.type}::"NodeType"
-          )
-          `), ' or '),
-      ], ' and '),
-      Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+  const filterClause = searchParams.t ? Prisma_join([
+    // when DCC is available, we'll filter by entities per-dcc
+    searchParams.t.some(t => t.type === 'dcc')
+      ? Prisma_join(
+        searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma_join([
+          Prisma.sql`"results"."dcc_id" = ${t.entity_type}`,
+          Prisma_join(searchParams.t ? searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+            (
+              "results"."type" = ${t.type}::"NodeType"
+            )
+            `) : [], ' or '),
+        ], ' and ')),
+        ' or '
+      )
+      // otherwise, we filter by entity type independent of dcc
+      : Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
-          "results"."type" = 'entity'::"NodeType"
-          ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
-          ` : Prisma.empty}
+          "results"."type" = ${t.type}::"NodeType"
         )
-      `), ' or ')
-    ], ' or ')}
-  ` : Prisma.empty
+        `), ' or '),
+    // entities not associated with a DCC should be independently filterable
+    Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+      (
+        "results"."type" = 'entity'::"NodeType"
+        ${t.entity_type ? Prisma.sql`
+          and "results"."entity_type" = ${t.entity_type}
+        ` : Prisma.empty}
+      )
+    `), ' or '),
+  ], ' or ') : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,
@@ -88,14 +94,14 @@ export default async function Page(props: PageProps) {
         where "dccs".id = "dcc_id"
       ) as dcc
       from "results"
-      ${filterClause}
+      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
       order by "results"."rank"
       offset ${offset}
       limit ${limit}
     ), filter_count as (
       select count(*)::int as count
       from "results"
-      ${filterClause}
+      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
     ), total_count as (
       select count(*)::int as count
       from "results"
