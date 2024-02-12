@@ -26,7 +26,11 @@ export default function GeneInput(props: any) {
     const [submitted, setSubmitted] = React.useState(false)
     const processName = props.process
     const Component = processMapper[processName || '']
-    const { data, error, isLoading } = useSWRImmutable<string[]>(() => geneTerm.length >= 2 ? `https://maayanlab.cloud/Harmonizome/api/1.0/suggest?t=gene&q=${encodeURIComponent(geneTerm)}` : null, fetcher)
+    const { data, error, isLoading } = useSWRImmutable<string[]>(() => {
+        if (geneTerm.length < 2) return null
+        if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(geneTerm)}`
+        else return `https://maayanlab.cloud/Harmonizome/api/1.0/suggest?t=gene&q=${encodeURIComponent(geneTerm)}`
+    }, fetcher)
     const items = React.useMemo(() => data ? levenSort(data, geneTerm).slice(0, 10).map((elt: string) => { return { value: elt, label: elt } }) : [], [data, geneTerm])
 
 
