@@ -8,7 +8,7 @@
             "questions": []
         },
         "[Phenotypes]": {
-            "gpt_desc": "Mouse phenotypes signfigantly associated with a gene",
+            "gpt_desc": "Mouse phenotypes significantly associated with a gene",
             "process": "ImpcPhenotypes",
             "args": [],
             "text": "I can query IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene",

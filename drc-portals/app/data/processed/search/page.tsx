@@ -35,26 +35,40 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const filterClause = searchParams.t ? Prisma.sql`
-  where
-    ${Prisma_join([
-      searchParams.t.some(t => t.type === 'dcc') ? Prisma_join(
-        searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma.sql`"results"."dcc_id" = ${t.entity_type}`),
+  const filterClause = searchParams.t ? Prisma_join([
+    // when DCC is available, we'll filter by entities per-dcc
+    searchParams.t.some(t => t.type === 'dcc')
+      ? Prisma_join(
+        searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma_join([
+          Prisma.sql`"results"."dcc_id" = ${t.entity_type}`,
+          Prisma_join(searchParams.t ? searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+            (
+              "results"."type" = ${t.type}::"NodeType"
+            )
+            `) : [], ' or '),
+        ], ' and ')),
         ' or '
-      ) : Prisma.empty,
-      Prisma_join(searchParams.t.filter(t => t.type !== 'dcc').map(t => Prisma.sql`
+      )
+      // otherwise, we filter by entity type independent of dcc
+      : Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
-          ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
-          ` : Prisma.empty}
         )
-      `), ' or '),
-    ], ' and ')}
-  ` : Prisma.empty
+        `), ' or '),
+    // entities not associated with a DCC should be independently filterable
+    Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+      (
+        "results"."type" = 'entity'::"NodeType"
+        ${t.entity_type ? Prisma.sql`
+          and "results"."entity_type" = ${t.entity_type}
+        ` : Prisma.empty}
+      )
+    `), ' or '),
+  ], ' or ') : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
-    count: number,
+    filter_count: number,
+    total_count: number,
     type_counts: {type: NodeType, entity_type: string | null, count: number}[],
     dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
@@ -80,14 +94,17 @@ export default async function Page(props: PageProps) {
         where "dccs".id = "dcc_id"
       ) as dcc
       from "results"
-      ${filterClause}
+      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
       order by "results"."rank"
       offset ${offset}
       limit ${limit}
+    ), filter_count as (
+      select count(*)::int as count
+      from "results"
+      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
     ), total_count as (
       select count(*)::int as count
       from "results"
-      ${filterClause}
     ), type_counts as (
       select "type", "entity_type", count(*)::int as count
       from "results"
@@ -104,16 +121,17 @@ export default async function Page(props: PageProps) {
     )
     select 
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
-      (select count from total_count) as count,
+      (select count from total_count) as total_count,
+      (select count from filter_count) as filter_count,
       (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
   if (!results) redirect('/data')
-  else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  else if (results.total_count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
-      count={results?.count}
+      count={results?.filter_count}
       filters={
         <>
           <Typography className="subtitle1">Program</Typography>
@@ -146,7 +164,7 @@ export default async function Page(props: PageProps) {
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.count}
+        count={results?.filter_count}
         columns={[
           <>&nbsp;</>,
           <>Label</>,

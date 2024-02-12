@@ -104,7 +104,7 @@ async function alternativeHash(file: File) {
 }
 
 const assetTypeExtensionMap: { [key: string]: string } = {
-  'KG Assertion': '.csv',
+  'KG Assertions': '.csv',
   'C2M2': '.zip',
   'XMT': '.gmt or .dmt',
   'Attribute Table': '.h5 or hdf5'

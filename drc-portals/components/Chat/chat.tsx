@@ -202,14 +202,14 @@ export default function Chat() {
             evt.preventDefault()
             submit({
               role: 'user',
-              content: "Which L1000 drugs most signfigantly up or down regulate STAT3?",
+              content: "Which L1000 drugs most significantly up or down regulate STAT3?",
               output: null,
               options: null,
               args: null
             })
           }}
         >
-          Which L1000 drugs most signfigantly up or down regulate STAT3?
+          Which L1000 drugs most significantly up or down regulate STAT3?
         </div>
         <div
           data-te-chip-init
@@ -238,14 +238,14 @@ export default function Chat() {
             evt.preventDefault()
             submit({
               role: 'user',
-              content: "Which mouse phenotypes signfigantly associated with ACE2?",
+              content: "Which mouse phenotypes significantly associated with ACE2?",
               output: null,
               options: null,
               args: null
             })
           }}
         >
-          Which mouse phenotypes signfigantly associated with ACE2?
+          Which mouse phenotypes significantly associated with ACE2?
         </div>
       </div>
     </div>
