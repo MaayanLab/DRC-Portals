@@ -1,26 +1,3 @@
-export class TSVector {
-  constructor(public set = new Set<string>()) {}
-  add = (other: string) => {
-    this.set.add(other)
-  }
-  intersect(other: TSVector) {
-    const intersection = new Set<string>()
-    if (this.size < other.size) {
-      this.set.forEach(el => {
-        if (other.set.has(el)) intersection.add(el)
-      })
-    } else {
-      other.set.forEach(el => {
-        if (this.set.has(el)) intersection.add(el)
-      })
-    }
-    return new TSVector(intersection)
-  }
-  get size() {
-    return this.set.size
-  }
-}
-
 /**
  * tri-gram searching works as follows:
  * Given: "my text"
@@ -36,7 +13,7 @@ export function tsvector(s: string) {
     .replace(/\s+/g, '  ')
     .replace(/^\s*/g, s.length > 1 ? ' ' : '  ')
     .replace(/\s*$/g, '  ')
-  const trigrams = new TSVector()
+  const trigrams = new Set<string>()
   for (let i = 0, j = 3; j <= s.length; i++, j++) {
     const ngram = s.slice(i, j)
     if (ngram.endsWith('  ')) continue
@@ -45,33 +22,64 @@ export function tsvector(s: string) {
   return trigrams
 }
 
+export function tsvector_intersect(a: Set<string>, b: Set<string>) {
+  const intersection = new Set<string>()
+  // choose the smaller index to loop through
+  if (a.size < b.size) {
+    // collect all intersecting trigrams
+    a.forEach(el => {
+      if (b.has(el)) intersection.add(el)
+    })
+  } else {
+    // collect all intersecting trigrams
+    b.forEach(el => {
+      if (a.has(el)) intersection.add(el)
+    })
+  }
+  return intersection
+}
+
 /**
  * Given trigrams, we can create an efficient search index by storing
  *  trigrams as keys and the documents as values, allowing us to
  *  directly lookup the set of documents given the query trigram regardless
- *  of how many documents there are
+ *  of how many documents there are.
  */
-export class TSVectorDB {
-  constructor(private db = new Map<string, Set<string>>()) {}
-  private _upsert = (trgrm: string, document: string) => {
-    const docs = this.db.get(trgrm)
-    if (!docs) this.db.set(trgrm, new Set([document]))
+export function tsvector_search_index_insert(search_index: Map<string, Set<string>>, document: string) {
+  // all trigrams from this document are registered into the search index
+  tsvector(document).forEach(trgrm => {
+    const docs = search_index.get(trgrm)
+    if (!docs) search_index.set(trgrm, new Set([document]))
     else docs.add(document)
-  }
-  add = (document: string) => {
-    const tsdocument = tsvector(document)
-    tsdocument.set.forEach(trgrm => this._upsert(trgrm, document))
-  }
-  search = (query: string) => {
-    const docHits = Array.from(tsvector(query).set).reduce((counts, trgrm) => {
-      const docs = this.db.get(trgrm)
-      if (docs !== undefined) {
-        docs.forEach(doc => counts.set(doc, (counts.get(doc) ?? 0) + 1))
-      }
-      return counts
-    }, new Map<string, number>)
-    const docs = Array.from(docHits.keys())
-    docs.sort((a, b) => (docHits.get(b)??0) - (docHits.get(a)??0))
-    return docs
-  }
+  })
+}
+
+/**
+ * Map<TRIGRAM, Set<DOCUMENT>>
+ */
+export function tsvector_search_index(documents: string[] = []) {
+  const search_index = new Map<string, Set<string>>()
+  documents.forEach(document => tsvector_search_index_insert(search_index, document))
+  return search_index
+}
+
+/**
+ * Search for a query in a search index, returns results ordered by relevance
+ */
+export function tsvector_search_index_search(search_index: Map<string, Set<string>>, query: string) {
+  const docHits = Array.from(
+    // get trigrams for the query string
+    tsvector(query)
+  ).reduce((counts, trgrm) => {
+    const docs = search_index.get(trgrm)
+    if (docs !== undefined) {
+      // each document with matching trigrams gets a "hit"
+      docs.forEach(doc => counts.set(doc, (counts.get(doc) ?? 0) + 1))
+    }
+    return counts
+  }, new Map<string, number>)
+  const docs = Array.from(docHits.keys())
+  // sort documents by most trigram hits
+  docs.sort((a, b) => (docHits.get(b)??0) - (docHits.get(a)??0))
+  return docs
 }
