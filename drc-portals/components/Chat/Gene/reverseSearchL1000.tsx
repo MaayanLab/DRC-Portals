@@ -21,6 +21,7 @@ const getL100Sigs = async (gene: string, dir: string, perturb: string) => {
     }
 
     const res = await fetch(`/chat/l1000sigs`, options)
+    if (!res.ok) throw new Error(res.statusText)
     const data = await res.json()
     return data
 };
