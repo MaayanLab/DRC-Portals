@@ -66,11 +66,13 @@ for i, val in df.iterrows():
     publication_df.loc[uid] = val
     if type(val["dccs"]) == str and val["dccs"].strip() != '':
         for dcc in val["dccs"].split(";"):
+            dcc = dcc.strip()
             dcc_id = dcc_mapper[dcc]
             dcc_publication_df.loc[ind] = [uid, dcc_mapper[dcc]]
             ind += 1
     if type(val["partnerships"]) == str and val["partnerships"].strip() != '':
         for partnership in val["partnerships"].split(";"):
+            partnership = partnership.strip()
             partnership_id = partnership_mapper[partnership]
             partnership_publication_df.loc[pind] = [uid, partnership_mapper[partnership]]
             pind += 1
