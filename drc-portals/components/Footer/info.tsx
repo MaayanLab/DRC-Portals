@@ -31,7 +31,7 @@ export default async function InfoFooter() {
                   </Typography>
                 </div>
               </Link>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/issues/new">
+              <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
                   <Typography variant='footer' className='flex'>
