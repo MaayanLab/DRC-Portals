@@ -42,11 +42,11 @@ const providers = [
       return user
     }
   }) : undefined,
-  process.env.NEXTAUTH_EMAIL ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
   process.env.NEXTAUTH_GITHUB ? GithubProvider(JSON.parse(process.env.NEXTAUTH_GITHUB)) : undefined,
   process.env.NEXTAUTH_GOOGLE ? GoogleProvider(JSON.parse(process.env.NEXTAUTH_GOOGLE)) : undefined,
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,
   process.env.NEXTAUTH_GLOBUS ? GlobusProvider(JSON.parse(process.env.NEXTAUTH_GLOBUS)) : undefined,
+  process.env.NEXTAUTH_EMAIL ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
