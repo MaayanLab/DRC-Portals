@@ -10,7 +10,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import type { FileAsset, User, } from '@prisma/client'
 import { render } from '@react-email/render';
-import { AssetSubmitReceiptEmail, DCCApproverUploadEmail, DRCApproverUploadEmail } from '../Email';
+import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 var nodemailer = require('nodemailer');
 
@@ -183,10 +183,9 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     })
 
     const receipt = await sendUploadReceipt(user, savedUpload);
-    const dccApproverAlert = await sendDCCApproverEmail(formDcc);
-    const drcApproverAlert = await sendDRCApproverEmail();
+    const dccApproverAlert = await sendDCCApproverEmail(user, formDcc, savedUpload)
+    // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);
     return savedUpload
-    // revalidatePath('/data/contribute/uploaded')
 }
 
 export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: FileAsset | null }) {
@@ -199,13 +198,13 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
         let info = await transporter.sendMail({
             from: from,
             to: user.email,
-            subject: "Confirmation: File Asset Submitted",
+            subject: "CFDE WORKBENCH Asset Submission Confirmation",
             html: emailHtml
         });
     }
 }
 
-export async function sendDCCApproverEmail(dcc: string) {
+export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
     const approvers = await prisma.user.findMany({
@@ -215,40 +214,43 @@ export async function sendDCCApproverEmail(dcc: string) {
         }
     })
     if (approvers.length > 0) {
-        const approverEmails = approvers.map((approver) => approver.email).join(', ')
-        const emailHtml = render(<DCCApproverUploadEmail />);
-        if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
-        const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
-        const transporter = nodemailer.createTransport(server)
-        transporter.sendMail({
-            from: from,
-            to: approverEmails,
-            subject: 'DRC Portal: New File Asset Submitted',
-            html: emailHtml,
-        })
-    }
-
-}
-
-export async function sendDRCApproverEmail() {
-    const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-    const DRCApprovers = await prisma.user.findMany({
-        where: {
-            role: 'DRC_APPROVER'
+        for (let approver of approvers) {
+            const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.name ? user.name : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);
+            if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+            const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+            const transporter = nodemailer.createTransport(server)
+            transporter.sendMail({
+                from: from,
+                to: approver.email,
+                subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+                html: emailHtml,
+            })
         }
-    })
-    if (DRCApprovers.length > 0) {
-    const approverEmails = DRCApprovers.map((approver) => approver.email).join(', ')
-    const emailHtml = render(<DRCApproverUploadEmail />);
-    if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
-    const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
-    const transporter = nodemailer.createTransport(server)
-    transporter.sendMail({
-        from: from,
-        to: approverEmails,
-        subject: 'DRC Portal: New File Asset Submitted',
-        html: emailHtml,
-    })
+
     }
+
 }
+
+// export async function sendDRCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
+//     const session = await getServerSession(authOptions)
+//     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+//     const DRCApprovers = await prisma.user.findMany({
+//         where: {
+//             role: 'DRC_APPROVER'
+//         }
+//     })
+//     if (DRCApprovers.length > 0) {
+//         for (let approver of DRCApprovers) {
+//             const emailHtml = render(<DRCApproverUploadEmail uploaderName={user.name ? user.name : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''} dcc={dcc}/>);
+//             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+//             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+//             const transporter = nodemailer.createTransport(server)
+//             transporter.sendMail({
+//                 from: from,
+//                 to: approver.email,
+//                 subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+//                 html: emailHtml,
+//             })
+//         }
+//     }
+// }

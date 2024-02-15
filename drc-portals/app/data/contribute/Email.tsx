@@ -12,50 +12,56 @@ import {
     Text,
 } from "@react-email/components";
 import { CodeAsset, FileAsset } from '@prisma/client';
+import Email from 'next-auth/providers/email';
 
 
-export function DCCApproverUploadEmail() {
+function EmailLayout({ innerElements }: { innerElements: JSX.Element }) {
     return (
         <Html lang='en'>
             <Head />
-            <Preview>Data Resource Portal: New Asset Upload</Preview>
+            <Preview>CFDE WORKBENCH Email</Preview>
             <Body style={main}>
                 <Container style={container}>
                     <Section>
-                        <Text style={text}>Hello,</Text>
+                        {/* <Img
+                            src={`${process.env.PUBLIC_URL}/img/favicon.png`}
+                            width="40"
+                            height="37"
+                            alt="workbenchLogo"
+                            className="my-0 mx-auto"
+                        /> */}
+                        {innerElements}
                         <Text style={text}>
-                            A new asset for your DCC has been uploaded and is ready for approval.
-                        </Text>
-                        <Text>
-                            This email is not monitored so do not send a reply to this message.
+                            Best regards,
+                            <br></br>
+                            The CFDE WORKBENCH team
                         </Text>
                     </Section>
                 </Container>
             </Body>
         </Html>
-    );
+    )
 }
 
 
-export function DRCApproverUploadEmail() {
+
+
+export function DCCApproverUploadEmail({ uploaderName, approverName, assetName }: { uploaderName: string, approverName: string, assetName: string }) {
     return (
-        <Html lang='en'>
-            <Head />
-            <Preview>Data Resource Portal: New Asset Upload</Preview>
-            <Body style={main}>
-                <Container style={container}>
-                    <Section>
-                        <Text style={text}>Hello,</Text>
-                        <Text style={text}>
-                            A new asset has been uploaded to the portal and is ready for approval.
-                        </Text>
-                        <Text>
-                            This email is not monitored so do not send a reply to this message.
-                        </Text>
-                    </Section>
-                </Container>
-            </Body>
-        </Html>
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear, {approverName}</Text>
+            <Text style={text}>
+                The new asset {assetName} from your DCC has been uploaded by {uploaderName} and it is ready for your approval.
+            </Text>
+            <Text style={text}>
+                Please click the URL below to access your account to review the uploaded asset:
+            </Text>
+            <button>Click here</button>
+            <Link href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link>
+            <Text style={text}>
+                If you encounter any issues, please do not reply to this message as this email box is not monitored. To contact the Data Resource Center, please email stephanieolaiya@mssm.edu.
+            </Text>
+        </>} />
     );
 }
 
@@ -63,7 +69,7 @@ export function DRCApproverUploadEmail() {
 interface AssetSubmitReceiptProps {
     userFirstname?: string;
     codeAsset?: CodeAsset;
-    fileAsset?:FileAsset
+    fileAsset?: FileAsset
 }
 
 export const AssetSubmitReceiptEmail = ({
@@ -71,90 +77,231 @@ export const AssetSubmitReceiptEmail = ({
     codeAsset,
     fileAsset,
 }: AssetSubmitReceiptProps) => {
+    let assetInfo;
     if (codeAsset) {
-        return (
-            <Html>
-                <Head />
-                <Preview>Data Resource Portal: Asset Upload Receipt</Preview>
-                <Body style={main}>
-                    <Container style={container}>
-                        <Section>
-                            <Text style={text}>Hello {userFirstname},</Text>
-                            <Text style={text}>
-                                You have recently submitted an asset to the DRC portal with the following information:
-                            </Text>
-                            <Text style={text}>
-                                Asset: <Link style={anchor} href={codeAsset?.link}></Link>{codeAsset?.name}
-                            </Text>
-                            <Text style={text}>
-                                Asset Type: {codeAsset?.type}
-                            </Text>
-                            <Text style={text}>
-                                If you are not responsible for this action, please ignore and delete this message.
-                            </Text>
-                            <Text style={text}>
-                                This email is not monitored so do not send a reply to this message.
-                            </Text>
-                        </Section>
-                    </Container>
-                </Body>
-            </Html>
-        );
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={codeAsset?.link}>{codeAsset?.name}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {codeAsset?.type}
+            </Text></>
     } else {
-        return (
-            <Html>
-                <Head />
-                <Preview>Data Resource Portal: Asset Upload Receipt</Preview>
-                <Body style={main}>
-                    <Container style={container}>
-                        <Section>
-                            <Text style={text}>Hello {userFirstname},</Text>
-                            <Text style={text}>
-                                You have recently submitted an asset to the DRC portal with the following information:
-                            </Text>
-                            <Text style={text}>
-                                Asset: <Link style={anchor} href={fileAsset?.link}></Link>{fileAsset?.filename}
-                            </Text>
-                            <Text style={text}>
-                                Asset Type: {fileAsset?.filetype}
-                            </Text>
-                            <Text style={text}>
-                                If you are not responsible for this action, please ignore and delete this message.
-                            </Text>
-                            <Text style={text}>
-                                This email is not monitored so do not send a reply to this message.
-                            </Text>
-                        </Section>
-                    </Container>
-                </Body>
-            </Html>
-        );
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={fileAsset?.link}>{fileAsset?.filename}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {fileAsset?.filetype}
+            </Text></>
     }
-
+    return (
+        <EmailLayout innerElements={<><Text style={text}>Dear {userFirstname},</Text>
+            <Text style={text}>
+                This email serves as a confirmation that you submitted a new asset to the CFDE WORKBENCH with the following information:
+            </Text>
+            {assetInfo}
+            <Text style={text}>
+                If this submission was not initiated by you, please contact the DRC by email immediately.
+            </Text>
+            <Text style={text}>
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please email stephanie.olaiya@msssm.edu.
+            </Text></>} />
+    )
 };
 
-export function ApprovedAlert({assetName}: {assetName: string}) {
+
+
+
+
+interface AssetProps {
+    codeAsset?: CodeAsset | null;
+    fileAsset?: FileAsset | null
+}
+
+export function Uploader_DCCApprovedEmail({ uploaderName, approverName, asset }: { uploaderName: string | null, approverName: string, asset: AssetProps }) {
+    let assetInfo;
+    if (asset.codeAsset) {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.codeAsset?.link}>{asset.codeAsset?.name}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.codeAsset?.type}
+            </Text></>
+    } else {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.fileAsset?.link}>{asset.fileAsset?.filename}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.fileAsset?.filetype}
+            </Text></>
+    }
     return (
-        <Html lang='en'>
-            <Head />
-            <Preview>Data Resource Portal: Asset Approval Confirmation </Preview>
-            <Body style={main}>
-                <Container style={container}>
-                    <Section>
-                        <Text style={text}>Hello,</Text>
-                        <Text style={text}>
-                            You are receiving this email because the asset: {assetName} of which you are an Uploader/Approver of 
-                            has been approved. 
-                        </Text>
-                        <Text>
-                            This email is not monitored so do not send a reply to this message.
-                        </Text>
-                    </Section>
-                </Container>
-            </Body>
-        </Html>
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear {uploaderName},</Text>
+            <Text style={text}>
+                This email serves as a confirmation that an asset that you submitted has been approved by the DCC Approver: {approverName}.
+            </Text>
+            {assetInfo}
+            <Text style={text}>
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+            </Text></>} />
     );
 }
+
+export function DCCApprover_DCCApprovedEmail({ approverName, asset }: { approverName: string, asset: AssetProps }) {
+    let assetInfo;
+    if (asset.codeAsset) {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.codeAsset?.link}>{asset.codeAsset?.name}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.codeAsset?.type}
+            </Text></>
+    } else {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.fileAsset?.link}>{asset.fileAsset?.filename}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.fileAsset?.filetype}
+            </Text></>
+    }
+    return (
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear {approverName},</Text>
+            <Text style={text}>
+                This email serves as a confirmation that you approved an asset to the CFDE WORKBENCH with the following information:
+            </Text>
+            {assetInfo}
+            <Text style={text}>
+                If this approval was not initiated by you, please contact the DRC by email immediately.
+            </Text>
+            <Text style={text}>
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please email stephanie.olaiya@msssm.edu.
+            </Text></>} />
+    );
+}
+
+export function DRCApprover_DCCApprovedEmail({ reviewerName, uploaderName, dcc, approverName }: { reviewerName: string, uploaderName: string | null, dcc: string | null, approverName: string | null }) {
+    return (
+        <EmailLayout innerElements={<>                        <Text style={text}>Dear {reviewerName},</Text>
+            <Text style={text}>
+                A new asset has been uploaded to the portal by {uploaderName} from {dcc} and was approved by {approverName} and is ready in the system for your review.
+            </Text>
+            <Text style={text}>
+                Please click the URL below to access your account to review the uploaded asset:
+            </Text>
+            <button>Click here</button>
+            <Link href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link></>} />
+    );
+}
+
+export function Uploader_DRCApprovedEmail({ uploaderName, reviewerName, asset }: { uploaderName: string| null, reviewerName: string, asset: AssetProps }) {
+    let assetInfo;
+    if (asset.codeAsset) {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.codeAsset?.link}>{asset.codeAsset?.name}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.codeAsset?.type}
+            </Text></>
+    } else {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.fileAsset?.link}>{asset.fileAsset?.filename}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.fileAsset?.filetype}
+            </Text></>
+    }
+    return (
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear {uploaderName},</Text>
+            <Text style={text}>
+                This email serves as a confirmation that an asset that you submitted has been approved by the DRC Approver: {reviewerName}.
+            </Text>
+            {assetInfo}
+            <Text style={text}>
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+            </Text>
+        </>} />
+    );
+}
+
+export function DCCApprover_DRCApprovedEmail({ approverName, reviewerName, asset }: { approverName: string | null, reviewerName: string, asset: AssetProps }) {
+    let assetInfo;
+    if (asset.codeAsset) {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.codeAsset?.link}>{asset.codeAsset?.name}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.codeAsset?.type}
+            </Text></>
+    } else {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.fileAsset?.link}>{asset.fileAsset?.filename}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.fileAsset?.filetype}
+            </Text></>
+    }
+    return (
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear {approverName},</Text>
+            <Text style={text}>
+                This email serves as a confirmation that an asset that you are authorzied to approve has been reviewed by the DRC Approver: {reviewerName}.
+            </Text>
+            {assetInfo}
+            <Text style={text}>
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+            </Text></>} />
+    );
+}
+
+
+export function DRCApprover_DRCApprovedEmail({reviewerName, asset }: { reviewerName: string | null, asset: AssetProps }) {
+    let assetInfo;
+    if (asset.codeAsset) {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.codeAsset?.link}>{asset.codeAsset?.name}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.codeAsset?.type}
+            </Text></>
+    } else {
+        assetInfo = <>
+            <Text style={text}>
+                Asset: <Link style={anchor} href={asset.fileAsset?.link}>{asset.fileAsset?.filename}</Link>
+            </Text>
+            <Text style={text}>
+                Asset Type: {asset.fileAsset?.filetype}
+            </Text></>
+    }
+    return (
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear {reviewerName},</Text>
+            <Text style={text}>
+                This email serves as a confirmation that you approved an asset in the CFDE WORKBENCH with the following information:                        
+                </Text>
+            {assetInfo}
+            <Text style={text}>
+                If this approval was not initiated by you, please contact the DRC by email immediately.
+            </Text>
+            <Text style={text}>
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+            </Text></>} />
+    );
+}
+
+
 
 const main = {
     backgroundColor: "#f6f9fc",
