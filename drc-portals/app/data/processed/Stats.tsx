@@ -30,7 +30,7 @@ export default async function Stats() {
     with labeled_count as (
       select 'Genes' as label, (select count(*) from gene_entity) as count
       union
-      select 'Genes sets' as label, (select count(*) from gene_set_node) as count
+      select 'Gene sets' as label, (select count(*) from gene_set_node) as count
       union
       select 'Drugs' as label, (select count(*) from entity_node where type = 'Drug') as count
       union
