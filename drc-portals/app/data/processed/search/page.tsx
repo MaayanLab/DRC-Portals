@@ -172,11 +172,11 @@ export default async function Page(props: PageProps) {
         ]}
         rows={results?.items.map(item => [
           item.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc.short_label}`} src={item.dcc.icon} alt={item.dcc.label} />
-            : item.type === 'entity' ? 
-              item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={GeneIcon} alt="Gene" />
-              : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={DrugIcon} alt="Drug" />
-              : <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
-            : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${item.entity_type}`} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
+            : item.entity_type !== null ?
+              item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${encodeURIComponent(item.entity_type)}`} src={GeneIcon} alt="Gene" />
+              : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${encodeURIComponent(item.entity_type)}`} src={DrugIcon} alt="Drug" />
+              : <SearchablePagedTableCellIcon href={`/data/processed/${item.type}/${encodeURIComponent(item.entity_type)}`} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
+            : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={`/data/processed/${item.type}`} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
             : null,
           <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
           <Description description={item.description} search={searchParams.q ?? ''} />,
