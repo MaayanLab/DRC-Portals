@@ -94,7 +94,11 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                     <form action="/data/c2m2/search" method="GET">
                       <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE C2M2 DATA PORTAL</Typography>
-                        <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata.</Typography>
+                        <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Metadata across various Common Fund Programs.</Typography>
+                        <Typography color="textSecondary" className="text-left" sx={{fontSize: 14}} variant="body1">
+                          Powered by the <Link href={`https://info.cfde.cloud/info/standards/C2M2`}><u>Crosscut metadata model (C2M2)</u></Link>, the search results provide a ranked list of projects, 
+                          based on a full-text search across various fields such as IDs, name and description (and synonyms 
+                          if applicable) of various entities such as DCC, project, collection and ontological information.</Typography>
                         <SearchField q="" error={searchParams.error} width={'544px'}/>
                         <Typography variant="stats_sub">
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
