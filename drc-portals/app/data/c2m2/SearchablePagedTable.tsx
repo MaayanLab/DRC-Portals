@@ -28,6 +28,8 @@ export function LinkedTypedNode({
   )
 }
 
+
+
 export function Description({ description }: { description: string }) {
   if (description === 'TODO') return null
   else {
@@ -39,7 +41,7 @@ export function SearchablePagedTableCellIcon(props: {
   src: string | StaticImageData, href: string, alt: string
 }) {
   return (
-    <div className="w-32 h-16 relative">
+    <div className="w-16 h-8 relative">
       <Link href={props.href}>
         <Image className="object-contain" src={props.src} alt={props.alt} fill />
       </Link>

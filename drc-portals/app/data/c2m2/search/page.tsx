@@ -50,10 +50,10 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
       if (t.entity_type) {
 
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        if(t.entity_type !== "Unspecified"){ // was using "null"
+        if (t.entity_type !== "Unspecified") { // was using "null"
           //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
-          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type.replace(/'/g, "''")}'`);          
-        } else{
+          typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type.replace(/'/g, "''")}'`);
+        } else {
           //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
           typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
         }
@@ -84,33 +84,11 @@ export default async function Page(props: PageProps) {
   // Do not delete commented lines as they may have related code to another/related task/item
 
   const filterConditionStr = generateFilterQueryString(searchParams, "allres"); // Mano: using a function now
-  const filterClause = filterConditionStr.length ? `WHERE ${filterConditionStr}` : ''; 
+  const filterClause = filterConditionStr.length ? `WHERE ${filterConditionStr}` : '';
 
   /*  USAGE: SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres ${Prisma.sql([filterClause])} LIMIT 10 */
 
 
-  /* const filters: string[] = [];
-
-  if (searchParams.t) {
-    const typeFilters: { [key: string]: string[] } = {};
-
-    searchParams.t.forEach(t => {
-      if (!typeFilters[t.type]) {
-        typeFilters[t.type] = [];
-      }
-      if (t.entity_type) {
-        typeFilters[t.type].push(`"allres"."${t.type}_name" = ${Prisma.sql`'${t.entity_type}'`}`);
-      }
-    });
-
-    for (const type in typeFilters) {
-      if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
-        filters.push(`(${Prisma.join(typeFilters[type], ' OR ')})`);
-      }
-    }
-  }
-
-  const filterClause = filters.length ? Prisma.sql`WHERE ${Prisma.join(filters, ' AND ')}` : Prisma.empty; */
 
   // searchParamsT which will helpa pply both and (across filter types) and or operator (within same filter type) 
   // for this URL: http://localhost:3000/data/c2m2/search?q=blood&t=dcc%3AUCSD+Metabolomics+Workbench%7Cdcc%3AThe+Human+Microbiome+Project%7Cspecies%3AHomo+sapiens&p=1
@@ -129,36 +107,40 @@ export default async function Page(props: PageProps) {
   const cascading: boolean = true;
   const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-  records: {
-    rank: number,
-    dcc_name: string,
-    dcc_abbreviation: string,
-    dcc_short_label: string,
-    taxonomy_name: string,
-    disease_name: string,
-    anatomy_name: string,
-    project_name: string,
-    project_description: string,
-    count: number, // this is based on across all-columns of ffl_biosample
-    count_bios: number, 
-    count_sub: number, 
-    count_col: number, 
-    record_info_url: string,
-  }[],
-  count: number,
-  // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
-  // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
-  dcc_filters:{dcc_name: string, dcc_short_label: string, count: number,}[],
-  taxonomy_filters:{taxonomy_name: string, count: number,}[],
-  disease_filters:{disease_name: string, count: number,}[],
-  anatomy_filters:{anatomy_name: string, count: number,}[],
-  project_filters:{project_name: string, count: number,}[],
-}>>`
+    records: {
+      //rank: number,
+      dcc_name: string,
+      dcc_abbreviation: string,
+      dcc_short_label: string,
+      taxonomy_name: string,
+      disease_name: string,
+      anatomy_name: string,
+      gene_name: string,
+      project_name: string,
+      project_description: string,
+      count: number, // this is based on across all-columns of ffl_biosample
+      count_bios: number,
+      count_sub: number,
+      count_col: number,
+      record_info_url: string,
+    }[],
+    count: number,
+    // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
+    // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
+    dcc_filters: { dcc_name: string, dcc_short_label: string, count: number, }[],
+    taxonomy_filters: { taxonomy_name: string, count: number, }[],
+    disease_filters: { disease_name: string, count: number, }[],
+    anatomy_filters: { anatomy_name: string, count: number, }[],
+    project_filters: { project_name: string, count: number, }[],
+    gene_filters: { gene_name: string, count: number, }[],
+  }>>`
 WITH allres_full AS (
   SELECT DISTINCT c2m2.ffl_biosample.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
     FROM c2m2.ffl_biosample
     WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
+    /*ORDER BY rank DESC , dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name */
+
 ),
 allres AS (
   SELECT 
@@ -166,9 +148,11 @@ allres AS (
     allres_full.dcc_name AS dcc_name,
     allres_full.dcc_abbreviation AS dcc_abbreviation,
     SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+    allres_full.project_local_id AS project_local_id,
     CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
     CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
     CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
+    CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name,
     allres_full.project_name AS project_name,
     c2m2.project.description AS project_description,
     COUNT(*)::INT AS count,
@@ -178,15 +162,16 @@ allres AS (
   FROM allres_full 
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id) 
-  GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank
-  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, dcc_short_label, project_name
+  GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, disease_name, anatomy_name, gene_name, project_name, project_description 
+  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, gene_name, dcc_short_label, project_name 
 ),
 allres_filtered AS (
   SELECT allres.*, 
-  concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc:', allres.dcc_name, '|', 'project:', allres.project_name,
-  '|', 'disease:', allres.disease_name, '|', 'taxonomy:', allres.taxonomy_name, '|', 'anatomy:', anatomy_name) AS record_info_url
-FROM allres
+  concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, '|', 'project_local_id:', allres.project_local_id,
+  '|', 'disease_name:', allres.disease_name, '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, '|', 'gene_name:', allres.gene_name) AS record_info_url
+  FROM allres
   ${Prisma.sql([filterClause])}
+
 ),
 allres_limited AS (
   SELECT *
@@ -225,6 +210,11 @@ project_name_count AS (
   SELECT project_name, COUNT(*) AS count 
   FROM ${Prisma.sql([cascading_tablename])}
   GROUP BY project_name ORDER BY project_name
+),
+gene_name_count AS (
+  SELECT gene_name, COUNT(*) AS count 
+  FROM ${Prisma.sql([cascading_tablename])}
+  GROUP BY gene_name ORDER BY gene_name
 )
 
 SELECT
@@ -234,7 +224,8 @@ SELECT
   (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
   (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
   (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
-  (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters
+  (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters,
+  (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters
   
   ` : [undefined];
   if (!results) redirect('/data')
@@ -271,6 +262,11 @@ SELECT
     name: projFilter.project_name,
     count: projFilter.count,
   }));
+  const GeneFilters: FilterObject[] = results?.gene_filters.map((geneFilter) => ({
+    id: geneFilter.gene_name, // Use gene_name as id
+    name: geneFilter.gene_name,
+    count: geneFilter.count,
+  }));
   console.log("Length of DCC Filters")
   console.log(DccFilters.length)
   const dccIconTable: HashTable = {};
@@ -289,23 +285,44 @@ SELECT
   dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
   dccIconTable["SPARC"] = "/img/SPARC.svg";
 
-  const file_icon_path = "/img/icons/file.jpg";
-  
+  const file_icon_path = "/img/icons/searching-magnifying-glass.png";
+
   return (
     <ListingPageLayout
       count={results?.count} // This matches with #records in the table on the right (without filters applied)
       searchText={searchParams.q}
       filters={
         <>
-          {/* <Typography className="subtitle1">Disease</Typography> */}
-          <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" />
-          <hr className="m-2" />
-          {/* <Typography className="subtitle1">Taxonomy</Typography> */}
-          <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Species" />
-          <hr className="m-2" />
-          {/* <Typography className="subtitle1">Anatomy</Typography> */}
-          <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" />
-          <hr className="m-2" />
+          {DiseaseFilters.length > 0 && (
+            <>
+              {/* <Typography className="subtitle1">Disease</Typography> */}
+              <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" />
+              <hr className="m-2" />
+            </>
+          )}
+          {TaxonomyFilters.length > 0 && (
+            <>
+              {/* <Typography className="subtitle1">Taxonomy</Typography> */}
+              <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Species" />
+              <hr className="m-2" />
+            </>
+          )}
+          {AnatomyFilters.length > 0 && (
+            <>
+              {/* <Typography className="subtitle1">Anatomy</Typography> */}
+              <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" />
+              <hr className="m-2" />
+            </>
+          )}
+
+          {/* Conditionally render FilterSet for GeneFilters */}
+          {GeneFilters.length > 0 && (
+            <>
+              {/* <Typography className="subtitle1">Gene</Typography> */}
+              <FilterSet key={`ID:$gene`} id={`gene`} filterList={GeneFilters} filter_title="Gene" />
+              <hr className="m-2" />
+            </>
+          )}
           {/* <Typography variant="h5">Core filters</Typography> */}
           {/* <hr className="m-2" /> */}
           {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
@@ -340,13 +357,13 @@ SELECT
         r={searchParams.r}
         count={results?.count}
         columns={[
-          <>Details</>,
+          <>View</>,
           <>DCC</>,
           <>Project Name</>,
-          <>Project Description</>,
+          //<>Description</>,
           <>Attributes</>,
-          <>Assets</>,
-          <>Rank</>
+          <>Assets</>
+          //<>Rank</>
         ]}
         rows={results ? results?.records.map(res => [
           <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
@@ -361,21 +378,22 @@ SELECT
           //    <Description description={res.project_description} />
           //  </Typography>
           //</Box>,
-          <TruncatedText text={res.project_description} maxLength={100} />,
+          //<TruncatedText text={res.project_description} maxLength={80} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
-          <>Taxonomy: {res.taxonomy_name}<br></br>
-            Disease: {res.disease_name}<br></br>
-            Anatomy: {res.anatomy_name}</>,
+          <>Taxonomy: <i>{res.taxonomy_name}</i><br></br>
+            Disease: <i>{res.disease_name}</i><br></br>
+            Anatomy: <i>{res.anatomy_name}</i><br></br>
+            Gene: <i>{res.gene_name}</i></>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>
             Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
-          </>,
-          <>{res.rank}</>
-            //]
+          </>
+          //<>{res.rank}</>
+          //]
         ]) : []}
       />
     </ListingPageLayout>
