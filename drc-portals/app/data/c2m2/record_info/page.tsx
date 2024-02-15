@@ -1,18 +1,22 @@
 import prisma from "@/lib/prisma";
-import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { getDCCIcon } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon, Description } from "@/app/data/c2m2/SearchablePagedTable";
-import ListingPageLayout from "@/app/data/c2m2/ListingPageLayout";
+import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
+import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import { Metadata, ResolvingMetadata } from 'next'
 import { string } from "zod";
+import Link from "next/link";
+import { cache } from "react";
 
-type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
-export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  return {
-    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('gene_set', null))}`,
-  }
-}
+
+type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+
+
+
+
+
 // Mano: Not sure if use of this function is sql-injection safe
 // This is different from search/Page.tsx because it has specifics for this page.
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
@@ -104,6 +108,7 @@ export default async function Page(props: PageProps) {
       disease_name: string,
       anatomy_name: string,
       project_name: string,
+      project_persistent_id: string,
       project_description: string,
       anatomy_description: string,
       disease_description: string,
@@ -166,7 +171,7 @@ export default async function Page(props: PageProps) {
       ORDER BY rank DESC
   ),
   allres AS (
-    SELECT 
+    SELECT DISTINCT
       allres_full.dcc_name AS dcc_name,
       allres_full.dcc_abbreviation AS dcc_abbreviation,
       SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -174,6 +179,7 @@ export default async function Page(props: PageProps) {
       CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
       CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
       allres_full.project_name AS project_name,
+      c2m2.project.persistent_id AS project_persistent_id,
       c2m2.project.description AS project_description,
       c2m2.anatomy.description AS anatomy_description,
       c2m2.disease.description AS disease_description,
@@ -186,7 +192,7 @@ export default async function Page(props: PageProps) {
       allres_full.project_local_id = c2m2.project.local_id) 
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
-    GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, anatomy_description, disease_description
+    GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name,  project_name, project_persistent_id, project_description, anatomy_description, disease_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
     ORDER BY  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name /*rank DESC*/
   ),
@@ -230,20 +236,37 @@ export default async function Page(props: PageProps) {
   
   ;
 ` : [undefined];
-  //console.log("%%%%%%%");
-  //console.log(results?.biosamples_table[0]);
-  //console.log(results?.biosamples_table[1]); console.log("%%%%%%%");
-  // Call the function with your biosamples_table
+
   const { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
   const biosamplePrunedData = prunedData;
   const bioSampleColNames = columnNames;
   //console.log('Pruned Data:', biosamplePrunedData);
   //console.log('Retained Column Names:', bioSampleColNames);
-
-
+  console.log("$%$%$%$%")
+  console.log(results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "");
   return (
-    <ListingPageLayout
-      count={biosamplePrunedData.length}
+    <LandingPageLayout
+      icon={{
+        href: results?.records[0].dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
+        src: results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "",
+        alt: results?.records[0].dcc_short_label ? results.records[0].dcc_short_label : ""
+      }}
+      title={results?.records[0].project_name ?? ""}
+      subtitle={""}
+      description={format_description(results?.records[0].project_description ?? "")}
+      metadata={[
+        results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
+        results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
+        results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
+        results?.records[0].disease_name ? { label: 'Disease', value: results?.records[0].disease_name } : null,
+        results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
+
+        { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
+        { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
+        { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined } // Assuming this is the correct property name
+      ]}
+
+
     >
       <SearchablePagedTable
         label={`Biosamples Table: Results found ${results?.count_bios}`}
@@ -258,7 +281,7 @@ export default async function Page(props: PageProps) {
           ))
         ))}
       />
-    </ListingPageLayout>
+    </LandingPageLayout>
   )
 }
 

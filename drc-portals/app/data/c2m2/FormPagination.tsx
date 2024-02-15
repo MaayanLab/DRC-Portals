@@ -10,7 +10,7 @@ const rowsPerPageOptions = [10, 20, 50]
 export default function FormPagination({ p, r, count }: { p: number, r: number, count?: number }) {
   const router = useRouter()
   const pathname = usePathname()
-  const pageCount = (((count??0)/r)|0)+((((count??0)%r)===0)?0:1)
+  const pageCount = (((count ?? 0) / r) | 0) + ((((count ?? 0) % r) === 0) ? 0 : 1)
   return (
     <Stack direction={"row"} justifyContent={"space-between"} justifyItems={"center"} alignContent={"center"} alignItems="center" flexWrap={"wrap"} gap={2}>
       <Box justifySelf={"center"}>

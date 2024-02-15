@@ -360,7 +360,7 @@ SELECT
           <>View</>,
           <>DCC</>,
           <>Project Name</>,
-          <>Description</>,
+          //<>Description</>,
           <>Attributes</>,
           <>Assets</>
           //<>Rank</>
@@ -378,15 +378,15 @@ SELECT
           //    <Description description={res.project_description} />
           //  </Typography>
           //</Box>,
-          <TruncatedText text={res.project_description} maxLength={80} />,
+          //<TruncatedText text={res.project_description} maxLength={80} />,
           //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
-          <>Taxonomy: {res.taxonomy_name}<br></br>
-            Disease: {res.disease_name}<br></br>
-            Anatomy: {res.anatomy_name}<br></br>
-            Gene: {res.gene_name}</>,
+          <>Taxonomy: <i>{res.taxonomy_name}</i><br></br>
+            Disease: <i>{res.disease_name}</i><br></br>
+            Anatomy: <i>{res.anatomy_name}</i><br></br>
+            Gene: <i>{res.gene_name}</i></>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>
             Collections: {res.count_col}<br></br>
