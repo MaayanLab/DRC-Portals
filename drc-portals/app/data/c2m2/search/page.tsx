@@ -113,9 +113,13 @@ export default async function Page(props: PageProps) {
       dcc_abbreviation: string,
       dcc_short_label: string,
       taxonomy_name: string,
+      taxonomy_id: string,
       disease_name: string,
+      disease: string,
       anatomy_name: string,
+      anatomy: string,
       gene_name: string,
+      gene: string,
       project_name: string,
       project_description: string,
       count: number, // this is based on across all-columns of ffl_biosample
@@ -150,9 +154,13 @@ allres AS (
     SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
     allres_full.project_local_id AS project_local_id,
     CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
+    SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
     CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
+    REPLACE(allres_full.disease, ':', '_') AS disease,
     CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
+    REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
     CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name,
+    allres_full.gene AS gene,
     allres_full.project_name AS project_name,
     c2m2.project.description AS project_description,
     COUNT(*)::INT AS count,
@@ -162,7 +170,8 @@ allres AS (
   FROM allres_full 
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id) 
-  GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, disease_name, anatomy_name, gene_name, project_name, project_description 
+  GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+    disease_name, disease, anatomy_name, anatomy, gene_name, gene, project_name, project_description 
   ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, gene_name, dcc_short_label, project_name 
 ),
 allres_filtered AS (
@@ -383,11 +392,13 @@ SELECT
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
-          <>Taxonomy: <i>{res.taxonomy_name}</i><br></br>
-            Disease: <i>{res.disease_name}</i><br></br>
-            Anatomy: <i>{res.anatomy_name}</i><br></br>
-            Gene: <i>{res.gene_name}</i></>,
-          <>Subjects: {res.count_sub}<br></br>
+          <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i>{res.taxonomy_name}</i></Link><br></br>
+            Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i>{res.disease_name}</i></Link><br></br>
+            Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i>{res.anatomy_name}</i></Link><br></br>
+            {/* Gene: <i>{res.gene_name}</i> */}
+            Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i>{res.gene_name}</i></Link>
+            </>,
+            <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>
             Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
