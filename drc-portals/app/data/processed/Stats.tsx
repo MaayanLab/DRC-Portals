@@ -36,7 +36,7 @@ export default async function Stats() {
       union
       select 'Files' as label, (select count(*) from c2m2_file_node) as count
       union
-      select 'KG Assertions' as label, (select count(*) from kg_assertion) as count
+      select 'Assertions' as label, (select count(*) from kg_assertion) as count
     )
     select label, count
     from labeled_count
