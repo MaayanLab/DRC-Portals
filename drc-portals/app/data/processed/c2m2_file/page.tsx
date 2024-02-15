@@ -9,8 +9,11 @@ import { Typography } from "@mui/material";
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = pluralize(type_to_string('c2m2_file', null))
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('c2m2_file', null))}`,
+    title: `${parentMetadata.title?.absolute} | ${title}`,
+    keywords: [title, parentMetadata.keywords].join(', '),
   }
 }
 

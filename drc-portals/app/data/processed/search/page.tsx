@@ -10,16 +10,18 @@ import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, De
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
-import { Metadata } from "next";
+import { Metadata, ResolvingMetadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 
 type PageProps = { searchParams: Record<string, string> }
 
-export async function generateMetadata(props: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const parentMetadata = await parent
   return {
-    title: `Search ${props.searchParams.q ?? ''}`,
+    title: `${parentMetadata.title?.absolute} | Search ${props.searchParams.q ?? ''}`,
+    keywords: parentMetadata.keywords,
   }
 }
 
