@@ -61,7 +61,7 @@ select distinct
 
     c2m2.disease_association_type.name, c2m2.disease_association_type.description
     )) as searchable,
-    -- sample_prep_method, anatomy, disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
+    -- sample_prep_method, anatomy, biosample_disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
     c2m2.fl_biosample.id_namespace as biosample_id_namespace, c2m2.fl_biosample.local_id as biosample_local_id, 
     c2m2.fl_biosample.project_id_namespace as project_id_namespace, c2m2.fl_biosample.project_local_id as project_local_id, 
     c2m2.fl_biosample.persistent_id as biosample_persistent_id, c2m2.fl_biosample.creation_time as biosample_creation_time, 
@@ -117,6 +117,8 @@ from c2m2.fl_biosample
     left join c2m2.disease
         on (c2m2.fl_biosample.biosample_disease = c2m2.disease.id)
 
+    --- Moved c2m2.disease to after c2m2.subject_disease
+
     --- c2m2.phenotype in case of subject
 
     left join c2m2.gene
@@ -160,6 +162,10 @@ from c2m2.fl_biosample
     left join c2m2.subject_disease /* Could right-join make more sense here; likely no */
         on (c2m2.subject.local_id = c2m2.subject_disease.subject_local_id and
         c2m2.subject.id_namespace = c2m2.subject_disease.subject_id_namespace)
+
+    --- fl_biosample.biosample_disease is biosample_disease.disease
+    left join c2m2.disease
+        on (c2m2.fl_biosample.biosample_disease = c2m2.disease.id OR c2m2.subject_disease.disease = c2m2.disease.id)
 
     /* join with subject_role_taxonomy and ncbi_taxonomy */
     --------------------Mano 2024/02/02 WARNING CHECK JOIN CONDITION use subject table instead of fl_biosample?
