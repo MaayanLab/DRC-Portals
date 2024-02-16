@@ -15,6 +15,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { relayout } from "plotly.js";
+import { getDCCIcon } from "@/app/data/c2m2/utils"
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -101,8 +102,7 @@ export default async function Page(props: PageProps) {
   // When filter values are selected, only the table displayed on the right (records) is updated; 
   // the list of distinct items in the filter is not updated.
 
-  // See if it is possible to actually include the ts_rank_cd and searchable in allres and then get away with allres_full. */
-  // Don't do that since #row allres_full is much smaller than in c2m2.ffl_biosample, so that merge c2m2.project is faster if done later. */
+
 
   const cascading: boolean = true;
   const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
@@ -269,21 +269,7 @@ SELECT
   }));
   console.log("Length of DCC Filters")
   console.log(DccFilters.length)
-  const dccIconTable: HashTable = {};
 
-  // Populate the hash table with key-value pairs
-  dccIconTable["4DN"] = "/img/4DN.png";
-  dccIconTable["ERCC"] = "/img/exRNA.png";
-  dccIconTable["GTEx"] = "/img/GTEx.png";
-  dccIconTable["GlyGen"] = "/img/glygen-2023-workshop.png";
-  dccIconTable["HMP"] = "/img/HMP.png";
-  dccIconTable["HuBMAP"] = "/img/HuBMAP.png";
-  dccIconTable["IDG"] = "/img/IDG.png ";
-  dccIconTable["KFDRC"] = "/img/KOMP2.png";
-  dccIconTable["LINCS"] = "/img/LINCS.gif";
-  dccIconTable["MW"] = "/img/Metabolomics.png";
-  dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
-  dccIconTable["SPARC"] = "/img/SPARC.svg";
 
   const file_icon_path = "/img/icons/searching-magnifying-glass.png";
 
@@ -352,6 +338,7 @@ SELECT
       Download fully expanded table allres_full. Download compact table allres.<br></br>
       LIST THE FILTERS APPLIED [IF POSSIBLE, ALLOW THE FILTERS TO BE DESELECTED FROM HERE.] */}
       <SearchablePagedTable
+        label={searchParams.q ?? ''}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -370,7 +357,7 @@ SELECT
           // [
           //<>{res.dcc_abbreviation}</>,
           //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
-          <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={dccIconTable[res.dcc_short_label]} alt={res.dcc_short_label} />,
+          <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
           //<Box sx={{ width: 300 }}>
