@@ -8,7 +8,7 @@ import { CodeAsset, User } from '@prisma/client';
 import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
-var nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer'
 
 
 
@@ -170,12 +170,15 @@ export async function sendUploadReceipt(user: User, assetInfo: { codeAsset: Code
     const transporter = nodemailer.createTransport(server)
     if (assetInfo.codeAsset) {
         const emailHtml = render(<AssetSubmitReceiptEmail userFirstname={user.name ? user.name : ''} codeAsset={assetInfo.codeAsset} />);
-        let info = await transporter.sendMail({
-            from: from,
-            to: user.email,
-            subject: "CFDE WORKBENCH Asset Submission Confirmation",
-            html: emailHtml
-        });
+        if (user.email) {
+            transporter.sendMail({
+                from: from,
+                to: user.email,
+                subject: "CFDE WORKBENCH Asset Submission Confirmation",
+                html: emailHtml
+            });
+        }
+
     }
 }
 
@@ -194,12 +197,15 @@ export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: {
             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: approver.email,
-                subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
-                html: emailHtml,
-            })
+            if (approver.email) {
+                transporter.sendMail({
+                    from: from,
+                    to: approver.email,
+                    subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+                    html: emailHtml,
+                })
+            }
+
         }
     }
 

@@ -9,7 +9,7 @@ import type { CodeAsset, DccAsset, FileAsset } from '@prisma/client'
 import { render } from '@react-email/render';
 import { DCCApprover_DCCApprovedEmail, DCCApprover_DRCApprovedEmail, DRCApprover_DCCApprovedEmail, DRCApprover_DRCApprovedEmail, Uploader_DCCApprovedEmail, Uploader_DRCApprovedEmail } from "../Email"
 
-var nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer'
 
 export async function updateAssetApproval(file: {
     dcc: {
@@ -144,61 +144,71 @@ export async function sendDCCApprovedEmails(asset: {
         }
     })
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
-    if (asset) {
-        const uploader = await prisma.user.findFirst({
-            where: {
-                email: asset.creator
+    if (user.role === 'DCC_APPROVER') {
+        if (asset) {
+            const uploader = await prisma.user.findFirst({
+                where: {
+                    email: asset.creator
+                }
+            });
+            const DCCApprovers = await prisma.user.findMany({
+                where: {
+                    dcc: asset.dcc?.short_label,
+                    role: 'DCC_APPROVER'
+                }
+            });
+            const DRCApprovers = await prisma.user.findMany({
+                where: {
+                    role: 'DRC_APPROVER'
+                }
+            });
+            if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+            const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+            // email uploader 
+            if (uploader) {
+                const emailHtml = render(<Uploader_DCCApprovedEmail uploaderName={uploader.name}
+                    approverName={user.name ? user.name : ''} asset={asset} />);
+                const transporter = nodemailer.createTransport(server)
+                if (uploader.email) {
+                    transporter.sendMail({
+                        from: from,
+                        to: uploader.email,
+                        subject: 'CFDE WORKBENCH Asset Approval Confirmation',
+                        html: emailHtml,
+                    })
+                }
+
             }
-        });
-        const DCCApprovers = await prisma.user.findMany({
-            where: {
-                dcc: asset.dcc?.short_label,
-                role: 'DCC_APPROVER'
-            }
-        });
-        const DRCApprovers = await prisma.user.findMany({
-            where: {
-                role: 'DRC_APPROVER'
-            }
-        });
-        if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
-        const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
-        // email uploader 
-        if (uploader) {
-            const emailHtml = render(<Uploader_DCCApprovedEmail uploaderName={uploader.name}
-                approverName={user.name ? user.name : ''} asset={asset} />);
-            const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: uploader?.email,
-                subject: 'CFDE WORKBENCH Asset Approval Confirmation',
-                html: emailHtml,
-            })
+            // email dcc approvers
+            DCCApprovers.forEach((approver => {
+                const emailHtml = render(<DCCApprover_DCCApprovedEmail approverName={approver.name ? approver.name : ''} asset={asset} />);
+                const transporter = nodemailer.createTransport(server)
+                if (approver.email) {
+                    transporter.sendMail({
+                        from: from,
+                        to: approver.email,
+                        subject: 'CFDE WORKBENCH Asset Approval Confirmation',
+                        html: emailHtml,
+                    })
+                }
+
+            }))
+            // email drc approvers
+            DRCApprovers.forEach((approver => {
+                const emailHtml = render(<DRCApprover_DCCApprovedEmail reviewerName={approver.name ? approver.name : ''}
+                    uploaderName={uploader ? uploader.name : 'Unknown'} approverName={user.name}
+                    dcc={asset.dcc ? asset.dcc?.short_label : 'Unknown'} />);
+                const transporter = nodemailer.createTransport(server)
+                if (approver.email) {
+                    transporter.sendMail({
+                        from: from,
+                        to: approver.email,
+                        subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+                        html: emailHtml,
+                    })
+                }
+            }))
         }
-        // email dcc approvers
-        DCCApprovers.forEach((approver => {
-            const emailHtml = render(<DCCApprover_DCCApprovedEmail approverName={approver.name ? approver.name : ''} asset={asset} />);
-            const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: uploader?.email,
-                subject: 'CFDE WORKBENCH Asset Approval Confirmation',
-                html: emailHtml,
-            })
-        }))
-        // email drc approvers
-        DRCApprovers.forEach((approver => {
-            const emailHtml = render(<DRCApprover_DCCApprovedEmail reviewerName={approver.name ? approver.name : ''}
-                uploaderName={uploader ? uploader.name : 'Unknown'} approverName={user.name}
-                dcc={asset.dcc ? asset.dcc?.short_label : 'Unknown'} />);
-            const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: uploader?.email,
-                subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
-                html: emailHtml,
-            })
-        }))
     }
 }
 
@@ -220,60 +230,69 @@ export async function sendDRCApprovedEmails(asset: {
         }
     })
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
-    if (asset) {
-        const uploader = await prisma.user.findFirst({
-            where: {
-                email: asset.creator
+    if (user.role === 'DRC_APPROVER') {
+        if (asset) {
+            const uploader = await prisma.user.findFirst({
+                where: {
+                    email: asset.creator
+                }
+            });
+            const DCCApprovers = await prisma.user.findMany({
+                where: {
+                    dcc: asset.dcc?.short_label,
+                    role: 'DCC_APPROVER'
+                }
+            });
+            const DRCApprovers = await prisma.user.findMany({
+                where: {
+                    role: 'DRC_APPROVER'
+                }
+            });
+            if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+            const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+            // email uploader 
+            if (uploader) {
+                const emailHtml = render(<Uploader_DRCApprovedEmail uploaderName={uploader.name}
+                    reviewerName={user.name ? user.name : ''} asset={asset} />);
+                const transporter = nodemailer.createTransport(server)
+                if (uploader.email) {
+                    transporter.sendMail({
+                        from: from,
+                        to: uploader?.email,
+                        subject: 'CFDE WORKBENCH Asset Approval Confirmation',
+                        html: emailHtml,
+                    })
+                }
             }
-        });
-        const DCCApprovers = await prisma.user.findMany({
-            where: {
-                dcc: asset.dcc?.short_label,
-                role: 'DCC_APPROVER'
-            }
-        });
-        const DRCApprovers = await prisma.user.findMany({
-            where: {
-                role: 'DRC_APPROVER'
-            }
-        });
-        if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
-        const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
-        // email uploader 
-        if (uploader) {
-            const emailHtml = render(<Uploader_DRCApprovedEmail uploaderName={uploader.name}
-                reviewerName={user.name ? user.name : ''} asset={asset} />);
-            const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: uploader?.email,
-                subject: 'CFDE WORKBENCH Asset Approval Confirmation',
-                html: emailHtml,
-            })
+            // email dcc approvers
+            DCCApprovers.forEach((approver => {
+                const emailHtml = render(<DCCApprover_DRCApprovedEmail approverName={approver.name}
+                    reviewerName={user.name ? user.name : ''} asset={asset} />);
+                const transporter = nodemailer.createTransport(server)
+                if (approver.email) {
+                    transporter.sendMail({
+                        from: from,
+                        to: approver.email,
+                        subject: 'CFDE WORKBENCH Asset Approval Confirmation',
+                        html: emailHtml,
+                    })
+                }
+
+            }))
+            // email drc approvers
+            DRCApprovers.forEach((approver => {
+                const emailHtml = render(<DRCApprover_DRCApprovedEmail reviewerName={user.name ? user.name : ''} asset={asset} />);
+                const transporter = nodemailer.createTransport(server)
+                if (approver.email) {
+                    transporter.sendMail({
+                        from: from,
+                        to: approver.email,
+                        subject: 'CFDE WORKBENCH Asset Approval Confirmation',
+                        html: emailHtml,
+                    })
+                }
+            }))
         }
-        // email dcc approvers
-        DCCApprovers.forEach((approver => {
-            const emailHtml = render(<DCCApprover_DRCApprovedEmail approverName={approver.name}
-                reviewerName={user.name ? user.name : ''} asset={asset} />);
-            const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: uploader?.email,
-                subject: 'CFDE WORKBENCH Asset Approval Confirmation',
-                html: emailHtml,
-            })
-        }))
-        // email drc approvers
-        DRCApprovers.forEach((approver => {
-            const emailHtml = render(<DRCApprover_DRCApprovedEmail reviewerName={user.name ? user.name : ''} asset={asset} />);
-            const transporter = nodemailer.createTransport(server)
-            transporter.sendMail({
-                from: from,
-                to: uploader?.email,
-                subject: 'CFDE WORKBENCH Asset Approval Confirmation',
-                html: emailHtml,
-            })
-        }))
     }
 }
 
