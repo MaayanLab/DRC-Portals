@@ -9,7 +9,9 @@ import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useSearchParams } from "next/navigation";
 import SearchFilter from "./SearchFilter";
-
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -25,6 +27,10 @@ export default function FilterSet({ id, filterList, filter_title }: { id: string
   console.log("Length of filterList passed")
   console.log(filterList.length)
   return (
+    <Accordion>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Typography>{filter_title}</Typography>
+    </AccordionSummary>
     <Autocomplete
       multiple
       id="checkboxes-tags-demo"
@@ -39,6 +45,7 @@ export default function FilterSet({ id, filterList, filter_title }: { id: string
         <TextField {...params} label={filter_title} placeholder={filter_title} />
       )}
     />
+    </Accordion>
   );
 }
 
