@@ -126,7 +126,7 @@ async function getData(
 async function getDataObj(
   prisma: PrismaClient, dccId: string, dccName: string, ft: string
 ) {
-  const codetypes = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs']
+  const codetypes = ['ETL', 'API', 'Entity Page Template', 'PWB Metanodes', 'Chatbot Specs']
   const is_code = codetypes.includes(ft)
   return (
     {
@@ -147,7 +147,7 @@ export async function getDccDataObj(
     KGAssertions: await getDataObj(prisma, dccId, dccName, 'KG Assertions'),
     ETL: await getDataObj(prisma, dccId, dccName, 'ETL'),
     API: await getDataObj(prisma, dccId, dccName, 'API'),
-    EntityPages: await getDataObj(prisma, dccId, dccName, 'Entity Pages'),
+    EntityPages: await getDataObj(prisma, dccId, dccName, 'Entity Page Template'),
     PWBMetanodes: await getDataObj(prisma, dccId, dccName, 'PWB Metanodes'),
     ChatbotSpecs: await getDataObj(prisma, dccId, dccName, 'Chatbot Specs'),
   })

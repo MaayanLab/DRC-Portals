@@ -58,7 +58,7 @@ export default async function DataMatrix() {
       att: await getDccNumAssets(item.id, 'Attribute Tables', false),
       etl: await getDccNumAssets(item.id, 'ETL', true),
       api: await getDccNumAssets(item.id, 'API', true),
-      ent: await getDccNumAssets(item.id, 'Entity Pages', true),
+      ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
       pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
       chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
     })
