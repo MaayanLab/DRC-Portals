@@ -8,7 +8,7 @@ import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
 import TruncatedText from "../TruncatedText"
-import { Box, Button, Typography } from "@mui/material";
+import { Accordion, Box, Button, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import Icon from "@mdi/react";
@@ -331,7 +331,6 @@ SELECT
           {/* results?.project_filters.map((res) =>
             <SearchFilter key={`ID:${res.project_name}`} id={`anatomy:${res.project_name}`} count={res.count} label={`${res.project_name}`} />
       ) */}
-
         </>
       }
       footer={

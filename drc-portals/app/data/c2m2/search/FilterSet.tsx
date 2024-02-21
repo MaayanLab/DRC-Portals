@@ -12,6 +12,7 @@ import SearchFilter from "./SearchFilter";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { AccordionDetails } from '@mui/material';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -27,25 +28,29 @@ export default function FilterSet({ id, filterList, filter_title }: { id: string
   console.log("Length of filterList passed")
   console.log(filterList.length)
   return (
-    <Accordion>
-    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-      <Typography>{filter_title}</Typography>
-    </AccordionSummary>
-    <Autocomplete
-      multiple
-      id="checkboxes-tags-demo"
-      options={filterList}
-      disableCloseOnSelect
-      getOptionLabel={(option) => option.name}
-      renderOption={(props, option: FilterObject, {selected}) => (
-        <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
-      )}
-      style={{ width: 'auto' }}
-      renderInput={(params) => (
-        <TextField {...params} label={filter_title} placeholder={filter_title} />
-      )}
-    />
-    </Accordion> 
+    <div>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>{filter_title}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Autocomplete
+            multiple
+            id="checkboxes-tags-demo"
+            options={filterList}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option.name}
+            renderOption={(props, option: FilterObject, { selected }) => (
+              <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
+            )}
+            style={{ width: 'auto' }}
+            renderInput={(params) => (
+              <TextField {...params} label={filter_title} placeholder={filter_title} />
+            )}
+          />
+        </AccordionDetails>
+      </Accordion>
+    </div>
   );
 }
 
