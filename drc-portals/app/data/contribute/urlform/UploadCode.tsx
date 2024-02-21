@@ -211,26 +211,3 @@ export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: {
 
 }
 
-// export async function sendDRCApproverEmail(user: User, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
-//     const session = await getServerSession(authOptions)
-//     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-//     const DRCApprovers = await prisma.user.findMany({
-//         where: {
-//             role: 'DRC_APPROVER'
-//         }
-//     })
-//     if (DRCApprovers.length > 0) {
-//         for (let approver of DRCApprovers) {
-//             const emailHtml = render(<DRCApproverUploadEmail uploaderName={user.name ? user.name : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} dcc={dcc}/>);
-//             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
-//             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
-//             const transporter = nodemailer.createTransport(server)
-//             transporter.sendMail({
-//                 from: from,
-//                 to: approver.email,
-//                 subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
-//                 html: emailHtml,
-//             })
-//         }
-//     }
-// }

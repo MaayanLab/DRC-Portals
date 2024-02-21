@@ -23,13 +23,6 @@ function EmailLayout({ innerElements }: { innerElements: JSX.Element }) {
             <Body style={main}>
                 <Container style={container}>
                     <Section>
-                        {/* <Img
-                            src={`${process.env.PUBLIC_URL}/img/favicon.png`}
-                            width="40"
-                            height="37"
-                            alt="workbenchLogo"
-                            className="my-0 mx-auto"
-                        /> */}
                         {innerElements}
                         <Text style={text}>
                             Best regards,
@@ -49,7 +42,7 @@ function EmailLayout({ innerElements }: { innerElements: JSX.Element }) {
 export function DCCApproverUploadEmail({ uploaderName, approverName, assetName }: { uploaderName: string, approverName: string, assetName: string }) {
     return (
         <EmailLayout innerElements={<>
-            <Text style={text}>Dear, {approverName}</Text>
+            <Text style={text}>Dear {approverName},</Text>
             <Text style={text}>
                 The new asset {assetName} from your DCC has been uploaded by {uploaderName} and it is ready for your approval.
             </Text>
@@ -57,9 +50,9 @@ export function DCCApproverUploadEmail({ uploaderName, approverName, assetName }
                 Please click the URL below to access your account to review the uploaded asset:
             </Text>
             {/* <button>Click here</button> */}
-            <Link href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link>
+            <Link style={link} href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link>
             <Text style={text}>
-                If you encounter any issues, please do not reply to this message as this email box is not monitored. To contact the Data Resource Center, please email stephanieolaiya@mssm.edu.
+                If you encounter any issues, please do not reply to this message as this email box is not monitored. To contact the Data Resource Center, please email help@cfde.cloud.
             </Text>
         </>} />
     );
@@ -105,7 +98,7 @@ export const AssetSubmitReceiptEmail = ({
                 If this submission was not initiated by you, please contact the DRC by email immediately.
             </Text>
             <Text style={text}>
-                Please do not reply to this message as this email box is not monitored. To contact the DRC, please email stephanie.olaiya@msssm.edu.
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please email help@cfde.cloud.
             </Text></>} />
     )
 };
@@ -146,7 +139,7 @@ export function Uploader_DCCApprovedEmail({ uploaderName, approverName, asset }:
             </Text>
             {assetInfo}
             <Text style={text}>
-                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email help@cfde.cloud.
             </Text></>} />
     );
 }
@@ -181,26 +174,26 @@ export function DCCApprover_DCCApprovedEmail({ approverName, asset }: { approver
                 If this approval was not initiated by you, please contact the DRC by email immediately.
             </Text>
             <Text style={text}>
-                Please do not reply to this message as this email box is not monitored. To contact the DRC, please email stephanie.olaiya@msssm.edu.
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please email help@cfde.cloud.
             </Text></>} />
     );
 }
 
 export function DRCApprover_DCCApprovedEmail({ reviewerName, uploaderName, dcc, approverName }: { reviewerName: string, uploaderName: string | null, dcc: string | null, approverName: string | null }) {
     return (
-        <EmailLayout innerElements={<>                        <Text style={text}>Dear {reviewerName},</Text>
+        <EmailLayout innerElements={<>
+            <Text style={text}>Dear {reviewerName},</Text>
             <Text style={text}>
                 A new asset has been uploaded to the portal by {uploaderName} from {dcc} and was approved by {approverName} and is ready in the system for your review.
             </Text>
             <Text style={text}>
                 Please click the URL below to access your account to review the uploaded asset:
             </Text>
-            {/* <button>Click here</button> */}
-            <Link href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link></>} />
+            <Link style={link} href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link></>} />
     );
 }
 
-export function Uploader_DRCApprovedEmail({ uploaderName, reviewerName, asset }: { uploaderName: string| null, reviewerName: string, asset: AssetProps }) {
+export function Uploader_DRCApprovedEmail({ uploaderName, reviewerName, asset }: { uploaderName: string | null, reviewerName: string, asset: AssetProps }) {
     let assetInfo;
     if (asset.codeAsset) {
         assetInfo = <>
@@ -227,7 +220,7 @@ export function Uploader_DRCApprovedEmail({ uploaderName, reviewerName, asset }:
             </Text>
             {assetInfo}
             <Text style={text}>
-                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email help@cfde.cloud.
             </Text>
         </>} />
     );
@@ -260,13 +253,13 @@ export function DCCApprover_DRCApprovedEmail({ approverName, reviewerName, asset
             </Text>
             {assetInfo}
             <Text style={text}>
-                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email help@cfde.cloud.
             </Text></>} />
     );
 }
 
 
-export function DRCApprover_DRCApprovedEmail({reviewerName, asset }: { reviewerName: string | null, asset: AssetProps }) {
+export function DRCApprover_DRCApprovedEmail({ reviewerName, asset }: { reviewerName: string | null, asset: AssetProps }) {
     let assetInfo;
     if (asset.codeAsset) {
         assetInfo = <>
@@ -289,14 +282,14 @@ export function DRCApprover_DRCApprovedEmail({reviewerName, asset }: { reviewerN
         <EmailLayout innerElements={<>
             <Text style={text}>Dear {reviewerName},</Text>
             <Text style={text}>
-                This email serves as a confirmation that you approved an asset in the CFDE WORKBENCH with the following information:                        
-                </Text>
+                This email serves as a confirmation that you approved an asset in the CFDE WORKBENCH with the following information:
+            </Text>
             {assetInfo}
             <Text style={text}>
                 If this approval was not initiated by you, please contact the DRC by email immediately.
             </Text>
             <Text style={text}>
-                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email stephanie.olaiya@msssm.edu.
+                Please do not reply to this message as this email box is not monitored. To contact the DRC, please send email help@cfde.cloud.
             </Text></>} />
     );
 }
@@ -322,6 +315,15 @@ const text = {
     color: "#404040",
     lineHeight: "26px",
 };
+
+const link = {
+    fontSize: "16px",
+    fontFamily:
+        "'Open Sans', 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif",
+    fontWeight: "300",
+    lineHeight: "26px",
+};
+
 
 const button = {
     backgroundColor: "#007ee6",
