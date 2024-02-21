@@ -56,7 +56,7 @@ export function DCCApproverUploadEmail({ uploaderName, approverName, assetName }
             <Text style={text}>
                 Please click the URL below to access your account to review the uploaded asset:
             </Text>
-            <button>Click here</button>
+            {/* <button>Click here</button> */}
             <Link href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link>
             <Text style={text}>
                 If you encounter any issues, please do not reply to this message as this email box is not monitored. To contact the Data Resource Center, please email stephanieolaiya@mssm.edu.
@@ -195,7 +195,7 @@ export function DRCApprover_DCCApprovedEmail({ reviewerName, uploaderName, dcc, 
             <Text style={text}>
                 Please click the URL below to access your account to review the uploaded asset:
             </Text>
-            <button>Click here</button>
+            {/* <button>Click here</button> */}
             <Link href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link></>} />
     );
 }
