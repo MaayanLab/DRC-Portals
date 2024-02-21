@@ -231,14 +231,16 @@ export default function DataTable(props: {
                     onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
                     sx={{
                         fontSize: 14,
-                        '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                        '& .MuiDataGrid-cell': {
                             backgroundColor: "white",
+                        },
+                        '.MuiDataGrid-columnHeader': {
+                            backgroundColor: '#C9D2E9',
                         },
                         ml: 3
                     }}
                 />
             </div>
         </>
-
     );
 }
