@@ -8,7 +8,12 @@ import {
     getSignedUrl
 } from "@aws-sdk/s3-request-presigner";
 import { revalidatePath } from 'next/cache';
-import type { FileAsset, } from '@prisma/client'
+import type { FileAsset, User, } from '@prisma/client'
+import { render } from '@react-email/render';
+import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
+
+import nodemailer from 'nodemailer'
+
 
 
 async function verifyUser() {
@@ -21,7 +26,7 @@ async function verifyUser() {
         }
     })
     if (user === null) throw new Error('No user found')
-    if (!(user.role === 'ADMIN' || user.role === 'UPLOADER' || user.role === 'DRC_APPROVER')) throw new Error('not authorized')
+    if (!(user.role === 'ADMIN' || user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER')) throw new Error('not authorized')
 }
 
 
@@ -117,7 +122,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
         }
     })
     if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER'))) throw new Error('not an admin')
+    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
     if (!user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
@@ -177,6 +182,81 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
         },
     })
 
+    const receipt = await sendUploadReceipt(user, savedUpload);
+    const dccApproverAlert = await sendDCCApproverEmail(user, formDcc, savedUpload)
+    // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);
     return savedUpload
-    // revalidatePath('/data/contribute/uploaded')
 }
+
+export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: FileAsset | null }) {
+    if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+    const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+    const transporter = nodemailer.createTransport(server)
+
+    if (assetInfo.fileAsset) {
+        const emailHtml = render(<AssetSubmitReceiptEmail userFirstname={user.name ? user.name : ''} fileAsset={assetInfo.fileAsset} />);
+        if (user.email) {
+            transporter.sendMail({
+                from: from,
+                to: user.email,
+                subject: "CFDE WORKBENCH Asset Submission Confirmation",
+                html: emailHtml
+            });
+        }
+
+    }
+}
+
+export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
+    const session = await getServerSession(authOptions)
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    const approvers = await prisma.user.findMany({
+        where: {
+            dcc: dcc,
+            role: 'DCC_APPROVER'
+        }
+    })
+    if (approvers.length > 0) {
+        for (let approver of approvers) {
+            const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.name ? user.name : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);
+            if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+            const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+            const transporter = nodemailer.createTransport(server)
+            if (approver.email) {
+                transporter.sendMail({
+                    from: from,
+                    to: approver.email,
+                    subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+                    html: emailHtml,
+                })
+            }
+
+        }
+
+    }
+
+}
+
+// export async function sendDRCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
+//     const session = await getServerSession(authOptions)
+//     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+//     const DRCApprovers = await prisma.user.findMany({
+//         where: {
+//             role: 'DRC_APPROVER'
+//         }
+//     })
+//     if (DRCApprovers.length > 0) {
+//         for (let approver of DRCApprovers) {
+//             const emailHtml = render(<DRCApproverUploadEmail uploaderName={user.name ? user.name : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''} dcc={dcc}/>);
+//             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+//             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+//             const transporter = nodemailer.createTransport(server)
+//             transporter.sendMail({
+//                 from: from,
+//                 to: approver.email,
+//                 subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+//                 html: emailHtml,
+//             })
+//         }
+//     }
+// }

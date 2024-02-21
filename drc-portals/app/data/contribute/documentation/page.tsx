@@ -46,7 +46,7 @@ export default function Documentation() {
     - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
     - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
     - If Role is inaccurate, please contact the DRC to update your information.
-2. If you are to be an Uploader for your DCC and have “Access Denied” on the [Code Assets Upload Form](urlform) and [Uploaded Assets](uploaded) pages, please contact the DRC through email to grant you access.
+2. If you are to be an Uploader or Approver for your DCC and have “Access Denied” on the [Code Assets Upload Form](urlform) and [Uploaded Assets](uploaded) pages, please contact the DRC through email to grant you access.
 3. If a mistake has been made in a submission, go to the [Uploaded Assets](uploaded) page, delete the incorrectly submitted asset by clicking on the delete icon on the row of the given file and reupload the corrected file.
     `
 
@@ -326,7 +326,7 @@ The Entity Page Template and Example are  links to:
                                 <Box sx={{ p: 1, m: 1, }}>
                                     <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Approver</Typography>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                        Can approve a submitted package, but can’t submit new packages. You can have as many users in this role as you want.
+                                        Can submit new packages and approve a submitted package. You can have as many users in this role as you want.
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
