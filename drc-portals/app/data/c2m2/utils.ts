@@ -38,13 +38,21 @@ export function pruneAndRetrieveColumnNames(data) {
             if (value !== null && value !== undefined) {
                 prunedRow[columnName] = value;
                 columnNames.add(columnName);
+                console.log("Added " + columnName);
             }
         }
 
         prunedData.push(prunedRow);
     });
+    // Sort column names based on the number of unique values in each column -- pairwise sorting
+    const sortedColumnNames = Array.from(columnNames).sort((a, b) => {
+        const uniqueValuesA = new Set(prunedData.map(row => row[a]));
+        const uniqueValuesB = new Set(prunedData.map(row => row[b]));
+        return uniqueValuesB.size - uniqueValuesA.size;
+    });
 
-    return { prunedData, columnNames: Array.from(columnNames) };
+    return { prunedData, columnNames: sortedColumnNames };
+    //return { prunedData, columnNames: Array.from(columnNames) };
 }
 
 // Mano: Not sure if use of this function is sql-injection safe
@@ -108,9 +116,9 @@ export function getDCCAbbr(iconKey: string): string {
 interface FilterParam {
     type: string;
     entity_type: string | null;
-  }
-  
-  export function getFilterVals(filtParams: FilterParam[] | undefined): string {
+}
+
+export function getFilterVals(filtParams: FilterParam[] | undefined): string {
     if (filtParams !== undefined) {
         const entityTypes = filtParams.map(param => {
             if (param.type === "dcc" && param.entity_type !== null) {
@@ -125,4 +133,3 @@ interface FilterParam {
         return "";
     }
 }
-  

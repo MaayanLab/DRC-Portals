@@ -202,9 +202,9 @@ export default async function Page(props: PageProps) {
   const { prunedData: subjectPrunedData, columnNames: subjectColNames } = pruneAndRetrieveColumnNames(results?.subjects_table);
 
 
-  //console.log('Pruned Data:', biosamplePrunedData);
-  //console.log('Retained Column Names:', bioSampleColNames);
-  console.log("$%$%$%$%")
+  // console.log('Pruned Data:', biosamplePrunedData);
+  // console.log('Retained Column Names:', bioSampleColNames);
+  // console.log("$%$%$%$%")
   console.log(results?.records[0].project_persistent_id);
   return (
     <LandingPageLayout

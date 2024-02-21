@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
 import { type_to_string } from "../processed/utils"
+import { Prosto_One } from "next/font/google"
 
 export function LinkedTypedNode({
   id,
@@ -56,14 +57,15 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
-  console.log("*****");
-  console.log(props.filternames);
+
   return (
     <Grid container justifyContent={'space-between'}>
       {props.label &&
         <Grid item xs={12} sx={{ marginBottom: 5 }}>
           <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
-            <Typography variant="h5" color="secondary" className="whitespace-nowrap">{props.filternames}</Typography>
+            <Typography variant="h5" color="secondary" className="whitespace-nowrap">
+              {props.filternames || props.label}
+            </Typography>
             <form action="" method="GET">
               <SearchField q={props.q} placeholder={`Search ${props.label}`} />
             </form>
