@@ -45,7 +45,7 @@ export default function FilterSet({ id, filterList, filter_title }: { id: string
         <TextField {...params} label={filter_title} placeholder={filter_title} />
       )}
     />
-    </Accordion>
+    </Accordion> 
   );
 }
 

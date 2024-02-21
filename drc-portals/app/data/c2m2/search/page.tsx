@@ -15,7 +15,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { relayout } from "plotly.js";
-import { getDCCIcon } from "@/app/data/c2m2/utils"
+import { getDCCIcon, getFilterVals } from "@/app/data/c2m2/utils"
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -71,6 +71,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
   const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
   console.log("FILTERS LENGTH =");
   console.log(filters.length)
+  
   return filterConditionStr;
 }
 
@@ -278,10 +279,12 @@ SELECT
   }));
   console.log("Length of DCC Filters")
   console.log(DccFilters.length)
+  const selectedFilters = getFilterVals(searchParams.t);
+  console.log(selectedFilters)
 
 
   const file_icon_path = "/img/icons/searching-magnifying-glass.png";
-
+  
   return (
     <ListingPageLayout
       count={results?.count} // This matches with #records in the table on the right (without filters applied)
@@ -348,6 +351,7 @@ SELECT
       LIST THE FILTERS APPLIED [IF POSSIBLE, ALLOW THE FILTERS TO BE DESELECTED FROM HERE.] */}
       <SearchablePagedTable
         label={searchParams.q ?? ''}
+        filternames={selectedFilters}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}

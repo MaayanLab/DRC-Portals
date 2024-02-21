@@ -8,7 +8,7 @@ dccIconTable["GTEx"] = "/img/GTEx.png";
 dccIconTable["GlyGen"] = "/img/glygen-2023-workshop.png";
 dccIconTable["HMP"] = "/img/HMP.png";
 dccIconTable["HuBMAP"] = "/img/HuBMAP.png";
-dccIconTable["IDG"] = "/img/IDG.png ";
+dccIconTable["IDG"] = "/img/IDG.png";
 dccIconTable["KFDRC"] = "/img/KOMP2.png";
 dccIconTable["LINCS"] = "/img/LINCS.gif";
 dccIconTable["MW"] = "/img/Metabolomics.png";
@@ -86,3 +86,43 @@ export function generateFilterQueryString(searchParams: any, schemaname: string,
     console.log(filters.length)
     return filterConditionStr;
 }
+
+const dccAbbrTable: { [key: string]: string } = {
+    "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
+    "The Extracellular Communication Consortium Data Coordination Center": "ERCC",
+    "Genotype-Tissue Expression Project": "GTEx",
+    "GlyGen": "GlyGen",
+    "The Human Microbiome Project": "HMP",
+    "HuBMAP": "HuBMAP",
+    "Illuminating the Druggable Genome": "IDG",
+    "The Gabriella Miller Kids First Pediatric Research Program": "KFDRC",
+    "Library of Integrated Network-based Cellular Signatures": "LINCS",
+    "UCSD Metabolomics Workbench": "MW",
+    "MoTrPAC Molecular Transducers of Physical Activity Consortium": "MoTrPAC",
+    "Stimulating Peripheral Activity to Relieve Conditions": "SPARC"
+};
+
+export function getDCCAbbr(iconKey: string): string {
+    return dccAbbrTable[iconKey] || "";
+}
+interface FilterParam {
+    type: string;
+    entity_type: string | null;
+  }
+  
+  export function getFilterVals(filtParams: FilterParam[] | undefined): string {
+    if (filtParams !== undefined) {
+        const entityTypes = filtParams.map(param => {
+            if (param.type === "dcc" && param.entity_type !== null) {
+                return getDCCAbbr(param.entity_type);
+            } else {
+                return param.entity_type || "";
+            }
+        });
+        const entityTypesString = entityTypes.join(', ');
+        return entityTypesString;
+    } else {
+        return "";
+    }
+}
+  

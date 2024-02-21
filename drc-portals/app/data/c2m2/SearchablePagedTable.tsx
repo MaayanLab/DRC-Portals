@@ -51,16 +51,19 @@ export function SearchablePagedTableCellIcon(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
+  filternames?: string,
   q: string, p: number, r: number, count?: number,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
+  console.log("*****");
+  console.log(props.filternames);
   return (
     <Grid container justifyContent={'space-between'}>
       {props.label &&
         <Grid item xs={12} sx={{ marginBottom: 5 }}>
           <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
-            <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
+            <Typography variant="h5" color="secondary" className="whitespace-nowrap">{props.filternames}</Typography>
             <form action="" method="GET">
               <SearchField q={props.q} placeholder={`Search ${props.label}`} />
             </form>
