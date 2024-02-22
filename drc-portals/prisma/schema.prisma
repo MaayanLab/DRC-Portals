@@ -709,7 +709,7 @@ model ffl_biosample {
   biosample_creation_time            String?                  @db.VarChar
   sample_prep_method                 String?                  @db.VarChar
   anatomy                            String?                  @db.VarChar
-  biosample_disease_association_type String?                  @db.VarChar
+  disease_association_type           String?                  @db.VarChar
   disease                            String?                  @db.VarChar
   subject_id_namespace               String?                  @db.VarChar
   subject_local_id                   String?                  @db.VarChar
@@ -746,6 +746,10 @@ model ffl_biosample {
   subject_role_taxonomy_role_id      String?                  @db.VarChar
   subject_role_name                  String?                  @db.VarChar
   disease_association_type_name      String?                  @db.VarChar
+  phenotype_association_type         String?                  @db.VarChar
+  phenotype                          String?                  @db.VarChar
+  phenotype_association_type_name    String?                  @db.VarChar
+  phenotype_name                     String?                  @db.VarChar
 
   @@id([biosample_id_namespace, biosample_local_id])
   @@index([searchable], map: "ffl_biosample_idx_searchable", type: Gin)
