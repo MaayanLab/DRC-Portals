@@ -201,8 +201,17 @@ export default async function Page(props: PageProps) {
   const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
   const { prunedData: subjectPrunedData, columnNames: subjectColNames } = pruneAndRetrieveColumnNames(results?.subjects_table);
 
-  const dynamicColumns = Object.keys(biosamplePrunedData[0]).filter(column => {
+  const dynamicBiosampleColumns = Object.keys(biosamplePrunedData[0]).filter(column => {
     const uniqueValues = new Set(biosamplePrunedData.map(row => row[column]));
+    return uniqueValues.size > 1;
+}).sort((a, b) => {
+    const uniqueValuesA = new Set(biosamplePrunedData.map(row => row[a]));
+    const uniqueValuesB = new Set(biosamplePrunedData.map(row => row[b]));
+    return uniqueValuesB.size - uniqueValuesA.size;
+});
+
+  const dynamicSubjectColumns = Object.keys(subjectPrunedData[0]).filter(column => {
+    const uniqueValues = new Set(subjectPrunedData.map(row => row[column]));
     return uniqueValues.size > 1;
   });
 
@@ -236,7 +245,7 @@ export default async function Page(props: PageProps) {
         { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined } // Assuming this is the correct property name
       ]}
     >
-    
+
       {/* <SearchablePagedTable
         label={`Biosample Table: Results found ${results?.count_bios}`}
         q={searchParams.q ?? ''}
@@ -251,7 +260,7 @@ export default async function Page(props: PageProps) {
         ))}
       /> */}
 
-{/* <SearchablePagedTable
+      {/* <SearchablePagedTable
   label={`Project ID: ${projectLocalId} | ${projectIdNamespace} | Results found: ${results?.count_bios}`}
   q={searchParams.q ?? ''}
   p={searchParams.p}
@@ -267,32 +276,32 @@ export default async function Page(props: PageProps) {
 /> */}
 
 
-<SearchablePagedTable
-  label={`Project ID: ${projectLocalId} | ${projectIdNamespace} | Results found: ${results?.count_bios}`}
-  q={searchParams.q ?? ''}
-  p={searchParams.p}
-  r={searchParams.r}
-  count={results?.count_bios}
-  columns={dynamicColumns} // Dynamically set columns prop
-  rows={biosamplePrunedData.map(row => (
-    dynamicColumns.map(column => (
-      <Description description={row[column]} key={column} /> // Display dynamic columns
-    ))
-  ))}
-/>
+      <SearchablePagedTable
+        label={`Project ID: ${projectLocalId} | Biosamples found: ${results?.count_bios}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_bios}
+        columns={dynamicBiosampleColumns} // 
+        rows={biosamplePrunedData.map(row => (
+          dynamicBiosampleColumns.map(column => (
+            <Description description={row[column]} key={column} />
+          ))
+        ))}
+      />
 
 
 
       <SearchablePagedTable
-        label={`Subject Table: Results found ${results?.count_sub}`}
+        label={`Project ID: ${projectLocalId} | Subjects found: ${results?.count_sub}`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
         count={results?.count_sub}
-        columns={subjectColNames.map(columnName => <>{columnName}</>)}
+        columns={dynamicSubjectColumns} // 
         rows={subjectPrunedData.map(row => (
-          subjectColNames.map(columnName => (
-            <Description description={row[columnName]} />
+          dynamicSubjectColumns.map(column => (
+            <Description description={row[column]} key={column} />
           ))
         ))}
       />
