@@ -37,7 +37,10 @@ const shuffle = (array: PartnershipsWithDCC[]) => {
 
 
 export default async function PartnershipPage() {
-    const partnerships = shuffle(await prisma.partnerships.findMany({
+    const active_partnerships = await prisma.partnerships.findMany({
+        where: {
+            status: 'active'
+        },
         include: {
             dccs: {
                 include: {
@@ -50,11 +53,29 @@ export default async function PartnershipPage() {
                 }
             }
         }
-    }))
+    })
+
+    const completed_partnerships = await prisma.partnerships.findMany({
+        where: {
+            status: 'completed'
+        },
+        include: {
+            dccs: {
+                include: {
+                    dcc: true
+                }
+            },
+            publications: {
+                include: {
+                    publication: true
+                }
+            }
+        }
+    })
 
     return (
         <MasonryClient defaultHeight={1500}>
-            {partnerships.map(partnership=>(
+            {[...active_partnerships, ...completed_partnerships].map(partnership=>(
                 <Card sx={{paddingLeft: 2, paddingRight: 2}}>
                     <CardHeader
                         avatar={partnership.image ? 
