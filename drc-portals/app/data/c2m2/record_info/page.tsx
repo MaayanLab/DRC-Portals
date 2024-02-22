@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -9,73 +9,7 @@ import { string } from "zod";
 import Link from "next/link";
 import { cache } from "react";
 
-
-
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
-
-// Mano: Not sure if use of this function is sql-injection safe
-// This is different from search/Page.tsx because it has specifics for this page.
-//export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
-export function generateFilterQueryString(searchParams: any, schemaname: string, tablename: string) {
-  const filters: string[] = [];
-
-  //const tablename = "allres";
-  if (searchParams.t) {
-    const typeFilters: { [key: string]: string[] } = {};
-
-    searchParams.t.forEach(t => {
-      if (!typeFilters[t.type]) {
-        typeFilters[t.type] = [];
-      }
-      if (t.entity_type) {
-
-        //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
-        if (t.entity_type !== "Unspecified") { // was using "null"
-          //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
-          typeFilters[t.type].push(`"${schemaname}"."${tablename}"."${t.type}" = '${t.entity_type.replace(/'/g, "''")}'`);
-        } else {
-          typeFilters[t.type].push(`"${schemaname}"."${tablename}"."${t.type}" is null`);
-          //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
-        }
-      }
-    });
-
-    for (const type in typeFilters) {
-      if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
-        filters.push(`(${typeFilters[type].join(' OR ')})`);
-      }
-    }
-  }
-  //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
-  const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
-  console.log("FILTERS LENGTH =");
-  console.log(filters.length)
-  return filterConditionStr;
-}
-
-// Function to prune and get column names
-export function pruneAndRetrieveColumnNames(data) {
-  const prunedData = [];
-  const columnNames = new Set();
-
-  // Iterate through each row
-  data.forEach(row => {
-    const prunedRow = {};
-
-    // Iterate through each property in the row
-    for (const [columnName, value] of Object.entries(row)) {
-      // Check if the value is non-null
-      if (value !== null && value !== undefined) {
-        prunedRow[columnName] = value;
-        columnNames.add(columnName);
-      }
-    }
-
-    prunedData.push(prunedRow);
-  });
-
-  return { prunedData, columnNames: Array.from(columnNames) };
-}
 
 export default async function Page(props: PageProps) {
   console.log(props)
@@ -84,15 +18,10 @@ export default async function Page(props: PageProps) {
   const offset = (searchParams.p - 1) * searchParams.r
   const limit = searchParams.r
 
+  // Generate the query clause for filters
 
-
-  // Mano: Please do not delete the comments.
-  // Do not delete commented lines as they may have related code to another/related task/item
-
-  const filterConditionStr = generateFilterQueryString(searchParams, "c2m2", "ffl_biosample"); // Mano: using a function now
+  const filterConditionStr = generateFilterQueryString(searchParams, "c2m2", "ffl_biosample");
   const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
-
-
 
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     records: {
@@ -145,8 +74,6 @@ export default async function Page(props: PageProps) {
       has_time_series_data: string
     }[],
     subjects_table: {
-      biosample_id_namespace: string,
-      biosample_local_id: string,
       subject_id_namespace: string,
       subject_local_id: string,
       subject_race_name: string,
@@ -154,7 +81,7 @@ export default async function Page(props: PageProps) {
       subject_sex_name: string,
       subject_ethnicity_name: string,
       subject_role_name: string,
-      age_at_enrollment: string
+      subject_age_at_enrollment: string
     }[],
     sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
     count_file: number,
@@ -274,6 +201,29 @@ export default async function Page(props: PageProps) {
     select count(*)::int as count
       from biosamples_table
   ),
+  subjects_table AS (
+    SELECT DISTINCT
+      allres_full.subject_id_namespace,
+      allres_full.subject_local_id,
+      allres_full.subject_race_name,
+      allres_full.subject_granularity_name,
+      allres_full.subject_sex_name,
+      allres_full.subject_ethnicity_name,
+      allres_full.subject_role_name,
+      allres_full.subject_age_at_enrollment
+    FROM allres_full
+  ),
+  subjects_table_limited as (
+    SELECT * 
+    FROM subjects_table
+    OFFSET ${offset}
+    LIMIT ${limit}
+
+  ),
+  count_sub AS (
+    select count(*)::int as count
+      from subjects_table
+  ),
   proj_info AS (SELECT DISTINCT 
     allres_full.project_local_id AS project_local_id, allres_full.project_id_namespace AS project_id_namespace
     FROM allres_full
@@ -354,6 +304,8 @@ export default async function Page(props: PageProps) {
   (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
   (SELECT count FROM count_bios) as count_bios,
   (SELECT COALESCE(jsonb_agg(biosamples_table_limited.*), '[]'::jsonb) FROM biosamples_table_limited) AS biosamples_table,
+  (SELECT count FROM count_sub) as count_sub,
+  (SELECT COALESCE(jsonb_agg(subjects_table_limited.*), '[]'::jsonb) FROM subjects_table_limited) AS subjects_table,
   (SELECT count FROM count_file) as count_file,
   (SELECT COALESCE(jsonb_agg(file_table_limited.*), '[]'::jsonb) FROM file_table_limited) AS file_table,
   (SELECT count FROM count_file_sub) as count_file_sub,
@@ -362,11 +314,33 @@ export default async function Page(props: PageProps) {
   (SELECT COALESCE(jsonb_agg(file_bios_table_limited.*), '[]'::jsonb) FROM file_bios_table_limited) AS file_bios_table,
   (SELECT count FROM count_file_col) as count_file_col,
   (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table
+  ;
 ` : [undefined];
 
-  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
-  const biosamplePrunedData = prunedData;
-  const bioSampleColNames = columnNames;
+  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
+  const { prunedData: subjectPrunedData, columnNames: subjectColNames } = pruneAndRetrieveColumnNames(results?.subjects_table);
+
+  const dynamicBiosampleColumns = Object.keys(biosamplePrunedData[0]).filter(column => {
+    const uniqueValues = new Set(biosamplePrunedData.map(row => row[column]));
+    return uniqueValues.size > 1;
+  }).sort((a, b) => {
+    const uniqueValuesA = new Set(biosamplePrunedData.map(row => row[a]));
+    const uniqueValuesB = new Set(biosamplePrunedData.map(row => row[b]));
+    return uniqueValuesB.size - uniqueValuesA.size;
+  });
+
+  const dynamicSubjectColumns = Object.keys(subjectPrunedData[0]).filter(column => {
+    const uniqueValues = new Set(subjectPrunedData.map(row => row[column]));
+    return uniqueValues.size > 1;
+  });
+
+  const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
+  const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
+  const diseaseAssociationType = !dynamicColumns.includes('disease_association_type_name')
+    ? biosamplePrunedData?.[0]?.['disease_association_type_name']
+    : undefined; // In case disease_association_type is not part of the dynamic columns
+
+
   //console.log('Pruned Data:', biosamplePrunedData);
   //console.log('Retained Column Names:', bioSampleColNames);
   console.log("$%$%$%$%")
@@ -389,7 +363,7 @@ export default async function Page(props: PageProps) {
     <LandingPageLayout
       icon={{
         href: results?.records[0].dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
-        src: results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "",
+        src: getDCCIcon(results ? results.records[0].dcc_short_label : ""),
         alt: results?.records[0].dcc_short_label ? results.records[0].dcc_short_label : ""
       }}
       title={results?.records[0].project_name ?? ""}
@@ -407,8 +381,9 @@ export default async function Page(props: PageProps) {
         { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined } // Assuming this is the correct property name
       ]}
     >
-      <SearchablePagedTable
-        label={`Biosamples Table: Results found ${results?.count_bios}`}
+
+      {/* <SearchablePagedTable
+        label={`Biosample Table: Results found ${results?.count_bios}`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -417,6 +392,50 @@ export default async function Page(props: PageProps) {
         rows={biosamplePrunedData.map(row => (
           bioSampleColNames.map(columnName => (
             <Description description={row[columnName]} />
+          ))
+        ))}
+      /> */}
+
+      {/* <SearchablePagedTable
+  label={`Project ID: ${projectLocalId} | ${projectIdNamespace} | Results found: ${results?.count_bios}`}
+  q={searchParams.q ?? ''}
+  p={searchParams.p}
+  r={searchParams.r}
+  count={results?.count_bios}
+  columns={['Biosample ID', 'Subject ID']} // Adjusted columns prop
+  rows={biosamplePrunedData.map(row => (
+    [
+      <Description description={row['biosample_local_id']} />, // Display biosample_local_id
+      <Description description={row['subject_local_id']} />,    // Display subject_local_id
+    ]
+  ))}
+/> */}
+
+
+      <SearchablePagedTable
+        label={`Project ID: ${projectLocalId} | Biosamples found: ${results?.count_bios}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_bios}
+        columns={dynamicBiosampleColumns} //
+        rows={biosamplePrunedData.map(row => (
+          dynamicBiosampleColumns.map(column => (
+            <Description description={row[column]} key={column} />
+          ))
+        ))}
+      />
+
+      <SearchablePagedTable
+        label={`Project ID: ${projectLocalId} | Subjects found: ${results?.count_sub}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_sub}
+        columns={dynamicSubjectColumns} //
+        rows={subjectPrunedData.map(row => (
+          dynamicSubjectColumns.map(column => (
+            <Description description={row[column]} key={column} />
           ))
         ))}
       />

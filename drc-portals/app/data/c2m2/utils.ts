@@ -8,16 +8,127 @@ dccIconTable["GTEx"] = "/img/GTEx.png";
 dccIconTable["GlyGen"] = "/img/glygen-2023-workshop.png";
 dccIconTable["HMP"] = "/img/HMP.png";
 dccIconTable["HuBMAP"] = "/img/HuBMAP.png";
-dccIconTable["IDG"] = "/img/IDG.png ";
+dccIconTable["IDG"] = "/img/IDG.png";
 dccIconTable["KFDRC"] = "/img/KOMP2.png";
 dccIconTable["LINCS"] = "/img/LINCS.gif";
 dccIconTable["MW"] = "/img/Metabolomics.png";
 dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
 dccIconTable["SPARC"] = "/img/SPARC.svg";
 
-export function getDCCIcon(iconKey: string | undefined): string | undefined {
+export function getDCCIcon(iconKey: string): string {
     if (iconKey && dccIconTable.hasOwnProperty(iconKey)) {
         return dccIconTable[iconKey];
+    } else {
+        return "";
+    }
+}
+
+// Function to prune and get column names
+export function pruneAndRetrieveColumnNames(data) {
+    const prunedData = [];
+    const columnNames = new Set();
+
+    // Iterate through each row
+    data.forEach(row => {
+        const prunedRow = {};
+
+        // Iterate through each property in the row
+        for (const [columnName, value] of Object.entries(row)) {
+            // Check if the value is non-null
+            if (value !== null && value !== undefined) {
+                prunedRow[columnName] = value;
+                columnNames.add(columnName);
+                console.log("Added " + columnName);
+            }
+        }
+
+        prunedData.push(prunedRow);
+    });
+    // Sort column names based on the number of unique values in each column -- pairwise sorting
+    const sortedColumnNames = Array.from(columnNames).sort((a, b) => {
+        const uniqueValuesA = new Set(prunedData.map(row => row[a]));
+        const uniqueValuesB = new Set(prunedData.map(row => row[b]));
+        return uniqueValuesB.size - uniqueValuesA.size;
+    });
+
+    return { prunedData, columnNames: sortedColumnNames };
+    //return { prunedData, columnNames: Array.from(columnNames) };
+}
+
+// Mano: Not sure if use of this function is sql-injection safe
+// This is different from search/Page.tsx because it has specifics for this page.
+//export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
+export function generateFilterQueryString(searchParams: any, schemaname: string, tablename: string) {
+    const filters: string[] = [];
+
+    //const tablename = "allres";
+    if (searchParams.t) {
+        const typeFilters: { [key: string]: string[] } = {};
+
+        searchParams.t.forEach(t => {
+            if (!typeFilters[t.type]) {
+                typeFilters[t.type] = [];
+            }
+            if (t.entity_type) {
+
+                //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+                if (t.entity_type !== "Unspecified") { // was using "null"
+                    //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+                    typeFilters[t.type].push(`"${schemaname}"."${tablename}"."${t.type}" = '${t.entity_type.replace(/'/g, "''")}'`);
+                } else {
+                    typeFilters[t.type].push(`"${schemaname}"."${tablename}"."${t.type}" is null`);
+                    //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
+                }
+            }
+        });
+
+        for (const type in typeFilters) {
+            if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
+                filters.push(`(${typeFilters[type].join(' OR ')})`);
+            }
+        }
+    }
+    //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+    const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
+    console.log("FILTERS LENGTH =");
+    console.log(filters.length)
+    return filterConditionStr;
+}
+
+const dccAbbrTable: { [key: string]: string } = {
+    "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
+    "The Extracellular Communication Consortium Data Coordination Center": "ERCC",
+    "Genotype-Tissue Expression Project": "GTEx",
+    "GlyGen": "GlyGen",
+    "The Human Microbiome Project": "HMP",
+    "HuBMAP": "HuBMAP",
+    "Illuminating the Druggable Genome": "IDG",
+    "The Gabriella Miller Kids First Pediatric Research Program": "KFDRC",
+    "Library of Integrated Network-based Cellular Signatures": "LINCS",
+    "UCSD Metabolomics Workbench": "MW",
+    "MoTrPAC Molecular Transducers of Physical Activity Consortium": "MoTrPAC",
+    "Stimulating Peripheral Activity to Relieve Conditions": "SPARC"
+};
+
+export function getDCCAbbr(iconKey: string): string {
+    return dccAbbrTable[iconKey] || "";
+}
+interface FilterParam {
+    type: string;
+    entity_type: string | null;
+}
+
+export function getFilterVals(filtParams: FilterParam[] | undefined): string {
+    if (filtParams !== undefined) {
+        const entityTypes = filtParams.map(param => {
+            if (param.type === "dcc" && param.entity_type !== null) {
+                return getDCCAbbr(param.entity_type);
+            } else {
+                return param.entity_type || "";
+            }
+        });
+        const entityTypesString = entityTypes.join(', ');
+        return entityTypesString;
     } else {
         return "";
     }
