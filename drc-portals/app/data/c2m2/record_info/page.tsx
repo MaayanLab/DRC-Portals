@@ -336,7 +336,7 @@ export default async function Page(props: PageProps) {
 
   const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
   const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
-  const diseaseAssociationType = !dynamicColumns.includes('disease_association_type_name')
+  const diseaseAssociationType = !dynamicBiosampleColumns.includes('disease_association_type_name')
     ? biosamplePrunedData?.[0]?.['disease_association_type_name']
     : undefined; // In case disease_association_type is not part of the dynamic columns
 
