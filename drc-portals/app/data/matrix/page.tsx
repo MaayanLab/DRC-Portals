@@ -41,13 +41,12 @@ export default async function DataMatrix() {
       id: true,
       icon: true,
       short_label: true
-    },
-    orderBy: [
-      {
-        short_label: 'asc'
-      }
-    ]
+    }
   })
+  dccs.sort((a,b) => 
+    (a.short_label != null && b.short_label != null) ? 
+      a.short_label.localeCompare(b.short_label) : ''.localeCompare('')
+  )
   const cfde_data = [] as dccMatrix[]
   await Promise.all(dccs.map( async item => {
     cfde_data.push({
@@ -55,13 +54,13 @@ export default async function DataMatrix() {
       img: item.icon ? item.icon : '',
       c2m2: await getDccNumAssets(item.id, 'C2M2', false),
       xmt: await getDccNumAssets(item.id, 'XMT', false),
-      kg: await getDccNumAssets(item.id, 'KGAssertions', false),
-      att: await getDccNumAssets(item.id, 'AttributeTables', false),
+      kg: await getDccNumAssets(item.id, 'KG Assertions', false),
+      att: await getDccNumAssets(item.id, 'Attribute Tables', false),
       etl: await getDccNumAssets(item.id, 'ETL', true),
       api: await getDccNumAssets(item.id, 'API', true),
-      ent: await getDccNumAssets(item.id, 'EntityPages', true),
-      pwb: await getDccNumAssets(item.id, 'PWBMetanodes', true), 
-      chat: await getDccNumAssets(item.id, 'ChatbotSpecs', true)
+      ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
+      pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
+      chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
     })
   }))
   return (

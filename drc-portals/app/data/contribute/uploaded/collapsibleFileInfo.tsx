@@ -88,10 +88,10 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>URL</TableCell>
                                 <TableCell><Link color="secondary" href={props.fileInfo.link} target="_blank" rel="noopener">{props.fileInfo.name}</Link></TableCell>
                             </TableRow>
-                            <TableRow>
+                            {props.fileInfo.description && <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>Description</TableCell>
                                 <TableCell>{props.fileInfo.description}</TableCell>
-                            </TableRow>
+                            </TableRow>}
                         </>
                         :
                         <>
@@ -104,17 +104,17 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                                 <TableCell>{props.fileInfo.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}</TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell variant="head" align="left" style={{ width: 200 }}>SmartAPI Specifications</TableCell>
+                                <TableCell variant="head" align="left" style={{ width: 200 }}>Deposited in SmartAPI</TableCell>
                                 <TableCell>{props.fileInfo.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : (<Error />)}</TableCell>
                             </TableRow>
-                            <TableRow>
+                            {props.fileInfo.smartAPIURL && <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>SmartAPI URL</TableCell>
                                 <TableCell >{props.fileInfo.smartAPIURL ? props.fileInfo.smartAPIURL : ''}</TableCell>
-                            </TableRow>
-                            <TableRow>
+                            </TableRow>}
+                            {props.fileInfo.description && <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>Description</TableCell>
                                 <TableCell >{props.fileInfo.description}</TableCell>
-                            </TableRow>
+                            </TableRow>}
                         </>}
                 </Table>
             </Box>}

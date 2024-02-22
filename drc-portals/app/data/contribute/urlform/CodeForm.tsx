@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import DCCSelect from '../form/DCCSelect';
+import {DCCSelect} from '../form/DCCSelect';
 import { $Enums, CodeAsset, DccAsset, FileAsset } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -88,8 +88,8 @@ export const assetOptions = [
         example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="secondary">exRNA openAPI link </Link>
     },
     {
-        asset: 'Playbook Workflow Builder (PWB) Metanodes',
-        description: <Typography fontSize={12}>A PWB metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type, and functionality of a node in the network of PWB workflows. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook metanode .</Typography>,
+        asset: 'PWB Metanodes',
+        description: <Typography fontSize={12}>A Playbook Workflow Builder (PWB) metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type, and functionality of a node in the network of PWB workflows. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook metanode .</Typography>,
         example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' target="_blank" color="secondary"><u>PWB Metanode example</u></Link>
     },
     {
@@ -296,7 +296,7 @@ export function CodeForm(user: {
 
             <Container>
                 <Stack direction="row" alignItems="center" gap={1}>
-                    <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }}>CODE ASSETS FORM </Typography>
+                    <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }}>CODE ASSETS UPLOAD FORM </Typography>
                     <AssetInfoDrawer assetOptions={assetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
                 </Stack>
 
@@ -306,69 +306,81 @@ export function CodeForm(user: {
                 </Typography>
                 <Grid container spacing={2} sx={{ mt: 2 }}>
                     <Grid md={9} xs={12}>
-                        <Grid container className='p-5' justifyContent="center" sx={{ mt: 3 }}>
-                            <TextField
-                                label="Uploader Name"
-                                disabled
-                                defaultValue={user.name}
-                                inputProps={{ style: { fontSize: 16 } }} // font size of input text
-                                InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
-                            />
-                            <TextField
-                                label="Email"
-                                disabled
-                                defaultValue={user.email}
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                                sx={{ mx: 2 }}
-                            />
-                            <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
-                        </Grid>
-                        <Grid container justifyContent="center" className='mb-5'>
-                            <div>
-                                <FormControl sx={{ minWidth: 200 }}>
-                                    <InputLabel id="select-url"
-                                        sx={{ fontSize: 16 }} color='secondary'
-                                    >Code Asset Type</InputLabel>
-                                    <Select
-                                        labelId="select-url"
-                                        id="simple-select"
-                                        value={codeType}
-                                        onChange={handleChange}
-                                        autoWidth
-                                        required
-                                        label="Code Asset Type"
-                                        name="assetType"
-                                        sx={{ fontSize: 16 }}
-                                        color='secondary'
-                                    >
-                                        {assetOptions.map((asset) => {
-                                            return <MenuItem key={asset.asset} value={asset.asset} sx={{ fontSize: 16 }}><HtmlTooltip
-                                                title={
-                                                    <React.Fragment>
-                                                        <Typography>{asset.asset}</Typography>
-                                                        {asset.description} <br></br>
-                                                        {'Example:'} {asset.example}
-                                                    </React.Fragment>
-                                                }
-                                                placement="left"
-                                            >
-                                                <Typography sx={{ color: 'black', fontSize: 16 }}>{asset.asset}</Typography>
-                                            </HtmlTooltip></MenuItem>
-                                        })}
-                                    </Select>
-                                </FormControl>
-                            </div>
+                        <Grid container item className='p-5' justifyContent="center" sx={{ mt: 3 }}>
+                            <Grid item>
+                                <TextField
+                                    label="Uploader Name"
+                                    disabled
+                                    defaultValue={user.name}
+                                    inputProps={{ style: { fontSize: 16 } }} // font size of input text
+                                    InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label="Email"
+                                    disabled
+                                    defaultValue={user.email}
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                    sx={{ mx: 2 }}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+                            </Grid>
 
-                            <TextField sx={{ minWidth: 440 }}
-                                label="Name"
-                                name='name'
-                                required
-                                color='secondary'
-                                placeholder='Enter asset name here'
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                            />
+                        </Grid>
+                        <Grid container direction='row' justifyContent="center" className='mb-5' spacing={2}>
+                            <Grid item>
+                                <div>
+                                    <FormControl sx={{ minWidth: 200 }}>
+                                        <InputLabel id="select-url"
+                                            sx={{ fontSize: 16 }} color='secondary'
+                                        >Code Asset Type</InputLabel>
+                                        <Select
+                                            labelId="select-url"
+                                            id="simple-select"
+                                            value={codeType}
+                                            onChange={handleChange}
+                                            autoWidth
+                                            required
+                                            label="Code Asset Type"
+                                            name="assetType"
+                                            sx={{ fontSize: 16 }}
+                                            color='secondary'
+                                        >
+                                            {assetOptions.map((asset) => {
+                                                return <MenuItem key={asset.asset} value={asset.asset} sx={{ fontSize: 16 }}><HtmlTooltip
+                                                    title={
+                                                        <React.Fragment>
+                                                            <Typography>{asset.asset}</Typography>
+                                                            {asset.description} <br></br>
+                                                            {'Example:'} {asset.example}
+                                                        </React.Fragment>
+                                                    }
+                                                    placement="left"
+                                                >
+                                                    <Typography sx={{ color: 'black', fontSize: 16 }}>{asset.asset}</Typography>
+                                                </HtmlTooltip></MenuItem>
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                            </Grid>
+
+                            <Grid item>
+                                <TextField sx={{ minWidth: 420 }}
+                                    label="Name"
+                                    name='name'
+                                    required
+                                    color='secondary'
+                                    placeholder='Enter asset name here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+
+                            </Grid>
 
                         </Grid>
 
@@ -425,7 +437,7 @@ export function CodeForm(user: {
                     {apiSelected && <Grid md={3} xs={12}>
                         <FormGroup>
                             <FormControlLabel control={<Checkbox />} label="OpenAPI Specifications" name="openAPISpecs" />
-                            <FormControlLabel control={<Checkbox />} label="SmartAPI Specifications" name="smartAPISpecs" onChange={handleSmartSelect} />
+                            <FormControlLabel control={<Checkbox />} label="Deposited in SmartAPI" name="smartAPISpecs" onChange={handleSmartSelect} />
                         </FormGroup>
                     </Grid>}
                 </Grid>

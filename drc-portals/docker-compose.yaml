@@ -3,14 +3,15 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.2.50
+    image: maayanlab/drc-portal:0.4.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres:5432/${POSTGRES_DB}?schema=public
-      - NEXTAUTH_URL
+      - PUBLIC_URL=https://cfde.cloud
+      - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
       - NEXTAUTH_GITHUB
@@ -23,6 +24,7 @@ services:
       - S3_BUCKET
       - S3_REGION
       - OPENAI_API_KEY
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9

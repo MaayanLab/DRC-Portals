@@ -13,23 +13,23 @@ datasource db {
 }
 
 model DCC {
-  id            String            @id @default(uuid())
-  label         String
-  short_label   String?
-  description   String?
-  homepage      String
-  icon          String?
-  annotation    Json?
-  cfde_partner  Boolean           @default(false)
-  cf_site       String?
-  publications  DCCPublication[]
-  assets        DccAsset[]
-  outreach      DCCOutreach[]
-  partnerships  DCCPartnerships[]
-  usecases_created      UseCase[]
-  usecases      DCCUseCase[]
-  nodes         Node[]
-  kg_assertions KGAssertion[]
+  id               String            @id @default(uuid())
+  label            String
+  short_label      String?
+  description      String?
+  homepage         String
+  icon             String?
+  annotation       Json?
+  cfde_partner     Boolean           @default(false)
+  cf_site          String?
+  publications     DCCPublication[]
+  assets           DccAsset[]
+  outreach         DCCOutreach[]
+  partnerships     DCCPartnerships[]
+  usecases_created UseCase[]
+  usecases         DCCUseCase[]
+  nodes            Node[]
+  kg_assertions    KGAssertion[]
 
   @@map("dccs")
 }
@@ -129,7 +129,7 @@ model PartnershipPublications {
 }
 
 model UseCase {
-  id                String        @id @default(uuid())
+  id                String       @id @default(uuid())
   title             String
   short_description String
   description       String
@@ -140,16 +140,17 @@ model UseCase {
   image             String?
   tutorial          String?
   creator_dcc_id    String?
-  creator_dcc       DCC?      @relation(fields: [creator_dcc_id], references: [id])
+  creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
   source_dccs       DCCUseCase[]
+
   @@map("usecase")
 }
 
 model DCCUseCase {
   usecase    UseCase @relation(fields: [usecase_id], references: [id])
   usecase_id String
-  dcc         DCC      @relation(fields: [dcc_id], references: [id])
-  dcc_id      String
+  dcc        DCC     @relation(fields: [dcc_id], references: [id])
+  dcc_id     String
 
   @@id([usecase_id, dcc_id])
   @@map("dcc_usecase")
@@ -170,6 +171,7 @@ model DccAsset {
   dcc_id           String
   dcc              DCC?                @relation(fields: [dcc_id], references: [id])
   link             String              @unique
+  created          DateTime            @default(now())
   lastmodified     DateTime            @default(now())
   current          Boolean             @default(true)
   creator          String?
@@ -206,8 +208,8 @@ model CodeAsset {
   name         String
   link         String    @unique
   description  String?   @db.Text
-  openAPISpec  Boolean?  
-  smartAPISpec Boolean?  
+  openAPISpec  Boolean?
+  smartAPISpec Boolean?
   smartAPIURL  String?
   dccAsset     DccAsset? @relation(fields: [link], references: [link])
 
@@ -326,10 +328,14 @@ model C2M2FileNode {
   c2m2_datapackage_id String    @db.Uuid
   creation_time       DateTime? @db.Timestamptz()
   persistent_id       String?
+  access_url          String?
   size_in_bytes       BigInt?
   file_format         String?
   data_type           String?
   assay_type          String?
+  mime_type           String?
+  md5                 String?
+  sha256              String?
 
   node             Node            @relation(fields: [id], references: [id])
   c2m2_datapackage C2M2Datapackage @relation(fields: [c2m2_datapackage_id], references: [id], onDelete: Cascade)

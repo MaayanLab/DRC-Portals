@@ -48,10 +48,18 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('gene_set', null)
   const item = await getItem(props.params.id)
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('gene_set', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      item.node.dcc?.short_label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 

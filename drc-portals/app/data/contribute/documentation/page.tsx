@@ -13,10 +13,18 @@ import Markdown from 'react-markdown'
 
 
 export default function Documentation() {
-    const markdown = "`shasum -a <file path>`"
+    const macMarkdown = `
+    shasum -a 256 [file location]
+    `
+    const linuxMarkdown = `
+    sha256sum [file location]
+    `
+    const windowsMarkdown = `
+    certutil -hashfile [file location] SHA256
+    `
     const codeAssetSubmission = `
-1. Go to the [Code Asset Form](urlform) page OR Click on the “Contribute” option in the navigation bar or in the footer: 
-2. On the Code Asset Form, fill out all the fields: 
+1. Go to the [Code Assets Upload Form](urlform) page OR Click on the “Contribute” option in the navigation bar or in the footer: 
+2. On the Code Assets Upload Form, fill out all the fields: 
     - Select the DCC for which the asset is affiliated with
     - Select the code asset type you wish to submit from the available options ETL, API, PWB Metanode, Entity Page Template, Chatbot Specifications and Apps URL. If submitting an API asset. Please see the *API Code Asset Submission Steps* section
     - Enter the URL for the code asset in the URL field. Only valid HTTPS URLs are accepted.
@@ -29,7 +37,7 @@ export default function Documentation() {
 1. Follow Steps 1-3 of the *Code Asset Submission Steps* section. 
 2. Enter the URL of the page that documents the DCC APIs. 
     - If the API documentation meets OpenAPI specification, check the OpenAPI Specifications box.
-    - If the API documentation meets SmartAPI specification, check the SmartAPI Specifications box.
+    - If the API documentation is deposited in the SmartAPI registry, check the Deposited in SmartAPI box.
     - Insert the SmartAPI URL of the API if the SmartAPI URL is different from the API URL entered in the URL field of the form. Otherwise, leave the SmartAPI URL field empty.
 
 #### Asset Upload Submission Troubleshooting/FAQ: 
@@ -38,7 +46,7 @@ export default function Documentation() {
     - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
     - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
     - If Role is inaccurate, please contact the DRC to update your information.
-2. If you are to be an Uploader for your DCC and have “Access Denied” on the [Code Assets Form](urlform) and [Uploaded Assets](uploaded) pages, please contact the DRC through email to grant you access.
+2. If you are to be an Uploader or Approver for your DCC and have “Access Denied” on the [Code Assets Upload Form](urlform) and [Uploaded Assets](uploaded) pages, please contact the DRC through email to grant you access.
 3. If a mistake has been made in a submission, go to the [Uploaded Assets](uploaded) page, delete the incorrectly submitted asset by clicking on the delete icon on the row of the given file and reupload the corrected file.
     `
 
@@ -93,10 +101,10 @@ The Entity Page Template and Example are  links to:
 
     return (
         <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid md={2} xs={12}>
+            <Grid item container md={2} xs={12}>
                 <Nav />
             </Grid>
-            <Grid md={10} xs={12}>
+            <Grid item container md={10} xs={12}>
                 <Container className="justify-content-center">
                     <Typography variant="h3" color="#111827.dark" className='p-5'>DOCUMENTATION</Typography>
                     <Typography variant="subtitle1" color="#374151" sx={{ mb: 3, ml: 2 }}>
@@ -114,7 +122,7 @@ The Entity Page Template and Example are  links to:
                                     .dmt files are XMT files that contain a collection of drug sets.
                                     On each row of the XMT file, the first column contains the Term associated with the set while all other
                                     columns contain the set entities.
-                                    All uploaded files with a .gmt or .dmt extension are tagged as XMT files by default.
+
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
@@ -124,8 +132,7 @@ The Entity Page Template and Example are  links to:
                                     The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies.
                                     Please explore the C2M2 technical wiki for more information about how to prepare your
                                     metadata into C2M2 compatible files. Please also see the C2M2 section in the <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page of the
-                                    CFDE Workbench portal on how to create C2M2 files. All uploaded zipped files are considered as C2M2 files by the
-                                    ingestion system.
+                                    CFDE Workbench portal on how to create C2M2 files.
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
@@ -139,7 +146,7 @@ The Entity Page Template and Example are  links to:
                                     For example, a KG Assertion file for nodes would contain columns which define information about each node:
                                     id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary
                                     information about each edge: its source and target nodes, the labels for these nodes and their relationship.
-                                    All uploaded files with .csv extensions are considered KG Assertion files by the ingestion system.
+
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
@@ -149,8 +156,25 @@ The Entity Page Template and Example are  links to:
                                     entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a
                                     given row and column is then a value defining nature of the relationship between the row entity and the
                                     column entity e.g. the qualitative score of similarity between a given gene and a given tissue type.
-                                    All uploaded files with .txt extensions are considered Attribute Table files by the ingestion system.
+
                                 </Typography>
+                            </Box>
+                            <Box sx={{ p: 1, m: 1, }}>
+                                The recommended extensions for each file asset type are:
+                                <List sx={{ listStyleType: 'disc', pl: 3 }}>
+                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                        C2M2: .zip
+                                    </ListItemText>
+                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                        KG Assertion: .csv
+                                    </ListItemText>
+                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                        Attribute Table: .h5 or .hdf5
+                                    </ListItemText>
+                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                        XMT: .(x)mt e.g .gmt or .dmt
+                                    </ListItemText>
+                                </List>
                             </Box>
                         </>
                         } />
@@ -171,11 +195,11 @@ The Entity Page Template and Example are  links to:
                                     It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs
                                     should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these
                                     API into the API repository SmartAPI. <br></br>
-                                    <strong>OpenAPI</strong> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written
+                                    <strong>OpenAPI: </strong> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written
                                     in YAML or JSON. <br></br>
-                                    <strong>SmartAPI:</strong> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features
+                                    <strong>SmartAPI: </strong> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features
                                     additional metadata elements and value sets to promote the interoperability of RESTful APIs. <br></br>
-                                    Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page.
+                                    Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/standards/OpenAPI" color='#111827' target='_blank'>Standards and Protocols</Link> page.
                                     <br></br>Example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="#111827">exRNA openAPI link </Link>
                                 </Typography>
                             </Box>
@@ -183,7 +207,7 @@ The Entity Page Template and Example are  links to:
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Playbook Workflow Builder (PWB) Metanodes</Typography>
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                     A PWB metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type,
-                                    and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/standards"  color='#111827' target='_blank'>Standards and Protocols</Link> page 
+                                    and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page
                                     for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook
                                     metanode.
                                     <br></br>Example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' color="#111827" target="_blank"><u>PWB Metanode</u></Link> created by the Metabolomics DCC
@@ -262,7 +286,7 @@ The Entity Page Template and Example are  links to:
                                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <BsCheckCircleFill />
                                         </span> icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page is considered the current version
-                                        of that file type for a given DCC. 
+                                        of that file type for a given DCC.
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
@@ -272,7 +296,7 @@ The Entity Page Template and Example are  links to:
                                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                                             <FaCircleExclamation />
                                         </span>
-                                        {' '} icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page, 
+                                        {' '} icon under the 'Current' column on the <Link color="#111827" href="/data/contribute/uploaded">Uploaded Assets</Link> page,
                                         is considered an archived version of that asset type.
                                         Please note that both DCC and DRC approvers can change the current status of an asset.
                                     </Typography>
@@ -302,31 +326,31 @@ The Entity Page Template and Example are  links to:
                                 <Box sx={{ p: 1, m: 1, }}>
                                     <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Approver</Typography>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                        Can approve a submitted package, but can’t submit new packages. You can have as many users in this role as you want.
+                                        Can submit new packages and approve a submitted package. You can have as many users in this role as you want.
                                     </Typography>
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges:
-                                    Contact the DRC via email with the following information about the member:
-                                </Typography>
-                                <List sx={{ listStyleType: 'disc', pl: 3 }}>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        Name
-                                    </ListItemText>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        Email
-                                    </ListItemText>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        Role
-                                    </ListItemText>
-                                    <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        DCC
-                                    </ListItemText>
-                                </List>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    Please also indicate if the user has already logged into the portal (is a registered user) or has never accessed the portal (is a new user).
-                                </Typography>
+                                    <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
+                                        Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges:
+                                        Contact the DRC via email with the following information about the member:
+                                    </Typography>
+                                    <List sx={{ listStyleType: 'disc', pl: 3 }}>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            Name
+                                        </ListItemText>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            Email
+                                        </ListItemText>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            Role
+                                        </ListItemText>
+                                        <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                            DCC
+                                        </ListItemText>
+                                    </List>
+                                    <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
+                                        Please also indicate if the user has already logged into the portal (is a registered user) or has never accessed the portal (is a new user).
+                                    </Typography>
                                 </Box>
                             </>
                         } />
@@ -341,20 +365,45 @@ The Entity Page Template and Example are  links to:
                                             Go to the <Link href="/data/contribute/form" color="#111827" target="_blank">Data and Metadata Upload Form</Link> OR Click on the “Contribute” option in the navigation bar or in the footer
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            On the Upload Form page, upload your data and metadata files by either dragging and dropping them in the upload box, or clicking in the box or on the "Choose Files" button.
+                                            On the Upload Form page, upload your processed data by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            The files you have selected should appear under “Files to Upload”.
-                                            If you select a wrong file, you can delete it by clicking on the delete icon next to the file name
+                                            The file you have selected should appear under “File to Upload”.
+                                            If you select a wrong file, you can delete it by clicking on the delete icon next to the file name or by re-uploading the correct file
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Select the DCC that the files to upload were generated from. Only DCCs that you are affiliated with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option is not provided, please contact the DRC to update this information.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            After clicking on the “Submit Form” button:
+                                            Select the file asset type that you wish to upload the file as and click on the "Submit Form" button.
+                                        </ListItem>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                            <strong>Unexpected File type: </strong>There are file extensions that are expected for each file asset type. If the extension of the selected file
+                                            does not match one of the expected extensions based on the entered File Asset Type, a dialog box will appear requesting you to confirm your
+                                            upload of this unexpected file type. If the unexpected file type is intentional, click on the 'Yes Continue' button to proceed with the upload, otherwise
+                                            click 'No' to cancel the upload.
+                                            <br></br>
+                                            The recommended extensions for each file asset type are:
+                                            <List sx={{ listStyleType: 'disc', pl: 3 }}>
+                                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                                    C2M2: .zip
+                                                </ListItemText>
+                                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                                    KG Assertion: .csv
+                                                </ListItemText>
+                                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                                    Attribute Table: .h5 or .hdf5
+                                                </ListItemText>
+                                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
+                                                    XMT: .(x)mt e.g .gmt or .dmt
+                                                </ListItemText>
+                                            </List>
+
+                                        </ListItem>
+                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             If an upload is successful, a green banner with “Success! File Uploaded” should appear.
                                             If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error.
-                                            Ensure that all the files you have selected for upload files are either .csv, .txt, .zip or .(x)mt files and are not larger than 500MB.
+                                            Ensure that all the files you have selected for upload files are either .csv, .txt, .zip or .(x)mt files and are not larger than 5GB.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Details of your uploaded file should appear on the <Link href="data/contribute/uploaded" color="#111827" target="_blank">Uploaded Assets</Link> page.
@@ -380,17 +429,21 @@ The Entity Page Template and Example are  links to:
                                             To verify file integrity after downloading a file from the portal:
                                         </ListItem>
                                         <List sx={{ listStyle: "disc", pl: 4 }}>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Download the intended file
-                                        </ListItem>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Calculate the checksum in your terminal using the <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                            <Markdown className="prose">{markdown}</Markdown> command
-                                                </span>
-                                        </ListItem>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
-                                        </ListItem>
+                                            <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                                Download the intended file
+                                            </ListItem>
+                                            <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                                Calculate the checksum in your terminal:
+                                                <br></br>
+                                                For Windows: <Markdown className="prose">{windowsMarkdown}</Markdown>
+                                                <br></br>
+                                                For Linux: <Markdown className="prose">{linuxMarkdown}</Markdown>
+                                                <br></br>
+                                                For MacOS: <Markdown className="prose">{macMarkdown}</Markdown>
+                                            </ListItem>
+                                            <ListItem sx={{ display: "list-item", color: "#374151" }}>
+                                                If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
+                                            </ListItem>
                                         </List>
 
                                     </List>
@@ -401,7 +454,7 @@ The Entity Page Template and Example are  links to:
                         }
                         />
 
-                        <StyledAccordionComponent heading="Code Asset Form" content={
+                        <StyledAccordionComponent heading="Code Assets Upload Form" content={
                             <Box sx={{ p: 1, m: 1, }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Code Asset Submission Steps</Typography>
 
@@ -432,6 +485,7 @@ The Entity Page Template and Example are  links to:
 
                         <StyledAccordionComponent heading="Admin User Documentation" content={
                             <Box sx={{ p: 1, m: 1, }}>
+                                <Typography color={'#FF0000'} style={{ fontStyle: 'bold', textAlign: 'center' }} sx={{ padding: 1 }}>This section is for Admin Users Only</Typography>
                                 <Markdown className="prose min-w-full">{adminUsers}</Markdown>
                             </Box>
                         }

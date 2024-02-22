@@ -31,7 +31,7 @@ export default async function InfoFooter() {
                   </Typography>
                 </div>
               </Link>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/issues/new">
+              <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
                   <Typography variant='footer' className='flex'>
@@ -57,6 +57,7 @@ export default async function InfoFooter() {
                 <Typography variant="footer">Knowledge Portal</Typography>
               </Link> */}
               <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+              <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
@@ -87,6 +88,7 @@ export default async function InfoFooter() {
                 <Link href="/info/coming_soon"><Typography variant="caption">Privacy Policy</Typography></Link>
               </div> */}
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
+              <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This work is support by the NIH Common Fund CFDE program (Grant # OT2OD036435)</Typography></Link>
           </Stack>
         </Grid>
       </Container>
