@@ -13,10 +13,6 @@ import { cache } from "react";
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
-
-
-
-
 // Mano: Not sure if use of this function is sql-injection safe
 // This is different from search/Page.tsx because it has specifics for this page.
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
@@ -161,6 +157,57 @@ export default async function Page(props: PageProps) {
       age_at_enrollment: string
     }[],
     sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
+    count_file: number,
+    file_table: {
+      id_namespace: string, 
+      local_id: string, 
+      project_id_namespace: string, 
+      project_local_id: string, 
+      persistent_id: string, 
+      creation_time: string, 
+      size_in_bytes: BigInteger, 
+      uncompressed_size_in_bytes: BigInteger, 
+      sha256: string, 
+      md5: string, 
+      filename: string, 
+      file_format: string, 
+      compression_format: string, 
+      data_type: string, 
+      assay_type: string, 
+      analysis_type: string, 
+      mime_type: string, 
+      bundle_collection_id_namespace: string, 
+      bundle_collection_local_id: string, 
+      dbgap_study_id: string,
+      //biosample_id_namespace: string,
+      //biosample_local_id: string,
+      //subject_id_namespace: string,
+      //subject_local_id: string,
+      //collection_id_namespace: string, 
+      //collection_local_id: string
+    }[],
+    count_file_sub: number,
+    file_sub_table: {
+      file_id_namespace: string, 
+      file_local_id: string,
+      subject_id_namespace: string,
+      subject_local_id: string
+    }[],
+    count_file_bios: number,
+    file_bios_table: {
+      file_id_namespace: string, 
+      file_local_id: string,
+      biosample_id_namespace: string,
+      biosample_local_id: string
+    }[],
+    count_file_col: number,
+    file_col_table: {
+      file_id_namespace: string, 
+      file_local_id: string,
+      collection_id_namespace: string,
+      collection_local_id: string
+    }[],
+
 
   }>>`
   WITH allres_full AS (
@@ -226,24 +273,118 @@ export default async function Page(props: PageProps) {
   count_bios AS (
     select count(*)::int as count
       from biosamples_table
-  )
-  
+  ),
+  proj_info AS (SELECT DISTINCT 
+    allres_full.project_local_id AS project_local_id, allres_full.project_id_namespace AS project_id_namespace
+    FROM allres_full
+  ), /* Mano */
+  file_table AS (
+    SELECT DISTINCT c2m2.file.* /* Mano: created table c2m2.file_expanded in file file_expanded.sql of database folder, but useless */
+    FROM c2m2.file
+    INNER JOIN proj_info ON 
+    (c2m2.file.project_local_id = proj_info.project_local_id AND 
+      c2m2.file.project_id_namespace = proj_info.project_id_namespace)
+  ), /* Mano */
+  file_table_limited as (
+    SELECT * 
+    FROM file_table
+    OFFSET ${offset}
+    LIMIT ${limit}
+  ), /* Mano */
+  count_file AS (
+    select count(*)::int as count
+      from file_table
+  ), /* Mano */
+
+  file_sub_table AS (
+    SELECT DISTINCT c2m2.file_describes_subject.*
+    FROM file_table
+    INNER JOIN c2m2.file_describes_subject ON 
+    (file_table.local_id = c2m2.file_describes_subject.file_local_id AND 
+      file_table.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+  ), /* Mano */
+  file_sub_table_limited as (
+    SELECT * 
+    FROM file_sub_table
+    OFFSET ${offset}
+    LIMIT ${limit}
+  ), /* Mano */
+  count_file_sub AS (
+    select count(*)::int as count
+      from file_sub_table
+  ), /* Mano */
+
+  file_bios_table AS (
+    SELECT DISTINCT c2m2.file_describes_biosample.*
+    FROM file_table
+    INNER JOIN c2m2.file_describes_biosample ON 
+    (file_table.local_id = c2m2.file_describes_biosample.file_local_id AND 
+      file_table.id_namespace = c2m2.file_describes_biosample.file_id_namespace)
+  ), /* Mano */
+  file_bios_table_limited as (
+    SELECT * 
+    FROM file_bios_table
+    OFFSET ${offset}
+    LIMIT ${limit}
+  ), /* Mano */
+  count_file_bios AS (
+    select count(*)::int as count
+      from file_bios_table
+  ), /* Mano */
+
+  file_col_table AS (
+    SELECT DISTINCT c2m2.file_describes_collection.*
+    FROM file_table
+    INNER JOIN c2m2.file_describes_collection ON 
+    (file_table.local_id = c2m2.file_describes_collection.file_local_id AND 
+      file_table.id_namespace = c2m2.file_describes_collection.file_id_namespace)
+  ), /* Mano */
+  file_col_table_limited as (
+    SELECT * 
+    FROM file_col_table
+    OFFSET ${offset}
+    LIMIT ${limit}
+  ), /* Mano */
+  count_file_col AS (
+    select count(*)::int as count
+      from file_col_table
+  ) /* Mano */
+
   SELECT
   (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
   (SELECT count FROM count_bios) as count_bios,
-  (SELECT COALESCE(jsonb_agg(biosamples_table_limited.*), '[]'::jsonb) FROM biosamples_table_limited) AS biosamples_table
-  
-  
-  ;
+  (SELECT COALESCE(jsonb_agg(biosamples_table_limited.*), '[]'::jsonb) FROM biosamples_table_limited) AS biosamples_table,
+  (SELECT count FROM count_file) as count_file,
+  (SELECT COALESCE(jsonb_agg(file_table_limited.*), '[]'::jsonb) FROM file_table_limited) AS file_table,
+  (SELECT count FROM count_file_sub) as count_file_sub,
+  (SELECT COALESCE(jsonb_agg(file_sub_table_limited.*), '[]'::jsonb) FROM file_sub_table_limited) AS file_sub_table,
+  (SELECT count FROM count_file_bios) as count_file_bios,
+  (SELECT COALESCE(jsonb_agg(file_bios_table_limited.*), '[]'::jsonb) FROM file_bios_table_limited) AS file_bios_table,
+  (SELECT count FROM count_file_col) as count_file_col,
+  (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table
 ` : [undefined];
 
-  const { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
   const biosamplePrunedData = prunedData;
   const bioSampleColNames = columnNames;
   //console.log('Pruned Data:', biosamplePrunedData);
   //console.log('Retained Column Names:', bioSampleColNames);
   console.log("$%$%$%$%")
   console.log(results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "");
+
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_table);
+  const fileData = prunedData;
+  const fileColNames = columnNames;
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_sub_table);
+  const filesubData = prunedData;
+  const filesubColNames = columnNames;
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_bios_table);
+  const filebiosData = prunedData;
+  const filebiosColNames = columnNames;
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_col_table);
+  const filecolData = prunedData;
+  const filecolColNames = columnNames;
+
   return (
     <LandingPageLayout
       icon={{
@@ -265,8 +406,6 @@ export default async function Page(props: PageProps) {
         { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
         { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined } // Assuming this is the correct property name
       ]}
-
-
     >
       <SearchablePagedTable
         label={`Biosamples Table: Results found ${results?.count_bios}`}
@@ -281,6 +420,64 @@ export default async function Page(props: PageProps) {
           ))
         ))}
       />
+
+      {/* */}
+      <SearchablePagedTable
+        label={`File Table related to the project: Results found: ${results?.count_file}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_file}
+        columns={fileColNames.map(columnName => <>{columnName}</>)}
+        rows={fileData.map(row => (
+          fileColNames.map(columnName => (
+            <Description description={row[columnName]} />
+          ))
+        ))}
+      />
+
+      <SearchablePagedTable
+        label={`File_Describes_Subject Table related to the project: Results found: ${results?.count_file_sub}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_file_sub}
+        columns={filesubColNames.map(columnName => <>{columnName}</>)}
+        rows={filesubData.map(row => (
+          filesubColNames.map(columnName => (
+            <Description description={row[columnName]} />
+          ))
+        ))}
+      />
+
+      <SearchablePagedTable
+        label={`File_Describes_Biosample Table related to the project: Results found: ${results?.count_file_bios}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_file_bios}
+        columns={filebiosColNames.map(columnName => <>{columnName}</>)}
+        rows={filebiosData.map(row => (
+          filebiosColNames.map(columnName => (
+            <Description description={row[columnName]} />
+          ))
+        ))}
+      />
+
+      <SearchablePagedTable
+        label={`File_Describes_Collection Table related to the project: Results found: ${results?.count_file_col}`}
+        q={searchParams.q ?? ''}
+        p={searchParams.p}
+        r={searchParams.r}
+        count={results?.count_file_col}
+        columns={filecolColNames.map(columnName => <>{columnName}</>)}
+        rows={filecolData.map(row => (
+          filecolColNames.map(columnName => (
+            <Description description={row[columnName]} />
+          ))
+        ))}
+      />
+
     </LandingPageLayout>
   )
 }

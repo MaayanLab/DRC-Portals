@@ -291,7 +291,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     --- select count(*) from (select subject_id_namespace, subject_local_id, count(distinct phenotype) from c2m2.subject_phenotype group by subject_id_namespace,subject_local_id) tmp where count >1;
     --- https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Project&ProjectID=PR001646
     --- ON devmetabweb: select * from mw_disease where study_id = 'ST002554';
-    --- select distinct biosample_id_namespace, biosample_local_id, subject_local_id, disease, phenotype from c2m2.ffl2_biosample where  subject_local_id = 'SU002654' ;
+    --- select distinct biosample_id_namespace, biosample_local_id, subject_local_id, disease, phenotype from c2m2.ffl_biosample where  subject_local_id = 'SU002654' ;
     --- For subject_local_id = 'SU002654', both 2 diseases and 2 phenotypes specified, so listing 
     --- all 2X2 pairs, even though they are like 1-1 disease-phenotype pairs. 412: Actually, 
     --- only 206 rows should be there. This can be avoided if we (MW; when preparing MW metadata) search in phenotype only 
@@ -385,24 +385,24 @@ where
     select * from c2m2.subject_disease where subject_local_id = 'PT_2K21M65V';
 
     select count(*) from (select distinct biosample_id_namespace, biosample_local_id, subject_local_id, 
-        count(distinct disease) as count from c2m2.ffl2_biosample where disease is not null group by 
+        count(distinct disease) as count from c2m2.ffl_biosample where disease is not null group by 
         biosample_id_namespace, biosample_local_id, subject_local_id) tmp where tmp.count > 1;
 
     select * from (select distinct biosample_id_namespace, biosample_local_id, subject_local_id, 
-        count(distinct disease) as count from c2m2.ffl2_biosample where disease is not null 
+        count(distinct disease) as count from c2m2.ffl_biosample where disease is not null 
         group by biosample_id_namespace, biosample_local_id, subject_local_id) tmp where count > 1 
         and biosample_id_namespace ilike '%metab%' limit 10000;
 
     select count(*) from (select distinct biosample_id_namespace, biosample_local_id, subject_local_id, 
-        count(distinct disease) as count from c2m2.ffl2_biosample where disease is not null group by biosample_id_namespace, 
+        count(distinct disease) as count from c2m2.ffl_biosample where disease is not null group by biosample_id_namespace, 
         biosample_local_id, subject_local_id) tmp where tmp.count > 1 and tmp.biosample_id_namespace ilike '%kids%';
     select count(*) from (select distinct biosample_id_namespace, biosample_local_id, subject_local_id, 
-        count(distinct disease) as count from c2m2.ffl2_biosample where disease is not null group by biosample_id_namespace, 
+        count(distinct disease) as count from c2m2.ffl_biosample where disease is not null group by biosample_id_namespace, 
         biosample_local_id, subject_local_id) tmp where tmp.count > 1 and tmp.biosample_id_namespace ilike '%metab%';
-    select distinct biosample_id_namespace, biosample_local_id, subject_local_id, disease, phenotype from c2m2.ffl2_biosample 
+    select distinct biosample_id_namespace, biosample_local_id, subject_local_id, disease, phenotype from c2m2.ffl_biosample 
     where  subject_local_id = 'SU002654' ;
 
-    select distinct biosample_id_namespace, biosample_local_id, subject_local_id, disease, phenotype from c2m2.ffl2_biosample 
+    select distinct biosample_id_namespace, biosample_local_id, subject_local_id, disease, phenotype from c2m2.ffl_biosample 
     where  biosample_id_namespace ilike '%metab%'  and (disease is not null OR phenotype is not null);
 
 */

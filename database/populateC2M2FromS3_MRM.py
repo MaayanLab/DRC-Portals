@@ -12,6 +12,7 @@ from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, u
 import json
 import numpy as np
 import sys
+import time
 
 # debug
 debug = 1
@@ -89,6 +90,8 @@ def typeMatcher(schemaDataType):
         'number': 'varchar' # later, to try float32?
     }
     return typeMap.get(schemaDataType)
+
+t0 = time.time();
 
 # Create schema from the json definition using frictionless
 # Create the schema if it doesn't exist
@@ -180,6 +183,8 @@ if(debug >0): print("================== Defined all tables =====================
 
 qf.close();
 
+t1 = time.time();
+print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: {t1-t0} seconds.{newline}");
 
 print("Names of all tables:"); print(f"{table_names}{newline}")
 print(f"Going to ingest metadata from files{newline}");
@@ -196,6 +201,11 @@ c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 if(single_dcc == 1): # Mano
     c2m2s = c2m2s[c2m2s['dcc_short_label'] == dcc_short_label]; # This should select just one row of the c2m2s data.frame
 
+print(f"{newline}********* c2m2s dataframe is: **********");
+print(f"{c2m2s}"); 
+#print(f"{str(c2m2s['link'])}");  wait_str = input("Press Enter to continue.");
+
+
 c2m2s_path = ingest_path / 'c2m2s'
 
 c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link',), pk_columns=('id',))
@@ -208,7 +218,7 @@ with c2m2_file_helper.writer() as c2m2_file:
   with node_helper.writer() as node:
     with c2m2_datapackage_helper.writer() as c2m2_datapackage:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-        print(f"==================== DCC short label: {c2m2['dcc_short_label']} ====================");
+        print(f"\n================================== DCC short label: {c2m2['dcc_short_label']} =============================================");
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
@@ -221,11 +231,13 @@ with c2m2_file_helper.writer() as c2m2_file:
             c2m2_zip.extractall(c2m2_extract_path)
 
         for table in c2m2_extract_path.rglob('*.tsv'):
+            t01 = time.time();
+
             # countDCC = 1
-            print(table)
-            # ignore files that start with . and also files that not in table names
+            # ignore files that start with . and also files that are not in table names
             table_str = str(table)
-            if(debug > 0): print(f"--- {table_str} ---")
+            if(debug > -1): print(f"--------- {table_str} ---------")
+            print(table)
 
             # Check if the last part after the final "/" starts with a dot
             if not re.search(r'/\.', table_str):
@@ -273,7 +285,7 @@ with c2m2_file_helper.writer() as c2m2_file:
 
                     id_namespace_pat = 'id_namespace';
                     pKeys_has_id_namespace = any([id_namespace_pat in i for i in pKeys]);
-                    if((single_dcc == 0) and (not pKeys_has_id_namespace)):
+                    if((single_dcc == 0) and (not pKeys_has_id_namespace) and (df.shape[0] > 0)):
                         if(debug > 0): print("---- Will check if a primary key in current df is already in the table in the DB");
                         # make a string of primary key columns of df sep by COLSEP
                         if npk == 1: df_pk_df = df[pKeys[0]]; # astype(str).apply("___".join, axis=1) # apply is slow for large DF
@@ -332,7 +344,7 @@ with c2m2_file_helper.writer() as c2m2_file:
                     #if(actually_ingest_tables > 0): 
                     df.to_sql(table_name, con=engine, if_exists="append", index=False, schema=schema_name)
                     print(">>> All good.")
-                    
+                                        
                     # SQL command to add the DCC name to the 'sourcedcc' column in the PostgreSQL table
                     # dcc_name = c2m2['dcc_short_label']
                     # #addDCCName = f'UPDATE {schema_name}.{table_name} SET sourcedcc = \'{dcc_name}\';'
@@ -343,7 +355,16 @@ with c2m2_file_helper.writer() as c2m2_file:
                     # cursor.execute(update_dcc_sql)
                     # countDCC = countDCC + 1
 
+            t02 = time.time();
+            print(f">>>>>>>> Time taken to ingest the metadata from this file: {t02-t01} seconds.{newline}");
+
 #input("Press Enter to continue, to add foreign key constraints...")
+
+# Should we commit the changes 
+#conn.commit()
+
+t2 = time.time();
+print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: {t2-t1} seconds.{newline}");
 
 qf = open(qf_name, "a")
 qf.write('\n/* Add foreign key constraints */\n');
@@ -380,11 +401,17 @@ for resource in package.resources:
     
     qf.write("\n")
 
+t3 = time.time();
+print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: {t3-t2} seconds.{newline}");
+
 # # Commit the changes 
 conn.commit()
 
 conn.close()
 
+t4 = time.time();
+
+print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: {t4-t0} seconds.{newline}");
 print(f"********** C2M2 metadata ingestion completed: schema_name: {schema_name}.");
 
 qf.close()
