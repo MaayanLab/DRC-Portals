@@ -10,6 +10,10 @@ export type dccAsset = {
   creator: string | null;
   dccapproved: boolean;
   drcapproved: boolean;
+  entitypage?: string | null;
+  openapi?: boolean | null;
+  smartapi?: boolean | null;
+  smartapiurl?: string | null
 }
 
 export type dccAssetObj = {
@@ -64,7 +68,7 @@ async function getFile(
         lastmodified: item.lastmodified.toLocaleDateString("en-US"),
         creator: item.creator,
         dccapproved: item.dccapproved,
-        drcapproved: item.drcapproved,
+        drcapproved: item.drcapproved
       })
     }
   })
@@ -87,7 +91,11 @@ async function getCode(
     include: {
       codeAsset: {
         select: {
-          name: true
+          name: true,
+          entityPageExample: true,
+          openAPISpec: true,
+          smartAPIURL: true,
+          smartAPISpec: true
         }
       }
     }
@@ -98,13 +106,16 @@ async function getCode(
       data.push({
         dcc_id: dccName,
         filetype: ft,
-        filename: (item.codeAsset.name),
+        filename: item.codeAsset.name,
         link: item.link,
-        size: undefined,
         lastmodified: item.lastmodified.toLocaleDateString("en-US"),
         creator: item.creator,
         dccapproved: item.dccapproved,
-        drcapproved: item.drcapproved
+        drcapproved: item.drcapproved,
+        entitypage: item.codeAsset.entityPageExample,
+        openapi: item.codeAsset.openAPISpec,
+        smartapi: item.codeAsset.smartAPISpec,
+        smartapiurl: item.codeAsset.smartAPIURL
       })
     }
   })
