@@ -61,8 +61,17 @@ export function pruneAndRetrieveColumnNames(data) {
     return { prunedData, columnNames: sortedColumnNames };
 }
 
-
-
+export function getDistinctColumnsWithData(prunedData) {
+    return Object.keys(prunedData[0]).filter(column => {
+      const uniqueValues = new Set(prunedData.map(row => row[column]));
+      return uniqueValues.size > 1;
+    }).sort((a, b) => {
+      const uniqueValuesA = new Set(prunedData.map(row => row[a]));
+      const uniqueValuesB = new Set(prunedData.map(row => row[b]));
+      return uniqueValuesB.size - uniqueValuesA.size;
+    });
+  }
+  
 // FUnction to get columns whose values do not change from a table and return them as a map. You can also specify which columns to ignore
 
 

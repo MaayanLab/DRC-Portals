@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, findStaticColumns, generateFilterQueryString } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, getDistinctColumnsWithData, findStaticColumns, generateFilterQueryString } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -319,14 +319,7 @@ export default async function Page(props: PageProps) {
 
   const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
   
-  const dynamicBiosampleColumns = Object.keys(biosamplePrunedData[0]).filter(column => {
-    const uniqueValues = new Set(biosamplePrunedData.map(row => row[column]));
-    return uniqueValues.size > 1;
-  }).sort((a, b) => {
-    const uniqueValuesA = new Set(biosamplePrunedData.map(row => row[a]));
-    const uniqueValuesB = new Set(biosamplePrunedData.map(row => row[b]));
-    return uniqueValuesB.size - uniqueValuesA.size;
-  });
+  const dynamicBiosampleColumns = getDistinctColumnsWithData(biosamplePrunedData)
 
   // Usage example, ignoring the 'id' and 'type' columns
   const columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_id_namespace', 'biosample_id_namespace'];
