@@ -382,9 +382,9 @@ with open(code_assets_path(), 'r') as fr:
   )
 cur.execute('''
     insert into code_assets (type, name, link, description, 
-            "openAPISpec", "smartAPISpec", "smartAPIURL")
+            "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample")
     select type, name, link, description, 
-            "openAPISpec", "smartAPISpec", "smartAPIURL"
+            "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample"
     from code_assets_tmp
     on conflict (link)
       do update
@@ -393,7 +393,8 @@ cur.execute('''
           description = excluded.description,
           "openAPISpec" = excluded."openAPISpec",
           "smartAPISpec" = excluded."smartAPISpec",
-          "smartAPIURL" = excluded."smartAPIURL"
+          "smartAPIURL" = excluded."smartAPIURL",
+          "entityPageExample" = excluded."entityPageExample"
   ''')
 cur.execute('drop table code_assets_tmp;')
 connection.commit()
