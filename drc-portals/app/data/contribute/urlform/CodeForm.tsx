@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import {DCCSelect} from '../form/DCCSelect';
+import { DCCSelect } from '../form/DCCSelect';
 import { $Enums, CodeAsset, DccAsset, FileAsset } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -38,6 +38,14 @@ const OtherCodeData = z.object({
     description: z.string().optional()
 });
 
+const EntityCodeData = z.object({
+    name: z.string(),
+    url: z.string(),
+    assetType: z.string(),
+    dcc: z.string(),
+    entityPageExample: z.string(),
+    description: z.string().optional()
+});
 
 const APIData = z.object({
     name: z.string(),
@@ -57,6 +65,7 @@ type OtherCodeDataType = {
     dcc: string
     description?: string
 }
+
 
 type APIDataType = {
     name: string
@@ -169,6 +178,7 @@ export function CodeForm(user: {
     const [status, setStatus] = React.useState<CodeUploadStatus>({})
     const [smartSelected, setSmartSelected] = React.useState(false)
     const [apiSelected, setApiSelected] = React.useState(false)
+    const [entitySelected, setEntitySelected] = React.useState(false)
     const [popOpen, setPopOpen] = React.useState(false)
     const [oldVersion, setOldVersion] = React.useState<fullDCCAsset[]>([])
     const [currentVersion, setCurrentVersion] = React.useState<OtherCodeDataType | APIDataType | null>(null)
@@ -183,18 +193,33 @@ export function CodeForm(user: {
             try {
                 if (currentVersion) {
                     if (!isAPI) {
-                        const parsedForm = OtherCodeData.parse(currentVersion)
-                        if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
-                            setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                        if (currentVersion.assetType === 'Entity Page Template') {
+                            const parsedForm = EntityCodeData.parse(currentVersion)
+                            if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
+                                setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                                setCurrentVersion(null)
+                                setOldVersion([])
+                                setPopOpen(false);
+                                return
+                            }
+                            await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string, false, false, '', parsedForm.entityPageExample)
+                            setStatus(() => ({ success: true }))
                             setCurrentVersion(null)
                             setOldVersion([])
-                            setPopOpen(false);
-                            return
+                        } else {
+                            const parsedForm = OtherCodeData.parse(currentVersion)
+                            if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
+                                setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                                setCurrentVersion(null)
+                                setOldVersion([])
+                                setPopOpen(false);
+                                return
+                            }
+                            await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
+                            setStatus(() => ({ success: true }))
+                            setCurrentVersion(null)
+                            setOldVersion([])
                         }
-                        await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
-                        setStatus(() => ({ success: true }))
-                        setCurrentVersion(null)
-                        setOldVersion([])
                     } else {
                         const parsedAPIData = APIData.parse(currentVersion)
                         console.log(parsedAPIData)
@@ -226,8 +251,12 @@ export function CodeForm(user: {
         setCodeType(event.target.value);
         if (event.target.value === 'API') {
             setApiSelected(true)
+            setEntitySelected(false)
+        } else if (event.target.value === 'Entity Page Template') {
+            setEntitySelected(true)
         } else {
             setApiSelected(false)
+            setEntitySelected(false)
         }
     }, []);
 
@@ -267,6 +296,27 @@ export function CodeForm(user: {
                         return
                     }
                 }
+            } else if (entitySelected) {
+                const parsedForm = EntityCodeData.parse(Object.fromEntries(formData));
+                if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
+                    setStatus(({ error: { selected: true, message: 'Error! Not a valid HTTPS URL' } }))
+                    return
+                }
+                const foundVersions = await findCodeAsset(parsedForm.url)
+                if (foundVersions.length > 0) {
+                    setPopOpen(true)
+                    setOldVersion(foundVersions)
+                    setCurrentVersion(parsedForm)
+                } else {
+                    try {
+                        await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string, false, false, '', parsedForm.entityPageExample)
+                        setStatus(() => ({ success: true }))
+                    }
+                    catch (error) {
+                        console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
+                        return
+                    }
+                }
             } else {
                 const parsedForm = OtherCodeData.parse(Object.fromEntries(formData));
                 if (!isValidHttpUrl(parsedForm.url, parsedForm.assetType)) {
@@ -288,7 +338,6 @@ export function CodeForm(user: {
                         return
                     }
                 }
-
             }
 
         }}>
@@ -379,11 +428,8 @@ export function CodeForm(user: {
                                     inputProps={{ style: { fontSize: 16 } }}
                                     InputLabelProps={{ style: { fontSize: 16 } }}
                                 />
-
                             </Grid>
-
                         </Grid>
-
                         <Grid container justifyContent="center" className='mb-5'>
                             <TextField sx={{ minWidth: 640 }}
                                 label="URL"
@@ -395,7 +441,6 @@ export function CodeForm(user: {
                                 InputLabelProps={{ style: { fontSize: 16 } }}
                             />
                         </Grid>
-
                         {smartSelected && <Grid container justifyContent="center" className='mb-5'>
                             <TextField sx={{ minWidth: 640 }}
                                 label="SmartAPI URL"
@@ -406,7 +451,17 @@ export function CodeForm(user: {
                                 InputLabelProps={{ style: { fontSize: 16 } }}
                             />
                         </Grid>}
-
+                        {entitySelected && <Grid container justifyContent="center" className='mb-5'>
+                            <TextField sx={{ minWidth: 640 }}
+                                label="Entity Page Example"
+                                name='entityPageExample'
+                                color='secondary'
+                                required
+                                placeholder='Enter Entity Page Example here'
+                                inputProps={{ style: { fontSize: 16 } }}
+                                InputLabelProps={{ style: { fontSize: 16 } }}
+                            />
+                        </Grid>}
                         <Grid container justifyContent="center">
                             <TextField sx={{ minWidth: 640 }}
                                 multiline
@@ -480,6 +535,9 @@ export function CodeForm(user: {
                                     <ListItemText>
                                         <strong>SmartAPIURL:</strong> {asset.codeAsset.smartAPIURL ? asset.codeAsset.smartAPIURL : ''}
                                     </ListItemText> </>}
+                                    {asset.codeAsset?.type === 'Entity Page Template' && <ListItemText>
+                                    <strong>Entity Page Example:</strong> <Link color="secondary" href={asset.codeAsset.entityPageExample ? asset.codeAsset.entityPageExample : ''} target="_blank">{asset.codeAsset.entityPageExample ? asset.codeAsset.entityPageExample : ''}</Link>
+                                        </ListItemText>}
                             </List>)}
                         </DialogContentText>
                     </DialogContent>
