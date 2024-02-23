@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, findStaticColumns, generateFilterQueryString } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -86,25 +86,25 @@ export default async function Page(props: PageProps) {
     sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
     count_file: number,
     file_table: {
-      id_namespace: string, 
-      local_id: string, 
-      project_id_namespace: string, 
-      project_local_id: string, 
-      persistent_id: string, 
-      creation_time: string, 
-      size_in_bytes: BigInteger, 
-      uncompressed_size_in_bytes: BigInteger, 
-      sha256: string, 
-      md5: string, 
-      filename: string, 
-      file_format: string, 
-      compression_format: string, 
-      data_type: string, 
-      assay_type: string, 
-      analysis_type: string, 
-      mime_type: string, 
-      bundle_collection_id_namespace: string, 
-      bundle_collection_local_id: string, 
+      id_namespace: string,
+      local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: BigInteger,
+      uncompressed_size_in_bytes: BigInteger,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
       dbgap_study_id: string,
       //biosample_id_namespace: string,
       //biosample_local_id: string,
@@ -115,21 +115,21 @@ export default async function Page(props: PageProps) {
     }[],
     count_file_sub: number,
     file_sub_table: {
-      file_id_namespace: string, 
+      file_id_namespace: string,
       file_local_id: string,
       subject_id_namespace: string,
       subject_local_id: string
     }[],
     count_file_bios: number,
     file_bios_table: {
-      file_id_namespace: string, 
+      file_id_namespace: string,
       file_local_id: string,
       biosample_id_namespace: string,
       biosample_local_id: string
     }[],
     count_file_col: number,
     file_col_table: {
-      file_id_namespace: string, 
+      file_id_namespace: string,
       file_local_id: string,
       collection_id_namespace: string,
       collection_local_id: string
@@ -318,8 +318,7 @@ export default async function Page(props: PageProps) {
 ` : [undefined];
 
   const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
-  const { prunedData: subjectPrunedData, columnNames: subjectColNames } = pruneAndRetrieveColumnNames(results?.subjects_table);
-
+  
   const dynamicBiosampleColumns = Object.keys(biosamplePrunedData[0]).filter(column => {
     const uniqueValues = new Set(biosamplePrunedData.map(row => row[column]));
     return uniqueValues.size > 1;
@@ -329,22 +328,49 @@ export default async function Page(props: PageProps) {
     return uniqueValuesB.size - uniqueValuesA.size;
   });
 
+  // Usage example, ignoring the 'id' and 'type' columns
+  const columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_id_namespace', 'biosample_id_namespace'];
+  const staticBiosampleColumns = findStaticColumns(biosamplePrunedData, columnsToIgnore);
+  console.log(staticBiosampleColumns);
+
+  const { prunedData: subjectPrunedData, columnNames: subjectColNames } = pruneAndRetrieveColumnNames(results?.subjects_table);
+  
   const dynamicSubjectColumns = Object.keys(subjectPrunedData[0]).filter(column => {
     const uniqueValues = new Set(subjectPrunedData.map(row => row[column]));
-    return uniqueValues.size > 1;
+    return uniqueValues.size >= 1;
   });
+
+  console.log(dynamicSubjectColumns)
 
   const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
   const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
-  const diseaseAssociationType = !dynamicBiosampleColumns.includes('disease_association_type_name')
-    ? biosamplePrunedData?.[0]?.['disease_association_type_name']
-    : undefined; // In case disease_association_type is not part of the dynamic columns
+  //const diseaseAssociationType = !dynamicBiosampleColumns.includes('disease_association_type_name')
+  //  ? biosamplePrunedData?.[0]?.['disease_association_type_name']
+  //  : undefined; // In case disease_association_type is not part of the dynamic columns
+
+  const metadata = [
+    results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
+    results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
+    results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
+    results?.records[0].disease_name ? { label: 'Disease', value: results?.records[0].disease_name } : null,
+    results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
+    { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
+    { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
+    { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined }, // Assuming this is the correct property name
+    { label: 'Project ID', value: projectLocalId },
+    { label: 'DCC', value: projectIdNamespace }
+  ];
+  
+  // Iterate over staticBioSampleColumns and add each key-value pair to metadata
+  for (const [key, value] of Object.entries(staticBiosampleColumns)) {
+    metadata.push({ label: key, value });
+  }
 
 
   //console.log('Pruned Data:', biosamplePrunedData);
   //console.log('Retained Column Names:', bioSampleColNames);
   console.log("$%$%$%$%")
-  console.log(results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "");
+  //console.log(results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "");
 
   var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_table);
   const fileData = prunedData;
@@ -369,51 +395,11 @@ export default async function Page(props: PageProps) {
       title={results?.records[0].project_name ?? ""}
       subtitle={""}
       description={format_description(results?.records[0].project_description ?? "")}
-      metadata={[
-        results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
-        results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
-        results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
-        results?.records[0].disease_name ? { label: 'Disease', value: results?.records[0].disease_name } : null,
-        results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
-
-        { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
-        { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
-        { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined } // Assuming this is the correct property name
-      ]}
+      metadata={metadata}
     >
 
-      {/* <SearchablePagedTable
-        label={`Biosample Table: Results found ${results?.count_bios}`}
-        q={searchParams.q ?? ''}
-        p={searchParams.p}
-        r={searchParams.r}
-        count={results?.count_bios}
-        columns={bioSampleColNames.map(columnName => <>{columnName}</>)}
-        rows={biosamplePrunedData.map(row => (
-          bioSampleColNames.map(columnName => (
-            <Description description={row[columnName]} />
-          ))
-        ))}
-      /> */}
-
-      {/* <SearchablePagedTable
-  label={`Project ID: ${projectLocalId} | ${projectIdNamespace} | Results found: ${results?.count_bios}`}
-  q={searchParams.q ?? ''}
-  p={searchParams.p}
-  r={searchParams.r}
-  count={results?.count_bios}
-  columns={['Biosample ID', 'Subject ID']} // Adjusted columns prop
-  rows={biosamplePrunedData.map(row => (
-    [
-      <Description description={row['biosample_local_id']} />, // Display biosample_local_id
-      <Description description={row['subject_local_id']} />,    // Display subject_local_id
-    ]
-  ))}
-/> */}
-
-
       <SearchablePagedTable
-        label={`Project ID: ${projectLocalId} | Biosamples found: ${results?.count_bios}`}
+        label={`Biosamples found: ${results?.count_bios}`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -427,7 +413,7 @@ export default async function Page(props: PageProps) {
       />
 
       <SearchablePagedTable
-        label={`Project ID: ${projectLocalId} | Subjects found: ${results?.count_sub}`}
+        label={`Subjects found: ${results?.count_sub}`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}

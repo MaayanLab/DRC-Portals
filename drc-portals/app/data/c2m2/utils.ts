@@ -25,6 +25,12 @@ export function getDCCIcon(iconKey: string): string {
 
 // Function to prune and get column names
 export function pruneAndRetrieveColumnNames(data) {
+    // Check if data has only one row
+    if (data.length === 1) {
+        const columnNames = Object.keys(data[0]);
+        return { prunedData: data, columnNames };
+    }
+
     const prunedData = [];
     const columnNames = new Set();
 
@@ -44,6 +50,7 @@ export function pruneAndRetrieveColumnNames(data) {
 
         prunedData.push(prunedRow);
     });
+
     // Sort column names based on the number of unique values in each column -- pairwise sorting
     const sortedColumnNames = Array.from(columnNames).sort((a, b) => {
         const uniqueValuesA = new Set(prunedData.map(row => row[a]));
@@ -52,8 +59,53 @@ export function pruneAndRetrieveColumnNames(data) {
     });
 
     return { prunedData, columnNames: sortedColumnNames };
-    //return { prunedData, columnNames: Array.from(columnNames) };
 }
+
+
+
+// FUnction to get columns whose values do not change from a table and return them as a map. You can also specify which columns to ignore
+
+
+// Function to find static columns, excluding specified columns
+interface RecordInfo {
+    [key: string]: string; // Define all properties as strings
+}
+
+// Function to find static columns, excluding specified columns, with strict types
+export const findStaticColumns = (
+    data: RecordInfo[],
+    columnsToIgnore: string[] = []
+): { [key: string]: string } => {
+    // Check if data is empty
+    if (!data || data.length === 0) return {};
+
+    // Initialize an object to hold the static columns
+    const staticColumns: { [key: string]: string } = {};
+
+    // Get the first row's keys to iterate over, excluding ignored columns
+    const columns = Object.keys(data[0]).filter(column => !columnsToIgnore.includes(column));
+
+    // Iterate over each column to check its uniqueness
+    columns.forEach(column => {
+        // Extract all values of the column across rows
+        const values = data.map(row => row[column]);
+
+        // Create a Set to automatically filter out duplicate values
+        const uniqueValues = new Set(values);
+
+        // If the Set size is 1, all values in the column are identical
+        if (uniqueValues.size === 1) {
+            // Add the column and its unique value to the staticColumns object
+            staticColumns[column] = values[0]; // All values are the same, so we can take the first
+        }
+    });
+
+    return staticColumns;
+};
+
+
+
+
 
 // Mano: Not sure if use of this function is sql-injection safe
 // This is different from search/Page.tsx because it has specifics for this page.
