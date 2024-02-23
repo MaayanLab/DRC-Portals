@@ -212,7 +212,7 @@ model CodeAsset {
   smartAPISpec      Boolean?
   smartAPIURL       String?
   entityPageExample String?
-  dccAsset     DccAsset? @relation(fields: [link], references: [link])
+  dccAsset          DccAsset? @relation(fields: [link], references: [link])
 
   @@id([type, link])
   @@unique([type, link])
