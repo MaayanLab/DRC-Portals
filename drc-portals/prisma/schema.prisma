@@ -204,13 +204,14 @@ model FileAsset {
 }
 
 model CodeAsset {
-  type         String
-  name         String
-  link         String    @unique
-  description  String?   @db.Text
-  openAPISpec  Boolean?
-  smartAPISpec Boolean?
-  smartAPIURL  String?
+  type              String
+  name              String
+  link              String    @unique
+  description       String?   @db.Text
+  openAPISpec       Boolean?
+  smartAPISpec      Boolean?
+  smartAPIURL       String?
+  entityPageExample String?
   dccAsset     DccAsset? @relation(fields: [link], references: [link])
 
   @@id([type, link])
