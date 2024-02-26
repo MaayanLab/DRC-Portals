@@ -90,8 +90,8 @@ export default function Standards() {
                 ontology and vocabulary terms for exploring pre-defined, biologically 
                 relevant use cases. 
                 <br /><br />
-                More information about generating knowledge graph assertions will 
-                be available soon.
+                Learn more about generating Data Distillery Knowledge Graph Assertions <Link
+                href="/info/standards/KGAssertions" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
