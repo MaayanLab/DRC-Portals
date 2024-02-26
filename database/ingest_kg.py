@@ -16,43 +16,42 @@ assertions = dcc_assets[dcc_assets['filetype'] == 'KGAssertions']
 assertions_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
-map_type = {
-  'Acquired Abnormality': 'Acquired Abnormality',
-  'Amino Acid, Peptide, or Protein': 'Amino Acid, Peptide, or Protein',
-  'Anatomical Abnormality': 'Anatomical Abnormality',
-  'Body Part, Organ, or Organ Component': 'Body Part, Organ, or Organ Component',
-  'Body Substance': 'Body Substance',
-  'Cell Type': 'Cell Type',
-  'Cell': 'Cell',
-  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
-  'Congenital Abnormality': 'Congenital Abnormality',
-  'Diagnostic Procedure': 'Diagnostic Procedure',
-  'Disease or Syndrome': 'Disease',
-  'Disease': 'Disease',
-  'Drug': 'Drug',
-  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
-  'ENSEMBL': 'Transcript',
-  'gene': 'gene',
-  'GLYCAN MOTIF': 'Glycan Motif',
-  'GLYCAN': 'Glycan',
-  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
-  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
-  'GLYGEN GLYCOSYLATION': 'Glycosylation',
-  'GLYGEN RESIDUE': 'Residue',
-  'GLYTOUCAN': 'Glytoucan',
-  'GTEXEQTL': 'eQTL',
-  'Hormone': 'Hormone',
-  'Injury or Poisoning': 'Injury or Poisoning',
-  'Inorganic Chemical': 'Inorganic Chemical',
-  'Laboratory Procedure': 'Laboratory Procedure',
-  'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
-  'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
-  'Organic Chemical': 'Organic Chemical',
-  'Pharmacologic Substance': 'Pharmacologic Substance',
-  'Phenotype': 'Phenotype',
-  'Sign or Symptom': 'Phenotype',
-  'Therapeutic or Preventive Procedure': 'Laboratory Procedure',
-  'Tissue': 'Tissue',
+valid_entity_types = {
+  'Acquired Abnormality',
+  'Amino Acid, Peptide, or Protein',
+  'Anatomical Abnormality',
+  'Body Part, Organ, or Organ Component',
+  'Body Substance',
+  'Cell Type',
+  'Cell',
+  'CLINGEN ALLELE REGISTRY',
+  'Congenital Abnormality',
+  'Diagnostic Procedure',
+  'Disease or Syndrome',
+  'Disease',
+  'Drug',
+  'ENCODE CCRE',
+  'ENSEMBL',
+  'GLYCAN MOTIF',
+  'GLYCAN',
+  'GLYCOSYLTRANSFERASE REACTION',
+  'GLYGEN GLYCOSEQUENCE',
+  'GLYGEN GLYCOSYLATION',
+  'GLYGEN RESIDUE',
+  'GLYTOUCAN',
+  'GTEXEQTL',
+  'Hormone',
+  'Injury or Poisoning',
+  'Inorganic Chemical',
+  'Laboratory Procedure',
+  'Mental or Behavioral Dysfunction',
+  'Nucleic Acid, Nucleoside, or Nucleotide',
+  'Organic Chemical',
+  'Pharmacologic Substance',
+  'Phenotype',
+  'Sign or Symptom',
+  'Therapeutic or Preventive Procedure',
+  'Tissue',
 }
 
 entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
@@ -71,7 +70,7 @@ with kg_assertion_helper.writer() as kg_assertion:
         kg_relations = set()
         with node_helper.writer() as node:
           def ensure_entity(entity_type, entity_label, entity_description=None):
-            if entity_type in {'Gene', 'ENSEMBL'}:
+            if entity_type == 'Gene':
               for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
                 def ensure():
@@ -94,8 +93,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                     ))
                   return gene_id
                 yield ensure
-            elif entity_type in map_type:
-              entity_type = map_type[entity_type]
+            elif entity_type in valid_entity_types:
               entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
               def ensure():
                 if entity_id not in entities:
@@ -107,7 +105,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                   node.writerow(dict(
                     id=entity_id,
                     type='entity',
-                    label=entity_label.capitalize().replace('_', ' '),
+                    label=entity_label,
                     description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                   ))
                 return entity_id
@@ -147,7 +145,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                       node.writerow(dict(
                         id=relation_id,
                         type='kg_relation',
-                        label=assertion['relation'].capitalize().replace('_', ' '),
+                        label=assertion['relation'],
                         description="A relationship in the knowledge graph",
                       ))
                     if assertion['evidence'] == 'nan':
