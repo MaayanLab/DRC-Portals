@@ -25,35 +25,23 @@ The steps below are adapted from the [FAIRshake User Guide V2](https://fairshake
 
 1. Navigate to the [FAIRshake website](https://fairshake.cloud) and create a user account if you do not already have one. 
 
-  ![FAIRshake account](https://github.com/MaayanLab/FAIRshake/blob/master/FAIRshakeHub/static/file/FAIRshakeUserGuide/files/image005.jpg?raw=true)
-
 2. Select the **Projects** page from the menu at the top of the page, then click on the **Create New Project** card in the bottom right corner. A project can be used to house a collection of related digital objects that are each associated with at least one FAIR rubric. 
-
-  ![Creating a project in FAIRshake](https://github.com/MaayanLab/FAIRshake/blob/master/FAIRshakeHub/static/file/FAIRshakeUserGuide/files/image009.jpg?raw=true)
 
 ### Registering Digital Objects
 
 3. Navigate to an existing project or the project you just created, and fill in metadata for a digital object you would like to evaluate. Digital objects may be software, datasets, APIs, or workflows, among others. 
 
-  ![Creating a digital object in FAIRshake](https://github.com/MaayanLab/FAIRshake/blob/master/FAIRshakeHub/static/file/FAIRshakeUserGuide/files/image011.jpg?raw=true)
-
 4. The **Rubrics** field will automatically present a list of potential rubrics that are appropriate for your digital object. If you would like to create your own rubric, see the following section on [Associating Rubrics](#associating-rubrics).
 
 5. Submitting the form will take you to a new page for your now-registered digital object, which displays its metadata and associated projects and rubrics.
-
-  ![Viewing a digital object in FAIRshake](https://github.com/MaayanLab/FAIRshake/blob/master/FAIRshakeHub/static/file/FAIRshakeUserGuide/files/image013.jpg?raw=true)
 
 ### Associating Rubrics
 
 6. To create a new rubric for evaluating your digital object, navigate to the **Rubrics** page via the menu bar, and select the **Create New Rubric** card in the bottom right. 
 
-  ![Creating a new rubric in FAIRshake](https://github.com/MaayanLab/FAIRshake/blob/master/FAIRshakeHub/static/file/FAIRshakeUserGuide/files/image015.jpg?raw=true)
-
 7. Use the autocomplete **Metrics** field to identify existing metrics, or specific assessment questions, that may be relevant for your rubric. Select as many metrics as you would like; these will be included in your FAIR assessment for the digital objects associated with your rubric. 
 
   - A pre-existing rubric with list of universal FAIR metrics developed by [Wilkinson et al. (*Scientific Data*, 2018)](https://www.nature.com/articles/sdata2018118) can be found [here](https://fairshake.cloud/rubric/25/).
-
-  ![Selecting metrics for a rubric in FAIRshake](https://github.com/MaayanLab/FAIRshake/blob/master/FAIRshakeHub/static/file/FAIRshakeUserGuide/files/image017.jpg?raw=true)
 
 8. Submit the form to finish building a rubric. Note that it is not necessary to meticulously cover all FAIR principles in your rubric, as long as they are broadly represented, and the metrics you choose can reasonably determine the FAIRness of your object within the broader community. 
 
