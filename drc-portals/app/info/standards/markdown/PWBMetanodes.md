@@ -2,7 +2,7 @@
 * [Introduction](#introduction)
 * [Resources](#resources)
 * [Building Workflows](#building-workflows)
-* [Developing Meta Nodes](#developing-meta-nodes)
+* [Developing Metanodes](#developing-metanodes)
   * [Core Concepts](#core-concepts)
   * [Contribution Guidelines](#contribution-guidelines)
 
@@ -44,11 +44,11 @@ The following tutorial, adapted from the PWB User Guide linked above, walks thro
   - Re-submitting or re-computing any of the steps will automatically update the following steps in the workflow. 
   - Playbook workflows can be saved to your account, shared via link, or published to the **Published Playbooks** section of the website. 
 
-## Developing Meta Nodes
+## Developing Metanodes
 
 ### Core Concepts
 
-The PPWB is designed to allow for the independent and parallel development of individual components, known as **meta nodes**. There are two main types of meta nodes, `Data` and `Process`: 
+The PPWB is designed to allow for the independent and parallel development of individual components, known as **metanodes**. There are two main types of metanodes, `Data` and `Process`: 
 - **Data:** Entities that can be inputs/outputs of processes and have a designated "view" within the PPWB, e.g. a tabular view for gene count matrix data
 - **Process:** Operations that act on an input data type to generate an output data type. Processes are divided into two subtypes:
     - **Prompt:** A user-driven action, such as an input form or a selection interface where the user decides the operation
