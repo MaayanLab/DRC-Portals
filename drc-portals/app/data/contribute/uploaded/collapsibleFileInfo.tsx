@@ -92,6 +92,10 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>Description</TableCell>
                                 <TableCell>{props.fileInfo.description}</TableCell>
                             </TableRow>}
+                            {props.fileInfo.entityPageExample && <TableRow>
+                                <TableCell variant="head" align="left" style={{ width: 200 }}>Entity Page Example</TableCell>
+                                <TableCell><Link color="secondary" href={props.fileInfo.entityPageExample} target="_blank" rel="noopener">{props.fileInfo.name + ' ' + 'Example'}</Link></TableCell>
+                            </TableRow>}
                         </>
                         :
                         <>

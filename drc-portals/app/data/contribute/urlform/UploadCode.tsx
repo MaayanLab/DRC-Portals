@@ -36,7 +36,7 @@ const dccMapping: { [key: string]: string } = {
 }
 
 
-export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '') => {
+export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample='') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
     const user = await prisma.user.findUnique({
@@ -77,7 +77,8 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
                     description: descripton,
                     openAPISpec: openAPISpecs,
                     smartAPISpec: smartAPISpecs,
-                    smartAPIURL: smartAPIURL === '' ? null : smartAPIURL
+                    smartAPIURL: smartAPIURL === '' ? null : smartAPIURL,
+                    entityPageExample: entityPageExample === '' ? null : entityPageExample
                 },
             }
         },
@@ -109,7 +110,7 @@ export const findCodeAsset = async (link: string) => {
     return codeAsset
 }
 
-export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '') => {
+export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample='') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
     const user = await prisma.user.findUnique({
@@ -154,7 +155,8 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
                     description: descripton,
                     openAPISpec: openAPISpecs,
                     smartAPISpec: smartAPISpecs,
-                    smartAPIURL: smartAPIURL === '' ? null : smartAPIURL
+                    smartAPIURL: smartAPIURL === '' ? null : smartAPIURL,
+                    entityPageExample: entityPageExample === '' ? null : entityPageExample
                 }
             }
         }

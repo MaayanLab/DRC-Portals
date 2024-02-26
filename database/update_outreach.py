@@ -84,7 +84,16 @@ upload_file(dcc_outreach_file, bucket, filename)
 
 # ingest
 print("ingesting...")
+
 cur = connection.cursor()
+
+cur.execute('''
+  DELETE FROM dcc_outreach;
+''')
+
+cur.execute('''
+  DELETE FROM outreach;
+''') 
 cur.execute('''
   create table outreach_tmp
   as table outreach
@@ -142,9 +151,6 @@ with open(dcc_outreach_file, 'r') as fr:
       sep='\t',
     )
 
-cur.execute('''
-  DELETE FROM dcc_outreach;
-''')
 
 cur.execute('''
     insert into dcc_outreach (outreach_id, dcc_id)
