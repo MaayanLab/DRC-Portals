@@ -10,6 +10,10 @@ export type dccAsset = {
   creator: string | null;
   dccapproved: boolean;
   drcapproved: boolean;
+  entitypage?: string | null;
+  openapi?: boolean | null;
+  smartapi?: boolean | null;
+  smartapiurl?: string | null
 }
 
 export type dccAssetObj = {
@@ -30,42 +34,115 @@ function convertBytes(b: bigint | null) {
   } 
 }
 
-async function getData(
-  prisma: PrismaClient, dccId: string, dccName: string, ft: string, isCurr: boolean
+async function getFile(
+  prisma: PrismaClient, dccId: string, dccName: string,
+  ft: string, isCurr: boolean
 ) {
   const res = await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dccId, 
-      filetype: ft,
+      fileAsset: {
+        filetype: ft
+      },
       current: isCurr
+    },
+    include: {
+      fileAsset: {
+        select: {
+          filename: true,
+          size: true
+        }
+      }
     }
   })
   const data = [] as dccAsset[];
   res.map(item => {
-    data.push({
-      dcc_id: dccName,
-      filetype: ft,
-      filename: item.filename,
-      link: item.link,
-      size: convertBytes(item.size),
-      lastmodified: item.lastmodified.toLocaleDateString("en-US"),
-      creator: item.creator,
-      dccapproved: item.dccapproved,
-      drcapproved: item.drcapproved
-    })
+    if (item.fileAsset) {
+      data.push({
+        dcc_id: dccName,
+        filetype: ft,
+        filename: (item.fileAsset.filename),
+        link: item.link,
+        size: convertBytes(item.fileAsset.size),
+        lastmodified: item.lastmodified.toLocaleDateString("en-US"),
+        creator: item.creator,
+        dccapproved: item.dccapproved,
+        drcapproved: item.drcapproved
+      })
+    }
   })
+  return data
+}
+
+async function getCode(
+  prisma: PrismaClient, dccId: string, dccName: string,
+  ft: string, isCurr: boolean
+) {
+  const res = await prisma.dccAsset.findMany({
+    where: {
+      deleted: false,
+      dcc_id: dccId, 
+      codeAsset: {
+        type: ft
+      },
+      current: isCurr
+    },
+    include: {
+      codeAsset: {
+        select: {
+          name: true,
+          entityPageExample: true,
+          openAPISpec: true,
+          smartAPIURL: true,
+          smartAPISpec: true
+        }
+      }
+    }
+  })
+  const data = [] as dccAsset[];
+  res.map(item => {
+    if (item.codeAsset) {
+      data.push({
+        dcc_id: dccName,
+        filetype: ft,
+        filename: item.codeAsset.name,
+        link: item.link,
+        lastmodified: item.lastmodified.toLocaleDateString("en-US"),
+        creator: item.creator,
+        dccapproved: item.dccapproved,
+        drcapproved: item.drcapproved,
+        entitypage: item.codeAsset.entityPageExample,
+        openapi: item.codeAsset.openAPISpec,
+        smartapi: item.codeAsset.smartAPISpec,
+        smartapiurl: item.codeAsset.smartAPIURL
+      })
+    }
+  })
+  return data
+}
+
+async function getData(
+  prisma: PrismaClient, dccId: string, dccName: string, 
+  ft: string, isCurr: boolean, isCode: boolean
+) {
+  const data = isCode ? await getCode(
+      prisma, dccId, dccName, ft, isCurr
+    ) : await getFile(
+      prisma, dccId, dccName, ft, isCurr
+    )
   return data
 }
 
 async function getDataObj(
   prisma: PrismaClient, dccId: string, dccName: string, ft: string
 ) {
-  const codetypes = ['ETL', 'API', 'EntityPages', 'PWBMetanodes', 'ChatbotSpecs']
+  const codetypes = ['ETL', 'API', 'Entity Page Template', 'PWB Metanodes', 'Chatbot Specs']
   const is_code = codetypes.includes(ft)
   return (
     {
-      current: await getData(prisma, dccId, dccName, ft, true),
-      archived: await getData(prisma, dccId, dccName, ft, false),
+      current: await getData(prisma, dccId, dccName, ft, true, is_code),
+      archived: await getData(prisma, dccId, dccName, ft, false, is_code),
       isCode: is_code
     }
   )
@@ -77,12 +154,12 @@ export async function getDccDataObj(
   return ({
     C2M2: await getDataObj(prisma, dccId, dccName, 'C2M2'),
     XMT: await getDataObj(prisma, dccId, dccName, 'XMT'),
-    AttributeTables: await getDataObj(prisma, dccId, dccName, 'AttributeTables'),
-    KGAssertions: await getDataObj(prisma, dccId, dccName, 'KGAssertions'),
+    AttributeTables: await getDataObj(prisma, dccId, dccName, 'Attribute Tables'),
+    KGAssertions: await getDataObj(prisma, dccId, dccName, 'KG Assertions'),
     ETL: await getDataObj(prisma, dccId, dccName, 'ETL'),
     API: await getDataObj(prisma, dccId, dccName, 'API'),
-    EntityPages: await getDataObj(prisma, dccId, dccName, 'EntityPages'),
-    PWBMetanodes: await getDataObj(prisma, dccId, dccName, 'PWBMetanodes'),
-    ChatbotSpecs: await getDataObj(prisma, dccId, dccName, 'ChatbotSpecs'),
+    EntityPages: await getDataObj(prisma, dccId, dccName, 'Entity Page Template'),
+    PWBMetanodes: await getDataObj(prisma, dccId, dccName, 'PWB Metanodes'),
+    ChatbotSpecs: await getDataObj(prisma, dccId, dccName, 'Chatbot Specs'),
   })
 }

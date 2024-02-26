@@ -13,9 +13,13 @@ const getItem = cache((id: string) => prisma.dCCAssetNode.findUniqueOrThrow({
     dcc_asset: {
       select: {
         link: true,
-        filetype: true,
         lastmodified: true,
-        size: true,
+        fileAsset: {
+          select: {
+            filetype: true,
+            size: true,
+          },
+        },
       },
     },
     node: {
@@ -35,10 +39,18 @@ const getItem = cache((id: string) => prisma.dCCAssetNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('dcc_asset', null)
   const item = await getItem(props.params.id)
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('dcc_asset', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      item.node.dcc?.short_label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 
@@ -53,11 +65,12 @@ export default async function Page(props: { params: { id: string } }) {
       metadata={[
         ...(item.node.dcc?.label ? [
           { label: 'Project', value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link> },
-          { label: 'Asset', value:  <Link href={`/data/matrix/${item.node.dcc.short_label}#${item.dcc_asset.filetype}`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
+          item.dcc_asset.fileAsset ? { label: 'Asset', value:  <Link href={`/data/matrix/${item.node.dcc.short_label}#${item.dcc_asset.fileAsset.filetype}`} className="underline cursor-pointer text-blue-600">Asset Page</Link> } : null,
          ] : []),
         { label: 'Link', value: <Link href={item.dcc_asset.link} className="underline cursor-pointer text-blue-600">{item.dcc_asset.link}</Link> },
-        { label: 'File Type', value: item.dcc_asset.filetype },
-        { label: 'Size in Bytes', value: item.dcc_asset.size?.toLocaleString() ?? 'unknown' },
+        process.env.PUBLIC_URL ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
+        item.dcc_asset.fileAsset ? { label: 'File Type', value: item.dcc_asset.fileAsset.filetype } : null,
+        item.dcc_asset.fileAsset ? { label: 'Size in Bytes', value: item.dcc_asset.fileAsset.size?.toLocaleString() ?? 'unknown' } : null,
         { label: 'Last Modified', value: item.dcc_asset.lastmodified.toLocaleDateString() },
       ]}
     />

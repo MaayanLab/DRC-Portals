@@ -9,11 +9,22 @@ type dccMatrix = {
   etl: boolean, api: boolean, ent: boolean, pwb: boolean, chat: boolean
 }
 
-async function getDccNumAssets(dcc_id: string, ft: string) {
-  const res = await prisma.dccAsset.findMany({
+async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
+  const res = is_code ? await prisma.dccAsset.findMany({
     where: {
+      deleted: false,
       dcc_id: dcc_id, 
-      filetype: ft
+      codeAsset: {
+        type: ft
+      }
+    }
+  }) : await prisma.dccAsset.findMany({
+    where: {
+      deleted: false,
+      dcc_id: dcc_id,
+      fileAsset: {
+        filetype: ft
+      }
     }
   })
   return (res.length > 0)
@@ -30,27 +41,26 @@ export default async function DataMatrix() {
       id: true,
       icon: true,
       short_label: true
-    },
-    orderBy: [
-      {
-        short_label: 'asc'
-      }
-    ]
+    }
   })
+  dccs.sort((a,b) => 
+    (a.short_label != null && b.short_label != null) ? 
+      a.short_label.localeCompare(b.short_label) : ''.localeCompare('')
+  )
   const cfde_data = [] as dccMatrix[]
   await Promise.all(dccs.map( async item => {
     cfde_data.push({
       dcc: item.short_label ? item.short_label : '',
       img: item.icon ? item.icon : '',
-      c2m2: await getDccNumAssets(item.id, 'C2M2'),
-      xmt: await getDccNumAssets(item.id, 'XMT'),
-      kg: await getDccNumAssets(item.id, 'KGAssertions'),
-      att: await getDccNumAssets(item.id, 'AttributeTables'),
-      etl: await getDccNumAssets(item.id, 'ETL'),
-      api: await getDccNumAssets(item.id, 'API'),
-      ent: await getDccNumAssets(item.id, 'EntityPages'),
-      pwb: await getDccNumAssets(item.id, 'PWBMetanodes'), 
-      chat: await getDccNumAssets(item.id, 'ChatbotSpecs')
+      c2m2: await getDccNumAssets(item.id, 'C2M2', false),
+      xmt: await getDccNumAssets(item.id, 'XMT', false),
+      kg: await getDccNumAssets(item.id, 'KG Assertions', false),
+      att: await getDccNumAssets(item.id, 'Attribute Tables', false),
+      etl: await getDccNumAssets(item.id, 'ETL', true),
+      api: await getDccNumAssets(item.id, 'API', true),
+      ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
+      pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
+      chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
     })
   }))
   return (

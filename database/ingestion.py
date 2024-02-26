@@ -6,6 +6,8 @@ from ingest_common import (
   outreach_path,
   dcc_outreach_path,
   dcc_assets_path,
+  file_assets_path,
+  code_assets_path,
   partnerships_path,
   dcc_partnerships_path,
   partnership_publications_path,
@@ -20,8 +22,9 @@ cur.execute('''
 ''')
 
 with open(dcc_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_tmp',
-      columns=('id', 'label', 'short_label', 'description', 'homepage', 'icon', 'cfde_partner', 'cf_site'),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -53,8 +56,9 @@ cur.execute('''
 ''')
 
 with open(tools_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'tool_tmp',
-      columns=("id", "label", "description", "url", "icon"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -84,8 +88,9 @@ cur.execute('''
 ''')
 
 with open(publications_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'publication_tmp',
-      columns=("id", "title", "year", "page", "volume", "issue", "journal", "pmid", "pmcid", "doi", "authors", "landmark", "tool_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -122,8 +127,9 @@ cur.execute('''
 ''')
 
 with open(dcc_publications_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_publication_tmp',
-      columns=("publication_id", "dcc_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -147,9 +153,9 @@ cur.execute('''
 ''')
 
 with open(outreach_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'outreach_tmp',
-      columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -189,8 +195,9 @@ cur.execute('''
 ''')
 
 with open(dcc_outreach_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_outreach_tmp',
-      columns=("outreach_id", "dcc_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -220,8 +227,9 @@ cur.execute('''
 ''')
 
 with open(partnerships_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'partnerships_tmp',
-      columns=('id', 'title', 'description', 'status', 'website', 'image'),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -251,8 +259,9 @@ cur.execute('''
 ''')
 
 with open(dcc_partnerships_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'dcc_partnerships_tmp',
-      columns=("partnership_id", "dcc_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -276,8 +285,9 @@ cur.execute('''
 ''')
 
 with open(partnership_publications_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'partnership_publications_tmp',
-      columns=("partnership_id", "publication_id"),
+      columns=columns,
       null='',
       sep='\t',
     )
@@ -302,31 +312,91 @@ cur.execute('''
 ''')
 
 with open(dcc_assets_path(), 'r') as fr:
+  columns = next(fr).strip().split('\t')
   cur.copy_from(fr, 'dcc_assets_tmp',
-    columns=(
-      'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
-      'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
-    ),
+    columns=columns,
     null='',
     sep='\t',
   )
-
 cur.execute('''
-    insert into dcc_assets (dcc_id, filetype, filename, link, size, 
-      lastmodified, current, creator, drcapproved, dccapproved, annotation)
-    select dcc_id, filetype, filename, link, size, lastmodified, current, 
-      creator, drcapproved, dccapproved, annotation
+    insert into dcc_assets (link, lastmodified, current, creator, 
+            dcc_id, drcapproved, dccapproved, deleted, created)
+    select link, lastmodified, current, creator, 
+            dcc_id, drcapproved, dccapproved, deleted, created
     from dcc_assets_tmp
     on conflict (link)
       do update
-      set size = excluded.size,
+      set lastmodified = excluded.lastmodified,
           current = excluded.current,
           creator = excluded.creator,
+          dcc_id = excluded.dcc_id,
           drcapproved = excluded.drcapproved,
           dccapproved = excluded.dccapproved,
-          annotation = excluded.annotation
+          deleted = excluded.deleted, 
+          created = excluded.created
   ''')
 cur.execute('drop table dcc_assets_tmp;')
+connection.commit()
+
+# DCC File Assets
+
+cur.execute('''
+  create table file_assets_tmp
+  as table file_assets
+  with no data;
+''')
+with open(file_assets_path(), 'r') as fr:
+  columns = next(fr).strip().split('\t')
+  cur.copy_from(fr, 'file_assets_tmp',
+    columns=columns,
+    null='',
+    sep='\t',
+  )
+cur.execute('''
+  insert into file_assets (filetype, filename, link, size, sha256checksum)
+  select filetype, filename, link, size, sha256checksum
+  from file_assets_tmp
+  on conflict (link)
+    do update
+    set filetype = excluded.filetype,
+        filename = excluded.filename,
+        size = excluded.size,
+        sha256checksum = excluded.sha256checksum
+''')
+cur.execute('drop table file_assets_tmp;')
+connection.commit()
+
+# DCC Code Assets
+
+cur.execute('''
+  create table code_assets_tmp
+  as table code_assets
+  with no data;
+''')
+with open(code_assets_path(), 'r') as fr:
+  columns = next(fr).strip().split('\t')
+  cur.copy_from(fr, 'code_assets_tmp',
+    columns=columns,
+    null='',
+    sep='\t',
+  )
+cur.execute('''
+    insert into code_assets (type, name, link, description, 
+            "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample")
+    select type, name, link, description, 
+            "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample"
+    from code_assets_tmp
+    on conflict (link)
+      do update
+      set type = excluded.type,
+          name = excluded.name,
+          description = excluded.description,
+          "openAPISpec" = excluded."openAPISpec",
+          "smartAPISpec" = excluded."smartAPISpec",
+          "smartAPIURL" = excluded."smartAPIURL",
+          "entityPageExample" = excluded."entityPageExample"
+  ''')
+cur.execute('drop table code_assets_tmp;')
 connection.commit()
 
 cur.close()

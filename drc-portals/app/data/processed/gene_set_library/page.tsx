@@ -7,8 +7,11 @@ import { Metadata, ResolvingMetadata } from 'next'
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = pluralize(type_to_string('gene_set_library', null))
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('gene_set_library', null))}`,
+    title: `${parentMetadata.title?.absolute} | ${title}`,
+    keywords: [title, parentMetadata.keywords].join(', '),
   }
 }
 
@@ -76,8 +79,8 @@ export default async function Page(props: PageProps) {
         ]}
         rows={items.map(item => [
           item.dcc_asset.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc_asset.dcc.short_label}`} src={item.dcc_asset.dcc.icon} alt={item.dcc_asset.dcc.short_label ?? ''} /> : null,
-          <LinkedTypedNode type="gene_set_library" id={item.id} label={item.node.label} />,
-          <Description description={item.node.description}/>,
+          <LinkedTypedNode type="gene_set_library" id={item.id} label={item.node.label} search={searchParams.q ?? ''} />,
+          <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
       />
     </ListingPageLayout>

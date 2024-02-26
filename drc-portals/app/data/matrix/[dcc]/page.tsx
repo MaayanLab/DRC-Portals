@@ -16,6 +16,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
       description: true,
       icon: true,
       homepage: true,
+      cf_site: true
     }
   })
   if (dcc_dbinfo) {
@@ -44,7 +45,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             src={dcc_dbinfo.icon ? dcc_dbinfo.icon: ''} alt={dcc} />
         </Grid>
         <Grid item xs={12}>
-          <ReadMore text={description_text} />
+          <ReadMore text={description_text} link={dcc_dbinfo.cf_site}/>
         </Grid>
         <DCCAccordion dcc={dcc} fulldata={assets} />
         <Link sx={{mt:2, mb:5}} href="/data/matrix">

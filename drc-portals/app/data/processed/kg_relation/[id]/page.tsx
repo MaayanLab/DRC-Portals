@@ -21,10 +21,17 @@ const getItem = cache((id: string) => prisma.kGRelationNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('kg_relation', null)
   const item = await getItem(props.params.id)
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('kg_relation', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 
@@ -124,9 +131,9 @@ export default async function Page(props: { params: { id: string }, searchParams
         ]}
         rows={results.assertions.map(assertion => [
           assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
-          <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} />,
+          <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} search={searchParams.q ?? ''} />,
           <LinkedTypedNode type="kg_relation" id={props.params.id} label={item.node.label} focus />,
-          <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} />,
+          <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} search={searchParams.q ?? ''} />,
           assertion.evidence?.toString(),
         ])}
       />

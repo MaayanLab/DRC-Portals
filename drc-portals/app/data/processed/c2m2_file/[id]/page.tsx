@@ -11,6 +11,7 @@ const getItem = cache((id: string) => prisma.c2M2FileNode.findUniqueOrThrow({
   where: { id },
   select: {
     persistent_id: true,
+    access_url: true,
     size_in_bytes: true,
     file_format: true,
     assay_type: true,
@@ -32,10 +33,18 @@ const getItem = cache((id: string) => prisma.c2M2FileNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('c2m2_file', null)
   const item = await getItem(props.params.id)
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('c2m2_file', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      item.node.dcc?.short_label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 
@@ -58,6 +67,7 @@ export default async function Page(props: PageProps) {
             <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
             : item.persistent_id,
         } : null,
+        process.env.PUBLIC_URL && item.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
         item.size_in_bytes ? {
           label: 'Size in Bytes',
           value: item.size_in_bytes.toLocaleString(),

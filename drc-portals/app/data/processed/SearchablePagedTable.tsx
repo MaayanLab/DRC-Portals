@@ -5,33 +5,36 @@ import SearchField from "./SearchField"
 import Link from "next/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
-import { type_to_string } from "./utils"
+import { type_to_color, type_to_string } from "./utils"
+import { Highlight } from "@/components/misc/Highlight"
 
 export function LinkedTypedNode({
   id,
   type,
   label,
+  search,
   entity_type = null,
   focus = false,
 }: {
   id: string,
   type: NodeType,
   label: string,
+  search?: string,
   entity_type?: string | null,
   focus?: boolean,
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}>{label}</Typography></Link>
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color="secondary">{type_to_string(type, entity_type)} (Entity type)</Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }
 
-export function Description({description}: {description: string}) {
+export function Description({ search, description }: { search: string, description: string }) {
   if (description === 'TODO') return null
   else {
-    return <Typography variant="body1" color="secondary">{description}</Typography>
+    return <Typography variant="body1" color="secondary"><Highlight search={search} text={description} /></Typography>
   }
 }
 
@@ -66,21 +69,25 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       </Grid>
       }
       <Grid item xs={12}>
-        {props.rows.length === 0 ? <>No results</> : (
-          <Stack spacing={1}>
-            <TableContainer component={Paper} elevation={0} variant="rounded-top">
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    {props.columns.map((column, i) => (
-                      <TableCell key={i} component="th">
-                        <Typography variant='body1' color="secondary">{column}</Typography>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {props.rows.map((row, i) => (
+        <Stack spacing={1}>
+          <TableContainer component={Paper} elevation={0} variant="rounded-top">
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  {props.columns.map((column, i) => (
+                    <TableCell key={i} component="th">
+                      <Typography variant='body1' color="secondary">{column}</Typography>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {props.rows.length === 0 ? <TableRow>
+                  <TableCell colSpan={props.columns.length} align="center">
+                    No results satisfy the query and filters
+                  </TableCell>
+                </TableRow> :
+                  props.rows.map((row, i) => (
                     <TableRow
                       key={i}
                       sx={{ 
@@ -92,12 +99,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                       </TableCell>)}
                     </TableRow>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <FormPagination p={props.p} r={props.r} count={props.count} />
-          </Stack>
-        )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <FormPagination p={props.p} r={props.r} count={props.count} />
+        </Stack>
       </Grid>
     </Grid>
   )

@@ -8,8 +8,11 @@ import { Metadata, ResolvingMetadata } from 'next'
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = pluralize(type_to_string('entity', null))
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('entity', null))}`,
+    title: `${parentMetadata.title?.absolute} | ${title}`,
+    keywords: [title, parentMetadata.keywords].join(', '),
   }
 }
 
@@ -76,8 +79,8 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results.items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} />,
-          <Description description={item.node.description}/>,
+          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} search={searchParams.q ?? ''} />,
+          <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
       />
     </ListingPageLayout>

@@ -90,22 +90,27 @@ def ensure_file_factory(url, path):
 
 #%%
 # Fetch data for ingest
-dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/DCC.tsv', 'DCC.tsv')
-dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_publications.tsv', 'dcc_publications.tsv')
-publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/publications.tsv', 'publications.tsv')
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/021324/DCC.tsv', 'DCC.tsv')
+dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_dcc_publication.tsv', 'dcc_publications.tsv')
+publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
-dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/113023/DccAssets.tsv', 'DccAssets.tsv')
-dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
-partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnerships.tsv', 'partnerships.tsv')
-partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/partnership_publications.tsv', 'partnership_publications.tsv')
-tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/110723/tools.tsv', 'tools.tsv')
+dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/022324/DccAssets.tsv', 'DccAssets.tsv')
+file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/021624/FileAssets.tsv', 'FileAssets.tsv')
+code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/022324/CodeAssets.tsv', 'CodeAssets.tsv')
+dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/partnerships.tsv', 'partnerships.tsv')
+partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_partnership_publication.tsv', 'partnership_publications.tsv')
+tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/tools.tsv', 'tools.tsv')
 #%%
 def current_dcc_assets():
-  dcc_assets = pd.read_csv(dcc_assets_path(), sep='\t', names=[
-    'filetype', 'filename', 'link', 'size', 'lastmodified', 'current',
-    'creator', 'annotation', 'dcc_id', 'drcapproved', 'dccapproved'
-  ])
+  dcc_assets = pd.merge(
+    left=pd.read_csv(file_assets_path(), sep='\t'),
+    left_on='link',
+    right=pd.read_csv(dcc_assets_path(), sep='\t'),
+    right_on='link',
+    how='inner',
+  )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
-  dcc_assets = dcc_assets[dcc_assets['current']]
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
   return dcc_assets

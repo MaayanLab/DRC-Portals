@@ -114,12 +114,15 @@ async function Outreach({featured=true, orientation='horizontal', size=2}:{
                       <div className="flex flex-row justify-center"
                         style={{
                           background: "linear-gradient(diagonal, #336699, #006666)",
-                          overflow: "hidden",
-                          height: "100%",
+                          overflow: "hidden",  
+                          // height: "100%",
+                          minHeight: 200,
+                          position: "relative",
                           zIndex: 2
                         }}
                       >
-                        <Image src={e.image} alt={e.title} width={400} height={300}/>
+                        <Image src={e.image} alt={e.title} fill={true} style={{objectFit: "contain"}}/>
+                        {/* <Image src={e.image} alt={e.title} width={400} height={300}/> */}
                       </div>
                   }
                   {orientation !== 'vertical' && <div className="flex flex-row mb-5">

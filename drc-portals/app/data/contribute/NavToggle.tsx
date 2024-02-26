@@ -25,22 +25,19 @@ export default function ColorToggleButton({ userAdmin }: { userAdmin: boolean })
             aria-label="Platform"
         >
             <ToggleButton value="/data/contribute/form" href="/data/contribute/form">
-                <Typography variant="nav">DATA AND METADATA UPLOAD FORM</Typography>
+                <Typography variant="nav" align='center'>DATA AND METADATA UPLOAD FORM</Typography>
             </ToggleButton>
             <ToggleButton value="/data/contribute/urlform" href="/data/contribute/urlform">
-                <Typography variant="nav">CODE ASSETS UPLOAD FORM</Typography>
+                <Typography variant="nav" align='center'>CODE ASSETS UPLOAD FORM</Typography>
             </ToggleButton>
             <ToggleButton value="/data/contribute/uploaded" href="/data/contribute/uploaded">
-                <Typography variant="nav">UPLOADED FILES</Typography>
+                <Typography variant="nav" align='center'>UPLOADED ASSETS</Typography>
             </ToggleButton>
             <ToggleButton value="/data/contribute/documentation" href="/data/contribute/documentation">
-                <Typography variant="nav">DOCUMENTATION</Typography>
+                <Typography variant="nav" align='center'>DOCUMENTATION</Typography>
             </ToggleButton>
-            {/* <ToggleButton value="/data/contribute/account" href="/data/contribute/account">
-                <Typography variant="nav">MY ACCOUNT</Typography>
-            </ToggleButton> */}
             {userAdmin && <ToggleButton value="/data/contribute/admin" href="/data/contribute/admin">
-                <Typography variant="nav">ADMIN</Typography>
+                <Typography variant="nav" align='center'>ADMIN</Typography>
             </ToggleButton>
             }
         </ToggleButtonGroup>
