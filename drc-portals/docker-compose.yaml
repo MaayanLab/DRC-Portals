@@ -25,6 +25,7 @@ services:
       - S3_REGION
       - OPENAI_API_KEY
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
+      - ASSISTANT_ID
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
