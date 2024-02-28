@@ -19,8 +19,6 @@ export async function POST(req: NextRequest) {
       content: query,
     });
 
-    console.log(process.env["ASSISTANT_ID"]);
-
     var run = await client.beta.threads.runs.create(threadId, {
       assistant_id: process.env["ASSISTANT_ID"] || "",
     });
@@ -28,7 +26,6 @@ export async function POST(req: NextRequest) {
 
     while (run.status == "queued" || run.status == "in_progress") {
       run = await client.beta.threads.runs.retrieve(threadId, runId);
-      console.log(run)
       setTimeout(() => {}, 1000);
     }
 
@@ -83,8 +80,6 @@ export async function POST(req: NextRequest) {
       run = await client.beta.threads.runs.retrieve(threadId, runId);
 
       const messages = await client.beta.threads.messages.list(threadId);
-
-      console.log(messages.data);
 
       return new NextResponse(
         JSON.stringify({
