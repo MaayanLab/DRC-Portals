@@ -3,6 +3,7 @@ import React from 'react'
 import Message from './message'
 import Communicator from './Communicator'
 import ChatExample from './chatExample'
+import { getFunctionInput, getFunctionText } from './utils/constants'
 
 // Input processing functions
 import Gene from './Inputs/gene'
@@ -17,16 +18,10 @@ import { Input } from '@mui/material'
 
 
 interface ResponseData {
-  response: string,
-  input: string | undefined,
-  output: string | undefined,
-  status: number
-}
-
-let inputMapper: Record<string, any> = {
-  '[Gene]': Gene,
-  '[Gene Set]': GeneSet,
-  '[Glycan]': Glycan,
+  messages: any | null
+  threadId: string | null
+  functionCall: any | null
+  error: string | null
 }
 
 let processMapper: Record<string, any> = {
@@ -37,10 +32,7 @@ let processMapper: Record<string, any> = {
 
 export default function Chat() {
   const [query, setQuery] = React.useState('')
-  const [options, setOptions] = React.useState([])
-  const [inProcess, setInProcess] = React.useState(false)
-  const [currentArg, setCurrentArg] = React.useState('')
-  const [processInfo, setProcessInfo] = React.useState<any>({ args: {} })
+  const [threadId, setThreadId] = React.useState<string | null>(null)
   const [chat, setChat] = React.useState({
     waitingForReply: false,
     messages: [] as { role: string, content: string, output: null | string, options: null | string[], args: null | any }[],
@@ -55,31 +47,17 @@ export default function Chat() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: arg0.body.message
+        query: arg0.body.message,
+        threadId: threadId
       })
     }
-    const res = await fetch(`/chat/findProcess`, options)
-    const process: ResponseData = await res.json()
-
-    if (process.status == 1 || process.status == 2) {
-      return {
-        role: 'assistant',
-        content: process.response.replaceAll('<br>', '\r\n'),
-      }
-    } else if (process.status == 0) {
-      setInProcess(true)
-      setProcessInfo({ input: process.input, output: process.output, args: {} })
-      const input: string = process.input || ''
-      const inputFunction = inputMapper[input]
-
-      return inputFunction({ message: arg0.body.message, options, setOptions, currentArg, setCurrentArg, processInfo: { input: process.input, output: process.output, args: {} }, setProcessInfo})
-    } else {
-      return {
-        role: "bot",
-        content: "There was an error communicating with OpenAI API"
-      }
+    const res = await fetch(`/chat/assistant`, options)
+    const data: ResponseData = await res.json()
+    if (!threadId) {
+      setThreadId(data.threadId)
     }
-  }, [currentArg])
+    return data
+  }, [threadId])
 
   const submit = React.useCallback(async (message: { role: string, content: string, output: null | string, options: null | string[], args: null | any }) => {
     if (chat.waitingForReply) return
@@ -88,31 +66,64 @@ export default function Chat() {
 
     var results: any;
 
-    if (!inProcess) {
+    if (!threadId) {
       results = await trigger({
         body: {
           message: message.content,
         }
       })
-    } else {
-      const input: string = processInfo.input || ''
-      const inputFunction = inputMapper[input]
-      results = await inputFunction({ message: message.content, options, setOptions, currentArg, setCurrentArg, processInfo, setProcessInfo })
+      console.log(results)
     }
+    else {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: message.content,
+          threadId: threadId
+        })
+      }
+      const res = await fetch(`/chat/assistant`, options)
+      const data: ResponseData = await res.json()
+      results = data
+    }
+    var newMessage: { role: string, content: string, output: null | string, args: null | any };
+    if (results.functionCall) {
+      const toolName = results.functionCall.submit_tool_outputs.tool_calls[0].function.name
+      const toolArgs = JSON.parse(results.functionCall.submit_tool_outputs.tool_calls[0].function.arguments)
+      const inputType = getFunctionInput(toolName)
+      const processText = getFunctionText(toolName)
+      newMessage = {
+        role: "bot",
+        content: processText,
+        output: inputType,
+        args:  {process: toolName, ...toolArgs}
+      };
+    } else if (results.error) {
+      newMessage = {
+        role: "bot",
+        content: results.error,
+        output: null,
+        args: null
+      };
 
-    if (results.output) {
-      setCurrentArg('')
-      setProcessInfo({ args: {} })
-      setOptions([])
-      setInProcess(false)
+    } else {
+      newMessage = {
+        role: "bot",
+        content: results.messages[0].content[0].text.value,
+        output: null,
+        args: null
+      };
     }
 
     setChat((cc: any) => {
-      if (!results) return { waitingForReply: false, messages: cc.messages }
-      else return ({ waitingForReply: false, messages: [...cc.messages, results] })
-    })
+      if (!results) return { waitingForReply: false, messages: cc.messages };
+      else return ({ waitingForReply: false, messages: [...cc.messages, newMessage] });
+    });
 
-  }, [chat, inProcess, currentArg, options, processInfo, trigger])
+  }, [chat, threadId, trigger])
 
   return (
     <div>
@@ -127,15 +138,6 @@ export default function Chat() {
             <Message role={message.role} key={i}>
               <p style={{ whiteSpace: "pre-line" }}>
                 {message.content}
-                {message.options ? <> Some options include: </> : <></>}
-                {message.options ? message.options.map((opt) => <><a className=' text-blue-400' onClick={() => submit({
-                  role: 'user',
-                  content: opt,
-                  output: null,
-                  options: null,
-                  args: null,
-                })}>{opt}</a> </>) : <></>}
-                {message.options ? <>? You can click an option to select it.</> : <></>}
               </p>
             </Message>
 
@@ -179,7 +181,7 @@ export default function Chat() {
           value={query}
           onChange={evt => setQuery(() => evt.target.value)}
         />
-        <Communicator text2speech={lastBotChat} setMessage={setQuery}></Communicator>
+        {/* <Communicator text2speech={lastBotChat} setMessage={setQuery}></Communicator> */}
         <button type="submit" className="btn btn-sm ml-2" disabled={!query && !chat.waitingForReply}>Send</button>
       </form>
       <div className='flex flex-wrap justify-center mt-2 mb-5'>
