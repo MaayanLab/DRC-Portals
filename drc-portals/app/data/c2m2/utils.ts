@@ -24,87 +24,70 @@ export function getDCCIcon(iconKey: string): string {
 }
 
 // Function to prune and get column names
-export function pruneAndRetrieveColumnNames(data) {
-    // Check if data has only one row
-    if (data.length === 1) {
-        const columnNames = Object.keys(data[0]);
-        return { prunedData: data, columnNames };
+
+
+
+interface PruneAndRetrieveColumnNamesResult {
+    prunedData: { [key: string]: string | bigint }[];
+    columnNames: string[];
+    dynamicColumns: string[];
+    staticColumns: { [key: string]: string | bigint };
+}
+
+export function pruneAndRetrieveColumnNames(
+    data: { [key: string]: string | bigint }[],
+    columnsToIgnore: string[] = []
+): PruneAndRetrieveColumnNamesResult {
+    if (!data || data.length === 0) {
+        return { prunedData: [], columnNames: [], dynamicColumns: [], staticColumns: {} };
     }
 
-    const prunedData = [];
-    const columnNames = new Set();
+    const prunedData: { [key: string]: string | bigint }[] = [];
+    const columnNames = new Set<string>();
+    const staticColumnsCandidates: { [key: string]: Set<string | bigint> } = {};
 
-    // Iterate through each row
     data.forEach(row => {
-        const prunedRow = {};
+        const prunedRow: { [key: string]: string | bigint } = {};
 
-        // Iterate through each property in the row
         for (const [columnName, value] of Object.entries(row)) {
-            // Check if the value is non-null
-            if (value !== null && value !== undefined) {
+            if (value !== null && value !== undefined && !columnsToIgnore.includes(columnName)) {
                 prunedRow[columnName] = value;
                 columnNames.add(columnName);
-                console.log("Added " + columnName);
+
+                if (!(columnName in staticColumnsCandidates)) {
+                    staticColumnsCandidates[columnName] = new Set();
+                }
+                staticColumnsCandidates[columnName].add(value);
             }
         }
 
         prunedData.push(prunedRow);
     });
 
-    // Sort column names based on the number of unique values in each column -- pairwise sorting
-    const sortedColumnNames = Array.from(columnNames).sort((a, b) => {
-        const uniqueValuesA = new Set(prunedData.map(row => row[a]));
-        const uniqueValuesB = new Set(prunedData.map(row => row[b]));
-        return uniqueValuesB.size - uniqueValuesA.size;
-    });
+    const dynamicColumns = [];
+    const staticColumns: { [key: string]: string | bigint } = {};
 
-    return { prunedData, columnNames: sortedColumnNames };
-}
-
-
-
-// FUnction to get columns whose values do not change from a table and return them as a map. You can also specify which columns to ignore
-
-
-// Function to find static columns, excluding specified columns
-interface RecordInfo {
-    [key: string]: string; // Define all properties as strings
-}
-
-// Function to find static columns, excluding specified columns, with strict types
-export const findStaticColumns = (
-    data: RecordInfo[],
-    columnsToIgnore: string[] = []
-): { [key: string]: string } => {
-    // Check if data is empty
-    if (!data || data.length === 0) return {};
-
-    // Initialize an object to hold the static columns
-    const staticColumns: { [key: string]: string } = {};
-
-    // Get the first row's keys to iterate over, excluding ignored columns
-    const columns = Object.keys(data[0]).filter(column => !columnsToIgnore.includes(column));
-
-    // Iterate over each column to check its uniqueness
-    columns.forEach(column => {
-        // Extract all values of the column across rows
-        const values = data.map(row => row[column]);
-
-        // Create a Set to automatically filter out duplicate values
-        const uniqueValues = new Set(values);
-
-        // If the Set size is 1, all values in the column are identical
-        if (uniqueValues.size === 1) {
-            // Add the column and its unique value to the staticColumns object
-            staticColumns[column] = values[0]; // All values are the same, so we can take the first
+    for (const columnName of columnNames) {
+        if (columnsToIgnore.includes(columnName)) {
+            continue;
         }
+
+        const uniqueValues = staticColumnsCandidates[columnName];
+        if (uniqueValues && uniqueValues.size === 1) {
+            staticColumns[columnName] = [...uniqueValues][0]; // Convert Set to array and get the first element
+        } else {
+            dynamicColumns.push(columnName);
+        }
+    }
+
+    dynamicColumns.sort((a, b) => {
+        const sizeA = staticColumnsCandidates[a]?.size || 0;
+        const sizeB = staticColumnsCandidates[b]?.size || 0;
+        return sizeB - sizeA;
     });
 
-    return staticColumns;
-};
-
-
-
+    return { prunedData, columnNames: Array.from(columnNames), dynamicColumns, staticColumns };
+}
 
 
 // Mano: Not sure if use of this function is sql-injection safe
@@ -184,4 +167,58 @@ export function getFilterVals(filtParams: FilterParam[] | undefined): string {
     } else {
         return "";
     }
+}
+
+const biosamplesTable: { [key: string]: string } = {
+    "biosample_local_id": "Biosample ID",
+    "project_local_id": "Project ID",
+    "biosample_persistent_id": "Biosample Persisitent ID",
+    "biosample_creation_time": "Biosample creation time",
+    "sample_prep_method_name": "Biosample prep method",
+    "disease_association_type_name": "Biosample disease association",
+    "subject_local_id": "Subject ID",
+    "biosample_age_at_sampling": "Biosample age at sampling",
+    "gene_name": "Gene",
+    "substance_name": "Substance"
+};
+
+export function getNameFromBiosampleTable(iconKey: string): string {
+    return biosamplesTable[iconKey] || "";
+}
+
+const subjectsTable: { [key: string]: string } = {
+    "subject_local_id": "Subject ID",
+    "subject_race_name": "Subject race",
+    "subject_granularity_name": "Subject granularity",
+    "subject_sex_name": "Subject sex",
+    "subject_ethnicity_name": "Subject ethnicity",
+    "subject_role_name": "Subject role",
+    "subject_age_at_enrollment": "Subject age at enrollment"
+}
+
+export function getNameFromSubjectTable(iconKey: string): string {
+    return subjectsTable[iconKey] || "";
+}
+
+const fileProjTable: { [key: string]: string } = {
+    "local_id": "File ID",
+    "file_local_id": "File ID",
+    "project_local_id": "Project ID",
+    "persistent_id": "File Persistent ID",
+    "creation_time": "File creation time",
+    "size_in_bytes": "File size (bytes)",
+    "uncompressed_size_in_bytes": "Uncompressed file size (bytes)",
+    "sha256": "File hashing (sha256)",
+    "md5": "File checksum (md5)",
+    "filename": "File name",
+    "file_format": "File format",
+    "compression_format": "File compression format",
+    "data_type_name": "Data type",
+    "assay_type_name": "Assay type",
+    "analysis_type_name": "Analysis type",
+    "mime_type": "MIME type"
+}
+
+export function getNameFromFileProjTable(iconKey: string): string {
+    return fileProjTable[iconKey] || "";
 }

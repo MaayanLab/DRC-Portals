@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, findStaticColumns, generateFilterQueryString } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromFileProjTable } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -92,8 +92,8 @@ export default async function Page(props: PageProps) {
       project_local_id: string,
       persistent_id: string,
       creation_time: string,
-      size_in_bytes: BigInteger,
-      uncompressed_size_in_bytes: BigInteger,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
       sha256: string,
       md5: string,
       filename: string,
@@ -106,6 +106,9 @@ export default async function Page(props: PageProps) {
       bundle_collection_id_namespace: string,
       bundle_collection_local_id: string,
       dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
       //biosample_id_namespace: string,
       //biosample_local_id: string,
       //subject_id_namespace: string,
@@ -224,17 +227,40 @@ export default async function Page(props: PageProps) {
     select count(*)::int as count
       from subjects_table
   ),
-  proj_info AS (SELECT DISTINCT 
-    allres_full.project_local_id AS project_local_id, allres_full.project_id_namespace AS project_id_namespace
+proj_info AS (
+    SELECT DISTINCT 
+        allres_full.project_local_id AS project_local_id, 
+        allres_full.project_id_namespace AS project_id_namespace
     FROM allres_full
-  ), /* Mano */
-  file_table AS (
-    SELECT DISTINCT c2m2.file.* /* Mano: created table c2m2.file_expanded in file file_expanded.sql of database folder, but useless */
-    FROM c2m2.file
-    INNER JOIN proj_info ON 
-    (c2m2.file.project_local_id = proj_info.project_local_id AND 
-      c2m2.file.project_id_namespace = proj_info.project_id_namespace)
-  ), /* Mano */
+),
+file_table AS (
+    SELECT DISTINCT 
+        f.id_namespace,
+        f.local_id,
+        f.project_id_namespace,
+        f.project_local_id,
+        f.persistent_id,
+        f.creation_time,
+        f.size_in_bytes,
+        f.uncompressed_size_in_bytes,
+        f.sha256,
+        f.md5,
+        f.filename,
+        f.file_format,
+        f.compression_format,
+        f.mime_type,
+        f.dbgap_study_id,
+        dt.name AS data_type_name,
+        at.name AS assay_type_name,
+        aty.name AS analysis_type_name
+    FROM c2m2.file AS f
+    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+    INNER JOIN proj_info AS pi ON f.project_local_id = pi.project_local_id 
+                              AND f.project_id_namespace = pi.project_id_namespace
+)
+, /* Mano */
   file_table_limited as (
     SELECT * 
     FROM file_table
@@ -317,36 +343,34 @@ export default async function Page(props: PageProps) {
   ;
 ` : [undefined];
 
-  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames } = pruneAndRetrieveColumnNames(results?.biosamples_table);
+  // First remove the empty columns and sort columns such that most varying appears first
+
+  const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
+  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns, staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [], biosample_table_columnsToIgnore);
+
+
+  const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
+  const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns, staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [], subject_table_columnsToIgnore);
+
+  const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
+  const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], filesProj_table_columnsToIgnore);
+
+  const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'subject_local_id'];
+  const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns, staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], filesSub_table_columnsToIgnore);
+
   
-  const dynamicBiosampleColumns = Object.keys(biosamplePrunedData[0]).filter(column => {
-    const uniqueValues = new Set(biosamplePrunedData.map(row => row[column]));
-    return uniqueValues.size > 1;
-  }).sort((a, b) => {
-    const uniqueValuesA = new Set(biosamplePrunedData.map(row => row[a]));
-    const uniqueValuesB = new Set(biosamplePrunedData.map(row => row[b]));
-    return uniqueValuesB.size - uniqueValuesA.size;
-  });
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_bios_table);
+  const filebiosData = prunedData;
+  const filebiosColNames = columnNames;
+  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_col_table);
+  const filecolData = prunedData;
+  const filecolColNames = columnNames;
 
-  // Usage example, ignoring the 'id' and 'type' columns
-  const columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_id_namespace', 'biosample_id_namespace'];
-  const staticBiosampleColumns = findStaticColumns(biosamplePrunedData, columnsToIgnore);
-  console.log(staticBiosampleColumns);
 
-  const { prunedData: subjectPrunedData, columnNames: subjectColNames } = pruneAndRetrieveColumnNames(results?.subjects_table);
-  
-  const dynamicSubjectColumns = Object.keys(subjectPrunedData[0]).filter(column => {
-    const uniqueValues = new Set(subjectPrunedData.map(row => row[column]));
-    return uniqueValues.size >= 1;
-  });
-
-  console.log(dynamicSubjectColumns)
+  // The following items are present in metadata
 
   const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
-  const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
-  //const diseaseAssociationType = !dynamicBiosampleColumns.includes('disease_association_type_name')
-  //  ? biosamplePrunedData?.[0]?.['disease_association_type_name']
-  //  : undefined; // In case disease_association_type is not part of the dynamic columns
+  //const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
 
   const metadata = [
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
@@ -358,32 +382,33 @@ export default async function Page(props: PageProps) {
     { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
     { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined }, // Assuming this is the correct property name
     { label: 'Project ID', value: projectLocalId },
-    { label: 'DCC', value: projectIdNamespace }
+    //{ label: 'DCC', value: projectIdNamespace }
   ];
-  
-  // Iterate over staticBioSampleColumns and add each key-value pair to metadata
-  for (const [key, value] of Object.entries(staticBiosampleColumns)) {
-    metadata.push({ label: key, value });
+
+  // Iterate over staticBColumns and add each key-value pair to metadata
+  if (staticBiosampleColumns) {
+    for (const [key, value] of Object.entries(staticBiosampleColumns)) {
+      metadata.push({ label: getNameFromBiosampleTable(key), value });
+    }
+  }
+  if (staticSubjectColumns) {
+    for (const [key, value] of Object.entries(staticSubjectColumns)) {
+      metadata.push({ label: getNameFromSubjectTable(key), value });
+    }
+  }
+  if (staticFileProjColumns) {
+    for (const [key, value] of Object.entries(staticFileProjColumns)) {
+      metadata.push({ label: getNameFromFileProjTable(key), value });
+    }
+  }
+
+  if (staticFileSubColumns) {
+    for (const [key, value] of Object.entries(staticFileSubColumns)) {
+      metadata.push({ label: getNameFromFileProjTable(key), value });
+    }
   }
 
 
-  //console.log('Pruned Data:', biosamplePrunedData);
-  //console.log('Retained Column Names:', bioSampleColNames);
-  console.log("$%$%$%$%")
-  //console.log(results && results.records[0].dcc_short_label ? getDCCIcon(results.records[0].dcc_short_label) as string : "");
-
-  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_table);
-  const fileData = prunedData;
-  const fileColNames = columnNames;
-  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_sub_table);
-  const filesubData = prunedData;
-  const filesubColNames = columnNames;
-  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_bios_table);
-  const filebiosData = prunedData;
-  const filebiosColNames = columnNames;
-  var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_col_table);
-  const filecolData = prunedData;
-  const filecolColNames = columnNames;
 
   return (
     <LandingPageLayout
@@ -398,63 +423,75 @@ export default async function Page(props: PageProps) {
       metadata={metadata}
     >
 
-      <SearchablePagedTable
-        label={`Biosamples found: ${results?.count_bios}`}
-        q={searchParams.q ?? ''}
-        p={searchParams.p}
-        r={searchParams.r}
-        count={results?.count_bios}
-        columns={dynamicBiosampleColumns} //
-        rows={biosamplePrunedData.map(row => (
-          dynamicBiosampleColumns.map(column => (
-            <Description description={row[column]} key={column} />
-          ))
-        ))}
-      />
-
-      <SearchablePagedTable
-        label={`Subjects found: ${results?.count_sub}`}
-        q={searchParams.q ?? ''}
-        p={searchParams.p}
-        r={searchParams.r}
-        count={results?.count_sub}
-        columns={dynamicSubjectColumns} //
-        rows={subjectPrunedData.map(row => (
-          dynamicSubjectColumns.map(column => (
-            <Description description={row[column]} key={column} />
-          ))
-        ))}
-      />
-
-      {/* */}
-      <SearchablePagedTable
-        label={`File Table related to the project: Results found: ${results?.count_file}`}
-        q={searchParams.q ?? ''}
-        p={searchParams.p}
-        r={searchParams.r}
-        count={results?.count_file}
-        columns={fileColNames.map(columnName => <>{columnName}</>)}
-        rows={fileData.map(row => (
-          fileColNames.map(columnName => (
-            <Description description={row[columnName]} />
-          ))
-        ))}
-      />
-
-      <SearchablePagedTable
-        label={`File_Describes_Subject Table related to the project: Results found: ${results?.count_file_sub}`}
-        q={searchParams.q ?? ''}
-        p={searchParams.p}
-        r={searchParams.r}
-        count={results?.count_file_sub}
-        columns={filesubColNames.map(columnName => <>{columnName}</>)}
-        rows={filesubData.map(row => (
-          filesubColNames.map(columnName => (
-            <Description description={row[columnName]} />
-          ))
-        ))}
-      />
-
+      {biosamplePrunedData.length > 1 && (
+        <SearchablePagedTable
+          label={`Biosamples found: ${results?.count_bios}`}
+          q={searchParams.q ?? ''}
+          p={searchParams.p}
+          r={searchParams.r}
+          count={results?.count_bios}
+          columns={dynamicBiosampleColumns.map(column => (
+                getNameFromBiosampleTable(column)
+          ))}
+          rows={biosamplePrunedData.map(row => (
+            dynamicBiosampleColumns.map(column => (
+              <Description description={row[column]} key={column} />
+            ))
+          ))}
+        />
+      )}
+      {subjectPrunedData.length > 1 && (
+        <SearchablePagedTable
+          label={`Subjects found: ${results?.count_sub}`}
+          q={searchParams.q ?? ''}
+          p={searchParams.p}
+          r={searchParams.r}
+          count={results?.count_sub}
+          columns={dynamicSubjectColumns.map(column => (
+            getNameFromSubjectTable(column)
+          ))}
+          rows={subjectPrunedData.map(row => (
+            dynamicSubjectColumns.map(column => (
+              <Description description={row[column]} key={column} />
+            ))
+          ))}
+        />
+      )}
+      {fileProjPrunedData.length > 1 && (
+        <SearchablePagedTable
+          label={`Files in project found: ${results?.count_file}`}
+          q={searchParams.q ?? ''}
+          p={searchParams.p}
+          r={searchParams.r}
+          count={results?.count_sub}
+          columns={dynamicFileProjColumns.map(column => (
+            getNameFromFileProjTable(column)
+          ))}
+          rows={fileProjPrunedData.map(row => (
+            dynamicFileProjColumns.map(column => (
+              <Description description={row[column]} key={column} />
+            ))
+          ))}
+        />
+      )}
+      {fileSubPrunedData.length > 1 && (
+        <SearchablePagedTable
+          label={`Files related to subjects found: ${results?.count_file_sub}`}
+          q={searchParams.q ?? ''}
+          p={searchParams.p}
+          r={searchParams.r}
+          count={results?.count_sub}
+          columns={dynamicFileSubColumns.map(column => (
+            getNameFromFileProjTable(column)
+          ))}
+          rows={fileSubPrunedData.map(row => (
+            dynamicFileSubColumns.map(column => (
+              <Description description={row[column]} key={column} />
+            ))
+          ))}
+        />
+      )}
+      
       <SearchablePagedTable
         label={`File_Describes_Biosample Table related to the project: Results found: ${results?.count_file_bios}`}
         q={searchParams.q ?? ''}

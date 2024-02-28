@@ -71,7 +71,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string) 
   const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
   console.log("FILTERS LENGTH =");
   console.log(filters.length)
-  
+
   return filterConditionStr;
 }
 
@@ -106,7 +106,7 @@ export default async function Page(props: PageProps) {
 
 
   const cascading: boolean = true;
-  const cascading_tablename = cascading === true ? "allres_filtered" : "allres";
+  const cascading_tablename = cascading ? "allres_filtered" : "allres";
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     records: {
       //rank: number,
@@ -284,7 +284,7 @@ SELECT
 
 
   const file_icon_path = "/img/icons/searching-magnifying-glass.png";
-  
+
   return (
     <ListingPageLayout
       count={results?.count} // This matches with #records in the table on the right (without filters applied)
@@ -387,8 +387,8 @@ SELECT
             Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i>{res.anatomy_name}</i></Link><br></br>
             {/* Gene: <i>{res.gene_name}</i> */}
             Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i>{res.gene_name}</i></Link>
-            </>,
-            <>Subjects: {res.count_sub}<br></br>
+          </>,
+          <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>
             Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
