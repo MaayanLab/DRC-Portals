@@ -105,7 +105,7 @@ export default function Chat() {
     } else {
       newMessage = {
         role: "bot",
-        content: results.messages[0].content[0].text.value,
+        content: results.messages[0].content[0].text.value.replace(/\【.*?\】/g, ''),
         output: null,
         args: null
       };
