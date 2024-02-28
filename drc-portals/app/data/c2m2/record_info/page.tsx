@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, getDistinctColumnsWithData, findStaticColumns, generateFilterQueryString } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, formatColumnName, getDistinctColumnsWithData, findStaticColumns, generateFilterQueryString } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -356,7 +356,7 @@ export default async function Page(props: PageProps) {
   
   // Iterate over staticBioSampleColumns and add each key-value pair to metadata
   for (const [key, value] of Object.entries(staticBiosampleColumns)) {
-    metadata.push({ label: key, value });
+    metadata.push({ label: formatColumnName(key), value });
   }
 
 
@@ -397,7 +397,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={results?.count_bios}
-        columns={dynamicBiosampleColumns} //
+        columns={dynamicBiosampleColumns.map(col => formatColumnName(col))} //
         rows={biosamplePrunedData.map(row => (
           dynamicBiosampleColumns.map(column => (
             <Description description={row[column]} key={column} />
@@ -411,7 +411,7 @@ export default async function Page(props: PageProps) {
         p={searchParams.p}
         r={searchParams.r}
         count={results?.count_sub}
-        columns={dynamicSubjectColumns} //
+        columns={dynamicSubjectColumns.map(col => formatColumnName(col))} //
         rows={subjectPrunedData.map(row => (
           dynamicSubjectColumns.map(column => (
             <Description description={row[column]} key={column} />
