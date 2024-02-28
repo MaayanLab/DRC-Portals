@@ -23,64 +23,57 @@ type FilterObject = {
   count: number;
 };
 
-
 export default function FilterSet({ id, filterList, filter_title }: { id: string, filterList: FilterObject[], filter_title: string }) {
-  console.log("Length of filterList passed")
-  console.log(filterList.length)
+  const [expanded, setExpanded] = React.useState<string | null>(null);
+
+  // Function to handle accordion expansion
+  const handleChange = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
+    setExpanded(newExpanded ? panel : null);
+  };
+
+  // Ref to the accordion div for click outside detection
+  const accordionRef = React.useRef<HTMLDivElement>(null);
+
+  // Click outside handler
+  const handleClickOutside = (event: MouseEvent) => {
+    if (accordionRef.current && !accordionRef.current.contains(event.target as Node)) {
+      setExpanded(null);
+    }
+  };
+
+  // Effect to add and remove click outside listener
+  React.useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{filter_title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Autocomplete
-            multiple
-            id="checkboxes-tags-demo"
-            options={filterList}
-            disableCloseOnSelect
-            getOptionLabel={(option) => option.name}
-            renderOption={(props, option: FilterObject, { selected }) => (
-              <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
-            )}
-            style={{ width: 'auto' }}
-            renderInput={(params) => (
-              <TextField {...params} label={filter_title} placeholder={filter_title} />
-            )}
-          />
-        </AccordionDetails>
-      </Accordion>
+    <div ref={accordionRef}>
+      {filterList.length > 0 && (
+        <Accordion expanded={expanded === filter_title} onChange={handleChange(filter_title)}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>{filter_title}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Autocomplete
+              multiple
+              id="checkboxes-tags-demo"
+              options={filterList}
+              disableCloseOnSelect
+              getOptionLabel={(option) => option.name}
+              renderOption={(props, option: FilterObject, { selected }) => (
+                <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
+              )}
+              style={{ width: 'auto' }}
+              renderInput={(params) => (
+                <TextField {...params} label={filter_title} placeholder={filter_title} />
+              )}
+            />
+          </AccordionDetails>
+        </Accordion>
+      )}
     </div>
   );
 }
-
-
-
-/* export default function FilterSet({ id, filterList, filter_title }: { id: string, filterList: FilterObject[], filter_title: string }) {
-  console.log("Length of filterList passed")
-  console.log(filterList.length)
-  return (
-    <Autocomplete
-      multiple
-      id="checkboxes-tags-demo"
-      options={filterList}
-      disableCloseOnSelect
-      //getOptionLabel={(option) => option.name}
-      // <Link href={`?${searchParams.toString()}`}>
-      //<FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentfilterListet} />
-      //</Link>
-      renderOption={(props, option, { selected }) => (
-        <li>
-          {filterList.map((filt) =>
-            <SearchFilter key={`${id}-${filt.name}`} id={`${id}:${filt.name}`} count={filt.count} label={filt.name} />
-          )}
-        </li>
-      )}
-      style={{ width: 'auto' }}
-      renderInput={(params) => (
-        <TextField {...params} label={filter_title} placeholder={filter_title} />
-      )}
-    />
-  );
-} */
-

@@ -81,7 +81,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                   <TableRow>
                     {props.columns.map((column, i) => (
                       <TableCell key={i} component="th">
-                        <Typography variant='body1' color="secondary">{column}</Typography>
+                        <Typography variant='h6' color="secondary">{column}</Typography>
                       </TableCell>
                     ))}
                   </TableRow>

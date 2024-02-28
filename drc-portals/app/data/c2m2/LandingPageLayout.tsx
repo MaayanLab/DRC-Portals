@@ -27,8 +27,8 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       </Grid>
       <Grid item xs={12}>
         <Stack>
-          {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="body2"><strong>{item.label}</strong>: {item.value}</Typography> : null)}
           {props.description ? <Typography variant="body2"><strong>Project Description</strong>: {props.description}</Typography> : null}
+          {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="h6"><strong>{item.label}</strong>: {item.value}</Typography> : null)}
         </Stack>
       </Grid>
       {props.children}
