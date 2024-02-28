@@ -372,7 +372,7 @@ file_table AS (
   const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
   //const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
 
-  const metadata = [
+  /* const metadata = [
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
     results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
     results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
@@ -406,8 +406,34 @@ file_table AS (
     for (const [key, value] of Object.entries(staticFileSubColumns)) {
       metadata.push({ label: getNameFromFileProjTable(key), value });
     }
-  }
+  } */
+  const metadata = [
+    results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
+    results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
+    results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
+    results?.records[0].disease_name ? { label: 'Disease', value: results?.records[0].disease_name } : null,
+    results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
+    { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
+    { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
+    { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },
+    { label: 'Project ID', value: projectLocalId !== undefined ? projectLocalId.toString() : 'N/A' }, // Provide 'N/A' or another placeholder if projectLocalId is undefined
 
+  ];
+  
+  // Iterate over additional columns and add them to metadata, ensuring bigint values are converted to strings
+  const addColumns = (columns, getNameFunction) => {
+    if (columns) {
+      for (const [key, value] of Object.entries(columns)) {
+        const stringValue = typeof value === 'bigint' ? value.toString() : value; // Convert bigint to string
+        metadata.push({ label: getNameFunction(key), value: stringValue });
+      }
+    }
+  };
+  
+  addColumns(staticBiosampleColumns, getNameFromBiosampleTable);
+  addColumns(staticSubjectColumns, getNameFromSubjectTable);
+  addColumns(staticFileProjColumns, getNameFromFileProjTable);
+  
 
 
   return (
