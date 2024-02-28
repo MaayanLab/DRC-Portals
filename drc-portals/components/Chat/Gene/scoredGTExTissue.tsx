@@ -52,7 +52,6 @@ export default function ScoredGTExTissue(props: any) {
     plotData.layout.font = {
       color: "white"
     }
-    console.log(data)
 
     return (
     <>

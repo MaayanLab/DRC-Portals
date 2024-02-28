@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Icon from '@mdi/react';
-import { mdiEarHearing, mdiEarHearingOff } from '@mdi/js';
+import { mdiEarHearing, mdiEarHearingOff, mdiMicrophone, mdiMicrophoneOff } from '@mdi/js';
 const MicRecorder = require('mic-recorder-to-mp3')
 
 const recorder = new MicRecorder({
@@ -9,9 +9,10 @@ const recorder = new MicRecorder({
 });
 
 const Communicator = ({text2speech, setMessage}: {text2speech: string | null, setMessage: Function}) => {
-    const [active, setActive] = useState(false)
-    const [enabled, setEnabled] = useState(false)
-    const transform = active ? {}: {transform: "rotateY(180deg)"}
+    const [record, setRecord] = useState(false)
+    const [speakMessages, setSpeakMessages] = useState(false)
+    const [disabledSpeakMessages, setDisabledSpeakMessages] = useState(false)
+    const transform = record ? {}: {transform: "rotateY(180deg)"}
 
     useEffect(()=>{
         const speak = async (message: string | null) => {
@@ -31,16 +32,18 @@ const Communicator = ({text2speech, setMessage}: {text2speech: string | null, se
             playSound.connect(ctx.destination);
             playSound.start(ctx.currentTime);
         }
-        if (text2speech && enabled) {
+        if (text2speech && speakMessages) {
             speak(text2speech)
         }
-    }, [text2speech, enabled])
+    }, [text2speech, speakMessages])
 
     // inactivate recording after 10 seconds
-    useEffect(()=>{
+    useEffect(() => {
         const inactivate = setInterval(() => {
-            setActive(false);
+            setRecord(false);
         }, 10000);
+
+        console.log(record, inactivate)
         const start_recording = async () => {
             try {
                 console.log("recording")
@@ -53,31 +56,49 @@ const Communicator = ({text2speech, setMessage}: {text2speech: string | null, se
             try {
                 console.log("saving")
                 const [buffer, blob] = await recorder.stop().getMp3()
+                if (blob.size < 10) {
+                    setRecord(false)
+                    return
+                }
+                setRecord(false)
                 const formData = new FormData();
                 formData.append("file", blob);
                 formData.append("model", "whisper-1");
-                setActive(false)
                 const response = await fetch("/chat/transcribe", { method: 'POST', body: formData });
                 const transcribed = await response.json()
-                setMessage(transcribed.text)    
+                setMessage(transcribed.text)  
+                setRecord(false)  
             } catch (error) {
                 console.error(error)
+                setRecord(false)
             }
             
         } 
-        if (active) {
+        if (record) {
             start_recording()
-            setEnabled(true)
-        }
-        else stop_recording()
+            if (!disabledSpeakMessages) setSpeakMessages(true)
+        } else stop_recording()
         return () => clearInterval(inactivate);
-    },[active, setActive, setEnabled, setMessage])
+    },[record, setRecord, setSpeakMessages, disabledSpeakMessages, setMessage])
 
 
     return (
-        <button onClick={()=>setActive(!active)} className="btn btn-square">
-            <Icon path={active ? mdiEarHearing: mdiEarHearingOff} style={transform} size={1} />
+        <div className='flex gap-1'>
+        <button type="button" onClick={()=> {
+                setRecord(!record)
+                if (!disabledSpeakMessages) setSpeakMessages(true)
+            }
+        } className="btn btn-square">
+            <Icon path={record ? mdiMicrophone: mdiMicrophoneOff} style={transform} size={1} /> 
         </button>
+        <button type="button" onClick={()=> {
+            setSpeakMessages(!speakMessages)
+            setDisabledSpeakMessages(true)
+        }
+        } className="btn btn-square">
+            <Icon path={speakMessages ? mdiEarHearing: mdiEarHearingOff} style={transform} size={1} /> 
+        </button>
+        </div>
     )
 }
 
