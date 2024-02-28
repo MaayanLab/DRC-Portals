@@ -5,17 +5,11 @@ import Communicator from './Communicator'
 import ChatExample from './chatExample'
 import { getFunctionInput, getFunctionText } from './utils/constants'
 
-// Input processing functions
-import Gene from './Inputs/gene'
-import GeneSet from './Inputs/geneset'
-import Glycan from './Inputs/glycan'
-
 // input forms
 import GeneInput from './Inputs/geneInput'
 import GeneSetInput from './Inputs/geneSetInput'
 import GlycanInput from './Inputs/glycanInput'
 import { Input } from '@mui/material'
-
 
 interface ResponseData {
   messages: any | null
@@ -72,7 +66,6 @@ export default function Chat() {
           message: message.content,
         }
       })
-      console.log(results)
     }
     else {
       const options = {
@@ -181,7 +174,7 @@ export default function Chat() {
           value={query}
           onChange={evt => setQuery(() => evt.target.value)}
         />
-        {/* <Communicator text2speech={lastBotChat} setMessage={setQuery}></Communicator> */}
+        <Communicator text2speech={lastBotChat} setMessage={setQuery}></Communicator>
         <button type="submit" className="btn btn-sm ml-2" disabled={!query && !chat.waitingForReply}>Send</button>
       </form>
       <div className='flex flex-wrap justify-center mt-2 mb-5'>

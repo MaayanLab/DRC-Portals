@@ -34,7 +34,7 @@ const Communicator = ({text2speech, setMessage}: {text2speech: string | null, se
         if (text2speech && enabled) {
             speak(text2speech)
         }
-    }, [text2speech])
+    }, [text2speech, enabled])
 
     // inactivate recording after 10 seconds
     useEffect(()=>{
@@ -71,7 +71,7 @@ const Communicator = ({text2speech, setMessage}: {text2speech: string | null, se
         }
         else stop_recording()
         return () => clearInterval(inactivate);
-    },[active, setActive, setMessage])
+    },[active, setActive, setEnabled, setMessage])
 
 
     return (
