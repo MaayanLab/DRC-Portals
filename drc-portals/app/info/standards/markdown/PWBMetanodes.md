@@ -2,7 +2,7 @@
 * [Introduction](#introduction)
 * [Resources](#resources)
 * [Building Workflows](#building-workflows)
-* [Developing Meta Nodes for the PPWB](#developing-meta-nodes)
+* [Developing Metanodes](#developing-metanodes)
   * [Core Concepts](#core-concepts)
   * [Contribution Guidelines](#contribution-guidelines)
 
@@ -33,7 +33,7 @@ The following tutorial, adapted from the PWB User Guide linked above, walks thro
   - As an example, we can select the **Query GTEx Median Tissue Expression** card, which displays a table of tissues from GTEx where the input gene is most significantly expressed. 
   - Some operations, including the example, rely on on-demand API calls, and can be re-computed or updated using the **Recompute** button at the bottom of the page. 
 
-6. To continue the workflow, click the **+** breadcrumb at the top of the page to choose froma new set of option cards, and continue with the analysis. 
+6. To continue the workflow, click the **+** breadcrumb at the top of the page to choose from a new set of option cards, and continue with the analysis. 
 
 5. If you have reached the end of a workflow, you have two main options:
   - You may return to any of the previous nodes by clicking on the corresponding "breadcrumb" graph at the top of the page, and select more operations from a previous node. All "branches" of the workflow, and their results, will be saved. 
@@ -44,11 +44,11 @@ The following tutorial, adapted from the PWB User Guide linked above, walks thro
   - Re-submitting or re-computing any of the steps will automatically update the following steps in the workflow. 
   - Playbook workflows can be saved to your account, shared via link, or published to the **Published Playbooks** section of the website. 
 
-## Developing Meta Nodes
+## Developing Metanodes
 
 ### Core Concepts
 
-The PPWB is designed to allow for the independent and parallel development of individual components, known as **meta nodes**. There are two main types of meta nodes, `Data` and `Process`: 
+The PPWB is designed to allow for the independent and parallel development of individual components, known as **metanodes**. There are two main types of metanodes, `Data` and `Process`: 
 - **Data:** Entities that can be inputs/outputs of processes and have a designated "view" within the PPWB, e.g. a tabular view for gene count matrix data
 - **Process:** Operations that act on an input data type to generate an output data type. Processes are divided into two subtypes:
     - **Prompt:** A user-driven action, such as an input form or a selection interface where the user decides the operation
@@ -67,7 +67,7 @@ The PPWB is designed to allow for the independent and parallel development of in
   ```
 
 4. Create new component directories under the `components` directory. All components should contain at least the following files:
-  - `index.ts` or `index.tsx`: The file containing your exported meta node(s). For details on a specific meta node type, please refer to the full[Developer Guide](https://github.com/nih-cfde/playbook-partnership/blob/main/docs/contributions.md).
+  - `index.ts` or `index.tsx`: The file containing your exported meta node(s). For details on a specific meta node type, please refer to the full [Developer Guide](https://github.com/nih-cfde/playbook-partnership/blob/main/docs/contributions.md).
   - `package.json`: Name and other metadata for the new meta node, as follows: 
 
   ```

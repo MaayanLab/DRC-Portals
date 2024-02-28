@@ -14,6 +14,14 @@ export default function Standards() {
           This page contains descriptions of common standards, protocols, and other assets
           generated from any of the CFDE partnered Data Coordination Centers (DCCs), 
           partnership activities, or the Data Resource Center (DRC) and Knowledge Center (KC).
+          <br /> <br />
+          These descriptions are intended to provide CFDE-partnered DCCs, other Common Fund (CF)
+          programs, and the broader research community with documentation on standards 
+          developed by the CFDE on annotating, querying, exploring, and evaluating 
+          data, metadata, and tools for biomedical research. While many of these standards 
+          were created within the context of the CFDE, they may be useful and generalizable
+          to other researchers who are interested in using or interoperating with CF datasets, or 
+          who are interested in improving the FAIRness of their resources. 
         </Typography>
       </Grid>
       <Grid item xs={12} sx={{mt:3, mb:4}}>
@@ -90,8 +98,8 @@ export default function Standards() {
                 ontology and vocabulary terms for exploring pre-defined, biologically 
                 relevant use cases. 
                 <br /><br />
-                More information about generating knowledge graph assertions will 
-                be available soon.
+                Learn more about generating Data Distillery Knowledge Graph Assertions <Link
+                href="/info/standards/KGAssertions" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -127,10 +135,10 @@ export default function Standards() {
                 Playbook Partnership and consisting of a growing network of datasets, 
                 semantically annotated API endpoints, and visualization tools 
                 from across the CFDE. Users can construct workflows from the individual building blocks, 
-                termed "meta nodes", with little effort or technical expertise 
+                termed "metanodes", with little effort or technical expertise 
                 required. 
                 <br /><br />
-                Learn more about building PWB meta nodes <Link
+                Learn more about building PWB metanodes <Link
                 href="/info/standards/PWBMetanodes" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
