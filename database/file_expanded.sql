@@ -131,4 +131,14 @@ c2m2.file_describes_biosample on (c2m2.file.local_id = c2m2.file_describes_biosa
       c2m2.file.id_namespace = c2m2.file_describes_biosample.file_id_namespace) 
       where c2m2.file.project_local_id = 'EXR-KJENS1aSAHPR-ST';
 
+select * from (select subject_id_namespace, subject_local_id, count(distinct file_local_id) as 
+    count_file from c2m2.file_describes_subject group by subject_id_namespace, subject_local_id) where count_file > 1;
+
+select * from c2m2.file_describes_subject where subject_local_id = 'EXR-AKRIC1AKGBM001-DO' limit 5;
+
+select * from (select file_id_namespace, file_local_id, count(distinct subject_local_id) as 
+    count_sub from c2m2.file_describes_subject group by file_id_namespace, file_local_id) where count_sub > 1;
+
+select * from c2m2.file_describes_subject where file_local_id = 'EDS-1003' limit 5;
+
 */
