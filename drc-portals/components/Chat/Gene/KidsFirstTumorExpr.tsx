@@ -18,7 +18,7 @@ const getPlaybookKidsFirstData = async (body: any) => {
 };
 
 export default function KidsFirstTumorExpr(props: any) {
-    const gene: string = props.genesymbol || 'ACE2'
+    const gene: string = props.geneSymbol || 'ACE2'
 
     const body = {
         "data": {

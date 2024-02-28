@@ -43,7 +43,7 @@ const getL100Sigs = async (gene: string, dir: string, perturb: string) => {
 };
 
 export default function ReverseSearchL1000(props: any) {
-    const gene = props.genesymbol
+    const gene = props.geneSymbol
     const dir = props.dir
     const perturb = props.perturb
 
@@ -159,7 +159,7 @@ export default function ReverseSearchL1000(props: any) {
                     />
                 </div>
                 <TableView rowData={rowData} />
-                <PlaybookButton id={data.id}></PlaybookButton>
+                {data.id ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
             </div>
         )
 
@@ -199,6 +199,8 @@ export default function ReverseSearchL1000(props: any) {
             marker: { color: color }
         }]
 
+        console.log(data)
+
         return (
             <div>
                 <div className='text-center'>
@@ -208,7 +210,7 @@ export default function ReverseSearchL1000(props: any) {
                     />
                 </div>
                 <TableView rowData={res.data} />
-                <PlaybookButton id={data.id}></PlaybookButton>
+                {data.id ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
             </div>
         )
     }

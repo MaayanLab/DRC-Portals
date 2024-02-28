@@ -21,7 +21,7 @@ const columns = [
 
 
 export default function ImpcPhenotypes(props: any) {
-  const geneSymbol = props.genesymbol
+  const geneSymbol = props.geneSymbol
   const { data, error, isLoading } = useSWR([geneSymbol], () => fetchImpcPhenotype(geneSymbol));
 
   if (error) {
