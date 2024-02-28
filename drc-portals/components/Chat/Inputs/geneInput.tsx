@@ -23,7 +23,7 @@ let processMapper: Record<string, any> = {
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
 
 export default function GeneInput(props: any) {
-    const genesymbol = props.genesymbol || ''
+    const genesymbol = props.geneSymbol || ''
     const [geneTerm, setGeneTerm] = React.useState(genesymbol)
     const [submitted, setSubmitted] = React.useState(false)
     const processName = props.process
