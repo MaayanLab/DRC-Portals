@@ -61,6 +61,13 @@ export function pruneAndRetrieveColumnNames(data) {
     return { prunedData, columnNames: sortedColumnNames };
 }
 
+export function formatColumnName(input: string): string {
+    return input.split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+}
+
+
 export function getDistinctColumnsWithData(prunedData) {
     return Object.keys(prunedData[0]).filter(column => {
       const uniqueValues = new Set(prunedData.map(row => row[column]));
