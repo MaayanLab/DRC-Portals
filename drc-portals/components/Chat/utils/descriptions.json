@@ -1,0 +1,30 @@
+{
+  "GtexGeneExpression": {
+    "desc": "I queried the expression of your gene across tissues from GTEx version 8 and produced a plot of z-scored values:",
+    "input": "GeneInput"
+  },
+  "ImpcPhenotypes": {
+    "desc": "I queried IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene",
+    "input": "GeneInput"
+  },
+  "ReverseSearchL1000": {
+    "desc": "I queried RNA-seq-like LINCS L1000 Signatures sourced from SigComLincs which mimick or reverse the the expression of your gene and visualized the result.",
+    "input": "GeneInput"
+  },
+  "KidsFirstTumorExpr": {
+    "desc": "I queried gene expression in tumors for your gene from the Open Pediatric Cancer Atlas API ",
+    "input": "GeneInput"
+  },
+  "RegElementSetInfo": {
+    "desc": "Regulatory elements were obtained from the Linked Data Hub:",
+    "input": "GeneInput"
+  },
+  "sigComLincs": {
+    "desc": "I can send your gene set(s) to SigCom LINCS which is a web-based search engine that serves over 1.5 million gene expression signatures processed, analyzed, and visualized from LINCS, GTEx, and GEO. SigCom LINCS provides rapid signature similarity search for mimickers and reversers given sets of up and down genes. Once you submit your gene set I will provide a link to the result:",
+    "input": "GeneSetInput"
+  },
+  "GlyGenbyGlyTouCan": {
+    "desc": "The GlyGen database was searched to identify a information about your glycan:",
+    "input": "GlycanInput"
+  }
+}

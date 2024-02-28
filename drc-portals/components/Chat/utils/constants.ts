@@ -1,6 +1,8 @@
 import processesJson from "./processes.json"
+import descriptionsJson from "./descriptions.json"
 
 const processes: Record<string, any> = processesJson
+const descriptions: Record<string, any> = descriptionsJson
 
 export function optionsDesc() {
     var optionsStr = "<br>";
@@ -18,11 +20,5 @@ export function optionsDesc() {
     return optionsStr
 }
 
-export function processesDescs(input: string) {return Object.keys(processes[input]).map((output: string) => { return `${output} -> ${processes[input][output].gpt_desc}` }).join('\n')}
-
-export function getProcessParams(input: string, output: string) {return processes[input][output].questions}
-export function getProcessText(input: string, output: string) {return processes[input][output].text}
-export function getProcessComponent(input: string, output: string) {return processes[input][output].process}
-
-export function inputsAvialble() {return Object.keys(processes)}
-export function outputsAvialble(input: string) {return Object.keys(processes[input])}
+export function getFunctionText(name: string) {return descriptions[name].desc}
+export function getFunctionInput(name: string) {return descriptions[name].input}
