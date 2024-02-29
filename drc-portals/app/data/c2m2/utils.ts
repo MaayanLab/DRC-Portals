@@ -172,12 +172,12 @@ export function getFilterVals(filtParams: FilterParam[] | undefined): string {
 const biosamplesTable: { [key: string]: string } = {
     "biosample_local_id": "Biosample ID",
     "project_local_id": "Project ID",
-    "biosample_persistent_id": "Biosample Persisitent ID",
-    "biosample_creation_time": "Biosample creation time",
-    "sample_prep_method_name": "Biosample prep method",
-    "disease_association_type_name": "Biosample disease association",
+    "biosample_persistent_id": "Persisitent ID",
+    "biosample_creation_time": "Creation time",
+    "sample_prep_method_name": "Sample prep method",
+    "disease_association_type_name": "Disease association",
     "subject_local_id": "Subject ID",
-    "biosample_age_at_sampling": "Biosample age at sampling",
+    "biosample_age_at_sampling": "Age at sampling",
     "gene_name": "Gene",
     "substance_name": "Substance"
 };
@@ -188,12 +188,12 @@ export function getNameFromBiosampleTable(iconKey: string): string {
 
 const subjectsTable: { [key: string]: string } = {
     "subject_local_id": "Subject ID",
-    "subject_race_name": "Subject race",
-    "subject_granularity_name": "Subject granularity",
-    "subject_sex_name": "Subject sex",
-    "subject_ethnicity_name": "Subject ethnicity",
-    "subject_role_name": "Subject role",
-    "subject_age_at_enrollment": "Subject age at enrollment"
+    "subject_race_name": "Race",
+    "subject_granularity_name": "Granularity",
+    "subject_sex_name": "Sex",
+    "subject_ethnicity_name": "Ethnicity",
+    "subject_role_name": "Role",
+    "subject_age_at_enrollment": "Age at enrollment"
 }
 
 export function getNameFromSubjectTable(iconKey: string): string {
@@ -204,15 +204,15 @@ const fileProjTable: { [key: string]: string } = {
     "local_id": "File ID",
     "file_local_id": "File ID",
     "project_local_id": "Project ID",
-    "persistent_id": "File Persistent ID",
-    "creation_time": "File creation time",
-    "size_in_bytes": "File size (bytes)",
-    "uncompressed_size_in_bytes": "Uncompressed file size (bytes)",
-    "sha256": "File hashing (sha256)",
-    "md5": "File checksum (md5)",
+    "persistent_id": "Persistent ID",
+    "creation_time": "Creation time",
+    "size_in_bytes": "Size (bytes)",
+    "uncompressed_size_in_bytes": "Uncompressed size (bytes)",
+    "sha256": "Hashing (sha256)",
+    "md5": "Checksum (md5)",
     "filename": "File name",
-    "file_format": "File format",
-    "compression_format": "File compression format",
+    "file_format": "Format",
+    "compression_format": "Compression format",
     "data_type_name": "Data type",
     "assay_type_name": "Assay type",
     "analysis_type_name": "Analysis type",
@@ -222,3 +222,29 @@ const fileProjTable: { [key: string]: string } = {
 export function getNameFromFileProjTable(iconKey: string): string {
     return fileProjTable[iconKey] || "";
 }
+
+
+export interface Category {
+    title: string;
+    metadata: { label: React.ReactNode; value: React.ReactNode }[];
+  }
+  
+export  function addCategoryColumns(columns: Record<string, React.ReactNode>, getNameFunction: (key: string) => React.ReactNode, categoryTitle: string, categories: Category[]) {
+      if (!columns) return;
+  
+      // Check if the category already exists, if not create a new one
+      let category = categories.find(c => c.title === categoryTitle);
+      if (!category) {
+          category = { title: categoryTitle, metadata: [] };
+          categories.push(category);
+      }
+  
+      for (const [key, value] of Object.entries(columns)) {
+          if (value !== undefined) { // Check if value is not undefined
+              const stringValue = typeof value === 'bigint' ? value.toString() : value.toString();
+              category.metadata.push({ label: getNameFunction(key), value: stringValue });
+          }
+      }
+  }
+  
+  

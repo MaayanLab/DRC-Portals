@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromFileProjTable } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromFileProjTable, Category, addCategoryColumns } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -419,9 +419,20 @@ file_table AS (
     { label: 'Project ID', value: projectLocalId !== undefined ? projectLocalId.toString() : 'N/A' }, // Provide 'N/A' or another placeholder if projectLocalId is undefined
 
   ];
+
+  const categories: Category[] = []; 
+
+addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
+addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
+addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable,  "Files related to Project", categories);
+
   
+
   // Iterate over additional columns and add them to metadata, ensuring bigint values are converted to strings
-  const addColumns = (columns, getNameFunction) => {
+  
+  
+  /* const addColumns = (columns, getNameFunction) => {
     if (columns) {
       for (const [key, value] of Object.entries(columns)) {
         const stringValue = typeof value === 'bigint' ? value.toString() : value; // Convert bigint to string
@@ -433,7 +444,7 @@ file_table AS (
   addColumns(staticBiosampleColumns, getNameFromBiosampleTable);
   addColumns(staticSubjectColumns, getNameFromSubjectTable);
   addColumns(staticFileProjColumns, getNameFromFileProjTable);
-  
+   */
 
 
   return (
@@ -447,6 +458,7 @@ file_table AS (
       subtitle={""}
       description={format_description(results?.records[0].project_description ?? "")}
       metadata={metadata}
+      categories={categories}
     >
 
       {biosamplePrunedData.length > 1 && (
