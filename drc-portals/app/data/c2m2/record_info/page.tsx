@@ -8,6 +8,12 @@ import { Metadata, ResolvingMetadata } from 'next'
 import { string } from "zod";
 import Link from "next/link";
 import { cache } from "react";
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { AccordionDetails } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import ExpandableTable from "../ExpandableTable";
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -358,7 +364,7 @@ file_table AS (
   const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'subject_local_id'];
   const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns, staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], filesSub_table_columnsToIgnore);
 
-  
+
   var { prunedData, columnNames } = pruneAndRetrieveColumnNames(results?.file_bios_table);
   const filebiosData = prunedData;
   const filebiosColNames = columnNames;
@@ -372,41 +378,7 @@ file_table AS (
   const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
   //const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
 
-  /* const metadata = [
-    results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
-    results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
-    results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
-    results?.records[0].disease_name ? { label: 'Disease', value: results?.records[0].disease_name } : null,
-    results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
-    { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
-    { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
-    { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined }, // Assuming this is the correct property name
-    { label: 'Project ID', value: projectLocalId },
-    //{ label: 'DCC', value: projectIdNamespace }
-  ];
 
-  // Iterate over staticBColumns and add each key-value pair to metadata
-  if (staticBiosampleColumns) {
-    for (const [key, value] of Object.entries(staticBiosampleColumns)) {
-      metadata.push({ label: getNameFromBiosampleTable(key), value });
-    }
-  }
-  if (staticSubjectColumns) {
-    for (const [key, value] of Object.entries(staticSubjectColumns)) {
-      metadata.push({ label: getNameFromSubjectTable(key), value });
-    }
-  }
-  if (staticFileProjColumns) {
-    for (const [key, value] of Object.entries(staticFileProjColumns)) {
-      metadata.push({ label: getNameFromFileProjTable(key), value });
-    }
-  }
-
-  if (staticFileSubColumns) {
-    for (const [key, value] of Object.entries(staticFileSubColumns)) {
-      metadata.push({ label: getNameFromFileProjTable(key), value });
-    }
-  } */
   const metadata = [
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
     results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
@@ -420,31 +392,27 @@ file_table AS (
 
   ];
 
-  const categories: Category[] = []; 
+  const categories: Category[] = [];
 
-addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
-addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
-addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
-addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable,  "Files related to Project", categories);
+  addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+  addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
+  addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
+  addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Project", categories);
 
-  
+  const biosampleTableTitle = "Biosamples found: " + results?.count_bios;
+  const biosampleColNames = dynamicBiosampleColumns.map(column => (
+    getNameFromBiosampleTable(column)
+  ))
 
-  // Iterate over additional columns and add them to metadata, ensuring bigint values are converted to strings
-  
-  
-  /* const addColumns = (columns, getNameFunction) => {
-    if (columns) {
-      for (const [key, value] of Object.entries(columns)) {
-        const stringValue = typeof value === 'bigint' ? value.toString() : value; // Convert bigint to string
-        metadata.push({ label: getNameFunction(key), value: stringValue });
-      }
-    }
-  };
-  
-  addColumns(staticBiosampleColumns, getNameFromBiosampleTable);
-  addColumns(staticSubjectColumns, getNameFromSubjectTable);
-  addColumns(staticFileProjColumns, getNameFromFileProjTable);
-   */
+  const subjectTableTitle = "Subjects found: " + results?.count_sub;
+  const subColNames = dynamicSubjectColumns.map(column => (
+    getNameFromSubjectTable(column)
+  ))
+
+
+  const filesProjTableTitle = "Files in project found: " + results?.count_bios;
+  const filesSubTableTitle = "Files related to subject found: " + results?.count_sub;
+
 
 
   return (
@@ -462,55 +430,81 @@ addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable,  "Files relat
     >
 
       {biosamplePrunedData.length > 1 && (
-        <SearchablePagedTable
-          label={`Biosamples found: ${results?.count_bios}`}
-          q={searchParams.q ?? ''}
-          p={searchParams.p}
-          r={searchParams.r}
-          count={results?.count_bios}
-          columns={dynamicBiosampleColumns.map(column => (
-                getNameFromBiosampleTable(column)
-          ))}
-          rows={biosamplePrunedData.map(row => (
-            dynamicBiosampleColumns.map(column => (
-              <Description description={row[column]} key={column} />
-            ))
-          ))}
-        />
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header">
+            <Typography>{biosampleTableTitle}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+
+            <SearchablePagedTable
+              label={`Biosamples`}
+              q={searchParams.q ?? ''}
+              p={searchParams.p}
+              r={searchParams.r}
+              count={results?.count_bios}
+              columns={biosampleColNames}
+              rows={biosamplePrunedData.map(row => (
+                dynamicBiosampleColumns.map(column => (
+                  <Description description={row[column]} key={column} />
+                ))
+              ))}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
+
+
       {subjectPrunedData.length > 1 && (
-        <SearchablePagedTable
-          label={`Subjects found: ${results?.count_sub}`}
-          q={searchParams.q ?? ''}
-          p={searchParams.p}
-          r={searchParams.r}
-          count={results?.count_sub}
-          columns={dynamicSubjectColumns.map(column => (
-            getNameFromSubjectTable(column)
-          ))}
-          rows={subjectPrunedData.map(row => (
-            dynamicSubjectColumns.map(column => (
-              <Description description={row[column]} key={column} />
-            ))
-          ))}
-        />
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header">
+            <Typography>{subjectTableTitle}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <SearchablePagedTable
+              label={`Subjects`}
+              q={searchParams.q ?? ''}
+              p={searchParams.p}
+              r={searchParams.r}
+              count={results?.count_sub}
+              columns={subColNames}
+              rows={subjectPrunedData.map(row => (
+                dynamicSubjectColumns.map(column => (
+                  <Description description={row[column]} key={column} />
+                ))
+              ))}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
       {fileProjPrunedData.length > 1 && (
-        <SearchablePagedTable
-          label={`Files in project found: ${results?.count_file}`}
-          q={searchParams.q ?? ''}
-          p={searchParams.p}
-          r={searchParams.r}
-          count={results?.count_sub}
-          columns={dynamicFileProjColumns.map(column => (
-            getNameFromFileProjTable(column)
-          ))}
-          rows={fileProjPrunedData.map(row => (
-            dynamicFileProjColumns.map(column => (
-              <Description description={row[column]} key={column} />
-            ))
-          ))}
-        />
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header">
+            <Typography>{subjectTableTitle}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <SearchablePagedTable
+              label={`Files in project`}
+              q={searchParams.q ?? ''}
+              p={searchParams.p}
+              r={searchParams.r}
+              count={results?.count_sub}
+              columns={dynamicFileProjColumns.map(column => (
+                getNameFromFileProjTable(column)
+              ))}
+              rows={fileProjPrunedData.map(row => (
+                dynamicFileProjColumns.map(column => (
+                  <Description description={row[column]} key={column} />
+                ))
+              ))}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
       {fileSubPrunedData.length > 1 && (
         <SearchablePagedTable
@@ -529,7 +523,7 @@ addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable,  "Files relat
           ))}
         />
       )}
-      
+
       <SearchablePagedTable
         label={`File_Describes_Biosample Table related to the project: Results found: ${results?.count_file_bios}`}
         q={searchParams.q ?? ''}
