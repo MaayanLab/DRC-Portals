@@ -25,7 +25,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       <Grid item xs={4}>
         {props.icon ?
           <Link href={props.icon.href} passHref>
-              <Image src={props.icon.src} alt={props.icon.alt} width={120} height={120} />
+            <Image src={props.icon.src} alt={props.icon.alt} width={120} height={120} />
           </Link>
           : null}
       </Grid>
@@ -35,22 +35,25 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
           {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="h6"><strong>{item.label}</strong>: {item.value}</Typography> : null)}
         </Stack>
       </Grid>
-      {props.categories?.map((category, index) => (
-        <Grid item xs={12} key={index}>
-          <Card variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h5" component="div">
-                {category.title}
-              </Typography>
-              {category.metadata.map((item, i) => (
-                item && item.value ? <Typography key={i} variant="body2">
-                  <strong>{item.label}</strong>: {item.value}
-                </Typography> : null
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
+      {/* Grid container for cards */}
+      <Grid container spacing={2}>
+        {props.categories?.map((category, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <Card variant="outlined" sx={{ height: "100%" }}>
+              <CardContent>
+                <Typography variant="h5" component="div">
+                  {category.title}
+                </Typography>
+                {category.metadata.map((item, i) => (
+                  item && item.value ? <Typography key={i} variant="body2">
+                    <strong>{item.label}</strong>: {item.value}
+                  </Typography> : null
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
       {props.children}
     </Grid>
   );
