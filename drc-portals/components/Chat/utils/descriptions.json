@@ -1,22 +1,22 @@
 {
   "GtexGeneExpression": {
-    "desc": "I queried the expression of your gene across tissues from GTEx version 8 and produced a plot of z-scored values:",
+    "desc": "I can query the expression of your gene across tissues from GTEx version 8 and produced a plot of z-scored values. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
   },
   "ImpcPhenotypes": {
-    "desc": "I queried IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene",
+    "desc": "I can query IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene. Please ensure the gene symbol below is correct: ",
     "input": "GeneInput"
   },
   "ReverseSearchL1000": {
-    "desc": "I queried RNA-seq-like LINCS L1000 Signatures sourced from SigComLincs which mimick or reverse the the expression of your gene and visualized the result.",
+    "desc": "I can query RNA-seq-like LINCS L1000 Signatures sourced from SigComLincs which mimick or reverse the the expression of your gene and visualized the result. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
   },
   "KidsFirstTumorExpr": {
-    "desc": "I queried gene expression in tumors for your gene from the Open Pediatric Cancer Atlas API ",
+    "desc": "I can query gene expression in tumors for your gene from the Open Pediatric Cancer Atlas API. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
   },
   "RegElementSetInfo": {
-    "desc": "Regulatory elements were obtained from the Linked Data Hub:",
+    "desc": "I can query regulatory elements from the Linked Data Hub. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
   },
   "sigComLincs": {
@@ -24,7 +24,7 @@
     "input": "GeneSetInput"
   },
   "GlyGenbyGlyTouCan": {
-    "desc": "The GlyGen database was searched to identify a information about your glycan:",
+    "desc": "I can query the GlyGen database to identify a information about your glycan. Please ensure the glycan name below is correct:",
     "input": "GlycanInput"
   }
 }

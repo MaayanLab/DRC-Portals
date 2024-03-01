@@ -10,9 +10,31 @@ import GeneInput from './Inputs/geneInput'
 import GeneSetInput from './Inputs/geneSetInput'
 import GlycanInput from './Inputs/glycanInput'
 import { Input } from '@mui/material'
+import DccIcons from './dccIcons'
+
+
+
+type content = {
+  text: {
+    value: string
+    annotations: string[]
+  }
+}
+
+type message = {
+  id: string,
+  object: string,
+  thread_id: string,
+  role: string,
+  content: content[],
+  file_ids: string[],
+  assistant_id: string | null,
+  run_id: string | null,
+  metadata: any
+}
 
 interface ResponseData {
-  messages: any | null
+  messages: message[] | null
   threadId: string | null
   functionCall: any | null
   error: string | null
@@ -24,13 +46,17 @@ let processMapper: Record<string, any> = {
   'GlycanInput': GlycanInput,
 }
 
+
 export default function Chat() {
-  const [query, setQuery] = React.useState('')
+  
   const [threadId, setThreadId] = React.useState<string | null>(null)
+  const [query, setQuery] = React.useState('')
   const [chat, setChat] = React.useState({
     waitingForReply: false,
     messages: [] as { role: string, content: string, output: null | string, options: null | string[], args: null | any }[],
   })
+
+  
 
   const lastBotChat = React.useMemo(() => chat.messages.filter((message) => message.role == 'bot').slice(-1)[0]?.content || null, [chat])
 
@@ -128,7 +154,7 @@ export default function Chat() {
         {chat.messages.flatMap((message, i) => {
           const Component = processMapper[message.output || '']
           return (<>
-            <Message role={message.role} key={i}>
+            <Message role={message.role} key={i.toString() + "message"}>
               <p style={{ whiteSpace: "pre-line" }}>
                 {message.content}
               </p>
@@ -177,6 +203,9 @@ export default function Chat() {
         <Communicator text2speech={lastBotChat} setMessage={setQuery}></Communicator>
         <button type="submit" className="btn btn-sm ml-2" disabled={!query && !chat.waitingForReply}>Send</button>
       </form>
+      <div className='flex flex-wrap justify-center'>
+        <DccIcons submit={submit}></DccIcons>
+      </div>
       <div className='flex flex-wrap justify-center mt-2 mb-5'>
         <ChatExample example={'In which GTEx tissues is AKT1 most highly expressed?'} submit={submit}/>
         <ChatExample example={'Which L1000 drugs most signfigantly up or down regulate STAT3?'} submit={submit}/>

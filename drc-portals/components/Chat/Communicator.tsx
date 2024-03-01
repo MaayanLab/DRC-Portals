@@ -69,7 +69,6 @@ const Communicator = ({text2speech, setMessage}: {text2speech: string | null, se
                 setMessage(transcribed.text)  
                 setRecord(false)  
             } catch (error) {
-                console.error(error)
                 setRecord(false)
             }
             
