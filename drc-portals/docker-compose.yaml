@@ -129,6 +129,23 @@ services:
     volumes:
       - drc-portal-postgres-2:/var/lib/postgresql/data
 
+  drc-portal-backup:
+    build: ../database/backup
+    image: maayanlab/drc-portal-postgres-backup:0.0.0
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      cron: '0 0 * * *'
+    deploy:
+      replicas: 0
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - S3_POSTGRES_BACKUP_AWS_ACCESS_KEY_ID
+      - S3_POSTGRES_BACKUP_AWS_SECRET_ACCESS_KEY
+      - S3_POSTGRES_BACKUP_AWS_DEFAULT_REGION
+      - S3_POSTGRES_BACKUP_PREFIX
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:
