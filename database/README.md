@@ -52,5 +52,8 @@ psql -h localhost -U drc -d drc -a -f biosample_fully_flattened_allin1.sql;
 ./gen_ingest_slim_script.sh ingest_slim.sql
 psql -h localhost -U drc -d drc -a -f ingest_slim.sql
 
+# Other c2m2 related sql scripts
+psql -h localhost -U drc -d drc -a -f c2m2_other_tables.sql
+
 # .. and other scripts above
 ```
