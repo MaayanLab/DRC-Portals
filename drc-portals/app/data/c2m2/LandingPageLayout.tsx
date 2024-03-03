@@ -54,7 +54,16 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
           </Grid>
         ))}
       </Grid>
-      {props.children}
+      {/* Layout for children */}
+      {props.children && (
+        <Grid container spacing={2}>
+          {React.Children.map(props.children, child => (
+            <Grid item xs={12}>
+              {child}
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Grid>
   );
 }
