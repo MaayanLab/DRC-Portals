@@ -48,13 +48,22 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             <CardHeader title={
               <Typography variant="h3" gutterBottom>
                 <LinkIcon style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                <span style={{ fontWeight: 'bold' }}>Project ID:</span> {props.metadata.find(item => item.label === 'Project ID')?.value}
+                <span style={{ fontWeight: 'bold' }}>Project ID:</span> {
+                  props.metadata
+                    ?.find(item => item?.label === 'Project ID' && item?.label !== undefined)
+                    ?.value
+                }
               </Typography>
             } />
             <CardContent>
               {props.metadata ? (
                 <>
-                  <Typography variant="body1">{props.metadata.find(item => item.label === 'Project URL')?.value}
+                  <Typography variant="body1">
+                  {
+                    props.metadata
+                      ?.find(item => item && item.label === 'Project URL' && item.label !== undefined)
+                      ?.value
+                  }
                   </Typography>
 
                 </>
@@ -99,13 +108,23 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             <CardHeader title={
               <Typography variant="h3" gutterBottom>
                 <NoteIcon style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                <span style={{ fontWeight: 'bold' }}>Anatomy:</span> {props.metadata.find(item => item.label === 'Anatomy')?.value}
+                <span style={{ fontWeight: 'bold' }}>Anatomy:</span> {
+                  props.metadata
+                    ?.find(item => item && item.label === 'Anatomy' && item.label !== undefined)
+                    ?.value
+                  }
+
               </Typography>
             } />
             <CardContent>
               {props.metadata ? (
                 <>
-                  <Typography variant="body1">{props.metadata.find(item => item.label === 'Anatomy Description')?.value}
+                  <Typography variant="body1">
+                  {
+                    props.metadata
+                      ?.find(item => item && item.label === 'Anatomy Description' && item.label !== undefined)
+                      ?.value
+                  }
                   </Typography>
 
                 </>
@@ -125,15 +144,23 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             <CardHeader title={
               <Typography variant="h3" gutterBottom>
                 <CoronavirusIcon style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                <span style={{ fontWeight: 'bold' }}>Disease:</span> {props.metadata.find(item => item.label === 'Disease')?.value}
+                <span style={{ fontWeight: 'bold' }}>Disease:</span> {
+                    props.metadata
+                      ?.find(item => item && item.label === 'Disease' && item.label !== undefined)
+                      ?.value
+                    }
               </Typography>
             } />
             <CardContent>
               {props.metadata ? (
                 <>
-                  <Typography variant="body1">{props.metadata.find(item => item.label === 'Disease Description')?.value}
-                  </Typography>
-
+                  <Typography variant="body1">
+                  {
+                    props.metadata
+                      ?.find(item => item && item.label === 'Disease Description' && item.label !== undefined)
+                      ?.value
+                  }
+                </Typography>
                 </>
               ) : (
                 <Typography variant="body2">
@@ -151,7 +178,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             <CardHeader title={
               props.metadata ? (
                 <Typography variant='h1' align='center' gutterBottom>
-                  {props.metadata.find(item => item.label === 'Biosamples')?.value}
+                  {props.metadata?.find(item => item && item.label === 'Biosamples' && item.label !== undefined)?.value}
                 </Typography>
               ) :
                 <Typography variant='h1' align='center' gutterBottom>
@@ -173,7 +200,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             <CardHeader title={
               props.metadata ? (
                 <Typography variant='h1' align='center' gutterBottom>
-                  {props.metadata.find(item => item.label === 'Subjects')?.value}
+                  {props.metadata?.find(item => item && item.label === 'Subjects' && item.label !== undefined)?.value}
                 </Typography>
               ) :
                 <Typography variant='h1' align='center' gutterBottom>
@@ -195,7 +222,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
             <CardHeader title={
               props.metadata ? (
                 <Typography variant='h1' align='center' gutterBottom>
-                  {props.metadata.find(item => item.label === 'Collections')?.value}
+                    {props.metadata?.find(item => item && item.label === 'Collections' && item.label !== undefined)?.value}
                 </Typography>
               ) :
                 <Typography variant='h1' align='center' gutterBottom>
