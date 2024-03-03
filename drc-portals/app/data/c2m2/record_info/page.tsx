@@ -14,6 +14,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AccordionDetails } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import ExpandableTable from "../ExpandableTable";
+import { ConstructionOutlined } from "@mui/icons-material";
 
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
@@ -369,9 +370,10 @@ file_table AS (
   const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns, staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [], filesBios_table_columnsToIgnore);
 
   const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], filesSub_table_columnsToIgnore);
+  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [], filesCol_table_columnsToIgnore);
 
-  
+  console.log("pruned file related to collection table length = "+fileSubPrunedData.length)
+  console.log("file coll count = "+results?.count_file_col)
 
 
   // The following items are present in metadata
@@ -405,9 +407,9 @@ file_table AS (
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
   const fileProjTableTitle = "Files related to project: " + results?.count_file;
-  const fileSubTableTitle = "Files related to subject: " + results?.count_sub;
-  const fileBiosTableTitle = "Files related to biosample: " + results?.count_sub;
-  const fileCollTableTitle = "Files related to collection: " + results?.count_sub;
+  const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
+  const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
+  const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
 
 
 
