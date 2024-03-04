@@ -10,8 +10,6 @@ export async function GET() {
       },
     });
 
-    console.log(dccs)
-
     return new NextResponse(JSON.stringify({
         dccs: dccs
       }),

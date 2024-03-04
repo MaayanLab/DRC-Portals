@@ -23,14 +23,11 @@ export async function POST(req: NextRequest) {
       assistant_id: process.env["ASSISTANT_ID"] || "",
     });
     const runId = run.id;
-
     while (run.status == "queued" || run.status == "in_progress") {
       run = await client.beta.threads.runs.retrieve(threadId, runId);
-      setTimeout(() => {}, 1000);
+      setTimeout(() => {}, 1000); 
     }
-
     const messages = await client.beta.threads.messages.list(threadId);
-
     if (run.status == "failed") {
         return new NextResponse(
             JSON.stringify({
@@ -77,6 +74,7 @@ export async function POST(req: NextRequest) {
           );
 
     } else if (run.status == "completed") {
+
       run = await client.beta.threads.runs.retrieve(threadId, runId);
 
       const messages = await client.beta.threads.messages.list(threadId);
@@ -94,12 +92,25 @@ export async function POST(req: NextRequest) {
         }
       );
     }
+  else {
+    return new NextResponse(
+      JSON.stringify({
+        error: "There was an issue communicating with the OpenAI API. Please try again later.",
+        threadId: threadId,
+        messages: messages.data,
+        functionCall: null
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
   } catch (e) {
-    console.log(e)
     return new NextResponse(
       JSON.stringify({
         error:
-          "There was an issue comminicating with the OpenAI API. Please try again later." + e,
+          "There was an error when calling the OpenAI assistants API: " + e,
       }),
       {
         status: 200,
