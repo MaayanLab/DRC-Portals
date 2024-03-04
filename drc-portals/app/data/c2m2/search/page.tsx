@@ -154,13 +154,17 @@ allres AS (
     allres_full.dcc_abbreviation AS dcc_abbreviation,
     SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
     allres_full.project_local_id AS project_local_id,
-    CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
+    /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
+    COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
     SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-    CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
+    /* CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name, */
+    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
     REPLACE(allres_full.disease, ':', '_') AS disease,
-    CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
+    /* CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name, */
+    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
     REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-    CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name,
+    /* CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name, */
+    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
     allres_full.gene AS gene,
     allres_full.project_name AS project_name,
     c2m2.project.description AS project_description,
@@ -199,20 +203,20 @@ dcc_name_count AS (
   GROUP BY dcc_name, dcc_short_label ORDER BY dcc_short_label, dcc_name
 ),
 taxonomy_name_count AS (
-  /* SELECT taxonomy_name, COUNT(*) AS count */
-  SELECT CASE WHEN taxonomy_name IS NULL THEN 'Unspecified' ELSE taxonomy_name END AS taxonomy_name, COUNT(*) AS count
+  SELECT taxonomy_name, COUNT(*) AS count
+  /* SELECT CASE WHEN taxonomy_name IS NULL THEN 'Unspecified' ELSE taxonomy_name END AS taxonomy_name, COUNT(*) AS count */
   FROM ${Prisma.sql([cascading_tablename])}
   GROUP BY taxonomy_name ORDER BY taxonomy_name
 ),
 disease_name_count AS (
-  /* SELECT disease_name, COUNT(*) AS count */
-  SELECT CASE WHEN disease_name IS NULL THEN 'Unspecified' ELSE disease_name END AS disease_name, COUNT(*) AS count
+  SELECT disease_name, COUNT(*) AS count
+  /* SELECT CASE WHEN disease_name IS NULL THEN 'Unspecified' ELSE disease_name END AS disease_name, COUNT(*) AS count */
   FROM ${Prisma.sql([cascading_tablename])}
   GROUP BY disease_name ORDER BY disease_name
 ),
 anatomy_name_count AS (
-  /* SELECT anatomy_name, COUNT(*) AS count  */
-  SELECT CASE WHEN anatomy_name IS NULL THEN 'Unspecified' ELSE anatomy_name END AS anatomy_name, COUNT(*) AS count
+  SELECT anatomy_name, COUNT(*) AS count
+  /* SELECT CASE WHEN anatomy_name IS NULL THEN 'Unspecified' ELSE anatomy_name END AS anatomy_name, COUNT(*) AS count */
   FROM ${Prisma.sql([cascading_tablename])} 
   GROUP BY anatomy_name ORDER BY anatomy_name
 ),
