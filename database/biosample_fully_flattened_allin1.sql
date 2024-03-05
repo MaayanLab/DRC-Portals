@@ -21,6 +21,17 @@ BEGIN
 END $$;
 */
 
+/* Might get error like:
+psql:biosample_fully_flattened_allin1.sql:320: ERROR:  could not resize shared memory segment "/PostgreSQL.3909960044" to 16777216 bytes: No space left on device
+
+Then, increase container size or shared memory size:
+https://stackoverflow.com/questions/56751565/pq-could-not-resize-shared-memory-segment-no-space-left-on-device
+SELECT pg_size_pretty( pg_database_size('drc'));
+
+In docker compose: shm_size: 1g
+
+*/
+
 
 DROP TABLE IF EXISTS c2m2.ffl_biosample;
 CREATE TABLE c2m2.ffl_biosample as (
@@ -57,6 +68,8 @@ select distinct
     c2m2.compound.synonyms,
 
     c2m2.project.name,  c2m2.project.abbreviation, c2m2.project.description, 
+
+    c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
 
     c2m2.subject_role_taxonomy.taxonomy_id,
     c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, 
@@ -110,6 +123,8 @@ select distinct
     c2m2.compound.name as compound_name,
 
     c2m2.project.name as project_name,  c2m2.project.abbreviation as project_abbreviation, 
+
+    c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
 
     c2m2.subject_role_taxonomy.taxonomy_id as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
@@ -192,6 +207,11 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.project_in_project
         on (c2m2.project_in_project.child_project_local_id = c2m2.project.local_id and
         c2m2.project_in_project.child_project_id_namespace = c2m2.project.id_namespace) 
+
+    /* Mano: 2024/03/04: added data_type */
+    LEFT JOIN c2m2.project_data_type 
+        ON (c2m2.project.local_id = c2m2.project_data_type.project_local_id AND 
+        c2m2.project.id_namespace = c2m2.project_data_type.project_id_namespace)
 
     /* Mano: 2024/01/31: Moved dcc to here. */
     /* If only single project then project_in_project will be empty (only header row, so, 

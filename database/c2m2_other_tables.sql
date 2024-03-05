@@ -37,4 +37,6 @@ Are there projects with more than one data_type
 select * from (select project_id_namespace, project_local_id, count(distinct data_type_id) as 
     count_data_type from c2m2.project_data_type group by project_id_namespace, project_local_id) where count_data_type > 1;
 
+select count(*) from c2m2.project;
+
 */

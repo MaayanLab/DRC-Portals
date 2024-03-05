@@ -121,6 +121,8 @@ export default async function Page(props: PageProps) {
       anatomy: string,
       gene_name: string,
       gene: string,
+      data_type_name: string,
+      data_type: string,
       project_name: string,
       project_description: string,
       count: number, // this is based on across all-columns of ffl_biosample
@@ -138,6 +140,7 @@ export default async function Page(props: PageProps) {
     anatomy_filters: { anatomy_name: string, count: number, }[],
     project_filters: { project_name: string, count: number, }[],
     gene_filters: { gene_name: string, count: number, }[],
+    data_type_filters: { data_type_name: string, count: number, }[],
   }>>`
 WITH allres_full AS (
   SELECT DISTINCT c2m2.ffl_biosample.*,
@@ -166,6 +169,8 @@ allres AS (
     /* CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name, */
     COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
     allres_full.gene AS gene,
+    COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+    REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
     allres_full.project_name AS project_name,
     c2m2.project.description AS project_description,
     COUNT(*)::INT AS count,
@@ -175,14 +180,19 @@ allres AS (
   FROM allres_full 
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id) 
+  /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
+    allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
   GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
-    disease_name, disease, anatomy_name, anatomy, gene_name, gene, project_name, project_description 
-  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, gene_name, dcc_short_label, project_name 
+    disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
+    project_name, project_description 
+  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name, dcc_short_label, project_name 
 ),
 allres_filtered AS (
   SELECT allres.*, 
-  concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, '|', 'project_local_id:', allres.project_local_id,
-  '|', 'disease_name:', allres.disease_name, '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, '|', 'gene_name:', allres.gene_name) AS record_info_url
+  concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
+  '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
+  '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
+  '|', 'gene_name:', allres.gene_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
   FROM allres
   ${Prisma.sql([filterClause])}
 
@@ -229,6 +239,11 @@ gene_name_count AS (
   SELECT gene_name, COUNT(*) AS count 
   FROM ${Prisma.sql([cascading_tablename])}
   GROUP BY gene_name ORDER BY gene_name
+),
+data_type_name_count AS (
+  SELECT data_type_name, COUNT(*) AS count 
+  FROM ${Prisma.sql([cascading_tablename])}
+  GROUP BY data_type_name ORDER BY data_type_name
 )
 
 SELECT
@@ -239,7 +254,8 @@ SELECT
   (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
   (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
   (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters,
-  (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters
+  (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters,
+  (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
   
   ` : [undefined];
   if (!results) redirect('/data')
@@ -281,11 +297,15 @@ SELECT
     name: geneFilter.gene_name,
     count: geneFilter.count,
   }));
+  const DataTypeFilters: FilterObject[] = results?.data_type_filters.map((data_typeFilter) => ({
+    id: data_typeFilter.data_type_name, // Use gene_name as id
+    name: data_typeFilter.data_type_name,
+    count: data_typeFilter.count,
+  }));
   console.log("Length of DCC Filters")
   console.log(DccFilters.length)
   const selectedFilters = getFilterVals(searchParams.t);
   console.log(selectedFilters)
-
 
   const file_icon_path = "/img/icons/searching-magnifying-glass.png";
 
@@ -322,6 +342,13 @@ SELECT
             <>
               {/* <Typography className="subtitle1">Gene</Typography> */}
               <FilterSet key={`ID:$gene`} id={`gene`} filterList={GeneFilters} filter_title="Gene" />
+              <hr className="m-2" />
+            </>
+          )}
+          {DataTypeFilters.length > 0 && (
+            <>
+              {/* <Typography className="subtitle1">Anatomy</Typography> */}
+              <FilterSet key={`ID:$data_type`} id={`data_type`} filterList={DataTypeFilters} filter_title="Data type" />
               <hr className="m-2" />
             </>
           )}
@@ -390,7 +417,8 @@ SELECT
             Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i>{res.disease_name}</i></Link><br></br>
             Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i>{res.anatomy_name}</i></Link><br></br>
             {/* Gene: <i>{res.gene_name}</i> */}
-            Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i>{res.gene_name}</i></Link>
+            Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i>{res.gene_name}</i></Link><br></br>
+            Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i>{res.data_type_name}</i></Link>
           </>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>

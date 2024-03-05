@@ -732,6 +732,8 @@ model ffl_biosample {
   compound_name                      String?                  @db.VarChar
   project_name                       String?                  @db.VarChar
   project_abbreviation               String?                  @db.VarChar
+  data_type_id                       String?                  @db.VarChar
+  data_type_name                     String?                  @db.VarChar
   subject_role_taxonomy_taxonomy_id  String?                  @db.VarChar
   ncbi_taxonomy_name                 String?                  @db.VarChar
   collection_name                    String?                  @db.VarChar
@@ -753,6 +755,16 @@ model ffl_biosample {
 
   @@id([biosample_id_namespace, biosample_local_id])
   @@index([searchable], map: "ffl_biosample_idx_searchable", type: Gin)
+  @@schema("c2m2")
+}
+
+model project_data_type {
+  project_id_namespace               String?                  @db.VarChar
+  project_local_id                   String?                  @db.VarChar
+  data_type_id                       String?                  @db.VarChar
+  data_type_name                     String?                  @db.VarChar
+  data_type_description              String?                  @db.VarChar
+  pk_id                              Int                      @id @db.Serial
   @@schema("c2m2")
 }
 

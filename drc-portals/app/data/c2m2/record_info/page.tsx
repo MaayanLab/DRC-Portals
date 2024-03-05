@@ -38,8 +38,11 @@ export default async function Page(props: PageProps) {
       dcc_abbreviation: string,
       dcc_short_label: string,
       taxonomy_name: string,
+      taxonomy_id: string,
       disease_name: string,
+      disease: string,
       anatomy_name: string,
+      anatomy: string,
       project_name: string,
       project_persistent_id: string,
       project_description: string,
@@ -160,9 +163,15 @@ export default async function Page(props: PageProps) {
       allres_full.dcc_name AS dcc_name,
       allres_full.dcc_abbreviation AS dcc_abbreviation,
       SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-      CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name,
-      CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name,
-      CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name,
+      /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
+      /* CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name, */
+      /* CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name, */
+      COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+      SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+      COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+      REPLACE(allres_full.disease, ':', '_') AS disease,
+      COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+      REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
       allres_full.project_name AS project_name,
       c2m2.project.persistent_id AS project_persistent_id,
       c2m2.project.description AS project_description,
@@ -177,7 +186,8 @@ export default async function Page(props: PageProps) {
       allres_full.project_local_id = c2m2.project.local_id) 
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
-    GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name,  project_name, project_persistent_id, project_description, anatomy_description, disease_description
+    GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
+    anatomy_name,  anatomy, project_name, project_persistent_id, project_description, anatomy_description, disease_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
     ORDER BY  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name /*rank DESC*/
   ),
@@ -382,6 +392,8 @@ file_table AS (
   //const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
 
 
+  // Mano: I suppose with taxonomy_id, disease (id) and anatomy (id) available now, 
+  // one can construct URLs for them as in search/page.tsx
   const metadata = [
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
     results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,

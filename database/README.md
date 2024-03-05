@@ -43,7 +43,11 @@ python populateC2M2FromS3.py 2>&1 | tee MRM_ingestion.log
 # If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
 python populateC2M2FromS3.py MW 2>&1 | tee MRM_ingestion_MW.log
 
+# Other c2m2 related sql scripts
+psql -h localhost -U drc -d drc -a -f c2m2_other_tables.sql
+
 # After ingesting c2m2 files, create the table ffl_biosample by running (be in the database folder)
+# ffl_biosample needs project_data_type, so, run c2m2_other_tables.sql first
 psql -h localhost -U drc -d drc -a -f biosample_fully_flattened_allin1.sql;
 
 # Ingest slim (and associated ontology) tables into a schema called 'slim', because c2m2 also has tables like anatomy, disease etc., which is likely to be a much smaller subset of the corresponding tables in the slim schema.
@@ -52,8 +56,6 @@ psql -h localhost -U drc -d drc -a -f biosample_fully_flattened_allin1.sql;
 ./gen_ingest_slim_script.sh ingest_slim.sql
 psql -h localhost -U drc -d drc -a -f ingest_slim.sql
 
-# Other c2m2 related sql scripts
-psql -h localhost -U drc -d drc -a -f c2m2_other_tables.sql
 
 # .. and other scripts above
 ```
