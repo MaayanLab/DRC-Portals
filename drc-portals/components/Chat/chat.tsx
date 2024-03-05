@@ -275,9 +275,7 @@ export default function Chat() {
           Send
         </button>
       </form>
-      <div className="flex flex-wrap justify-center">
-        <DccIcons submit={submit}></DccIcons>
-      </div>
+      
       <div className="flex flex-wrap justify-center mt-2 mb-5">
         <ChatExample
           example={"In which GTEx tissues is AKT1 most highly expressed?"}
@@ -309,6 +307,13 @@ export default function Chat() {
           example={"Can you provide information about the glycan G17689DH?"}
           submit={submit}
         />
+        <ChatExample
+          example={"How can I integrate data from SenNet and A2CPS?"}
+          submit={submit}
+        />
+      </div>
+      <div className="flex flex-wrap justify-center">
+        <DccIcons submit={submit}></DccIcons>
       </div>
     </div>
   );

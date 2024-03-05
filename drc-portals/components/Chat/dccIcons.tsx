@@ -19,7 +19,7 @@ export default function DccIcons({ submit }: { submit: Function }) {
   return (
     <>
       <Typography variant="body1" color="secondary" className="text-center">
-        Learn about the CFDE DCCs:
+        Learn about the Common Fund Programs:
       </Typography>
 
       <div className="flex flex-wrap items-center justify-center">
@@ -45,7 +45,7 @@ export default function DccIcons({ submit }: { submit: Function }) {
                 key={dcc.id}
               >
                 <img
-                  className="max-w-16 max-h-10"
+                  className="max-w-12 max-h-10"
                   alt={dcc.id}
                   width={"100%"}
                   height={"100%"}

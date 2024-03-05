@@ -28,6 +28,8 @@ const speechMapper: Record<string, string> = {
   "HubMap": "HuBMAP",
   "sennet": "SenNet",
   "Sennet": "SenNet",
+  "CNET": "SenNet",
+  "AT&T": "A2CPS"
 };
 
 const Communicator = ({
@@ -72,8 +74,7 @@ const Communicator = ({
     if (
       text2speech &&
       speakMessages &&
-      !audioPlaying &&
-      !disabledSpeakMessages
+      !audioPlaying
     ) {
       speak(text2speech);
     }
@@ -81,7 +82,6 @@ const Communicator = ({
     text2speech,
     speakMessages,
     audioPlaying,
-    disabledSpeakMessages,
     setAudioPlaying,
   ]);
 
@@ -157,9 +157,10 @@ const Communicator = ({
       <button
         type="button"
         onClick={() => {
+            if (speakMessages) currAudio?.disconnect();
           setSpeakMessages(!speakMessages);
-          setDisabledSpeakMessages(true);
-          currAudio?.disconnect();
+          setDisabledSpeakMessages(!disabledSpeakMessages);
+          
         }}
         className="btn btn-square"
       >
