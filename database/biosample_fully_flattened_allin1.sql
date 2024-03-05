@@ -30,6 +30,8 @@ SELECT pg_size_pretty( pg_database_size('drc'));
 
 In docker compose: shm_size: 1g
 
+To check in docker:[user@server]docker exec -it <container_id> df -h | grep shm
+
 */
 
 

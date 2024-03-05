@@ -307,7 +307,8 @@ SELECT
   const selectedFilters = getFilterVals(searchParams.t);
   console.log(selectedFilters)
 
-  const file_icon_path = "/img/icons/searching-magnifying-glass.png";
+  //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
+  const file_icon_path = "/img/icons/file-magnifiying-glass.png";
 
   return (
     <ListingPageLayout
