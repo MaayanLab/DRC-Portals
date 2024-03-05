@@ -1,28 +1,23 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-const ENDPOINT = 'https://playbook-workflow-builder.cloud';
+const ENDPOINT = 'https://api.openai.com/v1/audio/speech';
 
-export async function POST(req: NextRequest
-) {
+export async function POST(req: NextRequest) {
     try {
         const data = await req.json();
 
-        const res = await fetch(ENDPOINT + '/api/db/fpl', {
+        const res = await fetch(ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify(data),
         })
-
-        const id = await res.json()
-        const resOutput = await fetch(ENDPOINT + '/api/db/fpl/' + id + '/output')
- 
-        const output = await resOutput.json() 
-
+        const voice = await res.blob()
         return new NextResponse(
-            JSON.stringify({'data': output, 'id': id}), {
+            voice, {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });

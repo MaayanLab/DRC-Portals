@@ -1,58 +1,47 @@
-
-import useSWRImmutable from 'swr/immutable'
-import levenSort from '@/components/Chat/utils/leven-sort'
 import React from 'react'
 import Select from 'react-select';
+import useSWRImmutable from 'swr/immutable'
+import levenSort from '@/components/Chat/utils/leven-sort'
+import GlycanTouCanIds from '../utils/GlyTouCanIds.json'
 
 
-// import gene components
-import ReverseSearchL1000 from '../Gene/reverseSearchL1000'
-import ImpcPhenotypes from '../Gene/impcPhenotypes'
-import ScoredGTExTissue from '../Gene/scoredGTExTissue'
-import RegElementSetInfo from '../Gene/RegElementSetInfo'
-import KidsFirstTumorExpr from '../Gene/KidsFirstTumorExpr'
+// import glycan components
+import GlyGenbyGlyTouCan from '../Glycan/GlyGenbyGlyTouCan'
+
 
 let processMapper: Record<string, any> = {
-    'GtexGeneExpression': ScoredGTExTissue,
-    'ReverseSearchL1000': ReverseSearchL1000,
-    'ImpcPhenotypes': ImpcPhenotypes,
-    'RegElementSetInfo': RegElementSetInfo,
-    'KidsFirstTumorExpr': KidsFirstTumorExpr,
+    'GlyGenbyGlyTouCan': GlyGenbyGlyTouCan
 }
 
-const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
 
-export default function GeneInput(props: any) {
-    const genesymbol = props.geneSymbol || ''
-    const [geneTerm, setGeneTerm] = React.useState(genesymbol)
+
+export default function GlycanInput(props: any) {
+    const glycan = props.glycan || ''
+    const [glycanTerm, setglycanTerm] = React.useState(glycan)
     const [submitted, setSubmitted] = React.useState(false)
     const processName = props.process
     const Component = processMapper[processName || '']
-    const { data, error, isLoading } = useSWRImmutable<string[]>(() => {
-        if (geneTerm.length < 2) return null
-        if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(geneTerm)}`
-        else return `https://maayanlab.cloud/Harmonizome/api/1.0/suggest?t=gene&q=${encodeURIComponent(geneTerm)}`
-    }, fetcher)
-    const items = React.useMemo(() => data ? levenSort(data, geneTerm).slice(0, 10).map((elt: string) => { return { value: elt, label: elt } }) : [], [data, geneTerm])
+
+    const items = React.useMemo(() => GlycanTouCanIds ? levenSort(GlycanTouCanIds, glycanTerm).slice(0, 10).map((elt: string) => { return { value: elt, label: elt } }) : [], [glycanTerm])
 
 
     const noOptionsMessage = (obj: { inputValue: string }) => {
         if (obj.inputValue.trim().length === 0) {
             return null
         }
-        return 'No matching genes'
+        return 'No matching glycans'
     }
 
     const handleInputChange = (inputText: string, meta: any) => {
         if (meta.action !== 'input-blur' && meta.action !== 'menu-close') {
-            setGeneTerm(inputText)
+            setglycanTerm(inputText)
         }
     }
 
     return (
         <>
             {submitted ? 
-            <>{React.createElement(Component, { ...props, genesymbol: geneTerm })}</> : 
+            <>{React.createElement(Component, { ...props, glycan: glycanTerm })}</> : 
             <div className=' w-1/2' style={{ width: '200px' }}>
                 <Select
                     theme={(theme) => ({
@@ -71,15 +60,14 @@ export default function GeneInput(props: any) {
                     })}
                     className='w-auto'
                     options={items}
-                    defaultValue={{ value: genesymbol, label: genesymbol }}
+                    defaultValue={{ value: glycan, label: glycan }}
                     onInputChange={handleInputChange}
-                    isLoading={isLoading}
                     filterOption={null}
                     noOptionsMessage={noOptionsMessage}
-                    placeholder={'Enter gene symbol...'}
+                    placeholder={'Enter glycan ...'}
                     onChange={(value: any, actions: any) => {
                         if (actions.action == 'select-option') {
-                            setGeneTerm(value.value)
+                            setglycanTerm(value.value)
                             setSubmitted(true)
                         }
                     }

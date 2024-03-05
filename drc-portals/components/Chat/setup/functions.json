@@ -1,0 +1,119 @@
+[
+  { "type": "retrieval" },
+  {
+    "type": "function",
+    "function": {
+      "name": "GtexGeneExpression",
+      "description": "Z-scored gene expression across tissues from GTEx. Takes a single gene as an input",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneSymbol": { "type": "string", "description": "Gene symbol" }
+        },
+        "required": ["geneSymbol"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ImpcPhenotypes",
+      "description": "Mouse phenotypes significantly associated with a gene",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneSymbol": { "type": "string", "description": "Gene symbol" }
+        },
+        "required": ["geneSymbol"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ReverseSearchL1000",
+      "description": "Reverse search for L1000 drugs or crispr knockout genes",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneSymbol": { "type": "string", "description": "Gene symbol" },
+          "dir": {
+            "type": "string",
+            "description": "Please pick a direction.",
+            "enum": ["up", "down", "both"]
+          },
+          "perturb": {
+            "type": "string",
+            "description": "Please pick a the type of signatures you are interested in.",
+            "enum": ["CRISPR", "drugs"]
+          }
+        },
+        "required": ["geneSymbol", "dir", "perturb"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "KidsFirstTumorExpr",
+      "description": "Gene expression in tumors for a gene from Kids First Open Pediatric Cancer Atlas API",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneSymbol": { "type": "string", "description": "Gene symbol" }
+        },
+        "required": ["geneSymbol"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "RegElementSetInfo",
+      "description": "Find regulatory elements that regulate a given gene",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneSymbol": { "type": "string", "description": "Gene symbol" }
+        },
+        "required": ["geneSymbol"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sigComLincs",
+      "description": "What are the LINCS L1000 small molecules and genetic perturbations that likely up- or down-regulate the expression of my gene set?",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneset": {
+            "type": "string",
+            "description": "Gene set to be analyzed."
+          },
+          "up": { "type": "string", "description": "Up-regulated genes." },
+          "down": { "type": "string", "description": "Down-regulated genes." }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "GlyGenbyGlyTouCan",
+      "description": "Find information about a given glycan such as G17689DH or a similarly formatted glycan id",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "glycan": {
+            "type": "string",
+            "description": "glycan to be analyzed."
+          }
+        },
+        "required": ["glycan"]
+      }
+    }
+  }
+]

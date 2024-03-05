@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import TableViewIMPC from '@/components/Chat/vis/tableViewIMPC';
+import TableViewCol from '@/components/Chat/vis/tableViewCol';
 
 const fetchImpcPhenotype = async (geneId: string) => {
     const firstLetter = geneId[0].toUpperCase();
@@ -9,9 +9,19 @@ const fetchImpcPhenotype = async (geneId: string) => {
   return data['response']['docs'];
 };
 
+const columns = [
+  'marker_accession_id',
+  'mp_term_id',
+  'mp_term_name',
+  'assertion_type',
+  'p_value',
+  'percentage_change',
+  'statistical_method',
+]
+
 
 export default function ImpcPhenotypes(props: any) {
-  const geneSymbol = props.genesymbol
+  const geneSymbol = props.geneSymbol
   const { data, error, isLoading } = useSWR([geneSymbol], () => fetchImpcPhenotype(geneSymbol));
 
   if (error) {
@@ -23,9 +33,7 @@ export default function ImpcPhenotypes(props: any) {
   return (
     <div>
         <> 
-          <TableViewIMPC
-          rowData={data}>
-          </TableViewIMPC>
+          <TableViewCol rowData={data} columns={columns} />
         </>
     </div>
   );
