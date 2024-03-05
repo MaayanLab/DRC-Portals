@@ -201,7 +201,19 @@ const subjectsTable: { [key: string]: string } = {
 export function getNameFromSubjectTable(iconKey: string): string {
     return subjectsTable[iconKey] || "";
 }
+const collectionsTable: { [key: string]: string } = {
+    "collection_local_id": "Collection ID",
+    "persistent_id": "Persistent ID",
+    "creation_time": "Creation time",
+    "abbreviation": "Abbreviation",
+    "name": "Name",
+    "description": "Description",
+    "has_time_series_data": "Has time series data"
+}
 
+export function getNameFromCollectionTable(iconKey: string): string {
+    return collectionsTable[iconKey] || "";
+}
 const fileProjTable: { [key: string]: string } = {
     "local_id": "File ID",
     "file_local_id": "File ID",

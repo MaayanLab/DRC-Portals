@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromFileProjTable, Category, addCategoryColumns } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -45,6 +45,7 @@ export default async function Page(props: PageProps) {
       anatomy: string,
       project_name: string,
       project_persistent_id: string,
+      project_local_id: string,
       project_description: string,
       anatomy_description: string,
       disease_description: string,
@@ -75,8 +76,8 @@ export default async function Page(props: PageProps) {
       substance_name: string
     }[],
     collections_table: {
-      biosample_id_namespace: string,
-      biosample_local_id: string,
+      collection_id_namespace: string,
+      collection_local_id: string,
       persistent_id: string,
       creation_time: string,
       abbreviation: string,
@@ -174,6 +175,7 @@ export default async function Page(props: PageProps) {
       REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
       allres_full.project_name AS project_name,
       c2m2.project.persistent_id AS project_persistent_id,
+      allres_full.project_local_id AS project_local_id,
       c2m2.project.description AS project_description,
       c2m2.anatomy.description AS anatomy_description,
       c2m2.disease.description AS disease_description,
@@ -187,7 +189,7 @@ export default async function Page(props: PageProps) {
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
     GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-    anatomy_name,  anatomy, project_name, project_persistent_id, project_description, anatomy_description, disease_description
+    anatomy_name,  anatomy, project_name, project_persistent_id, project_local_id, project_description, anatomy_description, disease_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
     ORDER BY  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name /*rank DESC*/
   ),
@@ -244,6 +246,29 @@ export default async function Page(props: PageProps) {
   count_sub AS (
     select count(*)::int as count
       from subjects_table
+  ),
+  collections_table AS (
+    SELECT DISTINCT
+      allres_full.collection_id_namespace,
+      allres_full.collection_local_id,
+      c2m2.collection.persistent_id as persistent_id,
+      c2m2.collection.creation_time as creation_time,
+      allres_full.collection_abbreviation as abbreviation,
+      allres_full.collection_name as name,
+      c2m2.collection.description as description,
+      allres_full.collection_has_time_series_data as has_time_series_data
+    FROM allres_full
+    LEFT JOIN c2m2.collection ON (c2m2.collection.local_id = allres_full.collection_local_id)
+  ),
+  collections_table_limited as (
+    SELECT * 
+    FROM collections_table
+    OFFSET ${offset}
+    LIMIT ${limit}
+  ),
+  count_col AS (
+    select count(*)::int as count
+      from collections_table
   ),
 proj_info AS (
     SELECT DISTINCT 
@@ -350,6 +375,8 @@ file_table AS (
   (SELECT COALESCE(jsonb_agg(biosamples_table_limited.*), '[]'::jsonb) FROM biosamples_table_limited) AS biosamples_table,
   (SELECT count FROM count_sub) as count_sub,
   (SELECT COALESCE(jsonb_agg(subjects_table_limited.*), '[]'::jsonb) FROM subjects_table_limited) AS subjects_table,
+  (SELECT count FROM count_col) as count_col,
+  (SELECT COALESCE(jsonb_agg(collections_table_limited.*), '[]'::jsonb) FROM collections_table_limited) AS collections_table,
   (SELECT count FROM count_file) as count_file,
   (SELECT COALESCE(jsonb_agg(file_table_limited.*), '[]'::jsonb) FROM file_table_limited) AS file_table,
   (SELECT count FROM count_file_sub) as count_file_sub,
@@ -365,10 +392,15 @@ file_table AS (
 
   const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
   const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns, staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [], biosample_table_columnsToIgnore);
-
+  
 
   const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
   const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns, staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [], subject_table_columnsToIgnore);
+
+  const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
+  const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns, staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [], collections_table_columnsToIgnore);
+  console.log(staticCollectionColumns);
+  console.log(results?.collections_table);
 
   const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
   const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], filesProj_table_columnsToIgnore);
@@ -388,17 +420,15 @@ file_table AS (
 
   // The following items are present in metadata
 
-  //const projectLocalId = biosamplePrunedData[0]?.project_local_id; // Assuming it's the same for all rows
-  //const projectIdNamespace = biosamplePrunedData[0]?.project_id_namespace; // Assuming it's the same for all rows
-
-
-  // Mano: I suppose with taxonomy_id, disease (id) and anatomy (id) available now, 
-  // one can construct URLs for them as in search/page.tsx
+  const projectLocalId = results?.records[0].project_local_id ?? 'NA';// Assuming it's the same for all rows
+  
   const metadata = [
+    {label: 'Project ID', value: projectLocalId} ,
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
-    results?.records[0].anatomy_name ? { label: 'Anatomy', value: results?.records[0].anatomy_name } : null,
+    results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
+    results?.records[0].anatomy_name ? { label: 'Anatomy', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
     results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
-    results?.records[0].disease_name ? { label: 'Disease', value: results?.records[0].disease_name } : null,
+    results?.records[0].disease_name ? { label: 'Disease', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600">{results?.records[0].disease_name}</Link> } : null,
     results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
     { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
     { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
@@ -410,6 +440,7 @@ file_table AS (
 
   addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
+  addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
   addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
   addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
   addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
@@ -418,6 +449,7 @@ file_table AS (
 
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
+  const collectionTableTitle = "Collections: " + results?.count_col;
   const fileProjTableTitle = "Files related to project: " + results?.count_file;
   const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
   const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
@@ -461,7 +493,16 @@ file_table AS (
       getNameFromTable={getNameFromSubjectTable}
     />
     
-   
+    <ExpandableTable
+      data={collectionPrunedData}
+      full_data={results?.collections_table}
+      tableTitle={collectionTableTitle}
+      searchParams={searchParams}
+      count={results?.count_col ?? 0} // Provide count directly as a prop
+      colNames={dynamicCollectionColumns}
+      dynamicColumns={dynamicCollectionColumns}
+      getNameFromTable={getNameFromCollectionTable}
+    />
     
 
     <ExpandableTable
