@@ -27,6 +27,29 @@ export default function Standards() {
       <Grid item xs={12} sx={{mt:3, mb:4}}>
           <StyledAccordion >
             <StyledAccordionSummary>
+              <Typography fontWeight="bold" color="#ffffff">CFDE Data and Metadata Submission System</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                The CFDE Workbench Data Resource Portal allows users to download 
+                DCC datasets, files, and interoperability assets via 
+                the <Link href="/data/matrix" target="_blank" rel="noopener" color="#3470e5">Data Matrix</Link>. 
+                Representatives from each DCC are encouraged to contribute assets 
+                from their CF programs by creating an account for submitting and 
+                approving uploads to the CFDE Workbench. Currently, the submission 
+                system accepts C2M2 metadata packages, entity matrix transpose (XMT) 
+                files, knowledge graph assertions, attribute tables, SmartAPI and 
+                OpenAPI specifications, extract-transform-load (ETL) scripts, 
+                entity pages, PWB metanodes, and chatbot specifications.
+                <br /><br />
+                Learn more about submitting to the Data Resource Portal in the <Link 
+                href="/data/contribute/documentation" rel="noopener" color="#3470e5">Contribution Guide</Link>.
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
+
+          <StyledAccordion >
+            <StyledAccordionSummary>
               <Typography fontWeight="bold" color="#ffffff">C2M2</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
