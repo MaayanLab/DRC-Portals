@@ -5,7 +5,7 @@ import DrugIcon from '@/public/img/icons/drug.png'
 import SearchFilter from "./SearchFilter";
 import FilterSet from "./FilterSet"
 import { NodeType, Prisma } from "@prisma/client";
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, PreviewButton, LinkedTypedNode, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
 import TruncatedText from "../TruncatedText"
 import { Accordion, Box, Button, Typography } from "@mui/material";
@@ -397,7 +397,8 @@ SELECT
           //<>Rank</>
         ]}
         rows={results ? results?.records.map(res => [
-          <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
+          // <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
+          <PreviewButton href={res.record_info_url} alt="More details about this result" />,
           // [
           //<>{res.dcc_abbreviation}</>,
           //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
