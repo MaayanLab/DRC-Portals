@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const runId = run.id;
     while (run.status == "queued" || run.status == "in_progress") {
       run = await client.beta.threads.runs.retrieve(threadId, runId);
-      setTimeout(() => {}, 1000); 
+      await new Promise<void>((resolve, reject) => {setTimeout(() => {resolve()}, 1000)})
     }
     const messages = await client.beta.threads.messages.list(threadId);
     if (run.status == "failed") {
