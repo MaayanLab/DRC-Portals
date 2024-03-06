@@ -414,12 +414,12 @@ SELECT
           //<Description description={res.taxonomy_name} />,
           //<Description description={res.disease_name} />,
           //<Description description={res.anatomy_name} />,
-          <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i>{res.taxonomy_name}</i></Link><br></br>
-            Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i>{res.disease_name}</i></Link><br></br>
-            Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i>{res.anatomy_name}</i></Link><br></br>
+          <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>
+            Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>
+            Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>
             {/* Gene: <i>{res.gene_name}</i> */}
-            Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i>{res.gene_name}</i></Link><br></br>
-            Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i>{res.data_type_name}</i></Link>
+            Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link><br></br>
+            Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
           </>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>

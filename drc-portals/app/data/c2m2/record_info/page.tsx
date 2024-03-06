@@ -601,4 +601,10 @@ count_sub as (
   select count(*)::int as count
     from subjects_table
 )
+
+select count(*) from (select distinct c2m2.file_describes_subject.* from c2m2.file inner join c2m2.file_describes_subject ON 
+(file.local_id = c2m2.file_describes_subject.file_local_id AND 
+  file.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+WHERE file.project_local_id = 'LINCS phase 1');
+
 */
