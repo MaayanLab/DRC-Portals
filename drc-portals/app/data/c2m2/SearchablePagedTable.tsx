@@ -7,6 +7,7 @@ import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
 import { type_to_string } from "../processed/utils"
 import { Prosto_One } from "next/font/google"
+import PreviewIcon from '@mui/icons-material/Preview'
 
 export function LinkedTypedNode({
   id,
@@ -49,6 +50,19 @@ export function SearchablePagedTableCellIcon(props: {
     </div>
   )
 }
+
+export function PreviewButton(props: {
+  href: string, alt: string
+}) {
+  return (
+    <div className="pl-2 relative">
+      <Link href={props.href} target="_blank">
+        <PreviewIcon fontSize="large"/>
+      </Link>
+    </div>
+  )
+}
+
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
