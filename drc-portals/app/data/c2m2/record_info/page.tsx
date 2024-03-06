@@ -405,18 +405,21 @@ file_table AS (
   const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
   const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], filesProj_table_columnsToIgnore);
 
-  const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'subject_local_id'];
+  const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
   const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns, staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], filesSub_table_columnsToIgnore);
 
-  const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace', 'biosample_local_id'];
+  const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
   const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns, staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [], filesBios_table_columnsToIgnore);
 
   const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
   const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [], filesCol_table_columnsToIgnore);
 
-  console.log(dynamicFileSubColumns)
-
-
+  console.log("Files related to biosample");
+  console.log(results?.file_bios_table.slice(1, 5));
+  console.log("Dynamic columns in files related to biosample");
+  console.log(dynamicFileBiosColumns);
+  console.log("Static columns in files related to biosample");
+  console.log(staticFileBiosColumns);
 
   // The following items are present in metadata
 

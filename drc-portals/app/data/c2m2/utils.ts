@@ -27,8 +27,6 @@ export function getDCCIcon(iconKey: string): string {
 
 // Function to prune and get column names
 
-
-
 interface PruneAndRetrieveColumnNamesResult {
     prunedData: { [key: string]: string | bigint }[];
     columnNames: string[];
@@ -40,56 +38,37 @@ export function pruneAndRetrieveColumnNames(
     data: { [key: string]: string | bigint }[],
     columnsToIgnore: string[] = []
 ): PruneAndRetrieveColumnNamesResult {
-    if (!data || data.length === 0) {
-        return { prunedData: [], columnNames: [], dynamicColumns: [], staticColumns: {} };
-    }
+    const prunedData = data.filter(row =>
+        Object.values(row).some(value => value !== null && value !== "")
+    );
 
-    const prunedData: { [key: string]: string | bigint }[] = [];
-    const columnNames = new Set<string>();
-    const staticColumnsCandidates: { [key: string]: Set<string | bigint> } = {};
+    const columnNames = Array.from(new Set(prunedData.flatMap(row => Object.keys(row))));
 
-    data.forEach(row => {
-        const prunedRow: { [key: string]: string | bigint } = {};
-
-        for (const [columnName, value] of Object.entries(row)) {
-            if (value !== null && value !== undefined && !columnsToIgnore.includes(columnName)) {
-                prunedRow[columnName] = value;
-                columnNames.add(columnName);
-
-                if (!(columnName in staticColumnsCandidates)) {
-                    staticColumnsCandidates[columnName] = new Set();
-                }
-                staticColumnsCandidates[columnName].add(value);
-            }
-        }
-
-        prunedData.push(prunedRow);
+    const dynamicColumns = columnNames.filter(column => {
+        const uniqueValues = new Set(prunedData.map(row => row[column]));
+        return uniqueValues.size > 1;
     });
 
-    const dynamicColumns = [];
     const staticColumns: { [key: string]: string | bigint } = {};
-
-    for (const columnName of columnNames) {
-        if (columnsToIgnore.includes(columnName)) {
-            continue;
+    columnNames.forEach(column => {
+        const values = prunedData.map(row => row[column]);
+        if (new Set(values).size === 1) {
+            staticColumns[column] = values[0];
         }
-
-        const uniqueValues = staticColumnsCandidates[columnName];
-        if (uniqueValues && uniqueValues.size === 1) {
-            staticColumns[columnName] = [...uniqueValues][0]; // Convert Set to array and get the first element
-        } else {
-            dynamicColumns.push(columnName);
-        }
-    }
-
-    dynamicColumns.sort((a, b) => {
-        const sizeA = staticColumnsCandidates[a]?.size || 0;
-        const sizeB = staticColumnsCandidates[b]?.size || 0;
-        return sizeB - sizeA;
     });
 
-    return { prunedData, columnNames: Array.from(columnNames), dynamicColumns, staticColumns };
+    columnsToIgnore.forEach(column => {
+        delete staticColumns[column];
+    });
+
+    return {
+        prunedData,
+        columnNames,
+        dynamicColumns,
+        staticColumns
+    };
 }
+
 
 
 // Mano: Not sure if use of this function is sql-injection safe
@@ -217,6 +196,9 @@ export function getNameFromCollectionTable(iconKey: string): string {
 const fileProjTable: { [key: string]: string } = {
     "local_id": "File ID",
     "file_local_id": "File ID",
+    "biosample_local_id": "Biosample ID",
+    "subject_local_id": "Subject ID",
+    "collection_local_id": "Collection ID",
     "project_local_id": "Project ID",
     "persistent_id": "Persistent ID",
     "creation_time": "Creation time",
@@ -264,34 +246,33 @@ export  function addCategoryColumns(columns: Record<string, React.ReactNode>, ge
 
 
 export interface Category {
-  title: string;
-  metadata: { label: ReactNode; value: ReactNode }[];
+    title: string;
+    metadata: { label: ReactNode; value: ReactNode }[];
 }
 
 export function addCategoryColumns(
-  columns: Record<string, ReactNode | string | bigint>,
-  getNameFunction: (key: string) => ReactNode,
-  categoryTitle: string,
-  categories: Category[]
+    columns: Record<string, ReactNode | string | bigint>,
+    getNameFunction: (key: string) => ReactNode,
+    categoryTitle: string,
+    categories: Category[]
 ) {
-  if (!columns || Object.keys(columns).length === 0) return;
+    if (!columns || Object.keys(columns).length === 0) return;
 
-  // Check if the category already exists, if not create a new one
-  let category = categories.find(c => c.title === categoryTitle);
-  if (!category) {
-    category = { title: categoryTitle, metadata: [] };
-    categories.push(category);
-  }
-
-  for (const [key, value] of Object.entries(columns)) {
-    if (value !== undefined) { // Check if value is not undefined
-      const stringValue = typeof value === 'bigint' ? value.toString() : value;
-      category.metadata.push({ label: getNameFunction(key), value: stringValue });
+    // Check if the category already exists, if not create a new one
+    let category = categories.find(c => c.title === categoryTitle);
+    if (!category) {
+        category = { title: categoryTitle, metadata: [] };
+        categories.push(category);
     }
-  }
+
+    for (const [key, value] of Object.entries(columns)) {
+        if (value !== undefined) { // Check if value is not undefined
+            const stringValue = typeof value === 'bigint' ? value.toString() : value;
+            category.metadata.push({ label: getNameFunction(key), value: stringValue });
+        }
+    }
 }
 
 
 
-  
-  
+
