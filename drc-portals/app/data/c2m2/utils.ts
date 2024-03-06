@@ -179,7 +179,7 @@ const biosamplesTable: { [key: string]: string } = {
     "sample_prep_method_name": "Sample prep method",
     "disease_association_type_name": "Disease association (in all biosamples)",
     "subject_local_id": "Subject ID",
-    "biosample_age_at_sampling": "Age at sampling",
+    "biosample_age_at_sampling": "Age at sampling (in years)",
     "gene_name": "Gene",
     "substance_name": "Substance"
 };

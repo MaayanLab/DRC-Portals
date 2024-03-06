@@ -17,6 +17,7 @@ import ExpandableTable from "../ExpandableTable";
 import { ConstructionOutlined } from "@mui/icons-material";
 
 
+
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
 export default async function Page(props: PageProps) {
@@ -392,15 +393,14 @@ file_table AS (
 
   const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
   const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns, staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [], biosample_table_columnsToIgnore);
-  
+
 
   const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
   const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns, staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [], subject_table_columnsToIgnore);
 
   const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
   const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns, staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [], collections_table_columnsToIgnore);
-  console.log(staticCollectionColumns);
-  console.log(results?.collections_table);
+
 
   const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
   const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], filesProj_table_columnsToIgnore);
@@ -414,16 +414,16 @@ file_table AS (
   const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
   const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [], filesCol_table_columnsToIgnore);
 
-  console.log("pruned file related to collection table length = "+fileSubPrunedData.length)
-  console.log("file coll count = "+results?.count_file_col)
+  console.log(dynamicFileSubColumns)
+
 
 
   // The following items are present in metadata
 
   const projectLocalId = results?.records[0].project_local_id ?? 'NA';// Assuming it's the same for all rows
-  
+
   const metadata = [
-    {label: 'Project ID', value: projectLocalId} ,
+    { label: 'Project ID', value: projectLocalId },
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
     results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
     results?.records[0].anatomy_name ? { label: 'Anatomy', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
@@ -433,7 +433,7 @@ file_table AS (
     { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
     { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
     { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },
-    
+
   ];
 
   const categories: Category[] = [];
@@ -445,7 +445,7 @@ file_table AS (
   addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
   addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
   addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
-  
+
 
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
@@ -470,83 +470,83 @@ file_table AS (
       metadata={metadata}
       categories={categories}
     >
-    <ExpandableTable
-      data={biosamplePrunedData}
-      full_data={results?.biosamples_table}
-      tableTitle={biosampleTableTitle}
-      searchParams={searchParams}
-      count={results?.count_bios ?? 0} // Provide count directly as a prop
-      colNames={dynamicBiosampleColumns}
-      dynamicColumns={dynamicBiosampleColumns}
-      getNameFromTable={getNameFromBiosampleTable}
-    />
-    
+      <ExpandableTable
+        data={biosamplePrunedData}
+        full_data={results?.biosamples_table}
+        tableTitle={biosampleTableTitle}
+        searchParams={searchParams}
+        count={results?.count_bios ?? 0} // Provide count directly as a prop
+        colNames={dynamicBiosampleColumns}
+        dynamicColumns={dynamicBiosampleColumns}
+        getNameFromTable={getNameFromBiosampleTable}
+      />
 
-    <ExpandableTable
-      data={subjectPrunedData}
-      full_data={results?.subjects_table}
-      tableTitle={subjectTableTitle}
-      searchParams={searchParams}
-      count={results?.count_sub ?? 0} // Provide count directly as a prop
-      colNames={dynamicSubjectColumns}
-      dynamicColumns={dynamicSubjectColumns}
-      getNameFromTable={getNameFromSubjectTable}
-    />
-    
-    <ExpandableTable
-      data={collectionPrunedData}
-      full_data={results?.collections_table}
-      tableTitle={collectionTableTitle}
-      searchParams={searchParams}
-      count={results?.count_col ?? 0} // Provide count directly as a prop
-      colNames={dynamicCollectionColumns}
-      dynamicColumns={dynamicCollectionColumns}
-      getNameFromTable={getNameFromCollectionTable}
-    />
-    
 
-    <ExpandableTable
-      data={fileProjPrunedData}
-      full_data={results?.file_table}
-      tableTitle={fileProjTableTitle}
-      searchParams={searchParams}
-      count={results?.count_file ?? 0} // Provide count directly as a prop
-      colNames={dynamicFileProjColumns}
-      dynamicColumns={dynamicFileProjColumns}
-      getNameFromTable={getNameFromFileProjTable}
-    />
-    
-    <ExpandableTable
-      data={fileSubPrunedData}
-      full_data={results?.file_sub_table}
-      tableTitle={fileSubTableTitle}
-      searchParams={searchParams}
-      count={results?.count_file_sub ?? 0} // Provide count directly as a prop
-      colNames={dynamicFileSubColumns}
-      dynamicColumns={dynamicFileSubColumns}
-      getNameFromTable={getNameFromFileProjTable}
-    /> 
-    <ExpandableTable
-      data={fileBiosPrunedData}
-      full_data={results?.file_bios_table}
-      tableTitle={fileBiosTableTitle}
-      searchParams={searchParams}
-      count={results?.count_file_bios ?? 0} // Provide count directly as a prop
-      colNames={dynamicFileBiosColumns}
-      dynamicColumns={dynamicFileBiosColumns}
-      getNameFromTable={getNameFromFileProjTable}
-    /> 
-    <ExpandableTable
-      data={fileCollPrunedData}
-      full_data={results?.file_col_table}
-      tableTitle={fileCollTableTitle}
-      searchParams={searchParams}
-      count={results?.count_file_col ?? 0} // Provide count directly as a prop
-      colNames={dynamicFileCollColumns}
-      dynamicColumns={dynamicFileCollColumns}
-      getNameFromTable={getNameFromFileProjTable}
-    /> 
-    
+      <ExpandableTable
+        data={subjectPrunedData}
+        full_data={results?.subjects_table}
+        tableTitle={subjectTableTitle}
+        searchParams={searchParams}
+        count={results?.count_sub ?? 0} // Provide count directly as a prop
+        colNames={dynamicSubjectColumns}
+        dynamicColumns={dynamicSubjectColumns}
+        getNameFromTable={getNameFromSubjectTable}
+      />
+
+      <ExpandableTable
+        data={collectionPrunedData}
+        full_data={results?.collections_table}
+        tableTitle={collectionTableTitle}
+        searchParams={searchParams}
+        count={results?.count_col ?? 0} // Provide count directly as a prop
+        colNames={dynamicCollectionColumns}
+        dynamicColumns={dynamicCollectionColumns}
+        getNameFromTable={getNameFromCollectionTable}
+      />
+
+
+      <ExpandableTable
+        data={fileProjPrunedData}
+        full_data={results?.file_table}
+        tableTitle={fileProjTableTitle}
+        searchParams={searchParams}
+        count={results?.count_file ?? 0} // Provide count directly as a prop
+        colNames={dynamicFileProjColumns}
+        dynamicColumns={dynamicFileProjColumns}
+        getNameFromTable={getNameFromFileProjTable}
+      />
+
+      <ExpandableTable
+        data={fileSubPrunedData}
+        full_data={results?.file_sub_table}
+        tableTitle={fileSubTableTitle}
+        searchParams={searchParams}
+        count={results?.count_file_sub ?? 0} // Provide count directly as a prop
+        colNames={dynamicFileSubColumns}
+        dynamicColumns={dynamicFileSubColumns}
+        getNameFromTable={getNameFromFileProjTable}
+      />
+      <ExpandableTable
+        data={fileBiosPrunedData}
+        full_data={results?.file_bios_table}
+        tableTitle={fileBiosTableTitle}
+        searchParams={searchParams}
+        count={results?.count_file_bios ?? 0} // Provide count directly as a prop
+        colNames={dynamicFileBiosColumns}
+        dynamicColumns={dynamicFileBiosColumns}
+        getNameFromTable={getNameFromFileProjTable}
+      />
+      <ExpandableTable
+        data={fileCollPrunedData}
+        full_data={results?.file_col_table}
+        tableTitle={fileCollTableTitle}
+        searchParams={searchParams}
+        count={results?.count_file_col ?? 0} // Provide count directly as a prop
+        colNames={dynamicFileCollColumns}
+        dynamicColumns={dynamicFileCollColumns}
+        getNameFromTable={getNameFromFileProjTable}
+      />
+
 
     </LandingPageLayout>
   )
