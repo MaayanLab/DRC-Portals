@@ -56,7 +56,7 @@ export function PreviewButton(props: {
 }) {
   return (
     <div className="pl-2 relative">
-      <Link href={props.href}>
+      <Link href={props.href} target="_blank">
         <PreviewIcon fontSize="large"/>
       </Link>
     </div>
