@@ -584,6 +584,7 @@ file_table AS (
       <ExpandableTable
         data={biosamplePrunedData}
         full_data={results?.biosamples_table}
+        downloadFileName={projectLocalId+"_BiosamplesTable.json"}
         tableTitle={biosampleTableTitle}
         searchParams={searchParams}
         count={results?.count_bios ?? 0} // Provide count directly as a prop
@@ -596,6 +597,7 @@ file_table AS (
       <ExpandableTable
         data={subjectPrunedData}
         full_data={results?.subjects_table}
+        downloadFileName={projectLocalId+"_SubjectsTable.json"}
         tableTitle={subjectTableTitle}
         searchParams={searchParams}
         count={results?.count_sub ?? 0} // Provide count directly as a prop
@@ -607,6 +609,7 @@ file_table AS (
       <ExpandableTable
         data={collectionPrunedData}
         full_data={results?.collections_table}
+        downloadFileName={projectLocalId+"_CollectionsTable.json"}
         tableTitle={collectionTableTitle}
         searchParams={searchParams}
         count={results?.count_col ?? 0} // Provide count directly as a prop
@@ -619,6 +622,7 @@ file_table AS (
       <ExpandableTable
         data={fileProjPrunedData}
         full_data={results?.file_table}
+        downloadFileName={projectLocalId+"_FilesProjTable.json"}
         tableTitle={fileProjTableTitle}
         searchParams={searchParams}
         count={results?.count_file ?? 0} // Provide count directly as a prop
@@ -630,6 +634,7 @@ file_table AS (
       <ExpandableTable
         data={fileSubPrunedData}
         full_data={results?.file_sub_table}
+        downloadFileName={projectLocalId+"_FilesSubTable.json"}
         tableTitle={fileSubTableTitle}
         searchParams={searchParams}
         count={results?.count_file_sub ?? 0} // Provide count directly as a prop
@@ -640,6 +645,7 @@ file_table AS (
       <ExpandableTable
         data={fileBiosPrunedData}
         full_data={results?.file_bios_table}
+        downloadFileName={projectLocalId+"_FilesBiosTable.json"}
         tableTitle={fileBiosTableTitle}
         searchParams={searchParams}
         count={results?.count_file_bios ?? 0} // Provide count directly as a prop
@@ -650,6 +656,7 @@ file_table AS (
       <ExpandableTable
         data={fileCollPrunedData}
         full_data={results?.file_col_table}
+        downloadFileName={projectLocalId+"_FilesCollTable.json"}
         tableTitle={fileCollTableTitle}
         searchParams={searchParams}
         count={results?.count_file_col ?? 0} // Provide count directly as a prop

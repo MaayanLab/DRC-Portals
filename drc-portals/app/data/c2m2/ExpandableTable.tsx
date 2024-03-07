@@ -11,6 +11,7 @@ import DownloadButton from "./DownloadButton";
 interface ExpandableTableProps {
     data?: { [key: string]: string | bigint; }[];
     full_data?: { [key: string]: string | bigint; }[];
+    downloadFileName?: string;
     tableTitle: string;
     searchParams: {
       q?: string | null | undefined;
@@ -28,6 +29,7 @@ interface ExpandableTableProps {
   const ExpandableTable: React.FC<ExpandableTableProps> = ({
     data,
     full_data,
+    downloadFileName,
     tableTitle,
     searchParams,
     count,
@@ -65,7 +67,7 @@ interface ExpandableTableProps {
                   ))
                 ))}
               />
-              <DownloadButton data={full_data} />
+              <DownloadButton data={full_data} filename={downloadFileName}/>
             </AccordionDetails>
           </Accordion>
         )}
