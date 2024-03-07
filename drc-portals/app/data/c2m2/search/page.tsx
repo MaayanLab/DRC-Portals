@@ -399,7 +399,7 @@ SELECT
           //<>Rank</>
         ]}
         rows={results ? results?.records.map(res => [
-          // <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
+          //<SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
           <PreviewButton href={res.record_info_url} alt="More details about this result" />,
           // [
           //<>{res.dcc_abbreviation}</>,
@@ -407,6 +407,7 @@ SELECT
           <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
+          
           
           //<TruncatedText text={res.project_description} maxLength={80} />,
           

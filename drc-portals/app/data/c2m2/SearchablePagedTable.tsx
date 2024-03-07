@@ -43,7 +43,7 @@ export function SearchablePagedTableCellIcon(props: {
   src: string | StaticImageData, href: string, alt: string
 }) {
   return (
-    <div className="w-16 h-8 relative">
+    <div className="w-32 h-16 relative">
       <Link href={props.href}>
         <Image className="object-contain" src={props.src} alt={props.alt} fill />
       </Link>
@@ -57,7 +57,7 @@ export function PreviewButton(props: {
   return (
     <div className="pl-2 relative">
       <Link href={props.href} target="_blank">
-        <PreviewIcon fontSize="large" />
+        <PreviewIcon sx={{ width: '50px', height: '50px' }} />
       </Link>
     </div>
   )
@@ -91,49 +91,65 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
     <>No results</>
   ) : (
     <Stack spacing={1}>
-      <FormPagination p={props.p} r={props.r} count={props.count} />
-      {/*<div style={{ overflow: 'auto', maxHeight: '700px' }}>*/}
-        <div style={{ overflowX: 'hidden', marginBottom: '1px' }}> {/* Hide the table header overflow */}
-          <TableContainer component={Paper} elevation={0} variant="rounded-top">
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  {props.columns.map((column, i) => (
-                    <TableCell key={i} component="th">
-                      <Typography variant='h6' color="secondary">{column}</Typography>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-            </Table>
-          </TableContainer>
-        </div>
-        
-        <div style={{ overflowY: 'auto', maxHeight: '700px' }}> {/* Adjust maxHeight to account for the table header */}
-          <TableContainer component={Paper} elevation={0} variant="rounded-top">
-            <Table aria-label="simple table">
-              <TableBody>
-                {props.rows.map((row, i) => (
-                  <TableRow
-                    key={i}
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                    }}
-                  >
-                    {row.map((cell, j) => (
-                      <TableCell sx={{ maxWidth: 300, overflowWrap: 'break-word' }} key={j}>
-                        {cell}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      {/*</div>*/}
-      
-    </Stack>
+  <FormPagination p={props.p} r={props.r} count={props.count} />
+  
+  <div style={{ overflowX: 'hidden', marginBottom: '1px' }}> {/* Hide the table header overflow */}
+    <TableContainer component={Paper} elevation={0} variant="rounded-top">
+      <Table aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            {props.columns.map((column, i) => (
+              <TableCell 
+                key={i} 
+                component="th" 
+                align="left" // Changed to left
+                sx={{ 
+                  minWidth: 150, // Set a consistent minWidth for all cells
+                  padding: '8px', // Set consistent padding for header cells
+                }} 
+              >
+              <Typography variant='h6' color="secondary" style={{ textAlign: 'left' }}>{column}</Typography> {/* Ensure text is also left-aligned if needed */}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+      </Table>
+    </TableContainer>
+  </div>
+
+  <div style={{ overflowY: 'auto', maxHeight: '700px' }}> {/* Adjust maxHeight to account for the table header */}
+    <TableContainer component={Paper} elevation={0} variant="rounded-top">
+      <Table aria-label="simple table">
+        <TableBody>
+          {props.rows.map((row, i) => (
+            <TableRow
+              key={i}
+              sx={{
+                '&:last-child td, &:last-child th': { border: 0 },
+              }}
+            >
+            {row.map((cell, j) => (
+              <TableCell 
+                sx={{ 
+                  minWidth: 150, // Set a consistent minWidth for all cells
+                  padding: '8px', // Set consistent padding for body cells
+                  maxWidth: 300, 
+                  overflowWrap: 'break-word', 
+                  textAlign: 'left' // Changed to left
+                }} 
+                key={j}
+              >
+              {cell}
+              </TableCell>
+          ))}
+          </TableRow>
+        ))}
+        </TableBody>
+    </Table>
+  </TableContainer>
+</div>
+</Stack>
+
   )}
 </Grid>
 
