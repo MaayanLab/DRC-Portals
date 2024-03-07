@@ -407,21 +407,18 @@ SELECT
           <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
-          //<Box sx={{ width: 300 }}>
-          //  <Typography noWrap>
-          //    <Description description={res.project_description} />
-          //  </Typography>
-          //</Box>,
+          
           //<TruncatedText text={res.project_description} maxLength={80} />,
-          //<LinkedTypedNode type={'entity'} entity_type={'Anatomy'} id={res.anatomy_name} label={res.anatomy_name} />,
-          //<Description description={res.taxonomy_name} />,
-          //<Description description={res.disease_name} />,
-          //<Description description={res.anatomy_name} />,
+          
           <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>
             Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>
             Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>
             {/* Gene: <i>{res.gene_name}</i> */}
-            Gene: <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link><br></br>
+            Gene: {res.gene_name !== "Unspecified" ? (
+                    <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
+                    ) : (
+                    <span><i>Unspecified</i></span>
+            )}<br></br>
             Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
           </>,
           <>Subjects: {res.count_sub}<br></br>

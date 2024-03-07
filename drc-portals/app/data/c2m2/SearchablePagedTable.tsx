@@ -92,7 +92,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   ) : (
     <Stack spacing={1}>
       <FormPagination p={props.p} r={props.r} count={props.count} />
-      <div style={{ overflow: 'auto', maxHeight: '700px' }}>
+      {/*<div style={{ overflow: 'auto', maxHeight: '700px' }}>*/}
         <div style={{ overflowX: 'hidden', marginBottom: '1px' }}> {/* Hide the table header overflow */}
           <TableContainer component={Paper} elevation={0} variant="rounded-top">
             <Table aria-label="simple table">
@@ -131,7 +131,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
             </Table>
           </TableContainer>
         </div>
-      </div>
+      {/*</div>*/}
       
     </Stack>
   )}
