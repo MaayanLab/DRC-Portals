@@ -151,6 +151,94 @@ export default async function Page(props: PageProps) {
       collection_local_id: string
     }[],
 
+    // based on full table
+
+    biosamples_table_full: {
+      biosample_id_namespace: string,
+      biosample_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      biosample_persistent_id: string,
+      biosample_creation_time: string,
+      sample_prep_method_name: string,
+      anatomy_name: string,
+      disease_name: string,
+      disease_association_type_name: string,
+      subject_id_namespace: string,
+      subject_local_id: string,
+      biosample_age_at_sampling: string,
+      gene_name: string,
+      substance_name: string
+    }[],
+    collections_table_full: {
+      collection_id_namespace: string,
+      collection_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      abbreviation: string,
+      name: string,
+      description: string,
+      has_time_series_data: string
+    }[],
+    subjects_table_full: {
+      subject_id_namespace: string,
+      subject_local_id: string,
+      subject_race_name: string,
+      subject_granularity_name: string,
+      subject_sex_name: string,
+      subject_ethnicity_name: string,
+      subject_role_name: string,
+      subject_age_at_enrollment: string
+    }[],
+    file_table_full: {
+      id_namespace: string,
+      local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+      //biosample_id_namespace: string,
+      //biosample_local_id: string,
+      //subject_id_namespace: string,
+      //subject_local_id: string,
+      //collection_id_namespace: string, 
+      //collection_local_id: string
+    }[],
+    file_sub_table_full: {
+      file_id_namespace: string,
+      file_local_id: string,
+      subject_id_namespace: string,
+      subject_local_id: string
+    }[],
+    file_bios_table_full: {
+      file_id_namespace: string,
+      file_local_id: string,
+      biosample_id_namespace: string,
+      biosample_local_id: string
+    }[],
+    file_col_table_full: {
+      file_id_namespace: string,
+      file_local_id: string,
+      collection_id_namespace: string,
+      collection_local_id: string
+    }[],
 
   }>>`
   WITH allres_full AS (
@@ -385,34 +473,54 @@ file_table AS (
   (SELECT count FROM count_file_bios) as count_file_bios,
   (SELECT COALESCE(jsonb_agg(file_bios_table_limited.*), '[]'::jsonb) FROM file_bios_table_limited) AS file_bios_table,
   (SELECT count FROM count_file_col) as count_file_col,
-  (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table
+  (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table,
+  /* full tables based on biosamples_table, subjects_table, etc*/
+  (SELECT COALESCE(jsonb_agg(biosamples_table.*), '[]'::jsonb) FROM biosamples_table) AS biosamples_table_full,
+  (SELECT COALESCE(jsonb_agg(subjects_table.*), '[]'::jsonb) FROM subjects_table) AS subjects_table_full,
+  (SELECT COALESCE(jsonb_agg(collections_table.*), '[]'::jsonb) FROM collections_table) AS collections_table_full,
+  (SELECT COALESCE(jsonb_agg(file_table.*), '[]'::jsonb) FROM file_table) AS file_table_full,
+  (SELECT COALESCE(jsonb_agg(file_sub_table.*), '[]'::jsonb) FROM file_sub_table) AS file_sub_table_full,
+  (SELECT COALESCE(jsonb_agg(file_bios_table.*), '[]'::jsonb) FROM file_bios_table) AS file_bios_table_full,
+  (SELECT COALESCE(jsonb_agg(file_col_table.*), '[]'::jsonb) FROM file_col_table) AS file_col_table_full
   ;
 ` : [undefined];
 
   // First remove the empty columns and sort columns such that most varying appears first
 
   const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
-  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns, staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [], biosample_table_columnsToIgnore);
-
+  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns, 
+    staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [], 
+      results?.biosamples_table_full ?? [], biosample_table_columnsToIgnore);
 
   const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
-  const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns, staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [], subject_table_columnsToIgnore);
+  const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns, 
+    staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [], 
+      results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
 
   const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
-  const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns, staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [], collections_table_columnsToIgnore);
-
+  const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns, 
+    staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [], 
+      results?.collections_table_full ?? [], collections_table_columnsToIgnore);
 
   const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
-  const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], filesProj_table_columnsToIgnore);
+  const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, 
+    staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], 
+      results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
 
   const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
-  const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns, staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], filesSub_table_columnsToIgnore);
+  const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns, 
+    staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], 
+      results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
 
   const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
-  const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns, staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [], filesBios_table_columnsToIgnore);
+  const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns, 
+    staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [], 
+      results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
 
   const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [], filesCol_table_columnsToIgnore);
+  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, 
+    staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [], 
+      results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
 
   console.log("Files related to biosample");
   console.log(results?.file_bios_table.slice(1, 5));

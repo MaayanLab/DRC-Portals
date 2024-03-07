@@ -36,22 +36,27 @@ interface PruneAndRetrieveColumnNamesResult {
 
 export function pruneAndRetrieveColumnNames(
     data: { [key: string]: string | bigint }[],
+    full_data: { [key: string]: string | bigint }[],
     columnsToIgnore: string[] = []
 ): PruneAndRetrieveColumnNamesResult {
     const prunedData = data.filter(row =>
         Object.values(row).some(value => value !== null && value !== "")
     );
 
-    const columnNames = Array.from(new Set(prunedData.flatMap(row => Object.keys(row))));
+    const prunedData_full = full_data.filter(row =>
+        Object.values(row).some(value => value !== null && value !== "")
+    );
+
+    const columnNames = Array.from(new Set(prunedData_full.flatMap(row => Object.keys(row))));
 
     const dynamicColumns = columnNames.filter(column => {
-        const uniqueValues = new Set(prunedData.map(row => row[column]));
+        const uniqueValues = new Set(prunedData_full.map(row => row[column]));
         return uniqueValues.size > 1;
     });
 
     const staticColumns: { [key: string]: string | bigint } = {};
     columnNames.forEach(column => {
-        const values = prunedData.map(row => row[column]);
+        const values = prunedData_full.map(row => row[column]);
         if (new Set(values).size === 1) {
             staticColumns[column] = values[0];
         }
