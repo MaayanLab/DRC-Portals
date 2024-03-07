@@ -139,7 +139,7 @@ interface FilterParam {
     entity_type: string | null;
 }
 
-export function getFilterVals(filtParams: FilterParam[] | undefined): string {
+export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchStr: string | undefined): string {
     if (filtParams !== undefined) {
         const entityTypes = filtParams.map(param => {
             if (param.type === "dcc" && param.entity_type !== null) {
@@ -149,11 +149,17 @@ export function getFilterVals(filtParams: FilterParam[] | undefined): string {
             }
         });
         const entityTypesString = entityTypes.join(' > ');
-        return entityTypesString;
+        
+        if (textSearchStr !== undefined) {
+            return `${textSearchStr}: ${entityTypesString}`;
+        } else {
+            return entityTypesString;
+        }
     } else {
         return "";
     }
 }
+
 
 const biosamplesTable: { [key: string]: string } = {
     "biosample_local_id": "Biosample ID",

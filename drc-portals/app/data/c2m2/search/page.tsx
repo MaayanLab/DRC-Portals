@@ -303,8 +303,10 @@ SELECT
     count: data_typeFilter.count,
   }));
   console.log("Length of DCC Filters")
-  console.log(DccFilters.length)
-  const selectedFilters = getFilterVals(searchParams.t);
+  console.log(DccFilters.length);
+  console.log(searchParams.q);
+  const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
+  
   console.log(selectedFilters)
 
   //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
