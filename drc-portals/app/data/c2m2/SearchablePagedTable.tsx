@@ -80,48 +80,63 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
             <Typography variant="h5" color="secondary" className="whitespace-nowrap">
               {props.filternames || props.label}
             </Typography>
-            <form action="" method="GET">
-              <SearchField q={props.q} placeholder={`Search ${props.label}`} />
-            </form>
+            {/*<form action="" method="GET">*/}
+            {/*  <SearchField q={props.q} placeholder={`Search ${props.label}`} />*/}
+            {/*</form>*/}
           </Stack>
         </Grid>
       }
       <Grid item xs={12}>
-        {props.rows.length === 0 ? <>No results</> : (
-          <Stack spacing={1}>
-            <FormPagination p={props.p} r={props.r} count={props.count} />
-            <div style={{ overflow: 'auto', maxHeight: '700px' }}> {/* Add this div with overflow: auto */}
-              <TableContainer component={Paper} elevation={0} variant="rounded-top">
-                <Table aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      {props.columns.map((column, i) => (
-                        <TableCell key={i} component="th">
-                          <Typography variant='h6' color="secondary">{column}</Typography>
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {props.rows.map((row, i) => (
-                      <TableRow
-                        key={i}
-                        sx={{
-                          '&:last-child td, &:last-child th': { border: 0 },
-                        }}
-                      >
-                        {row.map((cell, j) => <TableCell sx={{ maxWidth: 300, overflowWrap: 'break-word' }} key={j}>
-                          {cell}
-                        </TableCell>)}
-                      </TableRow>
+  {props.rows.length === 0 ? (
+    <>No results</>
+  ) : (
+    <Stack spacing={1}>
+      <FormPagination p={props.p} r={props.r} count={props.count} />
+      <div style={{ overflow: 'auto', maxHeight: '700px' }}>
+        <div style={{ overflowX: 'hidden', marginBottom: '1px' }}> {/* Hide the table header overflow */}
+          <TableContainer component={Paper} elevation={0} variant="rounded-top">
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  {props.columns.map((column, i) => (
+                    <TableCell key={i} component="th">
+                      <Typography variant='h6' color="secondary">{column}</Typography>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+            </Table>
+          </TableContainer>
+        </div>
+        
+        <div style={{ overflowY: 'auto', maxHeight: '700px' }}> {/* Adjust maxHeight to account for the table header */}
+          <TableContainer component={Paper} elevation={0} variant="rounded-top">
+            <Table aria-label="simple table">
+              <TableBody>
+                {props.rows.map((row, i) => (
+                  <TableRow
+                    key={i}
+                    sx={{
+                      '&:last-child td, &:last-child th': { border: 0 },
+                    }}
+                  >
+                    {row.map((cell, j) => (
+                      <TableCell sx={{ maxWidth: 300, overflowWrap: 'break-word' }} key={j}>
+                        {cell}
+                      </TableCell>
                     ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          </Stack>
-        )}
-      </Grid>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+      </div>
+      
+    </Stack>
+  )}
+</Grid>
+
     </Grid>
   )
 }

@@ -11,7 +11,7 @@ import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
 import { Logo } from '../styled/Logo'
 import UserComponent from '../misc/LoginComponents/UserComponent'
-import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
+import SearchParamSearchField from '@/app/data/c2m2/SearchParamSearchField' //C2M2: changed processed to c2m2 for headers
 import DataPortalButton from './dataportal_button'
 export default async function InfoHeader() {
   const session = await getServerSession(authOptions) 

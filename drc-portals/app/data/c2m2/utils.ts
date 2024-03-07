@@ -148,7 +148,7 @@ export function getFilterVals(filtParams: FilterParam[] | undefined): string {
                 return param.entity_type || "";
             }
         });
-        const entityTypesString = entityTypes.join(', ');
+        const entityTypesString = entityTypes.join(' > ');
         return entityTypesString;
     } else {
         return "";

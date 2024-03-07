@@ -36,22 +36,24 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
           {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="body1"><strong>{item.label}</strong>: {item.value}</Typography> : null)}
         </Stack>
       </Grid>
-      {props.categories?.map((category, index) => (
-        <Grid item xs={12} sm={6} md={4} key={index}> {/* Adjusted for responsiveness */}
-          <Card variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h5" component="div">
-                {category.title}
-              </Typography>
-              {category.metadata.map((item, i) => (
-                item && item.value ? <Typography key={i} variant="body2">
+      <Grid container spacing={2}>
+    {props.categories?.map((category, index) => (
+      <Grid item xs={12} sm={6} md={4} key={index}> {/* Adjusted for responsiveness */}
+        <Card variant="outlined" sx={{ mb: 2 }}>
+          <CardContent sx={{ height: '200px' }}> {/* Adjust height as needed */}
+            <Typography variant="h5" component="div">
+              {category.title}
+            </Typography>
+            {category.metadata.map((item, i) => (
+              item && item.value ? <Typography key={i} variant="body2">
                 <strong>{item.label}</strong>: {item.value}
               </Typography> : null
-              ))}
-            </CardContent>
-         </Card>
-        </Grid>
-      ))}
+            ))}
+          </CardContent>
+        </Card>
+      </Grid>
+    ))}
+  </Grid>
 
       {/* Layout for children */}
       {props.children && (
