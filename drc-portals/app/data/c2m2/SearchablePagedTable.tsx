@@ -90,34 +90,35 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
         {props.rows.length === 0 ? <>No results</> : (
           <Stack spacing={1}>
             <FormPagination p={props.p} r={props.r} count={props.count} />
-            <TableContainer component={Paper} elevation={0} variant="rounded-top">
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    {props.columns.map((column, i) => (
-                      <TableCell key={i} component="th">
-                        <Typography variant='h6' color="secondary">{column}</Typography>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {props.rows.map((row, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}
-                    >
-                      {row.map((cell, j) => <TableCell sx={{ maxWidth: 300, overflowWrap: 'break-word' }} key={j}>
-                        {cell}
-                      </TableCell>)}
+            <div style={{ overflow: 'auto', maxHeight: '700px' }}> {/* Add this div with overflow: auto */}
+              <TableContainer component={Paper} elevation={0} variant="rounded-top">
+                <Table aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      {props.columns.map((column, i) => (
+                        <TableCell key={i} component="th">
+                          <Typography variant='h6' color="secondary">{column}</Typography>
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
+                  </TableHead>
+                  <TableBody>
+                    {props.rows.map((row, i) => (
+                      <TableRow
+                        key={i}
+                        sx={{
+                          '&:last-child td, &:last-child th': { border: 0 },
+                        }}
+                      >
+                        {row.map((cell, j) => <TableCell sx={{ maxWidth: 300, overflowWrap: 'break-word' }} key={j}>
+                          {cell}
+                        </TableCell>)}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
           </Stack>
         )}
       </Grid>
