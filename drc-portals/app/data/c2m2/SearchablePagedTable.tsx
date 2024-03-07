@@ -57,7 +57,7 @@ export function PreviewButton(props: {
   return (
     <div className="pl-2 relative">
       <Link href={props.href} target="_blank">
-        <PreviewIcon fontSize="large"/>
+        <PreviewIcon fontSize="large" />
       </Link>
     </div>
   )
@@ -89,6 +89,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12}>
         {props.rows.length === 0 ? <>No results</> : (
           <Stack spacing={1}>
+            <FormPagination p={props.p} r={props.r} count={props.count} />
             <TableContainer component={Paper} elevation={0} variant="rounded-top">
               <Table aria-label="simple table">
                 <TableHead>
@@ -116,7 +117,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 </TableBody>
               </Table>
             </TableContainer>
-            <FormPagination p={props.p} r={props.r} count={props.count} />
+
           </Stack>
         )}
       </Grid>
