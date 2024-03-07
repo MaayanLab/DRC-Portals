@@ -1,11 +1,15 @@
 import React from "react"
 import { Paper, Grid, Typography } from "@mui/material"
+import DownloadButton from "./DownloadButton";
+
 
 export default function ListingPageLayout(props: React.PropsWithChildren<{
   count?: number,
   searchText?: string,
   filters?: React.ReactNode,
   footer?: React.ReactNode,
+  data?: { [key: string]: string | bigint | number; }[],
+  downloadFileName?: string;
 }>) {
   return (
     <Grid container justifyContent={"center"} sx={{paddingTop: 5, paddingBottom: 5}} spacing={2}>
@@ -26,8 +30,15 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
         }
         <Grid item xs={12} sm={props.filters ? 9 : 12}>
           {props.children}
-        </Grid>
+          <Grid item xs={12}>
+        <DownloadButton data={props.data} filename={props.downloadFileName}/>
       </Grid>
+        </Grid>
+        
+        
+      
+      </Grid>
+      
       <Grid item xs={12}>
         {props.footer}
       </Grid>

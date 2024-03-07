@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download'; // Ensure you have @mui/icons-material installed
 
 interface DownloadButtonProps {
-  data?: { [key: string]: string | bigint }[];
+  data?: { [key: string]: string | bigint | number }[];
   filename?: string;
 }
 

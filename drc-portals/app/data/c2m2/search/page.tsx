@@ -16,6 +16,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { relayout } from "plotly.js";
 import { getDCCIcon, getFilterVals } from "@/app/data/c2m2/utils"
+import DownloadButton from "../DownloadButton";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -378,6 +379,8 @@ SELECT
           </Button>
         </Link>
       }
+      data={results?.records}
+      downloadFileName="CFDEC2M2MainSearchTable.json"
     >
       {/* Total matching records across C2M2: {total_matches}. 
       Download fully expanded table allres_full. Download compact table allres.<br></br>
@@ -427,11 +430,11 @@ SELECT
             Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
           </>
-          //<>{res.rank}</>
-          //]
+          
         ]) : []}
       />
     </ListingPageLayout>
+    
   )
 }
 
