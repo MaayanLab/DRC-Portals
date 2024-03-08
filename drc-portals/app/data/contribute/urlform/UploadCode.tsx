@@ -195,7 +195,7 @@ export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: {
     })
     if (approvers.length > 0) {
         for (let approver of approvers) {
-            const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.name ? user.name : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''}/>);
+            const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''}/>);
             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             const transporter = nodemailer.createTransport(server)
