@@ -186,7 +186,7 @@ allres AS (
   GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
     disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
     project_name, project_description 
-  ORDER BY rank DESC, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name, dcc_short_label
+  ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
 ),
 allres_filtered AS (
   SELECT allres.*, 
@@ -414,16 +414,37 @@ SELECT
           
           //<TruncatedText text={res.project_description} maxLength={80} />,
           
-          <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>
-            Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>
-            Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>
+          <>
+            Taxonomy: {res.taxonomy_name !== "Unspecified" ? (
+                    <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
+                    ) : (
+                    <span><i>Unspecified</i></span>
+            )}<br></br>
+            {/*Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>*/}
+            Disease: {res.disease_name !== "Unspecified" ? (
+                    <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link>
+                    ) : (
+                    <span><i>Unspecified</i></span>
+            )}<br></br>
+            {/*Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>*/}
+            Sample: {res.anatomy_name !== "Unspecified" ? (
+                    <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link>
+                    ) : (
+                    <span><i>Unspecified</i></span>
+            )}<br></br>
+            {/*Sample: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>*/}
             {/* Gene: <i>{res.gene_name}</i> */}
             Gene: {res.gene_name !== "Unspecified" ? (
                     <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
                     ) : (
                     <span><i>Unspecified</i></span>
             )}<br></br>
-            Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
+            Data type: {res.data_type_name !== "Unspecified" ? (
+                    <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
+                    ) : (
+                    <span><i>Unspecified</i></span>
+            )}
+            {/*Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>*/}
           </>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>
