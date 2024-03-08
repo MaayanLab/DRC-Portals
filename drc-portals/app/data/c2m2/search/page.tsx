@@ -186,7 +186,7 @@ allres AS (
   GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
     disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
     project_name, project_description 
-  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name, dcc_short_label, project_name 
+  ORDER BY rank DESC, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name, dcc_short_label
 ),
 allres_filtered AS (
   SELECT allres.*, 
