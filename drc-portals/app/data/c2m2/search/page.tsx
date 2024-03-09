@@ -402,8 +402,8 @@ SELECT
           //<>Rank</>
         ]}
         rows={results ? results?.records.map(res => [
-          //<SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
-          <PreviewButton href={res.record_info_url} alt="More details about this result" />,
+          <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
+          //<PreviewButton href={res.record_info_url} alt="More details about this result" />,
           // [
           //<>{res.dcc_abbreviation}</>,
           //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
@@ -416,13 +416,16 @@ SELECT
           
           <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>
             Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>
-            Anatomy: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>
+            Sample source: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>
             {/* Gene: <i>{res.gene_name}</i> */}
-            Gene: {res.gene_name !== "Unspecified" ? (
-                    <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
-                    ) : (
-                    <span><i>Unspecified</i></span>
-            )}<br></br>
+            {res.gene_name !== "Unspecified" && (
+            <>
+            <span>Gene: </span>
+              <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
+              <br />
+            </>
+            )}
+
             Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
           </>,
           <>Subjects: {res.count_sub}<br></br>
