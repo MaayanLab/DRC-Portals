@@ -186,7 +186,7 @@ allres AS (
   GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
     disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
     project_name, project_description 
-  ORDER BY rank DESC, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name, dcc_short_label, project_name 
+  ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
 ),
 allres_filtered AS (
   SELECT allres.*, 
@@ -414,9 +414,32 @@ SELECT
           
           //<TruncatedText text={res.project_description} maxLength={80} />,
           
-          <>Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>
-            Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>
-            Sample source: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>
+          <>
+            {res.taxonomy_name !== "Unspecified" && (
+              <>
+              <span><i>Taxonomy: </i></span>
+                    <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
+                    <br />
+              </>
+                    
+            )}
+            {/*Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>*/}
+            {res.disease_name !== "Unspecified" && (
+              <>
+              <span>Disease: </span>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link>
+                    <br />
+              </>     
+            )}
+            {/*Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>*/}
+            {res.anatomy_name !== "Unspecified" && (
+              <>
+              <span>Sample source: </span>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link>
+                    <br />
+              </>
+            )}
+            {/*Sample: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>*/}
             {/* Gene: <i>{res.gene_name}</i> */}
             {res.gene_name !== "Unspecified" && (
             <>

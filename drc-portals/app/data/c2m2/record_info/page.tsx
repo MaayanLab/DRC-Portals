@@ -44,6 +44,10 @@ export default async function Page(props: PageProps) {
       disease: string,
       anatomy_name: string,
       anatomy: string,
+      gene_name: string,
+      gene: string,
+      data_type_name: string,
+      data_type: string,
       project_name: string,
       project_persistent_id: string,
       project_local_id: string,
@@ -262,6 +266,10 @@ export default async function Page(props: PageProps) {
       REPLACE(allres_full.disease, ':', '_') AS disease,
       COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
       REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+      COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+      allres_full.gene AS gene,
+      COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+      REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
       allres_full.project_name AS project_name,
       c2m2.project.persistent_id AS project_persistent_id,
       allres_full.project_local_id AS project_local_id,
@@ -278,9 +286,10 @@ export default async function Page(props: PageProps) {
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
     GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-    anatomy_name,  anatomy, project_name, project_persistent_id, project_local_id, project_description, anatomy_description, disease_description
+    anatomy_name,  anatomy, gene_name, gene, data_type_name, data_type, project_name, project_persistent_id, 
+    project_local_id, project_description, anatomy_description, disease_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
-    ORDER BY  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name /*rank DESC*/
+    ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name /*rank DESC*/
   ),
   biosamples_table as (
     SELECT DISTINCT
@@ -359,11 +368,53 @@ export default async function Page(props: PageProps) {
     select count(*)::int as count
       from collections_table
   ),
-proj_info AS (
+unique_info AS ( /* has extra fields, but OK in case needed later*/
     SELECT DISTINCT 
-        allres_full.project_local_id AS project_local_id, 
-        allres_full.project_id_namespace AS project_id_namespace
+        allres_full.dcc_name,
+        allres_full.dcc_abbreviation,
+        allres_full.project_local_id, 
+        allres_full.project_id_namespace,
+        allres_full.ncbi_taxonomy_name as taxonomy_name,
+        allres_full.subject_role_taxonomy_taxonomy_id as taxonomy_id,
+        allres_full.disease_name,
+        allres_full.disease,
+        allres_full.anatomy_name,
+        allres_full.anatomy,
+        allres_full.gene, 
+        allres_full.gene_name,
+        allres_full.data_type_id AS data_type, 
+        allres_full.data_type_name
     FROM allres_full
+),
+sub_info AS (
+  SELECT DISTINCT 
+    allres_full.subject_id_namespace,
+    allres_full.subject_local_id
+  FROM allres_full
+), /* 2024/03/07 */
+bios_info AS (
+  SELECT DISTINCT 
+    allres_full.biosample_id_namespace,
+    allres_full.biosample_local_id
+  FROM allres_full
+), /* 2024/03/07 */
+col_info AS (
+  SELECT DISTINCT 
+    allres_full.collection_id_namespace,
+    allres_full.collection_local_id
+  FROM allres_full
+), /* 2024/03/07 */
+/* create file_table_keycol */
+file_table_keycol AS (
+  SELECT DISTINCT 
+      f.id_namespace,
+      f.local_id,
+      f.project_id_namespace,
+      f.project_local_id
+  FROM c2m2.file AS f
+  INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
+                            AND f.project_id_namespace = ui.project_id_namespace
+                            AND f.data_type = ui.data_type) /* 2024/03/07 match data type */
 ),
 file_table AS (
     SELECT DISTINCT 
@@ -389,8 +440,10 @@ file_table AS (
     LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
     LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
     LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-    INNER JOIN proj_info AS pi ON f.project_local_id = pi.project_local_id 
-                              AND f.project_id_namespace = pi.project_id_namespace
+    INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
+                              AND f.project_id_namespace = ui.project_id_namespace
+                              AND f.data_type = ui.data_type) /* 2024/03/07 match data type */
+    limit 100000
 )
 , /* Mano */
   file_table_limited as (
@@ -401,15 +454,18 @@ file_table AS (
   ), /* Mano */
   count_file AS (
     select count(*)::int as count
-      from file_table
+      from file_table_keycol
   ), /* Mano */
 
   file_sub_table AS (
     SELECT DISTINCT c2m2.file_describes_subject.*
-    FROM file_table
-    INNER JOIN c2m2.file_describes_subject ON 
+    FROM c2m2.file_describes_subject
+    INNER JOIN file_table ON 
     (file_table.local_id = c2m2.file_describes_subject.file_local_id AND 
       file_table.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+    INNER JOIN sub_info ON 
+    (sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
+      sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace) /* 2024/03/07 match subject */
   ), /* Mano */
   file_sub_table_limited as (
     SELECT * 
@@ -424,11 +480,14 @@ file_table AS (
 
   file_bios_table AS (
     SELECT DISTINCT c2m2.file_describes_biosample.*
-    FROM file_table
-    INNER JOIN c2m2.file_describes_biosample ON 
+    FROM c2m2.file_describes_biosample
+    INNER JOIN file_table ON 
     (file_table.local_id = c2m2.file_describes_biosample.file_local_id AND 
       file_table.id_namespace = c2m2.file_describes_biosample.file_id_namespace)
-  ), /* Mano */
+    INNER JOIN bios_info ON 
+    (bios_info.biosample_local_id = c2m2.file_describes_biosample.biosample_local_id AND 
+      bios_info.biosample_id_namespace = c2m2.file_describes_biosample.biosample_id_namespace) /* 2024/03/07 match biosample */
+    ), /* Mano */
   file_bios_table_limited as (
     SELECT * 
     FROM file_bios_table
@@ -442,11 +501,14 @@ file_table AS (
 
   file_col_table AS (
     SELECT DISTINCT c2m2.file_describes_collection.*
-    FROM file_table
-    INNER JOIN c2m2.file_describes_collection ON 
+    FROM c2m2.file_describes_collection
+    INNER JOIN file_table ON 
     (file_table.local_id = c2m2.file_describes_collection.file_local_id AND 
       file_table.id_namespace = c2m2.file_describes_collection.file_id_namespace)
-  ), /* Mano */
+    INNER JOIN col_info ON 
+    (col_info.collection_local_id = c2m2.file_describes_collection.collection_local_id AND 
+      col_info.collection_id_namespace = c2m2.file_describes_collection.collection_id_namespace) /* 2024/03/07 match collection */
+    ), /* Mano */
   file_col_table_limited as (
     SELECT * 
     FROM file_col_table
@@ -528,6 +590,7 @@ file_table AS (
   console.log(dynamicFileBiosColumns);
   console.log("Static columns in files related to biosample");
   console.log(staticFileBiosColumns);
+  console.log(`count_file: ${results.count_file}`);
 
   // The following items are present in metadata
 
@@ -537,7 +600,7 @@ file_table AS (
     { label: 'Project ID', value: projectLocalId },
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
     results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
-    results?.records[0].anatomy_name ? { label: 'Anatomy', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
+    results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
     results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
     results?.records[0].disease_name ? { label: 'Disease', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600">{results?.records[0].disease_name}</Link> } : null,
     results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
@@ -561,7 +624,7 @@ file_table AS (
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
   const collectionTableTitle = "Collections: " + results?.count_col;
-  const fileProjTableTitle = "Files related to project: " + results?.count_file;
+  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(100000, results?.count_file) + " listed)";
   const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
   const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
   const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
@@ -583,7 +646,7 @@ file_table AS (
     >
       <ExpandableTable
         data={biosamplePrunedData}
-        full_data={results?.biosamples_table}
+        full_data={results?.biosamples_table_full}
         downloadFileName={projectLocalId+"_BiosamplesTable.json"}
         tableTitle={biosampleTableTitle}
         searchParams={searchParams}
@@ -596,7 +659,7 @@ file_table AS (
 
       <ExpandableTable
         data={subjectPrunedData}
-        full_data={results?.subjects_table}
+        full_data={results?.subjects_table_full}
         downloadFileName={projectLocalId+"_SubjectsTable.json"}
         tableTitle={subjectTableTitle}
         searchParams={searchParams}
@@ -608,7 +671,7 @@ file_table AS (
 
       <ExpandableTable
         data={collectionPrunedData}
-        full_data={results?.collections_table}
+        full_data={results?.collections_table_full}
         downloadFileName={projectLocalId+"_CollectionsTable.json"}
         tableTitle={collectionTableTitle}
         searchParams={searchParams}
@@ -621,11 +684,12 @@ file_table AS (
 
       <ExpandableTable
         data={fileProjPrunedData}
-        full_data={results?.file_table}
+        full_data={results?.file_table_full}
         downloadFileName={projectLocalId+"_FilesProjTable.json"}
         tableTitle={fileProjTableTitle}
         searchParams={searchParams}
-        count={results?.count_file ?? 0} // Provide count directly as a prop
+        //count={results?.count_file ?? 0} // Provide count directly as a prop
+        count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
         colNames={dynamicFileProjColumns}
         dynamicColumns={dynamicFileProjColumns}
         getNameFromTable={getNameFromFileProjTable}
@@ -633,7 +697,7 @@ file_table AS (
 
       <ExpandableTable
         data={fileSubPrunedData}
-        full_data={results?.file_sub_table}
+        full_data={results?.file_sub_table_full}
         downloadFileName={projectLocalId+"_FilesSubTable.json"}
         tableTitle={fileSubTableTitle}
         searchParams={searchParams}
@@ -644,7 +708,7 @@ file_table AS (
       />
       <ExpandableTable
         data={fileBiosPrunedData}
-        full_data={results?.file_bios_table}
+        full_data={results?.file_bios_table_full}
         downloadFileName={projectLocalId+"_FilesBiosTable.json"}
         tableTitle={fileBiosTableTitle}
         searchParams={searchParams}
@@ -655,7 +719,7 @@ file_table AS (
       />
       <ExpandableTable
         data={fileCollPrunedData}
-        full_data={results?.file_col_table}
+        full_data={results?.file_col_table_full}
         downloadFileName={projectLocalId+"_FilesCollTable.json"}
         tableTitle={fileCollTableTitle}
         searchParams={searchParams}
@@ -720,9 +784,25 @@ count_sub as (
     from subjects_table
 )
 
-select count(*) from (select distinct c2m2.file_describes_subject.* from c2m2.file inner join c2m2.file_describes_subject ON 
+select count(*) from (select distinct c2m2.file.local_id from c2m2.file WHERE file.project_local_id = 'LINCS-2021');
+
+select count(*) from (select distinct c2m2.file_describes_subject.subject_local_id from c2m2.file inner join c2m2.file_describes_subject ON 
 (file.local_id = c2m2.file_describes_subject.file_local_id AND 
   file.id_namespace = c2m2.file_describes_subject.file_id_namespace)
 WHERE file.project_local_id = 'LINCS phase 1');
 
+select count(*) from (select distinct c2m2.file_describes_subject.* from c2m2.file inner join c2m2.file_describes_subject ON 
+(file.local_id = c2m2.file_describes_subject.file_local_id AND 
+  file.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+WHERE file.project_local_id = 'LINCS-2021');
+
+/* Example queries:
+Parkinsons: LINCS, view one of them
+
+select count(*) from (select distinct * from c2m2.ffl_biosample where searchable @@ websearch_to_tsquery('english', 'parkinson') and 
+project_id_namespace ilike '%lincs%' and project_local_id = 'LINCS-2021' and disease_name = 'breast carcinoma' and
+ncbi_taxonomy_name = 'Homo sapiens' and anatomy_name = 'breast' and gene_name = 'PARK7' AND 
+data_type_name = 'Gene expression profile');
+
 */
+
