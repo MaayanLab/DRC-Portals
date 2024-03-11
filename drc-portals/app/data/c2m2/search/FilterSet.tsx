@@ -23,7 +23,7 @@ type FilterObject = {
   count: number;
 };
 
-export default function FilterSet({ id, filterList, filter_title }: { id: string, filterList: FilterObject[], filter_title: string }) {
+export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
   const [expanded, setExpanded] = React.useState<string | null>(null);
 
   // Function to handle accordion expansion
@@ -68,7 +68,7 @@ export default function FilterSet({ id, filterList, filter_title }: { id: string
               )}
               style={{ width: 'auto' }}
               renderInput={(params) => (
-                <TextField {...params} label={filter_title} placeholder={filter_title} />
+                <TextField {...params} placeholder={example_query} />
               )}
             />
           </AccordionDetails>

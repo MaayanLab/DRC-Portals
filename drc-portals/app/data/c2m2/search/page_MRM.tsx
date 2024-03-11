@@ -271,21 +271,21 @@ console.log(results.taxonomy_filters)
       filters={
         <>
           {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
-          <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="DCC" />
+          <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="DCC" example_query="e.g. 4DN" />
           <hr className="m-2" />
           {/* <Typography className="subtitle1">Taxonomy</Typography> */}
-          <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Taxonomy" />
+          <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Taxonomy" example_query="e.g. homo sapiens" />
           <hr className="m-2" />
           {/* <Typography className="subtitle1">Disease</Typography> */}
-          <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" />
+          <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" example_query="e.g. cancer"/>
           <hr className="m-2" />
           {/* <Typography className="subtitle1">Anatomy</Typography> */}
-          <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" />
+          <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" example_query="e.g. blood" />
           <hr className="m-2" />
           <Typography variant="h5">Core filters</Typography>
           <hr className="m-2" />
           {/* <Typography className="subtitle1">Project</Typography> */}
-          <FilterSet key={`ID:$project`} id={`project`} filterList={ProjectFilters} filter_title="Project" />
+          <FilterSet key={`ID:$project`} id={`project`} filterList={ProjectFilters} filter_title="Project" example_query="e.g. "/>
           {/* results?.project_filters.map((res) =>
             <SearchFilter key={`ID:${res.project_name}`} id={`anatomy:${res.project_name}`} count={res.count} label={`${res.project_name}`} />
       ) */}
