@@ -550,38 +550,38 @@ file_table AS (
   // First remove the empty columns and sort columns such that most varying appears first
 
   const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
-  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns, 
-    staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [], 
+  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,
+    staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [],
       results?.biosamples_table_full ?? [], biosample_table_columnsToIgnore);
 
   const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
-  const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns, 
-    staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [], 
+  const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns,
+    staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
       results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
 
   const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
-  const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns, 
-    staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [], 
+  const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
+    staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
       results?.collections_table_full ?? [], collections_table_columnsToIgnore);
 
   const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
-  const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns, 
-    staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [], 
+  const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns,
+    staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
       results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
 
   const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
-  const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns, 
-    staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [], 
+  const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
+    staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
       results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
 
   const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
-  const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns, 
-    staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [], 
+  const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
+    staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
       results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
 
   const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns, 
-    staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [], 
+  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns,
+    staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
       results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
 
   console.log("Files related to biosample");
@@ -599,10 +599,31 @@ file_table AS (
   const metadata = [
     { label: 'Project ID', value: projectLocalId },
     results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].project_name}</Link> } : null,
-    results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
-    results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
+    //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
+    //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
+    {
+      label: 'Taxonomy', value: results?.records[0].taxonomy_name ?
+        <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">
+          {results?.records[0].taxonomy_name}
+        </Link>
+        : results?.records[0].taxonomy_name
+    },
+    {
+      label: 'Sample Source', value: results?.records[0].anatomy_name ?
+        <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">
+          {results?.records[0].anatomy_name}
+        </Link>
+        : results?.records[0].anatomy_name
+    },
     results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
-    results?.records[0].disease_name ? { label: 'Disease', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600">{results?.records[0].disease_name}</Link> } : null,
+    {
+      label: 'Disease', value: results?.records[0].disease_name !== "Unspecified" ? (
+        <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600">
+          {results?.records[0].disease_name}
+        </Link>
+      ) : results?.records[0].disease_name
+    },
+
     results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
     { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
     { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
@@ -611,6 +632,9 @@ file_table AS (
   ];
 
   const categories: Category[] = [];
+  console.log("Static columns in  biosample");
+  addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+  console.log(staticBiosampleColumns);
 
   addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
@@ -647,7 +671,7 @@ file_table AS (
       <ExpandableTable
         data={biosamplePrunedData}
         full_data={results?.biosamples_table_full}
-        downloadFileName={projectLocalId+"_BiosamplesTable.json"}
+        downloadFileName={projectLocalId + "_BiosamplesTable.json"}
         tableTitle={biosampleTableTitle}
         searchParams={searchParams}
         count={results?.count_bios ?? 0} // Provide count directly as a prop
@@ -660,7 +684,7 @@ file_table AS (
       <ExpandableTable
         data={subjectPrunedData}
         full_data={results?.subjects_table_full}
-        downloadFileName={projectLocalId+"_SubjectsTable.json"}
+        downloadFileName={projectLocalId + "_SubjectsTable.json"}
         tableTitle={subjectTableTitle}
         searchParams={searchParams}
         count={results?.count_sub ?? 0} // Provide count directly as a prop
@@ -672,7 +696,7 @@ file_table AS (
       <ExpandableTable
         data={collectionPrunedData}
         full_data={results?.collections_table_full}
-        downloadFileName={projectLocalId+"_CollectionsTable.json"}
+        downloadFileName={projectLocalId + "_CollectionsTable.json"}
         tableTitle={collectionTableTitle}
         searchParams={searchParams}
         count={results?.count_col ?? 0} // Provide count directly as a prop
@@ -685,7 +709,7 @@ file_table AS (
       <ExpandableTable
         data={fileProjPrunedData}
         full_data={results?.file_table_full}
-        downloadFileName={projectLocalId+"_FilesProjTable.json"}
+        downloadFileName={projectLocalId + "_FilesProjTable.json"}
         tableTitle={fileProjTableTitle}
         searchParams={searchParams}
         //count={results?.count_file ?? 0} // Provide count directly as a prop
@@ -698,7 +722,7 @@ file_table AS (
       <ExpandableTable
         data={fileSubPrunedData}
         full_data={results?.file_sub_table_full}
-        downloadFileName={projectLocalId+"_FilesSubTable.json"}
+        downloadFileName={projectLocalId + "_FilesSubTable.json"}
         tableTitle={fileSubTableTitle}
         searchParams={searchParams}
         count={results?.count_file_sub ?? 0} // Provide count directly as a prop
@@ -709,7 +733,7 @@ file_table AS (
       <ExpandableTable
         data={fileBiosPrunedData}
         full_data={results?.file_bios_table_full}
-        downloadFileName={projectLocalId+"_FilesBiosTable.json"}
+        downloadFileName={projectLocalId + "_FilesBiosTable.json"}
         tableTitle={fileBiosTableTitle}
         searchParams={searchParams}
         count={results?.count_file_bios ?? 0} // Provide count directly as a prop
@@ -720,7 +744,7 @@ file_table AS (
       <ExpandableTable
         data={fileCollPrunedData}
         full_data={results?.file_col_table_full}
-        downloadFileName={projectLocalId+"_FilesCollTable.json"}
+        downloadFileName={projectLocalId + "_FilesCollTable.json"}
         tableTitle={fileCollTableTitle}
         searchParams={searchParams}
         count={results?.count_file_col ?? 0} // Provide count directly as a prop

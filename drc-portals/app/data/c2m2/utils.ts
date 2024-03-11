@@ -149,7 +149,7 @@ export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchS
             }
         });
         const entityTypesString = entityTypes.join(' > ');
-        
+
         if (textSearchStr !== undefined) {
             return `${textSearchStr}: ${entityTypesString}`;
         } else {
@@ -269,7 +269,7 @@ export function addCategoryColumns(
     categoryTitle: string,
     categories: Category[]
 ) {
-    if (!columns || Object.keys(columns).length === 0) return;
+    if (!columns || Object.keys(columns).length === 0 || Object.values(columns).every(value => value === null)) return;
 
     // Check if the category already exists, if not create a new one
     let category = categories.find(c => c.title === categoryTitle);
