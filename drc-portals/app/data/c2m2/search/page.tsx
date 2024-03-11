@@ -329,7 +329,7 @@ SELECT
           {TaxonomyFilters.length > 0 && (
             <>
               {/* <Typography className="subtitle1">Taxonomy</Typography> */}
-              <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Species" />
+              <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="fbv" />
               <hr className="m-2" />
             </>
           )}

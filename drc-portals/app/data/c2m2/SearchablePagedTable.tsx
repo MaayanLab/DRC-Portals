@@ -7,7 +7,7 @@ import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
 import { type_to_string } from "../processed/utils"
 import { Prosto_One } from "next/font/google"
-import FindInPageIcon from '@mui/icons-material/FindInPage'
+import FindInPageOutlinedIcon from '@mui/icons-material/FindInPageOutlined'
 
 export function LinkedTypedNode({
   id,
@@ -57,7 +57,7 @@ export function PreviewButton(props: {
   return (
     <div className="pl-2 relative">
       <Link href={props.href} target="_blank">
-        <FindInPageIcon sx={{ width: '50px', height: '50px' }} />
+        <FindInPageOutlinedIcon sx={{ width: '50px', height: '50px' }} />
       </Link>
     </div>
   )
