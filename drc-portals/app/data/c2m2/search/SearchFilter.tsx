@@ -59,6 +59,7 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
     <Link href={`?${searchParams.toString()}`}>
 
       <FormControlLabel
+        sx={{ paddingLeft: '5px' }} // Adjust the padding value as needed
         control={
 
           <Checkbox
