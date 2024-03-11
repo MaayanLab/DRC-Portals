@@ -7,7 +7,7 @@ import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
 import { type_to_string } from "../processed/utils"
 import { Prosto_One } from "next/font/google"
-import PreviewIcon from '@mui/icons-material/Preview'
+import FindInPageIcon from '@mui/icons-material/FindInPage'
 
 export function LinkedTypedNode({
   id,
@@ -57,7 +57,7 @@ export function PreviewButton(props: {
   return (
     <div className="pl-2 relative">
       <Link href={props.href} target="_blank">
-        <PreviewIcon sx={{ width: '50px', height: '50px' }} />
+        <FindInPageIcon sx={{ width: '50px', height: '50px' }} />
       </Link>
     </div>
   )
@@ -102,9 +102,9 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
               <TableCell 
                 key={i} 
                 component="th" 
-                align="left" // Changed to left
+                align="center" // Changed to left
                 sx={{ 
-                  minWidth: 150, // Set a consistent minWidth for all cells
+                  // minWidth: 150, // Set a consistent minWidth for all cells
                   padding: '8px', // Set consistent padding for header cells
                 }} 
               >
@@ -131,13 +131,15 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
             {row.map((cell, j) => (
               <TableCell 
                 sx={{ 
-                  minWidth: 150, // Set a consistent minWidth for all cells
+                  // minWidth: 150, // Set a consistent minWidth for all cells
                   padding: '8px', // Set consistent padding for body cells
                   maxWidth: 300, 
                   overflowWrap: 'break-word', 
-                  textAlign: 'left' // Changed to left
+                  textAlign: 'left', // Changed to left
                 }} 
                 key={j}
+                align="left"
+
               >
               {cell}
               </TableCell>

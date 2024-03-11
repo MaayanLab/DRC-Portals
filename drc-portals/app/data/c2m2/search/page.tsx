@@ -402,8 +402,7 @@ SELECT
           //<>Rank</>
         ]}
         rows={results ? results?.records.map(res => [
-          <SearchablePagedTableCellIcon href={res.record_info_url} src={file_icon_path} alt="More details about this result" />,
-          //<PreviewButton href={res.record_info_url} alt="More details about this result" />,
+          <PreviewButton href={res.record_info_url} alt="More details about this result" />,
           // [
           //<>{res.dcc_abbreviation}</>,
           //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,

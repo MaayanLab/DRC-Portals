@@ -118,7 +118,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
               </Container>
           </Paper>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sx={{ my: 8 }}>
           <Paper sx={{
                           boxShadow: "none", 
                           padding: 5, 
