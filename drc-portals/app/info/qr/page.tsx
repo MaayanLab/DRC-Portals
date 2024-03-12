@@ -13,12 +13,12 @@ export default async function Page() {
       </Grid>
       <Grid item xs={12}>
         <div className="flex flex-col items-center">
-          <a className="underline text-blue-400" href="https://cfde.info">https://cfde.info</a>
-          <Image src={QRCode} width={128} height={128} alt="QR Code" />
+          <a className="underline text-2xl text-blue-400" href="https://cfde.info">https://cfde.info</a>
+          <Image src={QRCode} width={256} height={256} alt="QR Code" />
           <div>
-            <a className="underline text-blue-500" href="/img/qr/CFDE-WB-QR-code.svg" download="CFDE-WB-QR-code.svg">SVG</a>,&nbsp;
-            <a className="underline text-blue-500" href="/img/qr/CFDE-WB-QR-code.png" download="CFDE-WB-QR-code.png">PNG</a>,&nbsp;
-            <a className="underline text-blue-500" href="/img/qr/CFDE-WB-QR-code.jpg" download="CFDE-WB-QR-code.jpg">JPG</a>
+            <a className="underline text-2xl text-blue-500" href="/img/qr/CFDE-WB-QR-code.svg" download="CFDE-WB-QR-code.svg">SVG</a>,&nbsp;
+            <a className="underline text-2xl text-blue-500" href="/img/qr/CFDE-WB-QR-code.png" download="CFDE-WB-QR-code.png">PNG</a>,&nbsp;
+            <a className="underline text-2xl text-blue-500" href="/img/qr/CFDE-WB-QR-code.jpg" download="CFDE-WB-QR-code.jpg">JPG</a>
           </div>
         </div>
       </Grid>
