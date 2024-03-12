@@ -11,7 +11,7 @@ import Youtube from "@/public/img/icons/Youtube.svg"
 const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"}) => {
     return (
         <div className='flex items-center space-x-2'>
-            <Link href="mailto:contact@cfde.info">
+            <Link href="mailto:help@cfde.cloud">
                 <IconButton color={"secondary"}>
                     <Email/>
                 </IconButton>
