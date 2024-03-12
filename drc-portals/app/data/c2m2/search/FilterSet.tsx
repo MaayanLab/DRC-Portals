@@ -1,5 +1,6 @@
 'use client'
 import * as React from 'react';
+import { useState } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -25,6 +26,7 @@ type FilterObject = {
 
 export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
   const [expanded, setExpanded] = React.useState<string | null>(null);
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
 
   // Function to handle accordion expansion
   const handleChange = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -49,31 +51,42 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     };
   }, []);
 
+  // Get unique starting letters for pagination
+  const startingLetters = Array.from(new Set(filterList.map(filter => filter.name[0].toUpperCase())));
+
+  // Filter the list based on selected starting letter
+  const filteredList = selectedLetter ? filterList.filter(filter => filter.name.toUpperCase().startsWith(selectedLetter)) : filterList;
+
   return (
     <div ref={accordionRef}>
-      {filterList.length > 0 && (
-        <Accordion expanded={expanded === filter_title} onChange={handleChange(filter_title)}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>{filter_title}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Autocomplete
-              multiple
-              id="checkboxes-tags-demo"
-              options={filterList}
-              disableCloseOnSelect
-              getOptionLabel={(option) => option.name}
-              renderOption={(props, option: FilterObject, { selected }) => (
-                <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
-              )}
-              style={{ width: 'auto' }}
-              renderInput={(params) => (
-                <TextField {...params} placeholder={example_query} />
-              )}
-            />
-          </AccordionDetails>
-        </Accordion>
-      )}
+      <Accordion expanded={expanded === filter_title} onChange={handleChange(filter_title)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>{filter_title+" ("+filterList.length+")"}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {filterList.length > 50 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }}>
+              {startingLetters.map(letter => (
+                <button key={letter} onClick={() => setSelectedLetter(letter)} style={{ marginRight: '10px', marginBottom: '10px' }}>{letter}</button>
+              ))}
+            </div>
+          )}
+          <Autocomplete
+            multiple
+            id="checkboxes-tags-demo"
+            options={filteredList}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option.name}
+            renderOption={(props, option: FilterObject, { selected }) => (
+              <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
+            )}
+            style={{ width: 'auto' }}
+            renderInput={(params) => (
+              <TextField {...params} placeholder={example_query} />
+            )}
+          />
+        </AccordionDetails>
+      </Accordion>
     </div>
   );
 }
