@@ -1,5 +1,9 @@
 import React, { ReactNode } from 'react';
 
+export function capitalizeFirstLetter(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 interface HashTable {
     [key: string]: string;
 }

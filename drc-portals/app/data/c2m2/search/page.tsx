@@ -15,7 +15,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { relayout } from "plotly.js";
-import { getDCCIcon, getFilterVals } from "@/app/data/c2m2/utils"
+import { getDCCIcon, getFilterVals, capitalizeFirstLetter } from "@/app/data/c2m2/utils"
 import DownloadButton from "../DownloadButton";
 
 type PageProps = { searchParams: Record<string, string> }
@@ -426,7 +426,7 @@ SELECT
             {res.disease_name !== "Unspecified" && (
               <>
                 <span>Disease: </span>
-                <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link>
+                <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
                 <br />
               </>
             )}
@@ -434,7 +434,7 @@ SELECT
             {res.anatomy_name !== "Unspecified" && (
               <>
                 <span>Sample source: </span>
-                <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link>
+                <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
                 <br />
               </>
             )}
@@ -450,7 +450,7 @@ SELECT
             {res.data_type_name !== "Unspecified" && (
               <>
                 <span>Data type: </span>
-                <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
+                <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
                 <br />
               </>
             )}

@@ -15,8 +15,7 @@ import { AccordionDetails } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import ExpandableTable from "../ExpandableTable";
 import { ConstructionOutlined } from "@mui/icons-material";
-
-
+import {capitalizeFirstLetter } from "@/app/data/c2m2/utils"
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -612,7 +611,7 @@ file_table AS (
     {
       label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
         <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">
-          {results?.records[0].anatomy_name}
+          {capitalizeFirstLetter(results?.records[0].anatomy_name)}
         </Link>
 
         : results?.records[0].anatomy_name
@@ -622,7 +621,7 @@ file_table AS (
     {
       label: 'Disease', value: results?.records[0].disease_name && results?.records[0].disease_name !== "Unspecified" ? (
         <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600">
-          {results?.records[0].disease_name}
+          {capitalizeFirstLetter(results?.records[0].disease_name)}
         </Link>
       ) : results?.records[0].disease_name
     },
@@ -639,7 +638,7 @@ file_table AS (
     {
       label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
         <Link href={`http://edamontology.org/${results?.records[0].data_type}`} className="underline cursor-pointer text-blue-600">
-          {results?.records[0].data_type_name}
+          {capitalizeFirstLetter(results?.records[0].data_type_name)}
         </Link>
       ) : results?.records[0].data_type_name
     },
@@ -655,7 +654,7 @@ file_table AS (
   addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   console.log(staticBiosampleColumns);
 
-  addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+  //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
   addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
   addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
