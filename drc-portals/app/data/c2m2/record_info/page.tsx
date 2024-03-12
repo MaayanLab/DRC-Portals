@@ -644,8 +644,9 @@ file_table AS (
     },
 
     { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
-    { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
     { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },
+    { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
+    { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
 
   ];
 
