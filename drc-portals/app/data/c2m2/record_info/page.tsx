@@ -590,7 +590,7 @@ file_table AS (
   console.log(dynamicFileBiosColumns);
   console.log("Static columns in files related to biosample");
   console.log(staticFileBiosColumns);
-  console.log(`count_file: ${results.count_file}`);
+  console.log(`count_file: ${results?.count_file}`);
 
   // The following items are present in metadata
 
@@ -602,29 +602,48 @@ file_table AS (
     //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
     //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
     {
-      label: 'Taxonomy', value: results?.records[0].taxonomy_name ?
+      label: 'Taxonomy', value: results?.records[0].taxonomy_name && results?.records[0].taxonomy_name != "Unspecified" ?
         <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">
           {results?.records[0].taxonomy_name}
         </Link>
         : results?.records[0].taxonomy_name
     },
+
     {
-      label: 'Sample Source', value: results?.records[0].anatomy_name ?
+      label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
         <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">
           {results?.records[0].anatomy_name}
         </Link>
+
         : results?.records[0].anatomy_name
     },
-    results?.records[0].anatomy_description ? { label: 'Anatomy Description', value: results?.records[0].anatomy_description } : null,
+    results?.records[0].anatomy_description ? { label: 'Sample Source Description', value: results?.records[0].anatomy_description } : null,
+
     {
-      label: 'Disease', value: results?.records[0].disease_name !== "Unspecified" ? (
+      label: 'Disease', value: results?.records[0].disease_name && results?.records[0].disease_name !== "Unspecified" ? (
         <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600">
           {results?.records[0].disease_name}
         </Link>
       ) : results?.records[0].disease_name
     },
-
     results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
+
+    {
+      label: 'Gene', value: results?.records[0].gene_name && results?.records[0].gene_name !== "Unspecified" ? (
+        <Link href={`http://www.ensembl.org/id/${results?.records[0].gene}`} className="underline cursor-pointer text-blue-600">
+          {results?.records[0].gene_name}
+        </Link>
+      ) : results?.records[0].gene_name
+    },
+
+    {
+      label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
+        <Link href={`http://edamontology.org/${results?.records[0].data_type}`} className="underline cursor-pointer text-blue-600">
+          {results?.records[0].data_type_name}
+        </Link>
+      ) : results?.records[0].data_type_name
+    },
+
     { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
     { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
     { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },

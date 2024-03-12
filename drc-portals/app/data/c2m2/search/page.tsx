@@ -307,7 +307,7 @@ SELECT
   console.log(DccFilters.length);
   console.log(searchParams.q);
   const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
-  
+
   console.log(selectedFilters)
 
   //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
@@ -336,7 +336,7 @@ SELECT
           {AnatomyFilters.length > 0 && (
             <>
               {/* <Typography className="subtitle1">Anatomy</Typography> */}
-              <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" example_query="e.g. brain"/>
+              <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" example_query="e.g. brain" />
               <hr className="m-2" />
             </>
           )}
@@ -409,57 +409,63 @@ SELECT
           <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
           //<Description description={res.dcc_abbreviation.split("_")[0]} />,
           <Description description={res.project_name} />,
-          
-          
+
+
           //<TruncatedText text={res.project_description} maxLength={80} />,
-          
+
           <>
             {res.taxonomy_name !== "Unspecified" && (
               <>
-              <span><i>Taxonomy: </i></span>
-                    <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
-                    <br />
+                <span><i>Taxonomy: </i></span>
+                <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
+                <br />
               </>
-                    
+
             )}
             {/*Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>*/}
             {res.disease_name !== "Unspecified" && (
               <>
-              <span>Disease: </span>
-                    <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link>
-                    <br />
-              </>     
+                <span>Disease: </span>
+                <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link>
+                <br />
+              </>
             )}
             {/*Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>*/}
             {res.anatomy_name !== "Unspecified" && (
               <>
-              <span>Sample source: </span>
-                    <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link>
-                    <br />
+                <span>Sample source: </span>
+                <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link>
+                <br />
               </>
             )}
             {/*Sample: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>*/}
             {/* Gene: <i>{res.gene_name}</i> */}
             {res.gene_name !== "Unspecified" && (
-            <>
-            <span>Gene: </span>
-              <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
-              <br />
-            </>
+              <>
+                <span>Gene: </span>
+                <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
+                <br />
+              </>
+            )}
+            {res.data_type_name !== "Unspecified" && (
+              <>
+                <span>Data type: </span>
+                <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
+                <br />
+              </>
             )}
 
-            Data type: <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{res.data_type_name}</u></i></Link>
           </>,
           <>Subjects: {res.count_sub}<br></br>
             Biosamples: {res.count_bios}<br></br>
             Collections: {res.count_col}<br></br>
             { /* #Matches: {res.count} */}
           </>
-          
+
         ]) : []}
       />
     </ListingPageLayout>
-    
+
   )
 }
 
