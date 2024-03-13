@@ -9,25 +9,19 @@ type dccMatrix = {
   etl: boolean, api: boolean, ent: boolean, pwb: boolean, chat: boolean
 }
 
-async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
-  const res = is_code ? await prisma.dccAsset.findMany({
-    where: {
-      deleted: false,
-      dcc_id: dcc_id, 
-      codeAsset: {
-        type: ft
-      }
-    }
-  }) : await prisma.dccAsset.findMany({
+async function getDccAssetExists(dcc_id: string, ft: string, is_code: boolean) {
+  return (await prisma.dccAsset.findFirst({
     where: {
       deleted: false,
       dcc_id: dcc_id,
-      fileAsset: {
-        filetype: ft
-      }
-    }
-  })
-  return (res.length > 0)
+      ...(is_code ? {
+        codeAsset: { type: ft }
+      } : {
+        fileAsset: { filetype: ft }
+      }),
+    },
+    take: 1,
+  })) !== null
 }
 
 const columns = [
@@ -49,15 +43,15 @@ export default async function DataMatrix() {
   const cfde_data = await Promise.all(dccs.map( async item => ({
     dcc: item.short_label ? item.short_label : '',
     img: item.icon ? item.icon : '',
-    c2m2: await getDccNumAssets(item.id, 'C2M2', false),
-    xmt: await getDccNumAssets(item.id, 'XMT', false),
-    kg: await getDccNumAssets(item.id, 'KG Assertions', false),
-    att: await getDccNumAssets(item.id, 'Attribute Tables', false),
-    etl: await getDccNumAssets(item.id, 'ETL', true),
-    api: await getDccNumAssets(item.id, 'API', true),
-    ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
-    pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
-    chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
+    c2m2: await getDccAssetExists(item.id, 'C2M2', false),
+    xmt: await getDccAssetExists(item.id, 'XMT', false),
+    kg: await getDccAssetExists(item.id, 'KG Assertions', false),
+    att: await getDccAssetExists(item.id, 'Attribute Tables', false),
+    etl: await getDccAssetExists(item.id, 'ETL', true),
+    api: await getDccAssetExists(item.id, 'API', true),
+    ent: await getDccAssetExists(item.id, 'Entity Page Template', true),
+    pwb: await getDccAssetExists(item.id, 'PWB Metanodes', true), 
+    chat: await getDccAssetExists(item.id, 'Chatbot Specs', true)
   })))
   return (
     <Container maxWidth="xl">
