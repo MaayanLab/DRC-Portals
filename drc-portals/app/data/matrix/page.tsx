@@ -47,22 +47,19 @@ export default async function DataMatrix() {
     (a.short_label != null && b.short_label != null) ? 
       a.short_label.localeCompare(b.short_label) : ''.localeCompare('')
   )
-  const cfde_data = [] as dccMatrix[]
-  await Promise.all(dccs.map( async item => {
-    cfde_data.push({
-      dcc: item.short_label ? item.short_label : '',
-      img: item.icon ? item.icon : '',
-      c2m2: await getDccNumAssets(item.id, 'C2M2', false),
-      xmt: await getDccNumAssets(item.id, 'XMT', false),
-      kg: await getDccNumAssets(item.id, 'KG Assertions', false),
-      att: await getDccNumAssets(item.id, 'Attribute Tables', false),
-      etl: await getDccNumAssets(item.id, 'ETL', true),
-      api: await getDccNumAssets(item.id, 'API', true),
-      ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
-      pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
-      chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
-    })
-  }))
+  const cfde_data = await Promise.all(dccs.map( async item => ({
+    dcc: item.short_label ? item.short_label : '',
+    img: item.icon ? item.icon : '',
+    c2m2: await getDccNumAssets(item.id, 'C2M2', false),
+    xmt: await getDccNumAssets(item.id, 'XMT', false),
+    kg: await getDccNumAssets(item.id, 'KG Assertions', false),
+    att: await getDccNumAssets(item.id, 'Attribute Tables', false),
+    etl: await getDccNumAssets(item.id, 'ETL', true),
+    api: await getDccNumAssets(item.id, 'API', true),
+    ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
+    pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
+    chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
+  })))
   return (
     <Container maxWidth="xl">
       <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>METADATA & PROCESSED DATA MATRIX</Typography>
