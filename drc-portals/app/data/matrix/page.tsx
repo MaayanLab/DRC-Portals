@@ -41,12 +41,11 @@ export default async function DataMatrix() {
       id: true,
       icon: true,
       short_label: true
-    }
+    },
+    orderBy: {
+      short_label: 'asc',
+    },
   })
-  dccs.sort((a,b) => 
-    (a.short_label != null && b.short_label != null) ? 
-      a.short_label.localeCompare(b.short_label) : ''.localeCompare('')
-  )
   const cfde_data = await Promise.all(dccs.map( async item => ({
     dcc: item.short_label ? item.short_label : '',
     img: item.icon ? item.icon : '',
