@@ -209,3 +209,207 @@ from c2m2.fl_biosample
         c2m2.sample_prep_method.description like '%liver biopsy%' or
         c2m2.sample_prep_method.synonyms like '%liver biopsy%'
         limit 5;
+
+--- Mano: 2024/03/13: To estimatew time taken by allres_full, all_res, allres_filtered etc
+-----------------------------------------------------------------------------------------------
+   --- allres_full
+   EXPLAIN (ANALYZE)
+   SELECT DISTINCT c2m2.ffl_biosample.*,
+    ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+    FROM c2m2.ffl_biosample
+    WHERE searchable @@ websearch_to_tsquery('english', 'liver');
+
+-----------------------------------------------------------------------------------------------
+   --- allres_full and allres (combined)
+   EXPLAIN (ANALYZE)
+    SELECT 
+    allres_full.rank AS rank,
+    allres_full.dcc_name AS dcc_name,
+    allres_full.dcc_abbreviation AS dcc_abbreviation,
+    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+    allres_full.project_local_id AS project_local_id,
+    COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+    SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+    REPLACE(allres_full.disease, ':', '_') AS disease,
+    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+    REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+    allres_full.gene AS gene,
+    COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+    REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+    allres_full.project_name AS project_name,
+    c2m2.project.description AS project_description,
+    COUNT(*)::INT AS count,
+    COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+    COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+    COUNT(DISTINCT collection_local_id)::INT AS count_col
+  FROM (SELECT DISTINCT c2m2.ffl_biosample.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+        FROM c2m2.ffl_biosample
+        WHERE searchable @@ websearch_to_tsquery('english', 'liver')
+    ) allres_full 
+  LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+    allres_full.project_local_id = c2m2.project.local_id) 
+  GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+    disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
+    project_name, project_description 
+  ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
+  ;
+
+-----------------------------------------------------------------------------------------------
+--- allres_full, allres, allres_filtered combined
+EXPLAIN (ANALYZE)
+WITH allres_full AS (
+  SELECT DISTINCT c2m2.ffl_biosample.*,
+    ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+    FROM c2m2.ffl_biosample
+    WHERE searchable @@ websearch_to_tsquery('english', 'liver') 
+),
+allres AS (
+  SELECT 
+    allres_full.rank AS rank,
+    allres_full.dcc_name AS dcc_name,
+    allres_full.dcc_abbreviation AS dcc_abbreviation,
+    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+    allres_full.project_local_id AS project_local_id,
+    COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+    SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+    REPLACE(allres_full.disease, ':', '_') AS disease,
+    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+    REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+    allres_full.gene AS gene,
+    COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+    REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+    allres_full.project_name AS project_name,
+    c2m2.project.description AS project_description,
+    COUNT(*)::INT AS count,
+    COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+    COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+    COUNT(DISTINCT collection_local_id)::INT AS count_col
+  FROM allres_full 
+  LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+    allres_full.project_local_id = c2m2.project.local_id) 
+  GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+    disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
+    project_name, project_description 
+  ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
+)
+SELECT * from (
+  SELECT allres.*, 
+  concat_ws('', '/data/c2m2/record_info?q=', 'liver', '&t=', 'dcc_name:', allres.dcc_name, 
+  '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
+  '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
+  '|', 'gene_name:', allres.gene_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
+  FROM allres
+) allres_filtered;
+
+
+-----------------------------------------------------------------------------------------------
+--- entire CTE in search/page.tsc
+
+EXPLAIN (ANALYZE)
+WITH allres_full AS (
+  SELECT DISTINCT c2m2.ffl_biosample.*,
+    ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+    FROM c2m2.ffl_biosample
+    WHERE searchable @@ websearch_to_tsquery('english', 'liver') 
+),
+allres AS (
+  SELECT 
+    allres_full.rank AS rank,
+    allres_full.dcc_name AS dcc_name,
+    allres_full.dcc_abbreviation AS dcc_abbreviation,
+    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+    allres_full.project_local_id AS project_local_id,
+    COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+    SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+    REPLACE(allres_full.disease, ':', '_') AS disease,
+    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+    REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+    allres_full.gene AS gene,
+    COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+    REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+    allres_full.project_name AS project_name,
+    c2m2.project.description AS project_description,
+    COUNT(*)::INT AS count,
+    COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+    COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+    COUNT(DISTINCT collection_local_id)::INT AS count_col
+  FROM allres_full 
+  LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+    allres_full.project_local_id = c2m2.project.local_id) 
+  GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+    disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
+    project_name, project_description 
+  ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
+),
+allres_filtered AS (
+  SELECT allres.*, 
+  concat_ws('', '/data/c2m2/record_info?q=', 'liver', '&t=', 'dcc_name:', allres.dcc_name, 
+  '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
+  '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
+  '|', 'gene_name:', allres.gene_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
+  FROM allres
+),
+allres_limited AS (
+  SELECT *
+  FROM allres_filtered
+  OFFSET 0
+  LIMIT 10   
+),
+total_count as (
+  select count(*)::int as count
+  from allres_filtered
+),
+dcc_name_count AS (
+  SELECT dcc_name, dcc_short_label, COUNT(*) AS count 
+  FROM allres_filtered
+  GROUP BY dcc_name, dcc_short_label ORDER BY dcc_short_label, dcc_name
+),
+taxonomy_name_count AS (
+  SELECT taxonomy_name, COUNT(*) AS count
+  FROM allres_filtered
+  GROUP BY taxonomy_name ORDER BY taxonomy_name
+),
+disease_name_count AS (
+  SELECT disease_name, COUNT(*) AS count
+  FROM allres_filtered
+  GROUP BY disease_name ORDER BY disease_name
+),
+anatomy_name_count AS (
+  SELECT anatomy_name, COUNT(*) AS count
+  FROM allres_filtered
+  GROUP BY anatomy_name ORDER BY anatomy_name
+),
+project_name_count AS (
+  SELECT project_name, COUNT(*) AS count 
+  FROM allres_filtered
+  GROUP BY project_name ORDER BY project_name
+),
+gene_name_count AS (
+  SELECT gene_name, COUNT(*) AS count 
+  FROM allres_filtered
+  GROUP BY gene_name ORDER BY gene_name
+),
+data_type_name_count AS (
+  SELECT data_type_name, COUNT(*) AS count 
+  FROM allres_filtered
+  GROUP BY data_type_name ORDER BY data_type_name
+)
+
+SELECT
+(SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) FROM allres_limited) AS records, 
+  (SELECT count FROM total_count) as count,
+  (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
+  (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
+  (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
+  (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
+  (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters,
+  (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters,
+  (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
+;
