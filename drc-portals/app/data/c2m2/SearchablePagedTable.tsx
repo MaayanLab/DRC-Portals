@@ -103,15 +103,16 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
             <TableContainer component={Paper} elevation={0} style={{ maxHeight: 700, overflow: 'auto' }}>
               <Table stickyHeader aria-label="simple table">
                 <TableHead>
-                  <TableRow style={{ backgroundColor: 'darkgrey', fontWeight: 'bold' }}> {/* Dark grey background */}
+                  <TableRow>
                     {props.columns.map((column, i) => (
                       <TableCell
                         key={i}
-                        align="center" // Ensure alignment is consistent across header and body
+                        align="center"
                         style={{
                           padding: '8px',
-                          textAlign: 'left', // Ensuring text alignment is left if needed
-
+                          textAlign: 'left',
+                          backgroundColor: '#F0F8FF', // Set background color here
+                          fontWeight: 'bold', // Add font weight here if needed
                         }}
                       >
                         <Typography variant='h6' color="secondary">{column}</Typography>
@@ -127,11 +128,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                           key={j}
                           style={{
                             padding: '8px',
-                            maxWidth: 300, // Ensure maxWidth to control overflow
+                            maxWidth: 300,
                             overflowWrap: 'break-word',
-                            textAlign: 'left', // Align text to left if necessary
+                            textAlign: 'left',
                           }}
-                          align="left" // Consistent alignment with the header
+                          align="left"
                         >
                           {cell}
                         </TableCell>
@@ -141,6 +142,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 </TableBody>
               </Table>
             </TableContainer>
+
 
           </Stack>
 
