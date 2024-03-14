@@ -105,6 +105,8 @@ export default async function Page(props: PageProps) {
   // the list of distinct items in the filter is not updated.
 
 
+  // To measure time taken by different parts
+  const t0: number = performance.now();
 
   const cascading: boolean = true;
   const cascading_tablename = cascading ? "allres_filtered" : "allres";
@@ -259,12 +261,17 @@ SELECT
   (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
   
   ` : [undefined];
+
+  const t1: number = performance.now();
+
   if (!results) redirect('/data')
   //  console.log(results)
   console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
   console.log(results.records.map(res => res.count))
   console.log(results.dcc_filters)
   console.log(results.taxonomy_filters)
+
+  const t2: number = performance.now();
 
   const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
   //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
@@ -303,6 +310,11 @@ SELECT
     name: data_typeFilter.data_type_name,
     count: data_typeFilter.count,
   }));
+
+  const t3: number = performance.now();
+  console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+  console.log("Elapsed time for creating data for filters: ", t3 - t2, "milliseconds");
+
   console.log("Length of DCC Filters")
   console.log(DccFilters.length);
   console.log(searchParams.q);
@@ -313,6 +325,8 @@ SELECT
   //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
   const file_icon_path = "/img/icons/file-magnifiying-glass.png";
 
+  const t4: number = performance.now();
+  
   return (
     <ListingPageLayout
       count={results?.count} // This matches with #records in the table on the right (without filters applied)
@@ -472,5 +486,9 @@ SELECT
     </ListingPageLayout>
 
   )
+  // Not reached since already returtned
+  //const t5: number = performance.now();
+  //console.log("Elapsed time for display (filters + table): ", t5 - t4, "milliseconds");
+
 }
 

@@ -31,6 +31,9 @@ export default async function Page(props: PageProps) {
   const filterConditionStr = generateFilterQueryString(searchParams, "c2m2", "ffl_biosample");
   const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
 
+  // To measure time taken by different parts
+  const t0: number = performance.now();
+  
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     records: {
       //rank: number,
@@ -546,6 +549,8 @@ file_table AS (
   ;
 ` : [undefined];
 
+  const t1: number = performance.now();
+
   // First remove the empty columns and sort columns such that most varying appears first
 
   const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
@@ -582,6 +587,8 @@ file_table AS (
   const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns,
     staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
       results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
+
+  const t2: number = performance.now();
 
   console.log("Files related to biosample");
   console.log(results?.file_bios_table.slice(1, 5));
@@ -650,6 +657,8 @@ file_table AS (
 
   ];
 
+  const t3: number = performance.now();
+
   const categories: Category[] = [];
   console.log("Static columns in  biosample");
   addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
@@ -673,6 +682,12 @@ file_table AS (
   const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
 
 
+  const t4: number = performance.now();
+  
+  console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+  console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
+  console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
+  console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
 
   return (
     <LandingPageLayout
