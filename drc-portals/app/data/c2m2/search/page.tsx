@@ -16,7 +16,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { relayout } from "plotly.js";
 import { getDCCIcon, getFilterVals, capitalizeFirstLetter } from "@/app/data/c2m2/utils"
-import TagComponent from "./TagComponent";
+//import TagComponent from "../TagComponent";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -318,15 +318,15 @@ SELECT
   console.log("Length of DCC Filters")
   console.log(DccFilters.length);
   console.log(searchParams.q);
-  const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
+  // const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
 
-  console.log(selectedFilters)
+  // console.log(selectedFilters)
 
   //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
   const file_icon_path = "/img/icons/file-magnifiying-glass.png";
 
   const t4: number = performance.now();
-  
+
   return (
     <ListingPageLayout
       count={results?.count} // This matches with #records in the table on the right (without filters applied)
@@ -396,20 +396,12 @@ SELECT
       data={results?.records}
       downloadFileName="CFDEC2M2MainSearchTable.json"
     >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Typography variant="h4" color="secondary" className="whitespace-nowrap">
-          {searchParams.q ?? ''}
-        </Typography>
-        <TagComponent searchParams={props.searchParams} />
-      </div>
-      {/* Total matching records across C2M2: {total_matches}. 
-      Download fully expanded table allres_full. Download compact table allres.<br></br>
-      LIST THE FILTERS APPLIED [IF POSSIBLE, ALLOW THE FILTERS TO BE DESELECTED FROM HERE.] */}
+      {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
       <SearchablePagedTable
-        filternames={selectedFilters}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
+        t={searchParams.t}
         count={results?.count}
         columns={[
           <>View</>,
@@ -435,7 +427,7 @@ SELECT
           <>
             {res.taxonomy_name !== "Unspecified" && (
               <>
-                <span><i>Taxonomy: </i></span>
+                <span>Species: </span>
                 <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
                 <br />
               </>

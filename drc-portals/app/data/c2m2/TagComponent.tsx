@@ -1,0 +1,68 @@
+'use client';
+import React from 'react';
+import { Chip } from '@mui/material';
+
+const TagComponent = ({
+    q,
+    t,
+}: {
+    q: string;
+    t: { type: string; entity_type: string | null; }[] | undefined;
+}) => {
+    const handleDelete = (tagToDelete: { type: string; entity_type: string | null }) => {
+        let baseUrl = window.location.origin + window.location.pathname; // Construct base URL
+        let updatedParams = new URLSearchParams(window.location.search);
+
+        // Update or remove the 'q' parameter based on whether the tag to delete matches 'q'
+        if (q && tagToDelete.type === 'q') {
+            updatedParams.delete('q');
+        }
+
+        // Process and update 't' tags excluding the one to delete
+        if (t) {
+            const updatedTags = t
+                .filter(tag => tag !== tagToDelete)
+                .map(tag => `${tag.type}:${tag.entity_type || ''}`)
+                .join('|');
+            if (updatedTags) {
+                updatedParams.set('t', updatedTags);
+            } else {
+                updatedParams.delete('t'); // Remove 't' if no tags left
+            }
+        }
+
+        window.location.href = `${baseUrl}?${updatedParams.toString()}`;
+    };
+
+    const renderQueryChip = () => {
+        if (!q) return null;
+        return (
+            <Chip
+                key="q"
+                label={`Query: ${q}`}
+                onDelete={() => handleDelete({ type: 'q', entity_type: null })}
+                style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
+            />
+        );
+    };
+
+    const renderTags = () => {
+        return t ? t.map((tag, index) => (
+            <Chip
+                key={`tag-${index}`}
+                label={`${tag.type}: ${tag.entity_type || 'N/A'}`}
+                onDelete={() => handleDelete(tag)}
+                style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
+            />
+        )) : null;
+    };
+
+    return (
+        <>
+            {renderQueryChip()}
+            {renderTags()}
+        </>
+    );
+};
+
+export default TagComponent;
