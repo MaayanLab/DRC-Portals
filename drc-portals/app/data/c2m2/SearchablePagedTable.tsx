@@ -10,6 +10,7 @@ import { Prosto_One } from "next/font/google"
 import FindInPageOutlinedIcon from '@mui/icons-material/FindInPageOutlined'
 import TagComponent from "./TagComponent";
 
+
 export function LinkedTypedNode({
   id,
   type,
@@ -99,63 +100,48 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
             }
             <FormPagination p={props.p} r={props.r} count={props.count} />
 
-            <div style={{ overflowX: 'hidden', marginBottom: '1px' }}> {/* Hide the table header overflow */}
-              <TableContainer component={Paper} elevation={0} variant="rounded-top">
-                <Table aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      {props.columns.map((column, i) => (
+            <TableContainer component={Paper} elevation={0} style={{ maxHeight: 700, overflow: 'auto' }}>
+              <Table stickyHeader aria-label="simple table">
+                <TableHead>
+                  <TableRow style={{ backgroundColor: 'darkgrey', fontWeight: 'bold' }}> {/* Dark grey background */}
+                    {props.columns.map((column, i) => (
+                      <TableCell
+                        key={i}
+                        align="center" // Ensure alignment is consistent across header and body
+                        style={{
+                          padding: '8px',
+                          textAlign: 'left', // Ensuring text alignment is left if needed
+
+                        }}
+                      >
+                        <Typography variant='h6' color="secondary">{column}</Typography>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {props.rows.map((row, i) => (
+                    <TableRow key={i}>
+                      {row.map((cell, j) => (
                         <TableCell
-                          key={i}
-                          component="th"
-                          align="center" // Changed to left
-                          sx={{
-                            // minWidth: 150, // Set a consistent minWidth for all cells
-                            padding: '8px', // Set consistent padding for header cells
+                          key={j}
+                          style={{
+                            padding: '8px',
+                            maxWidth: 300, // Ensure maxWidth to control overflow
+                            overflowWrap: 'break-word',
+                            textAlign: 'left', // Align text to left if necessary
                           }}
+                          align="left" // Consistent alignment with the header
                         >
-                          <Typography variant='h6' color="secondary" style={{ textAlign: 'left' }}>{column}</Typography> {/* Ensure text is also left-aligned if needed */}
+                          {cell}
                         </TableCell>
                       ))}
                     </TableRow>
-                  </TableHead>
-                </Table>
-              </TableContainer>
-            </div>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-            <div style={{ overflowY: 'auto', maxHeight: '700px' }}> {/* Adjust maxHeight to account for the table header */}
-              <TableContainer component={Paper} elevation={0} variant="rounded-top">
-                <Table aria-label="simple table">
-                  <TableBody>
-                    {props.rows.map((row, i) => (
-                      <TableRow
-                        key={i}
-                        sx={{
-                          '&:last-child td, &:last-child th': { border: 0 },
-                        }}
-                      >
-                        {row.map((cell, j) => (
-                          <TableCell
-                            sx={{
-                              // minWidth: 150, // Set a consistent minWidth for all cells
-                              padding: '8px', // Set consistent padding for body cells
-                              maxWidth: 300,
-                              overflowWrap: 'break-word',
-                              textAlign: 'left', // Changed to left
-                            }}
-                            key={j}
-                            align="left"
-
-                          >
-                            {cell}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
           </Stack>
 
         )}
