@@ -427,7 +427,7 @@ SELECT
           <>
             {res.taxonomy_name !== "Unspecified" && (
               <>
-                <span><i>Taxonomy: </i></span>
+                <span>Species: </span>
                 <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
                 <br />
               </>

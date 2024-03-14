@@ -92,9 +92,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
           <>No results</>
         ) : (
           <Stack spacing={1}>
-            <Box display="inline-block">
-              <TagComponent q={props.q} t={props.t} />
-            </Box>
+            {props.t &&
+              <Box display="inline-block">
+                <TagComponent q={props.q} t={props.t} />
+              </Box>
+            }
             <FormPagination p={props.p} r={props.r} count={props.count} />
 
             <div style={{ overflowX: 'hidden', marginBottom: '1px' }}> {/* Hide the table header overflow */}
