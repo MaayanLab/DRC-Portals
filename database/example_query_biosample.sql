@@ -215,9 +215,9 @@ from c2m2.fl_biosample
    --- allres_full
    EXPLAIN (ANALYZE)
    SELECT DISTINCT c2m2.ffl_biosample.*,
-    ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+    ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
     FROM c2m2.ffl_biosample
-    WHERE searchable @@ websearch_to_tsquery('english', 'liver');
+    WHERE searchable @@ websearch_to_tsquery('english', 'blood');
 
 -----------------------------------------------------------------------------------------------
    --- allres_full and allres (combined)
@@ -245,9 +245,9 @@ from c2m2.fl_biosample
     COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
     COUNT(DISTINCT collection_local_id)::INT AS count_col
   FROM (SELECT DISTINCT c2m2.ffl_biosample.*,
-        ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
         FROM c2m2.ffl_biosample
-        WHERE searchable @@ websearch_to_tsquery('english', 'liver')
+        WHERE searchable @@ websearch_to_tsquery('english', 'blood')
     ) allres_full 
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
     allres_full.project_local_id = c2m2.project.local_id) 
@@ -262,9 +262,9 @@ from c2m2.fl_biosample
 EXPLAIN (ANALYZE)
 WITH allres_full AS (
   SELECT DISTINCT c2m2.ffl_biosample.*,
-    ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+    ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
     FROM c2m2.ffl_biosample
-    WHERE searchable @@ websearch_to_tsquery('english', 'liver') 
+    WHERE searchable @@ websearch_to_tsquery('english', 'blood') 
 ),
 allres AS (
   SELECT 
@@ -299,11 +299,11 @@ allres AS (
 )
 SELECT * from (
   SELECT allres.*, 
-  concat_ws('', '/data/c2m2/record_info?q=', 'liver', '&t=', 'dcc_name:', allres.dcc_name, 
+  concat_ws('', '/data/c2m2/record_info?q=', 'blood', '&t=', 'dcc_name:', allres.dcc_name, 
   '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
   '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
   '|', 'gene_name:', allres.gene_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
-  FROM allres
+  FROM allres where allres.disease_name = 'cancer'
 ) allres_filtered;
 
 
