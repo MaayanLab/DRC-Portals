@@ -16,7 +16,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { relayout } from "plotly.js";
 import { getDCCIcon, getFilterVals, capitalizeFirstLetter } from "@/app/data/c2m2/utils"
-import DownloadButton from "../DownloadButton";
+import TagComponent from "./TagComponent";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -382,11 +382,16 @@ SELECT
       data={results?.records}
       downloadFileName="CFDEC2M2MainSearchTable.json"
     >
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Typography variant="h4" color="secondary" className="whitespace-nowrap">
+          {searchParams.q ?? ''}
+        </Typography>
+        <TagComponent searchParams={props.searchParams} />
+      </div>
       {/* Total matching records across C2M2: {total_matches}. 
       Download fully expanded table allres_full. Download compact table allres.<br></br>
       LIST THE FILTERS APPLIED [IF POSSIBLE, ALLOW THE FILTERS TO BE DESELECTED FROM HERE.] */}
       <SearchablePagedTable
-        label={searchParams.q ?? ''}
         filternames={selectedFilters}
         q={searchParams.q ?? ''}
         p={searchParams.p}
