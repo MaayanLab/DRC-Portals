@@ -249,7 +249,7 @@ export function DCCApprover_DRCApprovedEmail({ approverName, reviewerName, asset
         <EmailLayout innerElements={<>
             <Text style={text}>Dear {approverName},</Text>
             <Text style={text}>
-                This email serves as a confirmation that an asset that you are authorzied to approve has been reviewed by the DRC Approver: {reviewerName}.
+                This email serves as a confirmation that an asset that you are authorized to approve has been reviewed by the DRC Approver: {reviewerName}.
             </Text>
             {assetInfo}
             <Text style={text}>

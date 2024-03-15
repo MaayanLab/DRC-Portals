@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.4.2
+    image: maayanlab/drc-portal:0.4.5
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -33,9 +33,10 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://data.cfde.cloud
-        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
-        nginx.ingress.kubernetes.io/auth-secret: auth
-        nginx.ingress.kubernetes.io/auth-type: basic
+        # TODO: enabling CORS breaks the links due to the redirect
+        # nginx.ingress.kubernetes.io/enable-cors: 'true'
+        # nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
+        # nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
       - 80
     environment:
@@ -54,9 +55,10 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://info.cfde.cloud
-        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
-        nginx.ingress.kubernetes.io/auth-secret: auth
-        nginx.ingress.kubernetes.io/auth-type: basic
+        # TODO: enabling CORS breaks the links due to the redirect
+        # nginx.ingress.kubernetes.io/enable-cors: 'true'
+        # nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
+        # nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
       - 80
     environment:
