@@ -8,6 +8,8 @@ import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import Button from '@mui/material/Button'
+import Box from "@mui/material/Box";
+import MasonryClient from "@/components/misc/MasonryClient";
 import { DCC } from "@prisma/client";
 
 const shuffle = (array: DCC[]) => { 
@@ -27,13 +29,17 @@ export default async function DCCLanding() {
     }))
 
     return (
-        <Grid container spacing={2} alignItems={"flex-start"} className="pb-10">
+        <Box sx={{ minHeight: 253 }}>
+            <MasonryClient defaultHeight={1500}>
             {dccs.map(dcc=>(
-                <Grid item xs={12} sm={6} md={4} key={dcc.short_label}>
                     <Card sx={{paddingLeft: 2, paddingRight: 2}}>
                         {dcc.icon &&
                             <CardHeader
-                                avatar={<Image alt={dcc.id} width={80} height={80} src={dcc.icon} />}
+                                avatar={
+                                    <div className="flex relative" style={{height: 50, width:100}}>
+                                        <Image alt={dcc.id} src={dcc.icon} fill={true} style={{objectFit: "contain"}}/>
+                                    </div>
+                                }
                                 title={<Typography variant="h3" color="secondary">{dcc.short_label}</Typography>}
                             />
                         }
@@ -61,8 +67,8 @@ export default async function DCCLanding() {
                             </Link>
                         </CardActions>
                     </Card>
-                </Grid>
             ))}
-        </Grid>
+            </MasonryClient>
+        </Box>
     )
 }
