@@ -376,6 +376,9 @@ where
         c2m2.ncbi_taxonomy.name like '%liver biopsy%' or
         c2m2.ncbi_taxonomy.description like '%liver biopsy%' or 
         c2m2.ncbi_taxonomy.synonyms like '%liver biopsy%' or
+
+        --- file counts from different DCCs
+        select id_namespace, count(local_id) from (select id_namespace, local_id from c2m2.file) group by id_namespace;
 */
 
 /* Mano: 2024/01/24: All columns needed t make searchable; only some of these will be in the output explicitly
