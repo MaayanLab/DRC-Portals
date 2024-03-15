@@ -33,9 +33,6 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://data.cfde.cloud
-        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
-        nginx.ingress.kubernetes.io/auth-secret: auth
-        nginx.ingress.kubernetes.io/auth-type: basic
     ports:
       - 80
     environment:
@@ -54,9 +51,6 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://info.cfde.cloud
-        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
-        nginx.ingress.kubernetes.io/auth-secret: auth
-        nginx.ingress.kubernetes.io/auth-type: basic
     ports:
       - 80
     environment:
