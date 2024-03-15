@@ -93,7 +93,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
           <>No results</>
         ) : (
           <Stack spacing={1}>
-            {props.t &&
+            {(props.q || props.t) &&
               <Box display="inline-block">
                 <TagComponent q={props.q} t={props.t} />
               </Box>

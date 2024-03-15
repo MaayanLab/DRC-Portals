@@ -16,6 +16,8 @@ const TagComponent = ({
         // Update or remove the 'q' parameter based on whether the tag to delete matches 'q'
         if (q && tagToDelete.type === 'q') {
             updatedParams.delete('q');
+            window.location.href = `${baseUrl}?${updatedParams.toString()}`; // Update URL and exit
+            return;
         }
 
         // Process and update 't' tags excluding the one to delete
@@ -33,6 +35,7 @@ const TagComponent = ({
 
         window.location.href = `${baseUrl}?${updatedParams.toString()}`;
     };
+
 
     const renderQueryChip = () => {
         if (!q) return null;
