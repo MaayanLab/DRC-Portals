@@ -56,6 +56,8 @@ export default async function Page(props: PageProps) {
       project_description: string,
       anatomy_description: string,
       disease_description: string,
+      gene_description: string,
+      taxonomy_description: string,
 
       count: number, // this is based on across all-columns of ffl_biosample 
       count_bios: number,
@@ -259,9 +261,6 @@ export default async function Page(props: PageProps) {
       allres_full.dcc_name AS dcc_name,
       allres_full.dcc_abbreviation AS dcc_abbreviation,
       SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-      /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
-      /* CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name, */
-      /* CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name, */
       COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
       SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
       COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
@@ -278,6 +277,8 @@ export default async function Page(props: PageProps) {
       c2m2.project.description AS project_description,
       c2m2.anatomy.description AS anatomy_description,
       c2m2.disease.description AS disease_description,
+      c2m2.gene.description AS gene_description,
+      c2m2.ncbi_taxonomy.description AS taxonomy_description,
       COUNT(*)::INT AS count,
       COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
       COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
@@ -287,9 +288,11 @@ export default async function Page(props: PageProps) {
       allres_full.project_local_id = c2m2.project.local_id) 
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
+    LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
+    LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
     GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
     anatomy_name,  anatomy, gene_name, gene, data_type_name, data_type, project_name, project_persistent_id, 
-    project_local_id, project_description, anatomy_description, disease_description
+    project_local_id, project_description, anatomy_description, disease_description, gene_description, taxonomy_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
     ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name /*rank DESC*/
   ),
@@ -445,7 +448,7 @@ file_table AS (
     INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                               AND f.project_id_namespace = ui.project_id_namespace
                               AND f.data_type = ui.data_type) /* 2024/03/07 match data type */
-    limit 100000
+    limit 10000
 )
 , /* Mano */
   file_table_limited as (
@@ -614,6 +617,7 @@ file_table AS (
         </Link>
         : results?.records[0].taxonomy_name
     },
+    results?.records[0].taxonomy_description ? { label: 'Taxonomy/Species Description', value: results?.records[0].taxonomy_description } : null,
 
     {
       label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
@@ -641,6 +645,7 @@ file_table AS (
         </Link>
       ) : results?.records[0].gene_name
     },
+    results?.records[0].gene_description ? { label: 'Gene Description', value: results?.records[0].gene_description } : null,
 
     {
       label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
@@ -676,7 +681,7 @@ file_table AS (
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
   const collectionTableTitle = "Collections: " + results?.count_col;
-  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(100000, results?.count_file) + " listed)";
+  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(10000, results?.count_file) + " listed)";
   const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
   const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
   const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;

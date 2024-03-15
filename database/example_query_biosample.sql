@@ -309,13 +309,19 @@ SELECT * from (
 
 -----------------------------------------------------------------------------------------------
 --- entire CTE in search/page.tsc
+/* \set myq 'blood'; \set my_disease 'cancer'; */
+/* \set myq 'blood'; \set my_disease 'carcinoma'; */
+/*  \set myq 'brain'; \set my_disease 'malignant astrocytoma';  */
+ /*\set myq 'liver'; \set my_disease 'cancer'; */
+/* \set myq 'intestine'; \set my_disease 'cancer'; */
+ \set myq 'parkinson'; \set my_disease 'cancer'; 
 
 EXPLAIN (ANALYZE)
 WITH allres_full AS (
   SELECT DISTINCT c2m2.ffl_biosample.*,
-    ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+    ts_rank_cd(searchable, websearch_to_tsquery('english', :'myq')) as "rank"
     FROM c2m2.ffl_biosample
-    WHERE searchable @@ websearch_to_tsquery('english', 'liver') 
+    WHERE searchable @@ websearch_to_tsquery('english', :'myq') 
 ),
 allres AS (
   SELECT 
@@ -350,11 +356,11 @@ allres AS (
 ),
 allres_filtered AS (
   SELECT allres.*, 
-  concat_ws('', '/data/c2m2/record_info?q=', 'liver', '&t=', 'dcc_name:', allres.dcc_name, 
+  concat_ws('', '/data/c2m2/record_info?q=', :'myq', '&t=', 'dcc_name:', allres.dcc_name, 
   '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
   '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
   '|', 'gene_name:', allres.gene_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
-  FROM allres
+  FROM allres /* where allres.disease_name = :'my_disease' */
 ),
 allres_limited AS (
   SELECT *
@@ -413,3 +419,13 @@ SELECT
   (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters,
   (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
 ;
+
+--- Time taken
+--- brain 4.2 6000 
+--- blood 22 13800
+--- intestine 9 12600
+--- liver 3.6 7200
+--- parkinson 0.086 64
+--- carcinoma 37.2 59600
+--- neuroblastoma 0.86 620
+--- cancer 43.9 59800
