@@ -54,7 +54,7 @@ export default async function InfoHeader() {
                     <Link href="/data/tools_and_workflows">
                       <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
                     </Link>
-                    <Link href="https://playbook-workflow-builder.cloud/playbooks">
+                    <Link href="https://playbook-workflow-builder.cloud/playbooks" target="_blank" rel="noopener noreferrer">
                       <Typography variant="nav">USE CASES</Typography>
                     </Link>
                     <Link href="/info/standards">
