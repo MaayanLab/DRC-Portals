@@ -335,14 +335,41 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
 DO $$ 
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' AND indexname = 'ffl_biosample_idx_searchable') THEN
+    DROP INDEX IF EXISTS ffl_biosample_idx_searchable;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
+    AND indexname = 'ffl_biosample_idx_searchable') THEN
         CREATE INDEX ffl_biosample_idx_searchable ON c2m2.ffl_biosample USING gin(searchable);
     END IF;
 END $$;
 
---- To see table index names: select * from pg_indexes where schemaname = 'c2m2';
+--- Create additional indexes for columns used in the where clause
+--- CREATE INDEX idx_columns ON table_name (column1, column2);
+DO $$ 
+BEGIN
+    DROP INDEX IF EXISTS ffl_biosample_idx_dcc_sp_dis_ana;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
+    AND indexname = 'ffl_biosample_idx_dcc_sp_dis_ana') THEN
+        CREATE INDEX ffl_biosample_idx_dcc_sp_dis_ana ON c2m2.ffl_biosample USING 
+        btree(dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name);
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN
+    DROP INDEX IF EXISTS ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
+    AND indexname = 'ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data') THEN
+        CREATE INDEX ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_biosample USING 
+        btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name);
+    END IF;
+END $$;
+
+
+--- To see table index names: select * from pg_indexes where schemaname = 'c2m2' and tablename = 'ffl_biosample';
 --- To list all column names of a table:
 --- SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'c2m2' AND table_name = 'file';
+--- Find size of an index: SELECT pg_size_pretty(pg_relation_size('c2m2.ffl_biosample_idx_searchable')) AS index_size;
+--- SELECT pg_size_pretty(pg_relation_size('c2m2.ffl_biosample_idx_dcc_sp_dis_ana')) AS index_size;
 
 /* for syntax: 
 where

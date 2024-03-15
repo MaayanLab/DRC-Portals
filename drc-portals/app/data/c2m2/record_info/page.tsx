@@ -617,7 +617,7 @@ file_table AS (
         </Link>
         : results?.records[0].taxonomy_name
     },
-    results?.records[0].taxonomy_description ? { label: 'Taxonomy/Species Description', value: results?.records[0].taxonomy_description } : null,
+    results?.records[0].taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(results?.records[0].taxonomy_description) } : null,
 
     {
       label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
@@ -645,7 +645,7 @@ file_table AS (
         </Link>
       ) : results?.records[0].gene_name
     },
-    results?.records[0].gene_description ? { label: 'Gene Description', value: results?.records[0].gene_description } : null,
+    results?.records[0].gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(results?.records[0].gene_description) } : null,
 
     {
       label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
