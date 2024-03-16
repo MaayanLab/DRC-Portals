@@ -53,7 +53,7 @@ interface ExpandableTableProps {
             <AccordionDetails>
               {/* Assuming SearchablePagedTable can accept this new data format directly or is similarly adjusted */}
               <SearchablePagedTable
-                q={searchParams.q ?? ''}
+                //q={searchParams.q ?? ''}
                 p={searchParams.p}
                 r={searchParams.r}
                 count={count}
