@@ -68,7 +68,7 @@ export function PreviewButton(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
-  q: string, p: number, r: number, count?: number,
+  q?: string, p: number, r: number, count?: number,
   t?: { type: string; entity_type: string | null; }[] | undefined,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
