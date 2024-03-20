@@ -267,7 +267,7 @@ export function S3UploadForm(user: {
                 C2M2: .zip
               </ListItem>
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                KG Assertion: .csv
+                KG Assertions: .csv
               </ListItem>
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
                 Attribute Table: .h5 or .hdf5
