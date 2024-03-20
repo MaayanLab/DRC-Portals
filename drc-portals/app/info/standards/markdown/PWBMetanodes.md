@@ -8,7 +8,7 @@
 
 ## Introduction
 
-The Playbook Partnership Workflow Builder (PPWB) consists of a network of biomedical datasets, API endpoints, and other developed tools from both within and external to the CFDE. Users can traverse the graph database visually by selecting various options for some following data set or imputation task. Each meta node within the PWB can be independently constructed or used, preferably by someone already familiar with a given tool’s functionality. To use the PPWB, users start from a list of possible inputs, and then sequentially select the different transformations, queries, visualizations, or other computations they wish to add to the workflow. 
+The Playbook Workflow Builder (PWB) consists of a network of biomedical datasets, API endpoints, and other developed tools from both within and external to the CFDE. Users can traverse the graph database visually by selecting various options for some following data set or imputation task. Each meta node within the PWB can be independently constructed or used, preferably by someone already familiar with a given tool’s functionality. To use the PPWB, users start from a list of possible inputs, and then sequentially select the different transformations, queries, visualizations, or other computations they wish to add to the workflow. 
 
 ## Resources
 
