@@ -68,7 +68,7 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
         data: {
             link: url,
             creator: user.email,
-            current: false,
+            current: true,
             dcc_id: dcc.id,
             codeAsset: {
                 create: {

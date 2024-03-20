@@ -166,7 +166,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
         data: {
             link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
             creator: user.email,
-            current: false,
+            current: true,
             dcc_id: dcc.id,
             fileAsset: {
                 create: {
