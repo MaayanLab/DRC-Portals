@@ -26,16 +26,16 @@ const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "seco
                     <Youtube/>
                 </IconButton>
             </Link>
-            <Link href="/">
+            {/* <Link href="/">
                 <IconButton  color={"secondary"}>
                     <Facebook sx={{color: "#000"}}/>
                 </IconButton>
-            </Link>
-            <Link href="/">
+            </Link> */}
+            {/* <Link href="/">
                 <IconButton  color={"secondary"}>
                     <Linkedin/>
                 </IconButton>
-            </Link>
+            </Link> */}
         </div>
     )
 }
