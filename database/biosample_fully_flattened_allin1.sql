@@ -371,6 +371,10 @@ END $$;
 --- Find size of an index: SELECT pg_size_pretty(pg_relation_size('c2m2.ffl_biosample_idx_searchable')) AS index_size;
 --- SELECT pg_size_pretty(pg_relation_size('c2m2.ffl_biosample_idx_dcc_sp_dis_ana')) AS index_size;
 
+--- Prisma @@index ref: https://www.prisma.io/docs/orm/reference/prisma-schema-reference#index
+--- See file sdrc-portals/prisma/schema.prisma
+
+
 /* for syntax: 
 where
         c2m2.ncbi_taxonomy.name like '%liver biopsy%' or
