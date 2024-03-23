@@ -156,10 +156,11 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
             renderInput={(params) => (
               <TextField {...params} placeholder={example_query} />
             )}
+            renderTags={() => null} // Disable rendering of tags
           />
 
           <Button onClick={applyFilters} variant="contained" style={{ marginTop: '10px' }}>
-            Done
+            Update
           </Button>
         </AccordionDetails>
       </Accordion>
