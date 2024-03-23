@@ -1,22 +1,16 @@
 'use client'
-import * as React from 'react';
-import { useState } from 'react';
-import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
+import React, { useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import { useSearchParams } from "next/navigation";
-import SearchFilter from "./SearchFilter";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { AccordionDetails } from '@mui/material';
-
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 type FilterObject = {
   id: string;
@@ -24,69 +18,151 @@ type FilterObject = {
   count: number;
 };
 
-export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
-  const [expanded, setExpanded] = React.useState<string | null>(null);
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-  // Function to handle accordion expansion
-  const handleChange = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
-    setExpanded(newExpanded ? panel : null);
+export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
+  const [filterIndex, setFilterIndex] = useState<string[]>([]);
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
+  const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
+
+  // Load selected filters from localStorage when component mounts
+  useEffect(() => {
+    const storedFilters = localStorage.getItem('selectedFilters');
+    if (storedFilters) {
+      setSelectedFilters(JSON.parse(storedFilters));
+      setSelectedFiltersForAutocomplete(JSON.parse(storedFilters));
+    }
+  }, []);
+
+  // Save selected filters to localStorage when selectedFilters state changes
+  useEffect(() => {
+    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
+    setSelectedFiltersForAutocomplete(selectedFilters);
+  }, [selectedFilters]);
+
+  // Function to generate filter index
+  const generateFilterIndex = () => {
+    const index = new Set<string>();
+    filterList.forEach(filter => {
+      index.add(filter.name.charAt(0).toUpperCase());
+    });
+    return Array.from(index);
   };
 
-  // Ref to the accordion div for click outside detection
-  const accordionRef = React.useRef<HTMLDivElement>(null);
+  // Check if filterList exceeds 50, then generate filter index
+  if (filterList.length > 50 && filterIndex.length === 0) {
+    setFilterIndex(generateFilterIndex());
+  }
 
-  // Click outside handler
-  const handleClickOutside = (event: MouseEvent) => {
-    if (accordionRef.current && !accordionRef.current.contains(event.target as Node)) {
-      setExpanded(null);
+  // Apply filters logic
+  const applyFilters = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentRawFilters = searchParams.get('t');
+    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+
+    // Transform the current filters into a more manageable structure
+    const structuredFilters = currentFilters.map(filter => {
+      const [type, value] = filter.split(':');
+      return { type, value };
+    });
+
+    // Determine which filters should be updated or removed
+    let updatedFilters = structuredFilters.filter(structuredFilter => {
+      // Find if the current structured filter's value is not in the selected filters
+      return !selectedFilters.map(filter => filter.name).includes(structuredFilter.value);
+    }).map(filteredItem => `${filteredItem.type}:${filteredItem.value}`);
+
+    // Add new filters
+    selectedFilters.forEach(filter => {
+      const existingFilter = structuredFilters.find(f => f.value === filter.name);
+      if (!existingFilter) {
+        // Update this line to use the appropriate type for the new filter
+        // You might need additional logic here to determine the correct type
+        updatedFilters.push(`${id}:${filter.name}`);
+      }
+    });
+
+    searchParams.set('t', updatedFilters.join('|'));
+    searchParams.set('p', '1'); // Reset pagination to page 1
+    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    window.location.href = newUrl; // Change the URL and reload the page
+  };
+
+  // Function to filter options based on selected letter
+  const getFilteredOptions = () => {
+    if (!selectedLetter) {
+      return filterList;
+    } else {
+      return filterList.filter(filter => filter.name.charAt(0).toUpperCase() === selectedLetter);
     }
   };
 
-  // Effect to add and remove click outside listener
-  React.useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  // Function to chunk array into smaller arrays
+  const chunkArray = (array: string[], size: number) => {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  };
 
-  // Get unique starting letters for pagination
-  const startingLetters = Array.from(new Set(filterList.map(filter => filter.name[0].toUpperCase())));
-
-  // Filter the list based on selected starting letter
-  const filteredList = selectedLetter ? filterList.filter(filter => filter.name.toUpperCase().startsWith(selectedLetter)) : filterList;
+  // Chunk the filterIndex into rows
+  const indexRows = chunkArray(filterIndex, 8);
 
   return (
-    <div ref={accordionRef}>
-      <Accordion expanded={expanded === filter_title} onChange={handleChange(filter_title)}>
+    <div>
+      <Accordion expanded={expanded === filter_title} onChange={(event, isExpanded) => setExpanded(isExpanded ? filter_title : null)}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{filter_title+" ("+filterList.length+")"}</Typography>
+          <Typography>{`${filter_title} (${filterList.length})`}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           {filterList.length > 50 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }}>
-              {startingLetters.map(letter => (
-                <button key={letter} onClick={() => setSelectedLetter(letter)} style={{ marginRight: '10px', marginBottom: '10px' }}>{letter}</button>
+            <div>
+              {indexRows.map((row, index) => (
+                <div key={index} style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }}>
+                  {row.map(letter => (
+                    <button
+                      key={letter}
+                      onClick={() => setSelectedLetter(letter)}
+                      style={{ marginRight: '10px', marginBottom: '10px' }}
+                    >
+                      {letter}
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
           )}
           <Autocomplete
             multiple
             id="checkboxes-tags-demo"
-            options={filteredList}
+            options={getFilteredOptions()}
             disableCloseOnSelect
             getOptionLabel={(option) => option.name}
-            renderOption={(props, option: FilterObject, { selected }) => (
-              <SearchFilter id={`${id}:${option.name}`} count={option.count} label={option.id} />
+            value={selectedFiltersForAutocomplete}
+            onChange={(event, newValue) => {
+              setSelectedFilters(newValue as FilterObject[]); // Handle selection changes
+            }}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox icon={icon} checkedIcon={checkedIcon} checked={selected} />
+                {`${option.id} (${option.count})`}
+              </li>
             )}
             style={{ width: 'auto' }}
             renderInput={(params) => (
               <TextField {...params} placeholder={example_query} />
             )}
           />
+
+          <Button onClick={applyFilters} variant="contained" style={{ marginTop: '10px' }}>
+            Done
+          </Button>
         </AccordionDetails>
       </Accordion>
-    </div>
+    </div >
   );
 }
