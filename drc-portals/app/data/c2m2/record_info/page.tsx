@@ -419,7 +419,7 @@ file_table_keycol AS (
   FROM c2m2.file AS f
   INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                             AND f.project_id_namespace = ui.project_id_namespace
-                            AND f.data_type = ui.data_type) /* 2024/03/07 match data type */
+                            AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) /* 2024/03/07 match data type */
 ),
 file_table AS (
     SELECT DISTINCT 
@@ -447,7 +447,7 @@ file_table AS (
     LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
     INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                               AND f.project_id_namespace = ui.project_id_namespace
-                              AND f.data_type = ui.data_type) /* 2024/03/07 match data type */
+                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) /* 2024/03/07 match data type */
     limit 10000
 )
 , /* Mano */
@@ -869,3 +869,10 @@ data_type_name = 'Gene expression profile');
 
 */
 
+/*
+
+Cases with too many files, etc
+Hubmap: 1 project had 6M+ files
+http://localhost:3000/data/c2m2/record_info?q=blood&t=dcc_name:HuBMAP|project_local_id:Stanford%20TMC|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:blood|gene_name:Unspecified|data_type_name:Unspecified
+
+*/
