@@ -372,8 +372,7 @@ END $$;
 --- SELECT pg_size_pretty(pg_relation_size('c2m2.ffl_biosample_idx_dcc_sp_dis_ana')) AS index_size;
 
 --- Prisma @@index ref: https://www.prisma.io/docs/orm/reference/prisma-schema-reference#index
---- See file sdrc-portals/prisma/schema.prisma
-
+--- See file drc-portals/prisma/schema.prisma: add the additional index ; doesn't seem to affect the speed
 
 /* for syntax: 
 where
