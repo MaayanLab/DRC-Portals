@@ -1,7 +1,7 @@
-'use client'
+'use client';
 import React from 'react';
 import { Chip } from '@mui/material';
-
+import {getDCCAbbr } from "./utils"
 const TagComponent = ({
     q,
     t,
@@ -10,26 +10,32 @@ const TagComponent = ({
     t: { type: string; entity_type: string | null; }[] | undefined;
 }) => {
     const handleDelete = (tagToDelete: { type: string; entity_type: string | null }) => {
-        let baseUrl = window.location.origin + window.location.pathname;
+        let baseUrl = window.location.origin + window.location.pathname; // Construct base URL
         let updatedParams = new URLSearchParams(window.location.search);
 
+        // Update or remove the 'q' parameter based on whether the tag to delete matches 'q'
         if (q && tagToDelete.type === 'q') {
             updatedParams.delete('q');
-        } else if (t) {
+            window.location.href = `${baseUrl}?${updatedParams.toString()}`; // Update URL and exit
+            return;
+        }
+
+        // Process and update 't' tags excluding the one to delete
+        if (t) {
             const updatedTags = t
-                .filter(tag => !(tag.type === tagToDelete.type && tag.entity_type === tagToDelete.entity_type))
+                .filter(tag => tag !== tagToDelete)
                 .map(tag => `${tag.type}:${tag.entity_type || ''}`)
                 .join('|');
-
             if (updatedTags) {
                 updatedParams.set('t', updatedTags);
             } else {
-                updatedParams.delete('t');
+                updatedParams.delete('t'); // Remove 't' if no tags left
             }
         }
 
         window.location.href = `${baseUrl}?${updatedParams.toString()}`;
     };
+
 
     const renderQueryChip = () => {
         if (!q) return null;
@@ -53,6 +59,16 @@ const TagComponent = ({
             />
         )) : null;
     };
+    /* const renderTags = () => {
+        return t ? t.map((tag, index) => (
+            <Chip
+                key={`tag-${index}`}
+                label={`${tag.type}: ${tag.type === 'dcc' ? getDCCAbbr(tag.entity_type) : tag.entity_type || 'N/A'}`}
+                onDelete={() => handleDelete(tag)}
+                style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
+            />
+        )) : null;
+    }; */
 
     return (
         <>

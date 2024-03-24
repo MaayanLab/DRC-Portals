@@ -104,45 +104,28 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     window.location.href = newUrl; // Change the URL and reload the page
   };
  */
+
 // Apply filters logic
 const applyFilters = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const currentRawFilters = searchParams.get('t');
   const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
-  // Transform the current filters into a more manageable structure
-  const structuredFilters = currentFilters.map(filter => {
-    const [type, value] = filter.split(':');
-    return { type, value };
-  });
+  // Filter out existing filters for the current id, keeping all others intact
+  const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
 
-  // Initialize the array to store updated filters
-  let updatedFilters: string[] = [];
+  // Prepare new filters for the current id
+  const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
 
-  // Update existing filters based on selectedFilters
-  structuredFilters.forEach(existingFilter => {
-    // Find if the current structured filter's value is in the selected filters
-    const selectedFilter = selectedFilters.find(f => f.name === existingFilter.value);
-    if (selectedFilter) {
-      // Add the selected filter to updated filters
-      updatedFilters.push(`${id}:${selectedFilter.name}`);
-    }
-  });
-
-  // Add new filters from selectedFilters
-  selectedFilters.forEach(selectedFilter => {
-    const existingFilter = structuredFilters.find(f => f.value === selectedFilter.name);
-    if (!existingFilter) {
-      // Add the selected filter to updated filters
-      updatedFilters.push(`${id}:${selectedFilter.name}`);
-    }
-  });
+  // Combine other filters with new filters for the current id
+  const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
 
   searchParams.set('t', updatedFilters.join('|'));
   searchParams.set('p', '1'); // Reset pagination to page 1
   const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
   window.location.href = newUrl; // Change the URL and reload the page
 };
+
 
   // Function to filter options based on selected letter
   const getFilteredOptions = () => {
