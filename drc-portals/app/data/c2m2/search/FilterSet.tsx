@@ -28,14 +28,27 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
 
-  // Load selected filters from localStorage when component mounts
+  /* // Load selected filters from localStorage when component mounts
   useEffect(() => {
     const storedFilters = localStorage.getItem('selectedFilters');
     if (storedFilters) {
       setSelectedFilters(JSON.parse(storedFilters));
       setSelectedFiltersForAutocomplete(JSON.parse(storedFilters));
     }
-  }, []);
+  }, []); */
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentRawFilters = searchParams.get('t');
+    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+    
+    // Filter out selected filters from URL parameters
+    const updatedSelectedFilters = filterList.filter(filter => {
+      return currentFilters.includes(`${id}:${filter.name}`);
+    });
+  
+    setSelectedFilters(updatedSelectedFilters);
+    setSelectedFiltersForAutocomplete(updatedSelectedFilters);
+  }, [filterList, id]);
 
   // Save selected filters to localStorage when selectedFilters state changes
   useEffect(() => {
@@ -58,7 +71,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   }
 
   // Apply filters logic
-  const applyFilters = () => {
+  /* const applyFilters = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
@@ -90,6 +103,29 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
     window.location.href = newUrl; // Change the URL and reload the page
   };
+ */
+
+// Apply filters logic
+const applyFilters = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const currentRawFilters = searchParams.get('t');
+  const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+
+  // Filter out existing filters for the current id, keeping all others intact
+  const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
+
+  // Prepare new filters for the current id
+  const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
+
+  // Combine other filters with new filters for the current id
+  const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
+
+  searchParams.set('t', updatedFilters.join('|'));
+  searchParams.set('p', '1'); // Reset pagination to page 1
+  const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+  window.location.href = newUrl; // Change the URL and reload the page
+};
+
 
   // Function to filter options based on selected letter
   const getFilteredOptions = () => {
@@ -156,10 +192,11 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
             renderInput={(params) => (
               <TextField {...params} placeholder={example_query} />
             )}
+            renderTags={() => null} // Disable rendering of tags
           />
 
           <Button onClick={applyFilters} variant="contained" style={{ marginTop: '10px' }}>
-            Done
+            Update
           </Button>
         </AccordionDetails>
       </Accordion>
