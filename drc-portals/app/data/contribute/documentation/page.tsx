@@ -143,8 +143,8 @@ The Entity Page Template and Example are  links to:
                                     entities represented in the knowledge graph e.g GO Ontology terms. Edges characterize the relationship between
                                     nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and
                                     edges that could be used to create a knowledge graph.
-                                    For example, a KG Assertion file for nodes would contain columns which define information about each node:
-                                    id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary
+                                    For example, a KG Assertions file for nodes would contain columns which define information about each node:
+                                    id, label, ontology_label. A KG Assertions file for edges would contain columns that comprises the necessary
                                     information about each edge: its source and target nodes, the labels for these nodes and their relationship.
 
                                 </Typography>
@@ -166,7 +166,7 @@ The Entity Page Template and Example are  links to:
                                         C2M2: .zip
                                     </ListItemText>
                                     <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                        KG Assertion: .csv
+                                        KG Assertions: .csv
                                     </ListItemText>
                                     <ListItemText sx={{ display: 'list-item', padding: 0 }}>
                                         Attribute Table: .h5 or .hdf5
@@ -389,7 +389,7 @@ The Entity Page Template and Example are  links to:
                                                     C2M2: .zip
                                                 </ListItemText>
                                                 <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                                    KG Assertion: .csv
+                                                    KG Assertions: .csv
                                                 </ListItemText>
                                                 <ListItemText sx={{ display: 'list-item', padding: 0 }}>
                                                     Attribute Table: .h5 or .hdf5

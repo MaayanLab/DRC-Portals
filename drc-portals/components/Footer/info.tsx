@@ -23,7 +23,7 @@ export default async function InfoFooter() {
             <Stack direction={"column"} spacing={2}>
               <Logo href={`/info`} title="CFDE Workbench" color="inherit"/>
               <Divider sx={{borderColor: "#FFF"}}/>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/">
+              <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiGithub} size={1} /> 
                   <Typography variant='footer' className='flex'>
@@ -31,7 +31,7 @@ export default async function InfoFooter() {
                   </Typography>
                 </div>
               </Link>
-              <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new">
+              <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
                   <Typography variant='footer' className='flex'>

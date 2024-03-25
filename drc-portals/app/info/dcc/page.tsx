@@ -60,7 +60,7 @@ export default async function DCCLanding() {
                                     <Typography variant="body1">Expand</Typography>
                                 </Button>
                             </Link>
-                            <Link href={dcc.homepage}>
+                            <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
                                 <Button color="secondary">
                                     <Typography variant="body1">Go to DCC portal</Typography>
                                 </Button>
