@@ -35,7 +35,7 @@ const modules: {
             end_field: 'label',
           }))
         }
-        return `https://distillery.dev.maayanlab.cloud/?${params.toString()}`
+        return `https://dd-kg-ui.cfde.cloud/?${params.toString()}`
       }, [item])
       return (
         <CardButton
