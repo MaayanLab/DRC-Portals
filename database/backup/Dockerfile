@@ -1,0 +1,12 @@
+FROM alpine
+RUN apk add --no-cache postgresql-client aws-cli
+ENV POSTGRES_PASSWORD ""
+ENV S3_POSTGRES_BACKUP_AWS_ACCESS_KEY_ID ""
+ENV S3_POSTGRES_BACKUP_AWS_SECRET_ACCESS_KEY ""
+ENV S3_POSTGRES_BACKUP_AWS_DEFAULT_REGION ""
+ENV POSTGRES_HOST ""
+ENV POSTGRES_USER ""
+ENV S3_POSTGRES_BACKUP_PREFIX ""
+ADD backup.sh /root/backup.sh
+RUN chmod +x /root/backup.sh
+CMD ["/root/backup.sh"]
