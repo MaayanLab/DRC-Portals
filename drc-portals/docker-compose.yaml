@@ -134,6 +134,7 @@ services:
     image: maayanlab/drc-portal-postgres-backup:0.0.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+      restartPolicy: Never
       cron: '0 0 * * *'
     deploy:
       replicas: 0
