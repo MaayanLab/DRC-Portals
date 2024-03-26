@@ -161,12 +161,19 @@ const applyFilters = () => {
                 <div key={index} style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }}>
                   {row.map(letter => (
                     <button
-                      key={letter}
-                      onClick={() => setSelectedLetter(letter)}
-                      style={{ marginRight: '10px', marginBottom: '10px' }}
-                    >
-                      {letter}
-                    </button>
+                    key={letter}
+                    onClick={() => setSelectedLetter(letter)}
+                    style={{
+                      marginRight: '10px',
+                      marginBottom: '10px',
+                      color: selectedLetter === letter ? 'red' : 'inherit', // Change text color to red if selected
+                      textDecoration: selectedLetter === letter ? 'underline' : 'none', // Underline if selected
+
+                    }}
+                  >
+                    {letter}
+                  </button>
+                  
                   ))}
                 </div>
               ))}
