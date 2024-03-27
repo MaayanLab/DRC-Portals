@@ -423,3 +423,10 @@ model VerificationToken {
 }
 
 // End Next-Auth schema
+
+// A generic key-value store
+model KVStore {
+  key String @id
+  value Json
+  @@map("kvstore")
+}
