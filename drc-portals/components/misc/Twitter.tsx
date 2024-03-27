@@ -1,7 +1,7 @@
-'use client'
-import {TwitterTimelineEmbed, TwitterFollowButton} from 'react-twitter-embed'
 import Typography from '@mui/material/Typography'
 import { Card, CardContent, Grid } from '@mui/material'
+import TwitterFollowButton from './TwitterFollowButton'
+import TwitterFromCache from './TwitterFromCache'
 
 export default function Twitter() {
     return(
@@ -12,7 +12,7 @@ export default function Twitter() {
                         <Typography variant="h2" color="secondary">Social Media</Typography>
                     </Grid>
                     <Grid item>
-                        <TwitterFollowButton screenName={'CFDEWorkbench'}/>
+                        <TwitterFollowButton screenName={'CfdeWorkbench'}/>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="body1">
@@ -20,12 +20,15 @@ export default function Twitter() {
                         </Typography>
                     </Grid>
                     <Grid item xs={12} className='flex justify-center'>
-                        <div>
-                            <TwitterTimelineEmbed
+                        <div className="flex overflow-hidden" style={{ width: 500, height: 500 }}>
+                            <TwitterFromCache
+                                screenName="CfdeWorkbench"
+                            />
+                            {/* <TwitterTimelineEmbed
                                 sourceType="profile"
                                 screenName="CFDEWorkbench"
                                 options={{height: 500, width: 500}}
-                            />
+                            /> */}
                         </div>
                     </Grid>
                 </Grid>
