@@ -126,9 +126,9 @@ async function Outreach({featured=true, orientation='horizontal', size=2}:{
                       </div>
                   }
                   {orientation !== 'vertical' && <div className="flex flex-row mb-5">
-                    {tags.map((tag, i)=><Chip variant="filled" sx={{textTransform: "uppercase", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>)}
+                    {tags.map((tag, i)=><Chip variant="filled" sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>)}
                   </div>}
-                  <Typography color="secondary" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.title}</Typography>
+                  <Typography color="secondary" variant="h5">{e.title}</Typography>
                   <Typography variant="body2" color="secondary">{e.short_description}</Typography>
                   {orientation === 'vertical' ?
                     e.application_end ? 
