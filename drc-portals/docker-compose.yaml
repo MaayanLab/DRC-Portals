@@ -148,6 +148,20 @@ services:
       - S3_POSTGRES_BACKUP_AWS_DEFAULT_REGION
       - S3_POSTGRES_BACKUP_PREFIX
 
+  drc-portal-twitter:
+    build: ../twitter
+    image: maayanlab/drc-portal-twitter:0.0.0
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      cron: '0 * * * *'
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
+      - TWITTER_TWEETS_FROM
+      - TWITTER_USERNAME
+      - TWITTER_EMAIL
+      - TWITTER_PASSWORD
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:
