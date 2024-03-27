@@ -124,4 +124,4 @@ The FAIRshake toolkit enables manual and automated assessments of the findabilit
 
 
 Playbook Metanodes:
-The Playbook Partnership Workflow Builder (PPWB) is a web-based knowledge resolution platform being developed by the CFDE Workflow Playbook Partnership and consisting of a growing network of datasets, semantically annotated API endpoints, and visualization tools from across the CFDE. Users can construct workflows from the individual building blocks, termed "meta nodes", with little effort or technical expertise required.
+The Playbook Workflow Builder (PWB) is a web-based knowledge resolution platform being developed by the CFDE Workflow Playbook Partnership and consisting of a growing network of datasets, semantically annotated API endpoints, and visualization tools from across the CFDE. Users can construct workflows from the individual building blocks, termed "meta nodes", with little effort or technical expertise required.
