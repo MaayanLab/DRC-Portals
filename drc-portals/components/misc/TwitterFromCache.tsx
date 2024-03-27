@@ -137,7 +137,11 @@ export default async function TwitterFromCache(props: { screenName: string }) {
     },
   })
   if (!record?.value) return null
-  const tweets = TweetsC.parse(record.value)
+  const tweets = TweetsC.safeParse(record.value)
+  if (!tweets.success) {
+    console.error(tweets.error)
+    return null
+  }
   return (
     <div className="flex flex-col border rounded-lg overflow-hidden text-sm">
       <div className="flex flex-row border-b my-2 p-2 justify-between items-center">
@@ -147,7 +151,7 @@ export default async function TwitterFromCache(props: { screenName: string }) {
         <a className="rounded-3xl py-1 px-4 bg-black text-white hover:opacity-85 font-bold" href={`https://twitter.com/intent/follow?screen_name=${props.screenName}`} target="_blank">Follow</a>
       </div>
       <div className="flex flex-col overflow-y-scroll">
-        {tweets.map(tweet => {
+        {tweets.data.map(tweet => {
           const actual_tweet = tweet.retweeted_tweet ? tweet.retweeted_tweet : tweet
           return (
             <div key={tweet.legacy.id_str} className="flex flex-col">
