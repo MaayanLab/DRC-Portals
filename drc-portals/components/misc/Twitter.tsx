@@ -20,7 +20,7 @@ export default function Twitter() {
                         </Typography>
                     </Grid>
                     <Grid item xs={12} className='flex justify-center'>
-                        <div className="flex overflow-hidden" style={{ width: 500, height: 500 }}>
+                        <div className="flex justify-center overflow-hidden" style={{ width: 500, height: 500 }}>
                             <TwitterFromCache
                                 screenName="CfdeWorkbench"
                             />
