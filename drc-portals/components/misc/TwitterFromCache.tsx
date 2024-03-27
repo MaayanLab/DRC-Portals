@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { z } from 'zod'
-const TweetsC = z.array(z.object({
+
+const TweetC = z.object({
   core: z.object({
     user_results: z.object({
       result: z.object({
@@ -55,7 +56,9 @@ const TweetsC = z.array(z.object({
     created_at: z.string(),
     retweet_count: z.number(),
   }),
-}))
+})
+
+const TweetsC = z.array(z.intersection(TweetC, z.object({ retweeted_tweet: z.optional(TweetC) })))
 
 export default async function TwitterFromCache() {
   const record = await prisma.kVStore.findFirst({
@@ -70,12 +73,22 @@ export default async function TwitterFromCache() {
   if (!record?.value) return null
   const tweets = TweetsC.parse(record.value)
   return (
-    <div className="flex flex-col gap-2">
-      {tweets.map(tweet => (
-        <div key={tweet.core.user_results.result.id} className="flex flex-col">
-          <span>{tweet.legacy.full_text}</span>
-        </div>
-      ))}
+    <div className="flex flex-col gap-2 border rounded-md p-4">
+      <h1>Tweets from @CfdeWorkbench</h1>
+      <div className="flex flex-col">
+      {tweets.map(tweet => {
+        const actual_tweet = tweet.retweeted_tweet ? tweet.retweeted_tweet : tweet
+        return (
+          <div key={tweet.core.user_results.result.id} className="flex flex-col">
+            <div className="flex flex-col border border-x-0 border-t-0 pb-2 mt-2 border-gray-300">
+              {tweet.retweeted_tweet ? <span className="text-gray-600">CFDE Workbench reposted</span> : null}
+              <span className="font-bold">{actual_tweet.core.user_results.result.legacy.name} @{actual_tweet.core.user_results.result.legacy.screen_name} {actual_tweet.core.user_results.result.legacy.created_at}</span>
+              <span>{actual_tweet.legacy.full_text}</span>
+            </div>
+          </div>
+        )
+      })}
+      </div>
     </div>
   )
 }
