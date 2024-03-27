@@ -20,9 +20,8 @@ export default function Twitter() {
                         </Typography>
                     </Grid>
                     <Grid item xs={12} className='flex justify-center'>
-                        <div style={{ width: 500, height: 500 }}>
-                            <TwitterFromCache
-                            />
+                        <div className="flex overflow-hidden" style={{ width: 500, height: 500 }}>
+                            <TwitterFromCache />
                             {/* <TwitterTimelineEmbed
                                 sourceType="profile"
                                 screenName="CFDEWorkbench"
