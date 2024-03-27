@@ -63,6 +63,7 @@ for i in df.index:
             ind += 1
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
+outreach_df.index.name = "id"
 outreach_df.to_csv(outreach_file, sep="\t", header=True, quoting=csv.QUOTE_NONE)
 dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=True, index=None)
 

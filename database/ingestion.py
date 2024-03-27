@@ -146,6 +146,9 @@ cur.execute('drop table dcc_publication_tmp;')
 connection.commit()
 
 cur = connection.cursor()
+
+cur.execute('DELETE FROM dcc_outreach')
+cur.execute('DELETE FROM outreach')
 cur.execute('''
   create table outreach_tmp
   as table outreach
