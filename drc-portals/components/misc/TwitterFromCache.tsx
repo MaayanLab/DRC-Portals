@@ -156,7 +156,7 @@ export default async function TwitterFromCache(props: { screenName: string }) {
             <div key={tweet.legacy.id_str} className="flex flex-col">
               <div className="flex flex-row gap-2 ml-8">
                 <svg viewBox="0 0 24 24" aria-hidden="true" className="w-4 stroke-gray-300"><g><path d="M4.75 3.79l4.603 4.3-1.706 1.82L6 8.38v7.37c0 .97.784 1.75 1.75 1.75H13V20H7.75c-2.347 0-4.25-1.9-4.25-4.25V8.38L1.853 9.91.147 8.09l4.603-4.3zm11.5 2.71H11V4h5.25c2.347 0 4.25 1.9 4.25 4.25v7.37l1.647-1.53 1.706 1.82-4.603 4.3-4.603-4.3 1.706-1.82L18 15.62V8.25c0-.97-.784-1.75-1.75-1.75z"></path></g></svg>
-                {tweet.retweeted_tweet ? <a className="text-gray-600 hover:underline font-bold" href={`https://twitter.com/${tweet.core.user_results.result.legacy.name}`} target="_blank">{tweet.core.user_results.result.legacy.name} reposted</a> : null}
+                {tweet.retweeted_tweet ? <a className="text-gray-600 hover:underline font-bold" href={`https://twitter.com/${tweet.core.user_results.result.legacy.screen_name}`} target="_blank">{tweet.core.user_results.result.legacy.name} reposted</a> : null}
               </div>
               <div className="flex flex-row border-b py-2 mb-2 px-4">
                 <div className="w-16 flex-shrink-0 flex justify-center">
