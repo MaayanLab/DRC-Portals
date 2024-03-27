@@ -1,2 +1,2 @@
-psycopg[binary]
+psycopg2[binary]
 twikit
