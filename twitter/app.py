@@ -46,7 +46,7 @@ with conn.cursor() as cur:
     client.set_cookies(cookies)
   #
   tweets = [
-    tweet._data
+    dict(tweet._data, retweeted_tweet=tweet.retweeted_tweet._data)
     for tweet in client.get_user_by_screen_name(os.environ['TWITTER_TWEETS_FROM']).get_tweets(tweet_type='Tweets')
   ]
   kvstore_upsert(cur, 'twitter-tweets', tweets)
