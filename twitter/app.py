@@ -15,7 +15,7 @@ def kvstore_get(cur, key):
   row = cur.fetchone()
   if row is None: return None
   _key, value = row
-  return json.loads(value)
+  return value
 
 def kvstore_upsert(cur, key, value):
   cur.execute('''
