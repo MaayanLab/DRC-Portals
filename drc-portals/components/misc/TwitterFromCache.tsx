@@ -1,3 +1,4 @@
+import React from "react";
 import prisma from "@/lib/prisma";
 import { z } from 'zod'
 
@@ -5,37 +6,12 @@ const TweetC = z.object({
   core: z.object({
     user_results: z.object({
       result: z.object({
-        id: z.string(),
         legacy: z.object({
           name: z.string(),
-          entities: z.object({
-            description: z.object({
-              urls: z.array(z.object({
-                url: z.string(),
-                indices: z.array(z.number()),
-                display_url: z.string(),
-                expanded_url: z.string(),
-              })),
-            }),
-          }),
-          location: z.string(),
-          verified: z.boolean(),
-          created_at: z.string(),
-          media_count: z.number(),
           screen_name: z.string(),
-          listed_count: z.number(),
-          can_media_tag: z.boolean(),
-          friends_count: z.number(),
-          statuses_count: z.number(),
-          followers_count: z.number(),
-          favourites_count: z.number(),
-          profile_banner_url: z.string(),
           profile_image_url_https: z.string(),
         }),
-        rest_id: z.string(),
-        is_blue_verified: z.boolean(),
         profile_image_shape: z.enum(["Circle"]),
-        has_graduated_access: z.boolean(),
       }),
     }),
   }),
@@ -53,10 +29,11 @@ const TweetC = z.object({
       })),
       media: z.array(z.object({
         url: z.string(),
+        indices: z.tuple([z.number(), z.number()]),
         display_url: z.string(),
         media_url_https: z.string(),
         expanded_url: z.string(),
-        type: z.enum(['photo']),
+        type: z.string(),
         sizes: z.object({
           large: z.object({
             h: z.number(),
@@ -80,17 +57,77 @@ const TweetC = z.object({
           }),
         }),
       })).optional(),
+      urls: z.array(z.object({
+        url: z.string(),
+        indices: z.array(z.number()),
+        display_url: z.string(),
+        expanded_url: z.string(),
+      })),
     }),
     full_text: z.string(),
     created_at: z.string(),
-    retweet_count: z.number(),
     favorite_count: z.number(),
+    in_reply_to_screen_name: z.string().optional(),
   }),
 }).passthrough()
 
 const TweetsC = z.array(z.intersection(TweetC, z.object({ retweeted_tweet: z.optional(TweetC) })))
 
-export default async function TwitterFromCache() {
+function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
+  const elements: { start: number, end: number, element: React.ReactElement }[] = []
+  // insert the various entities as react elements with their indexes
+  for (const hashtag of actual_tweet.legacy.entities.hashtags) {
+    elements.push({
+      start: hashtag.indices[0],
+      end: hashtag.indices[1],
+      element: <a className="text-cyan-500 hover:underline" href={`https://twitter.com/hashtag/${hashtag.text}`}>#{hashtag.text}</a>
+    })
+  }
+  for (const url of actual_tweet.legacy.entities.urls) {
+    elements.push({
+      start: url.indices[0],
+      end: url.indices[1],
+      element: <a className="text-cyan-500 hover:underline" href={url.expanded_url}>{url.display_url}</a>
+    })
+  }
+  for (const user_mention of actual_tweet.legacy.entities.user_mentions) {
+    elements.push({
+      start: user_mention.indices[0],
+      end: user_mention.indices[1],
+      element: <a className="text-cyan-500 hover:underline" href={`https://twitter.com/${user_mention.screen_name}`}>@{user_mention.screen_name}</a>
+    })
+  }
+  if (actual_tweet.legacy.entities.media) {
+    for (const medium of actual_tweet.legacy.entities.media) {
+      if (medium.type === 'photo') {
+        elements.push({
+          start: medium.indices[0],
+          end: medium.indices[1],
+          element: <a href={medium.expanded_url} target="_blank"><img className="rounded-xl my-2" src={medium.media_url_https} width={medium.sizes.small.w} height={medium.sizes.small.h} /></a>
+        })
+      }
+    }
+  }
+  // add the rest of the text around the inserted entities
+  elements.sort((a, b) => a.start - b.start)
+  let i = 0
+  for (const el of elements) {
+    if (i < el.start) {
+      elements.push({ start: i, end: el.start, element: <>{actual_tweet.legacy.full_text.substring(i, el.start)}</> })
+      i = el.end
+    } else if (i === el.start) {
+      i = el.end
+    }
+  }
+  if (i !== actual_tweet.legacy.full_text.length-1) {
+    elements.push({ start: i, end: actual_tweet.legacy.full_text.length, element: <>{actual_tweet.legacy.full_text.substring(i)}</> })
+  }
+  elements.sort((a, b) => a.start - b.start)
+  // display it all
+  return <div>{elements.map(el => <React.Fragment key={el.start}>{el.element}</React.Fragment>)}</div>
+}
+
+export default async function TwitterFromCache(props: { screenName: string }) {
   const record = await prisma.kVStore.findFirst({
     select: {
       value: true,
@@ -103,11 +140,11 @@ export default async function TwitterFromCache() {
   const tweets = TweetsC.parse(record.value)
   return (
     <div className="flex flex-col border rounded-lg overflow-hidden text-sm">
-      <div className="flex flex-row border-b my-2 px-4 py-2 justify-around items-center">
-        <a className="text-xl font-bold hover:underline" href="https://twitter.com/CfdeWorkbench" target="_blank">
-          Tweets from @CfdeWorkbench
+      <div className="flex flex-row border-b my-2 p-2 justify-between items-center">
+        <a className="text-xl font-bold hover:underline" href={`https://twitter.com/${props.screenName}`} target="_blank">
+          Tweets from @{props.screenName}
         </a>
-        <a className="rounded-3xl py-1 px-4 bg-black text-white hover:opacity-85 font-bold" href="https://twitter.com/intent/follow?screen_name=CfdeWorkbench" target="_blank">Follow</a>
+        <a className="rounded-3xl py-1 px-4 bg-black text-white hover:opacity-85 font-bold" href={`https://twitter.com/intent/follow?screen_name=${props.screenName}`} target="_blank">Follow</a>
       </div>
       <div className="flex flex-col overflow-y-scroll">
         {tweets.map(tweet => {
@@ -116,7 +153,7 @@ export default async function TwitterFromCache() {
             <div key={tweet.legacy.id_str} className="flex flex-col">
               <div className="flex flex-row gap-2 ml-8">
                 <svg viewBox="0 0 24 24" aria-hidden="true" className="w-4 stroke-gray-300"><g><path d="M4.75 3.79l4.603 4.3-1.706 1.82L6 8.38v7.37c0 .97.784 1.75 1.75 1.75H13V20H7.75c-2.347 0-4.25-1.9-4.25-4.25V8.38L1.853 9.91.147 8.09l4.603-4.3zm11.5 2.71H11V4h5.25c2.347 0 4.25 1.9 4.25 4.25v7.37l1.647-1.53 1.706 1.82-4.603 4.3-4.603-4.3 1.706-1.82L18 15.62V8.25c0-.97-.784-1.75-1.75-1.75z"></path></g></svg>
-                {tweet.retweeted_tweet ? <a className="text-gray-600 hover:underline" href="https://twitter.com/CfdeWorkbench" target="_blank">CFDE Workbench reposted</a> : null}
+                {tweet.retweeted_tweet ? <a className="text-gray-600 hover:underline font-bold" href={`https://twitter.com/${tweet.core.user_results.result.legacy.name}`} target="_blank">{tweet.core.user_results.result.legacy.name} reposted</a> : null}
               </div>
               <div className="flex flex-row border-b py-2 mb-2 px-4">
                 <div className="w-16 flex-shrink-0 flex justify-center">
@@ -132,14 +169,8 @@ export default async function TwitterFromCache() {
                     <a className="text-gray-500" href={`https://twitter.com/${actual_tweet.core.user_results.result.legacy.screen_name}`} target="_blank">@{actual_tweet.core.user_results.result.legacy.screen_name}</a>
                     <a className="text-gray-500 hover:underline whitespace-nowrap" href={`https://twitter.com/${actual_tweet.core.user_results.result.legacy.screen_name}/status/${actual_tweet.legacy.id_str}`} target="_blank">{(new Date(actual_tweet.legacy.created_at)).toLocaleDateString('en-us', {month: 'short', day: 'numeric'})}</a>
                   </div>
-                  <div>{actual_tweet.legacy.full_text}</div>
-                  {actual_tweet.legacy.entities.media?.map((medium, i) => (
-                    <a key={i} href={medium.expanded_url} target="_blank">
-                      {medium.type === 'photo' ? (
-                        <img className="rounded-xl" src={medium.media_url_https} width={medium.sizes.small.w} height={medium.sizes.small.h} />
-                      ) : null}
-                    </a>
-                  ))}
+                  {actual_tweet.legacy.in_reply_to_screen_name ? <span>Replying to <a className="text-cyan-500 hover:underline" href={`https://twitter.com/${actual_tweet.legacy.in_reply_to_screen_name}`} target="_blank">@{actual_tweet.legacy.in_reply_to_screen_name}</a></span> : null}
+                  {tweet_with_entities(actual_tweet)}
                   <div className="flex flex-row gap-4">
                     <div className="w-8 h-8 rounded-full hover:bg-blue-100 flex place-items-center place-content-center"><a className="w-4" href={`https://twitter.com/intent/post?in_reply_to=${actual_tweet.legacy.id_str}`} target="_blank"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg></a></div>
                     <div className="flex flex-row hover:text-red-400 items-center">
@@ -155,7 +186,7 @@ export default async function TwitterFromCache() {
           )
         })}
         <div className="flex justify-center m-4 mb-6">
-          <a className="rounded-3xl py-1 px-4 bg-sky-500 text-white hover:opacity-100 opacity-85 font-bold" href="https://twitter.com/CfdeWorkbench" target="_blank">View more on Twitter</a>
+          <a className="rounded-3xl py-1 px-4 bg-sky-500 text-white hover:opacity-100 opacity-85 font-bold" href={`https://twitter.com/${props.screenName}`} target="_blank">View more on Twitter</a>
         </div>
       </div>
     </div>
