@@ -44,7 +44,7 @@ def get_tweets(client):
     tweet.retweeted_tweet.id if tweet.retweeted_tweet else tweet.id: tweet
     for type, id in parse_qsl(os.environ['TWITTER_TWEETS_FROM'])
     for tweet in type_to_tweets[type](client, id)
-  }.values(), key=lambda tweet: tweet.created_at_datetime)
+  }.values(), key=lambda tweet: tweet.retweeted_tweet.created_at_datetime if tweet.retweeted_tweet else tweet.created_at_datetime, reverse=True)
   return [
     dict(tweet._data, retweeted_tweet=tweet.retweeted_tweet._data) if tweet.retweeted_tweet else tweet._data
     for tweet in tweets
