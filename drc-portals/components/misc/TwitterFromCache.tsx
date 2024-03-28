@@ -1,6 +1,7 @@
 import React from "react";
 import prisma from "@/lib/prisma";
 import { z } from 'zod'
+import { decode as decodeHTMLEntities } from 'html-entities'
 
 const TweetC = z.object({
   core: z.object({
@@ -133,14 +134,14 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
   let i = 0
   for (const el of elements) {
     if (i < el.start) {
-      elements.push({ start: i, end: el.start, element: <>{substring(actual_tweet.legacy.full_text, i, el.start)}</> })
+      elements.push({ start: i, end: el.start, element: <>{decodeHTMLEntities(substring(actual_tweet.legacy.full_text, i, el.start))}</> })
       i = el.end
     } else if (i === el.start) {
       i = el.end
     }
   }
   if (i !== actual_tweet.legacy.full_text.length-1) {
-    elements.push({ start: i, end: actual_tweet.legacy.full_text.length, element: <>{substring(actual_tweet.legacy.full_text, i)}</> })
+    elements.push({ start: i, end: actual_tweet.legacy.full_text.length, element: <>{decodeHTMLEntities(substring(actual_tweet.legacy.full_text, i))}</> })
   }
   elements.sort((a, b) => a.start - b.start)
   // display it all
