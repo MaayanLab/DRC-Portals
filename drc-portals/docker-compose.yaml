@@ -150,7 +150,7 @@ services:
 
   drc-portal-twitter:
     build: ../twitter
-    image: maayanlab/drc-portal-twitter:0.0.0
+    image: maayanlab/drc-portal-twitter:0.1.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       restartPolicy: Never
