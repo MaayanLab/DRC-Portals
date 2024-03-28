@@ -52,7 +52,7 @@ export default async function DataMatrix() {
     c2m2: await getDccNumAssets(item.id, 'C2M2', false),
     xmt: await getDccNumAssets(item.id, 'XMT', false),
     kg: await getDccNumAssets(item.id, 'KG Assertions', false),
-    att: await getDccNumAssets(item.id, 'Attribute Tables', false),
+    att: await getDccNumAssets(item.id, 'Attribute Table', false),
     etl: await getDccNumAssets(item.id, 'ETL', true),
     api: await getDccNumAssets(item.id, 'API', true),
     ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
