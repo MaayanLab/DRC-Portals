@@ -73,6 +73,26 @@ const TweetC = z.object({
 
 const TweetsC = z.array(z.intersection(TweetC, z.object({ retweeted_tweet: z.optional(TweetC) })))
 
+/**
+ * Twitter indexes treat wide characters as 1, deal with this by grouping together wide characters
+ */
+function codepoints(s: string) {
+  const pts: string[] = []
+  for (let i = 0; i < s.length; i++) {
+    let cp = s.codePointAt(i)
+    const j = i
+    while (cp && cp >= 65536) {
+      cp = s.codePointAt(++i)
+    }
+    pts.push(s.substring(j, i+1))
+  }
+  return pts
+}
+
+function substring(s: string, i: number, j?: number) {
+  return codepoints(s).slice(i, j).join('')
+}
+
 function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
   const elements: { start: number, end: number, element: React.ReactElement }[] = []
   // insert the various entities as react elements with their indexes
@@ -113,14 +133,14 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
   let i = 0
   for (const el of elements) {
     if (i < el.start) {
-      elements.push({ start: i, end: el.start, element: <>{actual_tweet.legacy.full_text.substring(i, el.start)}</> })
+      elements.push({ start: i, end: el.start, element: <>{substring(actual_tweet.legacy.full_text, i, el.start)}</> })
       i = el.end
     } else if (i === el.start) {
       i = el.end
     }
   }
   if (i !== actual_tweet.legacy.full_text.length-1) {
-    elements.push({ start: i, end: actual_tweet.legacy.full_text.length, element: <>{actual_tweet.legacy.full_text.substring(i)}</> })
+    elements.push({ start: i, end: actual_tweet.legacy.full_text.length, element: <>{substring(actual_tweet.legacy.full_text, i)}</> })
   }
   elements.sort((a, b) => a.start - b.start)
   // display it all
