@@ -76,6 +76,6 @@ with conn.cursor() as cur:
     kvstore_upsert(cur, 'twitter-cookies', cookies)
     tweets = get_tweets(client)
   #
-  print(f"{tweets} tweets saved")
+  print(f"{len(tweets)} tweets saved")
   kvstore_upsert(cur, 'twitter-tweets', tweets)
   conn.commit()
