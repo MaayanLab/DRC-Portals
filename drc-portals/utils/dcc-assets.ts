@@ -154,7 +154,7 @@ export async function getDccDataObj(
   return ({
     C2M2: await getDataObj(prisma, dccId, dccName, 'C2M2'),
     XMT: await getDataObj(prisma, dccId, dccName, 'XMT'),
-    AttributeTables: await getDataObj(prisma, dccId, dccName, 'Attribute Tables'),
+    AttributeTables: await getDataObj(prisma, dccId, dccName, 'Attribute Table'),
     KGAssertions: await getDataObj(prisma, dccId, dccName, 'KG Assertions'),
     ETL: await getDataObj(prisma, dccId, dccName, 'ETL'),
     API: await getDataObj(prisma, dccId, dccName, 'API'),
