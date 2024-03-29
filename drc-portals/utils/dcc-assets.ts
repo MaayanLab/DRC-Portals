@@ -38,7 +38,6 @@ async function getCreatorAff(
   prisma: PrismaClient, c: string | null, ftype: string,
   dcc_approval: boolean, drc_approval: boolean, dccName: string
 ) {
-  console.log(dccName)
   if (c) {
   // a creator is attached to the file (aka was submitted)
     const creator = await prisma.user.findFirst({
