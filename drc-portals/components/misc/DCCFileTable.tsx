@@ -57,19 +57,21 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
         <Table sx={{mb:2}}>
         <TableHead>
           <TableRow sx={{backgroundColor: '#edf1f7'}}>
-            <TableCell width='65%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}}>Name</TableCell>
-            <TableCell width='15%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">Date Modified</TableCell>
-            <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">DCC Approved</TableCell>
-            <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">DRC Approved</TableCell>
+            <TableCell width='45%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}}>Name</TableCell>
+            <TableCell width='20%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">Creator</TableCell>
+            <TableCell width='15%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">Date Modified</TableCell>
+            <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">DCC Approved</TableCell>
+            <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">DRC Approved</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {props.fileInfo.map((item, idx) => {
             return (
               <TableRow key={idx}>
-                <TableCell width='65%' style={{wordBreak: "break-word"}} sx={{border:0}}>
+                <TableCell width='45%' style={{wordBreak: "break-word"}} sx={{border:0}}>
                   <NameCell item={item}></NameCell>
                 </TableCell>
+                <TableCell width='20%' align="center" sx={{border:0}}>{item.creator}</TableCell>
                 <TableCell width='15%' align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
                   {item.dccapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
@@ -86,22 +88,24 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
         <Table sx={{mb:2}}>
           <TableHead>
             <TableRow sx={{backgroundColor: '#edf1f7'}}>
-              <TableCell width='55%' sx={{border:0, fontWeight:'bold', fontSize:'12pt'}}>Filename</TableCell>
-              <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">Filesize</TableCell>
-              <TableCell width='15%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">Date Modified</TableCell>
-              <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">DCC Approved</TableCell>
-              <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '12pt'}} align="center">DRC Approved</TableCell>
+              <TableCell width='35%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}}>Filename</TableCell>
+              <TableCell width='20%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">Creator</TableCell>
+              <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">Filesize</TableCell>
+              <TableCell width='15%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">Date Modified</TableCell>
+              <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">DCC Approved</TableCell>
+              <TableCell width='10%' sx={{border:0, fontWeight: 'bold', fontSize: '11pt'}} align="center">DRC Approved</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
           {props.fileInfo.map((item, idx) => {
             return (
               <TableRow key={idx}>
-                <TableCell width='55%' style={{wordBreak: "break-word"}} sx={{border:0}}>
+                <TableCell width='35%' style={{wordBreak: "break-word"}} sx={{border:0}}>
                   <Link color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener">
                     {item.filename}
                   </Link>
                 </TableCell>
+                <TableCell width='20%' align="center" sx={{border:0}}>{item.creator}</TableCell>
                 <TableCell width="10%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.size}</TableCell>
                 <TableCell width="15%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>

@@ -34,6 +34,54 @@ function convertBytes(b: bigint | null) {
   } 
 }
 
+async function getCreatorAff(
+  prisma: PrismaClient, c: string | null, ftype: string,
+  dcc_approval: boolean, drc_approval: boolean, dccName: string
+) {
+  if (c) {
+  // a creator is attached to the file (aka was submitted)
+    const creator = await prisma.user.findFirst({
+      where: {
+        email: c
+      },
+      select: {
+        role: true
+      }
+    })
+    if (creator) { 
+      // if DRC or Admin upload, mark as DRC even if user is DCC-affiliated
+      if (creator.role == "ADMIN" || creator.role == "DRC_APPROVER") {
+        return "DRC"
+      // all other roles (aka just UPLOADER), mark as DCC
+      } else {
+        return dccName
+      }
+      // if for some reason foreign key mapped creator entry is null (shouldn't happen)
+    } else {
+      return ""
+    }
+  // no creator = the file was included in original ingest by DRC
+  } else { 
+    // handle C2M2 datapackages transferred from CFDE-CC portal
+    if (dcc_approval && drc_approval && (ftype == "C2M2")) {
+      return dccName
+    // in all other cases with no creator, mark as DRC upload
+    } else {
+      return "DRC"
+    }
+  }
+}
+
+function getDccShortLabel(
+  dcc: {short_label: string | null} | null, dccName: string
+) {
+  if (dcc) {
+    return dcc.short_label ? dcc.short_label : dccName
+  } else {
+    return dccName
+  }
+}
+
 async function getFile(
   prisma: PrismaClient, dccId: string, dccName: string,
   ft: string, isCurr: boolean
@@ -53,25 +101,28 @@ async function getFile(
           filename: true,
           size: true
         }
+      },
+      dcc: {
+        select: {
+          short_label: true
+        }
       }
     }
   })
-  const data = [] as dccAsset[];
-  res.map(item => {
-    if (item.fileAsset) {
-      data.push({
-        dcc_id: dccName,
-        filetype: ft,
-        filename: (item.fileAsset.filename),
-        link: item.link,
-        size: convertBytes(item.fileAsset.size),
-        lastmodified: item.lastmodified.toLocaleDateString("en-US"),
-        creator: item.creator,
-        dccapproved: item.dccapproved,
-        drcapproved: item.drcapproved
-      })
+  const filter_res = res.filter((item) => item.fileAsset != null)
+  var data : dccAsset[] = await Promise.all(filter_res.map(async item => ({
+    dcc_id: dccName,
+    filetype: ft,
+    filename: item.fileAsset ? item.fileAsset.filename : '',
+    link: item.link,
+    size: item.fileAsset ? convertBytes(item.fileAsset.size) : undefined,
+    lastmodified: item.lastmodified.toLocaleDateString("en-US"),
+    creator: await getCreatorAff(
+      prisma, item.creator, ft, item.dccapproved, item.drcapproved, getDccShortLabel(item.dcc, dccName)),
+    dccapproved: item.dccapproved,
+    drcapproved: item.drcapproved
     }
-  })
+  )))
   return data
 }
 
@@ -97,28 +148,30 @@ async function getCode(
           smartAPIURL: true,
           smartAPISpec: true
         }
+      },
+      dcc: {
+        select: {
+          short_label: true
+        }
       }
     }
   })
-  const data = [] as dccAsset[];
-  res.map(item => {
-    if (item.codeAsset) {
-      data.push({
-        dcc_id: dccName,
-        filetype: ft,
-        filename: item.codeAsset.name,
-        link: item.link,
-        lastmodified: item.lastmodified.toLocaleDateString("en-US"),
-        creator: item.creator,
-        dccapproved: item.dccapproved,
-        drcapproved: item.drcapproved,
-        entitypage: item.codeAsset.entityPageExample,
-        openapi: item.codeAsset.openAPISpec,
-        smartapi: item.codeAsset.smartAPISpec,
-        smartapiurl: item.codeAsset.smartAPIURL
-      })
-    }
-  })
+  const filter_res = res.filter((item) => item.codeAsset != null)
+  var data : dccAsset[] = await Promise.all(filter_res.map(async item => ({
+    dcc_id: dccName,
+    filetype: ft,
+    filename: item.codeAsset ? item.codeAsset.name : '',
+    link: item.link,
+    lastmodified: item.lastmodified.toLocaleDateString("en-US"),
+    creator: await getCreatorAff(
+      prisma, item.creator, ft, item.dccapproved, item.drcapproved, getDccShortLabel(item.dcc, dccName)),
+    dccapproved: item.dccapproved,
+    drcapproved: item.drcapproved,
+    entitypage: item.codeAsset ? item.codeAsset.entityPageExample : '',
+    openapi: item.codeAsset ? item.codeAsset.openAPISpec : false,
+    smartapi: item.codeAsset ? item.codeAsset.smartAPISpec : false,
+    smartapiurl: item.codeAsset ? item.codeAsset.smartAPIURL : ''
+    })))
   return data
 }
 
