@@ -333,21 +333,21 @@ SELECT
       searchText={searchParams.q}
       filters={
         <>
-          {DiseaseFilters.length > 0 && (
+          {DiseaseFilters.length > 1 && (
             <>
               {/* <Typography className="subtitle1">Disease</Typography> */}
               <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" example_query="e.g. cancer" />
               <hr className="m-2" />
             </>
           )}
-          {TaxonomyFilters.length > 0 && (
+          {TaxonomyFilters.length > 1 && (
             <>
               {/* <Typography className="subtitle1">Taxonomy</Typography> */}
               <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Species" example_query="e.g. homo sapiens" />
               <hr className="m-2" />
             </>
           )}
-          {AnatomyFilters.length > 0 && (
+          {AnatomyFilters.length > 1 && (
             <>
               {/* <Typography className="subtitle1">Anatomy</Typography> */}
               <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" example_query="e.g. brain" />
@@ -356,14 +356,14 @@ SELECT
           )}
 
           {/* Conditionally render FilterSet for GeneFilters */}
-          {GeneFilters.length > 0 && (
+          {GeneFilters.length > 1 && (
             <>
               {/* <Typography className="subtitle1">Gene</Typography> */}
               <FilterSet key={`ID:$gene`} id={`gene`} filterList={GeneFilters} filter_title="Gene" example_query="e.g. HK1" />
               <hr className="m-2" />
             </>
           )}
-          {DataTypeFilters.length > 0 && (
+          {DataTypeFilters.length > 1 && (
             <>
               {/* <Typography className="subtitle1">Anatomy</Typography> */}
               <FilterSet key={`ID:$data_type`} id={`data_type`} filterList={DataTypeFilters} filter_title="Data type" example_query="e.g. DNA sequence" />
