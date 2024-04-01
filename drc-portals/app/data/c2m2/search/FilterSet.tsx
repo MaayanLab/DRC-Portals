@@ -166,7 +166,7 @@ const applyFilters = () => {
                     style={{
                       marginRight: '10px',
                       marginBottom: '10px',
-                      color: selectedLetter === letter ? 'red' : 'inherit', // Change text color to red if selected
+                      color: selectedLetter === letter ? 'blue' : 'inherit', // Change text color to red if selected
                       textDecoration: selectedLetter === letter ? 'underline' : 'none', // Underline if selected
 
                     }}
