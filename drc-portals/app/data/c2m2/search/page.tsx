@@ -428,7 +428,7 @@ SELECT
             {res.taxonomy_name !== "Unspecified" && (
               <>
                 <span>Species: </span>
-                <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link>
+                <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`} target="_blank"><i><u>{res.taxonomy_name}</u></i></Link>
                 <br />
               </>
 
@@ -437,7 +437,7 @@ SELECT
             {res.disease_name !== "Unspecified" && (
               <>
                 <span>Disease: </span>
-                <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
+                <Link href={`http://purl.obolibrary.org/obo/${res.disease}`} target="_blank"><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
                 <br />
               </>
             )}
@@ -445,7 +445,7 @@ SELECT
             {res.anatomy_name !== "Unspecified" && (
               <>
                 <span>Sample source: </span>
-                <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
+                <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}  target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
                 <br />
               </>
             )}
@@ -454,14 +454,14 @@ SELECT
             {res.gene_name !== "Unspecified" && (
               <>
                 <span>Gene: </span>
-                <Link href={`http://www.ensembl.org/id/${res.gene}`}><i><u>{res.gene_name}</u></i></Link>
+                <Link href={`http://www.ensembl.org/id/${res.gene}`}  target="_blank"><i><u>{res.gene_name}</u></i></Link>
                 <br />
               </>
             )}
             {res.data_type_name !== "Unspecified" && (
               <>
                 <span>Data type: </span>
-                <Link href={`http://edamontology.org/${res.data_type}`}><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
+                <Link href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
                 <br />
               </>
             )}
