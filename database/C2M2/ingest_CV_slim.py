@@ -3,6 +3,7 @@ import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent))
 from ingest_common import connection
 
+connection.autocommit = True
 cur = connection.cursor()
 
 for f in pathlib.Path(__file__).parent.glob('CV/*.tsv'):
@@ -19,7 +20,7 @@ for f in pathlib.Path(__file__).parent.glob('CV/*.tsv'):
   )
   with f.open('r') as fr:
     columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, f.stem, null='', columns=columns, sep='\t')
+    cur.copy_from(fr, f'"c2m2"."{f.stem}"', null='', columns=columns, sep='\t')
 
 # Ingest slim (and associated ontology) tables into a schema called 'slim', because c2m2 also has tables like anatomy, disease etc., which is likely to be a much smaller subset of the corresponding tables in the slim schema.
 # There is also the table dbgap_study_id.tsv ; for now, it will be in slim schema, if needed later, can be put in a schema called dbgap.
@@ -40,4 +41,4 @@ for f in pathlib.Path(__file__).parent.glob('slim/*.tsv'):
   )
   with f.open('r') as fr:
     columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, f.stem, null='', columns=columns, sep='\t')
+    cur.copy_from(fr, f'"slim"."{f.stem}"', null='', columns=columns, sep='\t')
