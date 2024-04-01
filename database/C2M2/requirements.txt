@@ -1,0 +1,4 @@
+frictionless
+numpy
+pandas
+sqlalchemy
