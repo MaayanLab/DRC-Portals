@@ -10,7 +10,6 @@ python populateC2M2FromS3.py 2>&1 | tee MRM_ingestion.log
 
 # Other c2m2 related sql scripts
 # After ingesting c2m2 files, create the table ffl_biosample by running (be in the database folder)
-# ffl_biosample needs project_data_type, so, run c2m2_other_tables.sql first
 python ingest_other.py
 
 # .. and other scripts above
