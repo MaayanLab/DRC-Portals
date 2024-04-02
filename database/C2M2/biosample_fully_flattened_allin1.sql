@@ -92,7 +92,7 @@ select distinct
     c2m2.sample_prep_method.name, c2m2.sample_prep_method.description,
     c2m2.sample_prep_method.synonyms,
 
-    c2m2.subject_race.race, c2m2.subject_race_CV.name, c2m2.subject_race_CV.description,
+    c2m2.subject_race.race, c2m2."subject_race_CV".name, c2m2."subject_race_CV".description,
 
     c2m2.subject_granularity.name, c2m2.subject_granularity.description,
     c2m2.subject_sex.name, c2m2.subject_sex.description,
@@ -154,7 +154,7 @@ select distinct
 
     c2m2.sample_prep_method.name as sample_prep_method_name,
 
-    c2m2.subject_race.race as subject_race, c2m2.subject_race_CV.name as subject_race_name,
+    c2m2.subject_race.race as subject_race, c2m2."subject_race_CV".name as subject_race_name,
 
     c2m2.subject_granularity.name as subject_granularity_name,
     c2m2.subject_sex.name as subject_sex_name,
@@ -329,8 +329,8 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         on (c2m2.subject.id_namespace = c2m2.subject_race.subject_id_namespace and
         c2m2.subject.local_id = c2m2.subject_race.subject_local_id)
 
-    left join c2m2.subject_race_CV
-        on (c2m2.subject_race.race = c2m2.subject_race_CV.id)
+    left join c2m2."subject_race_CV"
+        on (c2m2.subject_race.race = c2m2."subject_race_CV".id)
 
     left join c2m2.subject_granularity
         on (c2m2.subject.granularity = c2m2.subject_granularity.id)
@@ -497,7 +497,7 @@ where
     c2m2.sample_prep_method.name as sample_prep_method_name, c2m2.sample_prep_method.description as sample_prep_method_description,
     c2m2.sample_prep_method.synonyms as sample_prep_method_synonyms,
 
-    c2m2.subject_race.race as subject_race, c2m2.subject_race_CV.name as subject_race_name, c2m2.subject_race_CV.description as subject_race_description,
+    c2m2.subject_race.race as subject_race, c2m2."subject_race_CV".name as subject_race_name, c2m2."subject_race_CV".description as subject_race_description,
 
     c2m2.subject_granularity.name as subject_granularity_name, c2m2.subject_granularity.description as subject_granularity_description,
     c2m2.subject_sex.name as subject_sex_name, c2m2.subject_sex.description as subject_sex_description,
