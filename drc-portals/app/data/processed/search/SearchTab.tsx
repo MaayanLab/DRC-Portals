@@ -10,7 +10,7 @@ import Tab from '@mui/material/Tab'
 
 export default function SearchTabs(props: React.PropsWithChildren<{
   type_counts: {
-    type: NodeType | 'all';
+    type: NodeType | 'all' | 'c2m2';
     entity_type: string | null;
     count: number;
   }[],
@@ -43,7 +43,7 @@ export default function SearchTabs(props: React.PropsWithChildren<{
         <Tab
           key={`${type}-${entity_type || ''}`}
           sx={{ fontSize: '14pt' }}
-          label={`${pluralize(type_to_string(type, entity_type))} (${count})`}
+          label={`${pluralize(type_to_string(type, entity_type))}${count ? ` (${count})` : ''}`}
           value={entity_type ? `${type}:${entity_type}` : type}
         />
       )}

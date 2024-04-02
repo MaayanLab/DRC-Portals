@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import SearchPage from './SearchPage'
 import SearchTabs from "./SearchTab";
 import AllSearchPage from './AllSearchPage'
+import C2M2SearchPage from '../../c2m2/search/page'
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -19,7 +20,7 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     count: number,
-    type_counts: {type: NodeType | 'all', entity_type: string | null, count: number}[],
+    type_counts: {type: NodeType | 'all' | 'c2m2', entity_type: string | null, count: number}[],
     dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
     with results as (
@@ -71,6 +72,7 @@ export default async function Page(props: PageProps) {
   else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   results.type_counts.sort((a, b) => b.count - a.count)
   results.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.type_counts.reduce((all, item) => all + item.count, 0) })
+  results.type_counts.splice(1, 0, { type: 'c2m2', entity_type: null, count: 0 })
   const s_type = searchParams.s?.type !== undefined ? searchParams.s?.type : results.type_counts[0].type
   const s_entity_type = searchParams.s?.entity_type !== undefined ? searchParams.s?.entity_type : results.type_counts[0].entity_type
   return (
@@ -80,8 +82,8 @@ export default async function Page(props: PageProps) {
         defaultSType={s_type}
         defaultSEntityType={s_entity_type}
       />
-      {s_type === 'all' ?
-        <AllSearchPage {...props} />
+      {s_type === 'all' ? <AllSearchPage {...props} />
+      : s_type === 'c2m2' ? <C2M2SearchPage {...props} />
       : <SearchPage searchParams={props.searchParams} type={s_type} entity_type={s_entity_type} />}
     </>
   )
