@@ -57,3 +57,5 @@ for f in pathlib.Path(__file__).parent.glob('slim/*.tsv'):
   with f.open('r') as fr:
     columns = next(fr).strip().split('\t')
     cur.copy_expert(f'''COPY "slim"."{f.stem}" ({','.join(map(json.dumps, columns))}) from STDIN with CSV DELIMITER '\t';''', fr)
+
+connection.commit()
