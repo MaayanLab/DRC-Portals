@@ -53,7 +53,6 @@ export default function DataTable({rows, users, dccMapping} : {
         id: number;
         name: string | null;
         email: string | null;
-        dcc: string | null;
         role: string;
         dccs: DCC[]
     }[], users: User[],
@@ -84,11 +83,11 @@ export default function DataTable({rows, users, dccMapping} : {
     ];
 
 
-    // get selected rows
+    // get selected rows 
     const onRowsSelectionHandler = (ids: GridRowSelectionModel) => {
         const selectedRowsData = ids.map((id) => rows.find((row) => row.id === id)) as UserInfo[]
         setSelection(selectedRowsData)
-        const newUpdateFormData = ids.map((id) => { return { role: '', DCC: '', index: id as number - 1 } })
+        const newUpdateFormData = selectedRowsData.map((row) => { return { role: '', DCC: row.dccs.map((dccObj) => dccObj.short_label).toString(), index: row.id as number - 1 } })
         setUpdateFormData(newUpdateFormData)
     };
 

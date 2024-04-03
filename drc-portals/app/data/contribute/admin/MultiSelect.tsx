@@ -89,7 +89,7 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
             setFormData({ ...formData, [evt.target.name]: value })
           } else if (type === 'updateUserForm') {
             const newFormData = [...formData]
-            newFormData[index] = { 'role': formData[index].role, 'DCC': (value as string[]).filter((option) => options.includes(option)).toString(), 'index': formData[index].index }
+            newFormData[index] = { 'role': formData[index].role, 'DCC': value.toString(), 'index': formData[index].index }
             setFormData(newFormData);
 
           };

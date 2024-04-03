@@ -13,7 +13,7 @@ async function getUserData() {
         dccs: true
     }})
     const rows = users.map((user, index) => {
-        return { id: index + 1, name: user.name, email: user.email, dcc: user.dcc, role: user.role.toString(), dccs: user.dccs }
+        return { id: index + 1, name: user.name, email: user.email, role: user.role.toString(), dccs: user.dccs }
     });
     return { 'users': users, 'rows': rows }
 }
@@ -48,9 +48,9 @@ export default async function UsersTable() {
     }})
     
     const rows = users.map((user, index) => {
-        return { id: index + 1, name: user.name, email: user.email, dcc: user.dcc, role: user.role.toString(), dccs: user.dccs }
+        return { id: index + 1, name: user.name, email: user.email, role: user.role.toString(), dccs: user.dccs }
     });
-    
+
     const dccInfo = await prisma.dCC.findMany()
     const dccMapping: { [key: string]: string } = {}
     dccInfo.map((dcc) => {

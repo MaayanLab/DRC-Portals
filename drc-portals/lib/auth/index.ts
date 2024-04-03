@@ -24,19 +24,35 @@ const providers = [
     name: 'Developer Account',
     credentials: {},
     async authorize(credentials, req) {
+      const LINCSDCCObject = await prisma.dCC.findFirst({
+        where: {
+          short_label: 'LINCS'
+        }, 
+        select: {
+          id: true
+        }
+      })
       const user = await prisma.user.upsert({
         create: {
           id: process.env.NEXTAUTH_SECRET ?? '',
           name: 'Developer',
           role: 'ADMIN',
-          dcc: 'LINCS',
+          dccs: {
+            connect: {
+              id: LINCSDCCObject?.id,
+            },
+          }
         },
         where: {
           id: process.env.NEXTAUTH_SECRET ?? '',
         },
         update: {
           role: 'ADMIN',
-          dcc: 'LINCS',
+          dccs: {
+            connect: {
+              id: LINCSDCCObject?.id,
+            },
+          }
         },
       })
       return user

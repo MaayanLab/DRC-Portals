@@ -210,12 +210,19 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-    const approvers = await prisma.user.findMany({
+    const DCCApproversList = await prisma.dCC.findFirst({
         where: {
-            dcc: dcc,
-            role: 'DCC_APPROVER'
+            short_label: dcc
+        }, 
+        select: {
+            Users : {
+                where : {
+                    role: 'DCC_APPROVER'
+                }
+            }
         }
     })
+    const approvers = DCCApproversList ? DCCApproversList.Users : []
     if (approvers.length > 0) {
         for (let approver of approvers) {
             const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);

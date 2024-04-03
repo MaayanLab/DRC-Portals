@@ -34,6 +34,9 @@ export default async function AccountPage() {
     const user = await prisma.user.findUniqueOrThrow({
         where: {
             id: session.user.id,
+        }, 
+        include: {
+            dccs: true
         }
     })
 
@@ -95,7 +98,7 @@ export default async function AccountPage() {
                             name='DCC'
                             label="DCC"
                             options={names}
-                            defaultValue={user.dcc?.split(',')}
+                            defaultValue={user.dccs.map((dccObj) => dccObj.short_label ? dccObj.short_label : '')}
                         />
                         <TextField
                             id="input-role"

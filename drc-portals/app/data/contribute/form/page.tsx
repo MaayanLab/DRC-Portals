@@ -35,7 +35,7 @@ export default async function UploadForm() {
     </>
   );
 
-  if (!user.dcc) return (
+  if (user.dccs.length === 0) return (
     <>
       <Nav />
       <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
