@@ -101,7 +101,11 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                   </div>
               }
               {orientation !== 'vertical' && <div className="flex flex-row mb-5">
-                {tags.map((tag, i)=><Chip variant="filled" sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>)}
+                {tags.map((tag, i)=>
+                  <Link href={`/info/outreach?tag=${tag}`}>
+                    <Chip variant="filled" sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
+                  </Link>
+                )}
               </div>}
               <Typography color="secondary" variant="h5">{e.title}</Typography>
               <Typography variant="body2" color="secondary">{e.short_description}</Typography>
@@ -180,11 +184,12 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
 )
 
 
-async function Outreach({featured=true, orientation='horizontal', size=2}:{
+async function Outreach({featured=true, orientation='horizontal', size=2, searchParams}:{
   featured?: Boolean,
   active?: Boolean,
   orientation?: 'horizontal' | 'vertical',
-  size?: number
+  size?: number,
+  searchParams?: {tag: string}
 }) {
     const now = new Date()
     if (featured) {
@@ -202,6 +207,16 @@ async function Outreach({featured=true, orientation='horizontal', size=2}:{
       return <OutreachComponent now={now} outreach={outreach} featured={featured} orientation={orientation}/>
     } else {
       const now = new Date()
+      const tag_filter:{tags?: {
+        path: [],
+        array_contains: string
+      }} = {}
+      if (searchParams && searchParams.tag) {
+        tag_filter.tags =  {
+            path: [],
+            array_contains: searchParams.tag
+        }
+      }
       const current = await prisma.outreach.findMany({
         where: {
           active: true,
@@ -214,12 +229,8 @@ async function Outreach({featured=true, orientation='horizontal', size=2}:{
             {
               end_date: null
             }
-          ]
-          
-          // tags: {
-          //   path: [],
-          //   array_contains: "competition"
-          // }
+          ],
+          ...tag_filter
         },
         orderBy: {
           start_date: { sort: 'desc', nulls: 'last' }
@@ -230,12 +241,8 @@ async function Outreach({featured=true, orientation='horizontal', size=2}:{
         where: {
           end_date: {
             lt: now
-          }
-          
-          // tags: {
-          //   path: [],
-          //   array_contains: "competition"
-          // }
+          },
+          ...tag_filter
         },
         orderBy: {
           start_date: { sort: 'desc', nulls: 'last' }
@@ -243,19 +250,28 @@ async function Outreach({featured=true, orientation='horizontal', size=2}:{
       })
       return (
         <Grid container spacing={1} sx={{marginTop: 2}}>
-          <Grid item xs={12}>
+          {(searchParams && searchParams.tag) && 
+            <Grid item xs={12} sx={{textAlign: 'right'}}>
+              <Link href={'/info/outreach'}>
+                <Button variant="outlined" color="secondary">
+                  <Typography>Reset Tags</Typography>
+                </Button>
+              </Link>
+            </Grid>
+          }
+          {current.length > 0 && <Grid item xs={12}>
             <Typography variant="h3" color="secondary">
               Active Outreach Events
             </Typography>
-          </Grid>
+          </Grid>}
           <Grid item xs={12}>
           <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation}/>
           </Grid>
-          <Grid item xs={12}>
+          {past.length > 0 && <Grid item xs={12}>
             <Typography variant="h3" color="secondary">
               Past Outreach Events
             </Typography>
-          </Grid>
+          </Grid>}
           <Grid item xs={12}>
             <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation}/>
           </Grid>
