@@ -99,7 +99,7 @@ dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/databas
 file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/021624/FileAssets.tsv', 'FileAssets.tsv')
 code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/022324/CodeAssets.tsv', 'CodeAssets.tsv')
 dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
-partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/partnerships.tsv', 'partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/032724/partnerships.tsv', 'partnerships.tsv')
 partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_partnership_publication.tsv', 'partnership_publications.tsv')
 tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/tools.tsv', 'tools.tsv')
 #%%
