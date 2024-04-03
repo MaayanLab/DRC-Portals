@@ -6,7 +6,7 @@ import { readFileSync } from 'fs'
 
 const title_map: { [ key: string ]: string }= {
   'OpenAPI': 'OpenAPI and SmartAPI',
-  'PWBMetanodes': 'Playbook Partnership Workflow Builder',
+  'PWBMetanodes': 'Playbook Workflow Builder',
   'KGAssertions': 'Data Distillery Knowledge Graph Assertions'
 }
 

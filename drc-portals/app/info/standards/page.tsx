@@ -153,7 +153,7 @@ export default function Standards() {
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
-                The Playbook Partnership Workflow Builder (PPWB) is a web-based 
+                The Playbook Workflow Builder (PWB) is a web-based 
                 knowledge resolution platform being developed by the CFDE Workflow 
                 Playbook Partnership and consisting of a growing network of datasets, 
                 semantically annotated API endpoints, and visualization tools 
