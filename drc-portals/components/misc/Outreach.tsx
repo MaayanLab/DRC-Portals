@@ -111,11 +111,11 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
               <Typography variant="body2" color="secondary">{e.short_description}</Typography>
               {orientation === 'vertical' ?
                 e.application_end ? 
-                  <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${e.application_end.toLocaleDateString("en-US", {
+                  <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                  })}`}
+                  }): "Passed"}`}
                   </Typography> :
                   e.start_date &&
                     <Typography variant="body2" color="secondary"><b>Starts</b>: {`${e.start_date.toLocaleDateString("en-US", {
@@ -197,7 +197,16 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
         where: {
           active: true,
           featured: true,
-
+          OR: [
+            {
+              end_date: {
+                gte: now
+              }
+            },
+            {
+              end_date: null
+            }
+          ],
         },
         orderBy: {
           start_date: { sort: 'desc', nulls: 'last' },
