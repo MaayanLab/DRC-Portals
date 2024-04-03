@@ -34,12 +34,12 @@ export type CreateUserFormData = {
   name: string;
   email: string;
   role: string;
-  DCC: string;
+  DCC: string[];
 };
 
 type CreateUserFormProps = {
   label: string;
-  options: string[]; 
+  options: string[];
   name: string;
   value?: string[];
   defaultValue?: string[];
@@ -52,7 +52,7 @@ type CreateUserFormProps = {
 
 type UpdateUserFormProps = {
   label: string;
-  options: string[]; 
+  options: string[];
   name: string;
   value?: string[];
   defaultValue?: string[];
@@ -85,15 +85,14 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
           );
-          // setFormData({ ...formData, [evt.target.name]: value })
           if (type === 'createUserForm') {
-            setFormData({...formData, [evt.target.name]: value })
-        } else if (type === 'updateUserForm') {
+            setFormData({ ...formData, [evt.target.name]: value })
+          } else if (type === 'updateUserForm') {
             const newFormData = [...formData]
-            newFormData[index] = { 'role': formData[index].role, 'DCC': value.toString(), 'index': formData[index].index }
+            newFormData[index] = { 'role': formData[index].role, 'DCC': (value as string[]).filter((option) => options.includes(option)).toString(), 'index': formData[index].index }
             setFormData(newFormData);
 
-        };
+          };
         }}
         input={<OutlinedInput label="Name" />}
         MenuProps={MenuProps}
@@ -110,7 +109,7 @@ export default function MultiSelect({ label, options, name, value, defaultValue 
             key={option}
             value={option}
             style={getStyles(option, values, theme)}
-            sx={{ fontSize: 16 }}
+            sx={{ fontSize: 16}}
           >
             {option}
           </MenuItem>

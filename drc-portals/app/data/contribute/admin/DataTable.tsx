@@ -1,6 +1,6 @@
 "use client"
 
-import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel, GridTreeNodeWithRender } from '@mui/x-data-grid';
 import * as React from 'react';
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import RoleSelect from './RoleSelect';
@@ -9,7 +9,7 @@ import { FaUserPlus } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { createOneUser, deleteUsers, updateUserInfo } from './actions';
-import type { User } from '@prisma/client'
+import type { DCC, User } from '@prisma/client'
 import ActionAlert from './ActionAlert';
 
 export interface UserInfo {
@@ -18,6 +18,7 @@ export interface UserInfo {
     email: string | null;
     dcc: string | null;
     role: string | null;
+    dccs: DCC[]
 }
 
 export type updateForm = {
@@ -25,6 +26,13 @@ export type updateForm = {
     DCC: string,
     index: number
 }
+
+export type creationForm = {
+     name: string,
+      email: string, 
+      role: string, 
+      DCC: string[] 
+    }
 
 export type ActionStatus = {
     success?: {
@@ -37,34 +45,48 @@ export type ActionStatus = {
     },
 }
 
-const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'name', headerName: 'Name', width: 200 },
-    { field: 'email', headerName: 'Email', width: 250 },
-    { field: 'dcc', headerName: 'DCC', width: 200 },
-    { field: 'role', headerName: 'Role', width: 200 },
-
-];
 
 
-export default function DataTable(props: {
+
+export default function DataTable({rows, users, dccMapping} : {
     rows: {
         id: number;
         name: string | null;
         email: string | null;
         dcc: string | null;
         role: string;
+        dccs: DCC[]
     }[], users: User[],
     dccMapping: { [key: string]: string };
 }) {
     const [selection, setSelection] = React.useState<UserInfo[]>([]);
-    const [createFormData, setCreateFormData] = React.useState({ name: '', email: '', role: '', DCC: '' });
+    const [createFormData, setCreateFormData] = React.useState<creationForm>({ name: '', email: '', role: '', DCC: [] });
     const [updateFormData, setUpdateFormData] = React.useState<updateForm[]>([]);
     const [status, setStatus] = React.useState<ActionStatus>({})
 
+    const RenderDCCOptions = ({ params }: { params: GridRenderCellParams<any, any, any, GridTreeNodeWithRender> }) => {
+        const DCCOptions = params.row.dccs.map((dccObject: DCC) => dccObject.short_label)
+        return (
+            <Box>
+                {DCCOptions.map((option: string) => <Chip key={option} label={option} sx={{margin:0.5}}/>)}
+            </Box>  
+        )
+    }
+    
+    const columns: GridColDef[] = [
+        { field: 'id', headerName: 'ID', flex:0.2 },
+        { field: 'name', headerName: 'Name', flex:0.5 },
+        { field: 'email', headerName: 'Email', flex:0.8 },
+        { field: 'dcc', headerName: 'DCC', flex:1, renderCell: params => {
+            return <RenderDCCOptions params={params} />
+        }, },
+        { field: 'role', headerName: 'Role', flex:0.5 },
+    ];
+
+
     // get selected rows
     const onRowsSelectionHandler = (ids: GridRowSelectionModel) => {
-        const selectedRowsData = ids.map((id) => props.rows.find((row) => row.id === id)) as UserInfo[]
+        const selectedRowsData = ids.map((id) => rows.find((row) => row.id === id)) as UserInfo[]
         setSelection(selectedRowsData)
         const newUpdateFormData = ids.map((id) => { return { role: '', DCC: '', index: id as number - 1 } })
         setUpdateFormData(newUpdateFormData)
@@ -85,14 +107,14 @@ export default function DataTable(props: {
     }, []);
     const createSingleUser = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        if (createFormData.role === '' || createFormData.name === '' || createFormData.email === '' || createFormData.DCC === '') {
+        if (createFormData.role === '' || createFormData.name === '' || createFormData.email === '' || createFormData.DCC.length === 0) {
             setStatus(({ error: { selected: true, message: 'Missing Field in User Creation. Please fill out all fields' } }))
         } else {
             createOneUser(createFormData)
                 .then(() => { setStatus(() => ({ success: { selected: true, message: 'User Created' } })) })
                 .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error in creating user. Please try again' } })) })
         }
-        setCreateFormData({ name: '', email: '', role: '', DCC: '' })
+        setCreateFormData({ name: '', email: '', role: '', DCC: [] })
     }
 
 
@@ -104,7 +126,7 @@ export default function DataTable(props: {
     }, []);
     const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        updateUserInfo(updateFormData, props.users)
+        updateUserInfo(updateFormData, users)
             .then(() => { setStatus(() => ({ success: { selected: true, message: 'User Information Updated' } })) })
             .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error in updating user information. Please try again' } })) })
     };
@@ -112,7 +134,7 @@ export default function DataTable(props: {
     // user delete
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        deleteUsers(selection, props.users)
+        deleteUsers(selection, users)
             .then(() => { setStatus(() => ({ success: { selected: true, message: 'User Deleted' } })) })
             .catch(error => { console.log({ error }); setStatus(({ error: { selected: true, message: 'Error in deleting user Please try again' } })) })
     };
@@ -157,7 +179,7 @@ export default function DataTable(props: {
                                 <MultiSelect
                                     name='DCC'
                                     label="DCC"
-                                    options={Object.keys(props.dccMapping)}
+                                    options={Object.keys(dccMapping)}
                                     formData={createFormData}
                                     setFormData={setCreateFormData}
                                     type='createUserForm'
@@ -193,8 +215,8 @@ export default function DataTable(props: {
                                                 <MultiSelect
                                                     name='DCC'
                                                     label="DCC"
-                                                    options={Object.keys(props.dccMapping)}
-                                                    defaultValue={user.dcc?.split(',')}
+                                                    options={Object.keys(dccMapping)}
+                                                    defaultValue={user.dccs.map((dccObject) => dccObject.short_label ? dccObject.short_label: '')}
                                                     formData={updateFormData}
                                                     setFormData={setUpdateFormData}
                                                     type='updateUserForm'
@@ -219,8 +241,9 @@ export default function DataTable(props: {
             <ActionAlert status={status} />
             <div style={{ width: '100%' }}>
                 <DataGrid
-                    rows={props.rows}
-                    columns={columns}
+                    getRowHeight={() => 'auto'}
+                    rows={rows}
+                    columns={columns} 
                     initialState={{
                         pagination: {
                             paginationModel: { page: 0, pageSize: 5 },
@@ -233,9 +256,17 @@ export default function DataTable(props: {
                         fontSize: 14,
                         '& .MuiDataGrid-cell': {
                             backgroundColor: "white",
+                            whiteSpace: 'normal !important',
+                            wordWrap: 'break-word !important',
                         },
                         '.MuiDataGrid-columnHeader': {
                             backgroundColor: '#C9D2E9',
+                        },
+                        '.MuiDataGrid-columnHeaderTitle': {
+                            whiteSpace: 'normal !important',
+                            wordWrap: 'break-word !important',
+                            lineHeight: "normal",
+                            fontWeight: 700
                         },
                         ml: 3
                     }}

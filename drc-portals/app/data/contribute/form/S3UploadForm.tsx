@@ -12,7 +12,7 @@ import { FileDrop } from './FileDrop'
 import ThemedStack from './ThemedStack';
 import Status from './Status';
 import { DCCSelect, FileTypeSelect } from './DCCSelect';
-import { $Enums } from '@prisma/client';
+import { $Enums, DCC, User } from '@prisma/client';
 import { Box, Link, List, ListItem, Stack } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
@@ -118,15 +118,7 @@ export function useS3UploadStatus() {
   return React.useContext(S3UploadStatusContext)
 }
 
-export function S3UploadForm(user: {
-  id: string;
-  name: string | null;
-  email: string | null;
-  emailVerified: Date | null;
-  image: string | null;
-  dcc: string | null
-  role: $Enums.Role;
-}
+export function S3UploadForm(user: User & {dccs: DCC[]}
 ) {
 
   const [status, setStatus] = React.useState<S3UploadStatus>({})
@@ -161,7 +153,7 @@ export function S3UploadForm(user: {
     }
     const checksumHash = hash.getHash('B64')
     let date = new Date().toJSON().slice(0, 10)
-    let filepath = dcc + '/' + filetype + '/' + date + '/' + file.name
+    let filepath = dcc.replace(' ', '') + '/' + filetype + '/' + date + '/' + file.name
     const presignedurl = await createPresignedUrl(filepath, checksumHash)
 
     setStatus(() => ({ loading: { selected: true, message: 'Uploading File to S3...' } }))
@@ -304,7 +296,7 @@ export function S3UploadForm(user: {
               />
             </Grid>
             <Grid item>
-              <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+              <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
             </Grid>
             <Grid item>
               <FileTypeSelect />

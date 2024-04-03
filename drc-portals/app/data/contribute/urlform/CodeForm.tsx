@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { DCCSelect } from '../form/DCCSelect';
-import { $Enums, CodeAsset, DccAsset, FileAsset } from '@prisma/client';
+import { $Enums, CodeAsset, DCC, DccAsset, FileAsset, User } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -164,15 +164,7 @@ type fullDCCAsset = {
     codeAsset: CodeAsset | null;
 } & DccAsset
 
-export function CodeForm(user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    emailVerified: Date | null;
-    image: string | null;
-    dcc: string | null
-    role: $Enums.Role;
-}) {
+export function CodeForm(user: User & {dccs: DCC[]}) {
 
     const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<CodeUploadStatus>({})
@@ -376,7 +368,7 @@ export function CodeForm(user: {
                                 />
                             </Grid>
                             <Grid item>
-                                <DCCSelect dccOptions={user.dcc ? user.dcc : ''} />
+                                <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
                             </Grid>
 
                         </Grid>

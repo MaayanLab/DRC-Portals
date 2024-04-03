@@ -21,11 +21,27 @@ async function verifyUser() {
     if (user.role != 'ADMIN') throw new Error('not an admin')
 }
 
+async function getDCCObjects(dccShortLabels: string[]) {
+    let dccObjects = []
+    for (let dcc of dccShortLabels) {
+        let dccObject = await prisma.dCC.findFirst({
+            where: {
+                short_label: dcc
+            }
+        })
+        if (dccObject) {
+            dccObjects.push(dccObject)
+        }
+    }
+    return dccObjects
+}
+
+
 export async function createOneUser(newUserData: {
     name: string;
     email: string;
     role: string;
-    DCC: string;
+    DCC: string[];
 }) {
     await verifyUser();
 
@@ -47,21 +63,20 @@ export async function createOneUser(newUserData: {
         throw new Error('not a role type')
     }
 
-    await prisma.user.upsert({
-        where: {
-            email: newUserData.email,
-        },
-        update: {
-            name: newUserData.name,
-            dcc: newUserData.DCC.toString(),
-            role: prismaRole as Role
-        },
-        create: {
+    // get the DCC objects from form dccString
+    const newDCCObjects = await getDCCObjects(newUserData.DCC)
+    const newDCCObjectsIDs = newDCCObjects.map((dccObject) => {return ({id: dccObject.id})})
+
+    // connect user to the new DCCs
+    await prisma.user.create({
+        data:{
             name: newUserData.name,
             email: newUserData.email,
-            dcc: newUserData.DCC.toString(),
+            dccs: {
+                connect: newDCCObjectsIDs
+            },
             role: prismaRole as Role
-        },
+        }
     })
     revalidatePath('/')
 }
@@ -69,7 +84,7 @@ export async function createOneUser(newUserData: {
 export async function updateUserInfo(updatedForms: updateForm[], users: User[]) {
     await verifyUser();
 
-    updatedForms.forEach(async (updatedData) => {
+    await Promise.all(updatedForms.map(async (updatedData) => {
         let prismaRole = ''
         if (updatedData.role === "User") {
             prismaRole = Role.USER
@@ -87,22 +102,40 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
         }
 
         // add dcc to user in db
-        await prisma.user.update({
-            where: {
-                id: users[updatedData.index]['id']
-            },
-            data: {
-                ...(updatedData.role.toString() != '' ? {
-                    role: prismaRole as Role,
-                } : {}),
-                ...(updatedData.DCC?.toString() != '' ? {
-                    dcc: updatedData.DCC?.toString()
-                } : {})
+        // get the DCC objects from form dccString
+        const newDCCObjects = await getDCCObjects(updatedData.DCC.split(','))
+        const newDCCObjectsIDs = newDCCObjects.map((dccObject) => {return ({id: dccObject.id})})
 
-            },
-        });
-
-    })
+        const [disconnected, updatedUser] = await prisma.$transaction([
+            //disconnect old dccs from use
+            prisma.user.update({
+                where: {
+                    id: users[updatedData.index]['id']
+                },
+                data: {
+                    dccs: {
+                        set: []
+                    }
+                },
+            }), 
+            // connect user to the new DCCs
+            prisma.user.update({
+                where: {
+                    id: users[updatedData.index]['id']
+                },
+                data: {
+                    ...(updatedData.role.toString() != '' ? {
+                        role: prismaRole as Role,
+                    } : {}),
+                    ...(updatedData.DCC?.toString() != '' ? {
+                        dccs: {
+                            connect: newDCCObjectsIDs
+                        }
+                    } : {})
+                },
+            })
+        ])
+    }))
     revalidatePath('/')
 }
 

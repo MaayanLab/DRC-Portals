@@ -14,6 +14,9 @@ export default async function UploadForm() {
   const user = await prisma.user.findUnique({
     where: {
       id: session.user.id
+    },
+    include: {
+      dccs: true
     }
   })
   if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/urlform")
