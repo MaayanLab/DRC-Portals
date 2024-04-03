@@ -58,7 +58,7 @@ export function PreviewButton(props: {
 }) {
   return (
     <div className="pl-2 relative">
-      <Link href={props.href} target="_blank">
+      <Link href={props.href}>
         <FindInPageOutlinedIcon sx={{ width: '50px', height: '50px' }} />
       </Link>
     </div>
