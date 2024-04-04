@@ -32,28 +32,26 @@ const providers = [
           id: true
         }
       })
-      const user = await prisma.user.upsert({
-        create: {
+
+      const user = await prisma.user.create({
+        data: {
           id: process.env.NEXTAUTH_SECRET ?? '',
           name: 'Developer',
           role: 'ADMIN',
           dccs: {
-            connect: {
-              id: LINCSDCCObject?.id,
+            connectOrCreate: {
+              where: {
+                id: LINCSDCCObject?.id
+              },
+              create: {
+                id: LINCSDCCObject?.id,
+                short_label: 'LINCS',
+                label: 'Library of Integrated Network-based Cellular Signatures',
+                homepage: 'https://lincsproject.org/'
+              },
             },
-          }
-        },
-        where: {
-          id: process.env.NEXTAUTH_SECRET ?? '',
-        },
-        update: {
-          role: 'ADMIN',
-          dccs: {
-            connect: {
-              id: LINCSDCCObject?.id,
-            },
-          }
-        },
+          },
+        }
       })
       return user
     }

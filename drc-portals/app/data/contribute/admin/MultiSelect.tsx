@@ -12,7 +12,13 @@ import { updateForm } from './DataTable'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
+
 const MenuProps = {
+  sx: {
+    "&& .Mui-selected": {
+      backgroundColor: "#7187C3"
+    }
+  },
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
