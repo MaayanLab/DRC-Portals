@@ -24,20 +24,34 @@ const providers = [
     name: 'Developer Account',
     credentials: {},
     async authorize(credentials, req) {
-      const user = await prisma.user.upsert({
-        create: {
+      const LINCSDCCObject = await prisma.dCC.findFirst({
+        where: {
+          short_label: 'LINCS'
+        }, 
+        select: {
+          id: true
+        }
+      })
+
+      const user = await prisma.user.create({
+        data: {
           id: process.env.NEXTAUTH_SECRET ?? '',
           name: 'Developer',
           role: 'ADMIN',
-          dcc: 'LINCS',
-        },
-        where: {
-          id: process.env.NEXTAUTH_SECRET ?? '',
-        },
-        update: {
-          role: 'ADMIN',
-          dcc: 'LINCS',
-        },
+          dccs: {
+            connectOrCreate: {
+              where: {
+                id: LINCSDCCObject?.id
+              },
+              create: {
+                id: LINCSDCCObject?.id,
+                short_label: 'LINCS',
+                label: 'Library of Integrated Network-based Cellular Signatures',
+                homepage: 'https://lincsproject.org/'
+              },
+            },
+          },
+        }
       })
       return user
     }

@@ -7,6 +7,7 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { PaginatedTable } from './PaginatedTable';
 import Nav from '../Nav';
+import { DCC } from '@prisma/client';
 
 
 export default async function UserFiles() {
@@ -36,6 +37,7 @@ export default async function UserFiles() {
                     codeAsset: true,
                 }
             },
+            dccs : true
         },
     })
 
@@ -56,14 +58,15 @@ export default async function UserFiles() {
         </>
     );
 
-    if (!user.dcc) return (
+    if (user.dccs.length === 0) return (
         <>
             <Nav />
             <Alert severity="warning"> User has no affiliated DCCs. Please contact the DRC to update your information</Alert>
         </>
     );
 
-    const userDCCArray = user.dcc.split(',').map((dcc) => dccMapping[dcc])
+    let userDCCArray : string[] = []
+    user.dccs.forEach((dcc: DCC) => {if (dcc.short_label) {userDCCArray.push(dcc.short_label)}})
     
     const allFiles = await prisma.dccAsset.findMany({
         include: {

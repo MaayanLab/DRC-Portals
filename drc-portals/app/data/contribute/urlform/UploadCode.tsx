@@ -36,7 +36,7 @@ const dccMapping: { [key: string]: string } = {
 }
 
 
-export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample='') => {
+export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
     const user = await prisma.user.findUnique({
@@ -110,7 +110,7 @@ export const findCodeAsset = async (link: string) => {
     return codeAsset
 }
 
-export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample='') => {
+export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
     const user = await prisma.user.findUnique({
@@ -161,8 +161,6 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
             }
         }
     });
-
-    // return {oldCode: false, asset:saveCodeAsset}
 }
 
 
@@ -187,29 +185,33 @@ export async function sendUploadReceipt(user: User, assetInfo: { codeAsset: Code
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-    const approvers = await prisma.user.findMany({
+    const approversList = await prisma.dCC.findFirst({
         where: {
-            dcc: dcc,
-            role: 'DCC_APPROVER'
+            short_label: dcc
+        },
+        select: {
+            Users: {
+                where: {
+                    role: 'DCC_APPROVER'
+                }
+            }
         }
     })
-    if (approvers.length > 0) {
-        for (let approver of approvers) {
-            const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''}/>);
-            if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
-            const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
-            const transporter = nodemailer.createTransport(server)
-            if (approver.email) {
-                transporter.sendMail({
-                    from: from,
-                    to: approver.email,
-                    subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
-                    html: emailHtml,
-                })
-            }
 
+    const approvers = approversList ? approversList.Users : []
+    for (let approver of approvers) {
+        const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} />);
+        if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+        const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+        const transporter = nodemailer.createTransport(server)
+        if (approver.email) {
+            transporter.sendMail({
+                from: from,
+                to: approver.email,
+                subject: 'CFDE WORKBENCH Portal Submitted Asset Needs Your Approval',
+                html: emailHtml,
+            })
         }
     }
-
 }
 
