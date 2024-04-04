@@ -1,7 +1,13 @@
 import React from "react";
 
 export function LinkRenderer(props: any) {
-  if (props.href.startsWith("#") || props.href.startsWith("/")) {
+  if (props.href.startsWith("/img")) {
+    return (
+      <a href={props.href} target="_blank">
+        {props.children}
+      </a>
+    )
+  } else if (props.href.startsWith("#") || props.href.startsWith("/")) {
     return (
       <a href={props.href}>
         {props.children}
