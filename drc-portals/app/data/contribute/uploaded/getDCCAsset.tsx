@@ -151,12 +151,19 @@ export async function sendDCCApprovedEmails(asset: {
                     email: asset.creator
                 }
             });
-            const DCCApprovers = await prisma.user.findMany({
+            const DCCApproversList = await prisma.dCC.findFirst({
                 where: {
-                    dcc: asset.dcc?.short_label,
-                    role: 'DCC_APPROVER'
+                    short_label: asset.dcc?.short_label
+                }, 
+                select: {
+                    Users : {
+                        where : {
+                            role: 'DCC_APPROVER'
+                        }
+                    }
                 }
-            });
+            })
+            const DCCApprovers = DCCApproversList ? DCCApproversList.Users : []
             const DRCApprovers = await prisma.user.findMany({
                 where: {
                     role: 'DRC_APPROVER'
@@ -237,12 +244,19 @@ export async function sendDRCApprovedEmails(asset: {
                     email: asset.creator
                 }
             });
-            const DCCApprovers = await prisma.user.findMany({
+            const DCCApproversList = await prisma.dCC.findFirst({
                 where: {
-                    dcc: asset.dcc?.short_label,
-                    role: 'DCC_APPROVER'
+                    short_label: asset.dcc?.short_label
+                }, 
+                select: {
+                    Users : {
+                        where : {
+                            role: 'DCC_APPROVER'
+                        }
+                    }
                 }
-            });
+            })
+            const DCCApprovers = DCCApproversList ? DCCApproversList.Users : []
             const DRCApprovers = await prisma.user.findMany({
                 where: {
                     role: 'DRC_APPROVER'

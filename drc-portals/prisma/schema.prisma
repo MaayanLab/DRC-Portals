@@ -23,6 +23,7 @@ model DCC {
   cfde_partner     Boolean           @default(false)
   cf_site          String?
   publications     DCCPublication[]
+  Users            User[]
   assets           DccAsset[]
   outreach         DCCOutreach[]
   partnerships     DCCPartnerships[]
@@ -403,6 +404,7 @@ model User {
   sessions      Session[]
   dcc           String?
   role          Role       @default(USER)
+  dccs          DCC[]      
   dccAsset      DccAsset[]
 }
 

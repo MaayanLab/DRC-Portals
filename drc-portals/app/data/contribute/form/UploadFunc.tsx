@@ -95,7 +95,7 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
     }
     if (dcc === null) throw new Error('Failed to find DCC')
 
-    const S3Link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
+    const S3Link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
     const fileAsset = await prisma.dccAsset.findMany({
         where: {
           link: S3Link,
@@ -164,7 +164,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
 
     const savedUpload = await prisma.dccAsset.create({
         data: {
-            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
+            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
             creator: user.email,
             current: true,
             dcc_id: dcc.id,
@@ -210,12 +210,19 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
-    const approvers = await prisma.user.findMany({
+    const DCCApproversList = await prisma.dCC.findFirst({
         where: {
-            dcc: dcc,
-            role: 'DCC_APPROVER'
+            short_label: dcc
+        }, 
+        select: {
+            Users : {
+                where : {
+                    role: 'DCC_APPROVER'
+                }
+            }
         }
     })
+    const approvers = DCCApproversList ? DCCApproversList.Users : []
     if (approvers.length > 0) {
         for (let approver of approvers) {
             const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);
