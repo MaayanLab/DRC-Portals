@@ -164,7 +164,7 @@ type fullDCCAsset = {
     codeAsset: CodeAsset | null;
 } & DccAsset
 
-export function CodeForm(user: User & {dccs: DCC[]}) {
+export function CodeForm(user: User & { dccs: DCC[] }) {
 
     const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<CodeUploadStatus>({})
@@ -346,7 +346,7 @@ export function CodeForm(user: User & {dccs: DCC[]}) {
                     <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Typography >Click here for more information on code asset types</Typography>} />
                 </Typography>
                 <Grid container spacing={2} sx={{ mt: 2 }}>
-                    <Grid md={9} xs={12}>
+                    <Grid item container md={9} xs={12}>
                         <Grid container item className='p-5' justifyContent="center" sx={{ mt: 3 }}>
                             <Grid item>
                                 <TextField
@@ -421,53 +421,54 @@ export function CodeForm(user: User & {dccs: DCC[]}) {
                                     InputLabelProps={{ style: { fontSize: 16 } }}
                                 />
                             </Grid>
-                        </Grid>
-                        <Grid container justifyContent="center" className='mb-5'>
-                            <TextField sx={{ minWidth: 640 }}
-                                label="URL"
-                                name='url'
-                                required
-                                color='secondary'
-                                placeholder='Enter URL here'
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                            />
-                        </Grid>
-                        {smartSelected && <Grid container justifyContent="center" className='mb-5'>
-                            <TextField sx={{ minWidth: 640 }}
-                                label="SmartAPI URL"
-                                name='smartAPIUrl'
-                                color='secondary'
-                                placeholder='Enter SmartAPI URL here'
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                            />
-                        </Grid>}
-                        {entitySelected && <Grid container justifyContent="center" className='mb-5'>
-                            <TextField sx={{ minWidth: 640 }}
-                                label="Entity Page Example"
-                                name='entityPageExample'
-                                color='secondary'
-                                required
-                                placeholder='Enter Entity Page Example here'
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                            />
-                        </Grid>}
-                        <Grid container justifyContent="center">
-                            <TextField sx={{ minWidth: 640 }}
-                                multiline
-                                rows={4}
-                                label="Description"
-                                name='description'
-                                color='secondary'
-                                placeholder='Enter short description here'
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                            />
+                            <Grid item justifyContent="center" className='mb-5'>
+                                <TextField sx={{ minWidth: 640 }}
+                                    label="URL"
+                                    name='url'
+                                    required
+                                    color='secondary'
+                                    placeholder='Enter URL here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>
+                            {smartSelected && <Grid item justifyContent="center" className='mb-5'>
+                                <TextField sx={{ minWidth: 640 }}
+                                    label="SmartAPI URL"
+                                    name='smartAPIUrl'
+                                    color='secondary'
+                                    placeholder='Enter SmartAPI URL here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>}
+                            {entitySelected && <Grid item justifyContent="center" className='mb-5'>
+                                <TextField sx={{ minWidth: 640 }}
+                                    label="Entity Page Example"
+                                    name='entityPageExample'
+                                    color='secondary'
+                                    required
+                                    placeholder='Enter Entity Page Example here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>}
+                            <Grid item justifyContent="center">
+                                <TextField sx={{ minWidth: 640 }}
+                                    multiline
+                                    rows={4}
+                                    label="Description"
+                                    name='description'
+                                    color='secondary'
+                                    placeholder='Enter short description here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>
                         </Grid>
                         <Status status={status} />
                         <Grid
+                            item
                             container
                             direction="column"
                             alignItems="center"
@@ -477,9 +478,7 @@ export function CodeForm(user: User & {dccs: DCC[]}) {
                                     Submit
                                 </Button>
                             </FormControl>
-                            {/* </div> */}
                         </Grid>
-
                     </Grid>
                     {apiSelected && <Grid md={3} xs={12}>
                         <FormGroup>
@@ -527,9 +526,9 @@ export function CodeForm(user: User & {dccs: DCC[]}) {
                                     <ListItemText>
                                         <strong>SmartAPIURL:</strong> {asset.codeAsset.smartAPIURL ? asset.codeAsset.smartAPIURL : ''}
                                     </ListItemText> </>}
-                                    {asset.codeAsset?.type === 'Entity Page Template' && <ListItemText>
+                                {asset.codeAsset?.type === 'Entity Page Template' && <ListItemText>
                                     <strong>Entity Page Example:</strong> <Link color="secondary" href={asset.codeAsset.entityPageExample ? asset.codeAsset.entityPageExample : ''} target="_blank">{asset.codeAsset.entityPageExample ? asset.codeAsset.entityPageExample : ''}</Link>
-                                        </ListItemText>}
+                                </ListItemText>}
                             </List>)}
                         </DialogContentText>
                     </DialogContent>

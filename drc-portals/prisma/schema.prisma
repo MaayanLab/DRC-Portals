@@ -402,6 +402,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  dcc           String?
   role          Role       @default(USER)
   dccs          DCC[]      
   dccAsset      DccAsset[]

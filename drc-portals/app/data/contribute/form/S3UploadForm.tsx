@@ -274,7 +274,7 @@ export function S3UploadForm(user: User & {dccs: DCC[]}
             <br></br>
             <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
           </Typography>
-          <Grid container spacing={2} justifyContent="center" sx={{ p: 5 }}>
+          <Grid container spacing={2} justifyContent="center" sx={{ marginBottom: 2 }}>
             <Grid item>
               <TextField
                 label="Uploader Name"
