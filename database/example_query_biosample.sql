@@ -210,7 +210,7 @@ from c2m2.fl_biosample
         c2m2.sample_prep_method.synonyms like '%liver biopsy%'
         limit 5;
 
---- Mano: 2024/03/13: To estimatew time taken by allres_full, all_res, allres_filtered etc
+--- Mano: 2024/03/13: To estimate time taken by allres_full, all_res, allres_filtered etc
 -----------------------------------------------------------------------------------------------
    --- allres_full
    EXPLAIN (ANALYZE)

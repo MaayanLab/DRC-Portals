@@ -11,6 +11,9 @@ cp .env.example .env
 #  ports:
 #      - 5432:5432
 docker-compose up -d drc-portal-postgres
+# To try another container from user account, Mano tried post 5433 while one postgres db is at 5432; created another yaml file and used 5433 in .env too; specified container name in new yaml file and used command: -p 5433; shm_size: 1024m; size: 120Gi
+#docker-compose -f docker-compose_MRM.yaml up -d drc-portal-postgres
+
 # install node modules
 npm i
 # initialize prisma: Sometimes, if many changes happened, it may help to do: 'npx prisma migrate reset' 
@@ -20,6 +23,7 @@ npm i
 # It it still gives issues, you may have to clean the DB completely by removing the public schema as well in psql:
 # DROP SCHEMA IF EXISTS public CASCADE; then, after the 'npx prisma migrate dev',
 # go to database folder and re-populate by 'python3 ingestion.py' or 'python ingestion.py'
+# Mano: if issues, may have to delete @@schema['public'] or @@schema['c2m2'] lines and a few other fixes
 npx prisma migrate dev
 # run dev server
 npm run dev

@@ -6,6 +6,18 @@ You must first start and migrate the database (see [DRC Portal Dev Guide](../drc
 
 ```bash
 # provision the primary database, mandatory and required before all other scripts
+# May have to get updated file/folders for migrations if files on S3 have a different set of columns (see ingest_common.py)
+# I did: [mano@sc-cfdewebdev prisma]$ git clone https://github.com/MaayanLab/DRC-Portals.git DRC-Portals
+# while being in /home/mano/DRC/DRC-Portals-20240404 then copied
+#[mano@sc-cfdewebdev migrations]$ pwd
+#/home/mano/DRC/DRC-Portals-20240404/DRC-Portals/drc-portals/prisma/migrations
+#[mano@sc-cfdewebdev migrations]$ #cp -R * ../../../../../DRC-Portals/drc-portals/prisma/migrations/.
+#[mano@sc-cfdewebdev migrations]$ cd ..
+#[mano@sc-cfdewebdev prisma]$ pwd
+#/home/mano/DRC/DRC-Portals-20240404/DRC-Portals/drc-portals/prisma
+#[mano@sc-cfdewebdev prisma]$ #cp schema.prisma ../../../../DRC-Portals/drc-portals/prisma/.
+#[mano@sc-cfdewebdev prisma]$ 
+
 python ingestion.py
 
 # much slower, for production or when developing with those features, can be omitted until necessary
@@ -28,7 +40,7 @@ python ingestion.py
 
 # for more extensive cache removal (i.e. with the processed data portal files), typically shouldn't be necessary
 rm -r ingest
-pyhon ingestion.py
+python ingestion.py
 
 # To ingest controlled vocabulary files into c2m2 schema
 # on psql prompt while being in database folder: \i ingest_CV.sql
@@ -39,9 +51,11 @@ psql -h localhost -U drc -d drc -a -f ingest_CV.sql
 # will not work unless absolute path for the source tsv file is used.
 
 # To ingest the c2m2 tables from files submitted by DCCs
-python populateC2M2FromS3.py 2>&1 | tee MRM_ingestion.log
+ymd=$(date +%y%m%d); logf=C2M2_ingestion_${ymd}.log; python populateC2M2FromS3.py 2>&1 | tee ${logf}
+# Check for any warning or errors
+egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 # If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-python populateC2M2FromS3.py MW 2>&1 | tee MRM_ingestion_MW.log
+dcc_short=MW; ymd=$(date +%y%m%d); logf=C2M2_ingestion_${dcc_short}_${ymd}.log; python populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
 
 # Other c2m2 related sql scripts
 psql -h localhost -U drc -d drc -a -f c2m2_other_tables.sql

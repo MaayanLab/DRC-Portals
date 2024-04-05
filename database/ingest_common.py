@@ -90,14 +90,14 @@ def ensure_file_factory(url, path):
 
 #%%
 # Fetch data for ingest
-dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/021324/DCC.tsv', 'DCC.tsv')
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/032124/DCC.tsv', 'DCC.tsv')
 dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_dcc_publication.tsv', 'dcc_publications.tsv')
 publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
-dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/021624/DccAssets.tsv', 'DccAssets.tsv')
-file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/021624/FileAssets.tsv', 'FileAssets.tsv')
-code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/CodeAssets.tsv', 'CodeAssets.tsv')
+dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/040324/DccAssets.tsv', 'DccAssets.tsv')
+file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/040324/FileAssets.tsv', 'FileAssets.tsv')
+code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/040124/CodeAssets.tsv', 'CodeAssets.tsv')
 dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
 partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/partnerships.tsv', 'partnerships.tsv')
 partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_partnership_publication.tsv', 'partnership_publications.tsv')

@@ -1,4 +1,5 @@
 /* run in psql as \i biosample_fully_flattened_allin1.sql */
+/* Or on linux command prompt:psql -h localhost -U drc -d drc -a -f biosample_fully_flattened_allin1.sql; */
 
 --- This combines both biosample_join.sql and biosample_fully_flattened.sql, so that everything is in one place.
 --- Make it project cetnric; most tables are already included in this biosample centrix flattening

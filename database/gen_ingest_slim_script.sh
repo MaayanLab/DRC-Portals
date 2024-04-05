@@ -21,7 +21,7 @@ line1="Script to ingest C2M2 relevant slim and related table: being in the direc
 line2="Generated sql script ${opf} and made it executable for owner and group. The resulting sql script can be run as (upon starting psql shell, or equivalent command):"
 line3="\\i ${opf}"
 line4="OR, directly specify the sql file name in psql command:"
-line5="psql -h localhost -U drc -d drc -a -f ${opf}"
+line5="psql -h localhost -U drc -d drc -p 5432 -a -f ${opf}"
 
 all_lines="${line1}\n${line2}\n${line3}\n${line4}\n${line5}\n"
 echo -e "/*\n${all_lines}*/\n" > $opf;

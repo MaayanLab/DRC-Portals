@@ -8,7 +8,16 @@ opf=$1
 schema_name=c2m2
 curdir=$PWD
 
-echo -e "/* Script to ingest C2M2 Controlled Vocabularies: being in the directory ${curdir}, generated using the command $0 $1 */\n" > $opf;
+#echo -e "/* Script to ingest C2M2 Controlled Vocabularies: being in the directory ${curdir}, generated using the command $0 $1 */\n" > $opf;
+
+line1="Script to ingest C2M2 Controlled Vocabularies: being in the directory ${curdir}, generated using the command $0 $1"
+line2="Generated sql script ${opf} and made it executable for owner and group. The resulting sql script can be run as (upon starting psql shell, or equivalent command):"
+line3="\\i ${opf}"
+line4="OR, directly specify the sql file name in psql command:"
+line5="psql -h localhost -U drc -d drc -p 5432 -a -f ${opf}"
+
+all_lines="${line1}\n${line2}\n${line3}\n${line4}\n${line5}\n"
+echo -e "/*\n${all_lines}*/\n" > $opf;
 
 # /* \COPY biosample FROM '/home/mano/C2M2/latest/biosample_fromall.tsv' DELIMITER E'\t' CSV HEADER; */
 
@@ -24,6 +33,5 @@ for fname_woext in ${fnames_woext}; do
 	echo -e "${sqlcode_drop_table}\n${sqlcode_create_table}\n${sqlcode_copy}\n" >> $opf;
 done
 chmod ug+x $opf;
-echo "Generated sql script ${opf} and made it executable for owner and group. The resulting sql script can be run as (upon starting psql shell, or equivalent command):";
-echo -e "\\i ${opf}\n";
+echo -e "${all_lines}\n";
 

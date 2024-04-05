@@ -3,7 +3,7 @@ Script to ingest C2M2 relevant slim and related table: being in the directory /h
 Generated sql script ingest_slim.sql and made it executable for owner and group. The resulting sql script can be run as (upon starting psql shell, or equivalent command):
 \i ingest_slim.sql
 OR, directly specify the sql file name in psql command:
-psql -h localhost -U drc -d drc -a -f ingest_slim.sql
+psql -h localhost -U drc -d drc -p 5432 -a -f ingest_slim.sql
 */
 
 DROP SCHEMA IF EXISTS slim CASCADE;
