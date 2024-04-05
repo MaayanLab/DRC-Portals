@@ -1,10 +1,6 @@
 
 import {  useSanitizedSearchParams } from "@/app/data/processed/utils"
-
-
-import CircularProgress from '@mui/material/CircularProgress';
 import { SearchQueryComponent} from './SearchQueryComponent';
-
 import React, { Suspense } from 'react';
 
 type PageProps = { searchParams: Record<string, string> }
@@ -15,7 +11,7 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props);
   
   
-console.log("I am here");
+//console.log("I am here");
 return(
   <Suspense fallback={<div>Loading...</div>}>
     <SearchQueryComponent {...props} />
