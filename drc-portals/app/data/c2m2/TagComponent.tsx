@@ -37,7 +37,7 @@ const TagComponent = ({
             <Chip
                 key="q"
                 label={`Query: ${q}`}
-                onDelete={() => handleDelete({ type: 'q', entity_type: null })}
+                //onDelete={() => handleDelete({ type: 'q', entity_type: null })}
                 style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
             />
         );
