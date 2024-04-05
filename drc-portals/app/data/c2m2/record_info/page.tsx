@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryString, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns } from "@/app/data/c2m2/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
@@ -28,7 +28,7 @@ export default async function Page(props: PageProps) {
 
   // Generate the query clause for filters
 
-  const filterConditionStr = generateFilterQueryString(searchParams, "c2m2", "ffl_biosample");
+  const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample");
   const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
 
   // To measure time taken by different parts

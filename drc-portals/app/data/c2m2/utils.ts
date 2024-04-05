@@ -85,7 +85,44 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       title: `Search ${props.searchParams.q ?? ''}`,
     }
   }
-  
+  // Mano: Not sure if use of this function is sql-injection safe
+// This is different from search/Page.tsx because it has specifics for this page.
+//export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
+export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
+    const filters: string[] = [];
+
+    //const tablename = "allres";
+    if (searchParams.t) {
+        const typeFilters: { [key: string]: string[] } = {};
+
+        searchParams.t.forEach(t => {
+            if (!typeFilters[t.type]) {
+                typeFilters[t.type] = [];
+            }
+            if (t.entity_type) {
+
+                //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+                if (t.entity_type !== "Unspecified") { // was using "null"
+                    //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
+                    typeFilters[t.type].push(`"${schemaname}"."${tablename}"."${t.type}" = '${t.entity_type.replace(/'/g, "''")}'`);
+                } else {
+                    typeFilters[t.type].push(`"${schemaname}"."${tablename}"."${t.type}" is null`);
+                    //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
+                }
+            }
+        });
+        for (const type in typeFilters) {
+            if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
+                filters.push(`(${typeFilters[type].join(' OR ')})`);
+            }
+        }
+    }
+    //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+    const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
+    console.log("FILTERS LENGTH =");
+    console.log(filters.length)
+    return filterConditionStr;
+}
   // Mano: Not sure if use of this function is sql-injection safe
   //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
   export function generateFilterQueryString(searchParams: any, tablename: string) {
