@@ -2,7 +2,7 @@ import { mdiMagnify } from "@mdi/js";
 import Icon from '@mdi/react';
 import { InputAdornment, TextField } from '@mui/material';
 
-export default function SearchField({ q, width, placeholder = 'Search', error }: { q: string, width?: number | string, placeholder?: string, error?: string }) {
+export default function SearchField({ q, width, placeholder = 'Enter one or more keywords', error }: { q: string, width?: number | string, placeholder?: string, error?: string }) {
   return (
     <>
       <TextField
