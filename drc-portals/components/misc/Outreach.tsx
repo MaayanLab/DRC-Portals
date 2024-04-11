@@ -104,14 +104,14 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
               {orientation !== 'vertical' && <div className="flex flex-row mb-5">
                 {tags.map((tag, i)=>
                   <Link href={`/info/outreach?tag=${tag}`}>
-                    <Chip variant="filled" sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
+                    <Chip variant="filled" sx={{ textTransform: "capitalize", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
                   </Link>
                 )}
               </div>}
               <Typography color="secondary" variant="h5">{e.title}</Typography>
               <Typography variant="body2" color="secondary">{e.short_description}</Typography>
               {orientation === 'vertical' ?
-                e.application_end ? 
+                (e.application_end && e.application_end > now) ? 
                   <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
                     year: 'numeric',
                     month: 'long',
@@ -133,7 +133,7 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                                   day: 'numeric',
                                 })}`}
                     </Typography>}
-                    {e.application_end && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
+                    {(e.application_end && e.application_end > now) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
                     `${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
                                         weekday: 'long',
                                         year: 'numeric',
@@ -161,7 +161,7 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
               }
               
               <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                <Button sx={{marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT EVENT PAGE</Button>
+                <Button sx={{marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
               </Link>
             </Stack>
           </Wrapper>
@@ -287,7 +287,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                 <Chip variant="filled" 
                   sx={{ background: searchParams.tag === "internship"? "#7187C3": "#EDF0F8", 
                     color: searchParams.tag === "internship"?"#FFF":"#29527A", 
-                    minWidth: 150, borderRadius: 2}} 
+                    minWidth: 150, borderRadius: 2, textTransform: 'capitalize'}} 
                     label={searchParams.tag?.toString()}
                     icon={<DeleteIcon color={searchParams.tag === "internship" ? "primary": "secondary"}/>}
                   />
