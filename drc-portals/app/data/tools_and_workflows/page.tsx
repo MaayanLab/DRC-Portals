@@ -15,21 +15,14 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
         publications: true
     }
   }>
-const shuffle = (array: ToolsWithPublications[]) => { 
-    for (let i = array.length - 1; i > 0; i--) { 
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [array[i], array[j]] = [array[j], array[i]]; 
-    } 
-    return array; 
-  }; 
-
 
 export default async function ToolsPage() {
-    const tools = shuffle(await prisma.tool.findMany({
+    const tools = await prisma.tool.findMany({
         include: {
             publications: true
-        }
-    }))
+        },
+        orderBy: [{publications: {_count: 'desc'}}, {label: 'asc'}, {id: 'asc'}],
+    })
 
     return (
         <MasonryClient defaultHeight={1500}>
