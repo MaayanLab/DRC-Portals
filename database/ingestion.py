@@ -30,8 +30,8 @@ with open(dcc_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, cf_site)
-      select id, label, short_label, description, homepage, icon, cfde_partner, cf_site
+    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, active, cf_site)
+      select id, label, short_label, description, homepage, icon, cfde_partner, active, cf_site
       from dcc_tmp
       on conflict (id)
         do update
@@ -41,6 +41,7 @@ cur.execute('''
             homepage = excluded.homepage,
             icon = excluded.icon,
             cfde_partner = excluded.cfde_partner,
+            active = excluded.active,
             cf_site = excluded.cf_site
     ;
   ''')

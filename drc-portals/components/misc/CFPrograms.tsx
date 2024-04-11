@@ -11,7 +11,8 @@ import prisma from '@/lib/prisma'
 async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSize, className?: string | null, baseEndpoint: string}) {
     const dccs = await prisma.dCC.findMany({
       where: {
-        cfde_partner: true
+        cfde_partner: true,
+        active: true,
       }
     })
     return (

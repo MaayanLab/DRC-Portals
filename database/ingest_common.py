@@ -90,7 +90,7 @@ def ensure_file_factory(url, path):
 
 #%%
 # Fetch data for ingest
-dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/032124/DCC.tsv', 'DCC.tsv')
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/041124/DCC.tsv', 'DCC.tsv')
 dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_dcc_publication.tsv', 'dcc_publications.tsv')
 publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
