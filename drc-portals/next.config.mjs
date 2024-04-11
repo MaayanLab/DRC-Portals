@@ -1,12 +1,15 @@
-/** @type {import('next').NextConfig} */
+import remarkGfm from 'remark-gfm'
+import createMDX from '@next/mdx'
 
 process.env.NEXTAUTH_URL_INTERNAL = 'http://localhost:3000/auth'
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
+  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   async rewrites() {
     return [
       {
@@ -57,4 +60,11 @@ const nextConfig = {
   }
 }
 
-module.exports = nextConfig
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [],
+  },
+})
+
+export default withMDX(nextConfig)
