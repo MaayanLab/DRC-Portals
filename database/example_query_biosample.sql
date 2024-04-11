@@ -255,6 +255,7 @@ from c2m2.fl_biosample
     disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
     project_name, project_description 
   ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
+  limit 10
   ;
 
 -----------------------------------------------------------------------------------------------
