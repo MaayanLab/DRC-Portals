@@ -494,7 +494,7 @@ The Entity Page Template and Example are  links to:
                         <StyledAccordionComponent heading="Instructional Video" content={
                             <>
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    Coming Soon
+                                    COMING SOON
                                 </Typography>
                             </>
                         }
