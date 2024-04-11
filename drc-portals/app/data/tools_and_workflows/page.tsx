@@ -56,7 +56,7 @@ export default async function ToolsPage() {
                                 <Grid item xs={12}>
                                     <Link href={tool.url}>
                                         <Button color="secondary" sx={{marginLeft: -1}}>
-                                            <Typography variant="body2" color="secondary">GO TO WEBSITE</Typography>
+                                            <Typography variant="body2" color="secondary">GO TO {tool.label.toUpperCase()}</Typography>
                                         </Button>
                                     </Link>
                                 </Grid>
