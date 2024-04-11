@@ -34,8 +34,8 @@ export default async function InfoHeader() {
                   <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
-                  <Link href="/data/contribute/form">
-                    <Typography variant="nav">CONTRIBUTE</Typography>
+                  <Link href={"/data/contribute/documentation"}>
+                    <Typography variant="nav">SUBMIT</Typography>
                   </Link>
                   <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                   <UserComponent session={session}/>
