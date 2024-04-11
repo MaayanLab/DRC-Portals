@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { Record } from "neo4j-driver";
 import { ReactNode } from "react";
 
@@ -128,8 +128,7 @@ export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
     return (
       <Box
         sx={{
-          width: "fit-content",
-          minWidth: "232px",
+          width: "360px",
           height: "auto",
           padding: "7px 6px",
           backgroundColor: "white",
@@ -151,12 +150,13 @@ export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
             <div
               key={`cy-tooltip-prop-${key}-${index}`}
               style={{
-                fontSize: "12px",
                 margin: "0px 7px",
                 padding: "2px 0px",
               }}
             >
-              <b>{key}</b>: {val}
+              <Typography variant="body2" noWrap>
+                <b>{key}</b>: {val}
+              </Typography>
             </div>
           ))}
         </Stack>
