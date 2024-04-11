@@ -1,0 +1,43 @@
+import Icon from "@mdi/react";
+import { mdiArrowLeft } from "@mdi/js";
+import Link from "next/link";
+import Button from "@mui/material/Button";
+
+<div className="my-4">
+
+# Search Help
+
+## Introduction
+
+The CFDE Workbench Processed Data Search allows searching across participating Common Fund programs' [contributed processed data](/data/contribute/documentation) which includes [Knowledge Graph Assertions](/info/standards/KGAssertions), the [Crosscut Metadata Model (C2M2)](/info/standards/C2M2) metadata about raw files, Attribute Tables and Sparse Matrices (XMTs). The files themselves and the contents of these processed data files can be located and related content navigated to.
+
+## Quick Start Tips
+
+Search works like many other search engines.
+
+|Syntax|Explaination|
+|-|-|
+|`unquoted text`|text not inside quote marks will be converted to boolean AND|
+|`"quoted text"`|text inside quote marks will be converted to bigrams (ordering preserved)|
+|`or`|the word "or" will be converted to boolean OR|
+|`-text`|a dash will apply an exclusion to the following text|
+
+Here are some representative queries:
+
+|Search text|Explaination|
+|-|-|
+|[nephropathy diabetic](https://data.cfde.cloud/data/processed/search?q=nephropathy+diabetic)|Finds records that contain both the term 'diabetic' and the term 'nephropathy', not necessarily in that order|
+|[gtex or sparc](https://data.cfde.cloud/data/processed/search?q=gtex+or+sparc)|Matches any document from GTEx or sparc|
+|["knowledge graph" -eqtl](https://data.cfde.cloud/data/processed/search?q=%22knowledge+graph%22+-eqtl)|Matches knowledge graph (but not graph knowledge) but not records containing "eqtl"|
+
+<Link href="/data">
+  <Button
+    sx={{textTransform: "uppercase"}}
+    color="primary"
+    variant="contained"
+    startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+      BACK TO SEARCH
+  </Button>
+</Link>
+
+</div>
