@@ -1,15 +1,17 @@
 import React from 'react';
-import { Container, Typography, Link, Grid, Box } from '@mui/material';
+import { Typography, Link, Grid } from '@mui/material';
 import prisma from '@/lib/prisma'
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from '@/components/misc/ReadMore';
+import { notFound } from 'next/navigation';
 
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
   const dcc = decodeURI(params.dcc)
   const dcc_dbinfo = await prisma.dCC.findFirst({
     where: {
-      short_label: dcc
+      short_label: dcc,
+      active: true
     },
     select: {
       id: true,
@@ -54,15 +56,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
       </Grid>    
       )
   } else {
-    return (
-      <Container>
-        <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>{dcc}</Typography>
-        Page unavailable
-        <Link sx={{mt:2, mb:5}} href="/data/matrix">
-          <Typography fontSize="14pt" color="#3470e5">Back to all files</Typography>
-        </Link>
-      </Container>
-    )
+    return notFound()
   }
   
 }

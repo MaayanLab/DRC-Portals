@@ -21,7 +21,8 @@ import { ReadMore } from "@/components/misc/ReadMore";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
-            short_label: decodeURI(params.dcc)
+            short_label: decodeURI(params.dcc),
+            active: true
         },
         include: {
             publications: {
