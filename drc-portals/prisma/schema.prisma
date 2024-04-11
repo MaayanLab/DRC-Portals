@@ -21,6 +21,7 @@ model DCC {
   icon             String?
   annotation       Json?
   cfde_partner     Boolean           @default(false)
+  active           Boolean           @default(true)
   cf_site          String?
   publications     DCCPublication[]
   Users            User[]
