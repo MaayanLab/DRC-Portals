@@ -80,6 +80,29 @@ export function pruneAndRetrieveColumnNames(
 }
 type PageProps = { searchParams: Record<string, string> }
 
+export function reorderArrayOfObjectsKeys(originalArray: Record<string, any>[], keyOrder: string[]): Record<string, any>[] {
+    return originalArray.map(obj => reorderObjectKeys(obj, keyOrder));
+}
+
+export function reorderObjectKeys(originalObject: Record<string, any>, keyOrder: string[]): Record<string, any> {
+    const reorderedObject: Record<string, any> = {};
+
+    keyOrder.forEach(key => {
+        if (originalObject.hasOwnProperty(key)) {
+            reorderedObject[key] = originalObject[key];
+        }
+    });
+
+    for (const key in originalObject) {
+        if (!reorderedObject.hasOwnProperty(key)) {
+            reorderedObject[key] = originalObject[key];
+        }
+    }
+
+    return reorderedObject;
+}
+
+
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
     return {
       title: `Search ${props.searchParams.q ?? ''}`,
