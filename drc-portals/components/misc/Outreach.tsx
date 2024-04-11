@@ -21,6 +21,7 @@ import MasonryClient from "./MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { Outreach } from "@prisma/client"
+import DeleteIcon from '@mui/icons-material/Delete';
 export const shuffle = (array: Outreach[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
@@ -226,9 +227,30 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             array_contains: searchParams.tag
         }
       }
+      const featured_events = await prisma.outreach.findMany({
+        where: {
+          active: true,
+          featured: true,
+          OR: [
+            {
+              end_date: {
+                gte: now
+              }
+            },
+            {
+              end_date: null
+            }
+          ],
+          ...tag_filter
+        },
+        orderBy: {
+          start_date: { sort: 'asc', nulls: 'last' }
+        }
+      })
       const current = await prisma.outreach.findMany({
         where: {
           active: true,
+          featured: false,
           OR: [
             {
               end_date: {
@@ -262,9 +284,13 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
           {(searchParams && searchParams.tag) && 
             <Grid item xs={12} sx={{textAlign: 'right'}}>
               <Link href={'/info/outreach'}>
-                <Button variant="outlined" color="secondary">
-                  <Typography>Reset Tags</Typography>
-                </Button>
+                <Chip variant="filled" 
+                  sx={{ background: searchParams.tag === "internship"? "#7187C3": "#EDF0F8", 
+                    color: searchParams.tag === "internship"?"#FFF":"#29527A", 
+                    minWidth: 150, borderRadius: 2}} 
+                    label={searchParams.tag?.toString()}
+                    icon={<DeleteIcon color={searchParams.tag === "internship" ? "primary": "secondary"}/>}
+                  />
               </Link>
             </Grid>
           }
@@ -274,7 +300,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             </Typography>
           </Grid>}
           <Grid item xs={12}>
-          <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation}/>
+          <OutreachComponent now={now} outreach={[...featured_events, ...current]} featured={featured} orientation={orientation}/>
           </Grid>
           {past.length > 0 && <Grid item xs={12}>
             <Typography variant="h3" color="secondary">
