@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
 export default function Page() {
-  return redirect('/data/contribute/form')
+  return redirect('/data/contribute/documentation')
 }
