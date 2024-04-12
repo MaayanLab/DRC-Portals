@@ -1,58 +1,58 @@
-/* run in psql as \i biosample_fully_flattened_allin1.sql */
-/* Or on linux command prompt:psql -h localhost -U drc -d drc  -p [5432|5433] -a -f biosample_fully_flattened_allin1.sql; */
+/* run in psql as \i collection_fully_flattened_allin1.sql */
+/* Or on linux command prompt:psql -h localhost -U drc -d drc -p [5432|5433] -a -f collection_fully_flattened_allin1.sql; */
 
---- This combines both biosample_join.sql and biosample_fully_flattened.sql, so that everything is in one place.
---- Make it project centric; most tables are already included in this biosample centric flattening
+--- This builds a collection centric fully flattened table.
 ---
---- table name c2m2.ffl_biosample means fully flattened biosample
+--- table name c2m2.ffl_collection means fully flattened collection
 
---- Mano: 2024/02/02: changed c2m2.fl_biosample.association_type to c2m2.fl_biosample.disease_association_type
-
---- Mano: 2024/02/11: using c2m2.disease.id instead of c2m2.biosample_disease.disease (since now c2m2.subject_disease.disease is also included)
+--- Mano: 2024/04/09: This script is based on the overall style of biosample_fully_flattened_allin1.sql, 
+--- with customizations (especially the first few joins) for collections
 
 --- To make a copy, after adjusting the table name if needed, copy paste the code within /* */ on psql prompt 
 /*
-DROP TABLE IF EXISTS c2m2.ffl0_biosample;
-CREATE TABLE c2m2.ffl0_biosample as (select distinct * from c2m2.ffl_biosample);
+DROP TABLE IF EXISTS c2m2.ffl0_collection;
+CREATE TABLE c2m2.ffl0_collection as (select distinct * from c2m2.ffl_collection);
 DO $$ 
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl0_biosample' AND indexname = 'ffl0_biosample_idx_searchable') THEN
-        CREATE INDEX ffl0_biosample_idx_searchable ON c2m2.ffl0_biosample USING gin(searchable);
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl0_collection' AND indexname = 'ffl0_collection_idx_searchable') THEN
+        CREATE INDEX ffl0_collection_idx_searchable ON c2m2.ffl0_collection USING gin(searchable);
     END IF;
 END $$;
 */
 
-/* Might get error like:
-psql:biosample_fully_flattened_allin1.sql:320: ERROR:  could not resize shared memory segment "/PostgreSQL.3909960044" to 16777216 bytes: No space left on device
+/* See the script biosample_fully_flattened_allin1.sql for other relevant comments */
+/* empty lines here to match line number in the script  biosample_fully_flattened_allin1.sql
 
-Then, increase container size or shared memory size:
-https://stackoverflow.com/questions/56751565/pq-could-not-resize-shared-memory-segment-no-space-left-on-device
-SELECT pg_size_pretty( pg_database_size('drc'));
 
-In docker compose: shm_size: 1g
 
-To check in docker:[user@server]docker exec -it <container_id> df -h | grep shm
+
+
+
+
+
+
+
+
 
 */
 
-
-DROP TABLE IF EXISTS c2m2.ffl_biosample;
-CREATE TABLE c2m2.ffl_biosample as (
+DROP TABLE IF EXISTS c2m2.ffl_collection;
+CREATE TABLE c2m2.ffl_collection as (
 select distinct
 --- COLUMNS TO SHOW TO USER ---
     -- concatenate all and save to_tsvector as searchable
     to_tsvector(concat_ws('|', 
-    c2m2.biosample.id_namespace, c2m2.biosample.local_id, 
-    c2m2.biosample.project_id_namespace, c2m2.biosample.project_local_id, 
-    c2m2.biosample.persistent_id, c2m2.biosample.creation_time, 
-    c2m2.biosample.sample_prep_method, c2m2.biosample.anatomy,
+    null, null, /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
+    c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 
+    null, null, /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
+    null, /* c2m2.biosample.sample_prep_method */ c2m2.collection_anatomy.anatomy,
     c2m2.disease_association_type.id, /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
-    c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, 
-    c2m2.biosample_from_subject.age_at_sampling,
-    c2m2.biosample_gene.gene,
-    c2m2.biosample_in_collection.collection_id_namespace, c2m2.biosample_in_collection.collection_local_id,
-    c2m2.biosample_substance.substance,
+    null, null, /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
+    null, /** c2m2.biosample_from_subject.age_at_sampling, **/
+    c2m2.collection_gene.gene,
+    c2m2.collection.id_namespace, c2m2.collection.local_id, 
+    c2m2.collection_substance.substance, /** **/
 
     /* Include dcc_name and dcc_abbreviation in searchable or not */
     c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, /* no need to include c2m2.dcc.dcc_description, */
@@ -61,8 +61,8 @@ select distinct
     c2m2.gene.name, c2m2.gene.description, c2m2.gene.synonyms,
     c2m2.disease.name, c2m2.disease.description, c2m2.disease.synonyms,
 
-    c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity, 
-    c2m2.subject.age_at_enrollment,
+    null, null, null, /** c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity,  **/
+    null, /** c2m2.subject.age_at_enrollment, **/
 
     c2m2.substance.name, c2m2.substance.description, 
     c2m2.substance.synonyms, c2m2.substance.compound,
@@ -74,7 +74,7 @@ select distinct
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
 
-    c2m2.subject_role_taxonomy.taxonomy_id,
+    c2m2.collection_taxonomy.taxon,
     c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, 
     c2m2.ncbi_taxonomy.synonyms,
 
@@ -82,17 +82,17 @@ select distinct
     c2m2.collection.name, c2m2.collection.abbreviation, 
     c2m2.collection.description, c2m2.collection.has_time_series_data,
 
-    c2m2.sample_prep_method.name, c2m2.sample_prep_method.description,
-    c2m2.sample_prep_method.synonyms,
+    null, null, /** c2m2.sample_prep_method.name, c2m2.sample_prep_method.description, **/
+    null, /** c2m2.sample_prep_method.synonyms, **/
 
-    c2m2.subject_race.race, c2m2.subject_race_CV.name, c2m2.subject_race_CV.description,
+    null, null, null, /** c2m2.subject_race.race, c2m2.subject_race_CV.name, c2m2.subject_race_CV.description, **/
 
-    c2m2.subject_granularity.name, c2m2.subject_granularity.description,
-    c2m2.subject_sex.name, c2m2.subject_sex.description,
-    c2m2.subject_ethnicity.name, c2m2.subject_ethnicity.description,
+    null, null, /** c2m2.subject_granularity.name, c2m2.subject_granularity.description, **/
+    null, null, /** c2m2.subject_sex.name, c2m2.subject_sex.description, **/
+    null, null, /** c2m2.subject_ethnicity.name, c2m2.subject_ethnicity.description, **/
 
-    c2m2.subject_role_taxonomy.role_id,
-    c2m2.subject_role.name, c2m2.subject_role.description, 
+    null, /** c2m2.subject_role_taxonomy.role_id, **/
+    null, null, /** c2m2.subject_role.name, c2m2.subject_role.description, **/
 
     c2m2.disease_association_type.name, c2m2.disease_association_type.description,
 
@@ -103,24 +103,24 @@ select distinct
 
     )) as searchable,
     -- sample_prep_method, anatomy, biosample_disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
-    c2m2.biosample.id_namespace as biosample_id_namespace, c2m2.biosample.local_id as biosample_local_id, 
-    c2m2.biosample.project_id_namespace as project_id_namespace, c2m2.biosample.project_local_id as project_local_id, 
-    c2m2.biosample.persistent_id as biosample_persistent_id, c2m2.biosample.creation_time as biosample_creation_time, 
-    c2m2.biosample.sample_prep_method as sample_prep_method, c2m2.biosample.anatomy as anatomy, 
+    null /* c2m2.biosample.id_namespace */ as biosample_id_namespace, null /* c2m2.biosample.local_id */ as biosample_local_id, 
+    c2m2.collection_defined_by_project.project_id_namespace as project_id_namespace, c2m2.collection_defined_by_project.project_local_id as project_local_id, 
+    null /* c2m2.biosample.persistent_id */ as biosample_persistent_id, null /* c2m2.biosample.creation_time */ as biosample_creation_time, 
+    null /* c2m2.biosample.sample_prep_method */ as sample_prep_method, c2m2.collection_anatomy.anatomy as anatomy, 
     c2m2.disease_association_type.id AS disease_association_type, /* c2m2.disease_association_type.id is c2m2.biosample_disease.association_type or c2m2.subject_disease.association_type */
     c2m2.disease.id as disease, /* c2m2.disease.id is c2m2.biosample_disease.disease or c2m2.subject_disease.disease */
-    c2m2.biosample_from_subject.subject_id_namespace as subject_id_namespace, c2m2.biosample_from_subject.subject_local_id as subject_local_id, 
-    c2m2.biosample_from_subject.age_at_sampling as biosample_age_at_sampling,
-    c2m2.biosample_gene.gene as gene,
-    c2m2.biosample_in_collection.collection_id_namespace as collection_id_namespace, c2m2.biosample_in_collection.collection_local_id as collection_local_id,
-    c2m2.biosample_substance.substance as substance,
+    null /* c2m2.biosample_from_subject.subject_id_namespace */ as subject_id_namespace, null /* c2m2.biosample_from_subject.subject_local_id */ as subject_local_id, 
+    null /* c2m2.biosample_from_subject.age_at_sampling */ as biosample_age_at_sampling,
+    c2m2.collection_gene.gene as gene,
+    c2m2.collection.id_namespace as collection_id_namespace, c2m2.collection.local_id as collection_local_id,
+    c2m2.collection_substance.substance as substance, /** **/
 
     c2m2.dcc.dcc_name as dcc_name, c2m2.dcc.dcc_abbreviation as dcc_abbreviation,
 
     c2m2.anatomy.name as anatomy_name,    c2m2.gene.name as gene_name,    c2m2.disease.name as disease_name,
 
-    c2m2.subject.granularity as subject_granularity, c2m2.subject.sex as subject_sex, c2m2.subject.ethnicity as subject_ethnicity, 
-    c2m2.subject.age_at_enrollment as subject_age_at_enrollment,
+    null /* c2m2.subject.granularity */ as subject_granularity, null /* c2m2.subject.sex */ as subject_sex, null /* c2m2.subject.ethnicity */ as subject_ethnicity, 
+    null /* c2m2.subject.age_at_enrollment */ as subject_age_at_enrollment,
 
     c2m2.substance.name as substance_name, c2m2.substance.compound as substance_compound,
 
@@ -130,23 +130,23 @@ select distinct
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
 
-    c2m2.subject_role_taxonomy.taxonomy_id as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
+    c2m2.collection_taxonomy.taxon as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
 
     c2m2.collection.persistent_id as collection_persistent_id, c2m2.collection.creation_time as collection_creation_time,
     c2m2.collection.name as collection_name, c2m2.collection.abbreviation as collection_abbreviation, 
     c2m2.collection.has_time_series_data as collection_has_time_series_data,
 
-    c2m2.sample_prep_method.name as sample_prep_method_name,
+    null /** c2m2.sample_prep_method.name **/ as sample_prep_method_name,
 
-    c2m2.subject_race.race as subject_race, c2m2.subject_race_CV.name as subject_race_name,
+    null /** c2m2.subject_race.race **/ as subject_race, null /** c2m2.subject_race_CV.name **/ as subject_race_name,
 
-    c2m2.subject_granularity.name as subject_granularity_name,
-    c2m2.subject_sex.name as subject_sex_name,
-    c2m2.subject_ethnicity.name as subject_ethnicity_name,
+    null /** c2m2.subject_granularity.name **/ as subject_granularity_name,
+    null /** c2m2.subject_sex.name **/ as subject_sex_name,
+    null /** c2m2.subject_ethnicity.name **/ as subject_ethnicity_name,
 
-    c2m2.subject_role_taxonomy.role_id as subject_role_taxonomy_role_id, /* use shorter name: role_id? */
-    c2m2.subject_role.name as subject_role_name, 
+    null /** c2m2.subject_role_taxonomy.role_id **/ as subject_role_taxonomy_role_id, /* use shorter name: role_id? */
+    null /** c2m2.subject_role.name **/ as subject_role_name, 
 
     c2m2.disease_association_type.name as disease_association_type_name,
 
@@ -261,7 +261,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     /* join with subject_role_taxonomy and ncbi_taxonomy */
     --------------------Mano 2024/02/02 WARNING CHECK JOIN CONDITION use subject table instead of fl_biosample?
     left join c2m2.subject_role_taxonomy
-        --- till 2024/02/03: on (c2m2.fl_biosample.subject_local_id = c2m2.subject_role_taxonomy.subject_local_id and ...)
+        --- till 2024/02/03 on (c2m2.fl_biosample.subject_local_id = c2m2.subject_role_taxonomy.subject_local_id and
         on (c2m2.subject.local_id = c2m2.subject_role_taxonomy.subject_local_id and
         c2m2.subject.id_namespace = c2m2.subject_role_taxonomy.subject_id_namespace)
 

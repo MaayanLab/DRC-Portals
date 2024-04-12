@@ -1,4 +1,5 @@
 /* (Being in folder .../database/c2m2/) Run on psql as \i core_table_joins.sql */
+/* Or on linux command prompt:psql -h localhost -U drc -d drc -p [5432|5433] -a -f core_table_joins.sql; */
 
 drop table if exists c2m2.allCollection;
 
@@ -12,7 +13,8 @@ from
     left join  
         c2m2.collection_defined_by_project
     on
-        c2m2.collection.local_id = c2m2.collection_defined_by_project.collection_local_id
+        (c2m2.collection.local_id = c2m2.collection_defined_by_project.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_defined_by_project.collection_id_namespace)
 
     left join  
         c2m2.collection_anatomy
@@ -43,6 +45,8 @@ from
         c2m2.collection_taxonomy
     on
         c2m2.collection.local_id = c2m2.collection_taxonomy.collection_local_id
+
+        /* NOTE: see if collection_in_collection can be joined here */
 ;
 
 /* 
