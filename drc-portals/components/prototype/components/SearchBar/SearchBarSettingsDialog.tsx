@@ -57,16 +57,18 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newLimit = parseInt(event.target.value);
     setSettings({
       ...settings,
-      limit: parseInt(event.target.value),
+      limit: Number.isNaN(newLimit) ? 1 : newLimit,
     });
   };
 
   const handleSkipChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newSkip = parseInt(event.target.value);
     setSettings({
       ...settings,
-      skip: parseInt(event.target.value),
+      skip: Number.isNaN(newSkip) ? 0 : newSkip,
     });
   };
 
@@ -121,7 +123,6 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
               display: "flex",
             }}
           >
-            {/* TODO: Fix this error appearing when the value is empty: Received NaN for the `value` attribute. If this is expected, cast the value to a string. */}
             <TextField
               required
               color="secondary"
@@ -130,6 +131,7 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
               type="number"
               value={settings.limit}
               onChange={handleLimitChange}
+              InputProps={{ inputProps: { min: 1, max: 1000 } }}
             />
             <TextField
               required
@@ -139,6 +141,7 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
               type="number"
               value={settings.skip}
               onChange={handleSkipChange}
+              InputProps={{ inputProps: { min: 0 } }}
             />
           </Box>
         </Box>
@@ -147,6 +150,7 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
         <Button color="secondary" onClick={handleClose}>
           Cancel
         </Button>
+        {/* TODO: Need to add validation to the form */}
         <Button onClick={handleSubmit} variant="contained">
           <SearchIcon />
         </Button>
