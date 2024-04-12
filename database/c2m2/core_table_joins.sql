@@ -6,47 +6,46 @@ drop table if exists c2m2.allCollection;
 create table c2m2.allCollection
 as select
     id_namespace, local_id, persistent_id, creation_time, abbreviation, name, description, has_time_series_data,
-    project_id_namespace, project_local_id, anatomy, disease, gene, protein, taxon, compound
+    project_id_namespace, project_local_id, anatomy, disease, gene, protein, taxon, compound, 
+    superset_collection_id_namespace, superset_collection_local_id
 from
     c2m2.collection
     
-    left join  
-        c2m2.collection_defined_by_project
-    on
-        (c2m2.collection.local_id = c2m2.collection_defined_by_project.collection_local_id and
+    left join c2m2.collection_defined_by_project
+    on (c2m2.collection.local_id = c2m2.collection_defined_by_project.collection_local_id and
         c2m2.collection.id_namespace = c2m2.collection_defined_by_project.collection_id_namespace)
 
-    left join  
-        c2m2.collection_anatomy
-    on
-        c2m2.collection.local_id = c2m2.collection_anatomy.collection_local_id
+    left join c2m2.collection_anatomy
+    on (c2m2.collection.local_id = c2m2.collection_anatomy.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_anatomy.collection_id_namespace)
 
-    left join  --- collection_compound causes expansion
-        c2m2.collection_compound
-    on
-        c2m2.collection.local_id = c2m2.collection_compound.collection_local_id
+    left join c2m2.collection_substance /* even if empty now; may have data in future */
+    on (c2m2.collection.local_id = c2m2.collection_substance.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_substance.collection_id_namespace)
 
-    left join  
-        c2m2.collection_disease
-    on
-        c2m2.collection.local_id = c2m2.collection_disease.collection_local_id
+    left join c2m2.collection_compound /* collection_compound causes expansion */
+    on (c2m2.collection.local_id = c2m2.collection_compound.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_compound.collection_id_namespace)
 
-    left join  
-        c2m2.collection_gene
-    on
-        c2m2.collection.local_id = c2m2.collection_gene.collection_local_id
+    left join c2m2.collection_disease
+    on (c2m2.collection.local_id = c2m2.collection_disease.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_disease.collection_id_namespace)
 
-    left join  
-        c2m2.collection_protein
-    on
-        c2m2.collection.local_id = c2m2.collection_protein.collection_local_id
+    left join c2m2.collection_gene
+    on (c2m2.collection.local_id = c2m2.collection_gene.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_gene.collection_id_namespace)
 
-    left join
-        c2m2.collection_taxonomy
-    on
-        c2m2.collection.local_id = c2m2.collection_taxonomy.collection_local_id
+    left join c2m2.collection_protein
+    on (c2m2.collection.local_id = c2m2.collection_protein.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_protein.collection_id_namespace)
 
-        /* NOTE: see if collection_in_collection can be joined here */
+    left join c2m2.collection_taxonomy
+    on (c2m2.collection.local_id = c2m2.collection_taxonomy.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_taxonomy.collection_id_namespace)
+
+    left join c2m2.collection_in_collection
+    on (c2m2.collection.local_id = c2m2.collection_in_collection.subset_collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_in_collection.subset_collection_id_namespace)
 ;
 
 /* 
