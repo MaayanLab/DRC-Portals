@@ -418,7 +418,18 @@ async function fetchQueryResults(searchParams: any) {
         
     } catch (error) {
         console.error('Error fetching query results:', error);
-        return <div>Error fetching query results</div>;
+        return <> 
+        <div className="mb-10"></div>
+        <Link href="/data">
+          <Button
+            sx={{ textTransform: "uppercase" }}
+            color="primary"
+            variant="contained"
+            startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+            BACK TO SEARCH
+          </Button>
+        </Link>
+        </>
     }
 
     

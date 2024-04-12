@@ -63,7 +63,7 @@ interface ExpandableTableProps {
                 rows={data.map(row => (
                   dynamicColumns.map(column => (
                     // Ensure bigint values are converted to string
-                    <Description description={String(row[column])} key={column} />
+                    <Description description={row[column] !== null ? String(row[column]) : 'NA'} key={column} />
                   ))
                 ))}
               />
