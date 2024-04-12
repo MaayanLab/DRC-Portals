@@ -577,6 +577,10 @@ file_table AS (
     staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
       results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
 
+  // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
+  const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
+  const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
+
   const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
   const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
     staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
@@ -754,8 +758,8 @@ file_table AS (
         searchParams={searchParams}
         //count={results?.count_file ?? 0} // Provide count directly as a prop
         count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
-        colNames={dynamicFileProjColumns}
-        dynamicColumns={dynamicFileProjColumns}
+        colNames={newFileProjColumns}
+        dynamicColumns={newFileProjColumns}
         getNameFromTable={getNameFromFileProjTable}
       />
 
