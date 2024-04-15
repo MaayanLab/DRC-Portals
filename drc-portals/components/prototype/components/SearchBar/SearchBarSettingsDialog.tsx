@@ -35,6 +35,7 @@ const pathSettingsDivider = (
   ></Box>
 );
 
+// TODO: Reset all filters button
 export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
   const { open, onClose, onSubmit } = props;
   const [value, setValue] = useState<SearchBarOption[]>(props.value);
@@ -56,6 +57,7 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
     onSubmit(value, settings);
   };
 
+  // TODO: This is still not great...need to allow an empty value, otherwise it's hard to change the last digit
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newLimit = parseInt(event.target.value);
     setSettings({
