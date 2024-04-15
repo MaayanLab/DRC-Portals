@@ -22,6 +22,7 @@ import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { Outreach } from "@prisma/client"
 import DeleteIcon from '@mui/icons-material/Delete';
+import Markdown from "./MarkdownComponent"
 export const shuffle = (array: Outreach[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
@@ -109,7 +110,7 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                 )}
               </div>}
               <Typography color="secondary" variant="h5">{e.title}</Typography>
-              <Typography variant="body2" color="secondary">{e.short_description}</Typography>
+              <Markdown markdown={e.short_description}/>
               {orientation === 'vertical' ?
                 (e.application_end && e.application_end > now) ? 
                   <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
