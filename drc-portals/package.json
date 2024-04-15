@@ -1,6 +1,6 @@
 {
   "name": "drc-portals",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -59,6 +59,7 @@
     "react-plotly.js": "^2.6.0",
     "react-select": "^5.8.0",
     "react-twitter-embed": "^4.0.4",
+    "react-youtube": "^10.1.0",
     "remark-gfm": "^4.0.0",
     "string-similarity-js": "^2.1.4",
     "swr": "^2.2.4",
