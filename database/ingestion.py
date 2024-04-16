@@ -329,15 +329,7 @@ cur.execute('''
             dcc_id, drcapproved, dccapproved, deleted, created
     from dcc_assets_tmp
     on conflict (link)
-      do update
-      set lastmodified = excluded.lastmodified,
-          current = excluded.current,
-          creator = excluded.creator,
-          dcc_id = excluded.dcc_id,
-          drcapproved = excluded.drcapproved,
-          dccapproved = excluded.dccapproved,
-          deleted = excluded.deleted, 
-          created = excluded.created
+      do nothing;
   ''')
 cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
@@ -361,11 +353,7 @@ cur.execute('''
   select filetype, filename, link, size, sha256checksum
   from file_assets_tmp
   on conflict (link)
-    do update
-    set filetype = excluded.filetype,
-        filename = excluded.filename,
-        size = excluded.size,
-        sha256checksum = excluded.sha256checksum
+    do nothing;
 ''')
 cur.execute('drop table file_assets_tmp;')
 connection.commit()
@@ -391,14 +379,7 @@ cur.execute('''
             "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample"
     from code_assets_tmp
     on conflict (link)
-      do update
-      set type = excluded.type,
-          name = excluded.name,
-          description = excluded.description,
-          "openAPISpec" = excluded."openAPISpec",
-          "smartAPISpec" = excluded."smartAPISpec",
-          "smartAPIURL" = excluded."smartAPIURL",
-          "entityPageExample" = excluded."entityPageExample"
+      do nothing;
   ''')
 cur.execute('drop table code_assets_tmp;')
 connection.commit()
