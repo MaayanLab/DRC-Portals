@@ -122,9 +122,9 @@ export default async function Home() {
                                 DCCS
                               </Button>
                             </Link>
-                            <Link href='/info/standards'>
+                            <Link href='/info/documentation'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                STANDARDS & PROTOCOLS
+                                DOCUMENTATION
                               </Button>
                             </Link>
                           </Stack>
@@ -200,7 +200,7 @@ export default async function Home() {
                 <Grid container spacing={2} sx={{height: 300}} justifyContent={"space-around"} alignItems={"center"}>
                   <Grid item sx={{width: 400}}>
                     <Typography variant={"h1"} sx={{textTransform: "uppercase"}} color="inherit">
-                      Standards and Protocols
+                      Documentation
                     </Typography>
                     <Typography variant={"subtitle1"} color="inherit">
                       Learn more about the standards and protocols for accessing and submitting data to the portal

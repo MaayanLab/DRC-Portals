@@ -1,6 +1,7 @@
 import { DefaultSession, NextAuthOptions } from 'next-auth'
 import prisma from '@/lib/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import KeycloakProvider from 'next-auth/providers/keycloak'
 import EmailProvider from 'next-auth/providers/email'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
@@ -33,29 +34,40 @@ const providers = [
         }
       })
 
-      const user = await prisma.user.create({
-        data: {
+      const user = await prisma.user.findUnique({
+        where: {
           id: process.env.NEXTAUTH_SECRET ?? '',
-          name: 'Developer',
-          role: 'ADMIN',
-          dccs: {
-            connectOrCreate: {
-              where: {
-                id: LINCSDCCObject?.id
-              },
-              create: {
-                id: LINCSDCCObject?.id,
-                short_label: 'LINCS',
-                label: 'Library of Integrated Network-based Cellular Signatures',
-                homepage: 'https://lincsproject.org/'
-              },
-            },
-          },
         }
       })
-      return user
+
+      if (user) {return user}
+      else {
+        const createdUser = await prisma.user.create({
+          data: {
+            id: process.env.NEXTAUTH_SECRET ?? '',
+            name: 'Developer',
+            role: 'ADMIN',
+            dccs: {
+              connectOrCreate: {
+                where: {
+                  id: LINCSDCCObject?.id
+                },
+                create: {
+                  id: LINCSDCCObject?.id,
+                  short_label: 'LINCS',
+                  label: 'Library of Integrated Network-based Cellular Signatures',
+                  homepage: 'https://lincsproject.org/'
+                },
+              },
+            },
+          }
+        })
+        return createdUser
+      }
+
     }
   }) : undefined,
+  process.env.NEXTAUTH_KEYCLOAK ? KeycloakProvider(JSON.parse(process.env.NEXTAUTH_KEYCLOAK)) : undefined,
   process.env.NEXTAUTH_GITHUB ? GithubProvider(JSON.parse(process.env.NEXTAUTH_GITHUB)) : undefined,
   process.env.NEXTAUTH_GOOGLE ? GoogleProvider(JSON.parse(process.env.NEXTAUTH_GOOGLE)) : undefined,
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,

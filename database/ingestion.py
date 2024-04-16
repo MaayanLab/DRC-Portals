@@ -30,8 +30,8 @@ with open(dcc_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, cf_site)
-      select id, label, short_label, description, homepage, icon, cfde_partner, cf_site
+    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, active, cf_site)
+      select id, label, short_label, description, homepage, icon, cfde_partner, active, cf_site
       from dcc_tmp
       on conflict (id)
         do update
@@ -41,6 +41,7 @@ cur.execute('''
             homepage = excluded.homepage,
             icon = excluded.icon,
             cfde_partner = excluded.cfde_partner,
+            active = excluded.active,
             cf_site = excluded.cf_site
     ;
   ''')
@@ -328,15 +329,7 @@ cur.execute('''
             dcc_id, drcapproved, dccapproved, deleted, created
     from dcc_assets_tmp
     on conflict (link)
-      do update
-      set lastmodified = excluded.lastmodified,
-          current = excluded.current,
-          creator = excluded.creator,
-          dcc_id = excluded.dcc_id,
-          drcapproved = excluded.drcapproved,
-          dccapproved = excluded.dccapproved,
-          deleted = excluded.deleted, 
-          created = excluded.created
+      do nothing;
   ''')
 cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
@@ -360,11 +353,7 @@ cur.execute('''
   select filetype, filename, link, size, sha256checksum
   from file_assets_tmp
   on conflict (link)
-    do update
-    set filetype = excluded.filetype,
-        filename = excluded.filename,
-        size = excluded.size,
-        sha256checksum = excluded.sha256checksum
+    do nothing;
 ''')
 cur.execute('drop table file_assets_tmp;')
 connection.commit()
@@ -390,14 +379,7 @@ cur.execute('''
             "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample"
     from code_assets_tmp
     on conflict (link)
-      do update
-      set type = excluded.type,
-          name = excluded.name,
-          description = excluded.description,
-          "openAPISpec" = excluded."openAPISpec",
-          "smartAPISpec" = excluded."smartAPISpec",
-          "smartAPIURL" = excluded."smartAPIURL",
-          "entityPageExample" = excluded."entityPageExample"
+      do nothing;
   ''')
 cur.execute('drop table code_assets_tmp;')
 connection.commit()

@@ -95,7 +95,7 @@ The Common Fund's Human Microbiome Project (HMP) developed research resources to
 
 
 
-Standards and Protocols:
+Documentation:
 
 C2M2: The Crosscut Metadata Model (C2M2) was designed to standardize metadata annotations across Common Fund DCCs by the original CFDE Coordination Center. C2M2 datapackage files are usually a zipfile containing a set of TSV files already standardized to a set of known ontologies, along with a single JSON schema.
 

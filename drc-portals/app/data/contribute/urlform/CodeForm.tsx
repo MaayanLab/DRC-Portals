@@ -98,7 +98,7 @@ export const assetOptions = [
     },
     {
         asset: 'PWB Metanodes',
-        description: <Typography fontSize={12}>A Playbook Workflow Builder (PWB) metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type, and functionality of a node in the network of PWB workflows. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="/info/standards" color="secondary" target="_blank">Standards and Protocols</Link> for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook metanode .</Typography>,
+        description: <Typography fontSize={12}>A Playbook Workflow Builder (PWB) metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type, and functionality of a node in the network of PWB workflows. See  <Link href="https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/docs/background.md" color='secondary' target="_blank">Playbook Partnership documentation</Link> and <Link href="/info/documentation" color="secondary" target="_blank">Documentation</Link> for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook metanode .</Typography>,
         example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' target="_blank" color="secondary"><u>PWB Metanode example</u></Link>
     },
     {

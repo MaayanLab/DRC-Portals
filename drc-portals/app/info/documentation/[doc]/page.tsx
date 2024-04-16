@@ -14,7 +14,7 @@ export default function StandardsPage(
   { params } : { params: { doc: string } }
 ) {
   const markdown = readFileSync(
-    path.resolve('app/info/standards/markdown', './doc.md'.replace('doc', params.doc)), 
+    path.resolve('app/info/documentation/markdown', './doc.md'.replace('doc', params.doc)), 
     {encoding:'utf8', flag:'r'}
   )
   var title = (params.doc in title_map) ? title_map[params.doc] : params.doc

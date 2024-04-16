@@ -12,7 +12,7 @@ export default async function ServerCarousel () {
           carousel: true
         },
         orderBy: {
-          start_date: { sort: 'desc', nulls: 'last' },
+          start_date: { sort: 'asc', nulls: 'last' },
         }
       })
     outreach = shuffle(outreach)
@@ -56,7 +56,7 @@ export default async function ServerCarousel () {
       ]
       
     
-    const children = [...items, ...outreach_items].map( (item, i) => (
+    const children = [...outreach_items, ...items].map( (item, i) => (
         <Box key={i} sx={{
             minHeight: 300, 
             width: 640,

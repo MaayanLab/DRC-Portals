@@ -21,6 +21,8 @@ import MasonryClient from "./MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { Outreach } from "@prisma/client"
+import DeleteIcon from '@mui/icons-material/Delete';
+import Markdown from "./MarkdownComponent"
 export const shuffle = (array: Outreach[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
@@ -103,14 +105,14 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
               {orientation !== 'vertical' && <div className="flex flex-row mb-5">
                 {tags.map((tag, i)=>
                   <Link href={`/info/outreach?tag=${tag}`}>
-                    <Chip variant="filled" sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
+                    <Chip variant="filled" sx={{ textTransform: "capitalize", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
                   </Link>
                 )}
               </div>}
               <Typography color="secondary" variant="h5">{e.title}</Typography>
-              <Typography variant="body2" color="secondary">{e.short_description}</Typography>
+              <Markdown markdown={e.short_description}/>
               {orientation === 'vertical' ?
-                e.application_end ? 
+                (e.application_end && e.application_end > now) ? 
                   <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
                     year: 'numeric',
                     month: 'long',
@@ -132,7 +134,7 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                                   day: 'numeric',
                                 })}`}
                     </Typography>}
-                    {e.application_end && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
+                    {(e.application_end && e.application_end > now) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
                     `${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
                                         weekday: 'long',
                                         year: 'numeric',
@@ -160,7 +162,7 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
               }
               
               <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                <Button sx={{marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT EVENT PAGE</Button>
+                <Button sx={{marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
               </Link>
             </Stack>
           </Wrapper>
@@ -226,9 +228,30 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             array_contains: searchParams.tag
         }
       }
+      const featured_events = await prisma.outreach.findMany({
+        where: {
+          active: true,
+          featured: true,
+          OR: [
+            {
+              end_date: {
+                gte: now
+              }
+            },
+            {
+              end_date: null
+            }
+          ],
+          ...tag_filter
+        },
+        orderBy: {
+          start_date: { sort: 'asc', nulls: 'last' }
+        }
+      })
       const current = await prisma.outreach.findMany({
         where: {
           active: true,
+          featured: false,
           OR: [
             {
               end_date: {
@@ -262,9 +285,13 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
           {(searchParams && searchParams.tag) && 
             <Grid item xs={12} sx={{textAlign: 'right'}}>
               <Link href={'/info/outreach'}>
-                <Button variant="outlined" color="secondary">
-                  <Typography>Reset Tags</Typography>
-                </Button>
+                <Chip variant="filled" 
+                  sx={{ background: searchParams.tag === "internship"? "#7187C3": "#EDF0F8", 
+                    color: searchParams.tag === "internship"?"#FFF":"#29527A", 
+                    minWidth: 150, borderRadius: 2, textTransform: 'capitalize'}} 
+                    label={searchParams.tag?.toString()}
+                    icon={<DeleteIcon color={searchParams.tag === "internship" ? "primary": "secondary"}/>}
+                  />
               </Link>
             </Grid>
           }
@@ -274,7 +301,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             </Typography>
           </Grid>}
           <Grid item xs={12}>
-          <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation}/>
+          <OutreachComponent now={now} outreach={[...featured_events, ...current]} featured={featured} orientation={orientation}/>
           </Grid>
           {past.length > 0 && <Grid item xs={12}>
             <Typography variant="h3" color="secondary">

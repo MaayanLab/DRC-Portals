@@ -10,7 +10,9 @@ import { List, ListItem, Typography, Link } from '@mui/material';
 import Nav from '../Nav';
 import { StyledAccordionComponent } from './StyledAccordion';
 import Markdown from 'react-markdown'
+import dynamic from 'next/dynamic';
 
+const YoutubeVideo = dynamic(() => import('./YoutubeVideo'))
 
 export default function Documentation() {
     const macMarkdown = `
@@ -106,10 +108,14 @@ The Entity Page Template and Example are  links to:
             </Grid>
             <Grid item container md={10} xs={12}>
                 <Container className="justify-content-center">
-                    <Typography variant="h3" color="#111827.dark" className='p-5'>DOCUMENTATION</Typography>
+                    <Typography variant="h3" color="#111827.dark" className='p-5'>SUBMIT DOCUMENTATION</Typography>
                     <Typography variant="subtitle1" color="#374151" sx={{ mb: 3, ml: 2 }}>
-                        This page covers the submission system of the Data Resource Portal. Please click on any section
-                        from the dropdown list below to navigate to that section.
+                        This page covers the submission system documentation of the Data Resource Portal.
+                        We are collecting file and code assets from Common Fund programs to make them
+                        Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
+                        To submit assets, you must be logged in and registered. Registration involves being assigned a
+                        role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+                        Please click on any section from the dropdown list below to navigate to that section.
                     </Typography>
                     <Grid item>
                         <StyledAccordionComponent heading='File Types' content={<>
@@ -131,7 +137,7 @@ The Entity Page Template and Example are  links to:
                                     The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.
                                     The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies.
                                     Please explore the C2M2 technical wiki for more information about how to prepare your
-                                    metadata into C2M2 compatible files. Please also see the C2M2 section in the <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page of the
+                                    metadata into C2M2 compatible files. Please also see the C2M2 section in the <Link href="/info/documentation" color='#111827' target='_blank'>Documentation</Link> page of the
                                     CFDE Workbench portal on how to create C2M2 files.
                                 </Typography>
                             </Box>
@@ -199,7 +205,7 @@ The Entity Page Template and Example are  links to:
                                     in YAML or JSON. <br></br>
                                     <strong>SmartAPI: </strong> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features
                                     additional metadata elements and value sets to promote the interoperability of RESTful APIs. <br></br>
-                                    Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/standards/OpenAPI" color='#111827' target='_blank'>Standards and Protocols</Link> page.
+                                    Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/documentation/OpenAPI" color='#111827' target='_blank'>Documentation</Link> page.
                                     <br></br>Example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="#111827">exRNA openAPI link </Link>
                                 </Typography>
                             </Box>
@@ -207,7 +213,7 @@ The Entity Page Template and Example are  links to:
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Playbook Workflow Builder (PWB) Metanodes</Typography>
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                     A PWB metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type,
-                                    and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/standards" color='#111827' target='_blank'>Standards and Protocols</Link> page
+                                    and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/documentation" color='#111827' target='_blank'>Documentation</Link> page
                                     for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook
                                     metanode.
                                     <br></br>Example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' color="#111827" target="_blank"><u>PWB Metanode</u></Link> created by the Metabolomics DCC
@@ -492,11 +498,11 @@ The Entity Page Template and Example are  links to:
                         />
 
                         <StyledAccordionComponent heading="Instructional Video" content={
-                            <>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    Coming Soon
-                                </Typography>
-                            </>
+                            <Box sx={{padding: 3}}>
+                                <center>
+                                <YoutubeVideo />
+                                </center>
+                            </Box>
                         }
                         />
                     </Grid>

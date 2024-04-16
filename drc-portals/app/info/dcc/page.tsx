@@ -24,7 +24,8 @@ const shuffle = (array: DCC[]) => {
 export default async function DCCLanding() {
     const dccs = shuffle(await prisma.dCC.findMany({
         where: {
-            cfde_partner: true
+            cfde_partner: true,
+            active: true
         }
     }))
 

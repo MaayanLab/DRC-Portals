@@ -1,10 +1,10 @@
 ### Table of Contents
-* [Introduction](#introduction)
-* [Resources](#resources)
-* [Building Workflows](#building-workflows)
-* [Developing Metanodes](#developing-metanodes)
-  * [Core Concepts](#core-concepts)
-  * [Contribution Guidelines](#contribution-guidelines)
+- [Introduction](#introduction)
+- [Resources](#resources)
+- [Building Workflows](#building-workflows)
+- [Developing Metanodes](#developing-metanodes)
+  - [Core Concepts](#core-concepts)
+  - [Contribution Guidelines](#contribution-guidelines)
 
 ## Introduction
 
@@ -91,4 +91,4 @@ The PPWB is designed to allow for the independent and parallel development of in
 
 6. Once the meta node is functional, submit a pull request to the remote main branch, and add any documentation as needed. 
 
-Return to [Standards and Protocols page](/info/standards)
+Return to [Documentation page](/info/documentation)

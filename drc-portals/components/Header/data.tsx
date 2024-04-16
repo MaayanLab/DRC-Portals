@@ -34,8 +34,8 @@ export default async function InfoHeader() {
                   <Link href="/info/partnerships">
                     <Typography variant="nav">PARTNERSHIPS</Typography>
                   </Link>
-                  <Link href="/data/contribute/form">
-                    <Typography variant="nav">CONTRIBUTE</Typography>
+                  <Link href={"/data/contribute/documentation"}>
+                    <Typography variant="nav">SUBMIT</Typography>
                   </Link>
                   <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
                   <UserComponent session={session}/>
@@ -57,8 +57,8 @@ export default async function InfoHeader() {
                     <Link href="https://playbook-workflow-builder.cloud/playbooks" target="_blank" rel="noopener noreferrer">
                       <Typography variant="nav">USE CASES</Typography>
                     </Link>
-                    <Link href="/info/standards">
-                      <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
+                    <Link href="/info/documentation">
+                      <Typography variant="nav">DOCUMENTATION</Typography>
                     </Link>
                     {/* <Link href="/data/coming_soon">
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>

@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
@@ -9,13 +8,9 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment'
-import Icon from '@mdi/react';
-import { mdiMagnify } from '@mdi/js';
 import UserComponent from '../misc/LoginComponents/UserComponent'
-import NavBreadcrumbs from './breadcrumbs'
 import { Logo } from '../styled/Logo'
+
 export default async function InfoHeader() {
   const session = (await getServerSession(authOptions))
   return (
@@ -54,8 +49,8 @@ export default async function InfoHeader() {
                   <Link href="/info/dcc">
                     <Typography variant="nav">DCCs</Typography>
                   </Link>
-                  <Link href="/info/standards">
-                    <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
+                  <Link href="/info/documentation">
+                    <Typography variant="nav">DOCUMENTATION</Typography>
                   </Link>
                   <Link href="/data/tools_and_workflows">
                     <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>

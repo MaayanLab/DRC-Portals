@@ -1,7 +1,8 @@
 ## Table of Contents
+- [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
-- [General Steps](#general-steps)
 - [Resources](#resources)
+- [General Steps](#general-steps)
   - [Starting Projects](#starting-projects)
   - [Registering Digital Objects](#registering-digital-objects)
   - [Associating Rubrics](#associating-rubrics)
@@ -62,4 +63,4 @@ The steps below are adapted from the [FAIRshake User Guide V2](https://fairshake
   - **Saving** the assessment means the responses, comments, and URLs will not be public, but will be visible to the creators of the tool, project, and assessment. 
   - **Deleting** the assessment will remove all data and responses from the assessment. 
 
-Return to [Standards and Protocols page](/info/standards)
+Return to [Documentation page](/info/documentation)

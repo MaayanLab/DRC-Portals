@@ -120,7 +120,8 @@ export default async function PartnershipPage() {
                     publication: true
                 }
             }
-        }
+        },
+        orderBy: [{dccs: {_count: 'desc'}}, {title: 'asc'}],
     })
 
     const completed_partnerships = await prisma.partnerships.findMany({
@@ -138,7 +139,8 @@ export default async function PartnershipPage() {
                     publication: true
                 }
             }
-        }
+        },
+        orderBy: [{dccs: {_count: 'desc'}}, {title: 'asc'}, {id: 'asc'}],
     })
 
     return (

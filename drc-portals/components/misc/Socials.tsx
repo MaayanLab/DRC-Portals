@@ -16,16 +16,16 @@ const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "seco
                     <Email/>
                 </IconButton>
             </Link>
-            <Link href="https://twitter.com/CfdeWorkbench">
+            <Link href="https://twitter.com/CfdeWorkbench" target="_blank" rel="noopener noreferrer">
                 <IconButton  color={"secondary"}>
                     <Twitter/>
                 </IconButton>
             </Link>
-            {/* <Link href="https://www.youtube.com/channel/UCWucYIvMygAgG5t0xEGEZgg">
+            <Link href="https://www.youtube.com/@CFDEWorkbench" target="_blank" rel="noopener noreferrer">
                 <IconButton  color={"secondary"}>
                     <Youtube/>
                 </IconButton>
-            </Link> */}
+            </Link>
             {/* <Link href="/">
                 <IconButton  color={"secondary"}>
                     <Facebook sx={{color: "#000"}}/>

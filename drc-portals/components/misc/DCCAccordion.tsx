@@ -53,7 +53,7 @@ function AccordionItem(
   props: {label: string, assetInfo: {current: dccAsset[], archived: dccAsset[]}, isCode: boolean}
 ) {
   return (
-    <AccordionDetails>
+    <AccordionDetails sx={{overflow: "auto"}}>
       <Typography sx={{ml:2}} variant="subtitle2" fontSize='16pt' color="secondary.dark">Current</Typography>
       <DCCFileTable fileInfo={props.assetInfo.current} isCode={props.isCode}/>
       <Typography sx={{ml:2}} variant="subtitle2" fontSize='16pt' color="secondary.dark">Archived</Typography>
