@@ -21,11 +21,11 @@ const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "seco
                     <Twitter/>
                 </IconButton>
             </Link>
-            {/* <Link href="https://www.youtube.com/channel/UCWucYIvMygAgG5t0xEGEZgg">
+            <Link href="https://www.youtube.com/@CFDEWorkbench">
                 <IconButton  color={"secondary"}>
                     <Youtube/>
                 </IconButton>
-            </Link> */}
+            </Link>
             {/* <Link href="/">
                 <IconButton  color={"secondary"}>
                     <Facebook sx={{color: "#000"}}/>
