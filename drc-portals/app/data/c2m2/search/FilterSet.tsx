@@ -12,6 +12,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import Chip from '@mui/material/Chip';
 import { styled, lighten, darken } from '@mui/system';
 
 
@@ -21,8 +22,8 @@ type FilterObject = {
   count: number;
 };
 
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
+// const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+// const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const GroupHeader = styled('div')(({ theme }) => ({
   position: 'sticky',
@@ -53,16 +54,23 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
       ...option,
     };
   });
+  
+  // const autoFilters = useState<FilterObject[]>([]);
 
   console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>ID", id);
   console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>filterList", filterList);
   console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>filter_title", filter_title);
 
-  const [expanded, setExpanded] = useState<string | null>(null);
+  // const [expanded, setExpanded] = useState<string | null>(null);
+  // const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
+  // const [filterIndex, setFilterIndex] = useState<string[]>([]);
+  // const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
+
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
-  const [filterIndex, setFilterIndex] = useState<string[]>([]);
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
-  const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
+
+  // const addFilter = (newFilter: FilterObject) => {
+  //   setSelectedFilters(prevFilterList => [...prevFilterList, newFilter]);
+  // };
 
   /* // Load selected filters from localStorage when component mounts
   useEffect(() => {
@@ -72,25 +80,27 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
       setSelectedFiltersForAutocomplete(JSON.parse(storedFilters));
     }
   }, []); */
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentRawFilters = searchParams.get('t');
-    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
-    // Filter out selected filters from URL parameters
-    const updatedSelectedFilters = filterList.filter(filter => {
-      return currentFilters.includes(`${id}:${filter.name}`);
-    });
+  /////////////////////////////////////////////////////
+  // useEffect(() => {
+  //   const searchParams = new URLSearchParams(window.location.search);
+  //   const currentRawFilters = searchParams.get('t');
+  //   const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
-    setSelectedFilters(updatedSelectedFilters);
-    setSelectedFiltersForAutocomplete(updatedSelectedFilters);
-  }, [filterList, id]);
+  //   // Filter out selected filters from URL parameters
+  //   const updatedSelectedFilters = filterList.filter(filter => {
+  //     return currentFilters.includes(`${id}:${filter.name}`);
+  //   });
 
-  // Save selected filters to localStorage when selectedFilters state changes
-  useEffect(() => {
-    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
-    setSelectedFiltersForAutocomplete(selectedFilters);
-  }, [selectedFilters]);
+  //   setSelectedFilters(updatedSelectedFilters);
+  //   setSelectedFiltersForAutocomplete(updatedSelectedFilters);
+  // }, [filterList, id]);
+
+  // // Save selected filters to localStorage when selectedFilters state changes
+  // useEffect(() => {
+  //   localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
+  //   setSelectedFiltersForAutocomplete(selectedFilters);
+  // }, [selectedFilters]);
 
   // Function to generate filter index
   const generateFilterIndex = () => {
@@ -102,12 +112,12 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   };
 
   // Check if filterList exceeds 50, then generate filter index
-  if (filterList.length > 50 && filterIndex.length === 0) {
-    setFilterIndex(generateFilterIndex());
-  }
+  // if (filterList.length > 50 && filterIndex.length === 0) {
+  //   setFilterIndex(generateFilterIndex());
+  // }
 
   // Apply filters logic
-  const applyFilters = () => {
+    const applyFilters = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
@@ -124,9 +134,10 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     searchParams.set('t', updatedFilters.join('|'));
     searchParams.set('p', '1'); // Reset pagination to page 1
     const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    window.location.href = newUrl; // Change the URL and reload the page
-  };
 
+    // Use pushState to update URL without reloading page
+    window.history.pushState(null, '', newUrl);
+  };
 
   // Function to filter options based on selected letter
   // const getFilteredOptions = () => {
@@ -153,14 +164,31 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     <div>
       <div>{filter_title}</div>
       <Autocomplete
+        // size='small'
         multiple
         disableCloseOnSelect
         limitTags={3}
         id="filterSet"
         options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
         groupBy={(option) => option.firstLetter}
-        getOptionLabel={(option) => option.name}
-        renderInput={(params) => <TextField {...params} placeholder={example_query} />}
+        getOptionLabel={(option) => `${option.name} (${option.count})`}
+        value={selectedFilters}
+      onChange={(event, newValue) => {
+        setSelectedFilters(newValue as FilterObject[]);
+        // Call applyFilters function when filters are selected or deselected
+        applyFilters();
+      }}
+      renderTags={(value, getTagProps) =>
+        value.map((option, index) => (
+          <Chip
+            variant="outlined"
+            label={option.name}
+            size="small"
+            {...getTagProps({ index })}
+          />
+        ))
+      }
+        renderInput={(params) => <TextField {...params} size='small' placeholder={example_query} />}
         renderGroup={(params) => (
           <li key={params.key}>
             <GroupHeader>{params.group}</GroupHeader>
@@ -168,11 +196,16 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
           </li>
         )}
         sx={{ width: 'auto' }}
-        onChange={(event, selectedOptions) => {
-          // Call applyFilters with the selected options
-          applyFilters();
+        onBlur={() => {
+          // Reload the page when focus is removed from the Autocomplete component
+          window.location.reload();
         }}
+        // value={selectedFiltersForAutocomplete}
+        // onChange={(event, newValue) => {
+        //   setSelectedFilters(newValue as FilterObject[]); // Handle selection changes
+        // }}
       />
+      
 
       {/* <Accordion expanded={expanded === filter_title} onChange={(event, isExpanded) => setExpanded(isExpanded ? filter_title : null)}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -239,3 +272,4 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     </div >
   );
 }
+
