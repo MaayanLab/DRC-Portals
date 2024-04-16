@@ -1,4 +1,5 @@
 ## Table of Contents
+- [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
 - [Creating API Specifications](#creating-api-specifications)
   - [Requests](#requests)
@@ -383,4 +384,4 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
 
 While not required, it is highly recommended to use a dedicated OpenAPI or SmartAPI editor, such as Swagger, to generate API specifications. Such tools designated for writing OpenAPIs/SmartAPIs can help with debugging and auto-formatting, as well as with testing and publishing API documentation. 
 
-Return to [Standards and Protocols page](/info/standards)
+Return to [Documentation page](/info/documentation)
