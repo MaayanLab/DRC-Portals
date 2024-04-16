@@ -419,7 +419,7 @@ async function fetchQueryResults(searchParams: any) {
     } catch (error) {
         console.error('Error fetching query results:', error);
         return <> 
-        <div className="mb-10"></div>
+        <div className="mb-10">Error fetching query results. </div>
         <Link href="/data">
           <Button
             sx={{ textTransform: "uppercase" }}

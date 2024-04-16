@@ -1,5 +1,6 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import * as React from 'react';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
@@ -11,6 +12,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { styled, lighten, darken } from '@mui/system';
+
 
 type FilterObject = {
   id: string;
@@ -21,7 +24,40 @@ type FilterObject = {
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
+const GroupHeader = styled('div')(({ theme }) => ({
+  position: 'sticky',
+  top: '-8px',
+  padding: '4px 10px',
+  color: theme.palette.primary.main,
+  backgroundColor:
+    theme.palette.mode === 'light'
+      ? lighten(theme.palette.primary.light, 0.85)
+      : darken(theme.palette.primary.main, 0.8),
+}));
+
+const GroupItems = styled('ul')({
+  padding: 0,
+});
+
+export default function FilterSet({ id, filterList, filter_title, example_query }: {
+  id: string,
+  filterList: FilterObject[],
+  filter_title: string,
+  example_query: string
+}) {
+  const options = filterList.map((option) => {
+    const firstLetter = option.name[0].toUpperCase();
+    const filterCount = option.count;
+    return {
+      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
+      ...option,
+    };
+  });
+
+  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>ID", id);
+  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>filterList", filterList);
+  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>filter_title", filter_title);
+
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
   const [filterIndex, setFilterIndex] = useState<string[]>([]);
@@ -40,12 +76,12 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
-    
+
     // Filter out selected filters from URL parameters
     const updatedSelectedFilters = filterList.filter(filter => {
       return currentFilters.includes(`${id}:${filter.name}`);
     });
-  
+
     setSelectedFilters(updatedSelectedFilters);
     setSelectedFiltersForAutocomplete(updatedSelectedFilters);
   }, [filterList, id]);
@@ -71,86 +107,74 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   }
 
   // Apply filters logic
-  /* const applyFilters = () => {
+  const applyFilters = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
-    // Transform the current filters into a more manageable structure
-    const structuredFilters = currentFilters.map(filter => {
-      const [type, value] = filter.split(':');
-      return { type, value };
-    });
+    // Filter out existing filters for the current id, keeping all others intact
+    const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
 
-    // Determine which filters should be updated or removed
-    let updatedFilters = structuredFilters.filter(structuredFilter => {
-      // Find if the current structured filter's value is not in the selected filters
-      return !selectedFilters.map(filter => filter.name).includes(structuredFilter.value);
-    }).map(filteredItem => `${filteredItem.type}:${filteredItem.value}`);
+    // Prepare new filters for the current id
+    const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
 
-    // Add new filters
-    selectedFilters.forEach(filter => {
-      const existingFilter = structuredFilters.find(f => f.value === filter.name);
-      if (!existingFilter) {
-        // Update this line to use the appropriate type for the new filter
-        // You might need additional logic here to determine the correct type
-        updatedFilters.push(`${id}:${filter.name}`);
-      }
-    });
+    // Combine other filters with new filters for the current id
+    const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
 
     searchParams.set('t', updatedFilters.join('|'));
     searchParams.set('p', '1'); // Reset pagination to page 1
     const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
     window.location.href = newUrl; // Change the URL and reload the page
   };
- */
-
-// Apply filters logic
-const applyFilters = () => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const currentRawFilters = searchParams.get('t');
-  const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
-
-  // Filter out existing filters for the current id, keeping all others intact
-  const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
-
-  // Prepare new filters for the current id
-  const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
-
-  // Combine other filters with new filters for the current id
-  const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
-
-  searchParams.set('t', updatedFilters.join('|'));
-  searchParams.set('p', '1'); // Reset pagination to page 1
-  const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-  window.location.href = newUrl; // Change the URL and reload the page
-};
 
 
   // Function to filter options based on selected letter
-  const getFilteredOptions = () => {
-    if (!selectedLetter) {
-      return filterList;
-    } else {
-      return filterList.filter(filter => filter.name.charAt(0).toUpperCase() === selectedLetter);
-    }
-  };
+  // const getFilteredOptions = () => {
+  //   if (!selectedLetter) {
+  //     return filterList;
+  //   } else {
+  //     return filterList.filter(filter => filter.name.charAt(0).toUpperCase() === selectedLetter);
+  //   }
+  // };
 
-  // Function to chunk array into smaller arrays
-  const chunkArray = (array: string[], size: number) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size));
-    }
-    return result;
-  };
+  // // Function to chunk array into smaller arrays
+  // const chunkArray = (array: string[], size: number) => {
+  //   const result = [];
+  //   for (let i = 0; i < array.length; i += size) {
+  //     result.push(array.slice(i, i + size));
+  //   }
+  //   return result;
+  // };
 
   // Chunk the filterIndex into rows
-  const indexRows = chunkArray(filterIndex, 8);
+  // const indexRows = chunkArray(filterIndex, 8);
 
   return (
     <div>
-      <Accordion expanded={expanded === filter_title} onChange={(event, isExpanded) => setExpanded(isExpanded ? filter_title : null)}>
+      <div>{filter_title}</div>
+      <Autocomplete
+        multiple
+        disableCloseOnSelect
+        limitTags={3}
+        id="filterSet"
+        options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+        groupBy={(option) => option.firstLetter}
+        getOptionLabel={(option) => option.name}
+        renderInput={(params) => <TextField {...params} placeholder={example_query} />}
+        renderGroup={(params) => (
+          <li key={params.key}>
+            <GroupHeader>{params.group}</GroupHeader>
+            <GroupItems>{params.children}</GroupItems>
+          </li>
+        )}
+        sx={{ width: 'auto' }}
+        onChange={(event, selectedOptions) => {
+          // Call applyFilters with the selected options
+          applyFilters();
+        }}
+      />
+
+      {/* <Accordion expanded={expanded === filter_title} onChange={(event, isExpanded) => setExpanded(isExpanded ? filter_title : null)}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography>{`${filter_title} (${filterList.length})`}</Typography>
         </AccordionSummary>
@@ -161,26 +185,27 @@ const applyFilters = () => {
                 <div key={index} style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }}>
                   {row.map(letter => (
                     <button
-                    key={letter}
-                    onClick={() => setSelectedLetter(letter)}
-                    style={{
-                      marginRight: '10px',
-                      marginBottom: '10px',
-                      color: selectedLetter === letter ? 'blue' : 'inherit', // Change text color to red if selected
-                      textDecoration: selectedLetter === letter ? 'underline' : 'none', // Underline if selected
+                      key={letter}
+                      onClick={() => setSelectedLetter(letter)}
+                      style={{
+                        marginRight: '10px',
+                        marginBottom: '10px',
+                        color: selectedLetter === letter ? 'blue' : 'inherit', // Change text color to red if selected
+                        textDecoration: selectedLetter === letter ? 'underline' : 'none', // Underline if selected
 
-                    }}
-                  >
-                    {letter}
-                  </button>
-                  
+                      }}
+                    >
+                      {letter}
+                    </button>
+
                   ))}
                 </div>
               ))}
             </div>
           )}
-          <Autocomplete
+          {/* <Autocomplete
             multiple
+            disablePortal={true}
             id="checkboxes-tags-demo"
             options={getFilteredOptions()}
             disableCloseOnSelect
@@ -195,18 +220,22 @@ const applyFilters = () => {
                 {`${option.id} (${option.count})`}
               </li>
             )}
-            style={{ width: 'auto' }}
+            style={{ width: 'auto', position: 'relative', zIndex: 0 }}
             renderInput={(params) => (
               <TextField {...params} placeholder={example_query} />
             )}
             renderTags={() => null} // Disable rendering of tags
-          />
+          /> */}
 
-          <Button onClick={applyFilters} variant="contained" style={{ marginTop: '10px' }}>
+
+
+      {/* <Button onClick={applyFilters} variant="contained" style={{ marginTop: '10px' }}>
             Update
           </Button>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
+
+
     </div >
   );
 }
