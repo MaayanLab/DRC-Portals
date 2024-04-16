@@ -97,7 +97,7 @@ export default async function UserFiles() {
         where: {
             ...(user.role === 'DCC_APPROVER' ? {
                 dcc: {
-                    label: {
+                    short_label: {
                         in: userDCCArray
                     }
                 }
