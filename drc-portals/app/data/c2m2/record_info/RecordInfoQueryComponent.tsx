@@ -608,7 +608,7 @@ file_table AS (
 
   // The following items are present in metadata
 
-  const projectLocalId = results?.records[0].project_local_id;// Assuming it's the same for all rows
+  const projectLocalId = results?.records[0].project_local_id ?? 'NA';// Assuming it's the same for all rows
 
   const metadata = [
     { label: 'Project ID', value: projectLocalId },
