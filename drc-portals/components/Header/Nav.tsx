@@ -14,6 +14,8 @@ import UserComponent from '../misc/LoginComponents/UserComponent'
 import { DataComponent } from './DataComponent';
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
+import { useQueryState } from 'next-usequerystate'
+
 
 const menu_selection = {
 	info: [
@@ -60,10 +62,16 @@ function useOutsideAlerter(ref:React.RefObject<any>, handleClose:Function) {
 export default function Nav({session}: {
 	session: Session | null,
 }) {
-	const [menu, setMenu] = useState<'data'|'info'|null>(null)
+	const [menu, setMenu] = useState<'info'|'data'|null>(null)
 	const handleClose = () => setMenu(null)
 	const wrapperRef = useRef(null);
   	useOutsideAlerter(wrapperRef, handleClose);
+	const [from, setFrom] = useQueryState('from')
+	useEffect(()=>{
+		if (from && (from === 'info' || from === 'data')) setMenu(from)
+		setFrom(null)
+	},[from])
+
 	return (
 		<Toolbar ref={wrapperRef}>
 			<Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
@@ -104,7 +112,7 @@ export default function Nav({session}: {
 								{ href.indexOf('http') > -1 ? <Link href={href} target="_blank" rel="noopener noreferrer">
 											<Typography variant="nav">{title}</Typography>
 										</Link>:
-									<Link href={href}>
+									<Link href={`${href}?from=${menu}`}>
 										<Typography variant="nav">{title}</Typography>
 									</Link>
 								}
