@@ -1,10 +1,9 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import Typography from '@mui/material/Typography'
 import { ElevatedIconButton } from "./Buttons";
-
-export const Logo = ({href, title, color, size}: {href: string, title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large"}) => (
-    <Link href={href} className='flex items-center space-x-3'>
+import { HomeLink } from '../misc/HomeLink';
+export const Logo = ({title, color, size}: {title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large"}) => (
+    <HomeLink>
         <div>
         <ElevatedIconButton
             aria-label="menu"
@@ -16,5 +15,5 @@ export const Logo = ({href, title, color, size}: {href: string, title: string, c
         <div>
             <Typography variant={size==='large'?'cfde':'cfde_small'} color={color}>{title}</Typography>
         </div>
-    </Link>
+    </HomeLink>
 )

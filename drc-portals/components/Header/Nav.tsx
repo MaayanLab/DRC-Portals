@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 import UserComponent from '../misc/LoginComponents/UserComponent'
+import { DataComponent } from './DataComponent';
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 
@@ -18,10 +19,10 @@ const menu_selection = {
 	info: [
 		{title: "Home", href: "/info"},
 		{title: "CF Programs", href: "/info/dcc"},
-		{title: "Documentation", href: "/info/documentation"},
 		{title: "Partnerships", href: "/info/partnerships"},
 		{title: "Training & Outreach", href: "/info/outreach"},
 		{title: "Publications", href: "/info/publications"},
+		{title: "Documentation", href: "/info/documentation"},
 		// {title: "About", href: "/info/coming_soon"},
 	],
 	data: [
@@ -56,8 +57,7 @@ function useOutsideAlerter(ref:React.RefObject<any>, handleClose:Function) {
 	}, [ref]);
   }
 
-export default function Nav({home, session}: {
-	home: string,
+export default function Nav({session}: {
 	session: Session | null,
 }) {
 	const [menu, setMenu] = useState<'data'|'info'|null>(null)
@@ -68,7 +68,7 @@ export default function Nav({home, session}: {
 		<Toolbar ref={wrapperRef}>
 			<Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
 				<Grid item>
-					<Logo href={home} title="CFDE Workbench" size='large' color="secondary"/>
+					<Logo title="CFDE Workbench" size='large' color="secondary"/>
 				</Grid>
 				<Grid item>
 					<Stack direction={"row"} alignItems={"center"} spacing={2}>
@@ -96,8 +96,8 @@ export default function Nav({home, session}: {
 						<UserComponent session={session}/>
 					</Stack>
 				</Grid>
-				{ menu !== null && 
-					<Grid item xs={12}>
+				<Grid item xs={12} sx={{height: 50}}>
+					{ menu !== null && 
 						<Grid container alignItems={"center"} spacing={2}>
 						{menu_selection[menu].map(({title, href})=>(
 							<Grid item key={title}>
@@ -111,11 +111,13 @@ export default function Nav({home, session}: {
 							</Grid>
 						))}
 						</Grid>
+					}
+				</Grid>
+				<DataComponent>
+					<Grid item xs={12} sx={{textAlign: 'right'}}>
+						<SearchParamSearchField />
 					</Grid>
-				}
-				{ home === '/data' && <Grid item xs={12} sx={{textAlign: 'right'}}>
-					<SearchParamSearchField />
-				</Grid>}
+				</DataComponent>
 			</Grid>
 		</Toolbar>
 	)

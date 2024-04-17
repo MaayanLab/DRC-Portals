@@ -70,8 +70,7 @@ export default function DataLayout({
   children: React.ReactNode
 }) {
   return (
-    <Grid container direction={"column"} justifyContent="space-between" sx={{minHeight: "100vh", marginTop: 2}}>
-      <Grid item><Header home="/data"/></Grid>
+    <>
       <Grid item className="flex grow">
         <Background background="#E7F3F5">
           <NavBreadcrumbs/>
@@ -79,6 +78,6 @@ export default function DataLayout({
         </Background>
       </Grid>
       <Grid item><Footer/></Grid>
-    </Grid>
+    </>
   )
 }
