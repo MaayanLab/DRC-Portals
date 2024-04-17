@@ -17,7 +17,7 @@ import { Logo } from '../styled/Logo'
 const menu_selection = {
 	info: [
 		{title: "Home", href: "/info"},
-		{title: "Programs", href: "/info/dcc"},
+		{title: "CF Programs", href: "/info/dcc"},
 		{title: "Documentation", href: "/info/documentation"},
 		{title: "Partnerships", href: "/info/partnerships"},
 		{title: "Training & Outreach", href: "/info/outreach"},
