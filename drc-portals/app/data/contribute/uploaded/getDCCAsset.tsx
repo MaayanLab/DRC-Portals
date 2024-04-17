@@ -174,7 +174,7 @@ export async function sendDCCApprovedEmails(asset: {
             // email uploader 
             if (uploader) {
                 const emailHtml = render(<Uploader_DCCApprovedEmail uploaderName={uploader.name}
-                    approverName={user.name ? user.name : ''} asset={asset} />);
+                    approverName={user.name ? user.name : 'Unknown'} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (uploader.email) {
                     transporter.sendMail({
