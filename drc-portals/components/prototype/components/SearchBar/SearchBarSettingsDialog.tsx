@@ -67,7 +67,6 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
     );
   };
 
-  // TODO: This is still not great...need to allow an empty value, otherwise it's hard to change the last digit
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newLimit = parseInt(event.target.value);
     setSettings({
