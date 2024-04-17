@@ -17,11 +17,11 @@ import {
 import { SubGraph, NodeResult, RelationshipResult } from "../interfaces/neo4j";
 
 import {
-  GraphElementFactory,
   ENTITY_TO_FACTORY_MAP,
   getNodeDisplayProperty,
   keyInFactoryMapFilter,
   truncateTextToFitWidth,
+  NodeElementFactory,
 } from "./shared";
 
 export const createCytoscapeNodeFromNeo4j = (
@@ -142,7 +142,7 @@ export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
           {node.neo4j.labels
             .filter(keyInFactoryMapFilter)
             .map((label) =>
-              (ENTITY_TO_FACTORY_MAP.get(label) as GraphElementFactory)(label)
+              (ENTITY_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
             )}
         </Stack>
         <Stack direction="column">

@@ -3,12 +3,16 @@ export interface BaseSearchBarOption {
   filters: BasePropertyFilter[];
 }
 
-export interface NodeOption extends BaseSearchBarOption {
+export interface NodeOption extends BaseSearchBarOption {}
+
+export enum Direction {
+  OUTGOING = "OUTGOING",
+  INCOMING = "INCOMING",
+  UNDIRECTED = "UNDIRECTED",
 }
 
 export interface RelationshipOption extends BaseSearchBarOption {
-  outgoing: boolean;
-  // TODO: Add isDirected?
+  direction: Direction;
 }
 
 export type SearchBarOption = NodeOption | RelationshipOption;

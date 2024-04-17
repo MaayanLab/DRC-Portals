@@ -1,5 +1,5 @@
 import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
-import { CSSProperties, ReactElement } from "react";
+import { CSSProperties, Fragment, ReactElement } from "react";
 import { v4 } from "uuid";
 
 import { EDGE_COLOR } from "../constants/cy";
@@ -33,10 +33,20 @@ import {
   TERM_NODE_CLASS,
 } from "../constants/shared";
 import { NodeResult } from "../interfaces/neo4j";
+import { Direction } from "../interfaces/search-bar";
 
-export type GraphElementFactory = (n: string) => ReactElement;
+export type NodeElementFactory = (name: string) => ReactElement;
 
-const createNode = (label: string, style?: CSSProperties) => (
+export type RelationshipElementFactory = (
+  name: string,
+  direction: Direction
+) => ReactElement;
+
+export type GraphElementFactory =
+  | NodeElementFactory
+  | RelationshipElementFactory;
+
+const createNodeElement = (label: string, style?: CSSProperties) => (
   <NodeElement key={v4()} style={style}>
     <EntityText>{label}</EntityText>
   </NodeElement>
@@ -47,56 +57,76 @@ export const getNodeDisplayProperty = (label: string, node: NodeResult) => {
   return node.properties[displayProp];
 };
 
-export const createAdminNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(ADMIN_NODE_CLASS));
+export const createAdminNodeElement = (label: string) => {
+  return createNodeElement(label, ENTITY_STYLES_MAP.get(ADMIN_NODE_CLASS));
 };
 
-export const createContainerNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(CONTAINER_NODE_CLASS));
+export const createContainerNodeElement = (label: string) => {
+  return createNodeElement(label, ENTITY_STYLES_MAP.get(CONTAINER_NODE_CLASS));
 };
 
-export const createTermNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(TERM_NODE_CLASS));
+export const createTermNodeElement = (label: string) => {
+  return createNodeElement(label, ENTITY_STYLES_MAP.get(TERM_NODE_CLASS));
 };
 
-export const createCoreNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(CORE_NODE_CLASS));
+export const createCoreNodeElement = (label: string) => {
+  return createNodeElement(label, ENTITY_STYLES_MAP.get(CORE_NODE_CLASS));
 };
 
-export const createFileRelatedNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(FILE_RELATED_NODE_CLASS));
+export const createFileRelatedNodeElement = (label: string) => {
+  return createNodeElement(
+    label,
+    ENTITY_STYLES_MAP.get(FILE_RELATED_NODE_CLASS)
+  );
 };
 
-export const createSubjectRelatedNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(SUBJECT_RELATED_NODE_CLASS));
+export const createSubjectRelatedNodeElement = (label: string) => {
+  return createNodeElement(
+    label,
+    ENTITY_STYLES_MAP.get(SUBJECT_RELATED_NODE_CLASS)
+  );
 };
 
-export const createBiosampleRelatedNode = (label: string) => {
-  return createNode(label, ENTITY_STYLES_MAP.get(BIOSAMPLE_RELATED_NODE_CLASS));
+export const createBiosampleRelatedNodeElement = (label: string) => {
+  return createNodeElement(
+    label,
+    ENTITY_STYLES_MAP.get(BIOSAMPLE_RELATED_NODE_CLASS)
+  );
 };
 
-export const createRelationship = (type: string) => (
-  <RelationshipElement key={v4()}>
-    <EntityText>{type}</EntityText>
-  </RelationshipElement>
+export const createRelationshipElement = (
+  type: string,
+  direction: Direction
+) => (
+  <Fragment key={v4()}>
+    {direction === Direction.OUTGOING || direction === Direction.UNDIRECTED
+      ? createLineDividerElement()
+      : createArrowDividerElement(false)}
+    <RelationshipElement key={v4()}>
+      <EntityText>{type}</EntityText>
+    </RelationshipElement>
+    {direction === Direction.INCOMING || direction === Direction.UNDIRECTED
+      ? createLineDividerElement()
+      : createArrowDividerElement(true)}
+  </Fragment>
 );
 
-export const createAnonymousNode = () => (
+export const createAnonymousNodeElement = () => (
   <AnonymousNodeElement key={v4()}></AnonymousNodeElement>
 );
 
-export const createLineDivider = () => (
+export const createLineDividerElement = () => (
   <DividerContainer key={v4()}>
     <EntityDivider></EntityDivider>
   </DividerContainer>
 );
 
-export const createArrowDivider = (outgoing: boolean) => (
+export const createArrowDividerElement = (flip: boolean) => (
   <DividerContainer key={v4()}>
     <ArrowRightAltRoundedIcon
       sx={{
         color: EDGE_COLOR,
-        transform: outgoing ? null : "rotate(180deg)",
+        transform: flip ? null : "rotate(180deg)",
       }}
     />
   </DividerContainer>
@@ -106,36 +136,39 @@ export const createArrowDivider = (outgoing: boolean) => (
 // happen, but it's probably worth being aware of.
 export const ENTITY_TO_FACTORY_MAP: ReadonlyMap<string, GraphElementFactory> =
   new Map([
-    ...ADMIN_LABELS.map((label): [string, GraphElementFactory] => [
+    ...ADMIN_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createAdminNode,
+      createAdminNodeElement,
     ]),
-    ...CONTAINER_LABELS.map((label): [string, GraphElementFactory] => [
+    ...CONTAINER_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createContainerNode,
+      createContainerNodeElement,
     ]),
-    ...CORE_LABELS.map((label): [string, GraphElementFactory] => [
+    ...CORE_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createCoreNode,
+      createCoreNodeElement,
     ]),
-    ...TERM_LABELS.map((label): [string, GraphElementFactory] => [
+    ...TERM_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createTermNode,
+      createTermNodeElement,
     ]),
-    ...FILE_RELATED_LABELS.map((label): [string, GraphElementFactory] => [
+    ...FILE_RELATED_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createFileRelatedNode,
+      createFileRelatedNodeElement,
     ]),
-    ...SUBJECT_RELATED_LABELS.map((label): [string, GraphElementFactory] => [
+    ...SUBJECT_RELATED_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createSubjectRelatedNode,
+      createSubjectRelatedNodeElement,
     ]),
-    ...BIOSAMPLE_RELATED_LABELS.map((label): [string, GraphElementFactory] => [
+    ...BIOSAMPLE_RELATED_LABELS.map((label): [string, NodeElementFactory] => [
       label,
-      createBiosampleRelatedNode,
+      createBiosampleRelatedNodeElement,
     ]),
     ...Array.from(RELATIONSHIP_TYPES).map(
-      (label): [string, GraphElementFactory] => [label, createRelationship]
+      (label): [string, RelationshipElementFactory] => [
+        label,
+        createRelationshipElement,
+      ]
     ),
   ]);
 

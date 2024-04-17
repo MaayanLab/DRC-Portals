@@ -17,6 +17,7 @@ import {
 } from "../constants/search-bar";
 import {
   BasePropertyFilter,
+  Direction,
   NodeOption,
   RelationshipOption,
   SearchBarOption,
@@ -25,17 +26,17 @@ import {
 
 import {
   ENTITY_TO_FACTORY_MAP,
-  GraphElementFactory,
-  createAnonymousNode,
-  createArrowDivider,
-  createLineDivider,
+  NodeElementFactory,
+  RelationshipElementFactory,
+  createAnonymousNodeElement,
+  createLineDividerElement,
   keyInFactoryMapFilter,
 } from "./shared";
 
 export const isRelationshipOption = (
   option: NodeOption | RelationshipOption
 ): option is RelationshipOption => {
-  return (option as RelationshipOption).outgoing !== undefined;
+  return (option as RelationshipOption).direction !== undefined;
 };
 
 export const createPredicate = (
@@ -109,9 +110,13 @@ export const createCypher = (
     }
 
     if (entityIsRelationship) {
-      cypherTraversal += entity.outgoing
-        ? `-[${variable}:${entity.name}]->`
-        : `<-[${variable}:${entity.name}]-`;
+      if (entity.direction === Direction.OUTGOING) {
+        cypherTraversal += `-[${variable}:${entity.name}]->`;
+      } else if (entity.direction === Direction.INCOMING) {
+        cypherTraversal += `<-[${variable}:${entity.name}]-`;
+      } else {
+        cypherTraversal += `-[${variable}]-`;
+      }
     } else {
       cypherTraversal += `(${variable}:${entity.name})`;
     }
@@ -162,8 +167,8 @@ export const createCypher = (
 };
 
 export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
-  let nodes: SearchBarOption[];
-  let relationships: SearchBarOption[];
+  let nodes: NodeOption[];
+  let relationships: RelationshipOption[];
   if (value.length === 0) {
     nodes = Array.from(NODE_LABELS)
       .filter(keyInFactoryMapFilter)
@@ -179,12 +184,12 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
         return [
           {
             name: type,
-            outgoing: true,
+            direction: Direction.OUTGOING,
             filters: [],
           },
           {
             name: type,
-            outgoing: false,
+            direction: Direction.INCOMING,
             filters: [],
           },
         ];
@@ -200,9 +205,10 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
       if (secondLast !== undefined && !isRelationshipOption(secondLast)) {
         // When we know both the preceding node's label and the direction of the relationship, we can simply look into the appropriate
         // connection map for the correct values
-        const TYPE_CONNECTIONS = last.outgoing
-          ? OUTGOING_CONNECTIONS
-          : INCOMING_CONNECTIONS;
+        const TYPE_CONNECTIONS =
+          last.direction === Direction.OUTGOING
+            ? OUTGOING_CONNECTIONS
+            : INCOMING_CONNECTIONS;
 
         nodes =
           TYPE_CONNECTIONS.get(secondLast.name)
@@ -220,9 +226,10 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
         //
         // Note that we *could* implement this without looking in the opposite direction, but we would need to map over the values of the
         // connection map, which is messier.
-        const TYPE_CONNECTIONS = last.outgoing
-          ? INCOMING_CONNECTIONS
-          : OUTGOING_CONNECTIONS;
+        const TYPE_CONNECTIONS =
+          last.direction === Direction.OUTGOING
+            ? INCOMING_CONNECTIONS
+            : OUTGOING_CONNECTIONS;
 
         nodes = Array.from(TYPE_CONNECTIONS.entries())
           .filter(([_, typeMap]) => typeMap.has(relationshipType))
@@ -254,14 +261,14 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
         ...Array.from(outgoingSet).map((type) => {
           return {
             name: type,
-            outgoing: true,
+            direction: Direction.OUTGOING,
             filters: [],
           };
         }),
         ...Array.from(incomingSet).map((type) => {
           return {
             name: type,
-            outgoing: false,
+            direction: Direction.INCOMING,
             filters: [],
           };
         }),
@@ -285,14 +292,14 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
         ...Array.from(outgoing).map((type) => {
           return {
             name: type,
-            outgoing: true,
+            direction: Direction.OUTGOING,
             filters: [],
           };
         }),
         ...Array.from(incoming).map((type) => {
           return {
             name: type,
-            outgoing: false,
+            direction: Direction.INCOMING,
             filters: [],
           };
         }),
@@ -325,38 +332,28 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
 };
 
 export const createEntityElement = (entity: SearchBarOption) => {
-  return (ENTITY_TO_FACTORY_MAP.get(entity.name) as GraphElementFactory)(
-    entity.name
-  );
+  if (isRelationshipOption(entity)) {
+    return (
+      ENTITY_TO_FACTORY_MAP.get(entity.name) as RelationshipElementFactory
+    )(entity.name, entity.direction);
+  } else {
+    return (ENTITY_TO_FACTORY_MAP.get(entity.name) as NodeElementFactory)(
+      entity.name
+    );
+  }
 };
 
 export const createNodeSegment = (
   node: JSX.Element,
-  prev?: SearchBarOption,
-  next?: SearchBarOption
+  prev?: SearchBarOption
 ) => {
   let segment: JSX.Element[] = [];
 
-  if (prev !== undefined) {
-    if (isRelationshipOption(prev)) {
-      segment.push(
-        prev.outgoing ? createArrowDivider(prev.outgoing) : createLineDivider()
-      );
-    }
-    // Don't need to put a divider behind the current element if the previous is a node, since it will have a divider in front of it
+  if (prev !== undefined && !isRelationshipOption(prev)) {
+    segment.push(createLineDividerElement());
   }
 
   segment.push(node);
-
-  if (next !== undefined) {
-    if (isRelationshipOption(next)) {
-      segment.push(
-        next.outgoing ? createLineDivider() : createArrowDivider(next.outgoing)
-      );
-    } else {
-      segment.push(createLineDivider());
-    }
-  }
 
   return segment;
 };
@@ -367,48 +364,35 @@ export const createSearchPathEl = (path: SearchBarOption[]) => {
     .filter((entity) => keyInFactoryMapFilter(entity.name))
     .forEach((entity, index) => {
       // We know for sure the name is in the map from the filter above, but we need the explicit type coercion to ignore errors
+      const entityElement = createEntityElement(entity);
       const entityIsRelationship = isRelationshipOption(entity);
       const prevEntity = index > 0 ? path[index - 1] : undefined;
-      const nextEntity = index < path.length - 1 ? path[index + 1] : undefined;
+      const prevIsRelationship =
+        prevEntity !== undefined && isRelationshipOption(prevEntity);
 
       // If the first element of the path is a relationship, prepend it with an anonymous node
       if (index === 0 && entityIsRelationship) {
-        newPath.push(
-          ...createNodeSegment(createAnonymousNode(), undefined, entity)
-        );
+        newPath.push(createAnonymousNodeElement());
       }
 
       // If the current and previous element are both Relationships, then we need to add an anonymous node between them
-      if (
-        index > 0 &&
-        entityIsRelationship &&
-        prevEntity !== undefined &&
-        isRelationshipOption(prevEntity)
-      ) {
-        newPath.push(
-          ...createNodeSegment(createAnonymousNode(), prevEntity, entity)
-        );
+      if (index > 0 && entityIsRelationship && prevIsRelationship) {
+        newPath.push(createAnonymousNodeElement());
       }
 
       // Add the current entity
       if (entityIsRelationship) {
-        newPath.push(createEntityElement(entity));
+        newPath.push(entityElement);
       } else {
-        // If the current entity is a node, we need to add dividers between it based on its neighbors
-        newPath.push(
-          ...createNodeSegment(
-            createEntityElement(entity),
-            prevEntity,
-            nextEntity
-          )
-        );
+        if (prevEntity !== undefined && !prevIsRelationship) {
+          newPath.push(createLineDividerElement());
+        }
+        newPath.push(entityElement);
       }
 
       // If the last element is a relationship, append an anonymous node
       if (entityIsRelationship && index === path.length - 1) {
-        newPath.push(
-          ...createNodeSegment(createAnonymousNode(), entity, undefined)
-        );
+        newPath.push(createAnonymousNodeElement());
       }
     });
 
