@@ -149,9 +149,9 @@ const Communicator = ({
         className="btn btn-square"
       >
         <Icon
+          className="w-6 h-6"
           path={record ? mdiMicrophone : mdiMicrophoneOff}
           style={transform}
-          size={1}
         />
       </button>
       <button
@@ -165,9 +165,9 @@ const Communicator = ({
         className="btn btn-square"
       >
         <Icon
+          className="w-6 h-6"
           path={speakMessages ? mdiEarHearing : mdiEarHearingOff}
           style={transform}
-          size={1}
         />
       </button>
     </div>
