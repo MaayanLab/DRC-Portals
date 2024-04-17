@@ -130,7 +130,6 @@ export default function SearchBar(SearchBarProps: SearchBarProps) {
   const handleRenderTags = (value: SearchBarOption[]) =>
     createSearchPathEl(value);
 
-  // TODO: Could be useful to add helperText when the running query is taking a long time
   const handleRenderInput = (params: any) => (
     <TextField
       {...params}
