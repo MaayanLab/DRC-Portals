@@ -44,7 +44,7 @@ export function StyledAccordionComponent({ heading, content }: { heading: string
             <StyledAccordionSummary
                 expandIcon={<ArrowDownwardIcon />}
             >
-                <Typography>{heading}</Typography>
+                <Typography sx={{fontWeight: 'bold', color: '#ffffff'}}>{heading}</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails>
                 {content}

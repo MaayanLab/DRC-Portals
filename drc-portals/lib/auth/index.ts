@@ -28,42 +28,55 @@ const providers = [
       const LINCSDCCObject = await prisma.dCC.findFirst({
         where: {
           short_label: 'LINCS'
-        }, 
+        },
         select: {
           id: true
         }
       })
 
-      const user = await prisma.user.findUnique({
+      const developerUser = await prisma.user.upsert({
         where: {
           id: process.env.NEXTAUTH_SECRET ?? '',
-        }
-      })
-
-      if (user) {return user}
-      else {
-        const createdUser = await prisma.user.create({
-          data: {
-            id: process.env.NEXTAUTH_SECRET ?? '',
-            name: 'Developer',
-            role: 'ADMIN',
-            dccs: {
-              connectOrCreate: {
-                where: {
-                  id: LINCSDCCObject?.id
-                },
-                create: {
-                  id: LINCSDCCObject?.id,
-                  short_label: 'LINCS',
-                  label: 'Library of Integrated Network-based Cellular Signatures',
-                  homepage: 'https://lincsproject.org/'
-                },
+        },
+        update: {
+          name: 'Developer',
+          role: 'ADMIN',
+          email: 'developer@gmail.com',
+          dccs: {
+            connectOrCreate: {
+              where: {
+                id: LINCSDCCObject?.id
+              },
+              create: {
+                id: LINCSDCCObject?.id,
+                short_label: 'LINCS',
+                label: 'Library of Integrated Network-based Cellular Signatures',
+                homepage: 'https://lincsproject.org/'
               },
             },
-          }
-        })
-        return createdUser
-      }
+          },
+        },
+        create: {
+          id: process.env.NEXTAUTH_SECRET ?? '',
+          name: 'Developer',
+          role: 'ADMIN',
+          email: 'developer@gmail.com',
+          dccs: {
+            connectOrCreate: {
+              where: {
+                id: LINCSDCCObject?.id
+              },
+              create: {
+                id: LINCSDCCObject?.id,
+                short_label: 'LINCS',
+                label: 'Library of Integrated Network-based Cellular Signatures',
+                homepage: 'https://lincsproject.org/'
+              },
+            },
+          },
+        }
+      })
+      return developerUser
 
     }
   }) : undefined,
@@ -76,7 +89,7 @@ const providers = [
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
-const cookiePrefix = useSecureCookies ? "__Secure-" : "" 
+const cookiePrefix = useSecureCookies ? "__Secure-" : ""
 const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud'
 
 export const authOptions: NextAuthOptions = {
@@ -91,7 +104,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
-    session({ session, token}) {
+    session({ session, token }) {
       // session.accessToken = token.accessToken
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')

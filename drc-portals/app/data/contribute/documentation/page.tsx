@@ -108,14 +108,13 @@ The Entity Page Template and Example are  links to:
             </Grid>
             <Grid item container md={10} xs={12}>
                 <Container className="justify-content-center">
-                    <Typography variant="h3" color="#111827.dark" className='p-5'>SUBMIT DOCUMENTATION</Typography>
+                    <Typography variant="h3" color="#111827.dark" className='p-5'>HOW TO SUBMIT DATA AND METADATA TO THE PORTAL?</Typography>
                     <Typography variant="subtitle1" color="#374151" sx={{ mb: 3, ml: 2 }}>
                         This page covers the submission system documentation of the Data Resource Portal.
                         We are collecting file and code assets from Common Fund programs to make them
                         Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
                         To submit assets, you must be logged in and registered. Registration involves being assigned a
                         role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
-                        Please click on any section from the dropdown list below to navigate to that section.
                     </Typography>
                     <Grid item>
                         <StyledAccordionComponent heading='File Types' content={<>
@@ -337,8 +336,8 @@ The Entity Page Template and Example are  links to:
                                 </Box>
                                 <Box sx={{ p: 1, m: 1, }}>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                        Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges:
-                                        Contact the DRC via email with the following information about the member:
+                                        Any given person in your DCC can only have 1 role. To give a member of your DCC Approver or Uploader privileges, 
+                                        contact the DRC via email with the following information about the member:
                                     </Typography>
                                     <List sx={{ listStyleType: 'disc', pl: 3 }}>
                                         <ListItemText sx={{ display: 'list-item', padding: 0 }}>
@@ -355,7 +354,7 @@ The Entity Page Template and Example are  links to:
                                         </ListItemText>
                                     </List>
                                     <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                        Please also indicate if the user has already logged into the portal (is a registered user) or has never accessed the portal (is a new user).
+                                        Please also indicate if the user has previously logged into the portal (has a user account) or has never accessed the portal (is a new user).
                                     </Typography>
                                 </Box>
                             </>

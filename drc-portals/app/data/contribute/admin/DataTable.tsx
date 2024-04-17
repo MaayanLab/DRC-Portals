@@ -1,6 +1,6 @@
 "use client"
 
-import { DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel, GridTreeNodeWithRender } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel, GridToolbar, GridTreeNodeWithRender } from '@mui/x-data-grid';
 import * as React from 'react';
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import RoleSelect from './RoleSelect';
@@ -248,6 +248,17 @@ export default function DataTable({rows, users, dccMapping} : {
                             paginationModel: { page: 0, pageSize: 5 },
                         },
                     }}
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    slotProps={{
+                        toolbar: {
+                          csvOptions: { disableToolbarButton: true },
+                          printOptions: { disableToolbarButton: true },
+                          showQuickFilter: true,
+                        },
+                      }}
+                    slots={{ toolbar: GridToolbar }}
                     pageSizeOptions={[5, 10]}
                     checkboxSelection
                     onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
