@@ -18,6 +18,8 @@ import { visuallyHidden } from '@mui/utils';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
+import { useDebounce } from 'use-debounce';
+
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -321,24 +323,35 @@ export function PaginatedTable({ userFiles, role }: {
     const sortedData = React.useMemo(
         () => {
             if (orderBy === 'dcc') {
-                return order === 'desc' ? copyUserFiles.sort(dccCompare).slice(
-                    page * rowsPerPage,
-                    page * rowsPerPage + rowsPerPage,
-                ) : copyUserFiles.sort(dccCompareAsc).slice(
+                if (rowsPerPage === -1) {
+                    return order === 'desc' ? copyUserFiles.sort(dccCompare) : copyUserFiles.sort(dccCompareAsc)
+                } else {
+                    return order === 'desc' ? copyUserFiles.sort(dccCompare).slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                    ) : copyUserFiles.sort(dccCompareAsc).slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                    )
+                }
+            }
+            if (rowsPerPage === -1) {
+                return stableSort(copyUserFiles, getComparator(order, orderBy))
+            } else {
+                return stableSort(copyUserFiles, getComparator(order, orderBy)).slice(
                     page * rowsPerPage,
                     page * rowsPerPage + rowsPerPage,
                 )
             }
-            return stableSort(copyUserFiles, getComparator(order, orderBy)).slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage,
-            )
         }, [order, orderBy, page, rowsPerPage, userFiles, copyUserFiles],
     );
+
+    const [debouncedSortedData] = useDebounce(sortedData, 200); // Debounce after 500ms
+
     let symbolUserFiles;
 
     if (role === 'UPLOADER') {
-        symbolUserFiles = sortedData.map((userFile) => {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymboldcc = <FaCircleExclamation size={20} />
             let approvedSymbol = <FaCircleExclamation size={20} />
             let currentSymbol = <FaCircleExclamation size={20} />
@@ -356,7 +369,7 @@ export function PaginatedTable({ userFiles, role }: {
             )
         })
     } else if (role === 'DCC_APPROVER') {
-        symbolUserFiles = sortedData.map((userFile) => {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
             let approvedSymbol = <FaCircleExclamation size={20} />
             let currentSymbol = <CurrentBtn {...userFile} />
@@ -367,7 +380,7 @@ export function PaginatedTable({ userFiles, role }: {
         })
 
     } else {
-        symbolUserFiles = sortedData.map((userFile) => {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
             let approvedSymboldcc = <FaCircleExclamation size={20} />
             let currentSymbol = <CurrentBtn {...userFile} />
