@@ -162,162 +162,166 @@ export const createCypher = (
 };
 
 export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
+  let nodes: SearchBarOption[];
+  let relationships: SearchBarOption[];
   if (value.length === 0) {
-    return [
-      ...Array.from(NODE_LABELS)
-        .filter(keyInFactoryMapFilter)
-        .map((label) => {
-          return {
-            name: label,
+    nodes = Array.from(NODE_LABELS)
+      .filter(keyInFactoryMapFilter)
+      .map((label) => {
+        return {
+          name: label,
+          filters: [],
+        };
+      });
+    relationships = Array.from(RELATIONSHIP_TYPES)
+      .filter(keyInFactoryMapFilter)
+      .flatMap((type) => {
+        return [
+          {
+            name: type,
+            outgoing: true,
             filters: [],
-          };
-        }),
-      ...Array.from(RELATIONSHIP_TYPES)
-        .filter(keyInFactoryMapFilter)
-        .flatMap((type) => {
-          return [
-            {
-              name: type,
-              outgoing: true,
-              filters: [],
-            },
-            {
-              name: type,
-              outgoing: false,
-              filters: [],
-            },
-          ];
-        }),
-    ];
-  }
+          },
+          {
+            name: type,
+            outgoing: false,
+            filters: [],
+          },
+        ];
+      });
+  } else {
+    // We can safely rule out a possible undefined value because of the above `if` block
+    const last = value.at(-1) as SearchBarOption;
 
-  // We can safely rule out a possible undefined value because of the above `if` block
-  const last = value.at(-1) as SearchBarOption;
-  let nodes: NodeOption[];
-  let relationships: RelationshipOption[];
+    if (isRelationshipOption(last)) {
+      const relationshipType = last.name;
+      const secondLast = value.at(-2);
 
-  if (isRelationshipOption(last)) {
-    const relationshipType = last.name;
-    const secondLast = value.at(-2);
+      if (secondLast !== undefined && !isRelationshipOption(secondLast)) {
+        // When we know both the preceding node's label and the direction of the relationship, we can simply look into the appropriate
+        // connection map for the correct values
+        const TYPE_CONNECTIONS = last.outgoing
+          ? OUTGOING_CONNECTIONS
+          : INCOMING_CONNECTIONS;
 
-    if (secondLast !== undefined && !isRelationshipOption(secondLast)) {
-      // When we know both the preceding node's label and the direction of the relationship, we can simply look into the appropriate
-      // connection map for the correct values
-      const TYPE_CONNECTIONS = last.outgoing
-        ? OUTGOING_CONNECTIONS
-        : INCOMING_CONNECTIONS;
+        nodes =
+          TYPE_CONNECTIONS.get(secondLast.name)
+            ?.get(last.name)
+            ?.map((label) => {
+              return {
+                name: label,
+                filters: [],
+              };
+            }) || [];
+      } else {
+        // If there is no previous element, or it is a relationship, the list of nodes is *all* nodes which are possibly connected by this
+        // relationship in the *opposite* of the given direction. I.e., if `last` is outgoing, we will find the list of nodes where the type
+        // of `last` is *incoming*. ()-[LAST]->(node)
+        //
+        // Note that we *could* implement this without looking in the opposite direction, but we would need to map over the values of the
+        // connection map, which is messier.
+        const TYPE_CONNECTIONS = last.outgoing
+          ? INCOMING_CONNECTIONS
+          : OUTGOING_CONNECTIONS;
 
-      nodes =
-        TYPE_CONNECTIONS.get(secondLast.name)
-          ?.get(last.name)
-          ?.map((label) => {
+        nodes = Array.from(TYPE_CONNECTIONS.entries())
+          .filter(([_, typeMap]) => typeMap.has(relationshipType))
+          .map(([label, _]) => {
             return {
               name: label,
               filters: [],
             };
-          }) || [];
-    } else {
-      // If there is no previous element, or it is a relationship, the list of nodes is *all* nodes which are possibly connected by this
-      // relationship in the *opposite* of the given direction. I.e., if `last` is outgoing, we will find the list of nodes where the type
-      // of `last` is *incoming*. ()-[LAST]->(node)
-      //
-      // Note that we *could* implement this without looking in the opposite direction, but we would need to map over the values of the
-      // connection map, which is messier.
-      const TYPE_CONNECTIONS = last.outgoing
-        ? INCOMING_CONNECTIONS
-        : OUTGOING_CONNECTIONS;
+          });
+      }
 
-      nodes = Array.from(TYPE_CONNECTIONS.entries())
-        .filter(([_, typeMap]) => typeMap.has(relationshipType))
-        .map(([label, _]) => {
+      if (nodes.length === 0) {
+        console.warn(`Type "${relationshipType}" has no node connections!`);
+        return [];
+      }
+
+      const outgoingSet = new Set<string>();
+      const incomingSet = new Set<string>();
+      nodes.forEach(({ name }) => {
+        // From the potentially connected nodes calculated above, get all outgoing and incoming types.
+        Array.from(OUTGOING_CONNECTIONS.get(name)?.keys() || []).forEach(
+          (type) => outgoingSet.add(type)
+        );
+        Array.from(INCOMING_CONNECTIONS.get(name)?.keys() || []).forEach(
+          (type) => incomingSet.add(type)
+        );
+      });
+      relationships = [
+        ...Array.from(outgoingSet).map((type) => {
           return {
-            name: label,
+            name: type,
+            outgoing: true,
             filters: [],
           };
-        });
-    }
-
-    if (nodes.length === 0) {
-      console.warn(`Type "${relationshipType}" has no node connections!`);
-      return [];
-    }
-
-    const outgoingSet = new Set<string>();
-    const incomingSet = new Set<string>();
-    nodes.forEach(({ name }) => {
-      // From the potentially connected nodes calculated above, get all outgoing and incoming types.
-      Array.from(OUTGOING_CONNECTIONS.get(name)?.keys() || []).forEach((type) =>
-        outgoingSet.add(type)
+        }),
+        ...Array.from(incomingSet).map((type) => {
+          return {
+            name: type,
+            outgoing: false,
+            filters: [],
+          };
+        }),
+      ];
+    } else {
+      const nodeLabel = last.name;
+      if (
+        !OUTGOING_CONNECTIONS.has(nodeLabel) &&
+        !INCOMING_CONNECTIONS.has(nodeLabel)
+      ) {
+        console.warn(`Label "${nodeLabel}" not found in connection map!`);
+        return [];
+      }
+      const outgoing = Array.from(
+        OUTGOING_CONNECTIONS.get(nodeLabel)?.keys() || []
       );
-      Array.from(INCOMING_CONNECTIONS.get(name)?.keys() || []).forEach((type) =>
-        incomingSet.add(type)
+      const incoming = Array.from(
+        INCOMING_CONNECTIONS.get(nodeLabel)?.keys() || []
       );
-    });
-    relationships = [
-      ...Array.from(outgoingSet).map((type) => {
+      relationships = [
+        ...Array.from(outgoing).map((type) => {
+          return {
+            name: type,
+            outgoing: true,
+            filters: [],
+          };
+        }),
+        ...Array.from(incoming).map((type) => {
+          return {
+            name: type,
+            outgoing: false,
+            filters: [],
+          };
+        }),
+      ];
+      nodes = Array.from(
+        new Set([
+          ...Array.from(
+            OUTGOING_CONNECTIONS.get(nodeLabel)?.values() || []
+          ).flat(),
+          ...Array.from(
+            INCOMING_CONNECTIONS.get(nodeLabel)?.values() || []
+          ).flat(),
+        ])
+      ).map((label) => {
         return {
-          name: type,
-          outgoing: true,
+          name: label,
           filters: [],
         };
-      }),
-      ...Array.from(incomingSet).map((type) => {
-        return {
-          name: type,
-          outgoing: false,
-          filters: [],
-        };
-      }),
-    ];
-  } else {
-    const nodeLabel = last.name;
-    if (
-      !OUTGOING_CONNECTIONS.has(nodeLabel) &&
-      !INCOMING_CONNECTIONS.has(nodeLabel)
-    ) {
-      console.warn(`Label "${nodeLabel}" not found in connection map!`);
-      return [];
+      });
     }
-    const outgoing = Array.from(
-      OUTGOING_CONNECTIONS.get(nodeLabel)?.keys() || []
-    );
-    const incoming = Array.from(
-      INCOMING_CONNECTIONS.get(nodeLabel)?.keys() || []
-    );
-    relationships = [
-      ...Array.from(outgoing).map((type) => {
-        return {
-          name: type,
-          outgoing: true,
-          filters: [],
-        };
-      }),
-      ...Array.from(incoming).map((type) => {
-        return {
-          name: type,
-          outgoing: false,
-          filters: [],
-        };
-      }),
-    ];
-    nodes = Array.from(
-      new Set([
-        ...Array.from(
-          OUTGOING_CONNECTIONS.get(nodeLabel)?.values() || []
-        ).flat(),
-        ...Array.from(
-          INCOMING_CONNECTIONS.get(nodeLabel)?.values() || []
-        ).flat(),
-      ])
-    ).map((label) => {
-      return {
-        name: label,
-        filters: [],
-      };
-    });
   }
 
-  return [...nodes, ...relationships];
+  // Sorting relationships and *not* nodes is intentional. Node labels are grouped by "type" (e.g. "Core", "Term", etc.). Relationships
+  // don't have a natural grouping, so we instead opt to sort them alphabetically. This has the additional intended effect of putting the
+  // outgoing/incoming directions next to each other in the list.
+  return [
+    ...nodes,
+    ...relationships.sort((a, b) => a.name.localeCompare(b.name)),
+  ];
 };
 
 export const createEntityElement = (entity: SearchBarOption) => {
@@ -411,7 +415,8 @@ export const createSearchPathEl = (path: SearchBarOption[]) => {
   return <Stack direction="row">{newPath.map((element) => element)}</Stack>;
 };
 
-export const getEntityProperties = (value: SearchBarOption) => PROPERTY_MAP.get(value.name)
+export const getEntityProperties = (value: SearchBarOption) =>
+  PROPERTY_MAP.get(value.name);
 
 export const getPropertyOperators = (property: string) => {
   if (!PROPERTY_OPERATORS.has(property)) {
