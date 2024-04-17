@@ -14,10 +14,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useEffect, useState } from "react";
 
 import { SearchBarOption } from "../../interfaces/search-bar";
-import { createEntityElement } from "../../utils/search-bar";
+import { createEntityElement, isRelationshipOption } from "../../utils/search-bar";
 import {
-  NODE_PROPERTY_MAP,
-  RELATIONSHIP_PROPERTY_MAP,
+  PROPERTY_MAP,
 } from "../../constants/neo4j";
 
 import SettingsPropertyForm from "./SettingsPropertyForm";
@@ -91,12 +90,11 @@ export default function SettingsCard(props: SettingsCardProps) {
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           {/* TODO: Relying a bit on the assumption node labels and relationship types don't overlap here... */}
-          {NODE_PROPERTY_MAP.has(value.name) ||
-          RELATIONSHIP_PROPERTY_MAP.has(value.name) ? (
+          {PROPERTY_MAP.has(value.name) ? (
             <SettingsPropertyForm value={value} liftValue={liftValue} />
           ) : (
             <Typography>
-              This {value.isRelationship ? "relationship" : "node"} has no
+              This {isRelationshipOption(value) ? "relationship" : "node"} has no
               possible properties on which to filter.
             </Typography>
           )}

@@ -23,6 +23,7 @@ import {
   createPropertyFilter,
   getEntityProperties,
   getPropertyOperators,
+  isRelationshipOption,
 } from "../../utils/search-bar";
 
 export interface SettingsPropertyFormProps {
@@ -189,7 +190,7 @@ export default function SettingsPropertyForm(props: SettingsPropertyFormProps) {
     </Box>
   ) : (
     <Typography>
-      This {value.isRelationship ? "relationship" : "node"} has no possible
+      This {isRelationshipOption(value) ? "relationship" : "node"} has no possible
       properties on which to filter.
     </Typography>
   );

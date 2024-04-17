@@ -1,8 +1,17 @@
-export interface SearchBarOption {
+export interface BaseSearchBarOption {
   name: string;
-  isRelationship: boolean;
   filters: BasePropertyFilter[];
 }
+
+export interface NodeOption extends BaseSearchBarOption {
+}
+
+export interface RelationshipOption extends BaseSearchBarOption {
+  outgoing: boolean;
+  // TODO: Add isDirected?
+}
+
+export type SearchBarOption = NodeOption | RelationshipOption;
 
 export interface SearchQuerySettings {
   limit?: number;

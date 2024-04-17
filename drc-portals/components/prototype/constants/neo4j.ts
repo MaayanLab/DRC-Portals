@@ -140,119 +140,108 @@ export const ALL_LABELS_AND_TYPES: readonly string[] = [
   ...Array.from(RELATIONSHIP_TYPES),
 ];
 
-export const LABEL_CONNECTIONS: ReadonlyMap<string, string[]> = new Map([
-  [DCC_LABEL, [PRODUCED_TYPE]],
-  [ID_NAMESPACE_LABEL, [CONTAINS_TYPE]],
-  [COLLECTION_LABEL, [CONTAINS_TYPE, IS_SUPERSET_OF_TYPE]],
-  [PROJECT_LABEL, [IS_PARENT_OF_TYPE, PRODUCED_TYPE, CONTAINS_TYPE]],
+export const OUTGOING_CONNECTIONS: ReadonlyMap<
+  string,
+  ReadonlyMap<string, string[]>
+> = new Map([
+  [DCC_LABEL, new Map([[PRODUCED_TYPE, [PROJECT_LABEL]]])],
+  [
+    ID_NAMESPACE_LABEL,
+    new Map([
+      [
+        CONTAINS_TYPE,
+        [
+          COLLECTION_LABEL,
+          SUBJECT_LABEL,
+          FILE_LABEL,
+          BIOSAMPLE_LABEL,
+          PROJECT_LABEL,
+        ],
+      ],
+    ]),
+  ],
+  [
+    COLLECTION_LABEL,
+    new Map([
+      [CONTAINS_TYPE, [SUBJECT_LABEL, FILE_LABEL, BIOSAMPLE_LABEL]],
+      [IS_SUPERSET_OF_TYPE, [COLLECTION_LABEL]],
+    ]),
+  ],
+  [
+    PROJECT_LABEL,
+    new Map([
+      [CONTAINS_TYPE, [SUBJECT_LABEL, FILE_LABEL, BIOSAMPLE_LABEL]],
+      [IS_PARENT_OF_TYPE, [PROJECT_LABEL]],
+    ]),
+  ],
   [
     FILE_LABEL,
-    [
-      CONTAINS_TYPE,
-      IS_DATA_TYPE_TYPE,
-      GENERATED_BY_ASSAY_TYPE_TYPE,
-      REFERENCES_TYPE,
-      DESCRIBES_TYPE,
-      GENERATED_BY_ANALYSIS_TYPE_TYPE,
-      IS_FILE_FORMAT_TYPE,
-    ],
+    new Map([
+      [DESCRIBES_TYPE, [BIOSAMPLE_LABEL, SUBJECT_LABEL]],
+      [GENERATED_BY_ASSAY_TYPE_TYPE, [ASSAY_TYPE_LABEL]],
+      [GENERATED_BY_ANALYSIS_TYPE_TYPE, [ANALYSIS_TYPE_LABEL]],
+      [IS_DATA_TYPE_TYPE, [DATA_TYPE_LABEL]],
+      [IS_FILE_FORMAT_TYPE, [FILE_FORMAT_LABEL]],
+      [
+        REFERENCES_TYPE,
+        [
+          ANATOMY_LABEL,
+          COMPOUND_LABEL,
+          GENE_LABEL,
+          NCBI_TAXONOMY_LABEL,
+          PROTEIN_LABEL,
+          SUBJECT_LABEL,
+          SUBSTANCE_LABEL,
+        ],
+      ],
+    ]),
   ],
   [
     SUBJECT_LABEL,
-    [
-      ASSOCIATED_WITH_TYPE,
-      CONTAINS_TYPE,
-      SAMPLED_FROM_TYPE,
-      IS_GRANULARITY_TYPE,
-      IS_SEX_TYPE,
-      DESCRIBES_TYPE,
-      IS_ETHNICITY_TYPE,
-      IS_RACE_TYPE,
-      TESTED_FOR_TYPE,
-    ],
+    new Map([
+      [ASSOCIATED_WITH_TYPE, [NCBI_TAXONOMY_LABEL]],
+      [IS_GRANULARITY_TYPE, [SUBJECT_GRANULARITY_LABEL]],
+      [IS_SEX_TYPE, [SUBJECT_SEX_LABEL]],
+      [IS_ETHNICITY_TYPE, [SUBJECT_ETHNICITY_LABEL]],
+      [IS_RACE_TYPE, [SUBJECT_RACE_LABEL]],
+      [TESTED_FOR_TYPE, [DISEASE_LABEL, PHENOTYPE_LABEL]],
+    ]),
   ],
   [
     BIOSAMPLE_LABEL,
-    [
-      CONTAINS_TYPE,
-      SAMPLED_FROM_TYPE,
-      DESCRIBES_TYPE,
-      PREPPED_VIA_TYPE,
-      TESTED_FOR_TYPE,
-    ],
+    new Map([
+      [SAMPLED_FROM_TYPE, [ANATOMY_LABEL, SUBJECT_LABEL]],
+      [PREPPED_VIA_TYPE, [SAMPLE_PREP_METHOD_LABEL]],
+      [TESTED_FOR_TYPE, [DISEASE_LABEL]],
+    ]),
   ],
-  [ANATOMY_LABEL, [SAMPLED_FROM_TYPE, REFERENCES_TYPE]],
-  [COMPOUND_LABEL, [REFERENCES_TYPE, ASSOCIATED_WITH_TYPE]],
-  [DISEASE_LABEL, [TESTED_FOR_TYPE]],
-  [GENE_LABEL, [HAS_SOURCE_TYPE, REFERENCES_TYPE]],
-  [
-    NCBI_TAXONOMY_LABEL,
-    [ASSOCIATED_WITH_TYPE, HAS_SOURCE_TYPE, REFERENCES_TYPE],
-  ],
-  [PHENOTYPE_LABEL, [TESTED_FOR_TYPE]],
-  [PROTEIN_LABEL, [REFERENCES_TYPE, HAS_SOURCE_TYPE]],
-  [SUBSTANCE_LABEL, [REFERENCES_TYPE, ASSOCIATED_WITH_TYPE]],
-  [ANALYSIS_TYPE_LABEL, [GENERATED_BY_ANALYSIS_TYPE_TYPE]],
-  [ASSAY_TYPE_LABEL, [GENERATED_BY_ASSAY_TYPE_TYPE]],
-  [DATA_TYPE_LABEL, [IS_DATA_TYPE_TYPE]],
-  [FILE_FORMAT_LABEL, [IS_FILE_FORMAT_TYPE]],
-  [SUBJECT_ETHNICITY_LABEL, [IS_ETHNICITY_TYPE]],
-  [SUBJECT_RACE_LABEL, [IS_RACE_TYPE]],
-  [SUBJECT_GRANULARITY_LABEL, [IS_GRANULARITY_TYPE]],
-  [SUBJECT_SEX_LABEL, [IS_SEX_TYPE]],
-  [SAMPLE_PREP_METHOD_LABEL, [PREPPED_VIA_TYPE]],
+  [GENE_LABEL, new Map([[HAS_SOURCE_TYPE, [NCBI_TAXONOMY_LABEL]]])],
+  [PROTEIN_LABEL, new Map([[HAS_SOURCE_TYPE, [NCBI_TAXONOMY_LABEL]]])],
+  [SUBSTANCE_LABEL, new Map([[ASSOCIATED_WITH_TYPE, [COMPOUND_LABEL]]])],
 ]);
 
-// TODO: These type connections are "dumb" in the sense that they don't take into account the source node. We need a more complete
-// implementation that takes the source into consideration. We should also consider the direction of the relationship!
-export const TYPE_CONNECTIONS: ReadonlyMap<string, string[]> = new Map([
-  [
-    ASSOCIATED_WITH_TYPE,
-    [COMPOUND_LABEL, SUBSTANCE_LABEL, NCBI_TAXONOMY_LABEL, SUBJECT_LABEL],
-  ],
-  [
-    CONTAINS_TYPE,
-    [
-      COLLECTION_LABEL,
-      ID_NAMESPACE_LABEL,
-      PROJECT_LABEL,
-      BIOSAMPLE_LABEL,
-      FILE_LABEL,
-      SUBJECT_LABEL,
-    ],
-  ],
-  [PRODUCED_TYPE, [PROJECT_LABEL, DCC_LABEL]],
-  [HAS_SOURCE_TYPE, [NCBI_TAXONOMY_LABEL, GENE_LABEL, PROTEIN_LABEL]],
-  [SAMPLED_FROM_TYPE, [ANATOMY_LABEL, BIOSAMPLE_LABEL, SUBJECT_LABEL]],
-  [PREPPED_VIA_TYPE, [SAMPLE_PREP_METHOD_LABEL, BIOSAMPLE_LABEL]],
-  [IS_DATA_TYPE_TYPE, [DATA_TYPE_LABEL, FILE_LABEL]],
-  [GENERATED_BY_ASSAY_TYPE_TYPE, [ASSAY_TYPE_LABEL, FILE_LABEL]],
-  [GENERATED_BY_ANALYSIS_TYPE_TYPE, [ANALYSIS_TYPE_LABEL, FILE_LABEL]],
-  [IS_FILE_FORMAT_TYPE, [FILE_FORMAT_LABEL, FILE_LABEL]],
-  [IS_GRANULARITY_TYPE, [SUBJECT_GRANULARITY_LABEL, SUBJECT_LABEL]],
-  [IS_SEX_TYPE, [SUBJECT_SEX_LABEL, SUBJECT_LABEL]],
-  [IS_ETHNICITY_TYPE, [SUBJECT_ETHNICITY_LABEL, SUBJECT_LABEL]],
-  [IS_SUPERSET_OF_TYPE, [COLLECTION_LABEL]],
-  [IS_PARENT_OF_TYPE, [PROJECT_LABEL]],
-  [DESCRIBES_TYPE, [BIOSAMPLE_LABEL, FILE_LABEL, SUBJECT_LABEL]],
-  [
-    TESTED_FOR_TYPE,
-    [DISEASE_LABEL, BIOSAMPLE_LABEL, SUBJECT_LABEL, PHENOTYPE_LABEL],
-  ],
-  [
-    REFERENCES_TYPE,
-    [
-      ANATOMY_LABEL,
-      FILE_LABEL,
-      GENE_LABEL,
-      SUBSTANCE_LABEL,
-      COMPOUND_LABEL,
-      NCBI_TAXONOMY_LABEL,
-      PROTEIN_LABEL,
-    ],
-  ],
-  [IS_RACE_TYPE, [SUBJECT_RACE_LABEL, SUBJECT_LABEL]],
-]);
+export const INCOMING_CONNECTIONS: ReadonlyMap<
+  string,
+  ReadonlyMap<string, string[]>
+> = (() => {
+  const map = new Map<string, Map<string, string[]>>()
+  OUTGOING_CONNECTIONS.forEach((val, src) => {
+    val.forEach((dests, type) => {
+      dests.forEach(dest => {
+        if (map.has(dest)) {
+          if (map.get(dest)?.has(type)) {
+            (map.get(dest)?.get(type) as string[]).push(src)
+          } else {
+            (map.get(dest) as Map<string, string[]>).set(type, [src])
+          }
+        } else {
+          map.set(dest, new Map([[type, [src]]]))
+        }
+      });
+    });
+  });
+  return map;
+})();
 
 // All properties
 export const ID_PROPERTY = "id";
@@ -281,7 +270,7 @@ export const SEX_PROPERTY = "sex";
 export const AGE_AT_ENROLLMENT_PROPERTY = "age_at_enrollment";
 export const ETHNICITY_PROPERTY = "ethnicity";
 export const ROLE_ID_PROPERTY = "role_id";
-export const AGE_AT_SAMPLING = "age_at_sampling";
+export const AGE_AT_SAMPLING_PROPERTY = "age_at_sampling";
 export const OBSERVED_PROPERTY = "observed";
 
 export const STRING_PROPERTIES: ReadonlyArray<string> = [
@@ -310,7 +299,7 @@ export const NUMBER_PROPERTIES: ReadonlyArray<string> = [
   SIZE_IN_BYTES_PROPERTY,
   UNCOMPRESSED_SIZE_IN_BYTES_PROPERTY,
   AGE_AT_ENROLLMENT_PROPERTY,
-  AGE_AT_SAMPLING,
+  AGE_AT_SAMPLING_PROPERTY,
 ];
 
 export const STRING_ARRAY_PROPERTIES: ReadonlyArray<string> = [
@@ -323,7 +312,7 @@ export const BOOL_PROPERTIES: ReadonlyArray<string> = [
   HAS_TIME_SERIES_DATA_PROPERTY,
 ];
 
-export const NODE_PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map([
+export const PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map([
   [
     ID_NAMESPACE_LABEL,
     [ID_PROPERTY, DESCRIPTION_PROPERTY, NAME_PROPERTY, ABBREV_PROPERTY],
@@ -459,17 +448,10 @@ export const NODE_PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map([
       CREATION_TIME_PROPERTY,
     ],
   ],
+  [ASSOCIATED_WITH_TYPE, [ROLE_ID_PROPERTY]],
+  [SAMPLED_FROM_TYPE, [AGE_AT_SAMPLING_PROPERTY]],
+  [TESTED_FOR_TYPE, [OBSERVED_PROPERTY]],
 ]);
-
-export const RELATIONSHIP_PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map(
-  [
-    [ASSOCIATED_WITH_TYPE, ["role_id"]],
-    [SAMPLED_FROM_TYPE, ["age_at_sampling"]],
-    [TESTED_FOR_TYPE, ["observed"]],
-  ]
-);
-
-// TODO: May want to codify the idea that labels and types never overlap by creating a ALL_NAMES_PROPERTY_MAP which combines the two, and then only use that...
 
 export const NODE_REPR_OBJECT_STR = `{
   identity: id(n),

@@ -91,9 +91,14 @@ export const createLineDivider = () => (
   </DividerContainer>
 );
 
-export const createArrowDivider = () => (
+export const createArrowDivider = (outgoing: boolean) => (
   <DividerContainer key={v4()}>
-    <ArrowRightAltRoundedIcon sx={{ color: EDGE_COLOR }} />
+    <ArrowRightAltRoundedIcon
+      sx={{
+        color: EDGE_COLOR,
+        transform: outgoing ? null : "rotate(180deg)",
+      }}
+    />
   </DividerContainer>
 );
 

@@ -2,14 +2,13 @@ import { Stack } from "@mui/material";
 import { ReactElement } from "react";
 
 import {
-  LABEL_CONNECTIONS,
+  INCOMING_CONNECTIONS,
   NODE_LABELS,
-  NODE_PROPERTY_MAP,
   NODE_REPR_OBJECT_STR,
-  RELATIONSHIP_PROPERTY_MAP,
+  OUTGOING_CONNECTIONS,
+  PROPERTY_MAP,
   RELATIONSHIP_TYPES,
   REL_REPR_OBJECT_STR,
-  TYPE_CONNECTIONS,
 } from "../constants/neo4j";
 import {
   OPERATOR_FUNCTIONS,
@@ -18,6 +17,8 @@ import {
 } from "../constants/search-bar";
 import {
   BasePropertyFilter,
+  NodeOption,
+  RelationshipOption,
   SearchBarOption,
   SearchQuerySettings,
 } from "../interfaces/search-bar";
@@ -30,6 +31,12 @@ import {
   createLineDivider,
   keyInFactoryMapFilter,
 } from "./shared";
+
+export const isRelationshipOption = (
+  option: NodeOption | RelationshipOption
+): option is RelationshipOption => {
+  return (option as RelationshipOption).outgoing !== undefined;
+};
 
 export const createPredicate = (
   variable: string,
@@ -77,31 +84,34 @@ export const createCypher = (
   settings?: SearchQuerySettings
 ) => {
   let cypherTraversal = "";
-  const isSingleNode = value.length === 1 && !value[0].isRelationship;
+  const isSingleNode = value.length === 1 && !isRelationshipOption(value[0]);
   const wherePredicates: string[] = [];
 
   value.forEach((entity, index) => {
-    const variable = entity.isRelationship ? `r${index}` : `n${index}`;
+    const entityIsRelationship = isRelationshipOption(entity);
+    const variable = entityIsRelationship ? `r${index}` : `n${index}`;
     const prevIsRelationship =
-      index > 0 ? value[index - 1].isRelationship : false;
+      index > 0 ? isRelationshipOption(value[index - 1]) : false;
 
     // If the first element of the path is a relationship, prepend it with an anonymous node
-    if (index === 0 && entity.isRelationship) {
-      cypherTraversal += `(${variable})`;
+    if (index === 0 && entityIsRelationship) {
+      cypherTraversal += `(aN${index})`;
     }
 
     // If the current and previous element are both Relationships, then we need to add an anonymous node between them
-    if (entity.isRelationship && prevIsRelationship) {
-      cypherTraversal += `(${variable})`;
+    if (entityIsRelationship && prevIsRelationship) {
+      cypherTraversal += `(aN${index})`;
     }
 
     // If the current and previous element are both Nodes, then we need to add an anonymous relationship between them
-    if (index !== 0 && !entity.isRelationship && !prevIsRelationship) {
-      cypherTraversal += `-[${variable}]-`;
+    if (index !== 0 && !entityIsRelationship && !prevIsRelationship) {
+      cypherTraversal += `-[aR${index}]-`;
     }
 
-    if (entity.isRelationship) {
-      cypherTraversal += `-[${variable}:${entity.name}]-`;
+    if (entityIsRelationship) {
+      cypherTraversal += entity.outgoing
+        ? `-[${variable}:${entity.name}]->`
+        : `<-[${variable}:${entity.name}]-`;
     } else {
       cypherTraversal += `(${variable}:${entity.name})`;
     }
@@ -118,8 +128,8 @@ export const createCypher = (
     // We've reached the last element in the original path
     if (index === value.length - 1) {
       // If the last element is a relationship, tack on an anonymous node
-      if (entity.isRelationship) {
-        cypherTraversal += "()";
+      if (entityIsRelationship) {
+        cypherTraversal += `(end)`;
       }
     }
   });
@@ -159,43 +169,155 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
         .map((label) => {
           return {
             name: label,
-            isRelationship: false,
             filters: [],
-          } as SearchBarOption;
+          };
         }),
       ...Array.from(RELATIONSHIP_TYPES)
         .filter(keyInFactoryMapFilter)
-        .map((label) => {
-          return {
-            name: label,
-            isRelationship: true,
-            filters: [],
-          } as SearchBarOption;
+        .flatMap((type) => {
+          return [
+            {
+              name: type,
+              outgoing: true,
+              filters: [],
+            },
+            {
+              name: type,
+              outgoing: false,
+              filters: [],
+            },
+          ];
         }),
     ];
   }
 
   // We can safely rule out a possible undefined value because of the above `if` block
   const last = value.at(-1) as SearchBarOption;
-  const connectionMap = last.isRelationship
-    ? TYPE_CONNECTIONS
-    : LABEL_CONNECTIONS;
+  let nodes: NodeOption[];
+  let relationships: RelationshipOption[];
 
-  if (!connectionMap.has(last.name)) {
-    console.warn(`Name "${last}" not found in connection map!`);
-    return [];
-  }
+  if (isRelationshipOption(last)) {
+    const relationshipType = last.name;
+    const secondLast = value.at(-2);
 
-  // Same type coercion trick as above
-  return (connectionMap.get(last.name) as string[])
-    .filter(keyInFactoryMapFilter)
-    .map((name: string) => {
+    if (secondLast !== undefined && !isRelationshipOption(secondLast)) {
+      // When we know both the preceding node's label and the direction of the relationship, we can simply look into the appropriate
+      // connection map for the correct values
+      const TYPE_CONNECTIONS = last.outgoing
+        ? OUTGOING_CONNECTIONS
+        : INCOMING_CONNECTIONS;
+
+      nodes =
+        TYPE_CONNECTIONS.get(secondLast.name)
+          ?.get(last.name)
+          ?.map((label) => {
+            return {
+              name: label,
+              filters: [],
+            };
+          }) || [];
+    } else {
+      // If there is no previous element, or it is a relationship, the list of nodes is *all* nodes which are possibly connected by this
+      // relationship in the *opposite* of the given direction. I.e., if `last` is outgoing, we will find the list of nodes where the type
+      // of `last` is *incoming*. ()-[LAST]->(node)
+      //
+      // Note that we *could* implement this without looking in the opposite direction, but we would need to map over the values of the
+      // connection map, which is messier.
+      const TYPE_CONNECTIONS = last.outgoing
+        ? INCOMING_CONNECTIONS
+        : OUTGOING_CONNECTIONS;
+
+      nodes = Array.from(TYPE_CONNECTIONS.entries())
+        .filter(([_, typeMap]) => typeMap.has(relationshipType))
+        .map(([label, _]) => {
+          return {
+            name: label,
+            filters: [],
+          };
+        });
+    }
+
+    if (nodes.length === 0) {
+      console.warn(`Type "${relationshipType}" has no node connections!`);
+      return [];
+    }
+
+    const outgoingSet = new Set<string>();
+    const incomingSet = new Set<string>();
+    nodes.forEach(({ name }) => {
+      // From the potentially connected nodes calculated above, get all outgoing and incoming types.
+      Array.from(OUTGOING_CONNECTIONS.get(name)?.keys() || []).forEach((type) =>
+        outgoingSet.add(type)
+      );
+      Array.from(INCOMING_CONNECTIONS.get(name)?.keys() || []).forEach((type) =>
+        incomingSet.add(type)
+      );
+    });
+    relationships = [
+      ...Array.from(outgoingSet).map((type) => {
+        return {
+          name: type,
+          outgoing: true,
+          filters: [],
+        };
+      }),
+      ...Array.from(incomingSet).map((type) => {
+        return {
+          name: type,
+          outgoing: false,
+          filters: [],
+        };
+      }),
+    ];
+  } else {
+    const nodeLabel = last.name;
+    if (
+      !OUTGOING_CONNECTIONS.has(nodeLabel) &&
+      !INCOMING_CONNECTIONS.has(nodeLabel)
+    ) {
+      console.warn(`Label "${nodeLabel}" not found in connection map!`);
+      return [];
+    }
+    const outgoing = Array.from(
+      OUTGOING_CONNECTIONS.get(nodeLabel)?.keys() || []
+    );
+    const incoming = Array.from(
+      INCOMING_CONNECTIONS.get(nodeLabel)?.keys() || []
+    );
+    relationships = [
+      ...Array.from(outgoing).map((type) => {
+        return {
+          name: type,
+          outgoing: true,
+          filters: [],
+        };
+      }),
+      ...Array.from(incoming).map((type) => {
+        return {
+          name: type,
+          outgoing: false,
+          filters: [],
+        };
+      }),
+    ];
+    nodes = Array.from(
+      new Set([
+        ...Array.from(
+          OUTGOING_CONNECTIONS.get(nodeLabel)?.values() || []
+        ).flat(),
+        ...Array.from(
+          INCOMING_CONNECTIONS.get(nodeLabel)?.values() || []
+        ).flat(),
+      ])
+    ).map((label) => {
       return {
-        name,
-        isRelationship: RELATIONSHIP_TYPES.has(name),
+        name: label,
         filters: [],
       };
     });
+  }
+
+  return [...nodes, ...relationships];
 };
 
 export const createEntityElement = (entity: SearchBarOption) => {
@@ -204,55 +326,92 @@ export const createEntityElement = (entity: SearchBarOption) => {
   );
 };
 
+export const createNodeSegment = (
+  node: JSX.Element,
+  prev?: SearchBarOption,
+  next?: SearchBarOption
+) => {
+  let segment: JSX.Element[] = [];
+
+  if (prev !== undefined) {
+    if (isRelationshipOption(prev)) {
+      segment.push(
+        prev.outgoing ? createArrowDivider(prev.outgoing) : createLineDivider()
+      );
+    }
+    // Don't need to put a divider behind the current element if the previous is a node, since it will have a divider in front of it
+  }
+
+  segment.push(node);
+
+  if (next !== undefined) {
+    if (isRelationshipOption(next)) {
+      segment.push(
+        next.outgoing ? createLineDivider() : createArrowDivider(next.outgoing)
+      );
+    } else {
+      segment.push(createLineDivider());
+    }
+  }
+
+  return segment;
+};
+
 export const createSearchPathEl = (path: SearchBarOption[]) => {
   const newPath: ReactElement[] = [];
   path
     .filter((entity) => keyInFactoryMapFilter(entity.name))
     .forEach((entity, index) => {
       // We know for sure the name is in the map from the filter above, but we need the explicit type coercion to ignore errors
-      const element = createEntityElement(entity);
+      const entityIsRelationship = isRelationshipOption(entity);
+      const prevEntity = index > 0 ? path[index - 1] : undefined;
+      const nextEntity = index < path.length - 1 ? path[index + 1] : undefined;
 
       // If the first element of the path is a relationship, prepend it with an anonymous node
-      if (index === 0 && entity.isRelationship) {
-        newPath.push(createAnonymousNode());
-        newPath.push(createLineDivider());
+      if (index === 0 && entityIsRelationship) {
+        newPath.push(
+          ...createNodeSegment(createAnonymousNode(), undefined, entity)
+        );
       }
 
       // If the current and previous element are both Relationships, then we need to add an anonymous node between them
       if (
         index > 0 &&
-        entity.isRelationship &&
-        path[index - 1].isRelationship
+        entityIsRelationship &&
+        prevEntity !== undefined &&
+        isRelationshipOption(prevEntity)
       ) {
-        newPath.push(createArrowDivider());
-        newPath.push(createAnonymousNode());
-      }
-
-      // Always add a divider before the new element (unless it's the first one)
-      if (index !== 0) {
         newPath.push(
-          entity.isRelationship ? createLineDivider() : createArrowDivider()
+          ...createNodeSegment(createAnonymousNode(), prevEntity, entity)
         );
       }
 
-      newPath.push(element);
+      // Add the current entity
+      if (entityIsRelationship) {
+        newPath.push(createEntityElement(entity));
+      } else {
+        // If the current entity is a node, we need to add dividers between it based on its neighbors
+        newPath.push(
+          ...createNodeSegment(
+            createEntityElement(entity),
+            prevEntity,
+            nextEntity
+          )
+        );
+      }
 
-      if (index === path.length - 1) {
-        // If the last element is a relationship, tack on an anonymous node
-        if (entity.isRelationship) {
-          newPath.push(createArrowDivider());
-          newPath.push(createAnonymousNode());
-        }
+      // If the last element is a relationship, append an anonymous node
+      if (entityIsRelationship && index === path.length - 1) {
+        newPath.push(
+          ...createNodeSegment(createAnonymousNode(), entity, undefined)
+        );
       }
     });
 
   return <Stack direction="row">{newPath.map((element) => element)}</Stack>;
 };
 
-export const getEntityProperties = (value: SearchBarOption) =>
-  value.isRelationship
-    ? RELATIONSHIP_PROPERTY_MAP.get(value.name)
-    : NODE_PROPERTY_MAP.get(value.name);
+export const getEntityProperties = (value: SearchBarOption) => PROPERTY_MAP.get(value.name)
 
 export const getPropertyOperators = (property: string) => {
   if (!PROPERTY_OPERATORS.has(property)) {
@@ -267,10 +426,9 @@ export const createPropertyFilter = (
   {
     /* TODO: Relies on the assumption node labels and relationship types don't overlap... */
   }
-  if (NODE_PROPERTY_MAP.has(name) || RELATIONSHIP_PROPERTY_MAP.has(name)) {
-    const propertyName = NODE_PROPERTY_MAP.has(name)
-      ? (NODE_PROPERTY_MAP.get(name) as string[])[0]
-      : (RELATIONSHIP_PROPERTY_MAP.get(name) as string[])[0];
+  if (PROPERTY_MAP.has(name)) {
+    const propertyName = (PROPERTY_MAP.get(name) as string[])[0];
+
     const propertyOperator = PROPERTY_OPERATORS.has(propertyName)
       ? (PROPERTY_OPERATORS.get(propertyName) as string[])[0]
       : undefined;
