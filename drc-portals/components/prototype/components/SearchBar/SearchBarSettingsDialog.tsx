@@ -9,9 +9,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import ReplayIcon from "@mui/icons-material/Replay";
 import SearchIcon from "@mui/icons-material/Search";
 import { ChangeEvent, useEffect, useState } from "react";
 
+import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
 import {
   SearchBarOption,
   SearchQuerySettings,
@@ -35,7 +37,6 @@ const pathSettingsDivider = (
   ></Box>
 );
 
-// TODO: Reset all filters button
 export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
   const { open, onClose, onSubmit } = props;
   const [value, setValue] = useState<SearchBarOption[]>(props.value);
@@ -55,6 +56,15 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
 
   const handleSubmit = () => {
     onSubmit(value, settings);
+  };
+
+  const handleReset = () => {
+    setSettings(DEFAULT_QUERY_SETTINGS);
+    setValue(
+      value.map((v) => {
+        return { ...v, filters: [] };
+      })
+    );
   };
 
   // TODO: This is still not great...need to allow an empty value, otherwise it's hard to change the last digit
@@ -149,13 +159,28 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" onClick={handleClose}>
-          Cancel
-        </Button>
-        {/* TODO: Need to add validation to the form */}
-        <Button onClick={handleSubmit} variant="contained">
-          <SearchIcon />
-        </Button>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box>
+            <Button color="error" variant="contained" onClick={handleReset}>
+              Reset <ReplayIcon />
+            </Button>
+          </Box>
+          <Box>
+            <Button color="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+            {/* TODO: Need to add validation to the form */}
+            <Button onClick={handleSubmit} variant="contained">
+              <SearchIcon />
+            </Button>
+          </Box>
+        </Box>
       </DialogActions>
     </Dialog>
   );

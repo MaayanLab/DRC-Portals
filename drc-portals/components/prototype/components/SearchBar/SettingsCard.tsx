@@ -89,7 +89,6 @@ export default function SettingsCard(props: SettingsCardProps) {
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {/* TODO: Relying a bit on the assumption node labels and relationship types don't overlap here... */}
           {PROPERTY_MAP.has(value.name) ? (
             <SettingsPropertyForm value={value} liftValue={liftValue} />
           ) : (

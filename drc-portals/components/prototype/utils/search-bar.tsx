@@ -428,9 +428,6 @@ export const getPropertyOperators = (property: string) => {
 export const createPropertyFilter = (
   name: string
 ): BasePropertyFilter | undefined => {
-  {
-    /* TODO: Relies on the assumption node labels and relationship types don't overlap... */
-  }
   if (PROPERTY_MAP.has(name)) {
     const propertyName = (PROPERTY_MAP.get(name) as string[])[0];
 
