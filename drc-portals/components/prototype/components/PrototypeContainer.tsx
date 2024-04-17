@@ -35,7 +35,12 @@ export default function PrototypeContainer() {
   const setInitialNetworkData = async (value: string) => {
     clearNetwork();
 
+    const longRequestTimer = setTimeout(() => {
+      setSearchError("Your search is taking longer than expected...");
+    }, 10000);
     const records = await neo4jService.executeRead<SubGraph>(value);
+    clearTimeout(longRequestTimer);
+
     const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
 
     if (cytoscapeElements.length === 0) {
