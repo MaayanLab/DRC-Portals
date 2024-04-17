@@ -346,7 +346,7 @@ export function PaginatedTable({ userFiles, role }: {
         }, [order, orderBy, page, rowsPerPage, userFiles, copyUserFiles],
     );
 
-    const [debouncedSortedData] = useDebounce(sortedData, 200); // Debounce after 500ms
+    const [debouncedSortedData] = useDebounce(sortedData, 200); // Debounce after 200ms
 
     let symbolUserFiles;
 
