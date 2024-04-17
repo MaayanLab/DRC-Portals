@@ -103,7 +103,7 @@ export const assetOptions = [
     },
     {
         asset: 'Entity Page Template',
-        description: <Typography fontSize={12}>The Entity Page Template and Example are links to: 1) a template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 2) The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. Example of a template from GTEx: https://www.gtexportal.org/home/gene/${`<GENE_NAME>`}. </Typography>,
+        description: <Typography fontSize={12}>The Entity Page Template and Example are links to: 1) a template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 2) The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. Example of a template from GTEx: <Link color="secondary" href="https://www.gtexportal.org/home/gene/{`<GENE_NAME>`}">https://www.gtexportal.org/home/gene/{`<GENE_NAME>`}</Link>. </Typography>,
         example: <Link href='https://www.gtexportal.org/home/gene/MAPK3' color="secondary" target="_blank"><u>Live entity page from GTEx</u></Link>
     },
     {
@@ -338,14 +338,12 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
             <Container>
                 <Stack direction="row" alignItems="center" gap={1}>
                     <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }}>CODE ASSETS UPLOAD FORM </Typography>
-                    <AssetInfoDrawer assetOptions={assetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
+                    <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Tooltip title='Click here for more information on code asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
                 </Stack>
-
-                <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
-                    This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC.
-                    <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Typography >Click here for more information on code asset types</Typography>} />
+                <Typography variant="subtitle1" color="#666666" sx={{ mb: 2, ml: 2 }}>
+                    This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC at  <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
                 </Typography>
-                <Grid container spacing={2} sx={{ mt: 2 }}>
+                <Grid container spacing={2} justifyContent={'center'}>
                     <Grid item container md={9} xs={12}>
                         <Grid container item className='p-5' justifyContent="center" sx={{ mt: 3 }}>
                             <Grid item>
