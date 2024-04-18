@@ -91,9 +91,6 @@ export default function SearchBar(SearchBarProps: SearchBarProps) {
 
   // TODO: Seems like adding anonymous nodes/relationships to the search bar value actually solves a lot of problems down the line...should
   // strongly consider updating the implementation to do this.
-  // TODO: Also, move the divider on to the Relationship component itself. This way if we reuse the component elsewhere the UI is
-  // consistent. This would also simplify the node-node display because the anonymous relationship between them would have the divider
-  // (and no text).
   const handleOnChange = (
     event: SyntheticEvent,
     newValue: (SearchBarOption | string)[]
