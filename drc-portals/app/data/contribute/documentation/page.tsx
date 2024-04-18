@@ -25,7 +25,7 @@ export default function Documentation() {
     certutil -hashfile [file location] SHA256
     `
     const codeAssetSubmission = `
-1. Go to the [Code Assets Upload Form](urlform) page OR Click on the “Contribute” option in the navigation bar or in the footer: 
+1. Go to the [Code Assets Upload Form](urlform) page OR Click on the "Submit" tab in the navigation bar or in the footer: 
 2. On the Code Assets Upload Form, fill out all the fields: 
     - Select the DCC for which the asset is affiliated with
     - Select the code asset type you wish to submit from the available options ETL, API, PWB Metanode, Entity Page Template, Chatbot Specifications and Apps URL. If submitting an API asset. Please see the *API Code Asset Submission Steps* section
@@ -38,13 +38,12 @@ export default function Documentation() {
 #### API Code Asset Submission Steps
 1. Follow Steps 1-3 of the *Code Asset Submission Steps* section. 
 2. Enter the URL of the page that documents the DCC APIs. 
-    - If the API documentation meets OpenAPI specification, check the OpenAPI Specifications box.
-    - If the API documentation is deposited in the SmartAPI registry, check the Deposited in SmartAPI box.
-    - Insert the SmartAPI URL of the API if the SmartAPI URL is different from the API URL entered in the URL field of the form. Otherwise, leave the SmartAPI URL field empty.
+    - If the API documentation meets OpenAPI specifications, check the OpenAPI Specifications box.
+    - If the API documentation is deposited in the SmartAPI registry, check the Deposited in SmartAPI box and insert the SmartAPI URL (the link to the page that displays the page of the API on the SmartAPI website) in the provided textbox.
 
 #### Asset Upload Submission Troubleshooting/FAQ: 
 1. Before uploading, ensure that all your account information has been entered/is accurate on the [My Account](account) page
-    - If your email is missing, please fill it out and click 'Save Changes' 
+    - If your email is missing, please fill it out and click 'Save Changes' or press the enter key
     - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
     - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
     - If Role is inaccurate, please contact the DRC to update your information.
@@ -53,7 +52,7 @@ export default function Documentation() {
     `
 
     const assetApproval = `
-1. Go to the [Uploaded Assets](uploaded) page OR Click on the “Contribute” option in the navigation bar or in the footer and on the *Uploaded Assets* tab
+1. Go to the [Uploaded Assets](uploaded) page OR Click on the “Submit” tab in the navigation bar or in the footer and on the *Uploaded Assets* tab
 2. Here you will find all uploaded assets that fall under your jurisdiction. 
     - For DCC Approvers, these are all assets that have been uploaded or submitted for your DCC. 
     - For DRC Approvers, these are all assets that have been uploaded/submitted by uploaders across all DCCs. 
@@ -68,12 +67,11 @@ export default function Documentation() {
 #### Troubleshooting/FAQ: 
 1. If you are to be a DCC or DRC Approver and have “Access Denied” on the [Uploaded Assets](uploaded) page, please contact the DRC through email to change your role and grant you access.
 2. If a DCC that you are affiliated with is not listed as one of your DCC options on the [My Account](/account) page, please contact the DRC through email to update your information. You will not be allowed to approve uploaded files for this DCC otherwise.
-3. DCC Approvers do not have access to the File Upload and Code Submission Forms . This page is only available to DCC Uploaders and DRC Approvers.
 `
 
     const deleteUsers = `
 Both Uploaders and Approvers can delete uploaded assets.
-1. On the [Uploaded Assets](uploaded) page, click on the delete icon next to the asset you wish to delete
+1. On the [Uploaded Assets](uploaded) page, click on the delete icon next to the asset you wish to delete.
 2. A pop up will appear verifying your decision to delete the given asset. 
 3. Click on "Yes, Delete" to confirm the deletion of the asset. **Please note that the delete operation is permanent**.
 4. **For DCC and DRC approvers**: If a current asset is deleted, please update the current status of the otherwise most to update DCC asset of that type.
@@ -86,7 +84,7 @@ Both Uploaders and Approvers can delete uploaded assets.
 #### Update User Information
 1. Go to the [Admin](admin) page and select the users whose information is to be updated. 
 2. In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. An alert with “User Information Updated” will appear if the update operation is successful. 
-3. When all selected users' information have been updated, click on “Done” or outside the dialog box
+3. When all selected users' information have been updated, click on “Done” or outside the dialog box.
 #### Delete Users
 1. Go to the [Admin](admin) page and select the users to delete. 
 2. Click on the  “Delete Users” button to delete selected users. **Please note that the delete operation is irreversible.**
@@ -97,7 +95,7 @@ The Entity Page Template and Example are  links to:
 1. A template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 
 2. The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. 
 
-\Example of a template from GTEx:  https://www.gtexportal.org/home/gene/<GENE_NAME>. 
+\Example of a template from GTEx: [https://www.gtexportal.org/home/gene/<GENE_NAME>](https://www.gtexportal.org/home/gene/<GENE_NAME>). 
 
 \Example live entity page from GTEx: [https://www.gtexportal.org/home/gene/MAPK3](https://www.gtexportal.org/home/gene/MAPK3)`
 
@@ -367,14 +365,14 @@ The Entity Page Template and Example are  links to:
                                     <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>File Upload Steps</Typography>
                                     <List sx={{ listStyle: "decimal", pl: 4 }}>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Go to the <Link href="/data/contribute/form" color="#111827" target="_blank">Data and Metadata Upload Form</Link> OR Click on the “Contribute” option in the navigation bar or in the footer
+                                            Go to the <Link href="/data/contribute/form" color="#111827" target="_blank">Data and Metadata Upload Form</Link> OR Click on the "Submit" tab in the navigation bar or in the footer.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             On the Upload Form page, upload your processed data by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             The file you have selected should appear under “File to Upload”.
-                                            If you select a wrong file, you can delete it by clicking on the delete icon next to the file name or by re-uploading the correct file
+                                            If you select a wrong file, you can delete it by clicking on the delete icon next to the file name or by re-uploading the correct file.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Select the DCC that the files to upload were generated from. Only DCCs that you are affiliated with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option is not provided, please contact the DRC to update this information.
@@ -408,7 +406,7 @@ The Entity Page Template and Example are  links to:
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             If an upload is successful, a green banner with “Success! File Uploaded” should appear.
                                             If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error.
-                                            Ensure that all the files you have selected for upload files are either .csv, .txt, .zip or .(x)mt files and are not larger than 5GB.
+                                            Ensure that the file you have selected for upload files has either a .csv, .txt, .zip or .(x)mt file extension and is not larger than 5GB.
                                         </ListItem>
                                         <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                             Details of your uploaded file should appear on the <Link href="data/contribute/uploaded" color="#111827" target="_blank">Uploaded Assets</Link> page.
