@@ -4,7 +4,6 @@ import ThemeRegistry from './ThemeRegistry'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { Grid } from '@mui/material'
-import Header from '@/components/Header'
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
   description: '',
@@ -24,7 +23,7 @@ export default function RootLayout({
         <ThemeRegistry options={{ key: 'mui' }}>
           <NextAuthProvider>
             <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
-              <Grid item><Header/></Grid>
+              {/* <Grid item><Header/></Grid> */}
               {children}
             </Grid>
           </NextAuthProvider>
