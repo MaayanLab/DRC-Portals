@@ -1,5 +1,5 @@
 import Grid  from '@mui/material/Grid'
-import Header  from '@/components/Header'
+import Header  from '@/components/Header/info'
 import Footer  from '@/components/Footer/info'
 import { Metadata } from 'next'
 import Background from '@/components/styled/background'
@@ -15,7 +15,7 @@ export default function InfoLayout({
 }) {
   return (
     <>
-      <Grid item><Header type='info'/></Grid>
+      <Grid item><Header/></Grid>
       <Grid item className="flex grow">
         <Background>
           <NavBreadcrumbs/>
