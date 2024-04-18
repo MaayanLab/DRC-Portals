@@ -75,6 +75,7 @@ select distinct
     c2m2.compound.name, c2m2.compound.description, 
     c2m2.compound.synonyms,
 
+    c2m2.project.persistent_id, c2m2.project.creation_time, 
     c2m2.project.name,  c2m2.project.abbreviation, c2m2.project.description, 
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
@@ -135,6 +136,7 @@ select distinct
 
     c2m2.compound.name as compound_name,
 
+    c2m2.project.persistent_id as project_persistent_id, c2m2.project.creation_time as project_creation_time, 
     c2m2.project.name as project_name,  c2m2.project.abbreviation as project_abbreviation, 
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
@@ -361,6 +363,7 @@ END $$;
 
 --- Create additional indexes for columns used in the where clause
 --- CREATE INDEX idx_columns ON table_name (column1, column2);
+--- /* These additional indexes don't seem to help with search much
 DO $$ 
 BEGIN
     DROP INDEX IF EXISTS ffl_biosample_idx_dcc_sp_dis_ana;
@@ -380,7 +383,14 @@ BEGIN
         btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name);
     END IF;
 END $$;
+--- */
 
+/* To drop existing ffl2_biosample and its indexes
+DROP TABLE IF EXISTS c2m2.ffl2_biosample;
+DROP INDEX IF EXISTS ffl2_biosample_idx_searchable;
+DROP INDEX IF EXISTS ffl2_biosample_idx_dcc_sp_dis_ana;
+DROP INDEX IF EXISTS ffl2_biosample_idx_dcc_proj_sp_dis_ana_gene_data;
+*/
 
 --- To see table index names: select * from pg_indexes where schemaname = 'c2m2' and tablename = 'ffl_biosample';
 --- To list all column names of a table:
@@ -479,4 +489,31 @@ where
 
 */
 
-/* */
+/* If creating anoth table ffl_biosample, e.g., ffl2_biosample: cross-check 
+    select count(*) from(
+    select * from (
+    (select distinct biosample_id_namespace, biosample_local_id, project_local_id, anatomy, disease, subject_local_id, gene, 
+    collection_local_id, substance, dcc_name, substance_compound, project_name, data_type_id as data_type_id, 
+    subject_role_taxonomy_taxonomy_id, subject_race, phenotype_association_type, phenotype
+    from c2m2.ffl_biosample)
+    except
+    (select distinct biosample_id_namespace, biosample_local_id, project_local_id, anatomy, disease, subject_local_id, gene, 
+    collection_local_id, substance, dcc_name, substance_compound, project_name, data_type_id as data_type_id, 
+    subject_role_taxonomy_taxonomy_id, subject_race, phenotype_association_type, phenotype
+    from c2m2.ffl2_biosample)
+    ));
+
+    select count(*) from(
+    select * from (
+    (select distinct biosample_id_namespace, biosample_local_id, project_local_id, anatomy, disease, subject_local_id, gene, 
+    collection_local_id, substance, dcc_name, substance_compound, project_name, data_type_id as data_type_id, 
+    subject_role_taxonomy_taxonomy_id, subject_race, phenotype_association_type, phenotype
+    from c2m2.ffl2_biosample)
+    except
+    (select distinct biosample_id_namespace, biosample_local_id, project_local_id, anatomy, disease, subject_local_id, gene, 
+    collection_local_id, substance, dcc_name, substance_compound, project_name, data_type_id as data_type_id, 
+    subject_role_taxonomy_taxonomy_id, subject_race, phenotype_association_type, phenotype
+    from c2m2.ffl_biosample)
+    ));
+
+*/

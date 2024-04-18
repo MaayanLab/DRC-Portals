@@ -449,7 +449,8 @@ for resource in package.resources:
         cl1_str = ', '.join(cl1)
         cl2_str = ', '.join(cl2)
         fkname = f"fk_{table_name}_{table2_name}_{fkcnt}"
-        fk_query = f"{fkstr0} {fkname} FOREIGN KEY ({cl1_str}) REFERENCES {schema_name}.{table2_name} ({cl2_str});"
+        fkstr0_frop = f"ALTER TABLE {schema_name}.{table_name} DROP CONSTRAINT IF EXISTS {fkname};{newline}";
+        fk_query = f"{fkstr0_frop}{fkstr0} {fkname} FOREIGN KEY ({cl1_str}) REFERENCES {schema_name}.{table2_name} ({cl2_str});"
         if(debug > 0): print(fk_query)
         # Execute the SQL statement to create the table
         cursor.execute(fk_query)

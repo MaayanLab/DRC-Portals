@@ -89,3 +89,162 @@ drc=# select count(distinct subject_local_id) from c2m2.subject_in_collection ;
 
 drc=# select count(*) from (select distinct subject_id_namespace, subject_local_id from c2m2.subject_in_collection);
  12784
+
+/* Check if join of biosample, biosample_in_collection gives the same table as collection_anatomy */
+select count(*) from (
+select distinct collection_id_namespace, collection_local_id, anatomy 
+from c2m2.biosample 
+left join c2m2.biosample_in_collection 
+    on (c2m2.biosample.local_id = c2m2.biosample_in_collection.biosample_local_id and
+    c2m2.biosample.id_namespace = c2m2.biosample_in_collection.biosample_id_namespace)
+order by collection_id_namespace, collection_local_id, anatomy
+--- limit 50;
+);
+
+select count(*) from (
+select distinct collection_id_namespace, collection_local_id, anatomy 
+from c2m2.collection_anatomy
+order by collection_id_namespace, collection_local_id, anatomy
+--- limit 50;
+);
+
+drc=# select distinct collection_id_namespace from c2m2.collection_anatomy ;
+    collection_id_namespace    
+-------------------------------
+ https://www.lincsproject.org/
+ https://www.data.glygen.org/
+ ERCC-exRNA
+(3 rows)
+
+drc=# select distinct collection_id_namespace from c2m2.biosample_in_collection ;
+    collection_id_namespace     
+--------------------------------
+ https://www.lincsproject.org/
+ SPARC.collection:
+ tag:motrpac-data.org,2023:
+ ERCC-exRNA
+ https://data.4dnucleome.org
+ tag:hubmapconsortium.org,2023:
+ tag:hmpdacc.org,2022-04-04:
+(7 rows)
+
+/* GlyGen doesn't have data in biosample_in_collection. So, need to keep collection_anatomy 
+as well, unless they create biosample_in_collection based on dummy biosamples.
+*/
+
+/* Content from (join of biosample and biosample_in_collection (JBBC)) not in collection_anatomy (CA)  */
+select count(*) from (
+    select * from (
+    (select distinct collection_id_namespace, collection_local_id, anatomy 
+    from c2m2.biosample 
+    left join c2m2.biosample_in_collection 
+        on (c2m2.biosample.local_id = c2m2.biosample_in_collection.biosample_local_id and
+        c2m2.biosample.id_namespace = c2m2.biosample_in_collection.biosample_id_namespace)
+    order by collection_id_namespace, collection_local_id, anatomy) 
+
+    except
+
+    (select distinct collection_id_namespace, collection_local_id, anatomy 
+    from c2m2.collection_anatomy
+    order by collection_id_namespace, collection_local_id, anatomy)
+    ) 
+    where collection_id_namespace = 'https://www.lincsproject.org/'
+);
+/* count 
+-------
+Across all DCCs, 28022
+ out of 28291 rows in (3 columns from join of biosample & bipsample_in_collection)
+*/
+
+/* Reverse of the above: i.e., content from (join of biosample and biosample_in_collection) not in collection_anatomy  */
+select count(*) from (
+    select * from (
+    (select distinct collection_id_namespace, collection_local_id, anatomy 
+    from c2m2.collection_anatomy
+    order by collection_id_namespace, collection_local_id, anatomy)
+
+    except
+
+    (select distinct collection_id_namespace, collection_local_id, anatomy 
+    from c2m2.biosample 
+    left join c2m2.biosample_in_collection 
+        on (c2m2.biosample.local_id = c2m2.biosample_in_collection.biosample_local_id and
+        c2m2.biosample.id_namespace = c2m2.biosample_in_collection.biosample_id_namespace)
+    order by collection_id_namespace, collection_local_id, anatomy)
+    ) 
+    where collection_id_namespace = 'https://www.lincsproject.org/'
+);
+/*  count 
+-------
+  3520
+  out of 3789 rows in collection_anatomy;
+
+So, they are quite distinct.
+*/
+
+--- Compare for specific DCCs, e.g., ERCC-exRNA which are in both
+--- Complete for for ERCC, i.e., 0 rows in the difference
+--- for https://www.lincsproject.org/ :  711 rows in JBBC except CA
+
+/* interplay of project and collection */
+drc=# select count(*) from (select distinct project_local_id, collection_local_id from c2m2.ffl_collection);
+-[ RECORD 1 ]-
+count | 262805
+
+drc=# select count(*) from (select distinct project_local_id from c2m2.ffl_collection);
+-[ RECORD 1 ]
+count | 1159
+
+drc=# select count(*) from (select distinct collection_local_id from c2m2.ffl_collection);
+-[ RECORD 1 ]-
+count | 262805
+
+/* Examples of collections with proteins */
+drc=# select collection_local_id,protein,protein_name from c2m2.ffl_collection where protein is not null limit 5;
+collection_local_id | COL_A0N4X2-1_GLY_000001
+protein             | A0N4X2
+protein_name        | A0N4X2_HUMAN
+
+
+--- substance_compound is compound id
+select distinct substance_compound,substance_name,compound_name from c2m2.ffl_collection limit 5;
+
+--- gtex has some collections without project
+select * from c2m2.ffl_collection where collection_id_namespace ilike '%gtex%'  limit 50;
+select distinct project_name from c2m2.ffl_collection where collection_id_namespace ilike '%gtex%'  limit 50;
+select distinct collection_id_namespace from c2m2.ffl_collection where project_local_id is null limit 50;
+
+select distinct dcc_name, collection_id_namespace,collection_local_id from c2m2.ffl_collection where collection_id_namespace ilike '%gtex%';
+
+select distinct dcc_name,dcc_abbreviation,collection_id_namespace from c2m2.ffl_collection where project_local_id is null limit 50;
+select distinct dcc_name, dcc_abbreviation, collection_id_namespace, project_id_namespace from c2m2.ffl_collection where project_local_id is null limit 50;
+select distinct dcc_name, dcc_abbreviation, collection_id_namespace, project_id_namespace from c2m2.ffl_collection limit 50;
+
+--- which id_namespace has collection
+ select * from c2m2.id_namespace where description ilike '%collection%';
+
+--- Need to add dcc_id column to c2m2.id_namespace table;
+select id,name,abbreviation from c2m2.id_namespace ;
+select id, dcc_name, dcc_abbreviation, project_id_namespace, project_local_id from c2m2.dcc;
+
+select id, dcc_name, dcc_abbreviation, project_id_namespace, project_local_id from c2m2.dcc where project_id_namespace ilike '%gtex%';
+select distinct id_namespace from c2m2.collection where id_namespace ilike '%gtex%';
+
+select distinct c2m2.dcc.dcc_name, c2m2.collection.id_namespace from
+    c2m2.collection
+    left join c2m2.id_namespace_dcc_id
+        on (c2m2.collection.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id)
+    left join c2m2.dcc
+        on (c2m2.id_namespace_dcc_id.dcc_id = c2m2.dcc.id);
+
+
+ select distinct collection_id_namespace, count(distinct collection_local_id) from c2m2.collection_defined_by_project group by collection_id_namespace;
+ select distinct id_namespace, count(distinct local_id) from c2m2.collection group by id_namespace;
+ --- Most collections have a project associated with them; gtex has some without.
+drc=# select count(*) from c2m2.collection;
+ 262805
+
+drc=# select count(*) from c2m2.collection_defined_by_project;
+ 262734
+
+

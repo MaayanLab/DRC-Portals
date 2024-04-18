@@ -42,6 +42,11 @@ python ingestion.py
 rm -r ingest
 python ingestion.py
 
+# Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc. This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too). This script can be run as (upon starting psql shell, or equivalent command):
+# \i create_id_namespace_dcc_id.sql
+# OR, directly specify the sql file name in psql command:
+psql -h localhost -U drc -d drc -p [5432|5433] -a -f create_id_namespace_dcc_id.sql
+
 # To ingest controlled vocabulary files into c2m2 schema
 # on psql prompt while being in database folder: \i ingest_CV.sql
 # on bash prompt : psql -h localhost -U drc -d drc -a -f ingest_CV.sql # this may prompt for DB password if not stored in ~/.pgpass file (permission 600)

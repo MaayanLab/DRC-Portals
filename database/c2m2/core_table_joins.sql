@@ -6,7 +6,7 @@ drop table if exists c2m2.allCollection;
 create table c2m2.allCollection
 as select
     id_namespace, local_id, persistent_id, creation_time, abbreviation, name, description, has_time_series_data,
-    project_id_namespace, project_local_id, anatomy, disease, gene, protein, taxon, compound, 
+    project_id_namespace, project_local_id, anatomy, disease, phenotype, gene, protein, taxon, compound, 
     superset_collection_id_namespace, superset_collection_local_id
 from
     c2m2.collection
@@ -30,6 +30,10 @@ from
     left join c2m2.collection_disease
     on (c2m2.collection.local_id = c2m2.collection_disease.collection_local_id and
         c2m2.collection.id_namespace = c2m2.collection_disease.collection_id_namespace)
+
+    left join c2m2.collection_phenotype
+    on (c2m2.collection.local_id = c2m2.collection_phenotype.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_phenotype.collection_id_namespace)
 
     left join c2m2.collection_gene
     on (c2m2.collection.local_id = c2m2.collection_gene.collection_local_id and

@@ -47,7 +47,7 @@ select distinct
     c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 
     null, null, /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
     null, /* c2m2.biosample.sample_prep_method */ c2m2.collection_anatomy.anatomy,
-    c2m2.disease_association_type.id, /* use c2m2.disease_association_type.id */
+    null, /* c2m2.disease_association_type.id, */ /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
     null, null, /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
     null, /** c2m2.biosample_from_subject.age_at_sampling, **/
@@ -70,11 +70,12 @@ select distinct
     null, /** c2m2.subject.age_at_enrollment, **/
 
     c2m2.substance.name, c2m2.substance.description, 
-    c2m2.substance.synonyms, c2m2.substance.compound,
+    c2m2.substance.synonyms, c2m2.compound.id, /* c2m2.substance.compound, */
 
     c2m2.compound.name, c2m2.compound.description, 
     c2m2.compound.synonyms,
 
+    c2m2.project.persistent_id, c2m2.project.creation_time, 
     c2m2.project.name,  c2m2.project.abbreviation, c2m2.project.description, 
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
@@ -112,7 +113,7 @@ select distinct
     c2m2.collection_defined_by_project.project_id_namespace as project_id_namespace, c2m2.collection_defined_by_project.project_local_id as project_local_id, 
     null /* c2m2.biosample.persistent_id */ as biosample_persistent_id, null /* c2m2.biosample.creation_time */ as biosample_creation_time, 
     null /* c2m2.biosample.sample_prep_method */ as sample_prep_method, c2m2.collection_anatomy.anatomy as anatomy, 
-    c2m2.disease_association_type.id AS disease_association_type, /* c2m2.disease_association_type.id is c2m2.biosample_disease.association_type or c2m2.subject_disease.association_type */
+    null /* c2m2.disease_association_type.id */ AS disease_association_type, /* c2m2.disease_association_type.id is c2m2.biosample_disease.association_type or c2m2.subject_disease.association_type */
     c2m2.disease.id as disease, /* c2m2.disease.id is c2m2.biosample_disease.disease or c2m2.subject_disease.disease */
     null /* c2m2.biosample_from_subject.subject_id_namespace */ as subject_id_namespace, null /* c2m2.biosample_from_subject.subject_local_id */ as subject_local_id, 
     null /* c2m2.biosample_from_subject.age_at_sampling */ as biosample_age_at_sampling,
@@ -131,10 +132,11 @@ select distinct
     null /* c2m2.subject.granularity */ as subject_granularity, null /* c2m2.subject.sex */ as subject_sex, null /* c2m2.subject.ethnicity */ as subject_ethnicity, 
     null /* c2m2.subject.age_at_enrollment */ as subject_age_at_enrollment,
 
-    c2m2.substance.name as substance_name, c2m2.substance.compound as substance_compound,
+    c2m2.substance.name as substance_name, c2m2.compound.id /* c2m2.substance.compound, */ as substance_compound,
 
     c2m2.compound.name as compound_name,
 
+    c2m2.project.persistent_id as project_persistent_id, c2m2.project.creation_time as project_creation_time, 
     c2m2.project.name as project_name,  c2m2.project.abbreviation as project_abbreviation, 
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
@@ -188,6 +190,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.collection_disease
     on (c2m2.collection.local_id = c2m2.collection_disease.collection_local_id and
         c2m2.collection.id_namespace = c2m2.collection_disease.collection_id_namespace)
+
+    left join c2m2.collection_phenotype
+    on (c2m2.collection.local_id = c2m2.collection_phenotype.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_phenotype.collection_id_namespace)
 
     left join c2m2.collection_gene
     on (c2m2.collection.local_id = c2m2.collection_gene.collection_local_id and
@@ -252,6 +258,9 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     use OR to match with project.id_namespace. Should we require that there be at least one parent (dummy) project. */
     /* HMP has complex parent-child project structure; so don't match on project_local_id */
     /* Mano: 2024/04/12: add c2m2.collection.id_namespace & c2m2.collection_in_collection.superset_collection_id_namespace */
+    /* */
+    /* Mano : 2024/04/17: use the newly created table c2m2.id_namespace_dcc_id to collect id_namespace then to c2m2.dcc */
+    /* 
     left join c2m2.dcc
         on (( ---c2m2.project_in_project.parent_project_local_id = c2m2.dcc.project_local_id and
         c2m2.project_in_project.parent_project_id_namespace = c2m2.dcc.project_id_namespace) OR 
@@ -259,6 +268,12 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         c2m2.project.id_namespace = c2m2.dcc.project_id_namespace) OR
         (c2m2.collection.id_namespace = c2m2.dcc.project_id_namespace) OR
         (c2m2.collection_in_collection.superset_collection_id_namespace = c2m2.dcc.project_id_namespace))
+     */
+    left join c2m2.id_namespace_dcc_id
+        on ((c2m2.collection.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id) OR
+        (c2m2.project.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id)) 
+    left join c2m2.dcc
+        on (c2m2.id_namespace_dcc_id.dcc_id = c2m2.dcc.id) 
 
     -------------------- Mano: 2024/04/12: Decided not to bring information from the table
     -------------------- subject, biosample, subject_in_collection, biosample_in_collection, biosample_from_subject
@@ -382,35 +397,43 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
 DO $$ 
 BEGIN
-    DROP INDEX IF EXISTS ffl_biosample_idx_searchable;
-    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
-    AND indexname = 'ffl_biosample_idx_searchable') THEN
-        CREATE INDEX ffl_biosample_idx_searchable ON c2m2.ffl_biosample USING gin(searchable);
+    DROP INDEX IF EXISTS ffl_collection_idx_searchable;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_collection' 
+    AND indexname = 'ffl_collection_idx_searchable') THEN
+        CREATE INDEX ffl_collection_idx_searchable ON c2m2.ffl_collection USING gin(searchable);
     END IF;
 END $$;
 
 --- Create additional indexes for columns used in the where clause
 --- CREATE INDEX idx_columns ON table_name (column1, column2);
+--- /* These additional indexes don't seem to help with search much
 DO $$ 
 BEGIN
-    DROP INDEX IF EXISTS ffl_biosample_idx_dcc_sp_dis_ana;
-    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
-    AND indexname = 'ffl_biosample_idx_dcc_sp_dis_ana') THEN
-        CREATE INDEX ffl_biosample_idx_dcc_sp_dis_ana ON c2m2.ffl_biosample USING 
+    DROP INDEX IF EXISTS ffl_collection_idx_dcc_sp_dis_ana;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_collection' 
+    AND indexname = 'ffl_collection_idx_dcc_sp_dis_ana') THEN
+        CREATE INDEX ffl_collection_idx_dcc_sp_dis_ana ON c2m2.ffl_collection USING 
         btree(dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name);
     END IF;
 END $$;
 
 DO $$ 
 BEGIN
-    DROP INDEX IF EXISTS ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data;
-    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
-    AND indexname = 'ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data') THEN
-        CREATE INDEX ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_biosample USING 
+    DROP INDEX IF EXISTS ffl_collection_idx_dcc_proj_sp_dis_ana_gene_data;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_collection' 
+    AND indexname = 'ffl_collection_idx_dcc_proj_sp_dis_ana_gene_data') THEN
+        CREATE INDEX ffl_collection_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_collection USING 
         btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name);
     END IF;
 END $$;
+--- */
 
+/* To drop existing ffl2_collection and its indexes
+DROP TABLE IF EXISTS c2m2.ffl2_collection;
+DROP INDEX IF EXISTS ffl2_collection_idx_searchable;
+DROP INDEX IF EXISTS ffl2_collection_idx_dcc_sp_dis_ana;
+DROP INDEX IF EXISTS ffl2_collection_idx_dcc_proj_sp_dis_ana_gene_data;
+*/
 
 --- To see table index names: select * from pg_indexes where schemaname = 'c2m2' and tablename = 'ffl_biosample';
 --- To list all column names of a table:

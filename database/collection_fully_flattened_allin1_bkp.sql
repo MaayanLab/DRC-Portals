@@ -7,7 +7,10 @@
 --- table name c2m2.ffl_collection means fully flattened collection
 
 --- Mano: 2024/04/09: This script is based on the overall style of biosample_fully_flattened_allin1.sql, 
---- with customizations (especially the first few joins) for collections
+--- with customizations (especially the first few joins) for collections. The name and order of columns 
+--- in ffl_collection is same as ffl_biosample, using null as appropriate, in the hope of being able to 
+--- combine ffl_biosample and ffl_collection using union so that on the front one, one query interface will
+--- be enough.
 
 --- To make a copy, after adjusting the table name if needed, copy paste the code within /* */ on psql prompt 
 /*
@@ -27,14 +30,11 @@ END $$;
 
 
 
-
-
-
-
-
-
-
-
+    /**** IMPORTANT WARNING: It may appear that many nulls can be filled with content from 
+    subject_in_collection, biosample_in_collection. But see file collection_queries.sql why 
+    we will not include subject_in_collection and biosample_in_collection here as it creates discepancy 
+    between end points such as anatomy reachable from biosample side vs. collection_anatomy side.
+    ****/
 */
 
 DROP TABLE IF EXISTS c2m2.ffl_collection;
@@ -46,7 +46,7 @@ select distinct
     null, null, /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
     c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 
     null, null, /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
-    null, /* c2m2.biosample.sample_prep_method, */ c2m2.collection_anatomy.anatomy,
+    null, /* c2m2.biosample.sample_prep_method */ c2m2.collection_anatomy.anatomy,
     c2m2.disease_association_type.id, /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
     null, null, /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
@@ -60,6 +60,10 @@ select distinct
 
     c2m2.anatomy.name, c2m2.anatomy.description, c2m2.anatomy.synonyms,
     c2m2.gene.name, c2m2.gene.description, c2m2.gene.synonyms,
+
+    c2m2.protein.id, c2m2.protein.name, c2m2.protein.description, 
+    c2m2.protein.synonyms, c2m2.protein.organism,
+
     c2m2.disease.name, c2m2.disease.description, c2m2.disease.synonyms,
 
     null, null, null, /** c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity,  **/
@@ -71,6 +75,7 @@ select distinct
     c2m2.compound.name, c2m2.compound.description, 
     c2m2.compound.synonyms,
 
+    c2m2.project.persistent_id, c2m2.project.creation_time, 
     c2m2.project.name,  c2m2.project.abbreviation, c2m2.project.description, 
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
@@ -95,11 +100,11 @@ select distinct
     null, /** c2m2.subject_role_taxonomy.role_id, **/
     null, null, /** c2m2.subject_role.name, c2m2.subject_role.description, **/
 
-    c2m2.disease_association_type.name, c2m2.disease_association_type.description,
+    null, null, /** c2m2.disease_association_type.name, c2m2.disease_association_type.description, **/
 
     --- Mano: 2024/02/13
-    c2m2.phenotype_association_type.id, c2m2.phenotype.id, 
-    c2m2.phenotype_association_type.name, c2m2.phenotype_association_type.description,
+    null, /** c2m2.phenotype_association_type.id, **/ c2m2.phenotype.id,
+    null, null, /** c2m2.phenotype_association_type.name, c2m2.phenotype_association_type.description, **/
     c2m2.phenotype.name, c2m2.phenotype.description, c2m2.phenotype.synonyms
 
     )) as searchable,
@@ -118,7 +123,11 @@ select distinct
 
     c2m2.dcc.dcc_name as dcc_name, c2m2.dcc.dcc_abbreviation as dcc_abbreviation,
 
-    c2m2.anatomy.name as anatomy_name,    c2m2.gene.name as gene_name,    c2m2.disease.name as disease_name,
+    c2m2.anatomy.name as anatomy_name,    c2m2.gene.name as gene_name,    
+
+    c2m2.protein.id as protein, c2m2.protein.name as protein_name,
+
+    c2m2.disease.name as disease_name,
 
     null /* c2m2.subject.granularity */ as subject_granularity, null /* c2m2.subject.sex */ as subject_sex, null /* c2m2.subject.ethnicity */ as subject_ethnicity, 
     null /* c2m2.subject.age_at_enrollment */ as subject_age_at_enrollment,
@@ -127,11 +136,12 @@ select distinct
 
     c2m2.compound.name as compound_name,
 
+    c2m2.project.persistent_id as project_persistent_id, c2m2.project.creation_time as project_creation_time, 
     c2m2.project.name as project_name,  c2m2.project.abbreviation as project_abbreviation, 
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
 
-    c2m2.collection_taxonomy.taxon as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
+    c2m2.collection_taxonomy.taxon as subject_role_taxonomy_taxonomy_id, /** **/ /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
 
     c2m2.collection.persistent_id as collection_persistent_id, c2m2.collection.creation_time as collection_creation_time,
@@ -149,63 +159,83 @@ select distinct
     null /** c2m2.subject_role_taxonomy.role_id **/ as subject_role_taxonomy_role_id, /* use shorter name: role_id? */
     null /** c2m2.subject_role.name **/ as subject_role_name, 
 
-    c2m2.disease_association_type.name as disease_association_type_name,
+    null /** c2m2.disease_association_type.name **/ as disease_association_type_name,
 
     --- Mano: 2024/02/13
-    c2m2.phenotype_association_type.id AS phenotype_association_type, c2m2.phenotype.id as phenotype, 
-    c2m2.phenotype_association_type.name as phenotype_association_type_name,
+    null /** c2m2.phenotype_association_type.id **/ AS phenotype_association_type, c2m2.phenotype.id as phenotype, 
+    null /** c2m2.phenotype_association_type.name **/ as phenotype_association_type_name,
     c2m2.phenotype.name as phenotype_name
 
 from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related tables here instead of in generating fl_biosample
 
---- FIRST PART USES FULL JOIN: --- Mano: 2024/02/09: brought this part from biosample_join.sql
-    c2m2.biosample 
-    full join c2m2.biosample_disease
-        on (c2m2.biosample.local_id = c2m2.biosample_disease.biosample_local_id and
-        c2m2.biosample.id_namespace = c2m2.biosample_disease.biosample_id_namespace)
+--- FIRST PART USES LEFT JOIN instead of FULL JOIN: --- Mano: 2024/04/11: brought this part core_table_joins.sql
+    c2m2.collection
+    
+    left join c2m2.collection_defined_by_project
+    on (c2m2.collection.local_id = c2m2.collection_defined_by_project.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_defined_by_project.collection_id_namespace)
 
-    full join c2m2.biosample_from_subject
-        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and 
-        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+    left join c2m2.collection_anatomy
+    on (c2m2.collection.local_id = c2m2.collection_anatomy.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_anatomy.collection_id_namespace)
 
-    full join c2m2.biosample_gene 
-        on (c2m2.biosample.local_id = c2m2.biosample_gene.biosample_local_id and 
-        c2m2.biosample.id_namespace = c2m2.biosample_gene.biosample_id_namespace)
+    left join c2m2.collection_substance /* even if empty now; may have data in future */
+    on (c2m2.collection.local_id = c2m2.collection_substance.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_substance.collection_id_namespace)
 
-    full join c2m2.biosample_in_collection
-        on (c2m2.biosample.local_id = c2m2.biosample_in_collection.biosample_local_id and
-        c2m2.biosample.id_namespace = c2m2.biosample_in_collection.biosample_id_namespace)
+    left join c2m2.collection_compound /* collection_compound causes expansion */
+    on (c2m2.collection.local_id = c2m2.collection_compound.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_compound.collection_id_namespace)
 
-    full join c2m2.biosample_substance 
-        on (c2m2.biosample.local_id = c2m2.biosample_substance.biosample_local_id and
-        c2m2.biosample.id_namespace = c2m2.biosample_substance.biosample_id_namespace)
+    left join c2m2.collection_disease
+    on (c2m2.collection.local_id = c2m2.collection_disease.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_disease.collection_id_namespace)
 
---- SECOND PART USES LEFT JOIN
+    left join c2m2.collection_gene
+    on (c2m2.collection.local_id = c2m2.collection_gene.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_gene.collection_id_namespace)
+
+    left join c2m2.collection_protein /*** Not in ffl_biosample yet ***/
+    on (c2m2.collection.local_id = c2m2.collection_protein.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_protein.collection_id_namespace)
+
+    left join c2m2.collection_taxonomy
+    on (c2m2.collection.local_id = c2m2.collection_taxonomy.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_taxonomy.collection_id_namespace)
+
+    left join c2m2.collection_in_collection
+    on (c2m2.collection.local_id = c2m2.collection_in_collection.subset_collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_in_collection.subset_collection_id_namespace)
+
+--- SECOND PART USES LEFT JOIN as for ffl_biosample
 
 --- JOIN ALL TABLES --- full outer join or inner join or left join or right join?
 
     --- Moved dcc to after project & project_in_project
 
     left join c2m2.anatomy
-        on (c2m2.biosample.anatomy = c2m2.anatomy.id)
+        on (c2m2.collection_anatomy.anatomy = c2m2.anatomy.id)
 
     --- Moved c2m2.disease to after c2m2.subject_disease
 
     --- c2m2.phenotype in case of subject
 
     left join c2m2.gene
-        on (c2m2.biosample_gene.gene = c2m2.gene.id)
+        on (c2m2.collection_gene.gene = c2m2.gene.id)
+
+    left join c2m2.protein
+        on (c2m2.collection_protein.protein = c2m2.protein.id)
 
     left join c2m2.substance
-        on (c2m2.biosample_substance.substance = c2m2.substance.id)
+        on (c2m2.collection_substance.substance = c2m2.substance.id)
 
     left join c2m2.compound
-        on (c2m2.substance.compound = c2m2.compound.id)
+        on (c2m2.collection_compound.compound = c2m2.compound.id)
 
     left join c2m2.project
-        on (c2m2.biosample.project_local_id = c2m2.project.local_id and
-        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace) 
-        /* we are not defining the new table fl_biosample; just creating and populating it directly.
+        on (c2m2.collection_defined_by_project.project_local_id = c2m2.project.local_id and
+        c2m2.collection_defined_by_project.project_id_namespace = c2m2.project.id_namespace) 
+        /* we are not defining the new table allCollection; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
         --- THIS CAN BE A PROBLEM
 
@@ -223,22 +253,30 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     /* If only single project then project_in_project will be empty (only header row, so, 
     use OR to match with project.id_namespace. Should we require that there be at least one parent (dummy) project. */
     /* HMP has complex parent-child project structure; so don't match on project_local_id */
+    /* Mano: 2024/04/12: add c2m2.collection.id_namespace & c2m2.collection_in_collection.superset_collection_id_namespace */
     left join c2m2.dcc
         on (( ---c2m2.project_in_project.parent_project_local_id = c2m2.dcc.project_local_id and
         c2m2.project_in_project.parent_project_id_namespace = c2m2.dcc.project_id_namespace) OR 
             (---c2m2.project.local_id = c2m2.dcc.project_local_id and
-        c2m2.project.id_namespace = c2m2.dcc.project_id_namespace))
+        c2m2.project.id_namespace = c2m2.dcc.project_id_namespace) OR
+        (c2m2.collection.id_namespace = c2m2.dcc.project_id_namespace) OR
+        (c2m2.collection_in_collection.superset_collection_id_namespace = c2m2.dcc.project_id_namespace))
 
+    -------------------- Mano: 2024/04/12: Decided not to bring information from the table
+    -------------------- subject, biosample, subject_in_collection, biosample_in_collection, biosample_from_subject
+    -------------------- subject_role_taxonomy, etc. (these are non ontology/CV tables)
     --------------------Mano 2024/02/02 WARNING CHECK 2ND CONDITION OF JOIN ON
-    left join c2m2.subject /* Could right-join make more sense here; likely no */
+    /** left join c2m2.subject 
         on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
         c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+    **/
         --- original, till 2024/02/03: c2m2.fl_biosample.project_id_namespace = c2m2.subject.project_id_namespace)
 
-    --- Mano: 2024/02/02 add subject_disease
-    left join c2m2.subject_disease /* Could right-join make more sense here; likely no */
+    --- Mano: 2024/02/02 add subject_disease: 2024/04/11: collection_disease is already up there
+    /** left join c2m2.subject_disease /* Could right-join make more sense here; likely no */
         on (c2m2.subject.local_id = c2m2.subject_disease.subject_local_id and
         c2m2.subject.id_namespace = c2m2.subject_disease.subject_id_namespace)
+    **/
     --- EXTREMELY IMPORTANT: including c2m2.subject_disease has major implications 
     --- since it will be replicated for all biosamples related to that subject. For example, 
     --- one study/subject from MW has 3 diseases.
@@ -257,18 +295,20 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
     --- Mano: 2024/02/09: fl_biosample.biosample_disease is biosample_disease.disease
     left join c2m2.disease
-        on (c2m2.biosample_disease.disease = c2m2.disease.id OR c2m2.subject_disease.disease = c2m2.disease.id)
+        on (c2m2.collection_disease.disease = c2m2.disease.id)
 
     /* join with subject_role_taxonomy and ncbi_taxonomy */
     --------------------Mano 2024/02/02 WARNING CHECK JOIN CONDITION use subject table instead of fl_biosample?
-    left join c2m2.subject_role_taxonomy
+    /** left join c2m2.subject_role_taxonomy
         --- till 2024/02/03 on (c2m2.fl_biosample.subject_local_id = c2m2.subject_role_taxonomy.subject_local_id and
         on (c2m2.subject.local_id = c2m2.subject_role_taxonomy.subject_local_id and
         c2m2.subject.id_namespace = c2m2.subject_role_taxonomy.subject_id_namespace)
+    **/
 
     left join c2m2.ncbi_taxonomy
-        on (c2m2.subject_role_taxonomy.taxonomy_id = c2m2.ncbi_taxonomy.id)
+        on (c2m2.collection_taxonomy.taxon = c2m2.ncbi_taxonomy.id)
 
+    /** Mano: 2024/04/12: commented as null used corresponding to columns from these tables
     left join c2m2.collection
         on (c2m2.biosample_in_collection.collection_local_id = c2m2.collection.local_id and
         c2m2.biosample_in_collection.collection_id_namespace = c2m2.collection.id_namespace)
@@ -295,8 +335,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
     left join c2m2.subject_role
         on (c2m2.subject_role_taxonomy.role_id = c2m2.subject_role.id)
+    **/
 
     --- Mano: 2024/02/03: Now we have both biosample_disease and subject_disease
+    /** Mano: 2024/04/12: commented as null used corresponding to columns from these tables
     left join c2m2.disease_association_type
         --- till 2024/02/03 on(c2m2.fl_biosample.disease_association_type = c2m2.disease_association_type.id)
         --- Note the AND part within each to make sure no extra matches # not sure if this is required but should not be a problem
@@ -322,15 +364,18 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     --- all 2X2 pairs, even though they are like 1-1 disease-phenotype pairs. 412: Actually, 
     --- only 206 rows should be there. This can be avoided if we (MW; when preparing MW metadata) search in phenotype only 
     --- if disease is empty (i.e. no match), but cannot impose this restriction.
+    **/
 
     --- Mano: 2024/02/13
     left join c2m2.phenotype
-        on (c2m2.subject_phenotype.phenotype = c2m2.phenotype.id)
+        on (c2m2.collection_phenotype.phenotype = c2m2.phenotype.id)
 
     --- Mano: 2024/02/13
+    /** Mano: 2024/04/12: commented as null used corresponding to columns from these tables
     left join c2m2.phenotype_association_type
         on (c2m2.subject_phenotype.association_type = c2m2.phenotype_association_type.id
-                AND c2m2.subject_phenotype.phenotype = c2m2.phenotype.id) /* Is the second condition not needed; OK to have */
+                AND c2m2.subject_phenotype.phenotype = c2m2.phenotype.id)
+    **/
 
     /* Mano: 2024/02/13 Addition of subject_disease added about 981 more rows (from MW (kidsfirst already 
     had them included at biosample level too)), and subject_phenotype added 238 rows (all from MW)
