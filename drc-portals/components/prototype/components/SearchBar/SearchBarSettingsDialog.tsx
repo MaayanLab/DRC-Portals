@@ -109,7 +109,7 @@ export default function SearchSettingsDialog(props: SearchSettingsDialogProps) {
     >
       <DialogTitle>Search Settings</DialogTitle>
       <DialogContent>
-        <Box>
+        <Box sx={{ maxHeight: "400px", overflow: 'auto' }}>
           <Typography variant="subtitle1" gutterBottom>
             Path Settings
           </Typography>
