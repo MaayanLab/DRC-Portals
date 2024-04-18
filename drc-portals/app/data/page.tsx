@@ -88,6 +88,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                       <div className="flex align-center space-x-10">
                         <Button sx={{ textTransform: 'uppercase' }} color="secondary">Learn More</Button>
                         <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit" formAction="/data/c2m2/search">C2M2 Metadata</Button>
+                        <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit" formAction="/data/c2m2/search_col">C2M2 Collection Metadata</Button>
                         <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit">Processed Data</Button>
                       </div>
                     </Stack>
