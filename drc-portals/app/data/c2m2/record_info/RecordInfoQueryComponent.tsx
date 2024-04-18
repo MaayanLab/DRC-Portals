@@ -5,251 +5,251 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import {capitalizeFirstLetter } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter } from "@/app/data/c2m2/utils"
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
 export async function RecordInfoQueryComponent(props: PageProps) {
-    const searchParams = useSanitizedSearchParams(props);
-    console.log("In RecordInfoQueryComponent");
+  const searchParams = useSanitizedSearchParams(props);
+  console.log("In RecordInfoQueryComponent");
 
-    try {
-        const results = await fetchRecordInfoQueryResults(searchParams);
-        return results;
-    } catch (error) {
-        console.error('Error fetching search results:', error);
-        return undefined;
-    }
+  try {
+    const results = await fetchRecordInfoQueryResults(searchParams);
+    return results;
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+    return undefined;
+  }
 }
 
 async function fetchRecordInfoQueryResults(searchParams: any) {
-    try {
-        const offset = (searchParams.p - 1) * searchParams.r
-  const limit = searchParams.r
+  try {
+    const offset = (searchParams.p - 1) * searchParams.r
+    const limit = searchParams.r
 
-  // Generate the query clause for filters
+    // Generate the query clause for filters
 
-  const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample");
-  const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
+    const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample");
+    const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
 
-  // To measure time taken by different parts
-  const t0: number = performance.now();
-  
-  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-    records: {
-      //rank: number,
-      dcc_name: string,
-      dcc_abbreviation: string,
-      dcc_short_label: string,
-      taxonomy_name: string,
-      taxonomy_id: string,
-      disease_name: string,
-      disease: string,
-      anatomy_name: string,
-      anatomy: string,
-      gene_name: string,
-      gene: string,
-      data_type_name: string,
-      data_type: string,
-      project_name: string,
-      project_persistent_id: string,
-      project_local_id: string,
-      project_description: string,
-      anatomy_description: string,
-      disease_description: string,
-      gene_description: string,
-      taxonomy_description: string,
+    // To measure time taken by different parts
+    const t0: number = performance.now();
 
-      count: number, // this is based on across all-columns of ffl_biosample 
+    const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+      records: {
+        //rank: number,
+        dcc_name: string,
+        dcc_abbreviation: string,
+        dcc_short_label: string,
+        taxonomy_name: string,
+        taxonomy_id: string,
+        disease_name: string,
+        disease: string,
+        anatomy_name: string,
+        anatomy: string,
+        gene_name: string,
+        gene: string,
+        data_type_name: string,
+        data_type: string,
+        project_name: string,
+        project_persistent_id: string,
+        project_local_id: string,
+        project_description: string,
+        anatomy_description: string,
+        disease_description: string,
+        gene_description: string,
+        taxonomy_description: string,
+
+        count: number, // this is based on across all-columns of ffl_biosample 
+        count_bios: number,
+        count_sub: number,
+        count_col: number,
+      }[],
       count_bios: number,
       count_sub: number,
       count_col: number,
-    }[],
-    count_bios: number,
-    count_sub: number,
-    count_col: number,
-    biosamples_table: {
-      biosample_id_namespace: string,
-      biosample_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      biosample_persistent_id: string,
-      biosample_creation_time: string,
-      sample_prep_method_name: string,
-      anatomy_name: string,
-      disease_name: string,
-      disease_association_type_name: string,
-      subject_id_namespace: string,
-      subject_local_id: string,
-      biosample_age_at_sampling: string,
-      gene_name: string,
-      substance_name: string
-    }[],
-    collections_table: {
-      collection_id_namespace: string,
-      collection_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      abbreviation: string,
-      name: string,
-      description: string,
-      has_time_series_data: string
-    }[],
-    subjects_table: {
-      subject_id_namespace: string,
-      subject_local_id: string,
-      subject_race_name: string,
-      subject_granularity_name: string,
-      subject_sex_name: string,
-      subject_ethnicity_name: string,
-      subject_role_name: string,
-      subject_age_at_enrollment: string
-    }[],
-    sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
-    count_file: number,
-    file_table: {
-      id_namespace: string,
-      local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-      //biosample_id_namespace: string,
-      //biosample_local_id: string,
-      //subject_id_namespace: string,
-      //subject_local_id: string,
-      //collection_id_namespace: string, 
-      //collection_local_id: string
-    }[],
-    count_file_sub: number,
-    file_sub_table: {
-      file_id_namespace: string,
-      file_local_id: string,
-      subject_id_namespace: string,
-      subject_local_id: string
-    }[],
-    count_file_bios: number,
-    file_bios_table: {
-      file_id_namespace: string,
-      file_local_id: string,
-      biosample_id_namespace: string,
-      biosample_local_id: string
-    }[],
-    count_file_col: number,
-    file_col_table: {
-      file_id_namespace: string,
-      file_local_id: string,
-      collection_id_namespace: string,
-      collection_local_id: string
-    }[],
+      biosamples_table: {
+        biosample_id_namespace: string,
+        biosample_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        biosample_persistent_id: string,
+        biosample_creation_time: string,
+        sample_prep_method_name: string,
+        anatomy_name: string,
+        disease_name: string,
+        disease_association_type_name: string,
+        subject_id_namespace: string,
+        subject_local_id: string,
+        biosample_age_at_sampling: string,
+        gene_name: string,
+        substance_name: string
+      }[],
+      collections_table: {
+        collection_id_namespace: string,
+        collection_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        abbreviation: string,
+        name: string,
+        description: string,
+        has_time_series_data: string
+      }[],
+      subjects_table: {
+        subject_id_namespace: string,
+        subject_local_id: string,
+        subject_race_name: string,
+        subject_granularity_name: string,
+        subject_sex_name: string,
+        subject_ethnicity_name: string,
+        subject_role_name: string,
+        subject_age_at_enrollment: string
+      }[],
+      sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
+      count_file: number,
+      file_table: {
+        id_namespace: string,
+        local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+        //biosample_id_namespace: string,
+        //biosample_local_id: string,
+        //subject_id_namespace: string,
+        //subject_local_id: string,
+        //collection_id_namespace: string, 
+        //collection_local_id: string
+      }[],
+      count_file_sub: number,
+      file_sub_table: {
+        file_id_namespace: string,
+        file_local_id: string,
+        subject_id_namespace: string,
+        subject_local_id: string
+      }[],
+      count_file_bios: number,
+      file_bios_table: {
+        file_id_namespace: string,
+        file_local_id: string,
+        biosample_id_namespace: string,
+        biosample_local_id: string
+      }[],
+      count_file_col: number,
+      file_col_table: {
+        file_id_namespace: string,
+        file_local_id: string,
+        collection_id_namespace: string,
+        collection_local_id: string
+      }[],
 
-    // based on full table
+      // based on full table
 
-    biosamples_table_full: {
-      biosample_id_namespace: string,
-      biosample_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      biosample_persistent_id: string,
-      biosample_creation_time: string,
-      sample_prep_method_name: string,
-      anatomy_name: string,
-      disease_name: string,
-      disease_association_type_name: string,
-      subject_id_namespace: string,
-      subject_local_id: string,
-      biosample_age_at_sampling: string,
-      gene_name: string,
-      substance_name: string
-    }[],
-    collections_table_full: {
-      collection_id_namespace: string,
-      collection_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      abbreviation: string,
-      name: string,
-      description: string,
-      has_time_series_data: string
-    }[],
-    subjects_table_full: {
-      subject_id_namespace: string,
-      subject_local_id: string,
-      subject_race_name: string,
-      subject_granularity_name: string,
-      subject_sex_name: string,
-      subject_ethnicity_name: string,
-      subject_role_name: string,
-      subject_age_at_enrollment: string
-    }[],
-    file_table_full: {
-      id_namespace: string,
-      local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-      //biosample_id_namespace: string,
-      //biosample_local_id: string,
-      //subject_id_namespace: string,
-      //subject_local_id: string,
-      //collection_id_namespace: string, 
-      //collection_local_id: string
-    }[],
-    file_sub_table_full: {
-      file_id_namespace: string,
-      file_local_id: string,
-      subject_id_namespace: string,
-      subject_local_id: string
-    }[],
-    file_bios_table_full: {
-      file_id_namespace: string,
-      file_local_id: string,
-      biosample_id_namespace: string,
-      biosample_local_id: string
-    }[],
-    file_col_table_full: {
-      file_id_namespace: string,
-      file_local_id: string,
-      collection_id_namespace: string,
-      collection_local_id: string
-    }[],
+      biosamples_table_full: {
+        biosample_id_namespace: string,
+        biosample_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        biosample_persistent_id: string,
+        biosample_creation_time: string,
+        sample_prep_method_name: string,
+        anatomy_name: string,
+        disease_name: string,
+        disease_association_type_name: string,
+        subject_id_namespace: string,
+        subject_local_id: string,
+        biosample_age_at_sampling: string,
+        gene_name: string,
+        substance_name: string
+      }[],
+      collections_table_full: {
+        collection_id_namespace: string,
+        collection_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        abbreviation: string,
+        name: string,
+        description: string,
+        has_time_series_data: string
+      }[],
+      subjects_table_full: {
+        subject_id_namespace: string,
+        subject_local_id: string,
+        subject_race_name: string,
+        subject_granularity_name: string,
+        subject_sex_name: string,
+        subject_ethnicity_name: string,
+        subject_role_name: string,
+        subject_age_at_enrollment: string
+      }[],
+      file_table_full: {
+        id_namespace: string,
+        local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+        //biosample_id_namespace: string,
+        //biosample_local_id: string,
+        //subject_id_namespace: string,
+        //subject_local_id: string,
+        //collection_id_namespace: string, 
+        //collection_local_id: string
+      }[],
+      file_sub_table_full: {
+        file_id_namespace: string,
+        file_local_id: string,
+        subject_id_namespace: string,
+        subject_local_id: string
+      }[],
+      file_bios_table_full: {
+        file_id_namespace: string,
+        file_local_id: string,
+        biosample_id_namespace: string,
+        biosample_local_id: string
+      }[],
+      file_col_table_full: {
+        file_id_namespace: string,
+        file_local_id: string,
+        collection_id_namespace: string,
+        collection_local_id: string
+      }[],
 
-  }>>`
+    }>>`
   WITH allres_full AS (
     SELECT DISTINCT c2m2.ffl_biosample.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
@@ -553,255 +553,255 @@ file_table AS (
   ;
 ` : [undefined];
 
-  const t1: number = performance.now();
+    const t1: number = performance.now();
 
-  // First remove the empty columns and sort columns such that most varying appears first
+    // First remove the empty columns and sort columns such that most varying appears first
 
-  const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
-  const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,
-    staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [],
-      results?.biosamples_table_full ?? [], biosample_table_columnsToIgnore);
+    const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
+    const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,
+      staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [],
+        results?.biosamples_table_full ?? [], biosample_table_columnsToIgnore);
 
-  const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
-  const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns,
-    staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
-      results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
+    const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
+    const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns,
+      staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
+        results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
 
-  const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
-  const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
-    staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
-      results?.collections_table_full ?? [], collections_table_columnsToIgnore);
+    const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
+    const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
+      staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
+        results?.collections_table_full ?? [], collections_table_columnsToIgnore);
 
-  const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
-  const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns,
-    staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
-      results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
+    const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
+    const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns,
+      staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
+        results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
 
-  // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
-  const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
-  const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
+    // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
+    const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
+    const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
 
-  const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
-  const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
-    staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
-      results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
+    const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
+    const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
+      staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
+        results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
 
-  const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
-  const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
-    staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
-      results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
+    const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
+    const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
+      staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
+        results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
 
-  const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-  const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns,
-    staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
-      results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
+    const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
+    const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns,
+      staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
+        results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
 
-  const t2: number = performance.now();
+    const t2: number = performance.now();
 
-  console.log("Files related to biosample");
-  console.log(results?.file_bios_table.slice(1, 5));
-  console.log("Dynamic columns in files related to biosample");
-  console.log(dynamicFileBiosColumns);
-  console.log("Static columns in files related to biosample");
-  console.log(staticFileBiosColumns);
-  console.log(`count_file: ${results?.count_file}`);
+    console.log("Files related to biosample");
+    console.log(results?.file_bios_table.slice(1, 5));
+    console.log("Dynamic columns in files related to biosample");
+    console.log(dynamicFileBiosColumns);
+    console.log("Static columns in files related to biosample");
+    console.log(staticFileBiosColumns);
+    console.log(`count_file: ${results?.count_file}`);
 
-  // The following items are present in metadata
+    // The following items are present in metadata
 
-  const projectLocalId = results?.records[0].project_local_id;// Assuming it's the same for all rows
+    const projectLocalId = results?.records[0].project_local_id ?? 'NA';// Assuming it's the same for all rows
 
-  const metadata = [
-    { label: 'Project ID', value: projectLocalId },
-    results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : null,
-    //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
-    //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
-    {
-      label: 'Taxonomy', value: results?.records[0].taxonomy_name && results?.records[0].taxonomy_name != "Unspecified" ?
-        <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {results?.records[0].taxonomy_name}
-        </Link>
-        : results?.records[0].taxonomy_name
-    },
-    results?.records[0].taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(results?.records[0].taxonomy_description) } : null,
+    const metadata = [
+      { label: 'Project ID', value: projectLocalId },
+      results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : null,
+      //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
+      //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
+      {
+        label: 'Taxonomy', value: results?.records[0].taxonomy_name && results?.records[0].taxonomy_name != "Unspecified" ?
+          <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {results?.records[0].taxonomy_name}
+          </Link>
+          : results?.records[0].taxonomy_name
+      },
+      results?.records[0].taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(results?.records[0].taxonomy_description) } : null,
 
-    {
-      label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
-        <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {capitalizeFirstLetter(results?.records[0].anatomy_name)}
-        </Link>
+      {
+        label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
+          <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(results?.records[0].anatomy_name)}
+          </Link>
 
-        : results?.records[0].anatomy_name
-    },
-    results?.records[0].anatomy_description ? { label: 'Sample Source Description', value: results?.records[0].anatomy_description } : null,
+          : results?.records[0].anatomy_name
+      },
+      results?.records[0].anatomy_description ? { label: 'Sample Source Description', value: results?.records[0].anatomy_description } : null,
 
-    {
-      label: 'Disease', value: results?.records[0].disease_name && results?.records[0].disease_name !== "Unspecified" ? (
-        <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {capitalizeFirstLetter(results?.records[0].disease_name)}
-        </Link>
-      ) : results?.records[0].disease_name
-    },
-    results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
+      {
+        label: 'Disease', value: results?.records[0].disease_name && results?.records[0].disease_name !== "Unspecified" ? (
+          <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(results?.records[0].disease_name)}
+          </Link>
+        ) : results?.records[0].disease_name
+      },
+      results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
 
-    {
-      label: 'Gene', value: results?.records[0].gene_name && results?.records[0].gene_name !== "Unspecified" ? (
-        <Link href={`http://www.ensembl.org/id/${results?.records[0].gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {results?.records[0].gene_name}
-        </Link>
-      ) : results?.records[0].gene_name
-    },
-    results?.records[0].gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(results?.records[0].gene_description) } : null,
+      {
+        label: 'Gene', value: results?.records[0].gene_name && results?.records[0].gene_name !== "Unspecified" ? (
+          <Link href={`http://www.ensembl.org/id/${results?.records[0].gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {results?.records[0].gene_name}
+          </Link>
+        ) : results?.records[0].gene_name
+      },
+      results?.records[0].gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(results?.records[0].gene_description) } : null,
 
-    {
-      label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
-        <Link href={`http://edamontology.org/${results?.records[0].data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {capitalizeFirstLetter(results?.records[0].data_type_name)}
-        </Link>
-      ) : results?.records[0].data_type_name
-    },
+      {
+        label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
+          <Link href={`http://edamontology.org/${results?.records[0].data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(results?.records[0].data_type_name)}
+          </Link>
+        ) : results?.records[0].data_type_name
+      },
 
-    { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
-    { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },
-    { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
-    { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
+      { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
+      { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },
+      { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
+      { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
 
-  ];
+    ];
 
-  const t3: number = performance.now();
+    const t3: number = performance.now();
 
-  const categories: Category[] = [];
-  console.log("Static columns in  biosample");
-  addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
-  console.log(staticBiosampleColumns);
+    const categories: Category[] = [];
+    console.log("Static columns in  biosample");
+    addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+    console.log(staticBiosampleColumns);
 
-  //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
-  addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
-  addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
-  addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
-  addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
-  addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
-  addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
-
-
-  const biosampleTableTitle = "Biosamples: " + results?.count_bios;
-  const subjectTableTitle = "Subjects: " + results?.count_sub;
-  const collectionTableTitle = "Collections: " + results?.count_col;
-  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(10000, results?.count_file) + " listed)";
-  const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
-  const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
-  const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
+    //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+    addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
+    addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
+    addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
+    addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
+    addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
+    addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
 
 
-  const t4: number = performance.now();
-  
-  console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
-  console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
-  console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
-  console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
-
-  return (
-    <LandingPageLayout
-      icon={{
-        href: results?.records[0].dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
-        src: getDCCIcon(results ? results.records[0].dcc_short_label : ""),
-        alt: results?.records[0].dcc_short_label ? results.records[0].dcc_short_label : ""
-      }}
-      title={results?.records[0].project_name ?? ""}
-      subtitle={""}
-      description={format_description(results?.records[0].project_description ?? "")}
-      metadata={metadata}
-      categories={categories}
-    >
-      <ExpandableTable
-        data={biosamplePrunedData}
-        full_data={results?.biosamples_table_full}
-        downloadFileName={projectLocalId + "_BiosamplesTable.json"}
-        tableTitle={biosampleTableTitle}
-        searchParams={searchParams}
-        count={results?.count_bios ?? 0} // Provide count directly as a prop
-        colNames={dynamicBiosampleColumns}
-        dynamicColumns={dynamicBiosampleColumns}
-        getNameFromTable={getNameFromBiosampleTable}
-      />
+    const biosampleTableTitle = "Biosamples: " + results?.count_bios;
+    const subjectTableTitle = "Subjects: " + results?.count_sub;
+    const collectionTableTitle = "Collections: " + results?.count_col;
+    const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(10000, results?.count_file) + " listed)";
+    const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
+    const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
+    const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
 
 
-      <ExpandableTable
-        data={subjectPrunedData}
-        full_data={results?.subjects_table_full}
-        downloadFileName={projectLocalId + "_SubjectsTable.json"}
-        tableTitle={subjectTableTitle}
-        searchParams={searchParams}
-        count={results?.count_sub ?? 0} // Provide count directly as a prop
-        colNames={dynamicSubjectColumns}
-        dynamicColumns={dynamicSubjectColumns}
-        getNameFromTable={getNameFromSubjectTable}
-      />
+    const t4: number = performance.now();
 
-      <ExpandableTable
-        data={collectionPrunedData}
-        full_data={results?.collections_table_full}
-        downloadFileName={projectLocalId + "_CollectionsTable.json"}
-        tableTitle={collectionTableTitle}
-        searchParams={searchParams}
-        count={results?.count_col ?? 0} // Provide count directly as a prop
-        colNames={dynamicCollectionColumns}
-        dynamicColumns={dynamicCollectionColumns}
-        getNameFromTable={getNameFromCollectionTable}
-      />
+    console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+    console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
+    console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
+    console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
 
-
-      <ExpandableTable
-        data={fileProjPrunedData}
-        full_data={results?.file_table_full}
-        downloadFileName={projectLocalId + "_FilesProjTable.json"}
-        tableTitle={fileProjTableTitle}
-        searchParams={searchParams}
-        //count={results?.count_file ?? 0} // Provide count directly as a prop
-        count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
-        colNames={newFileProjColumns}
-        dynamicColumns={newFileProjColumns}
-        getNameFromTable={getNameFromFileProjTable}
-      />
-
-      <ExpandableTable
-        data={fileSubPrunedData}
-        full_data={results?.file_sub_table_full}
-        downloadFileName={projectLocalId + "_FilesSubTable.json"}
-        tableTitle={fileSubTableTitle}
-        searchParams={searchParams}
-        count={results?.count_file_sub ?? 0} // Provide count directly as a prop
-        colNames={dynamicFileSubColumns}
-        dynamicColumns={dynamicFileSubColumns}
-        getNameFromTable={getNameFromFileProjTable}
-      />
-      <ExpandableTable
-        data={fileBiosPrunedData}
-        full_data={results?.file_bios_table_full}
-        downloadFileName={projectLocalId + "_FilesBiosTable.json"}
-        tableTitle={fileBiosTableTitle}
-        searchParams={searchParams}
-        count={results?.count_file_bios ?? 0} // Provide count directly as a prop
-        colNames={dynamicFileBiosColumns}
-        dynamicColumns={dynamicFileBiosColumns}
-        getNameFromTable={getNameFromFileProjTable}
-      />
-      <ExpandableTable
-        data={fileCollPrunedData}
-        full_data={results?.file_col_table_full}
-        downloadFileName={projectLocalId + "_FilesCollTable.json"}
-        tableTitle={fileCollTableTitle}
-        searchParams={searchParams}
-        count={results?.count_file_col ?? 0} // Provide count directly as a prop
-        colNames={dynamicFileCollColumns}
-        dynamicColumns={dynamicFileCollColumns}
-        getNameFromTable={getNameFromFileProjTable}
-      />
+    return (
+      <LandingPageLayout
+        icon={{
+          href: results?.records[0].dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
+          src: getDCCIcon(results ? results.records[0].dcc_short_label : ""),
+          alt: results?.records[0].dcc_short_label ? results.records[0].dcc_short_label : ""
+        }}
+        title={results?.records[0].project_name ?? ""}
+        subtitle={""}
+        description={format_description(results?.records[0].project_description ?? "")}
+        metadata={metadata}
+        categories={categories}
+      >
+        <ExpandableTable
+          data={biosamplePrunedData}
+          full_data={results?.biosamples_table_full}
+          downloadFileName={projectLocalId + "_BiosamplesTable.json"}
+          tableTitle={biosampleTableTitle}
+          searchParams={searchParams}
+          count={results?.count_bios ?? 0} // Provide count directly as a prop
+          colNames={dynamicBiosampleColumns}
+          dynamicColumns={dynamicBiosampleColumns}
+          getNameFromTable={getNameFromBiosampleTable}
+        />
 
 
-    </LandingPageLayout>
-  )
-    } catch(error) {
-        console.error('Error fetching record info query results:', error);
-        return <div>Error fetching record info query results</div>;
-    }
+        <ExpandableTable
+          data={subjectPrunedData}
+          full_data={results?.subjects_table_full}
+          downloadFileName={projectLocalId + "_SubjectsTable.json"}
+          tableTitle={subjectTableTitle}
+          searchParams={searchParams}
+          count={results?.count_sub ?? 0} // Provide count directly as a prop
+          colNames={dynamicSubjectColumns}
+          dynamicColumns={dynamicSubjectColumns}
+          getNameFromTable={getNameFromSubjectTable}
+        />
+
+        <ExpandableTable
+          data={collectionPrunedData}
+          full_data={results?.collections_table_full}
+          downloadFileName={projectLocalId + "_CollectionsTable.json"}
+          tableTitle={collectionTableTitle}
+          searchParams={searchParams}
+          count={results?.count_col ?? 0} // Provide count directly as a prop
+          colNames={dynamicCollectionColumns}
+          dynamicColumns={dynamicCollectionColumns}
+          getNameFromTable={getNameFromCollectionTable}
+        />
+
+
+        <ExpandableTable
+          data={fileProjPrunedData}
+          full_data={results?.file_table_full}
+          downloadFileName={projectLocalId + "_FilesProjTable.json"}
+          tableTitle={fileProjTableTitle}
+          searchParams={searchParams}
+          //count={results?.count_file ?? 0} // Provide count directly as a prop
+          count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
+          colNames={newFileProjColumns}
+          dynamicColumns={newFileProjColumns}
+          getNameFromTable={getNameFromFileProjTable}
+        />
+
+        <ExpandableTable
+          data={fileSubPrunedData}
+          full_data={results?.file_sub_table_full}
+          downloadFileName={projectLocalId + "_FilesSubTable.json"}
+          tableTitle={fileSubTableTitle}
+          searchParams={searchParams}
+          count={results?.count_file_sub ?? 0} // Provide count directly as a prop
+          colNames={dynamicFileSubColumns}
+          dynamicColumns={dynamicFileSubColumns}
+          getNameFromTable={getNameFromFileProjTable}
+        />
+        <ExpandableTable
+          data={fileBiosPrunedData}
+          full_data={results?.file_bios_table_full}
+          downloadFileName={projectLocalId + "_FilesBiosTable.json"}
+          tableTitle={fileBiosTableTitle}
+          searchParams={searchParams}
+          count={results?.count_file_bios ?? 0} // Provide count directly as a prop
+          colNames={dynamicFileBiosColumns}
+          dynamicColumns={dynamicFileBiosColumns}
+          getNameFromTable={getNameFromFileProjTable}
+        />
+        <ExpandableTable
+          data={fileCollPrunedData}
+          full_data={results?.file_col_table_full}
+          downloadFileName={projectLocalId + "_FilesCollTable.json"}
+          tableTitle={fileCollTableTitle}
+          searchParams={searchParams}
+          count={results?.count_file_col ?? 0} // Provide count directly as a prop
+          colNames={dynamicFileCollColumns}
+          dynamicColumns={dynamicFileCollColumns}
+          getNameFromTable={getNameFromFileProjTable}
+        />
+
+
+      </LandingPageLayout>
+    )
+  } catch (error) {
+    console.error('Error fetching record info query results:', error);
+    return <div>Error fetching record info query results</div>;
+  }
 }

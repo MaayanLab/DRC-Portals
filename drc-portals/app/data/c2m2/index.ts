@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   const allsamples = await prisma.geneEntity.findMany()
-  console.log(allsamples)
+  // console.log(allsamples)
 }
 
 main()

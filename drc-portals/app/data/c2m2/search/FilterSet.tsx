@@ -11,6 +11,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { styled, lighten, darken } from '@mui/system';
+import Chip from '@mui/material/Chip';
 
 type FilterObject = {
   id: string;
@@ -21,12 +23,37 @@ type FilterObject = {
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+const GroupHeader = styled('div')(({ theme }) => ({
+  position: 'sticky',
+  top: '-8px',
+  padding: '4px 10px',
+  color: theme.palette.primary.main,
+  backgroundColor:
+    theme.palette.mode === 'light'
+      ? lighten(theme.palette.primary.light, 0.85)
+      : darken(theme.palette.primary.main, 0.8),
+}));
+
+const GroupItems = styled('ul')({
+  padding: 0,
+});
+
+
 export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
   const [filterIndex, setFilterIndex] = useState<string[]>([]);
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
+
+  const options = filterList.map((option) => {
+    const firstLetter = option.name[0].toUpperCase();
+    const filterCount = option.count;
+    return {
+      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
+      ...option,
+    };
+  });
 
   /* // Load selected filters from localStorage when component mounts
   useEffect(() => {
@@ -149,64 +176,57 @@ const applyFilters = () => {
   const indexRows = chunkArray(filterIndex, 8);
 
   return (
-    <div>
-      <Accordion expanded={expanded === filter_title} onChange={(event, isExpanded) => setExpanded(isExpanded ? filter_title : null)}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{`${filter_title} (${filterList.length})`}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {filterList.length > 50 && (
-            <div>
-              {indexRows.map((row, index) => (
-                <div key={index} style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }}>
-                  {row.map(letter => (
-                    <button
-                    key={letter}
-                    onClick={() => setSelectedLetter(letter)}
-                    style={{
-                      marginRight: '10px',
-                      marginBottom: '10px',
-                      color: selectedLetter === letter ? 'blue' : 'inherit', // Change text color to red if selected
-                      textDecoration: selectedLetter === letter ? 'underline' : 'none', // Underline if selected
+        <>
+      <div>{filter_title}</div>
+      <Autocomplete
+        // size='small'
+        multiple
+        autoComplete
+        disableCloseOnSelect
+        limitTags={3}
+        id="filterSet"
+        options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+        groupBy={(option) => option.firstLetter}
+        getOptionLabel={(option) => `${option.name} (${option.count})`}
+        value={selectedFiltersForAutocomplete}
+        onChange={(event, newValue) => {
+          setSelectedFilters(newValue as FilterObject[]);
+          console.log(
+            "SELECTED FILTERS :::::::::::::::::::::::::::::::::::::::::::::::::::::::",selectedFilters
+          )
+          // Call applyFilters function when filters are selected or deselected
+          // applyFilters;
+        }}
+        renderTags={(value, getTagProps) =>
+          value.map((option, index) => (
+            <Chip
+              variant="outlined"
+              label={option.name}
+              size="small"
+              {...getTagProps({ index })}
+            />
+          ))
+        }
+        renderInput={(params) => <TextField {...params} size='small' placeholder={example_query} />}
+        renderGroup={(params) => (
+          <li key={params.key}>
+            <GroupHeader>{params.group}</GroupHeader>
+            <GroupItems>{params.children}</GroupItems>
+          </li>
+        )}
+        sx={{ width: 'auto' }}
+        onBlur={() => {
+        // Reload the page when focus is removed from the Autocomplete component
+        applyFilters();
+      }}
+      // value={selectedFiltersForAutocomplete}
+      // onChange={(event, newValue) => {
+      //   setSelectedFilters(newValue as FilterObject[]); // Handle selection changes
+      // }}
+      // value={selectedFilters} // Bind selected filters to the value prop
+      // onChange={handleFilterSelection} // Attach event handler for filter selection
+      />
+      </>
 
-                    }}
-                  >
-                    {letter}
-                  </button>
-                  
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-          <Autocomplete
-            multiple
-            id="checkboxes-tags-demo"
-            options={getFilteredOptions()}
-            disableCloseOnSelect
-            getOptionLabel={(option) => option.name}
-            value={selectedFiltersForAutocomplete}
-            onChange={(event, newValue) => {
-              setSelectedFilters(newValue as FilterObject[]); // Handle selection changes
-            }}
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox icon={icon} checkedIcon={checkedIcon} checked={selected} />
-                {`${option.id} (${option.count})`}
-              </li>
-            )}
-            style={{ width: 'auto' }}
-            renderInput={(params) => (
-              <TextField {...params} placeholder={example_query} />
-            )}
-            renderTags={() => null} // Disable rendering of tags
-          />
-
-          <Button onClick={applyFilters} variant="contained" style={{ marginTop: '10px' }}>
-            Update
-          </Button>
-        </AccordionDetails>
-      </Accordion>
-    </div >
   );
 }

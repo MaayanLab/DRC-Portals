@@ -24,7 +24,7 @@ type FilterObject = {
 
 export async function SearchQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
-    console.log("In SearchQueryComponent");
+    // console.log("In SearchQueryComponent");
 
     try {
         const results = await fetchQueryResults(searchParams);
@@ -203,10 +203,10 @@ async function fetchQueryResults(searchParams: any) {
         
           if (!results) redirect('/data')
           //  console.log(results)
-          console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
-          console.log(results.records.map(res => res.count))
-          console.log(results.dcc_filters)
-          console.log(results.taxonomy_filters)
+          // console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
+          // console.log(results.records.map(res => res.count))
+          // console.log(results.dcc_filters)
+          // console.log(results.taxonomy_filters)
         
           //const t2: number = performance.now();
         
@@ -252,9 +252,9 @@ async function fetchQueryResults(searchParams: any) {
           //console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
           //console.log("Elapsed time for creating data for filters: ", t3 - t2, "milliseconds");
         
-          console.log("Length of DCC Filters")
-          console.log(DccFilters.length);
-          console.log(searchParams.q);
+          // console.log("Length of DCC Filters")
+          // console.log(DccFilters.length);
+          // console.log(searchParams.q);
           // const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
         
           // console.log(selectedFilters)
@@ -263,7 +263,6 @@ async function fetchQueryResults(searchParams: any) {
           const file_icon_path = "/img/icons/file-magnifiying-glass.png";
         
           //const t4: number = performance.now();
-        
           return (
             <ListingPageLayout
               count={results?.count} // This matches with #records in the table on the right (without filters applied)
@@ -307,7 +306,7 @@ async function fetchQueryResults(searchParams: any) {
                       <hr className="m-2" />
                     </>
                   )}
-                  {/* <Typography variant="h5">Core filters</Typography> */}
+                 
                   {/* <hr className="m-2" /> */}
                   {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
                   <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="Common Fund Program" example_query="e.g. 4DN" />
@@ -419,7 +418,7 @@ async function fetchQueryResults(searchParams: any) {
     } catch (error) {
         console.error('Error fetching query results:', error);
         return <> 
-        <div className="mb-10"></div>
+        <div className="mb-10">Error fetching query results. </div>
         <Link href="/data">
           <Button
             sx={{ textTransform: "uppercase" }}
