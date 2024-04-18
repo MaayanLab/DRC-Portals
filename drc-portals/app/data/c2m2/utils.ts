@@ -142,8 +142,8 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
     }
     //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
     const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
-    console.log("FILTERS LENGTH =");
-    console.log(filters.length)
+    // console.log("FILTERS LENGTH =");
+    // console.log(filters.length)
     return filterConditionStr;
 }
   // Mano: Not sure if use of this function is sql-injection safe
@@ -180,8 +180,8 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
     }
     //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
     const filterConditionStr = filters.length ? `${filters.join(' AND ')}` : '';
-    console.log("FILTERS LENGTH =");
-    console.log(filters.length)
+    // console.log("FILTERS LENGTH =");
+    // console.log(filters.length)
   
     return filterConditionStr;
   }
