@@ -108,6 +108,7 @@ services:
 
   drc-portal-backup:
     build: ../database/backup
+    platform: linux/amd64
     image: maayanlab/drc-portal-postgres-backup:0.0.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
@@ -127,6 +128,7 @@ services:
 
   drc-portal-twitter:
     build: ../twitter
+    platform: linux/amd64
     image: maayanlab/drc-portal-twitter:0.1.2
     x-kubernetes:
       imagePullPolicy: IfNotPresent
@@ -141,6 +143,7 @@ services:
 
   drc-auth:
     build: ../auth
+    platform: linux/amd64
     image: maayanlab/drc-auth:0.1.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
