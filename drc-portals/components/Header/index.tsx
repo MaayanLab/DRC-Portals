@@ -19,7 +19,6 @@ import { Logo } from '../styled/Logo'
 
 
 export default async function Header({nav, type}: {type: 'info' | 'data', nav: Array<{title: string, href: string}>}) {
-  console.log(type)
   const session = await getServerSession(authOptions) 
   return (
     <Container maxWidth="lg">
