@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  drc-auth:
+    build: .
+    platform: linux/amd64
+    image: maayanlab/drc-auth:0.1.0
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      annotations:
+        maayanlab.cloud/ingress: https://auth.cfde.cloud
+    ports:
+      - 8080:8080
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://${PRIMARY_DATABASE}:5432/${POSTGRES_DB}
+      - KC_DB_SCHEMA=keycloak
+      - KC_DB_USERNAME=${POSTGRES_USER}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD
+
+x-kubernetes:
+  name: auth
+  namespace: drc
