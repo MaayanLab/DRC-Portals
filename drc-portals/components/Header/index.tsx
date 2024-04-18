@@ -18,8 +18,31 @@ import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 
 
-export default async function Header({nav, type}: {type: 'info' | 'data', nav: Array<{title: string, href: string}>}) {
+const nav_opt = {
+  info: [
+    {title: "Home", href: "/info"},
+    {title: "CF Programs", href: "/info/dcc"},
+    {title: "Partnerships", href: "/info/partnerships"},
+    {title: "Training & Outreach", href: "/info/outreach"},
+    {title: "Publications", href: "/info/publications"},
+    {title: "Documentation", href: "/info/documentation"},
+    // {title: "About", href: "/info/coming_soon"},
+  ],
+  data: [
+    {title: "Search", href: "/data"},
+    {title: "Chatbot", href: "/data/chat"},
+    {title: "Data Matrix", href: "/data/matrix"},
+    {title: "Use Cases", href: "https://playbook-workflow-builder.cloud/playbooks", new_tab: true},
+    {title: "Tools & Workflows", href: "/data/tools_and_workflows", new_tab: true},
+    {title: "Submit", href: "/data/contribute"},
+    {title: "Documentation", href: "/info/documentation"},
+    
+  ]
+}
+
+export default async function Header({type}: {type: 'info' | 'data'}) {
   const session = await getServerSession(authOptions) 
+  const nav = nav_opt[type]
   return (
     <Container maxWidth="lg">
       <AppBar position="static" sx={{color: "#000"}}>

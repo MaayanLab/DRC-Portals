@@ -16,8 +16,8 @@ export default function NavBreadcrumbs() {
             if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', decodeURIComponent(path_split[3]))
             if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), null)
         }
-        console.log(path_split)
-        console.log(format_path_split)
+        // console.log(path_split)
+        // console.log(format_path_split)
         if (path_split[0] === 'data' && path_split[1] === 'contribute'){
             format_path_split[1] = 'submit'
             if (format_path_split[2] === 'documentation') {

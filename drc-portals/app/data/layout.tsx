@@ -63,17 +63,6 @@ export const metadata: Metadata = {
   ].join(', ')
 }
 
-const nav = [
-  {title: "Search", href: "/data"},
-  {title: "Chatbot", href: "/data/chat"},
-  {title: "Data Matrix", href: "/data/matrix"},
-  {title: "Use Cases", href: "https://playbook-workflow-builder.cloud/playbooks", new_tab: true},
-  {title: "Tools & Workflows", href: "/data/tools_and_workflows", new_tab: true},
-  {title: "Submit", href: "/data/contribute"},
-  {title: "Documentation", href: "/info/documentation"},
-  
-]
-
 export default function DataLayout({
   children,
 }: {
@@ -81,7 +70,7 @@ export default function DataLayout({
 }) {
   return (
     <>
-      <Grid item><Header type='data' nav={nav}/></Grid>
+      <Grid item><Header type='data'/></Grid>
       <Grid item className="flex grow">
         <Background background="#E7F3F5">
           <NavBreadcrumbs/>
