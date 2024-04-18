@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Grid, Paper, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import { ElementDefinition, LayoutOptions, Stylesheet } from "cytoscape";
 import { useState } from "react";
 

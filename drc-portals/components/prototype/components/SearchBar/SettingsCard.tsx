@@ -13,11 +13,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useEffect, useState } from "react";
 
+import { PROPERTY_MAP } from "../../constants/neo4j";
 import { SearchBarOption } from "../../interfaces/search-bar";
-import { createEntityElement, isRelationshipOption } from "../../utils/search-bar";
 import {
-  PROPERTY_MAP,
-} from "../../constants/neo4j";
+  createEntityElement,
+  isRelationshipOption,
+} from "../../utils/search-bar";
 
 import SettingsPropertyForm from "./SettingsPropertyForm";
 
@@ -93,8 +94,8 @@ export default function SettingsCard(props: SettingsCardProps) {
             <SettingsPropertyForm value={value} liftValue={liftValue} />
           ) : (
             <Typography>
-              This {isRelationshipOption(value) ? "relationship" : "node"} has no
-              possible properties on which to filter.
+              This {isRelationshipOption(value) ? "relationship" : "node"} has
+              no possible properties on which to filter.
             </Typography>
           )}
         </CardContent>

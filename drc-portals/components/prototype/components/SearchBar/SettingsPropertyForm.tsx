@@ -14,11 +14,11 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ChangeEvent, useEffect, useState } from "react";
 
+import { PROPERTY_OPERATORS } from "../../constants/search-bar";
 import {
   BasePropertyFilter,
   SearchBarOption,
 } from "../../interfaces/search-bar";
-import { PROPERTY_OPERATORS } from "../../constants/search-bar";
 import {
   createPropertyFilter,
   getEntityProperties,
@@ -190,8 +190,8 @@ export default function SettingsPropertyForm(props: SettingsPropertyFormProps) {
     </Box>
   ) : (
     <Typography>
-      This {isRelationshipOption(value) ? "relationship" : "node"} has no possible
-      properties on which to filter.
+      This {isRelationshipOption(value) ? "relationship" : "node"} has no
+      possible properties on which to filter.
     </Typography>
   );
 }

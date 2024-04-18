@@ -224,18 +224,18 @@ export const INCOMING_CONNECTIONS: ReadonlyMap<
   string,
   ReadonlyMap<string, string[]>
 > = (() => {
-  const map = new Map<string, Map<string, string[]>>()
+  const map = new Map<string, Map<string, string[]>>();
   OUTGOING_CONNECTIONS.forEach((val, src) => {
     val.forEach((dests, type) => {
-      dests.forEach(dest => {
+      dests.forEach((dest) => {
         if (map.has(dest)) {
           if (map.get(dest)?.has(type)) {
-            (map.get(dest)?.get(type) as string[]).push(src)
+            (map.get(dest)?.get(type) as string[]).push(src);
           } else {
-            (map.get(dest) as Map<string, string[]>).set(type, [src])
+            (map.get(dest) as Map<string, string[]>).set(type, [src]);
           }
         } else {
-          map.set(dest, new Map([[type, [src]]]))
+          map.set(dest, new Map([[type, [src]]]));
         }
       });
     });
