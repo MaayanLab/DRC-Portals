@@ -9,7 +9,7 @@ import {capitalizeFirstLetter } from "@/app/data/c2m2/utils"
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
-export async function RecordInfoQueryComponent(props: PageProps) {
+export async function Col_RecordInfoQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
     console.log("In RecordInfoQueryComponent");
 
@@ -29,7 +29,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
   // Generate the query clause for filters
 
-  const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample");
+  const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_collection");
   const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
 
   // To measure time taken by different parts
@@ -251,9 +251,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
   }>>`
   WITH allres_full AS (
-    SELECT DISTINCT c2m2.ffl_biosample.*,
+    SELECT DISTINCT c2m2.ffl_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
-      FROM c2m2.ffl_biosample
+      FROM c2m2.ffl_collection
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${Prisma.sql([filterClause])}
       ORDER BY rank DESC
   ),
@@ -293,7 +293,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
     GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
     anatomy_name,  anatomy, gene_name, gene, data_type_name, data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-    project_local_id, project_description, anatomy_description, disease_description, gene_description, taxonomy_description
+    allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, taxonomy_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
     ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name /*rank DESC*/
   ),

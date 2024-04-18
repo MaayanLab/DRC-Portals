@@ -1,4 +1,4 @@
-import { RecordInfoQueryComponent} from './RecordInfoQueryComponent';
+import { Col_RecordInfoQueryComponent} from './Col_RecordInfoQueryComponent';
 import {  useSanitizedSearchParams } from "@/app/data/processed/utils"
 
 import React, { Suspense } from 'react';
@@ -11,7 +11,7 @@ export default async function Page(props: PageProps) {
   console.log(searchParams.q)
   return(
     <Suspense fallback={<div>Loading...</div>}>
-      <RecordInfoQueryComponent {...props} />
+      <Col_RecordInfoQueryComponent {...props} />
     </Suspense>
   )
 }
