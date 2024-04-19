@@ -4,7 +4,7 @@ import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma';
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
-import FilterSet from "@/app/data/c2m2/search/FilterSet"
+import FilterSet from "@/app/data/c2m2/FilterSet"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
 import { Button } from "@mui/material";
