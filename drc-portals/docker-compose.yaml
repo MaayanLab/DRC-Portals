@@ -65,8 +65,8 @@ services:
     environment:
       nginx_server_name: cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: /info(/.*) https://info.cfde.cloud$$1
-      nginx_redirect_01: /data(/.*) https://data.cfde.cloud$$1
+      nginx_redirect_00: /info(/.*)? https://info.cfde.cloud$$1
+      nginx_redirect_01: /data(/.*)? https://data.cfde.cloud$$1
 
   drc-portal-cfde-info-redirect:
     image: maayanlab/proxy:1.2.9
