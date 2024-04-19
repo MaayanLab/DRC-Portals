@@ -21,10 +21,15 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/data/contribute/documentation',
+        destination: '/data/submit',
+        permanent: true,
+      },
+      {
         source: '/data/contribute/:path*',
         destination: '/data/submit/:path*',
-        permanent: false,
-      }
+        permanent: true,
+      },
     ]
   },
   images: {
