@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
-import { getDCCIcon, capitalizeFirstLetter } from "@/app/data/c2m2/utils";
+import { getDCCIcon, capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils";
 
 type PageProps = { searchParams: Record<string, string> }
 type FilterObject = {
@@ -65,6 +65,7 @@ async function fetchQueryResults(searchParams: any) {
               data_type: string,
               project_name: string,
               project_description: string,
+              project_persistent_id: string,
               count: number, // this is based on across all-columns of ffl_biosample
               count_bios: number,
               count_sub: number,
@@ -113,6 +114,7 @@ async function fetchQueryResults(searchParams: any) {
             REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
             allres_full.project_name AS project_name,
             c2m2.project.description AS project_description,
+            allres_full.project_persistent_id as project_persistent_id,
             COUNT(*)::INT AS count,
             COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
             COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
@@ -124,7 +126,7 @@ async function fetchQueryResults(searchParams: any) {
             allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
           GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
             disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
-            project_name, project_description 
+            project_name, project_description, allres_full.project_persistent_id 
           ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
         ),
         allres_filtered AS (
@@ -355,7 +357,10 @@ async function fetchQueryResults(searchParams: any) {
                   //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
                   <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
                   //<Description description={res.dcc_abbreviation.split("_")[0]} />,
-                  <Description description={res.project_name} />,
+                  //<Description description={res.project_name} />,
+                  (res.project_persistent_id && isURL(res.project_persistent_id)) ?
+                  <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> : 
+                    <Description description={res.project_name} />,
         
         
                   //<TruncatedText text={res.project_description} maxLength={80} />,

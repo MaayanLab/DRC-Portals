@@ -5,7 +5,9 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import {capitalizeFirstLetter } from "@/app/data/c2m2/utils"
+import {capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils"
+
+const file_count_limit = 10;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -49,6 +51,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       anatomy: string,
       gene_name: string,
       gene: string,
+      protein_name: string,
+      protein: string,
+      compound_name: string,
+      compound: string,
       data_type_name: string,
       data_type: string,
       project_name: string,
@@ -58,6 +64,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       anatomy_description: string,
       disease_description: string,
       gene_description: string,
+      protein_description: string,
+      compound_description: string,
       taxonomy_description: string,
 
       count: number, // this is based on across all-columns of ffl_biosample 
@@ -270,15 +278,23 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
       COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
       allres_full.gene AS gene,
+      COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+      allres_full.protein AS protein,
+      COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+      allres_full.substance_compound AS compound,
       COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
       REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-      allres_full.project_name AS project_name,
+      /* allres_full.project_name AS project_name, */
+      COALESCE(allres_full.project_name, 
+        concat_ws('', 'Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
       c2m2.project.persistent_id AS project_persistent_id,
       allres_full.project_local_id AS project_local_id,
       c2m2.project.description AS project_description,
       c2m2.anatomy.description AS anatomy_description,
       c2m2.disease.description AS disease_description,
       c2m2.gene.description AS gene_description,
+      c2m2.protein.description AS protein_description,
+      c2m2.compound.description AS compound_description,
       c2m2.ncbi_taxonomy.description AS taxonomy_description,
       COUNT(*)::INT AS count,
       COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
@@ -290,12 +306,17 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
     LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
+    LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
+    LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
     LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
     GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-    anatomy_name,  anatomy, gene_name, gene, data_type_name, data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-    allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, taxonomy_description
+      anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
+      data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+      allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
+      protein_description, compound_description, taxonomy_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
-    ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name /*rank DESC*/
+    ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+      protein_name, compound_name, data_type_name /*rank DESC*/
   ),
   biosamples_table as (
     SELECT DISTINCT
@@ -388,6 +409,10 @@ unique_info AS ( /* has extra fields, but OK in case needed later*/
         allres_full.anatomy,
         allres_full.gene, 
         allres_full.gene_name,
+        allres_full.protein, 
+        allres_full.protein_name,
+        allres_full.substance_compound as compound, 
+        allres_full.compound_name,
         allres_full.data_type_id AS data_type, 
         allres_full.data_type_name
     FROM allres_full
@@ -442,14 +467,21 @@ file_table AS (
         dt.name AS data_type_name,
         at.name AS assay_type_name,
         aty.name AS analysis_type_name
-    FROM c2m2.file AS f
+    FROM unique_info ui INNER JOIN c2m2.file AS f ON (f.project_local_id = ui.project_local_id 
+      AND f.project_id_namespace = ui.project_id_namespace
+      AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+    /* Mano: 2024/04/19: will it be much faster to do: ui INNER JOIN f LEFT JOIN dt LEFT JOIN at LEFT JOIN aty */
+    /* FROM c2m2.file AS f
     LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
     LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
     LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
     INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                               AND f.project_id_namespace = ui.project_id_namespace
-                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) /* 2024/03/07 match data type */
-    limit 10000
+                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
+    limit ${file_count_limit}
 )
 , /* Mano */
   file_table_limited as (
@@ -612,7 +644,7 @@ file_table AS (
 
   const metadata = [
     { label: 'Project ID', value: projectLocalId },
-    results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : null,
+    ( results?.records[0].project_persistent_id && isURL(results?.records[0].project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : null,
     //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
     //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
     {
@@ -653,6 +685,24 @@ file_table AS (
     results?.records[0].gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(results?.records[0].gene_description) } : null,
 
     {
+      label: 'Protein', value: results?.records[0].protein_name && results?.records[0].protein_name !== "Unspecified" ? (
+        <Link href={`https://www.uniprot.org/uniprotkb/${results?.records[0].protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {results?.records[0].protein_name}
+        </Link>
+      ) : results?.records[0].protein_name
+    },
+    results?.records[0].protein_description ? { label: 'Protein Description', value: capitalizeFirstLetter(results?.records[0].protein_description) } : null,
+
+    {
+      label: 'Compound', value: results?.records[0].compound_name && results?.records[0].compound_name !== "Unspecified" ? (
+        <Link href={`http://www.ensembl.org/id/${results?.records[0].compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {results?.records[0].compound_name}
+        </Link>
+      ) : results?.records[0].compound_name
+    },
+    results?.records[0].compound_description ? { label: 'Compound Description', value: capitalizeFirstLetter(results?.records[0].compound_description) } : null,
+
+    {
       label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
         <Link href={`http://edamontology.org/${results?.records[0].data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
           {capitalizeFirstLetter(results?.records[0].data_type_name)}
@@ -686,7 +736,7 @@ file_table AS (
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
   const collectionTableTitle = "Collections: " + results?.count_col;
-  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(10000, results?.count_file) + " listed)";
+  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit, results?.count_file) + " listed)";
   const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
   const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
   const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
@@ -715,7 +765,7 @@ file_table AS (
       <ExpandableTable
         data={biosamplePrunedData}
         full_data={results?.biosamples_table_full}
-        downloadFileName={projectLocalId + "_BiosamplesTable.json"}
+        downloadFileName={projectLocalId + "_BiosamplesTable_Collection.json"}
         tableTitle={biosampleTableTitle}
         searchParams={searchParams}
         count={results?.count_bios ?? 0} // Provide count directly as a prop
@@ -728,7 +778,7 @@ file_table AS (
       <ExpandableTable
         data={subjectPrunedData}
         full_data={results?.subjects_table_full}
-        downloadFileName={projectLocalId + "_SubjectsTable.json"}
+        downloadFileName={projectLocalId + "_SubjectsTable_Collection.json"}
         tableTitle={subjectTableTitle}
         searchParams={searchParams}
         count={results?.count_sub ?? 0} // Provide count directly as a prop
@@ -740,7 +790,7 @@ file_table AS (
       <ExpandableTable
         data={collectionPrunedData}
         full_data={results?.collections_table_full}
-        downloadFileName={projectLocalId + "_CollectionsTable.json"}
+        downloadFileName={projectLocalId + "_CollectionsTable_Collection.json"}
         tableTitle={collectionTableTitle}
         searchParams={searchParams}
         count={results?.count_col ?? 0} // Provide count directly as a prop
@@ -753,7 +803,7 @@ file_table AS (
       <ExpandableTable
         data={fileProjPrunedData}
         full_data={results?.file_table_full}
-        downloadFileName={projectLocalId + "_FilesProjTable.json"}
+        downloadFileName={projectLocalId + "_FilesProjTable_Collection.json"}
         tableTitle={fileProjTableTitle}
         searchParams={searchParams}
         //count={results?.count_file ?? 0} // Provide count directly as a prop
@@ -766,7 +816,7 @@ file_table AS (
       <ExpandableTable
         data={fileSubPrunedData}
         full_data={results?.file_sub_table_full}
-        downloadFileName={projectLocalId + "_FilesSubTable.json"}
+        downloadFileName={projectLocalId + "_FilesSubTable_Collection.json"}
         tableTitle={fileSubTableTitle}
         searchParams={searchParams}
         count={results?.count_file_sub ?? 0} // Provide count directly as a prop
@@ -777,7 +827,7 @@ file_table AS (
       <ExpandableTable
         data={fileBiosPrunedData}
         full_data={results?.file_bios_table_full}
-        downloadFileName={projectLocalId + "_FilesBiosTable.json"}
+        downloadFileName={projectLocalId + "_FilesBiosTable_Collection.json"}
         tableTitle={fileBiosTableTitle}
         searchParams={searchParams}
         count={results?.count_file_bios ?? 0} // Provide count directly as a prop
@@ -788,7 +838,7 @@ file_table AS (
       <ExpandableTable
         data={fileCollPrunedData}
         full_data={results?.file_col_table_full}
-        downloadFileName={projectLocalId + "_FilesCollTable.json"}
+        downloadFileName={projectLocalId + "_FilesCollTable_Collection.json"}
         tableTitle={fileCollTableTitle}
         searchParams={searchParams}
         count={results?.count_file_col ?? 0} // Provide count directly as a prop

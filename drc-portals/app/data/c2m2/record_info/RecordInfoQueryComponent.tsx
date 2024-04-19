@@ -5,7 +5,9 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import { capitalizeFirstLetter } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils"
+
+const file_count_limit = 10;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -442,14 +444,21 @@ file_table AS (
         dt.name AS data_type_name,
         at.name AS assay_type_name,
         aty.name AS analysis_type_name
-    FROM c2m2.file AS f
+    FROM unique_info ui INNER JOIN c2m2.file AS f ON (f.project_local_id = ui.project_local_id 
+      AND f.project_id_namespace = ui.project_id_namespace
+      AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+    /* Mano: 2024/04/19: will it be much faster to do: ui INNER JOIN f LEFT JOIN dt LEFT JOIN at LEFT JOIN aty */
+    /* FROM c2m2.file AS f
     LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
     LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
     LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
     INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                               AND f.project_id_namespace = ui.project_id_namespace
-                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) /* 2024/03/07 match data type */
-    limit 10000
+                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
+    limit ${file_count_limit}
 )
 , /* Mano */
   file_table_limited as (
@@ -612,7 +621,7 @@ file_table AS (
 
     const metadata = [
       { label: 'Project ID', value: projectLocalId },
-      results?.records[0].project_persistent_id ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : null,
+      ( results?.records[0].project_persistent_id && isURL(results?.records[0].project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : results?.records[0].project_persistent_id,
       //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
       //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
       {
@@ -686,7 +695,7 @@ file_table AS (
     const biosampleTableTitle = "Biosamples: " + results?.count_bios;
     const subjectTableTitle = "Subjects: " + results?.count_sub;
     const collectionTableTitle = "Collections: " + results?.count_col;
-    const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(10000, results?.count_file) + " listed)";
+    const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit, results?.count_file) + " listed)";
     const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
     const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
     const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;

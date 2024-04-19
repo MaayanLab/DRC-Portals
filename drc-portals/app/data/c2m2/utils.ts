@@ -5,6 +5,12 @@ export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function isURL(str: string): boolean {
+    const http_pattern = /^http/i;
+    const doi_pattern = "doi.org";
+      return ( !(str === null || str.trim() === '') && ( http_pattern.test(str) || str.toLowerCase().includes(doi_pattern)) ); 
+}
+  
 interface HashTable {
     [key: string]: string;
 }

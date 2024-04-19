@@ -12,10 +12,7 @@ import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
-import { getDCCIcon, capitalizeFirstLetter } from "@/app/data/c2m2/utils";
-
-const http_pattern = /^http/;
-const doi_pattern = "doi.org";
+import { getDCCIcon, capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils";
 
 type PageProps = { searchParams: Record<string, string> }
 type FilterObject = {
@@ -140,7 +137,8 @@ async function fetchQueryResults(searchParams: any) {
           GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
             disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
             data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id
-          ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, protein_name, data_type_name
+          ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+            protein_name, compound_name, data_type_name
         ),
         allres_filtered AS (
           SELECT allres.*, 
@@ -409,7 +407,8 @@ async function fetchQueryResults(searchParams: any) {
                   //<Description description={res.dcc_abbreviation.split("_")[0]} />,
                   //<Description description={res.project_name} />,                  
                   //<Link href={`${res.project_persistent_id}`} target="_blank"><u>{res.project_name}</u></Link>,
-                  (res.project_persistent_id && ( http_pattern.test(res.project_persistent_id) || res.project_persistent_id.includes(doi_pattern))) ? 
+                  //(res.project_persistent_id && ( http_pattern.test(res.project_persistent_id) || res.project_persistent_id.includes(doi_pattern))) ? 
+                  (res.project_persistent_id && isURL(res.project_persistent_id)) ?
                   <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> : 
                     <Description description={res.project_name} />,
                 
