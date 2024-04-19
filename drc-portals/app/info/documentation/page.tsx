@@ -35,7 +35,7 @@ export default function Standards() {
                 entity pages, PWB metanodes, and chatbot specifications.
                 <br /><br />
                 Learn more about submitting to the Data Resource Portal in the <Link 
-                href="/data/contribute/documentation" rel="noopener" color="#3470e5">Contribution Guide</Link>.
+                href="/data/submit" rel="noopener" color="#3470e5">Contribution Guide</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>

@@ -31,7 +31,7 @@ const names = [
 
 export default async function AccountPage() {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/account")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/account")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id,
@@ -41,7 +41,7 @@ export default async function AccountPage() {
         }
     })
 
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/account")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/account")
 
     async function saveuser(formData: FormData) {
         'use server'
@@ -56,7 +56,7 @@ export default async function AccountPage() {
                     email: email.toString(),
                 },
             });
-            revalidatePath('/data/contribute/account')
+            revalidatePath('/data/submit/account')
         }
 
     }
