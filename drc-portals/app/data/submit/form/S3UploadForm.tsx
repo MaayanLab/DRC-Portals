@@ -269,7 +269,7 @@ export function S3UploadForm(user: User & {dccs: DCC[]}
               </ListItem>
             </List> 
             See the {' '}
-            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the steps to upload files.
+            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to upload files.
             <br></br>
           </Typography>
           <Grid container spacing={2} justifyContent="center" sx={{ marginBottom: 2 }}>

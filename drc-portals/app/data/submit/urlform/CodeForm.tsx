@@ -342,10 +342,12 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                 </Stack>
                 <Typography variant="subtitle1" color="#666666" sx={{ mb: 2, ml: 2 }}>
                     This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC at  <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+                    See the {' '}
+            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to submit code assets.
                 </Typography>
                 <Grid container spacing={2} justifyContent={'center'}>
                     <Grid item container md={9} xs={12}>
-                        <Grid container item className='p-5' justifyContent="center" sx={{ mt: 3 }}>
+                        <Grid container item direction='row' justifyContent="center" sx={{ mt: 3, mb: 3 }}>
                             <Grid item>
                                 <TextField
                                     label="Uploader Name"
@@ -368,7 +370,6 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                             <Grid item>
                                 <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
                             </Grid>
-
                         </Grid>
                         <Grid container direction='row' justifyContent="center" className='mb-5' spacing={2}>
                             <Grid item>

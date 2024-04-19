@@ -12,7 +12,7 @@ import { DCC } from '@prisma/client';
 
 export default async function UserFiles() {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
 
     const dccInfo = await prisma.dCC.findMany()
     const dccMapping: { [key: string]: string } = {}
@@ -41,7 +41,7 @@ export default async function UserFiles() {
         },
     })
 
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this page
     if (user.role === 'USER') {
         return (
@@ -62,7 +62,7 @@ export default async function UserFiles() {
             </Grid>
             <Grid md={10} xs={12}>
                 <Alert severity="warning" action={
-                    <Button color="inherit" size="small" href='/data/contribute/account'>
+                    <Button color="inherit" size="small" href='/data/submit/account'>
                         GO TO MY ACCOUNT
                     </Button>
                 }> Email not updated on user account. Please enter email on the My Account Page</Alert>
@@ -118,9 +118,8 @@ export default async function UserFiles() {
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that you have uploaded/submitted for all the DCCs you are affiliated with.
             Expand a row to see additional information for a file or code asset.
-            <br></br>
             See the {' '}
-            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
+            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the approval
             and current statuses of each file.
         </Typography>
 
@@ -129,9 +128,8 @@ export default async function UserFiles() {
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that have been uploaded/submitted for your affiliated DCCs.
             Expand a row to see additional information for a file or code asset.
-            <br></br>
             See the {' '}
-            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
+            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the approval
             and current statuses of each file and the steps to approve a file or change its current status.
         </Typography>
     } else {
@@ -139,9 +137,8 @@ export default async function UserFiles() {
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that have been uploaded/submitted for all the DCCs.
             Expand a row to see additional information for a file or code asset.
-            <br></br>
             See the {' '}
-            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the approval
+            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the approval
             and current statuses of each file and the steps to approve a file or change its current status.
         </Typography>
     }

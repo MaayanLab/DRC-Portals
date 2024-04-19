@@ -18,7 +18,7 @@ import nodemailer from 'nodemailer'
 
 async function verifyUser() {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
 
     const user = await prisma.user.findUnique({
         where: {
@@ -115,7 +115,7 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
 
 export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
@@ -209,7 +209,7 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
 
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     const DCCApproversList = await prisma.dCC.findFirst({
         where: {
             short_label: dcc
