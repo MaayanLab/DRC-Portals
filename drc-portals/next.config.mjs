@@ -18,6 +18,15 @@ const nextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: '/data/contribute/:path*',
+        destination: '/data/submit/:path*',
+        permanent: false,
+      }
+    ]
+  },
   images: {
     remotePatterns: [
       {
