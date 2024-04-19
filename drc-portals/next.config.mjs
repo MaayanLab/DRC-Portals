@@ -11,12 +11,32 @@ const nextConfig = {
   },
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   async rewrites() {
-    return [
-      {
-        source: '/:root/auth/:path*',
-        destination: '/auth/:path*',
-      },
-    ]
+    return {
+      beforeFiles: [
+        {
+          has: [{type: 'host', value: 'data.cfde.cloud'},],
+          source: '/',
+          destination: '/data',
+        },
+        {
+          has: [{type: 'host', value: 'info.cfde.cloud'},],
+          source: '/',
+          destination: '/info',
+        },
+      ],
+      afterFiles: [
+        {
+          has: [{type: 'host', value: 'data.cfde.cloud'},],
+          source: '/:path*',
+          destination: '/data/:path*',
+        },
+        {
+          has: [{type: 'host', value: 'info.cfde.cloud'},],
+          source: '/:path*',
+          destination: '/info/:path*',
+        },
+      ],
+    }
   },
   async redirects() {
     return [
@@ -29,6 +49,38 @@ const nextConfig = {
         source: '/data/contribute/:path*',
         destination: '/data/submit/:path*',
         permanent: true,
+      },
+      {
+        has: [
+          {type: 'host', value: 'data.cfde.cloud'},
+        ],
+        source: '/info/:path*',
+        destination: 'http://info.cfde.cloud/:path*',
+        permanent: false,
+      },
+      {
+        has: [
+          {type: 'host', value: 'data.cfde.cloud'},
+        ],
+        source: '/auth/:path*',
+        destination: 'http://cfde.cloud/auth/:path*',
+        permanent: false,
+      },
+      {
+        has: [
+          {type: 'host', value: 'info.cfde.cloud'},
+        ],
+        source: '/data/:path*',
+        destination: 'http://data.cfde.cloud/:path*',
+        permanent: false,
+      },
+      {
+        has: [
+          {type: 'host', value: 'info.cfde.cloud'},
+        ],
+        source: '/auth/:path*',
+        destination: 'http://cfde.cloud/auth/:path*',
+        permanent: false,
       },
     ]
   },
