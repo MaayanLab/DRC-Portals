@@ -16,10 +16,19 @@ import UserComponent from '../misc/LoginComponents/UserComponent'
 import { DataComponent } from './DataComponent';
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
-import { ClientNav } from './client_nav';
 
 
-export default async function Header({type}: {type: 'info' | 'data'}) {
+const nav = [
+  {title: "Home", href: "/info"},
+  {title: "CF Programs", href: "/info/dcc"},
+  {title: "Partnerships", href: "/info/partnerships"},
+  {title: "Training & Outreach", href: "/info/outreach"},
+  {title: "Publications", href: "/info/publications"},
+  {title: "Documentation", href: "/info/documentation"},
+  // {title: "About", href: "/info/coming_soon"},
+]
+
+export default async function Header() {
   const session = await getServerSession(authOptions) 
   return (
     <Container maxWidth="lg">
@@ -44,7 +53,20 @@ export default async function Header({type}: {type: 'info' | 'data'}) {
             </Stack>
 				  </Grid>
           <Grid item xs={12}> 
-              <ClientNav type={type}/>
+            <Grid container alignItems={"center"} spacing={2}>
+              {nav.map(({title, href})=>(
+                <Grid item key={title}>
+                  { href.indexOf('http') > -1 ? 
+                    <Link href={href} target="_blank" rel="noopener noreferrer">
+                      <Typography variant="nav">{title}</Typography>
+                    </Link>:
+                    <Link href={`${href}`}>
+                      <Typography variant="nav">{title}</Typography>
+                    </Link>
+                  }
+                </Grid>
+              ))}
+            </Grid>
           </Grid>
           <DataComponent>
             <Grid item xs={12} sx={{textAlign: 'right'}}>

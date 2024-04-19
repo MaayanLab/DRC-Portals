@@ -1,5 +1,5 @@
 import Grid  from '@mui/material/Grid'
-import Header  from '@/components/Header'
+import Header  from '@/components/Header/data'
 import Footer  from '@/components/Footer/data'
 import { Metadata } from 'next'
 import Background from '@/components/styled/background'
@@ -63,16 +63,6 @@ export const metadata: Metadata = {
   ].join(', ')
 }
 
-const nav = [
-  {title: "Search", href: "/data"},
-  {title: "Chatbot", href: "/data/chat"},
-  {title: "Data Matrix", href: "/data/matrix"},
-  {title: "Use Cases", href: "https://playbook-workflow-builder.cloud/playbooks", new_tab: true},
-  {title: "Tools & Workflows", href: "/data/tools_and_workflows", new_tab: true},
-  {title: "Submit", href: "/data/submit"},
-  {title: "Documentation", href: "/info/documentation"},
-  
-]
 
 export default function DataLayout({
   children,
@@ -81,7 +71,7 @@ export default function DataLayout({
 }) {
   return (
     <>
-      <Grid item><Header type='data' nav={nav}/></Grid>
+      <Grid item><Header/></Grid>
       <Grid item className="flex grow">
         <Background background="#E7F3F5">
           <NavBreadcrumbs/>
