@@ -62,7 +62,7 @@ const TagComponent = ({
             </div>
             <div>
                 <Button onClick={handleReset} variant="outlined" color="secondary">
-                        Reset all filters
+                        Reset filters
                     </Button>
             </div>
             </div>
