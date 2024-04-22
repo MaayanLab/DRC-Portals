@@ -23,7 +23,7 @@ export default function NavBreadcrumbs() {
         <Breadcrumbs aria-label="breadcrumb" separator="›">
             {format_path_split.map((p, i) => (
                 i === path_split.length - 1 ? (
-                    <Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p}</Typography>
+                    <Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p}</Typography> // leaf node breadcrumb not clickable
                 ) : (
                     <Link
                         key={i}
