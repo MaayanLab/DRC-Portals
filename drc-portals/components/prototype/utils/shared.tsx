@@ -52,9 +52,12 @@ const createNodeElement = (label: string, style?: CSSProperties) => (
   </NodeElement>
 );
 
-export const getNodeDisplayProperty = (label: string, node: NodeResult) => {
+export const getNodeDisplayProperty = (
+  label: string,
+  node: NodeResult
+): string => {
   const displayProp = NODE_DISPLAY_PROPERTY_MAP.get(label) || "name";
-  return node.properties[displayProp];
+  return node.properties[displayProp] || label;
 };
 
 export const createAdminNodeElement = (label: string) => {

@@ -1,11 +1,24 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Grid,
+  Typography,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ElementDefinition, LayoutOptions, Stylesheet } from "cytoscape";
 import { useState } from "react";
 
 import { NEO4J_PASSWORD, NEO4J_URI, NEO4J_USERNAME } from "../constants/app";
-import { DEFAULT_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
+import {
+  DEFAULT_LAYOUT,
+  DEFAULT_STYLESHEET,
+  SCHEMA_ELEMENTS,
+  SCHEMA_LAYOUT,
+  SCHEMA_STYLESHEET,
+} from "../constants/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver, initDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
@@ -68,6 +81,32 @@ export default function PrototypeContainer() {
 
   return (
     <>
+      <Grid item xs={12}>
+        <Accordion>
+          <AccordionSummary
+            sx={{ height: "inherit" }}
+            expandIcon={<ExpandMoreIcon color="secondary" />}
+            aria-controls="panel1-content"
+            id="panel1-header"
+          >
+            <Typography color="secondary">
+              View Interactive Graph Schema
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails
+            sx={{
+              height: "640px",
+              position: "relative",
+            }}
+          >
+            <CytoscapeChart
+              elements={SCHEMA_ELEMENTS}
+              layout={SCHEMA_LAYOUT}
+              stylesheet={SCHEMA_STYLESHEET}
+            ></CytoscapeChart>
+          </AccordionDetails>
+        </Accordion>
+      </Grid>
       {/* TODO: Make the column size dependent on the presence of the other columns */}
       {/* <Grid item xs={12} lg={3}>
           <Paper sx={{padding: "12px 24px" }} elevation={0}>
