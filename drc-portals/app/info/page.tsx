@@ -207,7 +207,7 @@ export default async function Home() {
                     </Typography>
                   </Grid>
                 <Grid item>
-                  <Link href="/">
+                  <Link href="/info/documentation">
                     <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                   </Link>
                 </Grid>
