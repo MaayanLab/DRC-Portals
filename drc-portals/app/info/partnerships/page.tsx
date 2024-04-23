@@ -76,7 +76,7 @@ const PartnershipCard = ({partnership}:{partnership: PartnershipsWithDCC}) => (
                                 <Grid item key={dcc.short_label} className="flex items-center justify-center relative">
                                     <Link href={`/info/dcc/${dcc.short_label}`}>
                                         <Tooltip title={dcc.short_label}>
-                                            <IconButton sx={{minHeight: ["Metabolomics", "GTEx"].indexOf(dcc.short_label || '') === -1 ? 70: 40, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 60: 40}}>
+                                            <IconButton sx={{minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 70: 40, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 60: 40}}>
                                                 {dcc.icon ? 
                                                     <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>:
                                                     <Avatar>{dcc.label[0]}</Avatar>
