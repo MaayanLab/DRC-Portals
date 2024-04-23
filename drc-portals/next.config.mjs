@@ -6,6 +6,16 @@ process.env.NEXTAUTH_URL_INTERNAL = 'http://localhost:3000/auth'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        'localhost:3000',
+        'data.cfde.cloud',
+        'info.cfde.cloud',
+        'cfde.cloud',
+      ],
+    },
+  },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
