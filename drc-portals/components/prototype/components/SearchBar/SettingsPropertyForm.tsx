@@ -31,17 +31,19 @@ export interface SettingsPropertyFormProps {
   liftValue: (value: SearchBarOption) => void;
 }
 
-export default function SettingsPropertyForm(props: SettingsPropertyFormProps) {
-  const { liftValue } = props;
-  const [value, setValue] = useState(props.value);
+export default function SettingsPropertyForm(
+  settingsPropertyFormProps: SettingsPropertyFormProps
+) {
+  const { liftValue } = settingsPropertyFormProps;
+  const [value, setValue] = useState(settingsPropertyFormProps.value);
   const [properties, setProperties] = useState(
-    getEntityProperties(props.value)
+    getEntityProperties(settingsPropertyFormProps.value)
   );
 
   useEffect(() => {
-    setValue(props.value);
-    setProperties(getEntityProperties(props.value));
-  }, [props.value]);
+    setValue(settingsPropertyFormProps.value);
+    setProperties(getEntityProperties(settingsPropertyFormProps.value));
+  }, [settingsPropertyFormProps.value]);
 
   const handleAddFilterClick = () => {
     const updatedValue = { ...value };

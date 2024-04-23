@@ -97,6 +97,23 @@ export const createBiosampleRelatedNodeElement = (label: string) => {
   );
 };
 
+export const createLineDividerElement = () => (
+  <DividerContainer key={v4()}>
+    <EntityDivider></EntityDivider>
+  </DividerContainer>
+);
+
+export const createArrowDividerElement = (flip: boolean) => (
+  <DividerContainer key={v4()}>
+    <ArrowRightAltRoundedIcon
+      sx={{
+        color: EDGE_COLOR,
+        transform: flip ? null : "rotate(180deg)",
+      }}
+    />
+  </DividerContainer>
+);
+
 export const createRelationshipElement = (
   type: string,
   direction: Direction
@@ -116,23 +133,6 @@ export const createRelationshipElement = (
 
 export const createAnonymousNodeElement = () => (
   <AnonymousNodeElement key={v4()}></AnonymousNodeElement>
-);
-
-export const createLineDividerElement = () => (
-  <DividerContainer key={v4()}>
-    <EntityDivider></EntityDivider>
-  </DividerContainer>
-);
-
-export const createArrowDividerElement = (flip: boolean) => (
-  <DividerContainer key={v4()}>
-    <ArrowRightAltRoundedIcon
-      sx={{
-        color: EDGE_COLOR,
-        transform: flip ? null : "rotate(180deg)",
-      }}
-    />
-  </DividerContainer>
 );
 
 // Note there is a very small chance for a problem here: a node label can never conflict with a relationship type. This is unlikely to ever

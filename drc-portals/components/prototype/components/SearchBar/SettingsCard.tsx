@@ -43,16 +43,18 @@ export interface SettingsCardProps {
   deleteValue: () => void;
 }
 
-export default function SettingsCard(props: SettingsCardProps) {
-  const { liftValue, deleteValue } = props;
+export default function SettingsCard(settingsCardProps: SettingsCardProps) {
+  const { liftValue, deleteValue } = settingsCardProps;
   const [expanded, setExpanded] = useState(false);
-  const [value, setValue] = useState(props.value);
-  const [element, setElement] = useState(createEntityElement(props.value));
+  const [value, setValue] = useState(settingsCardProps.value);
+  const [element, setElement] = useState(
+    createEntityElement(settingsCardProps.value)
+  );
 
   useEffect(() => {
-    setValue(props.value);
-    setElement(createEntityElement(props.value));
-  }, [props.value]);
+    setValue(settingsCardProps.value);
+    setElement(createEntityElement(settingsCardProps.value));
+  }, [settingsCardProps.value]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);

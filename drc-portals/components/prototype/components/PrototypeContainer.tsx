@@ -4,8 +4,10 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Grid,
   Typography,
+  styled,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ElementDefinition, LayoutOptions, Stylesheet } from "cytoscape";
@@ -24,8 +26,27 @@ import { getDriver, initDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
 import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
 
+import ChartLegend from "./CytoscapeChart/ChartLegend";
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import SearchBar from "./SearchBar/SearchBar";
+
+const LegendContainer = styled(Box)({
+  flexGrow: 1,
+  position: "absolute",
+  top: 10,
+  right: 10,
+  zIndex: 1,
+  padding: "inherit",
+});
+
+const SearchBarContainer = styled("div")({
+  flexGrow: 1,
+  position: "absolute",
+  top: 10,
+  left: 10,
+  zIndex: 1,
+  padding: "inherit",
+});
 
 export default function PrototypeContainer() {
   const [loadingSearchResults, setLoadingSearchResults] =
@@ -99,6 +120,9 @@ export default function PrototypeContainer() {
               position: "relative",
             }}
           >
+            <LegendContainer>
+              <ChartLegend></ChartLegend>
+            </LegendContainer>
             <CytoscapeChart
               elements={SCHEMA_ELEMENTS}
               layout={SCHEMA_LAYOUT}
@@ -127,12 +151,14 @@ export default function PrototypeContainer() {
           position: "relative",
         }}
       >
-        <SearchBar
-          error={searchError}
-          loading={loadingSearchResults}
-          clearError={clearSearchError}
-          onSubmit={handleSearchSubmit}
-        ></SearchBar>
+        <SearchBarContainer>
+          <SearchBar
+            error={searchError}
+            loading={loadingSearchResults}
+            clearError={clearSearchError}
+            onSubmit={handleSearchSubmit}
+          ></SearchBar>
+        </SearchBarContainer>
         <CytoscapeChart
           elements={elements}
           layout={layout}

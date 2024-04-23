@@ -31,23 +31,14 @@ interface SearchBarProps {
   onSubmit: (value: string) => void;
 }
 
-const SearchBarContainer = styled("div")({
-  flexGrow: 1,
-  position: "absolute",
-  top: 10,
-  left: 10,
-  zIndex: 1,
-  padding: "inherit",
-});
-
 /**
  * TODOS:
  * - Allow user to export the current chart data, import would reproduce what was exported (need to include the actual query in this?)
  * - Query limit
  */
 
-export default function SearchBar(SearchBarProps: SearchBarProps) {
-  const { error, loading, clearError, onSubmit } = SearchBarProps;
+export default function SearchBar(searchBarProps: SearchBarProps) {
+  const { error, loading, clearError, onSubmit } = searchBarProps;
   const [value, setValue] = useState<SearchBarOption[]>([]);
   const [options, setOptions] = useState<SearchBarOption[]>(getOptions([]));
   const [settings, setSettings] = useState<SearchQuerySettings>(
@@ -186,7 +177,7 @@ export default function SearchBar(SearchBarProps: SearchBarProps) {
   };
 
   return (
-    <SearchBarContainer>
+    <>
       <Autocomplete
         multiple
         freeSolo
@@ -218,6 +209,6 @@ export default function SearchBar(SearchBarProps: SearchBarProps) {
         onClose={handleDialogClose}
         onSubmit={handleDialogSubmit}
       />
-    </SearchBarContainer>
+    </>
   );
 }
