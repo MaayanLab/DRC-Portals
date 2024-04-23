@@ -10,7 +10,7 @@ import { redirect } from 'next/navigation';
 
 async function verifyUser() {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
 
     const user = await prisma.user.findUnique({
         where: {

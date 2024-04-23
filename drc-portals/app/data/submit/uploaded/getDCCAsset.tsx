@@ -19,13 +19,13 @@ export async function updateAssetApproval(file: {
     dcc_drc: string
 }) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
     if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
     if (file.dcc_drc === 'drc') {
@@ -50,7 +50,7 @@ export async function updateAssetApproval(file: {
         if (file.drcapproved === false) {
             await sendDRCApprovedEmails(approved)
         }
-        revalidatePath('/data/contribute/uploaded')
+        revalidatePath('/data/submit/uploaded')
         return "updated"
     } else if (file.dcc_drc === 'dcc') {
         const approved = await prisma.dccAsset.update({
@@ -71,7 +71,7 @@ export async function updateAssetApproval(file: {
                 fileAsset: true
             }
         })
-        revalidatePath('/data/contribute/uploaded')
+        revalidatePath('/data/submit//uploaded')
         if (file.dccapproved === false) {
             await sendDCCApprovedEmails(approved)
         }
@@ -81,13 +81,13 @@ export async function updateAssetApproval(file: {
 
 export async function updateAssetCurrent(file: DccAsset) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
     if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
     const approved = await prisma.dccAsset.update({
@@ -98,20 +98,20 @@ export async function updateAssetCurrent(file: DccAsset) {
             current: !(file.current)
         },
     })
-    revalidatePath('/data/contribute/uploaded')
+    revalidatePath('/data/submit/uploaded')
     return "updated"
 }
 
 
 export async function deleteAsset(file: DccAsset) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callback=/data/contribute/uploaded")
+    if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
     if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN' || user.role === 'UPLOADER')) throw new Error('user not allowed to delete file')
     const deleted = await prisma.dccAsset.update({
@@ -122,7 +122,7 @@ export async function deleteAsset(file: DccAsset) {
             deleted: true
         },
     })
-    revalidatePath('/data/contribute/uploaded')
+    revalidatePath('/data/submit/uploaded')
     return "deleted"
 }
 
@@ -136,14 +136,14 @@ export async function sendDCCApprovedEmails(asset: {
     codeAsset: CodeAsset | null
 } & DccAsset | null) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     // user here is a DCC approver
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     if (user.role === 'DCC_APPROVER') {
         if (asset) {
             const uploader = await prisma.user.findFirst({
@@ -229,14 +229,14 @@ export async function sendDRCApprovedEmails(asset: {
     codeAsset: CodeAsset | null
 } & DccAsset | null) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     // user here is a DRC approver
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/uploaded")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     if (user.role === 'DRC_APPROVER') {
         if (asset) {
             const uploader = await prisma.user.findFirst({

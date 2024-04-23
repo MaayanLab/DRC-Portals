@@ -24,10 +24,7 @@ export default function ColorToggleButton({ userAdmin, loggedIn, registered }: {
             onChange={handleChange}
             aria-label="Platform"
         >
-            <ToggleButton value="/data/contribute/documentation" href="/data/contribute/documentation">
-                <Typography variant="nav" align='center'>DOCUMENTATION</Typography>
-            </ToggleButton>
-            <ToggleButton value={"/data/contribute/form"} href={"/data/contribute/form"}
+            <ToggleButton value={"/submit/form"} href={"/data/submit/form"}
                 disabled={!registered || !loggedIn}
                 sx={{
                     "&.Mui-disabled": {
@@ -39,7 +36,7 @@ export default function ColorToggleButton({ userAdmin, loggedIn, registered }: {
                     DATA AND METADATA UPLOAD FORM
                 </Typography>
             </ToggleButton>
-            <ToggleButton value={"/data/contribute/urlform"} href={"/data/contribute/urlform"}
+            <ToggleButton value={"/submit/urlform"} href={"/data/submit/urlform"}
                 disabled={!registered || !loggedIn}
                 sx={{
                     "&.Mui-disabled": {
@@ -51,7 +48,7 @@ export default function ColorToggleButton({ userAdmin, loggedIn, registered }: {
                     CODE ASSETS UPLOAD FORM
                 </Typography>
             </ToggleButton>
-            <ToggleButton value={"/data/contribute/uploaded"} href={"/data/contribute/uploaded"}
+            <ToggleButton value={"/submit/uploaded"} href={"/data/submit/uploaded"}
                 disabled={!registered || !loggedIn}
                 sx={{
                     "&.Mui-disabled": {
@@ -63,7 +60,7 @@ export default function ColorToggleButton({ userAdmin, loggedIn, registered }: {
                     UPLOADED ASSETS
                 </Typography>
             </ToggleButton>
-            {userAdmin && <ToggleButton value={"/data/contribute/admin"} href={"/data/contribute/admin"}
+            {userAdmin && <ToggleButton value={"/submit/admin"} href={"/data/submit/admin"}
                 disabled={!registered || !loggedIn}
                 sx={{
                     "&.Mui-disabled": {

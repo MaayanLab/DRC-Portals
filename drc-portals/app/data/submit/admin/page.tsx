@@ -11,13 +11,13 @@ import React from "react";
 
 export default async function UsersTable() {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/admin")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/admin")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
     })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/admin")
+    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/admin")
 
     if (!(user.role === 'ADMIN')) {
         return (

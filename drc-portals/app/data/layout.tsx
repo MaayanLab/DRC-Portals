@@ -63,6 +63,7 @@ export const metadata: Metadata = {
   ].join(', ')
 }
 
+
 export default function DataLayout({
   children,
 }: {

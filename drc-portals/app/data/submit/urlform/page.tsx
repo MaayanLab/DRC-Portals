@@ -10,7 +10,7 @@ import Nav from '../Nav';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
-  if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/urlform")
+  if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
   const user = await prisma.user.findUnique({
     where: {
       id: session.user.id
@@ -19,7 +19,7 @@ export default async function UploadForm() {
       dccs: true
     }
   })
-  if (user === null) return redirect("/auth/signin?callbackUrl=/data/contribute/urlform")
+  if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
 
   if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN' || user.role === 'DCC_APPROVER')) {
     return (
@@ -40,7 +40,7 @@ export default async function UploadForm() {
       </Grid>
       <Grid md={10} xs={12}>
         <Alert severity="warning" action={
-          <Button color="inherit" size="small" href='/data/contribute/account'>
+          <Button color="inherit" size="small" href='/data/submit/account'>
             GO TO MY ACCOUNT
           </Button>
         }> Email not updated on user account. Please enter email on the My Account Page</Alert>

@@ -17,7 +17,7 @@ const nav_opt = {
 	  {title: "Data Matrix", href: "/data/matrix"},
 	  {title: "Use Cases", href: "https://playbook-workflow-builder.cloud/playbooks", new_tab: true},
 	  {title: "Tools & Workflows", href: "/data/tools_and_workflows"},
-	  {title: "Submit", href: "/data/contribute"},
+	  {title: "Submit", href: "/data/submit"},
 	  {title: "Documentation", href: "/info/documentation"},
 	  
 	]
