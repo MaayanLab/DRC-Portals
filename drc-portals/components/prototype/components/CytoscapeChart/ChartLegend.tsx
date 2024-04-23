@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { v4 } from "uuid";
 
 import { createArrowDividerElement } from "../../utils/shared";
 import {
@@ -21,6 +22,7 @@ import {
 } from "../../constants/shared";
 
 export default function ChartLegend() {
+  const cmpKey = v4();
   const legend = new Map<string, JSX.Element>(
     new Map([
       [
@@ -69,7 +71,7 @@ export default function ChartLegend() {
       <AccordionDetails>
         <Stack>
           {Array.from(legend.entries()).map(([key, el]) => (
-            <Box display="flex" sx={{ m: 1, alignItems: "center" }}>
+            <Box key={`legend-${cmpKey}-${key}`} display="flex" sx={{ m: 1, alignItems: "center" }}>
               <Typography sx={{ marginRight: 1 }}>{key}</Typography>
               {el}
             </Box>
