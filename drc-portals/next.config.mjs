@@ -65,7 +65,7 @@ const nextConfig = {
           {type: 'host', value: 'data.cfde.cloud'},
         ],
         source: '/info/:path*',
-        destination: 'http://info.cfde.cloud/:path*',
+        destination: 'https://info.cfde.cloud/:path*',
         permanent: false,
       },
       {
@@ -73,7 +73,7 @@ const nextConfig = {
           {type: 'host', value: 'data.cfde.cloud'},
         ],
         source: '/auth/:path*',
-        destination: 'http://cfde.cloud/auth/:path*',
+        destination: 'https://cfde.cloud/auth/:path*',
         permanent: false,
       },
       {
@@ -81,7 +81,7 @@ const nextConfig = {
           {type: 'host', value: 'info.cfde.cloud'},
         ],
         source: '/data/:path*',
-        destination: 'http://data.cfde.cloud/:path*',
+        destination: 'https://data.cfde.cloud/:path*',
         permanent: false,
       },
       {
@@ -89,7 +89,7 @@ const nextConfig = {
           {type: 'host', value: 'info.cfde.cloud'},
         ],
         source: '/auth/:path*',
-        destination: 'http://cfde.cloud/auth/:path*',
+        destination: 'https://cfde.cloud/auth/:path*',
         permanent: false,
       },
     ]
