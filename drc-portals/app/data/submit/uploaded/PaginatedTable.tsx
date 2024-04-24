@@ -276,6 +276,7 @@ export function PaginatedTable({ userFiles, role }: {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
     const [orderBy, setOrderBy] = React.useState<keyof Data>('lastmodified');
+    const [queryString, setQueryString] = React.useState('')
     const [copyUserFiles, setCopyUserFiles] = React.useState<({
         dcc: {
             label: string;
@@ -287,8 +288,8 @@ export function PaginatedTable({ userFiles, role }: {
     } & DccAsset)[]>([])
 
     React.useEffect(() => {
-        setCopyUserFiles([...userFiles]);
-      }, [userFiles]);
+        setCopyUserFiles([...userFiles.filter((item) => filterSearch(item, queryString))]);
+      }, [userFiles, queryString]);
 
     const handleChangePage = React.useCallback((
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -312,14 +313,7 @@ export function PaginatedTable({ userFiles, role }: {
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     }, [order, orderBy]);
-
-    const handleSearch = React.useCallback((
-        query: string
-    ) => {
-        setCopyUserFiles(userFiles.filter((item) => filterSearch(item,query)))
-    }, [userFiles])
-
-
+    
     const sortedData = React.useMemo(
         () => {
             if (orderBy === 'dcc') {
@@ -403,7 +397,7 @@ export function PaginatedTable({ userFiles, role }: {
                     placeholder="Search…"
                     inputProps={{ 'aria-label': 'search' }}
                     name='search'
-                    onInput={(e) => handleSearch((e.target as HTMLFormElement).value)}
+                    onInput={(e) => setQueryString((e.target as HTMLFormElement).value)}
                 />
             </Search>
             <Table sx={{ minWidth: 650}} aria-label="uploaded files">
