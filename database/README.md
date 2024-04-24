@@ -56,11 +56,16 @@ psql -h localhost -U drc -d drc -a -f ingest_CV.sql
 # will not work unless absolute path for the source tsv file is used.
 
 # To ingest the c2m2 tables from files submitted by DCCs
-ymd=$(date +%y%m%d); logf=C2M2_ingestion_${ymd}.log; python populateC2M2FromS3.py 2>&1 | tee ${logf}
+mkdir -p log
+python_cmd=python3;ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf}
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 # If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-dcc_short=MW; ymd=$(date +%y%m%d); logf=C2M2_ingestion_${dcc_short}_${ymd}.log; python populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
+dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
+egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
+# To run it for all DCCs (i.e., put tables from respectives DCCs into a schema by that DCC's name), run the linux shell script:
+chmod ug+x call_populateC2M2FromS3_DCCnameASschema.sh
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd}
 
 # Other c2m2 related sql scripts
 psql -h localhost -U drc -d drc -a -f c2m2_other_tables.sql

@@ -58,32 +58,50 @@ c2m2Schema = 'C2M2_datapackage.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
 
+default_dcc_short_label = "C2M2";
+default_schema_name = default_dcc_short_label.lower();
+
+# schemaname_pat_rep:
+schemaname_pat_rep = {
+    " ": "",
+    "%20": ""
+}
+
 # Mano: 2024/01/02: Trying to use this script to also ingest C2M2 metadata from a single DCC as the DCC submits it.
 # Ingest it into a schema by the DCC short name/label, so that the submitter can query from their own metadata only.
 # The dcc short name (case sensitive) can be passed in as an argument to this script.
 if(len(sys.argv) > 1):
     dcc_short_label = str(sys.argv[1]);
     schema_name = dcc_short_label.lower();
+    # schema_name cannot have space and %20
+    for patstr, repstr in schemaname_pat_rep.items():
+        schema_name = schema_name.replace(patstr, repstr);
+    if schema_name[0].isdigit(): schema_name = '_' + schema_name;
+
     single_dcc = 1;
-    print(f"********** DCC name specified as an argument: {schema_name}, so, will ingest only from that DCC, using it as schema name (lower case).");
+    print(f"********** DCC name (dcc_short_label) specified as an argument: {dcc_short_label}; will use schema_name: {schema_name}, so, will ingest only from that DCC.");
+    qf_folder = 'log/';    
 else:
     dcc_short_label = "C2M2";
     schema_name = "c2m2"; #dcc_short_label.lower(); # if there is one by the name c2m2 for testing, use a different name here, e.g., c2
     single_dcc = 0; # metadata from all dccs to be ingested
     print(f"********** No arguments specified: will use schema_name: {schema_name}, and ingest from all DCCs.");
+    qf_folder = '';
 
 # write the query to a file as well
-qf_name = 'TableDefs_' + dcc_short_label + '.sql'
+qf_name = qf_folder + 'TableDefs_' + dcc_short_label + '.sql'
 qf = open(qf_name, "w")
 
 # write a count query to a file
-count_qf_name = 'CountQuery_Crosscheck_' + dcc_short_label + '.sql'
+count_qf_name = qf_folder + 'CountQuery_Crosscheck_' + dcc_short_label + '.sql'
 cqf = open(count_qf_name, "w")
 
 # Create a cursor for executing SQL statements
 cursor = conn.cursor()
 # Enable autocommit to avoid transaction issues
 conn.autocommit = True
+
+#==========================================================================================
 # Function to map C2M2 data types to PostgreSQL data types
 def typeMatcher(schemaDataType):
     typeMap = {
@@ -96,6 +114,28 @@ def typeMatcher(schemaDataType):
         'number': 'varchar' # later, to try float32?
     }
     return typeMap.get(schemaDataType)
+
+# Function to construct a somewhat complex postgres query
+def get_count_match_query(default_schema_name, table_name, schema_name, first_idnamespace_pat_colname, patcol_unique_values_pgstr):
+    """
+    Based on some variables such as table_name, schema_name, etc.,
+    construct string for postgres query code that will compare the 
+    count of records in a table in a schema for that DCC with the 
+    count in that table in the c2m2 schema with matching id_namespace.
+    This is will serve as an additional cross-check for ingestion of 
+    metadata in DCC-specific schema.table.
+    """
+    count_match_query = (
+    f"WITH counts AS (SELECT {newline}" +
+    f"(select count(*) from {default_schema_name}.{table_name} where {first_idnamespace_pat_colname} IN {patcol_unique_values_pgstr}) AS count1, {newline}" +
+    f"(select count(*) from {schema_name}.{table_name}) AS count2) {newline}" +
+    f"SELECT counts.count1, counts.count2, CASE WHEN counts.count1 != counts.count2 {newline}" + 
+    f"THEN '{schema_name}.{table_name}: Number of records do not match' {newline}" + 
+    f"ELSE '{schema_name}.{table_name}: Number of records match' {newline}" +
+    f"END AS count_match FROM counts;{newline}");
+    return count_match_query
+
+#==========================================================================================
 
 t0 = time.time();
 
@@ -324,6 +364,12 @@ for dummy_x in [1]:
                             count_query =  f"select count(*) from {schema_name}.{table_name} where {first_idnamespace_pat_colname} IN {patcol_unique_values_pgstr}";
                             cqf.write(f"{count_query};{newline}");
                             if(debug > 0): print(f"Wrote the count query");
+                            if(single_dcc == 1):
+                                count_match_query = get_count_match_query(default_schema_name, table_name, 
+                                                    schema_name, first_idnamespace_pat_colname, 
+                                                    patcol_unique_values_pgstr);
+                                cqf.write(f"{count_match_query}{newline}");
+                        
                         #                      
                         if((single_dcc == 0) and (not pKeys_has_id_namespace) and (df.shape[0] > 0)):
                             if(debug > 0): print("---- Will check if a primary key in current df is already in the table in the DB");
@@ -391,6 +437,14 @@ for dummy_x in [1]:
                                 df.to_sql(table_name, con=engine, if_exists="append", index=False, schema=schema_name);
                                 conn.commit();
                                 print("Data inserted successfully!")
+                                # Match counts# Mano: 2024/04/23
+                                if(pKeys_has_id_namespace):
+                                    sql_count_df = pd.read_sql_query(count_query + ";", con=engine);
+                                    print(f"sql_count_df: {sql_count_df}{newline}count:{sql_count_df.iloc[0,0]}");
+                                    if(df.shape[0] != sql_count_df.iloc[0,0]):
+                                        raise ValueError(f'#count from query of DB table {schema_name}.{table_name} should be same as #rows in df{newline}' +
+                                         f'#count from DB table {schema_name}.{table_name}: {sql_count_df.iloc[0,0]}{newline}#Rows of df:{df.shape[0]}');
+
                             except Exception as e:
                                 print("Error occurred in df.to_sql or conn.commit:", e);
                         #                        
@@ -417,6 +471,7 @@ for dummy_x in [1]:
 # Should we commit the changes 
 #conn.commit()
 
+cqf.write(f"{newline}");
 cqf.close();
 
 t2 = time.time();
@@ -472,3 +527,4 @@ print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: {t4-t0} seconds.{newline
 print(f"********** C2M2 metadata ingestion completed: schema_name: {schema_name}.");
 
 qf.close()
+
