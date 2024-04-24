@@ -384,4 +384,4 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
 
 While not required, it is highly recommended to use a dedicated OpenAPI or SmartAPI editor, such as Swagger, to generate API specifications. Such tools designated for writing OpenAPIs/SmartAPIs can help with debugging and auto-formatting, as well as with testing and publishing API documentation. 
 
-Return to [Documentation page](/info/documentation)
+#### Return to [Documentation](./)
