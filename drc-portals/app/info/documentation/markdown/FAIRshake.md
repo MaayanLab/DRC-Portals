@@ -63,4 +63,4 @@ The steps below are adapted from the [FAIRshake User Guide V2](https://fairshake
   - **Saving** the assessment means the responses, comments, and URLs will not be public, but will be visible to the creators of the tool, project, and assessment. 
   - **Deleting** the assessment will remove all data and responses from the assessment. 
 
-Return to [Documentation page](/info/documentation)
+#### Return to [Documentation](./)

@@ -1,5 +1,15 @@
 import React from "react";
 
+export async function fetchC2m2Markdown( doc: string ) { 
+  const prefix = 'https://raw.githubusercontent.com/wiki/nih-cfde/published-documentation/'
+  return (
+    fetch(prefix.concat(doc))
+      .then((res) => res.text())
+      .then((text) => text)
+      .catch((err) => "\n\n`Error fetching external content`")
+  )
+}
+
 export function LinkRenderer(props: any) {
   if (props.href.startsWith("/img")) {
     return (
@@ -7,7 +17,7 @@ export function LinkRenderer(props: any) {
         {props.children}
       </a>
     )
-  } else if (props.href.startsWith("#") || props.href.startsWith("/")) {
+  } else if (props.href.startsWith("#") || props.href.startsWith("./") ) {
     return (
       <a href={props.href}>
         {props.children}
