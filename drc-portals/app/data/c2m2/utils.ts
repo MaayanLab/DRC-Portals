@@ -90,6 +90,30 @@ export function reorderArrayOfObjectsKeys(originalArray: Record<string, any>[], 
     return originalArray.map(obj => reorderObjectKeys(obj, keyOrder));
 }
 
+interface StaticCols {
+    [key: string]: string | null;
+  }
+  
+export function reorderStaticCols(staticCols: StaticCols, priorityFileCols: string[]): StaticCols {
+    const reorderedStaticCols: StaticCols = {};
+  
+    // Copy key-value pairs from staticCols that are in priorityFileCols
+    priorityFileCols.forEach(key => {
+      if (staticCols.hasOwnProperty(key)) {
+        reorderedStaticCols[key] = staticCols[key];
+      }
+    });
+  
+    // Copy remaining key-value pairs from staticCols
+    for (const key in staticCols) {
+      if (!reorderedStaticCols.hasOwnProperty(key)) {
+        reorderedStaticCols[key] = staticCols[key];
+      }
+    }
+  
+    return reorderedStaticCols;
+  }
+
 export function reorderObjectKeys(originalObject: Record<string, any>, keyOrder: string[]): Record<string, any> {
     const reorderedObject: Record<string, any> = {};
 

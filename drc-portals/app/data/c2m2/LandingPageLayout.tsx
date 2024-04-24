@@ -3,8 +3,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Grid, Stack, Typography, Card, CardContent } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
-
-
+import { isURL } from './utils';
+import DownloadButton from './DownloadButton';
 
 
 export default function LandingPageLayout(props) {
@@ -32,7 +32,7 @@ export default function LandingPageLayout(props) {
       <Grid item xs={4}>
         {props.icon ?
           <Link href={props.icon.href} passHref>
-              <Image src={props.icon.src} alt={props.icon.alt} width={120} height={120} />
+            <Image src={props.icon.src} alt={props.icon.alt} width={120} height={120} />
           </Link>
           : null}
       </Grid>
@@ -53,7 +53,14 @@ export default function LandingPageLayout(props) {
                 {category.metadata.map((item, i) => (
                   item && item.value ? (
                     <Typography key={i} variant="body2">
-                      <strong>{item.label}</strong>: {item.value}
+                      <strong>{item.label}: </strong>
+                      {item.label === 'Persistent ID' && isURL(item.value) ? (
+                        <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+                          {item.value}
+                        </Link>
+                      ) : (
+                         item.value
+                      )}
                     </Typography>
                   ) : null
                 ))}
