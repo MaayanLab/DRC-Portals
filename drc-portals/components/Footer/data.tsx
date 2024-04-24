@@ -22,7 +22,7 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Logo href={`/data`} title="CFDE Workbench" color="inherit" />
+              <Logo title="CFDE Workbench" color="inherit" />
               <Divider sx={{borderColor: "#FFF"}}/>
               <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
@@ -63,7 +63,7 @@ export default async function InfoFooter() {
               <Typography variant="subtitle1"><b>Data & Metadata</b></Typography>
               <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
               <Link href="/data/matrix"><Typography variant="footer">Data Matrix</Typography></Link>
-              <Link href="/data/contribute/documentation"><Typography variant="footer">Submit</Typography></Link>             
+              <Link href="/data/submit"><Typography variant="footer">Submit</Typography></Link>             
             </Stack>
           </Grid>
           <Grid item>

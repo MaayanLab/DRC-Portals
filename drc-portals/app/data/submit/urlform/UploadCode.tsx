@@ -38,7 +38,7 @@ const dccMapping: { [key: string]: string } = {
 
 export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
@@ -112,7 +112,7 @@ export const findCodeAsset = async (link: string) => {
 
 export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id
@@ -184,7 +184,7 @@ export async function sendUploadReceipt(user: User, assetInfo: { codeAsset: Code
 
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/contribute/form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     const approversList = await prisma.dCC.findFirst({
         where: {
             short_label: dcc

@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.5.9
+    image: maayanlab/drc-portal:0.6.4
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -33,21 +33,11 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://data.cfde.cloud
-        # TODO: enabling CORS breaks the links due to the redirect
-        # nginx.ingress.kubernetes.io/enable-cors: 'true'
-        # nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
-        # nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
       - 80
     environment:
       nginx_server_name: data.cfde.cloud
-      nginx_proxy_00: / http://drc-portal-app:3000/data
-      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: /data/? https://data.cfde.cloud
-      nginx_redirect_01: /info/? https://info.cfde.cloud
-      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$$1
-      nginx_redirect_03: /auth/? https://cfde.cloud/auth
-      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
+      nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
 
   drc-portal-info-proxy:
     image: maayanlab/proxy:1.2.9
@@ -55,21 +45,11 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://info.cfde.cloud
-        # TODO: enabling CORS breaks the links due to the redirect
-        # nginx.ingress.kubernetes.io/enable-cors: 'true'
-        # nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
-        # nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
       - 80
     environment:
       nginx_server_name: info.cfde.cloud
-      nginx_proxy_00: / http://drc-portal-app:3000/info
-      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: /data/? https://data.cfde.cloud
-      nginx_redirect_01: /data/(.+) https://data.cfde.cloud/data/$$1
-      nginx_redirect_02: /info/? https://info.cfde.cloud
-      nginx_redirect_03: /auth/? https://cfde.cloud/auth
-      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
+      nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
 
   drc-portal-proxy:
     image: maayanlab/proxy:1.2.9
@@ -81,15 +61,12 @@ services:
         nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
         nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
-      - 80
+      - 80:80
     environment:
       nginx_server_name: cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: / https://info.cfde.cloud
-      nginx_redirect_01: /data/? https://data.cfde.cloud
-      nginx_redirect_02: /data/(.+) https://data.cfde.cloud/data/$$1
-      nginx_redirect_03: /info/? https://info.cfde.cloud
-      nginx_redirect_04: /info/(.+) https://info.cfde.cloud/info/$$1
+      nginx_redirect_00: /info(/.*)? https://info.cfde.cloud$$1
+      nginx_redirect_01: /data(/.*)? https://data.cfde.cloud$$1
 
   drc-portal-cfde-info-redirect:
     image: maayanlab/proxy:1.2.9

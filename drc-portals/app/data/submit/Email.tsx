@@ -50,7 +50,7 @@ export function DCCApproverUploadEmail({ uploaderName, approverName, assetName }
                 Please click the URL below to access your account to review the uploaded asset:
             </Text>
             {/* <button>Click here</button> */}
-            <Link style={link} href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link>
+            <Link style={link} href="https://data.cfde.cloud/data/submit/uploaded">  👉 Click here to review asset 👈</Link>
             <Text style={text}>
                 If you encounter any issues, please do not reply to this message as this email box is not monitored. To contact the Data Resource Center, please email help@cfde.cloud.
             </Text>
@@ -189,7 +189,7 @@ export function DRCApprover_DCCApprovedEmail({ reviewerName, uploaderName, dcc, 
             <Text style={text}>
                 Please click the URL below to access your account to review the uploaded asset:
             </Text>
-            <Link style={link} href="https://data.cfde.cloud/data/contribute/uploaded">  👉 Click here to review asset 👈</Link></>} />
+            <Link style={link} href="https://data.cfde.cloud/data/submit/uploaded">  👉 Click here to review asset 👈</Link></>} />
     );
 }
 

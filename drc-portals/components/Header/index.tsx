@@ -16,20 +16,10 @@ import UserComponent from '../misc/LoginComponents/UserComponent'
 import { DataComponent } from './DataComponent';
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
+import { ClientNav } from './client_nav';
 
 
-const nav = [
-  {title: "Search", href: "/data"},
-  {title: "Chatbot", href: "/data/chat"},
-  {title: "Data Matrix", href: "/data/matrix"},
-  {title: "Use Cases", href: "https://playbook-workflow-builder.cloud/playbooks", new_tab: true},
-  {title: "Tools & Workflows", href: "/data/tools_and_workflows"},
-  {title: "Submit", href: "/data/submit"},
-  {title: "Documentation", href: "/info/documentation"},
-  
-]
-
-export default async function Header() {
+export default async function Header({type}: {type: 'info' | 'data'}) {
   const session = await getServerSession(authOptions) 
   return (
     <Container maxWidth="lg">
@@ -54,20 +44,7 @@ export default async function Header() {
             </Stack>
 				  </Grid>
           <Grid item xs={12}> 
-            <Grid container alignItems={"center"} spacing={2}>
-              {nav.map(({title, href})=>(
-                <Grid item key={title}>
-                  { href.indexOf('http') > -1 ? 
-                    <Link href={href} target="_blank" rel="noopener noreferrer">
-                      <Typography variant="nav">{title}</Typography>
-                    </Link>:
-                    <Link href={`${href}`}>
-                      <Typography variant="nav">{title}</Typography>
-                    </Link>
-                  }
-                </Grid>
-              ))}
-            </Grid>
+              <ClientNav type={type}/>
           </Grid>
           <DataComponent>
             <Grid item xs={12} sx={{textAlign: 'right'}}>

@@ -13,7 +13,7 @@ import ThemedStack from './ThemedStack';
 import Status from './Status';
 import { DCCSelect, FileTypeSelect } from './DCCSelect';
 import { $Enums, DCC, User } from '@prisma/client';
-import { Box, Link, List, ListItem, Stack } from '@mui/material';
+import { Box, Link, List, ListItem, Stack, Tooltip } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
@@ -45,12 +45,12 @@ export const metaDataAssetOptions = [
     description: <Typography fontSize={12}>A knowledge graph is a network that illustrates the relationship between different entities which may come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the entities represented in the knowledge graph e.g GO Ontology terms and edges characterize the relationship between nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and edges that could be used to create a knowledge graph.
       For example, a KG Assertion file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertion file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship.
     </Typography>,
-    example: <Link href='https://cfde-drc.s3.amazonaws.com/GTEx/KG/2023-10-26/GTEx_KG_2023-10-26_GTEX.edges.csv' target="_blank" color="secondary"><u>GTEX.edges.csv</u></Link>
+    example: <Link href='https://cfde-drc.s3.amazonaws.com/GTEx/KG/2023-10-26/GTEx_KG_2023-10-26_GTEX.edges.csv' target="_blank" color="secondary">GTEX.edges.csv</Link>
   },
   {
     asset: 'Attribute Table',
     description: <Typography fontSize={12}>Attribute tables are files containing tables that describe the relationship between two entities with one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a given row and column is then a value defining nature of the relationship between the row entity and the column entity e.g. the qualitative score of similarity between a given gene and a given tissue type. </Typography>,
-    example: <Link href='' color="secondary" target="_blank"><u></u></Link>
+    example: <Link href='https://cfde-drc.s3.amazonaws.com/LINCS/Attribute%20Table/2024-03-29/LINCS_L1000_CRISPR_KO_Perturbation_Consensus_CD_Sigs.h5' color="secondary" target="_blank" sx={{wordWrap:'break-word'}}> LINCS_L1000_CRISPR_KO_Perturbation_Consensus_CD_Sigs.h5</Link>
   },
 
 ]
@@ -246,7 +246,7 @@ export function S3UploadForm(user: User & {dccs: DCC[]}
         <Container>
           <Stack direction="row" alignItems="center" gap={1}>
             <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }} >DATA AND METADATA UPLOAD FORM</Typography>
-            <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<HelpIcon sx={{ mb: 2, mt: 2 }} />} />
+            <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Tooltip title='Click here for more information on data/metadata asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
           </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the 
@@ -268,11 +268,9 @@ export function S3UploadForm(user: User & {dccs: DCC[]}
                 XMT: .(x)mt e.g .gmt or .dmt
               </ListItem>
             </List> 
-            <br></br>
             See the {' '}
-            <Link color="secondary" href="/data/contribute/documentation"> Documentation page</Link> for more information about the steps to upload files.
+            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to upload files.
             <br></br>
-            <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Typography >Click here for more information on data/metadata asset types</Typography>} />
           </Typography>
           <Grid container spacing={2} justifyContent="center" sx={{ marginBottom: 2 }}>
             <Grid item>

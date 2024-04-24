@@ -36,7 +36,7 @@ export default async function Home() {
                         padding: 5, 
                         borderRadius: 0, 
                         width: "100vw", 
-                        minHeight: "100vh",
+                        // minHeight: "100vh",
                         color: "#FFF",
                         marginLeft: "calc((-100vw + 100%) / 2)", 
                         marginRight: "calc((-100vw + 100%) / 2)",
@@ -129,8 +129,8 @@ export default async function Home() {
                             </Link>
                           </Stack>
                         </Paper>
-                        <Divider/>
-                        <Paper elevation={0}>
+                        {/* <Divider/> */}
+                        {/* <Paper elevation={0}>
                           <Stack>
                             <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">COMMUNITY</Typography>
                             <Link href='/info/partnerships'>
@@ -154,7 +154,7 @@ export default async function Home() {
                               </Button>
                             </Link>
                           </Stack>
-                        </Paper>
+                        </Paper> */}
                       </Stack>
                 </Grid>
               </Grid>
@@ -207,7 +207,7 @@ export default async function Home() {
                     </Typography>
                   </Grid>
                 <Grid item>
-                  <Link href="/">
+                  <Link href="/info/documentation">
                     <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                   </Link>
                 </Grid>

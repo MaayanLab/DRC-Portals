@@ -20,10 +20,10 @@ import Grid from "@mui/material/Grid"
 import MasonryClient from "./MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-import { Outreach } from "@prisma/client"
+import { Outreach as OutreachType } from "@prisma/client"
 import DeleteIcon from '@mui/icons-material/Delete';
 import Markdown from "./MarkdownComponent"
-export const shuffle = (array: Outreach[]) => { 
+export const shuffle = (array: OutreachType[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
     [array[i], array[j]] = [array[j], array[i]]; 
@@ -35,7 +35,7 @@ export const Wrapper = ({featured, children, orientation}: {featured: Boolean, c
   if (featured) {
     if (orientation === 'vertical') {
       return (
-        <Card elevation={0} sx={{borderBottom: 1, borderColor: "#B7C3E2"}}>
+        <Card elevation={0}>
           <CardContent>
             {children}
           </CardContent>
@@ -57,7 +57,7 @@ export const Wrapper = ({featured, children, orientation}: {featured: Boolean, c
 const GridView = ({featured, children}: {featured: Boolean, children: React.ReactNode[]}) => {
   if (featured) {
     return (
-      <Grid container spacing="2">
+      <Grid container>
         {children}
       </Grid>
     )
@@ -72,12 +72,12 @@ const GridView = ({featured, children}: {featured: Boolean, children: React.Reac
 
 
 const OutreachComponent = ({outreach, featured, orientation, now}: {
-  outreach: Outreach[], 
+  outreach: OutreachType[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
   now: Date
 }) =>(
-  <Box sx={{ minHeight: 253 }}>
+  <Box sx={{ minHeight: 100 }}>
     <GridView featured={featured}>
       {outreach.map((e,i)=>{
         let tags:JsonArray = []
