@@ -92,6 +92,14 @@ const nextConfig = {
         destination: 'https://cfde.cloud/auth/:path*',
         permanent: false,
       },
+      {
+        has: [
+          {type: 'host', value: 'cfde.cloud'},
+        ],
+        source: '/',
+        destination: 'https://info.cfde.cloud',
+        permanent: false,
+      },
     ]
   },
   images: {
