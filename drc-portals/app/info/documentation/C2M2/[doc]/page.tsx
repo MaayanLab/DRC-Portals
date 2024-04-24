@@ -27,6 +27,7 @@ export default async function StandardsPage(
     const suffix = fixProblematic(params.doc)
     const markdown = await fetchC2m2Markdown(suffix)
     const title = '# ' + suffix.split('-')[1].split('.md')[0] + '\n\n'
+    const source = '*Sourced from the [CFDE Coordination Center Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/' + params.doc + ')*\n\n'
     return (
       <Grid container sx={{ml:3, mt:3}}>
         <Grid item sx={{mb:5}}>
@@ -40,7 +41,10 @@ export default async function StandardsPage(
           }} className="prose">
             {''.concat(
               title,
-              markdown.replace('https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/', 'https://github.com/nih-cfde/c2m2/blob/master/draft-C2M2_specification/'),
+              source,
+              markdown
+                .replace('https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/', 'https://github.com/nih-cfde/c2m2/blob/master/draft-C2M2_specification/')
+                .replace('./C2M2-Table-Summary', './#c2m2-tables'),
               '\n#### Return to [C2M2 Documentation](./)' 
             )}
           </ReactMarkdown>
