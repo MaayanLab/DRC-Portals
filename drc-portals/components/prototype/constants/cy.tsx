@@ -134,12 +134,6 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
     },
   },
   {
-    selector: "node:hover",
-    style: {
-      opacity: 1,
-    },
-  },
-  {
     selector: "edge",
     style: {
       "curve-style": "bezier",
