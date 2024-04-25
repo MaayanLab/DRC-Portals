@@ -51,7 +51,6 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
 
   const handleContextMenuClose = () => {
     setContextMenu(null);
-    setContextMenuItems([]);
   };
 
   const contextMenuItemSelectWrapper = (fn: Function, ...args: any[]) => {
@@ -167,6 +166,9 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   };
 
   const handleCxtTapCanvas = (event: EventObject) => {
+    // Note that everything preceding the if-block will trigger on *any* cxtTap event, allowing us to set some shared behavior
+    hideTooltip();
+
     if (event.target === cyRef.current) {
       handleContextMenu(event, []);
       cxtTapHandleSelectState(event);
