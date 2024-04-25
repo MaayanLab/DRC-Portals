@@ -134,6 +134,12 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
     },
   },
   {
+    selector: "node:hover",
+    style: {
+      opacity: 1,
+    },
+  },
+  {
     selector: "edge",
     style: {
       "curve-style": "bezier",
@@ -175,6 +181,18 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
     selector: ".90-loop-edge",
     style: {
       "loop-direction": "90deg",
+    },
+  },
+  {
+    selector: ".dimmed",
+    style: {
+      opacity: 0.1,
+    },
+  },
+  {
+    selector: ".hovered",
+    style: {
+      opacity: 1,
     },
   },
   ...Array.from(ENTITY_STYLES_MAP.entries()).map(([className, style]) => {

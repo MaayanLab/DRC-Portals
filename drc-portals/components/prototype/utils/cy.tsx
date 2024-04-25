@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
+import { EventObject, EventObjectNode } from "cytoscape";
 import { Record } from "neo4j-driver";
 import { ReactNode } from "react";
 
@@ -165,4 +166,28 @@ export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
   } else {
     return null;
   }
+};
+
+export const highlightNeighbors = (event: EventObjectNode) => {
+  const highlightIds = new Set([
+    event.target.id(),
+    ...event.target.neighborhood().map((neighbor) => neighbor.id()),
+  ]);
+
+  event.cy.batch(() => {
+    event.cy
+      .filter((ele) => highlightIds.has(ele.id()))
+      .removeClass("dimmed")
+      .addClass("highlight");
+  });
+
+  event.cy.batch(() => {
+    event.cy.elements().not(".highlight").addClass("dimmed");
+  });
+};
+
+export const resetHighlights = (event: EventObject) => {
+  event.cy.batch(() => {
+    event.cy.elements().removeClass("dimmed").removeClass("highlight");
+  });
 };
