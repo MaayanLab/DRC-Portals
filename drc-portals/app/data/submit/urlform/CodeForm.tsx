@@ -13,7 +13,6 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { findCodeAsset, saveCodeAsset, updateCodeAsset } from './UploadCode';
-import Status from './Status';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import { Link, List, ListItemText, Stack } from '@mui/material';
@@ -29,6 +28,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { CheckCircle, Error } from '@mui/icons-material'
+import Status, { StatusType } from '../Status';
 
 const OtherCodeData = z.object({
     name: z.string(),
@@ -167,7 +167,7 @@ type fullDCCAsset = {
 export function CodeForm(user: User & { dccs: DCC[] }) {
 
     const [codeType, setCodeType] = React.useState('');
-    const [status, setStatus] = React.useState<CodeUploadStatus>({})
+    const [status, setStatus] = React.useState<StatusType>({})
     const [smartSelected, setSmartSelected] = React.useState(false)
     const [apiSelected, setApiSelected] = React.useState(false)
     const [entitySelected, setEntitySelected] = React.useState(false)
@@ -195,7 +195,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                 return
                             }
                             await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string, false, false, '', parsedForm.entityPageExample)
-                            setStatus(() => ({ success: true }))
+                            setStatus(() => ({ success: {selected: true, message: 'Success! Code Asset Uploaded'}}))
                             setCurrentVersion(null)
                             setOldVersion([])
                         } else {
@@ -208,13 +208,12 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                 return
                             }
                             await updateCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
-                            setStatus(() => ({ success: true }))
+                            setStatus(() => ({ success: {selected: true, message: 'Success! Code Asset Uploaded'}}))
                             setCurrentVersion(null)
                             setOldVersion([])
                         }
                     } else {
                         const parsedAPIData = APIData.parse(currentVersion)
-                        console.log(parsedAPIData)
                         const openAPISpecs = parsedAPIData.openAPISpecs ? true : false
                         const smartAPISpecs = parsedAPIData.smartAPISpecs ? true : false
                         if (!isValidHttpUrl(parsedAPIData.url, parsedAPIData.assetType)) {
@@ -225,7 +224,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                             return
                         }
                         await updateCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, parsedAPIData.smartAPIUrl)
-                        setStatus(() => ({ success: true }))
+                        setStatus(() => ({ success: {selected: true, message: 'Success! Code Asset Uploaded'}}))
                         setCurrentVersion(null)
                         setOldVersion([])
                     }
@@ -281,7 +280,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                 } else {
                     try {
                         await saveCodeAsset(parsedAPIData.name, parsedAPIData.assetType, parsedAPIData.url, parsedAPIData.dcc, parsedAPIData.description as string, openAPISpecs, smartAPISpecs, smartAPIUrl)
-                        setStatus(() => ({ success: true }))
+                        setStatus(() => ({ success: {selected: true, message: 'Success! Code Asset Uploaded'}}))
                     }
                     catch (error) {
                         console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
@@ -302,7 +301,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                 } else {
                     try {
                         await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string, false, false, '', parsedForm.entityPageExample)
-                        setStatus(() => ({ success: true }))
+                        setStatus(() => ({ success: {selected: true, message: 'Success! Code Asset Uploaded'}}))
                     }
                     catch (error) {
                         console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
@@ -323,7 +322,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                 } else {
                     try {
                         await saveCodeAsset(parsedForm.name, parsedForm.assetType, parsedForm.url, parsedForm.dcc, parsedForm.description as string)
-                        setStatus(() => ({ success: true }))
+                        setStatus(() => ({ success: {selected: true, message: 'Success! Code Asset Uploaded'}}))
                     }
                     catch (error) {
                         console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading Code Asset!' } }));
@@ -464,8 +463,17 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                     InputLabelProps={{ style: { fontSize: 16 } }}
                                 />
                             </Grid>
+                            <Grid
+                            item
+                            justifyContent={'center'}
+                        >
+                            <div style={{width:'100%'}}>
+                            <Status status={status} />
+                            </div>
+                            
                         </Grid>
-                        <Status status={status} />
+                        </Grid>
+                        
                         <Grid
                             item
                             container
