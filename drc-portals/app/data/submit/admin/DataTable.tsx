@@ -10,7 +10,6 @@ import { FaUserPen } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { createOneUser, deleteUsers, updateUserInfo } from './actions';
 import type { DCC, User } from '@prisma/client'
-// import ActionAlert from './ActionAlert';
 import Status, { StatusType } from '../Status';
 
 export interface UserInfo {
@@ -34,18 +33,6 @@ export type creationForm = {
       role: string, 
       DCC: string[] 
     }
-
-// export type ActionStatus = {
-//     success?: {
-//         selected: boolean;
-//         message: string
-//     },
-//     error?: {
-//         selected: boolean;
-//         message: string
-//     },
-// }
-
 
 
 
