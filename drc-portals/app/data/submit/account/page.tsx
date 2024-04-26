@@ -2,16 +2,11 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import Container from '@mui/material/Container'
-import TextField from '@mui/material/TextField'
-import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import { getServerSession } from "next-auth";
-import MultiSelect from './MultiSelect';
 import { redirect } from 'next/navigation';
 import { Link } from '@mui/material';
 import { AccountForm } from './AccountForm';
-import { Prisma } from "@prisma/client";
 
 export default async function AccountPage() {
     const session = await getServerSession(authOptions)
@@ -26,8 +21,6 @@ export default async function AccountPage() {
     })
 
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/account")
-
-
 
 
     return (

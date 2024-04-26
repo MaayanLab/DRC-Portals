@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import MultiSelect from './MultiSelect';
-import { DCC, Prisma, User } from '@prisma/client';
+import { DCC, User } from '@prisma/client';
 import { saveuser } from './saveuser';
 import Status, { StatusType } from '../Status'
 
@@ -43,20 +43,19 @@ export function AccountForm({ user }: {
             justifyContent='center'
             onSubmit={(evt) => {
                 evt.preventDefault()
-                console.log(new FormData(evt.currentTarget))
                 saveuser(new FormData(evt.currentTarget), user.id)
-                    .then((response) =>
-                        setStatus({ success: { selected: true, message: 'Information successfully updated' } })
-                    ).catch((err) => {
-                        if (err.message.includes('Unique constraint failed on the fields: (`email`)')) {
-                            setStatus({ error: { selected: true, message: 'Email already registered in portal on another account' } })
+                    .then((response) => {
+                        if (response.success) {
+                            setStatus({ success: { selected: true, message: 'Information successfully updated' } })
                         } else {
-                            setStatus({ error: { selected: true, message: 'Problem updating information' } })
+                            if (response.error === 'Email already registered in portal on another account') {
+                                setStatus({ error: { selected: true, message: response.error } })
+                            } else {
+                                setStatus({ error: { selected: true, message: response.error ? response?.error : 'Problem updating information' } })
+                            }
                         }
                     })
-
             }}
-        // action={saveuser}
         >
             <TextField
                 // disabled
@@ -96,7 +95,9 @@ export function AccountForm({ user }: {
             <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>
                 Save Changes
             </Button>
-            <Status status={status} />
-        </Box> 
+            <div style={{ width: '100%' }}>
+                <Status status={status} />
+            </div>
+        </Box>
     )
 }
