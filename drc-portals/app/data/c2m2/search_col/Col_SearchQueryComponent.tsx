@@ -102,7 +102,7 @@ async function fetchQueryResults(searchParams: any) {
             allres_full.dcc_name AS dcc_name,
             allres_full.dcc_abbreviation AS dcc_abbreviation,
             SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-            allres_full.project_local_id AS project_local_id,
+            COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
             /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
             COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
             SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
