@@ -49,7 +49,7 @@ fi
 
 cat ${logfolder}/CountQuery_Crosscheck_*.sql > ${count_sql_allf}
 
-# See that not using -a below (else too many sql lines printed
+# See that not using -a below (else too many sql lines printed)
 exec_sql_codestr="psql -h localhost -U drc -d drc -p [5432|5433] -f ${count_sql_allf} -o ${count_sql_of}"
 mismatch_cmdstr="egrep -i -e 'do not match' ${count_sql_of} > ${mismatchf};"
 
