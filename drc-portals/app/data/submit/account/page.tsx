@@ -8,38 +8,10 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { getServerSession } from "next-auth";
 import MultiSelect from './MultiSelect';
-import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Link } from '@mui/material';
 import { AccountForm } from './AccountForm';
 import { Prisma } from "@prisma/client";
-
-export async function saveuser(formData: FormData, userId: string) {
-    const email = formData.get('email')
-    const dcc = formData.get('DCC')
-    const name  = formData.get('name')
-        if (email) {
-            await prisma.user.update({
-                where: {
-                    id: userId,
-                },
-                data: {
-                    name: name?.toString(),
-                    email: email.toString(),
-                },
-            });
-        } else {
-            await prisma.user.update({
-                where: {
-                    id: userId,
-                },
-                data: {
-                    name: name?.toString(),
-                },
-            });
-        }
-        revalidatePath('/')
-}
 
 export default async function AccountPage() {
     const session = await getServerSession(authOptions)

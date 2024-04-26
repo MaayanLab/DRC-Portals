@@ -5,7 +5,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import MultiSelect from './MultiSelect';
 import { DCC, Prisma, User } from '@prisma/client';
-import { saveuser } from './page';
+import { saveuser } from './saveuser';
 import Status, { StatusType } from '../Status'
 
 
