@@ -2,7 +2,7 @@
 
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel, GridToolbar, GridTreeNodeWithRender } from '@mui/x-data-grid';
 import * as React from 'react';
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import RoleSelect from './RoleSelect';
 import MultiSelect from './MultiSelect';
 import { FaUserPlus } from "react-icons/fa";
@@ -10,7 +10,7 @@ import { FaUserPen } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { createOneUser, deleteUsers, updateUserInfo } from './actions';
 import type { DCC, User } from '@prisma/client'
-import ActionAlert from './ActionAlert';
+import Status, { StatusType } from '../Status';
 
 export interface UserInfo {
     id: number;
@@ -34,18 +34,6 @@ export type creationForm = {
       DCC: string[] 
     }
 
-export type ActionStatus = {
-    success?: {
-        selected: boolean;
-        message: string
-    },
-    error?: {
-        selected: boolean;
-        message: string
-    },
-}
-
-
 
 
 export default function DataTable({rows, users, dccMapping} : {
@@ -61,7 +49,7 @@ export default function DataTable({rows, users, dccMapping} : {
     const [selection, setSelection] = React.useState<UserInfo[]>([]);
     const [createFormData, setCreateFormData] = React.useState<creationForm>({ name: '', email: '', role: '', DCC: [] });
     const [updateFormData, setUpdateFormData] = React.useState<updateForm[]>([]);
-    const [status, setStatus] = React.useState<ActionStatus>({})
+    const [status, setStatus] = React.useState<StatusType>({})
 
     const RenderDCCOptions = ({ params }: { params: GridRenderCellParams<any, any, any, GridTreeNodeWithRender> }) => {
         const DCCOptions = params.row.dccs.map((dccObject: DCC) => dccObject.short_label)
@@ -140,8 +128,8 @@ export default function DataTable({rows, users, dccMapping} : {
 
 
     return (
-        <>
-            <Grid container spacing={2} sx={{ ml: 3 }}>
+        <Container sx={{ml:3}}>
+            <Grid container spacing={2}>
                 {!usersSelected && <Button color='tertiary' onClick={handleCreate}> <FaUserPlus size={20} /> Create New User</Button>}
                 <div>
                     <Dialog open={createOpen} onClose={handleCreateClose} fullWidth>
@@ -237,7 +225,9 @@ export default function DataTable({rows, users, dccMapping} : {
                 </div>
                 {usersSelected && <Button color='tertiary' onClick={handleDelete}><MdDelete size={20} /> Delete Users </Button>}
             </Grid>
-            <ActionAlert status={status} />
+            <div style={{ width: '100%', marginLeft: '3px' }}>
+            <Status status={status} />
+            </div>
             <div style={{ width: '100%' }}>
                 <DataGrid
                     getRowHeight={() => 'auto'}
@@ -278,10 +268,10 @@ export default function DataTable({rows, users, dccMapping} : {
                             lineHeight: "normal",
                             fontWeight: 700
                         },
-                        ml: 3
+                        // ml: 3
                     }}
                 />
             </div>
-        </>
+        </Container>
     );
 }

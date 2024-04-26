@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma"
-// import DataTable from "./DataTable"
 import { Container, Typography, Grid } from '@mui/material';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';

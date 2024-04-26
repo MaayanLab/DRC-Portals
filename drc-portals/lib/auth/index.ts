@@ -41,7 +41,7 @@ const providers = [
         update: {
           name: 'Developer',
           role: 'ADMIN',
-          email: 'developer@gmail.com',
+          email: 'test_developer@gmail.com',
           dccs: {
             connectOrCreate: {
               where: {
@@ -60,7 +60,7 @@ const providers = [
           id: process.env.NEXTAUTH_SECRET ?? '',
           name: 'Developer',
           role: 'ADMIN',
-          email: 'developer@gmail.com',
+          email: 'test_developer@gmail.com',
           dccs: {
             connectOrCreate: {
               where: {
