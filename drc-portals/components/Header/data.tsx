@@ -37,7 +37,7 @@ export default async function Header() {
       <Toolbar>
 			  <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
           <Grid item>
-            <Logo title="CFDE Workbench" size='large' color="secondary"/>
+            <Logo title="CFDE Workbench" href="/data" size='large' color="secondary"/>
           </Grid>
           <Grid item>
             <Stack direction={"row"} alignItems={"center"} spacing={2}>
