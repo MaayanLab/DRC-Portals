@@ -1,33 +1,51 @@
-export interface BaseSearchBarOption {
-  name: string;
-  filters: BasePropertyFilter[];
-}
+import { z } from "zod";
 
-export interface NodeOption extends BaseSearchBarOption {}
+// type PropertyType = string | number; // TODO: Are there other types we should allow?
+export const PropertyValueSchema = z.union([z.string(), z.number()]);
+export type PropertyValue = z.infer<typeof PropertyValueSchema>;
+
+export const BasePropertyFilterSchema = z.object({
+  name: z.string(),
+  operator: z.string(),
+  value: PropertyValueSchema,
+});
+export type BasePropertyFilter = z.infer<typeof BasePropertyFilterSchema>;
+
+export const BaseSearchBarOptionSchema = z.object({
+  name: z.string(),
+  filters: z.array(BasePropertyFilterSchema),
+});
+export type BaseSearchBarOption = z.infer<typeof BaseSearchBarOptionSchema>;
+
+export const NodeOptionSchema = BaseSearchBarOptionSchema.extend({});
+export type NodeOption = z.infer<typeof NodeOptionSchema>;
 
 export enum Direction {
   OUTGOING = "OUTGOING",
   INCOMING = "INCOMING",
   UNDIRECTED = "UNDIRECTED",
 }
+export const DirectionSchema = z.nativeEnum(Direction);
 
-export interface RelationshipOption extends BaseSearchBarOption {
-  direction: Direction;
-}
+export const RelationshipOptionSchema = BaseSearchBarOptionSchema.extend({
+  direction: DirectionSchema,
+});
+export type RelationshipOption = z.infer<typeof RelationshipOptionSchema>;
 
-export type SearchBarOption = NodeOption | RelationshipOption;
+export const SearchBarOptionSchema = z.union([
+  NodeOptionSchema,
+  RelationshipOptionSchema,
+]);
+export type SearchBarOption = z.infer<typeof SearchBarOptionSchema>;
 
-export interface SearchQuerySettings {
-  limit?: number;
-  skip?: number;
-}
+export const SearchQuerySettingsSchema = z.object({
+  limit: z.number().optional(),
+  skip: z.number().optional(),
+});
+export type SearchQuerySettings = z.infer<typeof SearchQuerySettingsSchema>;
 
-// type PropertyType = string | number; // TODO: Are there other types we should allow?
-export type PropertyValue = string | number; // TODO: Are there other types we should allow?
-
-export interface BasePropertyFilter {
-  name: string;
-  // type: PropertyType; // TODO
-  operator: string;
-  value: PropertyValue;
-}
+export const SearchBarStateSchema = z.object({
+  value: z.array(SearchBarOptionSchema),
+  settings: SearchQuerySettingsSchema.optional(),
+});
+export type SearchBarState = z.infer<typeof SearchBarStateSchema>;
