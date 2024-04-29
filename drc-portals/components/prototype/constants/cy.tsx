@@ -6,6 +6,7 @@ import {
   tooltipClasses,
 } from "@mui/material";
 import { Css, Stylesheet } from "cytoscape";
+import { forwardRef } from "react";
 
 import { ColaLayoutOptions } from "../interfaces/cy";
 
@@ -62,9 +63,11 @@ export const ChartContainer = styled(Paper)({
 });
 
 // See the MUI docs for a detailed example: https://mui.com/material-ui/react-tooltip/#customization
-export const ChartTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(() => ({
+export const ChartTooltip = styled(
+  forwardRef<HTMLDivElement, TooltipProps>(({ className, ...props }, ref) => (
+    <Tooltip ref={ref} {...props} classes={{ popper: className }} />
+  ))
+)(() => ({
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: "transparent",
   },

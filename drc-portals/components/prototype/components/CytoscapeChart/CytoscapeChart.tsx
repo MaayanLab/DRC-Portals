@@ -1,4 +1,4 @@
-import { Divider, Menu, MenuItem } from "@mui/material";
+import { ClickAwayListener, Divider, Menu, MenuItem } from "@mui/material";
 import {
   ElementDefinition,
   EventObject,
@@ -95,6 +95,10 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   const showTooltip = (title: ReactNode) => {
     setTooltipOpen(true);
     setTooltipTitle(title);
+  };
+
+  const handleTooltipClickAway = () => {
+    setTooltipOpen(false);
   };
 
   const handleHoverNode = (event: EventObjectNode) => {
@@ -225,34 +229,36 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   }, [hoveredNode]);
 
   return (
-    <ChartTooltip
-      followCursor
-      title={tooltipTitle}
-      open={tooltipOpen}
-      placement="right-start"
-      TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
-    >
-      <ChartContainer variant="outlined">
-        <CytoscapeComponent
-          className="cy"
-          cy={(cy) => (cyRef.current = cy)}
-          elements={elements}
-          layout={layout}
-          stylesheet={stylesheet}
-        />
-        <Menu
-          open={contextMenu !== null && contextMenuItems.length > 0}
-          onClose={handleContextMenuClose}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            contextMenu !== null
-              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-              : undefined
-          }
-        >
-          {contextMenuItems}
-        </Menu>
-      </ChartContainer>
-    </ChartTooltip>
+    <ClickAwayListener onClickAway={handleTooltipClickAway}>
+      <ChartTooltip
+        followCursor
+        title={tooltipTitle}
+        open={tooltipOpen}
+        placement="right-start"
+        TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
+      >
+        <ChartContainer variant="outlined">
+          <CytoscapeComponent
+            className="cy"
+            cy={(cy) => (cyRef.current = cy)}
+            elements={elements}
+            layout={layout}
+            stylesheet={stylesheet}
+          />
+          <Menu
+            open={contextMenu !== null && contextMenuItems.length > 0}
+            onClose={handleContextMenuClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              contextMenu !== null
+                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                : undefined
+            }
+          >
+            {contextMenuItems}
+          </Menu>
+        </ChartContainer>
+      </ChartTooltip>
+    </ClickAwayListener>
   );
 }
