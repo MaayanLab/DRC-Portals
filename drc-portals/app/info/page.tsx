@@ -109,22 +109,22 @@ export default async function Home() {
                             <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
                             <Link href='/data'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                DATA PORTAL
+                                METADATA SEARCH
                               </Button>
                             </Link>
                             <Link href='/data/chat'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                CHAT
+                                CHATBOT
                               </Button>
                             </Link>
-                            <Link href='/info/dcc'>
+                            <Link href='https://playbook-workflow-builder.cloud/playbooks'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                DCCS
+                                USE CASES
                               </Button>
                             </Link>
-                            <Link href='/info/documentation'>
+                            <Link href='/data/tools_and_workflows'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                DOCUMENTATION
+                                CFDE TOOLS
                               </Button>
                             </Link>
                           </Stack>
