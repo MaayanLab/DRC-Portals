@@ -6,6 +6,16 @@ process.env.NEXTAUTH_URL_INTERNAL = 'http://localhost:3000/auth'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        'localhost:3000',
+        'data.cfde.cloud',
+        'info.cfde.cloud',
+        'cfde.cloud',
+      ],
+    },
+  },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
@@ -55,7 +65,7 @@ const nextConfig = {
           {type: 'host', value: 'data.cfde.cloud'},
         ],
         source: '/info/:path*',
-        destination: 'http://info.cfde.cloud/:path*',
+        destination: 'https://info.cfde.cloud/:path*',
         permanent: false,
       },
       {
@@ -63,7 +73,7 @@ const nextConfig = {
           {type: 'host', value: 'data.cfde.cloud'},
         ],
         source: '/auth/:path*',
-        destination: 'http://cfde.cloud/auth/:path*',
+        destination: 'https://cfde.cloud/auth/:path*',
         permanent: false,
       },
       {
@@ -71,7 +81,7 @@ const nextConfig = {
           {type: 'host', value: 'info.cfde.cloud'},
         ],
         source: '/data/:path*',
-        destination: 'http://data.cfde.cloud/:path*',
+        destination: 'https://data.cfde.cloud/:path*',
         permanent: false,
       },
       {
@@ -79,7 +89,15 @@ const nextConfig = {
           {type: 'host', value: 'info.cfde.cloud'},
         ],
         source: '/auth/:path*',
-        destination: 'http://cfde.cloud/auth/:path*',
+        destination: 'https://cfde.cloud/auth/:path*',
+        permanent: false,
+      },
+      {
+        has: [
+          {type: 'host', value: 'cfde.cloud'},
+        ],
+        source: '/',
+        destination: 'https://info.cfde.cloud',
         permanent: false,
       },
     ]

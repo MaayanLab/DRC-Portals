@@ -49,4 +49,4 @@ The CFDE Data Distillery Partnership is building a **Data Distillery Knowledge G
 - [CFDE Data Distillery Project Github Repository](https://github.com/TaylorResearchLab/CFDE_DataDistillery)
 - [CFDE Data Distillery User Guide](https://github.com/TaylorResearchLab/CFDE_DataDistillery/tree/main/user_guide)
 
-Return to [Documentation page](/info/documentation)
+#### Return to [Documentation](./)

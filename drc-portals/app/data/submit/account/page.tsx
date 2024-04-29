@@ -1,33 +1,12 @@
-import React from 'react'
+'use server'
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import Container from '@mui/material/Container'
-import TextField from '@mui/material/TextField'
-import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import { getServerSession } from "next-auth";
-import MultiSelect from './MultiSelect';
-import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Link } from '@mui/material';
-
-const names = [
-    'LINCS',
-    '4DN',
-    'A2CPS',
-    'ExRNA',
-    'GlyGen',
-    'GTEx',
-    'HMP',
-    'HuBMAP',
-    'IDG',
-    'KidsFirst',
-    'MoTrPAC',
-    'Metabolomics',
-    'SenNet',
-    'SPARC'
-];
+import { AccountForm } from './AccountForm';
 
 export default async function AccountPage() {
     const session = await getServerSession(authOptions)
@@ -35,7 +14,7 @@ export default async function AccountPage() {
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id,
-        }, 
+        },
         include: {
             dccs: true
         }
@@ -43,81 +22,17 @@ export default async function AccountPage() {
 
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/account")
 
-    async function saveuser(formData: FormData) {
-        'use server'
-        const email = formData.get('email')
-        const dcc = formData.get('DCC')
-        if (email) {
-            await prisma.user.update({
-                where: {
-                    id: session?.user.id,
-                },
-                data: {
-                    email: email.toString(),
-                },
-            });
-            revalidatePath('/data/submit/account')
-        }
-
-    }
-
 
     return (
-                <Container className="justify-content-center">
-                    <Typography variant="h3" color="secondary.dark" className='p-5'>ACCOUNT INFORMATION</Typography>
-                    <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
-                        Please complete account email information before approving or the uploading forms. 
-                        If the email field is empty, this information can only be saved once. For all 
-                        other information updates to your user account (role or DCC), please contact 
-                        the DRC to update your information at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
-                    </Typography>
-                    <Box
-                        component="form"
-                        noValidate
-                        autoComplete="off"
-                        sx={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', '& > :not(style)': { m: 1, width: '50ch' } }}
-                        justifyContent='center'
-                        action={saveuser}
-                    >
-                        <TextField
-                            disabled
-                            id="input-name"
-                            label="Name"
-                            name='name'
-                            defaultValue={user.name}
-                            inputProps={{ style: { fontSize: 16 } }}
-                            InputLabelProps={{ style: { fontSize: 16 } }}
-                        />
-                        <TextField
-                            id="input-email"
-                            label="Email"
-                            name='email'
-                            defaultValue={user.email}
-                            inputProps={{ style: { fontSize: 16 } }}
-                            InputLabelProps={{ style: { fontSize: 16 } }}
-                            disabled={user.email ? true : false}
-                            required
-                        />
-                        <MultiSelect
-                            name='DCC'
-                            label="DCC"
-                            options={names}
-                            defaultValue={user.dccs.map((dccObj) => dccObj.short_label ? dccObj.short_label : '')}
-                        />
-                        <TextField
-                            id="input-role"
-                            label="Role"
-                            name='role'
-                            defaultValue={user.role}
-                            inputProps={{ style: { fontSize: 16 } }}
-                            InputLabelProps={{ style: { fontSize: 16 } }}
-                            disabled
-                        />
-
-                        <Button variant="contained" color="tertiary" type='submit' sx={{ justifySelf: "center" }}>
-                            Save Changes
-                        </Button>
-                    </Box>
-                </Container>
+        <Container className="justify-content-center">
+            <Typography variant="h3" color="secondary.dark" className='p-5'>ACCOUNT INFORMATION</Typography>
+            <Typography variant="subtitle1" color="#666666" sx={{ mb: 3, ml: 2 }}>
+                Please complete account email information before approving or the uploading forms.
+                If the email field is empty, this information can only be saved once. For all
+                other information updates to your user account (role or DCC), please contact
+                the DRC to update your information at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+            </Typography>
+            <AccountForm user={user} />
+        </Container>
     );
 }
