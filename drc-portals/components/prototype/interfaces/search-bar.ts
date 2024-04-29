@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// TODO: Could split this out into /schemas and /types, in any case, this probably doesn't belong /interfaces anymore
+
 // type PropertyType = string | number; // TODO: Are there other types we should allow?
 export const PropertyValueSchema = z.union([z.string(), z.number()]);
 export type PropertyValue = z.infer<typeof PropertyValueSchema>;

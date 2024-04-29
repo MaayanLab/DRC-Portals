@@ -1,11 +1,5 @@
 import Autocomplete from "@mui/material/Autocomplete";
-import {
-  CircularProgress,
-  IconButton,
-  Paper,
-  Popper,
-  styled,
-} from "@mui/material";
+import { CircularProgress, IconButton, Paper, Popper } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { KeyboardEvent, SyntheticEvent, useEffect, useState } from "react";
@@ -15,20 +9,18 @@ import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
 import {
   SearchBarOption,
   SearchQuerySettings,
+  SearchBarState,
 } from "../../interfaces/search-bar";
-import {
-  createCypher,
-  createSearchPathEl,
-  getOptions,
-} from "../../utils/search-bar";
+import { createSearchPathEl, getOptions } from "../../utils/search-bar";
 
 import SearchSettingsDialog from "./SearchBarSettingsDialog";
 
 interface SearchBarProps {
+  state: SearchBarState | undefined;
   error: string | null;
   loading: boolean;
   clearError: () => void;
-  onSubmit: (value: string) => void;
+  onSubmit: (value: SearchBarState) => void;
 }
 
 /**
@@ -38,11 +30,11 @@ interface SearchBarProps {
  */
 
 export default function SearchBar(searchBarProps: SearchBarProps) {
-  const { error, loading, clearError, onSubmit } = searchBarProps;
-  const [value, setValue] = useState<SearchBarOption[]>([]);
-  const [options, setOptions] = useState<SearchBarOption[]>(getOptions([]));
+  const { state, error, loading, clearError, onSubmit } = searchBarProps;
+  const [value, setValue] = useState<SearchBarOption[]>(state?.value || []);
+  const [options, setOptions] = useState<SearchBarOption[]>(getOptions(value));
   const [settings, setSettings] = useState<SearchQuerySettings>(
-    DEFAULT_QUERY_SETTINGS
+    state?.settings || DEFAULT_QUERY_SETTINGS
   );
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
 
@@ -50,12 +42,22 @@ export default function SearchBar(searchBarProps: SearchBarProps) {
     setOptions(getOptions(value.filter(stringFilter) as SearchBarOption[]));
   }, [value]);
 
+  useEffect(() => {
+    if (state !== undefined) {
+      setValue(state.value);
+
+      if (state.settings !== undefined) {
+        setSettings(state?.settings);
+      }
+    }
+  }, [state]);
+
   const submitSearch = (
     value: SearchBarOption[],
     settings: SearchQuerySettings
   ) => {
     if (value.length > 0) {
-      onSubmit(createCypher(value, settings));
+      onSubmit({ value, settings });
     }
   };
 

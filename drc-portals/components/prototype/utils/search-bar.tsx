@@ -21,7 +21,8 @@ import {
   NodeOption,
   RelationshipOption,
   SearchBarOption,
-  SearchQuerySettings,
+  SearchBarState,
+  SearchBarStateSchema,
 } from "../interfaces/search-bar";
 
 import {
@@ -32,6 +33,17 @@ import {
   createLineDividerElement,
   keyInFactoryMapFilter,
 } from "./shared";
+
+export const getStateFromQuery = (q: string): SearchBarState | undefined => {
+  try {
+    const state = JSON.parse(atob(q));
+    SearchBarStateSchema.parse(state);
+    return state;
+  } catch {
+    // If for whatever reason (decoding, parsing, etc.) we couldn't get the state, return undefined instead
+    return undefined;
+  }
+};
 
 export const isRelationshipOption = (
   option: NodeOption | RelationshipOption
@@ -80,10 +92,8 @@ export const createWhereClause = (predicates: string[]) => {
   return clause;
 };
 
-export const createCypher = (
-  value: SearchBarOption[],
-  settings?: SearchQuerySettings
-) => {
+export const createCypher = (state: SearchBarState) => {
+  const { value, settings } = state;
   let cypherTraversal = "";
   const isSingleNode = value.length === 1 && !isRelationshipOption(value[0]);
   const wherePredicates: string[] = [];
