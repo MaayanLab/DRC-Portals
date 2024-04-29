@@ -7,8 +7,9 @@ export function capitalizeFirstLetter(str: string): string {
 
 export function isURL(str: string): boolean {
     const http_pattern = /^http/i;
+    const drs_pattern = /^drs:\/\//i;
     const doi_pattern = "doi.org";
-      return ( !(str === null || str.trim() === '') && ( http_pattern.test(str) || str.toLowerCase().includes(doi_pattern)) ); 
+      return ( !(str === null || str.trim() === '') && ( http_pattern.test(str) || drs_pattern.test(str) || str.toLowerCase().includes(doi_pattern)) ); 
 }
   
 interface HashTable {
@@ -265,7 +266,7 @@ export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchS
 const biosamplesTable: { [key: string]: string } = {
     "biosample_local_id": "Biosample ID",
     "project_local_id": "Project ID",
-    "biosample_persistent_id": "Persisitent ID",
+    "biosample_persistent_id": "Persistent ID",
     "biosample_creation_time": "Creation time",
     "sample_prep_method_name": "Sample prep method",
     "disease_association_type_name": "Disease association (in all biosamples)",
