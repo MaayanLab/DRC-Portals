@@ -5,6 +5,7 @@ import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from "next";
 import { cache } from "react";
+import { AnalyzeCard } from "./AnalyzeCard";
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -125,6 +126,7 @@ export default async function Page(props: PageProps) {
         { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >
+      <AnalyzeCard item={gene_set} genes={genes}/>
       <SearchablePagedTable
         label="Genes"
         q={searchParams.q ?? ''}
