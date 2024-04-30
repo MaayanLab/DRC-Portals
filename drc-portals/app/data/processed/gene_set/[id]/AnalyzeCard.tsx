@@ -24,7 +24,6 @@ export function AnalyzeCard ({item, genes} : {item:
     };
 }, genes: {
     genes: {
-        id: string;
         entity: {
             node: {
                 type: $Enums.NodeType;
@@ -32,10 +31,8 @@ export function AnalyzeCard ({item, genes} : {item:
                 description: string;
             };
         };
+        id: string;
     }[];
-    _count: {
-        genes: number;
-    };
 }
 }) {
     return (

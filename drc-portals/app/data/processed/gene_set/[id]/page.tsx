@@ -69,7 +69,7 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
 
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const offset = (searchParams.p - 1)*searchParams.r
+  const offset = (searchParams.p - 1) * searchParams.r
   const limit = searchParams.r
   const gene_set = await getItem(props.params.id)
   const genes = await prisma.geneSetNode.findUniqueOrThrow({
@@ -117,6 +117,39 @@ export default async function Page(props: PageProps) {
       },
     }
   })
+
+  const allGenes = await prisma.geneSetNode.findUniqueOrThrow({
+    where: {
+      id: props.params.id,
+    },
+    select: {
+      genes: {
+        select: {
+          id: true,
+          entity: {
+            select: {
+              node: {
+                select: {
+                  type: true,
+                  label: true,
+                  description: true,
+                },
+              },
+            },
+          },
+        },
+        where: searchParams.q ? {
+          entity: {
+            node: {
+              OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
+            },
+          },
+        } : {},
+      },
+    }
+  })
+
+
   return (
     <LandingPageLayout
       icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
