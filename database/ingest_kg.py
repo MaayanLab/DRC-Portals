@@ -139,8 +139,8 @@ with kg_assertion_helper.writer() as kg_assertion:
               with assertion_edge_file.open('r') as fr:
                 assertion_edge_reader = csv.DictReader(fr, fieldnames=next(fr).strip().split(','), delimiter=',')
                 for assertion in tqdm(assertion_edge_reader, desc=f"Processing {assertion_edge_file.name}..."):
-                  for ensure_source_id in assertion_nodes[assertion['source']]:
-                    for ensure_target_id in assertion_nodes[assertion['target']]:
+                  for ensure_source_id in assertion_nodes.get(assertion['source'], []):
+                    for ensure_target_id in assertion_nodes.get(assertion['target'], []):
                       relation_id = str(uuid5(uuid0, '\t'.join((assertion['relation'],))))
                       if relation_id not in kg_relations:
                         kg_relations.add(relation_id)
