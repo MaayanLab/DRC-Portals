@@ -29,18 +29,15 @@ const modules: {
       };
     }, genes: {
       genes: {
-        id: string;
         entity: {
-          node: {
-            type: $Enums.NodeType;
-            label: string;
-            description: string;
-          };
+            node: {
+                type: $Enums.NodeType;
+                label: string;
+                description: string;
+            };
         };
-      }[];
-      _count: {
-        genes: number;
-      };
+        id: string;
+    }[];
     }
   }) => React.ReactNode,
 }[] = [
