@@ -18,7 +18,7 @@ const toc = `
 
 export default async function C2M2Page() {
   const intro = readFileSync(
-    'app/info/documentation/C2M2/intro.md', 
+    'app/info/documentation/markdown/C2M2-intro.md', 
     {encoding:'utf8', flag:'r'}
   ) 
   const c2m2Tables = await fetchC2m2Markdown(
@@ -28,7 +28,7 @@ export default async function C2M2Page() {
     'submission-prep-script.md'
   )
   const tutorial = readFileSync(
-    'app/info/documentation/C2M2/tutorial.md', 
+    'app/info/documentation/markdown/C2M2-tutorial.md', 
     {encoding:'utf8', flag:'r'}
   )
   return (
