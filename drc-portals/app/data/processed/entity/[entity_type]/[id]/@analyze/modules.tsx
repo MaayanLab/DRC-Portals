@@ -7,8 +7,8 @@ import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
 import GDLPAIcon from '@/public/img/icons/gdlpa.png'
 import GeneCentricIcon from '@/public/img/icons/gene-centric-partnership.png'
-import CardButton from "./CardButton";
-import PWBButton from "./PWBButton";
+import CardButton from "@/app/data/processed/CardButton";
+import PWBButton from "@/app/data/processed/PWBButton";
 
 const modules: {
   compatible: (item: { node: { label: string; description: string; }; type: string; }) => boolean,
