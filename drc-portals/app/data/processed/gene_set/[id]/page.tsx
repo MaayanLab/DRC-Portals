@@ -14,6 +14,7 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
     id,
   },
   select: {
+    id: true, 
     _count: {
       select: {
         genes: true,
@@ -115,38 +116,6 @@ export default async function Page(props: PageProps) {
     }
   })
 
-  const allGenes = await prisma.geneSetNode.findUniqueOrThrow({
-    where: {
-      id: props.params.id,
-    },
-    select: {
-      genes: {
-        select: {
-          id: true,
-          entity: {
-            select: {
-              node: {
-                select: {
-                  type: true,
-                  label: true,
-                  description: true,
-                },
-              },
-            },
-          },
-        },
-        where: searchParams.q ? {
-          entity: {
-            node: {
-              OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-            },
-          },
-        } : {},
-      },
-    }
-  })
-
-
   return (
     <LandingPageLayout
       icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
@@ -159,7 +128,7 @@ export default async function Page(props: PageProps) {
         { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >
-      <AnalyzeCard item={gene_set} genes={allGenes} />
+      <AnalyzeCard item={gene_set} />
       <SearchablePagedTable
         label="Genes"
         q={searchParams.q ?? ''}

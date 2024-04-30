@@ -3,8 +3,9 @@ import Typography from "@mui/material/Typography";
 import modules from "./modules";
 import { $Enums} from "@prisma/client";
 
-export function AnalyzeCard ({item, genes} : {item: 
+export function AnalyzeCard ({item} : {item: 
     {
+    id: string,
     gene_set_library: {
         id: string;
         node: {
@@ -22,19 +23,7 @@ export function AnalyzeCard ({item, genes} : {item:
         dcc: { label: string; short_label: string | null; icon: string | null; } | null;
         description: string;
     };
-}, genes: {
-    genes: {
-        entity: {
-            node: {
-                type: $Enums.NodeType;
-                label: string;
-                description: string;
-            };
-        };
-        id: string;
-    }[];
-}
-}) {
+}}) {
     return (
         <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
         <Grid item xs={12} sx={{marginBottom: 5}}>
@@ -42,7 +31,7 @@ export function AnalyzeCard ({item, genes} : {item:
         </Grid>
         <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules
-            .map(({ button: ModButton }, i) => <ModButton key={i} item={item}  genes={genes}/>)}
+            .map(({ button: ModButton }, i) => <ModButton key={i} item={item} />)}
         </Grid>
       </Grid>
     )
