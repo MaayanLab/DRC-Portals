@@ -16,7 +16,6 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
             size="small"
             onClick={async () => {
                 const req = await fetch('https://g2sg.cfde.cloud/api/addGeneset', {
-                    // mode: 'cors',
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
