@@ -915,7 +915,6 @@ model id_namespace {
   file_file_id_namespaceToid_namespace             file[]       @relation("file_id_namespaceToid_namespace")
   project_project_id_namespaceToid_namespace       project[]    @relation("project_id_namespaceToid_namespace")
   subject_subject_id_namespaceToid_namespace       subject[]    @relation("subject_id_namespaceToid_namespace")
-  
 }
 
 model ncbi_taxonomy {
@@ -1176,5 +1175,3 @@ model substance {
   compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_substance_compound_1")
   
 }
-
-

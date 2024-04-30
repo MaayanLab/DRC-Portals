@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import { capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
 
 const file_count_limit = 10;
 
@@ -51,6 +51,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         anatomy: string,
         gene_name: string,
         gene: string,
+        protein_name: string,
+        protein: string,
+        compound_name: string,
+        compound: string,
         data_type_name: string,
         data_type: string,
         project_name: string,
@@ -60,6 +64,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         anatomy_description: string,
         disease_description: string,
         gene_description: string,
+        protein_description: string,
+        compound_description: string,
         taxonomy_description: string,
 
         count: number, // this is based on across all-columns of ffl_biosample 
@@ -272,15 +278,23 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
       COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
       allres_full.gene AS gene,
+      COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+      allres_full.protein AS protein,
+      COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+      allres_full.substance_compound AS compound,
       COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
       REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-      allres_full.project_name AS project_name,
+      /* allres_full.project_name AS project_name, */
+      COALESCE(allres_full.project_name, 
+        concat_ws('', 'Dummy: Biosamples(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
       c2m2.project.persistent_id AS project_persistent_id,
       allres_full.project_local_id AS project_local_id,
       c2m2.project.description AS project_description,
       c2m2.anatomy.description AS anatomy_description,
       c2m2.disease.description AS disease_description,
       c2m2.gene.description AS gene_description,
+      c2m2.protein.description AS protein_description,
+      c2m2.compound.description AS compound_description,
       c2m2.ncbi_taxonomy.description AS taxonomy_description,
       COUNT(*)::INT AS count,
       COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
@@ -292,12 +306,17 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
     LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
     LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
+    LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
+    LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
     LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
     GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-    anatomy_name,  anatomy, gene_name, gene, data_type_name, data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-    project_local_id, project_description, anatomy_description, disease_description, gene_description, taxonomy_description
+      anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
+      data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+      allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
+      protein_description, compound_description, taxonomy_description
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
-    ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name /*rank DESC*/
+    ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+      protein_name, compound_name, data_type_name /*rank DESC*/
   ),
   biosamples_table as (
     SELECT DISTINCT
@@ -390,6 +409,10 @@ unique_info AS ( /* has extra fields, but OK in case needed later*/
         allres_full.anatomy,
         allres_full.gene, 
         allres_full.gene_name,
+        allres_full.protein, 
+        allres_full.protein_name,
+        allres_full.substance_compound as compound, 
+        allres_full.compound_name,
         allres_full.data_type_id AS data_type, 
         allres_full.data_type_name
     FROM allres_full
@@ -589,6 +612,7 @@ file_table AS (
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
     const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
 
     const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
     const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
@@ -617,56 +641,75 @@ file_table AS (
 
     // The following items are present in metadata
 
-    const projectLocalId = results?.records[0].project_local_id ?? 'NA';// Assuming it's the same for all rows
+    const resultsRec = results?.records[0];
+    const projectLocalId = resultsRec.project_local_id ?? 'NA';// Assuming it's the same for all rows
 
     const metadata = [
       { label: 'Project ID', value: projectLocalId },
-      ( results?.records[0].project_persistent_id && isURL(results?.records[0].project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${results?.records[0].project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{results?.records[0].project_name}</Link> } : results?.records[0].project_persistent_id,
-      //results?.records[0].taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600">{results?.records[0].taxonomy_name}</Link> } : null,
-      //results?.records[0].anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600">{results?.records[0].anatomy_name}</Link> } : null,
+      ( resultsRec.project_persistent_id && isURL(resultsRec.project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${resultsRec.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec.project_name}</Link> } : resultsRec.project_persistent_id,
+      //resultsRec.taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`} className="underline cursor-pointer text-blue-600">{resultsRec.taxonomy_name}</Link> } : null,
+      //resultsRec.anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${resultsRec.anatomy}`} className="underline cursor-pointer text-blue-600">{resultsRec.anatomy_name}</Link> } : null,
       {
-        label: 'Taxonomy', value: results?.records[0].taxonomy_name && results?.records[0].taxonomy_name != "Unspecified" ?
-          <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${results?.records[0].taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
-            {results?.records[0].taxonomy_name}
+        label: 'Taxonomy', value: resultsRec.taxonomy_name && resultsRec.taxonomy_name != "Unspecified" ?
+          <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {resultsRec.taxonomy_name}
           </Link>
-          : results?.records[0].taxonomy_name
+          : resultsRec.taxonomy_name
       },
-      results?.records[0].taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(results?.records[0].taxonomy_description) } : null,
+      resultsRec.taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(resultsRec.taxonomy_description) } : null,
 
       {
-        label: 'Sample Source', value: results?.records[0].anatomy_name && results?.records[0].anatomy_name != "Unspecified" ?
-          <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
-            {capitalizeFirstLetter(results?.records[0].anatomy_name)}
+        label: 'Sample Source', value: resultsRec.anatomy_name && resultsRec.anatomy_name != "Unspecified" ?
+          <Link href={`http://purl.obolibrary.org/obo/${resultsRec.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec.anatomy_name)}
           </Link>
 
-          : results?.records[0].anatomy_name
+          : resultsRec.anatomy_name
       },
-      results?.records[0].anatomy_description ? { label: 'Sample Source Description', value: results?.records[0].anatomy_description } : null,
+      resultsRec.anatomy_description ? { label: 'Sample Source Description', value: resultsRec.anatomy_description } : null,
 
       {
-        label: 'Disease', value: results?.records[0].disease_name && results?.records[0].disease_name !== "Unspecified" ? (
-          <Link href={`http://purl.obolibrary.org/obo/${results?.records[0].disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
-            {capitalizeFirstLetter(results?.records[0].disease_name)}
+        label: 'Disease', value: resultsRec.disease_name && resultsRec.disease_name !== "Unspecified" ? (
+          <Link href={`http://purl.obolibrary.org/obo/${resultsRec.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec.disease_name)}
           </Link>
-        ) : results?.records[0].disease_name
+        ) : resultsRec.disease_name
       },
-      results?.records[0].disease_description ? { label: 'Disease Description', value: results?.records[0].disease_description } : null,
+      resultsRec.disease_description ? { label: 'Disease Description', value: resultsRec.disease_description } : null,
 
       {
-        label: 'Gene', value: results?.records[0].gene_name && results?.records[0].gene_name !== "Unspecified" ? (
-          <Link href={`http://www.ensembl.org/id/${results?.records[0].gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
-            {results?.records[0].gene_name}
+        label: 'Gene', value: resultsRec.gene_name && resultsRec.gene_name !== "Unspecified" ? (
+          <Link href={`http://www.ensembl.org/id/${resultsRec.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {resultsRec.gene_name}
           </Link>
-        ) : results?.records[0].gene_name
+        ) : resultsRec.gene_name
       },
-      results?.records[0].gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(results?.records[0].gene_description) } : null,
+      resultsRec.gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(resultsRec.gene_description) } : null,
 
       {
-        label: 'Data type', value: results?.records[0].data_type_name && results?.records[0].data_type_name !== "Unspecified" ? (
-          <Link href={`http://edamontology.org/${results?.records[0].data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
-            {capitalizeFirstLetter(results?.records[0].data_type_name)}
+        label: 'Protein', value: resultsRec.protein_name && resultsRec.protein_name !== "Unspecified" ? (
+          <Link href={`https://www.uniprot.org/uniprotkb/${resultsRec.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {resultsRec.protein_name}
           </Link>
-        ) : results?.records[0].data_type_name
+        ) : resultsRec.protein_name
+      },
+      resultsRec.protein_description ? { label: 'Protein Description', value: capitalizeFirstLetter(resultsRec.protein_description) } : null,
+  
+      {
+        label: 'Compound', value: resultsRec.compound_name && resultsRec.compound_name !== "Unspecified" ? (
+          <Link href={`http://www.ensembl.org/id/${resultsRec.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {resultsRec.compound_name}
+          </Link>
+        ) : resultsRec.compound_name
+      },
+      resultsRec.compound_description ? { label: 'Compound Description', value: capitalizeFirstLetter(resultsRec.compound_description) } : null,
+    
+      {
+        label: 'Data type', value: resultsRec.data_type_name && resultsRec.data_type_name !== "Unspecified" ? (
+          <Link href={`http://edamontology.org/${resultsRec.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec.data_type_name)}
+          </Link>
+        ) : resultsRec.data_type_name
       },
 
       { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
@@ -686,11 +729,11 @@ file_table AS (
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
-    addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
+    //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
+    addCategoryColumns(reorderedFileStaticCols, getNameFromFileProjTable, "Files related to Project", categories);
     addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
     addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
     addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
-
 
     const biosampleTableTitle = "Biosamples: " + results?.count_bios;
     const subjectTableTitle = "Subjects: " + results?.count_sub;
@@ -711,13 +754,13 @@ file_table AS (
     return (
       <LandingPageLayout
         icon={{
-          href: results?.records[0].dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
+          href: resultsRec.dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
           src: getDCCIcon(results ? results.records[0].dcc_short_label : ""),
-          alt: results?.records[0].dcc_short_label ? results.records[0].dcc_short_label : ""
+          alt: resultsRec.dcc_short_label ? results.records[0].dcc_short_label : ""
         }}
-        title={results?.records[0].project_name ?? ""}
+        title={resultsRec.project_name ?? ""}
         subtitle={""}
-        description={format_description(results?.records[0].project_description ?? "")}
+        description={format_description(resultsRec.project_description ?? "")}
         metadata={metadata}
         categories={categories}
       >

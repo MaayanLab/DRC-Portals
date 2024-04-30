@@ -286,7 +286,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
       /* allres_full.project_name AS project_name, */
       COALESCE(allres_full.project_name, 
-        concat_ws('', 'Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+        concat_ws('', 'Dummy: Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
       c2m2.project.persistent_id AS project_persistent_id,
       allres_full.project_local_id AS project_local_id,
       c2m2.project.description AS project_description,
@@ -726,15 +726,14 @@ file_table AS (
   addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   console.log(staticFileProjColumns);
 
-
   //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
   addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
+  //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
   addCategoryColumns(reorderedFileStaticCols, getNameFromFileProjTable, "Files related to Project", categories);
   addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
   addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
   addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
-
 
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;

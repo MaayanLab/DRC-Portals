@@ -102,7 +102,7 @@ async function fetchQueryResults(searchParams: any) {
             allres_full.dcc_name AS dcc_name,
             allres_full.dcc_abbreviation AS dcc_abbreviation,
             SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-            allres_full.project_local_id AS project_local_id,
+            COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
             /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
             COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
             SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
@@ -121,8 +121,9 @@ async function fetchQueryResults(searchParams: any) {
             allres_full.substance_compound AS compound,
             COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
             REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+            /* allres_full.project_name AS project_name, */
             COALESCE(allres_full.project_name, 
-              concat_ws('', 'Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+              concat_ws('', 'Dummy: Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
             c2m2.project.description AS project_description,
             allres_full.project_persistent_id as project_persistent_id,
             COUNT(*)::INT AS count,
@@ -228,10 +229,10 @@ async function fetchQueryResults(searchParams: any) {
         
           if (!results) redirect('/data')
           //  console.log(results)
-          console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
-          console.log(results.records.map(res => res.count))
-          console.log(results.dcc_filters)
-          console.log(results.taxonomy_filters)
+          // console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
+          // console.log(results.records.map(res => res.count))
+          // console.log(results.dcc_filters)
+          // console.log(results.taxonomy_filters)
         
           //const t2: number = performance.now();
         
@@ -287,9 +288,9 @@ async function fetchQueryResults(searchParams: any) {
           //console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
           //console.log("Elapsed time for creating data for filters: ", t3 - t2, "milliseconds");
         
-          console.log("Length of DCC Filters")
-          console.log(DccFilters.length);
-          console.log(searchParams.q);
+          // console.log("Length of DCC Filters")
+          // console.log(DccFilters.length);
+          // console.log(searchParams.q);
           // const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
         
           // console.log(selectedFilters)
@@ -486,7 +487,7 @@ async function fetchQueryResults(searchParams: any) {
     } catch (error) {
         console.error('Error fetching query results:', error);
         return <> 
-        <div className="mb-10"></div>
+        <div className="mb-10">Error fetching query results.</div>
         <Link href="/data">
           <Button
             sx={{ textTransform: "uppercase" }}

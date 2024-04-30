@@ -247,4 +247,24 @@ drc=# select count(*) from c2m2.collection;
 drc=# select count(*) from c2m2.collection_defined_by_project;
  262734
 
+--- Collections without project_local_id
+select * from (
+    select * from (
+    (select distinct local_id as collection_local_id from c2m2.collection)
+    
+    except
 
+    (select distinct collection_local_id from c2m2.collection_defined_by_project)
+    ) 
+);
+
+select * from c2m2.collection where local_id ilike '%gs://adult-gtex/annotations/v8/%';
+
+--- Error scenario: search for 77320cd3-7c4d-596f-b97d-ce68888eb718
+--- https://ucsd-sslab.ngrok.app/data/c2m2/record_info_col?q=77320cd3-7c4d-596f-b97d-ce68888eb718&t=dcc_name:Genotype-Tissue%20Expression%20Project|project_local_id:|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified
+--- This is because, in utils.ts, in line 144: export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
+--- Line 158: we compare with "Unspecified", but for this example (collection persistent_id), project_local_id is empty '' or null, so, 
+--- it should be compared with null (use: is null).
+--- Try to set project_local_id as well Unspecified for this case.
+--- File: search_col/Col_SearchQueryComponent.tsx
+--- for CTE part allres: see:             COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
