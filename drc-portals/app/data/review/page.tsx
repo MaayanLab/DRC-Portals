@@ -25,7 +25,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 
 
-export default async function ReviewPage() {
+export default function ReviewPage() {
 
     const schemaToDCC = [
         { schema: '_4dn', label: '4DN' },
