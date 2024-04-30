@@ -198,7 +198,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     }
   };
 
-  const handleZoomIn = () => {
+  const handleToolbarZoomIn = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       const currentZoom = cy.zoom();
@@ -206,7 +206,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     }
   };
 
-  const handleZoomOut = () => {
+  const handleToolbarZoomOut = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       const currentZoom = cy.zoom();
@@ -214,7 +214,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     }
   };
 
-  const handleFit = () => {
+  const handleToolbarFit = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       cy.fit();
@@ -308,9 +308,9 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
           <ChartToolbar
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onFit={handleFit}
+            onZoomIn={handleToolbarZoomIn}
+            onZoomOut={handleToolbarZoomOut}
+            onFit={handleToolbarFit}
           ></ChartToolbar>
         </WidgetContainer>
       )}

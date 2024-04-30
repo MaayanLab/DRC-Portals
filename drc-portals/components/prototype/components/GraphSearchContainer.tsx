@@ -13,15 +13,6 @@ import Neo4jService from "../services/neo4j";
 import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
 import { createCypher, getStateFromQuery } from "../utils/search-bar";
 
-const SearchBarContainer = styled("div")({
-  flexGrow: 1,
-  position: "absolute",
-  top: 10,
-  left: 10,
-  zIndex: 1,
-  padding: "inherit",
-});
-
 type GraphSearchContainerProps = {
   query: string | null;
   onSubmit: (state: string) => void;
@@ -41,6 +32,15 @@ export default function GraphSearchContainer(
     "An error occured during your search. Please try again later.";
   const SEARCH_QUERY_ERROR_MSG = "There was an error in your search query.";
   const neo4jService: Neo4jService = new Neo4jService(getDriver());
+
+  const SearchBarContainer = styled("div")({
+    flexGrow: 1,
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 1,
+    padding: "inherit",
+  });
 
   const clearSearchError = () => {
     setSearchError(null);

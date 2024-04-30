@@ -29,14 +29,6 @@ export interface SearchSettingsDialogProps {
   onSubmit: (value: SearchBarOption[], settings: SearchQuerySettings) => void;
 }
 
-const pathSettingsDivider = (
-  <Box
-    sx={{
-      height: "16px",
-    }}
-  ></Box>
-);
-
 export default function SearchSettingsDialog(
   searchSettingsDialogProps: SearchSettingsDialogProps
 ) {
@@ -46,6 +38,14 @@ export default function SearchSettingsDialog(
   );
   const [settings, setSettings] = useState<SearchQuerySettings>(
     searchSettingsDialogProps.settings
+  );
+
+  const pathSettingsDivider = (
+    <Box
+      sx={{
+        height: "16px",
+      }}
+    ></Box>
   );
 
   useEffect(() => {

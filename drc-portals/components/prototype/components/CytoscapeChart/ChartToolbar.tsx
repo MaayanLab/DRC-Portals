@@ -5,10 +5,6 @@ import { IconButton, Paper, Tooltip } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import { styled } from "@mui/system";
 
-const ToolbarIconBtn = styled(IconButton)({
-  borderRadius: 1,
-});
-
 type ChartToolbarProps = {
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -17,6 +13,10 @@ type ChartToolbarProps = {
 
 export default function ChartToolbar(chartToolbarProps: ChartToolbarProps) {
   const { onZoomIn, onZoomOut, onFit } = chartToolbarProps;
+
+  const ToolbarIconBtn = styled(IconButton)({
+    borderRadius: 1,
+  });
 
   return (
     <Paper
