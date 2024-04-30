@@ -1,4 +1,11 @@
-import { ClickAwayListener, Divider, Menu, MenuItem } from "@mui/material";
+import {
+  Box,
+  ClickAwayListener,
+  Divider,
+  Menu,
+  MenuItem,
+  styled,
+} from "@mui/material";
 import {
   ElementDefinition,
   EventObject,
@@ -23,6 +30,7 @@ import {
 } from "../../utils/cy";
 
 import "./CytoscapeChart.css";
+import ChartToolbar from "./ChartToolbar";
 
 useCytoscape(cola);
 
@@ -31,6 +39,15 @@ interface CytoscapeChartProps {
   layout: LayoutOptions;
   stylesheet: string | Stylesheet | Stylesheet[];
 }
+
+const ToolbarContainer = styled(Box)({
+  flexGrow: 1,
+  position: "absolute",
+  top: 10,
+  right: 10,
+  zIndex: 1,
+  padding: "inherit",
+});
 
 export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   const cmpKey = v4();
@@ -179,6 +196,29 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     }
   };
 
+  const handleZoomIn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      const currentZoom = cy.zoom();
+      cy.zoom(currentZoom + currentZoom / (currentZoom + 1));
+    }
+  };
+
+  const handleZoomOut = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      const currentZoom = cy.zoom();
+      cy.zoom(currentZoom - currentZoom / (currentZoom + 1));
+    }
+  };
+
+  const handleFit = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      cy.fit();
+    }
+  };
+
   const runLayout = () => {
     const cy = cyRef.current;
     if (cy) {
@@ -229,36 +269,45 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   }, [hoveredNode]);
 
   return (
-    <ClickAwayListener onClickAway={handleTooltipClickAway}>
-      <ChartTooltip
-        followCursor
-        title={tooltipTitle}
-        open={tooltipOpen}
-        placement="right-start"
-        TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
-      >
-        <ChartContainer variant="outlined">
-          <CytoscapeComponent
-            className="cy"
-            cy={(cy) => (cyRef.current = cy)}
-            elements={elements}
-            layout={layout}
-            stylesheet={stylesheet}
-          />
-          <Menu
-            open={contextMenu !== null && contextMenuItems.length > 0}
-            onClose={handleContextMenuClose}
-            anchorReference="anchorPosition"
-            anchorPosition={
-              contextMenu !== null
-                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                : undefined
-            }
-          >
-            {contextMenuItems}
-          </Menu>
-        </ChartContainer>
-      </ChartTooltip>
-    </ClickAwayListener>
+    <>
+      <ClickAwayListener onClickAway={handleTooltipClickAway}>
+        <ChartTooltip
+          followCursor
+          title={tooltipTitle}
+          open={tooltipOpen}
+          placement="right-start"
+          TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
+        >
+          <ChartContainer variant="outlined">
+            <CytoscapeComponent
+              className="cy"
+              cy={(cy) => (cyRef.current = cy)}
+              elements={elements}
+              layout={layout}
+              stylesheet={stylesheet}
+            />
+            <Menu
+              open={contextMenu !== null && contextMenuItems.length > 0}
+              onClose={handleContextMenuClose}
+              anchorReference="anchorPosition"
+              anchorPosition={
+                contextMenu !== null
+                  ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                  : undefined
+              }
+            >
+              {contextMenuItems}
+            </Menu>
+          </ChartContainer>
+        </ChartTooltip>
+      </ClickAwayListener>
+      <ToolbarContainer>
+        <ChartToolbar
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onFit={handleFit}
+        ></ChartToolbar>
+      </ToolbarContainer>
+    </>
   );
 }

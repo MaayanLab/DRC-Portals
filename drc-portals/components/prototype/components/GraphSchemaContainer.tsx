@@ -21,7 +21,7 @@ const LegendContainer = styled(Box)({
   flexGrow: 1,
   position: "absolute",
   top: 10,
-  right: 10,
+  left: 10,
   zIndex: 1,
   padding: "inherit",
 });

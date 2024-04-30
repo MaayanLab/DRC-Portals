@@ -4,38 +4,19 @@ import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import { IconButton, Paper, Tooltip } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import { styled } from "@mui/system";
-import * as React from "react";
 
 const ToolbarIconBtn = styled(IconButton)({
   borderRadius: 1,
 });
 
 type ChartToolbarProps = {
-  cy: cytoscape.Core | undefined;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onFit?: () => void;
 };
 
 export default function ChartToolbar(chartToolbarProps: ChartToolbarProps) {
-  const { cy } = chartToolbarProps;
-
-  const onZoomIn = () => {
-    if (cy !== undefined) {
-      const currentZoom = cy.zoom();
-      cy.zoom(currentZoom + currentZoom / (currentZoom + 1));
-    }
-  };
-
-  const onZoomOut = () => {
-    if (cy !== undefined) {
-      const currentZoom = cy.zoom();
-      cy.zoom(currentZoom - currentZoom / (currentZoom + 1));
-    }
-  };
-
-  const onFit = () => {
-    if (cy !== undefined) {
-      cy.fit();
-    }
-  };
+  const { onZoomIn, onZoomOut, onFit } = chartToolbarProps;
 
   return (
     <Paper
@@ -49,18 +30,30 @@ export default function ChartToolbar(chartToolbarProps: ChartToolbarProps) {
       }}
     >
       <Tooltip title="Zoom In" arrow>
-        <ToolbarIconBtn aria-label="zoom-in" onClick={onZoomIn}>
+        <ToolbarIconBtn
+          aria-label="zoom-in"
+          disabled={onZoomIn === undefined}
+          onClick={onZoomIn}
+        >
           <ZoomInIcon />
         </ToolbarIconBtn>
       </Tooltip>
       <Tooltip title="Zoom Out" arrow>
-        <ToolbarIconBtn aria-label="zoom-in" onClick={onZoomOut}>
+        <ToolbarIconBtn
+          aria-label="zoom-in"
+          disabled={onZoomOut === undefined}
+          onClick={onZoomOut}
+        >
           <ZoomOutIcon />
         </ToolbarIconBtn>
       </Tooltip>
       <Divider orientation="vertical" variant="middle" flexItem />
       <Tooltip title="Fit Graph" arrow>
-        <ToolbarIconBtn aria-label="zoom-in" onClick={onFit}>
+        <ToolbarIconBtn
+          aria-label="zoom-in"
+          disabled={onFit === undefined}
+          onClick={onFit}
+        >
           <FitScreenIcon />
         </ToolbarIconBtn>
       </Tooltip>
