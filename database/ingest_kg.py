@@ -18,42 +18,7 @@ assertions_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
-  'Acquired Abnormality': 'Acquired Abnormality',
-  'Amino Acid, Peptide, or Protein': 'Amino Acid, Peptide, or Protein',
-  'Anatomical Abnormality': 'Anatomical Abnormality',
-  'Body Part, Organ, or Organ Component': 'Body Part, Organ, or Organ Component',
-  'Body Substance': 'Body Substance',
-  'Cell Type': 'Cell Type',
-  'Cell': 'Cell',
-  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
-  'Congenital Abnormality': 'Congenital Abnormality',
-  'Diagnostic Procedure': 'Diagnostic Procedure',
-  'Disease or Syndrome': 'Disease',
-  'Disease': 'Disease',
-  'Drug': 'Drug',
-  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
-  'ENSEMBL': 'Transcript',
-  'gene': 'gene',
-  'GLYCAN MOTIF': 'Glycan Motif',
-  'GLYCAN': 'Glycan',
-  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
-  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
-  'GLYGEN GLYCOSYLATION': 'Glycosylation',
-  'GLYGEN RESIDUE': 'Residue',
-  'GLYTOUCAN': 'Glytoucan',
-  'GTEXEQTL': 'eQTL',
-  'Hormone': 'Hormone',
-  'Injury or Poisoning': 'Injury or Poisoning',
-  'Inorganic Chemical': 'Inorganic Chemical',
-  'Laboratory Procedure': 'Laboratory Procedure',
-  'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
-  'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
-  'Organic Chemical': 'Organic Chemical',
-  'Pharmacologic Substance': 'Pharmacologic Substance',
-  'Phenotype': 'Phenotype',
-  'Sign or Symptom': 'Phenotype',
-  'Therapeutic or Preventive Procedure': 'Laboratory Procedure',
-  'Tissue': 'Tissue',
+  'Gene': 'gene',
 }
 
 entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
@@ -95,8 +60,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                     ))
                   return gene_id
                 yield ensure
-            elif entity_type in map_type:
-              entity_type = map_type[entity_type]
+            else:
+              entity_type = map_type.get(entity_type, entity_type)
               entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
               def ensure():
                 if entity_id not in entities:
@@ -114,7 +79,6 @@ with kg_assertion_helper.writer() as kg_assertion:
                 return entity_id
               yield ensure
           for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
-            if file['dcc_short_label'] in ('4DN',): continue
             # assemble the full file path for the DCC's asset
             file_path = assertions_path/file['dcc_short_label']/file['filename']
             file_path.parent.mkdir(parents=True, exist_ok=True)
