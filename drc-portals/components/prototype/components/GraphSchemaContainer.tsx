@@ -2,9 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Typography,
-  styled,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -14,17 +12,7 @@ import {
   SCHEMA_STYLESHEET,
 } from "../constants/cy";
 
-import ChartLegend from "./CytoscapeChart/ChartLegend";
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
-
-const LegendContainer = styled(Box)({
-  flexGrow: 1,
-  position: "absolute",
-  top: 10,
-  left: 10,
-  zIndex: 1,
-  padding: "inherit",
-});
 
 export default function GraphSchemaContainer() {
   return (
@@ -43,13 +31,12 @@ export default function GraphSchemaContainer() {
           position: "relative",
         }}
       >
-        <LegendContainer>
-          <ChartLegend></ChartLegend>
-        </LegendContainer>
         <CytoscapeChart
           elements={SCHEMA_ELEMENTS}
           layout={SCHEMA_LAYOUT}
           stylesheet={SCHEMA_STYLESHEET}
+          legendPosition={{ top: 10, left: 10 }}
+          toolbarPosition={{ top: 10, right: 10 }}
         ></CytoscapeChart>
       </AccordionDetails>
     </Accordion>

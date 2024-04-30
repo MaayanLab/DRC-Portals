@@ -119,6 +119,7 @@ export default function GraphSearchContainer(
         elements={elements}
         layout={DEFAULT_LAYOUT}
         stylesheet={DEFAULT_STYLESHEET}
+        toolbarPosition={{ top: 10, right: 10 }}
       ></CytoscapeChart>
     </>
   );

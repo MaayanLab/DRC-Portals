@@ -29,29 +29,24 @@ import {
   resetHighlights,
 } from "../../utils/cy";
 
-import "./CytoscapeChart.css";
+import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
+import "./CytoscapeChart.css";
 
 useCytoscape(cola);
 
-interface CytoscapeChartProps {
+type CytoscapeChartProps = {
   elements: ElementDefinition[];
   layout: LayoutOptions;
   stylesheet: string | Stylesheet | Stylesheet[];
-}
-
-const ToolbarContainer = styled(Box)({
-  flexGrow: 1,
-  position: "absolute",
-  top: 10,
-  right: 10,
-  zIndex: 1,
-  padding: "inherit",
-});
+  legendPosition?: PositionOffsets;
+  toolbarPosition?: PositionOffsets;
+};
 
 export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
-  const cmpKey = v4();
-  const { elements, layout, stylesheet } = cytoscapeProps;
+  const cmpKey = `cy-chart-${v4()}`;
+  const { elements, layout, stylesheet, legendPosition, toolbarPosition } =
+    cytoscapeProps;
 
   const cyRef = useRef<cytoscape.Core>();
   const [hoveredNode, setHoveredNode] = useState<CytoscapeNodeData | null>(
@@ -65,6 +60,13 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   } | null>(null);
   const [contextMenuItems, setContextMenuItems] = useState<JSX.Element[]>([]);
   let nodeHoverTimerId: NodeJS.Timeout | null = null;
+
+  const WidgetContainer = styled(Box)({
+    flexGrow: 1,
+    position: "absolute",
+    zIndex: 1,
+    padding: "inherit",
+  });
 
   const handleContextMenuClose = () => {
     setContextMenu(null);
@@ -271,6 +273,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   return (
     <>
       <ClickAwayListener onClickAway={handleTooltipClickAway}>
+        {/* TODO: Should this have a key prop? */}
         <ChartTooltip
           followCursor
           title={tooltipTitle}
@@ -279,6 +282,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
           TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
         >
           <ChartContainer variant="outlined">
+            {/* TODO: Should this have a key prop? */}
             <CytoscapeComponent
               className="cy"
               cy={(cy) => (cyRef.current = cy)}
@@ -301,13 +305,20 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
           </ChartContainer>
         </ChartTooltip>
       </ClickAwayListener>
-      <ToolbarContainer>
-        <ChartToolbar
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          onFit={handleFit}
-        ></ChartToolbar>
-      </ToolbarContainer>
+      {toolbarPosition === undefined ? null : (
+        <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
+          <ChartToolbar
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onFit={handleFit}
+          ></ChartToolbar>
+        </WidgetContainer>
+      )}
+      {legendPosition === undefined ? null : (
+        <WidgetContainer key={`${cmpKey}-legend`} sx={{ ...legendPosition }}>
+          <ChartLegend></ChartLegend>
+        </WidgetContainer>
+      )}
     </>
   );
 }
