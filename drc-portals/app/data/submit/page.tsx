@@ -170,7 +170,7 @@ The Entity Page Template and Example are  links to:
                                     C2M2: .zip
                                 </ListItemText>
                                 <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                    KG Assertions: .csv
+                                    KG Assertions: .zip
                                 </ListItemText>
                                 <ListItemText sx={{ display: 'list-item', padding: 0 }}>
                                     Attribute Table: .h5 or .hdf5
@@ -393,7 +393,7 @@ The Entity Page Template and Example are  links to:
                                                 C2M2: .zip
                                             </ListItemText>
                                             <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                                KG Assertions: .csv
+                                                KG Assertions: .zip
                                             </ListItemText>
                                             <ListItemText sx={{ display: 'list-item', padding: 0 }}>
                                                 Attribute Table: .h5 or .hdf5

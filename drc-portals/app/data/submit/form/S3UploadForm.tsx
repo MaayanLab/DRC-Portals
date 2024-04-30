@@ -36,7 +36,7 @@ export const metaDataAssetOptions = [
   {
     asset: 'C2M2',
     description:
-      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Documentation page of the CFDE Workbench portal on how to create C2M2 files. 
+      <Typography fontSize={12}> The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.  The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the CFDE C2M2 documentation and C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Documentation page of the CFDE Workbench portal on how to create C2M2 files.
       </Typography>,
     example: <Link href="https://cfde-drc.s3.amazonaws.com/MoTrPAC/C2M2/2023-07-14/MoTrPAC_C2M2_2023-07-14_datapackage.zip" color="secondary">datapackage.zip</Link>
   },
@@ -50,7 +50,7 @@ export const metaDataAssetOptions = [
   {
     asset: 'Attribute Table',
     description: <Typography fontSize={12}>Attribute tables are files containing tables that describe the relationship between two entities with one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a given row and column is then a value defining nature of the relationship between the row entity and the column entity e.g. the qualitative score of similarity between a given gene and a given tissue type. </Typography>,
-    example: <Link href='https://cfde-drc.s3.amazonaws.com/LINCS/Attribute%20Table/2024-03-29/LINCS_L1000_CRISPR_KO_Perturbation_Consensus_CD_Sigs.h5' color="secondary" target="_blank" sx={{wordWrap:'break-word'}}> LINCS_L1000_CRISPR_KO_Perturbation_Consensus_CD_Sigs.h5</Link>
+    example: <Link href='https://cfde-drc.s3.amazonaws.com/LINCS/Attribute%20Table/2024-03-29/LINCS_L1000_CRISPR_KO_Perturbation_Consensus_CD_Sigs.h5' color="secondary" target="_blank" sx={{ wordWrap: 'break-word' }}> LINCS_L1000_CRISPR_KO_Perturbation_Consensus_CD_Sigs.h5</Link>
   },
 
 ]
@@ -73,19 +73,16 @@ export type S3UploadStatus = {
 const S3UploadStatusContext = React.createContext({} as S3UploadStatus)
 
 function parseFileTypeClient(filename: string, filetype: string, enteredFileType: string) {
-  let parsedFileType = ''
+  let parsedFileType : string[] = []
   let extension = filename.split('.')[1]
   if (extension.slice(-2) === 'mt') {
-    parsedFileType = 'XMT'
-  } else if (filetype === 'text/csv') {
-    parsedFileType = 'KG Assertions'
+    parsedFileType.push('XMT')
   } else if ((extension === 'h5') || (extension === 'hdf5')) {
-    parsedFileType = 'Attribute Table'
+    parsedFileType.push('Attribute Table')
   } else if ((filetype === 'zip') || (filetype === 'application/zip') || (filetype === 'application/x-zip') || (filetype === "application/x-zip-compressed")) {
-    parsedFileType = 'C2M2'
+    parsedFileType = ['C2M2', 'KG Assertions']
   }
-
-  return parsedFileType === enteredFileType ? true : false
+  return parsedFileType.includes(enteredFileType) ? true : false
 }
 
 async function alternativeHash(file: File) {
@@ -104,7 +101,7 @@ async function alternativeHash(file: File) {
 }
 
 const assetTypeExtensionMap: { [key: string]: string } = {
-  'KG Assertions': '.csv',
+  'KG Assertions': '.zip',
   'C2M2': '.zip',
   'XMT': '.gmt or .dmt',
   'Attribute Table': '.h5 or hdf5'
@@ -118,7 +115,7 @@ export function useS3UploadStatus() {
   return React.useContext(S3UploadStatusContext)
 }
 
-export function S3UploadForm(user: User & {dccs: DCC[]}
+export function S3UploadForm(user: User & { dccs: DCC[] }
 ) {
 
   const [status, setStatus] = React.useState<S3UploadStatus>({})
@@ -249,17 +246,17 @@ export function S3UploadForm(user: User & {dccs: DCC[]}
             <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Tooltip title='Click here for more information on data/metadata asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
           </Stack>
           <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the 
+            This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the
             asset type of the file. Then drop your file in the upload box or click on the 'Choose File' to select file for upload. Please do not refresh
             your browser during the upload process.
             <br></br>
-            The recommended extensions for each file asset type are: 
-            <List  sx={{ listStyleType: 'disc', pl: 3 }}>
-            <ListItem sx={{ display: 'list-item', padding: 0 }}>
+            The recommended extensions for each file asset type are:
+            <List sx={{ listStyleType: 'disc', pl: 3 }}>
+              <ListItem sx={{ display: 'list-item', padding: 0 }}>
                 C2M2: .zip
               </ListItem>
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                KG Assertions: .csv
+                KG Assertions: .zip
               </ListItem>
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
                 Attribute Table: .h5 or .hdf5
@@ -267,7 +264,7 @@ export function S3UploadForm(user: User & {dccs: DCC[]}
               <ListItem sx={{ display: 'list-item', padding: 0 }}>
                 XMT: .(x)mt e.g .gmt or .dmt
               </ListItem>
-            </List> 
+            </List>
             See the {' '}
             <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to upload files.
             <br></br>
