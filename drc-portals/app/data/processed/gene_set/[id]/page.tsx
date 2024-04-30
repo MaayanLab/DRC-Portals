@@ -17,6 +17,7 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
     id,
   },
   select: {
+    id: true, 
     _count: {
       select: {
         genes: true,
@@ -117,38 +118,6 @@ export default async function Page(props: PageProps) {
       },
     }
   })
-
-  const allGenes = await prisma.geneSetNode.findUniqueOrThrow({
-    where: {
-      id: props.params.id,
-    },
-    select: {
-      genes: {
-        select: {
-          id: true,
-          entity: {
-            select: {
-              node: {
-                select: {
-                  type: true,
-                  label: true,
-                  description: true,
-                },
-              },
-            },
-          },
-        },
-        where: searchParams.q ? {
-          entity: {
-            node: {
-              OR: [{ label: { mode: 'insensitive', contains: searchParams.q } }, { description: { search: searchParams.q } }]
-            },
-          },
-        } : {},
-      },
-    }
-  })
-
 
   return (
     <LandingPageLayout
