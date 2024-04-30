@@ -39,6 +39,7 @@ export default async function C2M2Page() {
       <Grid item sx={{mb:5}}>
         <br/>
         <ReactMarkdown 
+          skipHtml
           remarkPlugins={[remarkGfm]}
           components={{ 
             a: LinkRenderer,
@@ -48,10 +49,15 @@ export default async function C2M2Page() {
           {''.concat(
             toc, // table of contents
             intro, // intro
-            c2m2Tables.replaceAll('./', './C2M2/').replace('/submission-prep-script', '#submission-prep-script'), // C2M2 table descriptions from original docs
+            c2m2Tables
+              .replaceAll('./', './C2M2/')
+              .replaceAll('/submission-prep-script', '#submission-prep-script'), // C2M2 table descriptions from original docs
             '\n## Submission Prep Script\n',
             '*Sourced from the [CFDE Coordination Center Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/submission-prep-script)*\n',
-            submissionPrep.replace('## Overview', '').replace('## Usage', '## General Steps').split('This script is under')[0], //
+            submissionPrep
+              .replace('## Overview', '')
+              .replace('## Usage', '## General Steps')
+              .split('This script is under')[0], 
             tutorial, // overview of steps
             '\n#### Return to [Documentation](./)'
           )}

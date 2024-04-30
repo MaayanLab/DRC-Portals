@@ -33,6 +33,7 @@ export default async function StandardsPage(
         <Grid item sx={{mb:5}}>
           <br/>
           <ReactMarkdown 
+            skipHtml
             remarkPlugins={[remarkGfm]}
             components={{ 
               a: LinkRenderer,
@@ -43,8 +44,8 @@ export default async function StandardsPage(
               title,
               source,
               markdown
-                .replace('https://docs.nih-cfde.org/en/latest/c2m2/draft-C2M2_specification/', 'https://github.com/nih-cfde/c2m2/blob/master/draft-C2M2_specification/')
-                .replace('./C2M2-Table-Summary', './#c2m2-tables'),
+                .replaceAll('https://docs.nih-cfde.org/en/latest/c2m2', 'https://github.com/nih-cfde/c2m2/blob/master')
+                .replaceAll('./C2M2-Table-Summary', './#c2m2-tables'),
               '\n#### Return to [C2M2 Documentation](./)' 
             )}
           </ReactMarkdown>
