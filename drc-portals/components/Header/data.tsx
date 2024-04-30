@@ -60,6 +60,9 @@ export default async function InfoHeader() {
                     <Link href="/info/standards">
                       <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
                     </Link>
+                    <Link href="/data/review">
+                      <Typography variant="nav">REVIEW</Typography>
+                    </Link>
                     {/* <Link href="/data/coming_soon">
                       <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
                     </Link> */}
