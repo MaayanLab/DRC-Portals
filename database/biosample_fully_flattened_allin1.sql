@@ -144,6 +144,8 @@ select distinct
     c2m2.subject_role_taxonomy.taxonomy_id as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
 
+    /* Mano: 2024/04/29: likely, none of these columns need to be included in ffl_biosample or ffl_collection 
+    as these are not used in the query needed for the main search results page */
     c2m2.collection.persistent_id as collection_persistent_id, c2m2.collection.creation_time as collection_creation_time,
     c2m2.collection.name as collection_name, c2m2.collection.abbreviation as collection_abbreviation, 
     c2m2.collection.has_time_series_data as collection_has_time_series_data,

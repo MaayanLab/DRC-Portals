@@ -265,7 +265,7 @@ export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchS
 const biosamplesTable: { [key: string]: string } = {
     "biosample_local_id": "Biosample ID",
     "project_local_id": "Project ID",
-    "biosample_persistent_id": "Persisitent ID",
+    "biosample_persistent_id": "Persistent ID",
     "biosample_creation_time": "Creation time",
     "sample_prep_method_name": "Sample prep method",
     "disease_association_type_name": "Disease association (in all biosamples)",

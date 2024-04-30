@@ -61,6 +61,10 @@ async function fetchQueryResults(searchParams: any) {
               anatomy: string,
               gene_name: string,
               gene: string,
+              protein_name: string,
+              protein: string,
+              compound_name: string,
+              compound: string,
               data_type_name: string,
               data_type: string,
               project_name: string,
@@ -81,6 +85,8 @@ async function fetchQueryResults(searchParams: any) {
             anatomy_filters: { anatomy_name: string, count: number, }[],
             project_filters: { project_name: string, count: number, }[],
             gene_filters: { gene_name: string, count: number, }[],
+            protein_filters: { protein_name: string, count: number, }[],
+            compound_filters: { compound_name: string, count: number, }[],
             data_type_filters: { data_type_name: string, count: number, }[],
           }>>`
         WITH allres_full AS (
@@ -88,8 +94,7 @@ async function fetchQueryResults(searchParams: any) {
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
             FROM c2m2.ffl_biosample
             WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
-            /*ORDER BY rank DESC , dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name */
-        
+            /*ORDER BY rank DESC , dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name */        
         ),
         allres AS (
           SELECT 
@@ -97,7 +102,7 @@ async function fetchQueryResults(searchParams: any) {
             allres_full.dcc_name AS dcc_name,
             allres_full.dcc_abbreviation AS dcc_abbreviation,
             SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-            allres_full.project_local_id AS project_local_id,
+            COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
             /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
             COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
             SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
@@ -110,9 +115,15 @@ async function fetchQueryResults(searchParams: any) {
             /* CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name, */
             COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
             allres_full.gene AS gene,
+            COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+            allres_full.protein AS protein,
+            COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+            allres_full.substance_compound AS compound,
             COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
             REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-            allres_full.project_name AS project_name,
+            /* allres_full.project_name AS project_name, */
+            COALESCE(allres_full.project_name, 
+              concat_ws('', 'Dummy: Biosample(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
             c2m2.project.description AS project_description,
             allres_full.project_persistent_id as project_persistent_id,
             COUNT(*)::INT AS count,
@@ -125,19 +136,20 @@ async function fetchQueryResults(searchParams: any) {
           /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
             allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
           GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
-            disease_name, disease, anatomy_name, anatomy, gene_name, gene, data_type_name, data_type, 
-            project_name, project_description, allres_full.project_persistent_id 
-          ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, data_type_name
+            disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
+            data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id 
+          ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+            protein_name, compound_name, data_type_name
         ),
         allres_filtered AS (
           SELECT allres.*, 
           concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
           '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
           '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
-          '|', 'gene_name:', allres.gene_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
+          '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
+          '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
           FROM allres
-          ${Prisma.sql([filterClause])}
-        
+          ${Prisma.sql([filterClause])}        
         ),
         allres_limited AS (
           SELECT *
@@ -182,6 +194,16 @@ async function fetchQueryResults(searchParams: any) {
           FROM ${Prisma.sql([cascading_tablename])}
           GROUP BY gene_name ORDER BY gene_name
         ),
+        protein_name_count AS (
+          SELECT protein_name, COUNT(*) AS count 
+          FROM ${Prisma.sql([cascading_tablename])}
+          GROUP BY protein_name ORDER BY protein_name
+        ),
+        compound_name_count AS (
+          SELECT compound_name, COUNT(*) AS count 
+          FROM ${Prisma.sql([cascading_tablename])}
+          GROUP BY compound_name ORDER BY compound_name
+        ),
         data_type_name_count AS (
           SELECT data_type_name, COUNT(*) AS count 
           FROM ${Prisma.sql([cascading_tablename])}
@@ -197,6 +219,8 @@ async function fetchQueryResults(searchParams: any) {
           (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
           (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters,
           (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters,
+          (SELECT COALESCE(jsonb_agg(protein_name_count.*), '[]'::jsonb) FROM protein_name_count) AS protein_filters,
+          (SELECT COALESCE(jsonb_agg(compound_name_count.*), '[]'::jsonb) FROM compound_name_count) AS compound_filters,
           (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
           
           ` : [undefined];
@@ -244,6 +268,16 @@ async function fetchQueryResults(searchParams: any) {
             name: geneFilter.gene_name,
             count: geneFilter.count,
           }));
+          const ProteinFilters: FilterObject[] = results?.protein_filters.map((proteinFilter) => ({
+            id: proteinFilter.protein_name, // Use protein_name as id
+            name: proteinFilter.protein_name,
+            count: proteinFilter.count,
+          }));
+          const CompoundFilters: FilterObject[] = results?.compound_filters.map((compoundFilter) => ({
+            id: compoundFilter.compound_name, // Use compound_name as id
+            name: compoundFilter.compound_name,
+            count: compoundFilter.count,
+          }));
           const DataTypeFilters: FilterObject[] = results?.data_type_filters.map((data_typeFilter) => ({
             id: data_typeFilter.data_type_name, // Use gene_name as id
             name: data_typeFilter.data_type_name,
@@ -265,6 +299,7 @@ async function fetchQueryResults(searchParams: any) {
           const file_icon_path = "/img/icons/file-magnifiying-glass.png";
         
           //const t4: number = performance.now();
+
           return (
             <ListingPageLayout
               count={results?.count} // This matches with #records in the table on the right (without filters applied)
@@ -301,6 +336,20 @@ async function fetchQueryResults(searchParams: any) {
                       <hr className="m-2" />
                     </>
                   )}
+                  {ProteinFilters.length > 1 && (
+                    <>
+                      {/* <Typography className="subtitle1">Protein</Typography> */}
+                      <FilterSet key={`ID:$protein`} id={`protein`} filterList={ProteinFilters} filter_title="Protein" example_query="e.g. A0N4X2" />
+                      <hr className="m-2" />
+                    </>
+                  )}
+                  {CompoundFilters.length > 1 && (
+                    <>
+                      {/* <Typography className="subtitle1">Compound</Typography> */}
+                      <FilterSet key={`ID:$compound`} id={`compound`} filterList={CompoundFilters} filter_title="Compound" example_query="e.g. Dexamethasone" />
+                      <hr className="m-2" />
+                    </>
+                  )}
                   {DataTypeFilters.length > 1 && (
                     <>
                       {/* <Typography className="subtitle1">Anatomy</Typography> */}
@@ -308,7 +357,7 @@ async function fetchQueryResults(searchParams: any) {
                       <hr className="m-2" />
                     </>
                   )}
-                 
+                  {/* <Typography variant="h5">Core filters</Typography> */}
                   {/* <hr className="m-2" /> */}
                   {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
                   <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="Common Fund Program" example_query="e.g. 4DN" />
@@ -358,11 +407,12 @@ async function fetchQueryResults(searchParams: any) {
                   <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
                   //<Description description={res.dcc_abbreviation.split("_")[0]} />,
                   //<Description description={res.project_name} />,
+                  //<Link href={`${res.project_persistent_id}`} target="_blank"><u>{res.project_name}</u></Link>,
+                  //(res.project_persistent_id && ( http_pattern.test(res.project_persistent_id) || res.project_persistent_id.includes(doi_pattern))) ? 
                   (res.project_persistent_id && isURL(res.project_persistent_id)) ?
                   <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> : 
                     <Description description={res.project_name} />,
-        
-        
+                
                   //<TruncatedText text={res.project_description} maxLength={80} />,
         
                   <>
@@ -399,6 +449,20 @@ async function fetchQueryResults(searchParams: any) {
                         <br />
                       </>
                     )}
+                    {res.protein_name !== "Unspecified" && (
+                      <>
+                        <span>Protein: </span>
+                        <Link href={`https://www.uniprot.org/uniprotkb/${res.protein}`}  target="_blank"><i><u>{res.protein_name}</u></i></Link>
+                        <br />
+                      </>
+                    )}
+                    {res.compound_name !== "Unspecified" && (
+                      <>
+                        <span>Compound: </span>
+                        <Link href={`https://pubchem.ncbi.nlm.nih.gov/compound/${res.compound}`}  target="_blank"><i><u>{res.compound_name}</u></i></Link>
+                        <br />
+                      </>
+                    )}
                     {res.data_type_name !== "Unspecified" && (
                       <>
                         <span>Data type: </span>
@@ -423,7 +487,7 @@ async function fetchQueryResults(searchParams: any) {
     } catch (error) {
         console.error('Error fetching query results:', error);
         return <> 
-        <div className="mb-10">Error fetching query results. </div>
+        <div className="mb-10">Error fetching query results.</div>
         <Link href="/data">
           <Button
             sx={{ textTransform: "uppercase" }}
