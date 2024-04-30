@@ -1,0 +1,17 @@
+import S3Browser from './S3Browser.tsx'
+
+# Archives
+
+We are archiving select tools, databases, and portals from CFDE participating CF programs using low-cost [Amazon Glacier Deep Archive](https://aws.amazon.com/pm/s3-glacier/) for backup and archiving.
+
+The hope is that these resources can still be restored in the future even if the funding to host them publicly is no longer available.
+
+The archive is organized by DCC, application, and a timestamp of when the snapshot was created. Each snapshot is a `.zip` archive containing, hopefully, everything needed to bring it back up, including database dumps, source code, and docker containers to run the application and any dependencies.
+
+The current set of archives are listed below:
+
+<S3Browser />
+
+They are accessible via [AWS S3](https://aws.amazon.com/s3/), but please note that they are enabled with Requestor Pays. See [this user guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html) on how to access them.
+
+If you'd like to add your own archive here, please [contact us](mailto:help@cfde.cloud) and we can work with you on building and uploading the archive.
