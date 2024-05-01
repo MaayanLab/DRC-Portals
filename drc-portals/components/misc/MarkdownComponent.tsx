@@ -1,7 +1,7 @@
 import { Typography, Link } from '@mui/material';
 import MarkdownToJSX from 'markdown-to-jsx';
 import { ReactNode } from 'react';
-
+import Image from 'next/image';
 
 const overrides = {
     h1: {
@@ -51,7 +51,19 @@ const overrides = {
     },
     a: {
         component:  ({children, ...props}: {children: ReactNode})=><Link {...props} color="secondary">{children}</Link>
-    }
+    },
+    ul: {
+        component:  ({children, ...props}: {children: ReactNode})=><ul style={{listStyleType: 'circle'}} {...props} color="secondary">{children}</ul>
+    },
+    // li: {
+    //     component:  ({children, ...props}: {children: ReactNode})=><li style={{marginLeft: 20}} {...props} color="secondary">{children}</li>
+    // }
+    td: {
+        component:  ({children, ...props}: {children: ReactNode})=><td style={{borderWidth: 2, borderColor: "black", minWidth: 200}}>{children}</td>
+    },
+    th: {
+        component:  ({children, ...props}: {children: ReactNode})=><th style={{borderWidth: 2, borderColor: "black", minWidth: 200}}>{children}</th>
+    },
 }
 const Markdown = async ({src, markdown}: {src?:string, markdown?:string}) => {
     let md = null
