@@ -35,6 +35,6 @@ From the original C2M2 documentation:
 
 ## C2M2 Tables
 
-*Sourced from the [CFDE Coordination Center Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/C2M2-Table-Summary)*
+*Sourced from the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/C2M2-Table-Summary)*
 
 All of the tables in a C2M2 datapackage are inter-linked via foreign key relationships, as shown in the following diagram of the complete C2M2 system. 

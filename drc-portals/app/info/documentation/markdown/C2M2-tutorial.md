@@ -1,3 +1,23 @@
+
+## Datapackage Submission
+
+As an optional but recommended step before submitting your data package, you may validate your pipeline using either the `c2m2-frictionless` Python package (see [Resources](#resources)) or by following the steps below, from the [CFDE-CC Documentation Wiki Quickstart](https://github.com/nih-cfde/published-documentation/wiki/Quickstart#optional-frictionless): 
+
+> Our submission system runs the frictionless validator on our servers as part of the submission process. You do not need to install or run frictionless to use our tool, however if you would like to use the validator locally, you can install it using these commands:  
+`pip install frictionless`  
+If that command fails try:  
+`pip install frictionless-py`  
+Once it's installed, run it by doing:  
+`frictionless validate PATH/TO/JSON_FILE_IN_DIRECTORY`  
+This command takes several minutes to run, and dumps the results into your terminal by default. To make a nicer file to review do:  
+`frictionless validate PATH/TO/JSON_FILE_IN_DIRECTORY > report.txt`  
+
+Currently, the CFDE Workbench Data Portal accepts complete datapackage submissions in ZIP file format (*.zip). 
+
+For specific instructions on using the submission system, see the [Contribution Guide](https://data.cfde.cloud/submit).
+
+To submit a datapackage, navigate to the [Submission System](https://data.cfde.cloud/submit/form).
+
 ## Tutorial
 For the April 2022 CFDE Cross-Pollination meeting, the LINCS DCC demonstrated a Jupyter Notebook tutorial on building the `file`, `biosample`, and `subject` tables for LINCS L1000 signature data. The code and files can be found at the following link: 
 
@@ -77,9 +97,9 @@ Code snippets from this tutorial corresponding to each step are reproduced below
     - For instance, the LINCS signature `L1000_LINCS_DCIC_ABY001_A375_XH_A16_lapatinib_10uM.tsv.gz` comes from the biosample `ABY001_A375_XH_A16_lapatinib_10uM` (in this case an experimental condition) and the subject cell line `A375`; has a data type of expression matrix (`data:0928`); is stored as a TSV file format (`format:3475`) with GZIP compression format (`format:3989`); and has a MIME type of `text/tab-separated-values`. 
     - The `ABY001_A375_XH_A16_lapatinib_10uM` biosample was obtained via the L1000 sequencing assay type (`OBI:0002965`); comes from a cell line derived from the skin (`UBERON:0002097`); and was treated with the compound lapatinib (`CID:208908`). 
 
-6. Either manually or programmatically, generate each data table, starting with the core entity tables (`file`, `biosample`, `subject`). This step will depend entirely on the format of a DCC's existing metadata and ontology mapping tables. 
+5. Either manually or programmatically, generate each data table, starting with the core entity tables (`file`, `biosample`, `subject`). This step will depend entirely on the format of a DCC's existing metadata and ontology mapping tables. 
 
-7. Generate the inter-entity linkage association tables (`file_describes_biosample`, `file_describes_subject`, `biosample_from_subject`). 
+6. Generate the inter-entity linkage association tables (`file_describes_biosample`, `file_describes_subject`, `biosample_from_subject`). 
     
     - In the LINCS tutorial, since the filenames come directly from the biosamples, once the `file` and `biosample` tables have both been built, `file_describes_biosample` can be generated. 
     ```
@@ -94,11 +114,15 @@ Code snippets from this tutorial corresponding to each step are reproduced below
     fdb['biosample_local_id'] = fdb['file_local_id'].apply(file_2_biosample_map_function)
     ```
 
-8. Assign files, biosamples, and subjects to any collections, if applicable, using the `file_in_collection`, `subject_in_collection`, and `biosample_in_collection` tables. 
+7. Assign files, biosamples, and subjects to any collections, if applicable, using the `file_in_collection`, `subject_in_collection`, and `biosample_in_collection` tables. 
 
     - Collections are optional, and can represent files from the same publications or other logical groupings outside of funding. 
 
-9. Use provided [C2M2 submission preparation script and ontology support files](https://osf.io/bq6k9/) to automatically build term entity tables from your created files. 
+8. Use provided [C2M2 submission preparation script and ontology support files](https://osf.io/bq6k9/) to automatically build term entity tables from your created files. 
 
-10. Validate the final datapackage, containing all files and the schema, and submit! 
+9. Optionally validate the final datapackage containing all files and the schema using one of the following validator tools:
+    - [Frictionless validator](#datapackage-submission)
+    - [`c2m2-frictionless-datapackage` code package](#resources)
+    
+10. Compress the entire directory into a *.zip file and upload to the [CFDE Workbench Metadata and Data Submission System](https://data.cfde.cloud/submit/form). 
 

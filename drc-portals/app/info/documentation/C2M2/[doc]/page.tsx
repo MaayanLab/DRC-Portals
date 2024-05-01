@@ -25,9 +25,13 @@ export default async function StandardsPage(
     }
 
     const suffix = fixProblematic(params.doc)
-    const markdown = await fetchC2m2Markdown(suffix)
-    const title = '# ' + suffix.split('-')[1].split('.md')[0] + '\n\n'
-    const source = '*Sourced from the [CFDE Coordination Center Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/' + params.doc + ')*\n\n'
+    let markdown = await fetchC2m2Markdown(suffix)
+    markdown = markdown
+      .replaceAll('https://docs.nih-cfde.org/en/latest/c2m2', 'https://github.com/nih-cfde/c2m2/blob/master')
+      .replaceAll('./C2M2-Table-Summary', './#c2m2-tables')
+    const title = `# ${suffix.split("-")[1].split(".md")[0]}\n\n`
+    const source = '*Sourced from the [CFDE-CC Documentation Wiki]'
+      + '(https://github.com/nih-cfde/published-documentation/wiki/${params.doc})*\n\n'
     return (
       <Grid container sx={{ml:3, mt:3}}>
         <Grid item sx={{mb:5}}>
@@ -43,9 +47,7 @@ export default async function StandardsPage(
             {''.concat(
               title,
               source,
-              markdown
-                .replaceAll('https://docs.nih-cfde.org/en/latest/c2m2', 'https://github.com/nih-cfde/c2m2/blob/master')
-                .replaceAll('./C2M2-Table-Summary', './#c2m2-tables'),
+              markdown,
               '\n#### Return to [C2M2 Documentation](./)' 
             )}
           </ReactMarkdown>
