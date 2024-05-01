@@ -25,8 +25,10 @@ import { ChartContainer, ChartTooltip } from "../../constants/cy";
 import { CustomToolbarFnFactory, CytoscapeNodeData } from "../../interfaces/cy";
 import {
   createNodeTooltip,
+  hideElement,
   highlightNeighbors,
   resetHighlights,
+  showElement,
 } from "../../utils/cy";
 
 import ChartLegend from "./ChartLegend";
@@ -84,6 +86,39 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       fn(...args);
       handleContextMenuClose();
     };
+  };
+
+  // Menu items that are shared between nodes and edges
+  const getSharedMenuItems = (event: EventObjectNode | EventObjectEdge) => {
+    const items = [];
+
+    if (event.target.hasClass("dimmed")) {
+      items.push(
+        <MenuItem
+          key={`${cmpKey}-shared-ctx-menu-0`}
+          onClick={contextMenuItemSelectWrapper(showElement, event)}
+        >
+          Show
+        </MenuItem>
+      );
+    } else {
+      items.push(
+        <MenuItem
+          key={`${cmpKey}-shared-ctx-menu-1`}
+          onClick={contextMenuItemSelectWrapper(hideElement, event)}
+        >
+          Hide
+        </MenuItem>
+      );
+    }
+
+    if (items.length > 0) {
+      items.push(
+        <Divider key={`${cmpKey}-shared-ctx-menu-divider`} variant="middle" />
+      );
+    }
+
+    return items;
   };
 
   const getStaticMenuItems = (event: EventObject) => {
@@ -184,6 +219,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
         Highlight Neighbors
       </MenuItem>,
       <Divider key={`${cmpKey}-node-ctx-menu-divider`} variant="middle" />,
+      ...getSharedMenuItems(event),
     ];
 
     handleContextMenu(event, nodeCxtMenuItems);
@@ -191,7 +227,9 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   };
 
   const handleCxtTapEdge = (event: EventObjectEdge) => {
-    handleContextMenu(event, []);
+    const edgeCxtMenuItems = [...getSharedMenuItems(event)];
+
+    handleContextMenu(event, edgeCxtMenuItems);
     cxtTapHandleSelectState(event);
   };
 

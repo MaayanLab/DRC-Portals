@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { EventObject, EventObjectNode } from "cytoscape";
+import { EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
 import { Record } from "neo4j-driver";
 import { ReactNode } from "react";
 
@@ -190,4 +190,13 @@ export const resetHighlights = (event: EventObject) => {
   event.cy.batch(() => {
     event.cy.elements().removeClass("dimmed").removeClass("highlight");
   });
+};
+
+export const showElement = (event: EventObjectNode | EventObjectEdge) => {
+  event.target.removeClass("dimmed").addClass("highlight");
+};
+
+export const hideElement = (event: EventObjectNode | EventObjectEdge) => {
+  // We remove hovered here because the node is necessarily hovered when a context menu is opened for it
+  event.target.removeClass("highlight hovered").addClass("dimmed");
 };

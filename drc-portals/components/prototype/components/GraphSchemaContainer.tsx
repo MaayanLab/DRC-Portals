@@ -21,6 +21,11 @@ import { CytoscapeReference } from "../interfaces/cy";
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 
 export default function GraphSchemaContainer() {
+  // TODO: Custom context menu options:
+  //  - Prepend to Path: prepends a node or relationship to the path array
+  //  - Append to Path: appends a node or relationship to the path array
+  //  - Search Path
+
   const INITIAL_NODE_POSITIONS = new Map<string, Position>(
     SCHEMA_NODES.map((el) => [
       el.data.id,
@@ -33,9 +38,13 @@ export default function GraphSchemaContainer() {
       const cy = cyRef.current;
       if (cy !== undefined) {
         cy.batch(() => {
+          // Reset node positions
           cy.nodes().forEach((el) => {
             el.position(INITIAL_NODE_POSITIONS.get(el.id()) as Position);
           });
+
+          // Reset styles
+          cy.elements().removeClass("highlight dimmed");
         });
       }
     };
