@@ -17,12 +17,13 @@ import prisma from '@/lib/prisma'
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid"
 
-import MasonryClient from "./MasonryClient"
+import MasonryClient from "../MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { Outreach as OutreachType } from "@prisma/client"
 import DeleteIcon from '@mui/icons-material/Delete';
-import Markdown from "./MarkdownComponent"
+import Markdown from "../MarkdownComponent"
+import ExportCalendar from "./ExportCalendar"
 export const shuffle = (array: OutreachType[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
@@ -160,10 +161,12 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                 </>
                 
               }
-              
-              <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                <Button sx={{marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
-              </Link>
+              <Stack direction="row">
+                <ExportCalendar event={e} />
+                <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
+                  <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                </Link>
+              </Stack>
             </Stack>
           </Wrapper>
         )
