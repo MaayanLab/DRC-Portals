@@ -161,10 +161,10 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                 </>
                 
               }
-              <Stack direction="row">
-                <ExportCalendar event={e} />
+              <Stack direction={"row"}>
+                {!featured && <ExportCalendar event={e} />}
                 <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                  <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                  <Button sx={featured && {marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
                 </Link>
               </Stack>
             </Stack>
@@ -242,7 +242,10 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
               }
             },
             {
-              end_date: null
+              end_date: null,
+              start_date: {
+                gte: now
+              }
             }
           ],
           ...tag_filter
@@ -271,12 +274,22 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
           start_date: { sort: 'desc', nulls: 'last' }
         }
       })
-
+      
       const past = await prisma.outreach.findMany({
         where: {
-          end_date: {
-            lt: now
-          },
+          OR: [
+            {
+              end_date: {
+                lt: now
+              }
+            },
+            {
+              end_date: null,
+              start_date: {
+                lt: now
+              }
+            }
+          ],
           ...tag_filter
         },
         orderBy: {
