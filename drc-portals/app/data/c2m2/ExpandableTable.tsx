@@ -15,10 +15,10 @@ interface ExpandableTableProps {
     downloadFileName?: string;
     tableTitle: string;
     searchParams: {
-      q?: string | null | undefined;
-      p: number;
-      r: number;
-      // Include additional properties if they're used
+        q?: string | null | undefined;
+        p: number;
+        r: number;
+        // Include additional properties if they're used
     };
     count: number;
     colNames: string[];
@@ -63,11 +63,13 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                             rows={data.map(row => (
                                 dynamicColumns.map(column => (
                                     // Render persistent_id as hyperlink if it's a URL
-                                    column === 'persistent_id' && isURL(row[column]) ? (
-                                        <Link href={row[column]} className="underline cursor-pointer text-blue-600" 
-                                        key={column} target="_blank" rel="noopener noreferrer">
-                                            {row[column]}
-                                        </Link>
+                                    column.toLowerCase().includes('persistent') && isURL(row[column]) ? (
+                                        <Link href={row[column].startsWith('drs://') ? 
+                                        row[column].replace(/^drs:\/\//i, 'https://') :
+                                        row[column]} className="underline cursor-pointer text-blue-600"
+                                            key={column} target="_blank" rel="noopener noreferrer">
+                                            {row[column].startsWith('drs://')?row[column].substring(6):row[column]}
+                                        </Link> 
                                     ) : (
                                         // Ensure bigint values are converted to string
                                         <Description description={row[column] !== null ? String(row[column]) : 'NA'} key={column} />
@@ -75,7 +77,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                 ))
                             ))}
                         />
-                        <DownloadButton data={full_data} filename={downloadFileName}/>
+                        <DownloadButton data={full_data} filename={downloadFileName} />
                     </AccordionDetails>
                 </Accordion>
             )}

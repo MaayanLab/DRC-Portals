@@ -7,8 +7,9 @@ export function capitalizeFirstLetter(str: string): string {
 
 export function isURL(str: string): boolean {
     const http_pattern = /^http/i;
+    const drs_pattern = /^drs:\/\//i;
     const doi_pattern = "doi.org";
-      return ( !(str === null || str.trim() === '') && ( http_pattern.test(str) || str.toLowerCase().includes(doi_pattern)) ); 
+      return ( !(str === null || str.trim() === '') && ( http_pattern.test(str) || drs_pattern.test(str) || str.toLowerCase().includes(doi_pattern)) ); 
 }
   
 interface HashTable {
