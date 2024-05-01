@@ -5,7 +5,7 @@ import ListItem from '@mui/material/ListItem';
 
 export default function March2024F2F () {
 	return(
-		<Grid container spacing={2} alignItems={"center"} sx={{marginTop: 5, marginBottom: 5}}>
+		<Grid container spacing={2} alignItems={"flex-start"} sx={{marginTop: 5, marginBottom: 5}}>
 			<Grid item xs={12}>
 				<Typography variant="h2">The NIH CFDE March 2024 All-Hands Meeting</Typography>
 				<Typography variant="subtitle2">March 19-20, 2024</Typography>
@@ -13,7 +13,7 @@ export default function March2024F2F () {
 			</Grid>
 			<Grid item xs={12} sm={5}>
 				<Typography variant="body1" sx={{textAlign: 'justify'}}>
-					The CFDE (Common Fund Data Ecosystem) 2024 All-Hands Meeting took place on March 19-20, 2024 in Bethesda, MD.  Sessions included introductions of new CFDE Members, partnership discussions, research projects, breakout sessions, open discussion, and a poster session with over fifty participants.
+					The Common Fund Data Ecosystem (CFDE) 2024 All-Hands Meeting took place on March 19-20, 2024 in Bethesda, MD.  Sessions included introductions of new CFDE members, partnership updates, research projects, breakout sessions, open discussion, and a poster session with over fifty participants.
 				</Typography>
 				
 			</Grid>
@@ -22,15 +22,13 @@ export default function March2024F2F () {
 			</Grid>
 			<Grid item xs={12}>
 				<Typography variant="h3">
-					Poster Awarding
+					Blue Ribbon Posters
 				</Typography>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid item xs={12} sm={5}>
 				<Typography variant="body1">
-					Eight posters from the poster session have been awarded
+					The following presenters were awarded a blue ribbon during the second day of the meeting.
 				</Typography>
-			</Grid>
-			<Grid item xs={12}>
 				<List dense>
 					<ListItem><Typography variant="body1"><b>Jimmy Zhen:</b> The MoTrPAC Data Hub: a suite of interactive tools for the dissemination of large scale multi-omics data (MoTrPac) </Typography></ListItem>
 					<ListItem><Typography variant="body1"><b>David Jimenez-Morales:</b> Unveiling the Multi-Omic Landscape of Endurance Exercise: Biological Insights and Data Integration from the MoTrPAC Study (MoTrPac) </Typography></ListItem>
@@ -42,7 +40,8 @@ export default function March2024F2F () {
 					<ListItem><Typography variant="body1"><b>Yasin El Abiedad:</b> Streamlining Metadata Harmonization and Maximizing the Reuse of Public Raw Data in Metabolomics (R03 awardee) </Typography></ListItem>
 				</List>
 			</Grid>
-			<Grid item xs={12} className="flex justify-center items-center">
+
+			<Grid item xs={12} sm={7} className="flex justify-center items-center">
 				<Image src='/img/poster-winners.png' alt='f2f' width={450} height={450}/>
 			</Grid>
 		</Grid>
