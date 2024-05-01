@@ -27,7 +27,7 @@ export default function NavBreadcrumbs() {
         }
         return {path_split, format_path_split}
     }, [path])
-    if (path_split.length < 2) return null
+    if (path_split.length < 1) return null
     return (
         <Breadcrumbs aria-label="breadcrumb" separator="›">
             {format_path_split.map((p,i)=>(
