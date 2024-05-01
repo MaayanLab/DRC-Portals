@@ -52,7 +52,8 @@ select distinct
     c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, 
     c2m2.biosample_from_subject.age_at_sampling,
     c2m2.biosample_gene.gene,
-    c2m2.biosample_in_collection.collection_id_namespace, c2m2.biosample_in_collection.collection_local_id,
+    /* c2m2.biosample_in_collection.collection_id_namespace, c2m2.biosample_in_collection.collection_local_id, */
+    c2m2.collection.id_namespace, c2m2.collection.local_id, /* now also joining c2m2.subject_in_collection */
     c2m2.biosample_substance.substance,
 
     /* Include dcc_name and dcc_abbreviation in searchable or not */
@@ -118,7 +119,8 @@ select distinct
     c2m2.biosample_from_subject.subject_id_namespace as subject_id_namespace, c2m2.biosample_from_subject.subject_local_id as subject_local_id, 
     c2m2.biosample_from_subject.age_at_sampling as biosample_age_at_sampling,
     c2m2.biosample_gene.gene as gene,
-    c2m2.biosample_in_collection.collection_id_namespace as collection_id_namespace, c2m2.biosample_in_collection.collection_local_id as collection_local_id,
+    /* c2m2.biosample_in_collection.collection_id_namespace as collection_id_namespace, c2m2.biosample_in_collection.collection_local_id as collection_local_id, */
+    c2m2.collection.id_namespace as collection_id_namespace, c2m2.collection.local_id as collection_local_id,
     c2m2.biosample_substance.substance as substance,
 
     c2m2.dcc.dcc_name as dcc_name, c2m2.dcc.dcc_abbreviation as dcc_abbreviation,
@@ -180,6 +182,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and 
         c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
 
+    full join c2m2.subject /* Could right-join make more sense here; likely no; yes, trying on 2024/04/30 moved from later part to here */
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+
     full join c2m2.biosample_gene 
         on (c2m2.biosample.local_id = c2m2.biosample_gene.biosample_local_id and 
         c2m2.biosample.id_namespace = c2m2.biosample_gene.biosample_id_namespace)
@@ -187,6 +193,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     full join c2m2.biosample_in_collection
         on (c2m2.biosample.local_id = c2m2.biosample_in_collection.biosample_local_id and
         c2m2.biosample.id_namespace = c2m2.biosample_in_collection.biosample_id_namespace)
+
+    full join c2m2.subject_in_collection
+        on (c2m2.subject.local_id = c2m2.subject_in_collection.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.subject_in_collection.subject_id_namespace)
 
     full join c2m2.biosample_substance 
         on (c2m2.biosample.local_id = c2m2.biosample_substance.biosample_local_id and
@@ -247,9 +257,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         c2m2.project.id_namespace = c2m2.dcc.project_id_namespace))
 
     --------------------Mano 2024/02/02 WARNING CHECK 2ND CONDITION OF JOIN ON
-    left join c2m2.subject /* Could right-join make more sense here; likely no */
-        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
-        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+    --- Mano: 2024/04/30: Moved up there to try full join
+    --- left join c2m2.subject /* Could right-join make more sense here; likely no */
+        --- on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        --- c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
         --- original, till 2024/02/03: c2m2.fl_biosample.project_id_namespace = c2m2.subject.project_id_namespace)
 
     --- Mano: 2024/02/02 add subject_disease
@@ -287,8 +298,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         on (c2m2.subject_role_taxonomy.taxonomy_id = c2m2.ncbi_taxonomy.id)
 
     left join c2m2.collection
-        on (c2m2.biosample_in_collection.collection_local_id = c2m2.collection.local_id and
-        c2m2.biosample_in_collection.collection_id_namespace = c2m2.collection.id_namespace)
+        on ((c2m2.biosample_in_collection.collection_local_id = c2m2.collection.local_id and
+        c2m2.biosample_in_collection.collection_id_namespace = c2m2.collection.id_namespace) OR
+        (c2m2.subject_in_collection.collection_local_id = c2m2.collection.local_id and
+        c2m2.subject_in_collection.collection_id_namespace = c2m2.collection.id_namespace))
     
     left join c2m2.sample_prep_method
         on (c2m2.biosample.sample_prep_method = c2m2.sample_prep_method.id)

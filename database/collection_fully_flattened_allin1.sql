@@ -52,6 +52,7 @@ select distinct
     null, null, /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
     null, /** c2m2.biosample_from_subject.age_at_sampling, **/
     c2m2.collection_gene.gene,
+    /* keeping empty line for line number match with biosample_fully_flattened_allin1.sql */
     c2m2.collection.id_namespace, c2m2.collection.local_id, 
     c2m2.collection_substance.substance, /** **/
 
@@ -118,6 +119,7 @@ select distinct
     null /* c2m2.biosample_from_subject.subject_id_namespace */ as subject_id_namespace, null /* c2m2.biosample_from_subject.subject_local_id */ as subject_local_id, 
     null /* c2m2.biosample_from_subject.age_at_sampling */ as biosample_age_at_sampling,
     c2m2.collection_gene.gene as gene,
+    /* keeping empty line for line number match with biosample_fully_flattened_allin1.sql */
     c2m2.collection.id_namespace as collection_id_namespace, c2m2.collection.local_id as collection_local_id,
     c2m2.collection_substance.substance as substance, /** **/
 

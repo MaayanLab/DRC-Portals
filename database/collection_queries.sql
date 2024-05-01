@@ -260,6 +260,53 @@ select * from (
 
 select * from c2m2.collection where local_id ilike '%gs://adult-gtex/annotations/v8/%';
 
+--- ================================================================================
+--- Mano: 2024/04/30: the numbers below can change if run in future
+--- c2m2.biosample_in_collection vs c2m2.subject_in_collection
+select count(*) from (
+    select * from (
+    (select distinct collection_local_id from c2m2.biosample_in_collection)    
+    except
+    (select distinct collection_local_id from c2m2.subject_in_collection)
+    )
+);
+--- 11182
+
+select count(*) from (
+    select * from (
+    (select distinct collection_local_id from c2m2.subject_in_collection)
+    except
+    (select distinct collection_local_id from c2m2.biosample_in_collection)    
+    )
+);
+--- 2207
+select count(*) from (
+    select * from (
+    (select distinct collection_local_id from c2m2.subject_in_collection)
+    union
+    (select distinct collection_local_id from c2m2.biosample_in_collection)    
+    )
+);
+---  29396
+select count(*) from (select distinct collection_local_id from c2m2.subject_in_collection);
+--- 18214
+select count(*) from (select distinct collection_local_id from c2m2.biosample_in_collection);
+--- 27189
+
+--- Find biosamples associated with subjects with collection_id not in biosample_in_collection
+    select count(*) from 
+    (select distinct c2m2.biosample_from_subject.biosample_local_id from 
+    (c2m2.biosample_from_subject INNER JOIN
+    c2m2.subject_in_collection ON (c2m2.biosample_from_subject.subject_local_id = c2m2.subject_in_collection.subject_local_id)
+    INNER JOIN (
+    (select distinct collection_local_id from c2m2.subject_in_collection)
+    except
+    (select distinct collection_local_id from c2m2.biosample_in_collection)    
+    ) tmp on (tmp.collection_local_id = c2m2.subject_in_collection.collection_local_id)
+    ));
+--- 2961: not a huge increase as compared to
+--- ================================================================================
+
 --- Error scenario: search for 77320cd3-7c4d-596f-b97d-ce68888eb718
 --- https://ucsd-sslab.ngrok.app/data/c2m2/record_info_col?q=77320cd3-7c4d-596f-b97d-ce68888eb718&t=dcc_name:Genotype-Tissue%20Expression%20Project|project_local_id:|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified
 --- This is because, in utils.ts, in line 144: export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
