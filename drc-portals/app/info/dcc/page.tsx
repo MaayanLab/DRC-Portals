@@ -30,46 +30,53 @@ export default async function DCCLanding() {
     }))
 
     return (
-        <Box sx={{ minHeight: 253 }}>
-            <MasonryClient defaultHeight={1500}>
-            {dccs.map(dcc=>(
-                    <Card sx={{paddingLeft: 2, paddingRight: 2}}>
-                        {dcc.icon &&
-                            <CardHeader
-                                avatar={
-                                    <div className="flex relative" style={{height: 50, width:100}}>
-                                        <Image alt={dcc.id} src={dcc.icon} fill={true} style={{objectFit: "contain"}}/>
-                                    </div>
+        <Grid container spacing={1} sx={{marginTop: 2}}>
+            <Grid item xs={12}>
+                <Typography variant="h3" color="secondary">Common Fund Programs Partnered with the CFDE</Typography>
+            </Grid>
+            <Grid item xs={12}>
+                <Box sx={{ minHeight: 253 }}>
+                    <MasonryClient defaultHeight={1500}>
+                    {dccs.map(dcc=>(
+                            <Card sx={{paddingLeft: 2, paddingRight: 2}}>
+                                {dcc.icon &&
+                                    <CardHeader
+                                        avatar={
+                                            <div className="flex relative" style={{height: 50, width:100}}>
+                                                <Image alt={dcc.id} src={dcc.icon} fill={true} style={{objectFit: "contain"}}/>
+                                            </div>
+                                        }
+                                        title={<Typography variant="h3" color="secondary">{dcc.short_label}</Typography>}
+                                    />
                                 }
-                                title={<Typography variant="h3" color="secondary">{dcc.short_label}</Typography>}
-                            />
-                        }
-                        <CardContent>
-                            <Typography sx={{
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: '5',
-                                WebkitBoxOrient: 'vertical',
-                            }} variant={'body2'} color="secondary">
-                                {dcc.description}
-                            </Typography>
-                        </CardContent>
-                        <CardActions>
-                            <Link href={`/info/dcc/${dcc.short_label}`}>
-                                <Button color="secondary">
-                                    <Typography variant="body1">Expand</Typography>
-                                </Button>
-                            </Link>
-                            <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
-                                <Button color="secondary">
-                                    <Typography variant="body1">Go to DCC portal</Typography>
-                                </Button>
-                            </Link>
-                        </CardActions>
-                    </Card>
-            ))}
-            </MasonryClient>
-        </Box>
+                                <CardContent>
+                                    <Typography sx={{
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: '5',
+                                        WebkitBoxOrient: 'vertical',
+                                    }} variant={'body2'} color="secondary">
+                                        {dcc.description}
+                                    </Typography>
+                                </CardContent>
+                                <CardActions>
+                                    <Link href={`/info/dcc/${dcc.short_label}`}>
+                                        <Button color="secondary">
+                                            <Typography variant="body1">Expand</Typography>
+                                        </Button>
+                                    </Link>
+                                    <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
+                                        <Button color="secondary">
+                                            <Typography variant="body1">Go to DCC portal</Typography>
+                                        </Button>
+                                    </Link>
+                                </CardActions>
+                            </Card>
+                    ))}
+                    </MasonryClient>
+                </Box>
+            </Grid>
+        </Grid>
     )
 }
