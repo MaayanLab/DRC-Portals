@@ -31,7 +31,6 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
     const resolve_citation = async () => {
         if (!citation) {
             const val = await fetch_pmcid(pmcid)
-            console.log(val)
             const c = new Cite(val)
             setCitation(c)
             return c
