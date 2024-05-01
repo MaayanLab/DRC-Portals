@@ -2,19 +2,58 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import RestoreIcon from "@mui/icons-material/Restore";
+import { Position } from "cytoscape";
 
 import {
   SCHEMA_ELEMENTS,
   SCHEMA_LAYOUT,
+  SCHEMA_NODES,
   SCHEMA_STYLESHEET,
 } from "../constants/cy";
+import { CytoscapeReference } from "../interfaces/cy";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 
 export default function GraphSchemaContainer() {
+  const INITIAL_NODE_POSITIONS = new Map<string, Position>(
+    SCHEMA_NODES.map((el) => [
+      el.data.id,
+      { x: el.position.x, y: el.position.y },
+    ])
+  );
+
+  const resetChart = (cyRef: CytoscapeReference) => {
+    const fn = () => {
+      const cy = cyRef.current;
+      if (cy !== undefined) {
+        cy.batch(() => {
+          cy.nodes().forEach((el) => {
+            el.position(INITIAL_NODE_POSITIONS.get(el.id()) as Position);
+          });
+        });
+      }
+    };
+    return (
+      <Tooltip key="schema-chart-toolbar-reset-btn" title="Reset Chart" arrow>
+        <IconButton
+          sx={{ borderRadius: 1 }}
+          aria-label="reset-chart"
+          onClick={fn}
+        >
+          <RestoreIcon />
+        </IconButton>
+      </Tooltip>
+    );
+  };
+
+  const customTools = [resetChart];
+
   return (
     <Accordion>
       <AccordionSummary
@@ -37,6 +76,7 @@ export default function GraphSchemaContainer() {
           stylesheet={SCHEMA_STYLESHEET}
           legendPosition={{ top: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
+          customTools={customTools}
         ></CytoscapeChart>
       </AccordionDetails>
     </Accordion>

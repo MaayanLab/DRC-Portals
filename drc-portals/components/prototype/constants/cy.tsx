@@ -218,7 +218,7 @@ const FIFTH_ROW_TERMS_Y = 675;
 
 const SCHEMA_FONT_SIZE = "10";
 
-export const SCHEMA_ELEMENTS = [
+export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ID_NAMESPACE_LABEL) || ""],
     position: { x: 0, y: -25 },
@@ -339,6 +339,9 @@ export const SCHEMA_ELEMENTS = [
     position: { x: 0, y: FIFTH_ROW_TERMS_Y },
     data: { id: "24", label: NCBI_TAXONOMY_LABEL },
   },
+];
+
+export const SCHEMA_EDGES = [
   {
     data: {
       id: "100",
@@ -720,6 +723,8 @@ export const SCHEMA_ELEMENTS = [
     },
   },
 ];
+
+export const SCHEMA_ELEMENTS = [...SCHEMA_NODES, ...SCHEMA_EDGES];
 
 export const SCHEMA_STYLESHEET: Stylesheet[] = [
   ...DEFAULT_STYLESHEET,

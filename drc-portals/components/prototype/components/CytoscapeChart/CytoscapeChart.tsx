@@ -22,7 +22,7 @@ import CytoscapeComponent from "react-cytoscapejs";
 import { v4 } from "uuid";
 
 import { ChartContainer, ChartTooltip } from "../../constants/cy";
-import { CytoscapeNodeData } from "../../interfaces/cy";
+import { CustomToolbarFnFactory, CytoscapeNodeData } from "../../interfaces/cy";
 import {
   createNodeTooltip,
   highlightNeighbors,
@@ -41,12 +41,19 @@ type CytoscapeChartProps = {
   stylesheet: string | Stylesheet | Stylesheet[];
   legendPosition?: PositionOffsets;
   toolbarPosition?: PositionOffsets;
+  customTools?: CustomToolbarFnFactory[];
 };
 
 export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   const cmpKey = `cy-chart-${v4()}`;
-  const { elements, layout, stylesheet, legendPosition, toolbarPosition } =
-    cytoscapeProps;
+  const {
+    elements,
+    layout,
+    stylesheet,
+    legendPosition,
+    toolbarPosition,
+    customTools,
+  } = cytoscapeProps;
 
   const cyRef = useRef<cytoscape.Core>();
   const [hoveredNode, setHoveredNode] = useState<CytoscapeNodeData | null>(
@@ -198,29 +205,6 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     }
   };
 
-  const handleToolbarZoomIn = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      const currentZoom = cy.zoom();
-      cy.zoom(currentZoom + currentZoom / (currentZoom + 1));
-    }
-  };
-
-  const handleToolbarZoomOut = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      const currentZoom = cy.zoom();
-      cy.zoom(currentZoom - currentZoom / (currentZoom + 1));
-    }
-  };
-
-  const handleToolbarFit = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      cy.fit();
-    }
-  };
-
   const runLayout = () => {
     const cy = cyRef.current;
     if (cy) {
@@ -307,11 +291,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       </ClickAwayListener>
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
-          <ChartToolbar
-            onZoomIn={handleToolbarZoomIn}
-            onZoomOut={handleToolbarZoomOut}
-            onFit={handleToolbarFit}
-          ></ChartToolbar>
+          <ChartToolbar cyRef={cyRef} customTools={customTools}></ChartToolbar>
         </WidgetContainer>
       )}
       {legendPosition === undefined ? null : (
