@@ -118,7 +118,6 @@ export default async function Page(props: PageProps) {
       },
     }
   })
-
   return (
     <LandingPageLayout
       icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
