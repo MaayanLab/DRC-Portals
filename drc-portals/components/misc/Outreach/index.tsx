@@ -257,7 +257,6 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       const current = await prisma.outreach.findMany({
         where: {
           active: true,
-          featured: false,
           OR: [
             {
               end_date: {
@@ -265,7 +264,22 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
               }
             },
             {
-              end_date: null
+              end_date: null,
+              start_date: {
+                gte: now
+              }
+            },
+            {
+              end_date: null,
+              start_date: null,
+              application_start: null
+            },
+            {
+              application_start: {
+                gte: now
+              },
+              end_date: null,
+              start_date: null,
             }
           ],
           ...tag_filter
@@ -287,6 +301,12 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
               end_date: null,
               start_date: {
                 lt: now
+              }
+            },
+            {
+              start_date: null,
+              application_start: {
+                lte: now
               }
             }
           ],
