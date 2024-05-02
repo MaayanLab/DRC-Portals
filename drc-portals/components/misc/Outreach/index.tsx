@@ -164,7 +164,7 @@ const OutreachComponent = ({outreach, featured, orientation, now, past=false}: {
               }
               <Grid container justifyContent={"space-between"}>
                 <Grid item>
-                  {(!featured && !past) && <ExportCalendar event={e} />}
+                  {(!featured && !past && (e.start_date || e.application_start)) && <ExportCalendar event={e} />}
                 </Grid>
                 <Grid item>
                   <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
@@ -336,22 +336,38 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
               </Link>
             </Grid>
           }
-          {current.length > 0 && <Grid item xs={12}>
-            <Typography variant="h3" color="secondary">
-              Active Outreach Events
+          {(current.length + featured_events.length) > 0 && 
+            <>
+              <Grid item xs={12}>
+                <Typography variant="h3" color="secondary">
+                  Active Outreach Events
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <OutreachComponent now={now} outreach={[...featured_events, ...current]} featured={featured} orientation={orientation}/>
+              </Grid>
+            </>
+          }
+          {past.length > 0 && 
+            <>
+              <Grid item xs={12}>
+                <Typography variant="h3" color="secondary">
+                  Past Outreach Events
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true}/>
+              </Grid>
+            </>
+        }
+        {(past.length === 0 && current.length === 0 && featured_events.length === 0)  &&
+          <Grid item xs={12} sx={{marginTop: 10}}>
+            <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
+              No events found
             </Typography>
-          </Grid>}
-          <Grid item xs={12}>
-          <OutreachComponent now={now} outreach={[...featured_events, ...current]} featured={featured} orientation={orientation}/>
           </Grid>
-          {past.length > 0 && <Grid item xs={12}>
-            <Typography variant="h3" color="secondary">
-              Past Outreach Events
-            </Typography>
-          </Grid>}
-          <Grid item xs={12}>
-            <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true}/>
-          </Grid>
+
+        }
         </Grid>
       )
     }
