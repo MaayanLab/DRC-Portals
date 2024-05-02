@@ -304,7 +304,23 @@ select count(*) from (select distinct collection_local_id from c2m2.biosample_in
     (select distinct collection_local_id from c2m2.biosample_in_collection)    
     ) tmp on (tmp.collection_local_id = c2m2.subject_in_collection.collection_local_id)
     ));
---- 2961: not a huge increase as compared to
+--- 2961: not a huge increase
+
+drc=# select count(*) from (select distinct subject_local_id from c2m2.biosample_from_subject);
+drc=# select count(*) from (select distinct subject_local_id from c2m2.subject_in_collection);
+
+--- But adding c2m2.subject_in_collection makes it bloat, not clear why
+select count(*) from (
+    select * from (
+    (select distinct subject_local_id from c2m2.subject_in_collection)    
+    except
+    --- (select distinct subject_local_id from c2m2.biosample_from_subject) --- 60
+    (select distinct local_id as subject_local_id from c2m2.subject) --- 0
+    )
+);
+
+select count(*) from c2m2.ffl_collection where collection_local_id is null;
+
 --- ================================================================================
 
 --- Error scenario: search for 77320cd3-7c4d-596f-b97d-ce68888eb718

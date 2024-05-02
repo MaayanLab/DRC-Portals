@@ -44,12 +44,12 @@ select distinct
     -- concatenate all and save to_tsvector as searchable
     to_tsvector(concat_ws('|', 
     c2m2.biosample.id_namespace, c2m2.biosample.local_id, 
-    c2m2.biosample.project_id_namespace, c2m2.biosample.project_local_id, 
+    c2m2.project.id_namespace, c2m2.project.local_id,  /* c2m2.biosample.project_id_namespace, c2m2.biosample.project_local_id, */
     c2m2.biosample.persistent_id, c2m2.biosample.creation_time, 
     c2m2.biosample.sample_prep_method, c2m2.biosample.anatomy,
     c2m2.disease_association_type.id, /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
-    c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, 
+    c2m2.subject.id_namespace, c2m2.subject.local_id, /* c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id,  */
     c2m2.biosample_from_subject.age_at_sampling,
     c2m2.biosample_gene.gene,
     /* c2m2.biosample_in_collection.collection_id_namespace, c2m2.biosample_in_collection.collection_local_id, */
@@ -111,12 +111,12 @@ select distinct
     )) as searchable,
     -- sample_prep_method, anatomy, biosample_disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
     c2m2.biosample.id_namespace as biosample_id_namespace, c2m2.biosample.local_id as biosample_local_id, 
-    c2m2.biosample.project_id_namespace as project_id_namespace, c2m2.biosample.project_local_id as project_local_id, 
+    c2m2.project.id_namespace as project_id_namespace, c2m2.project.local_id as project_local_id, /* was from c2m2.biosample */
     c2m2.biosample.persistent_id as biosample_persistent_id, c2m2.biosample.creation_time as biosample_creation_time, 
     c2m2.biosample.sample_prep_method as sample_prep_method, c2m2.biosample.anatomy as anatomy, 
     c2m2.disease_association_type.id AS disease_association_type, /* c2m2.disease_association_type.id is c2m2.biosample_disease.association_type or c2m2.subject_disease.association_type */
     c2m2.disease.id as disease, /* c2m2.disease.id is c2m2.biosample_disease.disease or c2m2.subject_disease.disease */
-    c2m2.biosample_from_subject.subject_id_namespace as subject_id_namespace, c2m2.biosample_from_subject.subject_local_id as subject_local_id, 
+    c2m2.subject.id_namespace as subject_id_namespace, c2m2.subject.local_id as subject_local_id, /* was from c2m2.biosample_from_subject*/
     c2m2.biosample_from_subject.age_at_sampling as biosample_age_at_sampling,
     c2m2.biosample_gene.gene as gene,
     /* c2m2.biosample_in_collection.collection_id_namespace as collection_id_namespace, c2m2.biosample_in_collection.collection_local_id as collection_local_id, */
@@ -194,13 +194,19 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         on (c2m2.biosample.local_id = c2m2.biosample_in_collection.biosample_local_id and
         c2m2.biosample.id_namespace = c2m2.biosample_in_collection.biosample_id_namespace)
 
-    full join c2m2.subject_in_collection
-        on (c2m2.subject.local_id = c2m2.subject_in_collection.subject_local_id and
-        c2m2.subject.id_namespace = c2m2.subject_in_collection.subject_id_namespace)
-
     full join c2m2.biosample_substance 
         on (c2m2.biosample.local_id = c2m2.biosample_substance.biosample_local_id and
         c2m2.biosample.id_namespace = c2m2.biosample_substance.biosample_id_namespace)
+
+    /* Mano : 2024/04/30: added c2m2.subject_in_collection */
+    /* solution for future: attach only one collection to a subject, then don't need the NOT condition */
+    full join c2m2.subject_in_collection /* only if subject not in biosample_from_subject as those already covered by biosample_in_collection */
+        on ((c2m2.subject.local_id = c2m2.subject_in_collection.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.subject_in_collection.subject_id_namespace) AND
+        NOT(c2m2.subject.local_id = c2m2.biosample_from_subject.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.biosample_from_subject.subject_id_namespace)) -- 9870700 bloats a lot / same with left join too
+        --- with exclusion (NOT), no bloating; full joins gives 1976858, so, keep full join only
+        --- This does exclude some collections related to the subjects
 
 --- SECOND PART USES LEFT JOIN
 
@@ -229,9 +235,13 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.compound
         on (c2m2.substance.compound = c2m2.compound.id)
 
+    /* Mano: 2024/05/01: use OR with c2m2.subject.*/
+    --- Solution for future: require that project_local_id for subject/biosample pairs be the same. Also, wherever possible, biosample should come from subject, i.e., there should be no biosample without subject. Also, for a biosample/subject pair, if biosample is part of a collection, then the collection for the subject should be the same (if at all), isn’t it?
     left join c2m2.project
-        on (c2m2.biosample.project_local_id = c2m2.project.local_id and
-        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace) 
+        on ((c2m2.biosample.project_local_id = c2m2.project.local_id and
+        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
+        OR (c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace))         
         /* we are not defining the new table fl_biosample; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
         --- THIS CAN BE A PROBLEM
@@ -246,15 +256,29 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         ON (c2m2.project.local_id = c2m2.project_data_type.project_local_id AND 
         c2m2.project.id_namespace = c2m2.project_data_type.project_id_namespace)
 
+    /* Moved from below so that can be used in join c2m2.id_namespace_dcc_id */
+    left join c2m2.collection
+        on ((c2m2.biosample_in_collection.collection_local_id = c2m2.collection.local_id and
+        c2m2.biosample_in_collection.collection_id_namespace = c2m2.collection.id_namespace) OR
+        (c2m2.subject_in_collection.collection_local_id = c2m2.collection.local_id and
+        c2m2.subject_in_collection.collection_id_namespace = c2m2.collection.id_namespace))
+    
     /* Mano: 2024/01/31: Moved dcc to here. */
     /* If only single project then project_in_project will be empty (only header row, so, 
     use OR to match with project.id_namespace. Should we require that there be at least one parent (dummy) project. */
     /* HMP has complex parent-child project structure; so don't match on project_local_id */
+    /* Mano : 2024/05/02: use the newly created table c2m2.id_namespace_dcc_id to collect id_namespace then to c2m2.dcc */
+    ---left join c2m2.dcc
+    ---    on (( ---c2m2.project_in_project.parent_project_local_id = c2m2.dcc.project_local_id and
+    ---    c2m2.project_in_project.parent_project_id_namespace = c2m2.dcc.project_id_namespace) OR 
+    ---        (---c2m2.project.local_id = c2m2.dcc.project_local_id and
+    ---    c2m2.project.id_namespace = c2m2.dcc.project_id_namespace))
+    
+    left join c2m2.id_namespace_dcc_id
+        on ((c2m2.collection.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id) OR
+        (c2m2.project.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id)) 
     left join c2m2.dcc
-        on (( ---c2m2.project_in_project.parent_project_local_id = c2m2.dcc.project_local_id and
-        c2m2.project_in_project.parent_project_id_namespace = c2m2.dcc.project_id_namespace) OR 
-            (---c2m2.project.local_id = c2m2.dcc.project_local_id and
-        c2m2.project.id_namespace = c2m2.dcc.project_id_namespace))
+        on (c2m2.id_namespace_dcc_id.dcc_id = c2m2.dcc.id) 
 
     --------------------Mano 2024/02/02 WARNING CHECK 2ND CONDITION OF JOIN ON
     --- Mano: 2024/04/30: Moved up there to try full join
@@ -297,12 +321,6 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.ncbi_taxonomy
         on (c2m2.subject_role_taxonomy.taxonomy_id = c2m2.ncbi_taxonomy.id)
 
-    left join c2m2.collection
-        on ((c2m2.biosample_in_collection.collection_local_id = c2m2.collection.local_id and
-        c2m2.biosample_in_collection.collection_id_namespace = c2m2.collection.id_namespace) OR
-        (c2m2.subject_in_collection.collection_local_id = c2m2.collection.local_id and
-        c2m2.subject_in_collection.collection_id_namespace = c2m2.collection.id_namespace))
-    
     left join c2m2.sample_prep_method
         on (c2m2.biosample.sample_prep_method = c2m2.sample_prep_method.id)
 
@@ -365,6 +383,20 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     /* Mano: 2024/02/13 Addition of subject_disease added about 981 more rows (from MW (kidsfirst already 
     had them included at biosample level too)), and subject_phenotype added 238 rows (all from MW)
     */
+
+    --- Mano: 2024/05/02: very important: left join on project with both biosample and subject bloats by a factor of about 1.5
+    --- The extra mostly corresponds to different projects for paired biosample/subject parent-child project relationship.
+    --- To exclude those apply where as below. To not add where clause, just comment using /* */
+    /*
+    where ( NOT((c2m2.subject.project_local_id = c2m2.project_in_project.parent_project_local_id) AND 
+        (c2m2.subject.project_id_namespace = c2m2.project_in_project.parent_project_id_namespace)) OR 
+        (((c2m2.subject.project_local_id = c2m2.project_in_project.parent_project_local_id) AND 
+        (c2m2.subject.project_id_namespace = c2m2.project_in_project.parent_project_id_namespace)) IS NULL)
+        )
+    */
+    where ((c2m2.biosample.local_id is not null) OR (c2m2.subject.local_id is not null))
+    --- without on null biosample or subject, #rows = 4328439 on 2024/05/02 subject_in_collection added & project from subject too
+    --- with non null biosample or subject, #rows = 
 );
 
 DO $$ 

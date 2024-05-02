@@ -47,6 +47,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
 
   const options = filterList.map((option) => {
+  //  console.log(option);
     const firstLetter = option.name[0].toUpperCase();
     const filterCount = option.count;
     return {

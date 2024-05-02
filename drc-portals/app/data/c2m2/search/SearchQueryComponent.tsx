@@ -47,6 +47,8 @@ async function fetchQueryResults(searchParams: any) {
     // Your SQL query goes here
 
     try {
+        // To measure time taken by different parts
+        const t0: number = performance.now();
         const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
             records: {
               //rank: number,
@@ -225,7 +227,7 @@ async function fetchQueryResults(searchParams: any) {
           
           ` : [undefined];
         
-          //const t1: number = performance.now();
+          const t1: number = performance.now();
         
           if (!results) redirect('/data')
           //  console.log(results)
@@ -234,7 +236,7 @@ async function fetchQueryResults(searchParams: any) {
           // console.log(results.dcc_filters)
           // console.log(results.taxonomy_filters)
         
-          //const t2: number = performance.now();
+          const t2: number = performance.now();
         
           const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
           //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
@@ -284,9 +286,9 @@ async function fetchQueryResults(searchParams: any) {
             count: data_typeFilter.count,
           }));
         
-          //const t3: number = performance.now();
-          //console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
-          //console.log("Elapsed time for creating data for filters: ", t3 - t2, "milliseconds");
+          const t3: number = performance.now();
+          console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+          console.log("Elapsed time for creating data for filters: ", t3 - t2, "milliseconds");
         
           // console.log("Length of DCC Filters")
           // console.log(DccFilters.length);
@@ -298,7 +300,7 @@ async function fetchQueryResults(searchParams: any) {
           //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
           const file_icon_path = "/img/icons/file-magnifiying-glass.png";
         
-          //const t4: number = performance.now();
+          // const t4: number = performance.now();
 
           return (
             <ListingPageLayout
