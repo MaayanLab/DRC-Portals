@@ -81,7 +81,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         <CardContent>
                             <Stack spacing={2}>
                                 <Typography variant="h2" color="secondary">
-                                    {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
+                                    {dcc.label}{dcc.short_label && dcc.short_label !== dcc.label && ` (${dcc.short_label})`}
                                 </Typography>
                                 {/* <ReadMore text={dcc.description?.replace(/["]+/g, '')}
                                     link={dcc.cf_site}
