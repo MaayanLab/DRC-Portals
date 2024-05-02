@@ -321,6 +321,12 @@ select count(*) from (
 
 select count(*) from c2m2.ffl_collection where collection_local_id is null;
 
+/* In collection search,
+--- https://ucsd-sslab.ngrok.app/data/c2m2/record_info_col?q=liver&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:HJURP_HUMAN|compound_name:G82463GQ|data_type_name:Protein%20glycosylation%20site
+lists no file related to that collection even though there is one in file_describes_collection.
+
+*/
+
 --- ================================================================================
 
 --- Error scenario: search for 77320cd3-7c4d-596f-b97d-ce68888eb718

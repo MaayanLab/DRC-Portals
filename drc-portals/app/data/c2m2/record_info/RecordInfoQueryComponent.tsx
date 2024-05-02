@@ -712,10 +712,10 @@ file_table AS (
         ) : resultsRec.data_type_name
       },
 
-      { label: 'Biosamples', value: results ? results.records[0].count_bios?.toLocaleString() : undefined },
-      { label: 'Subjects', value: results ? results.records[0].count_sub?.toLocaleString() : undefined },
+      { label: 'Biosamples', value: results ? resultsRec.count_bios?.toLocaleString() : undefined },
+      { label: 'Subjects', value: results ? resultsRec.count_sub?.toLocaleString() : undefined },
       { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
-      { label: 'Collections', value: results ? results.records[0].count_col?.toLocaleString() : undefined },
+      { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
 
     ];
 
@@ -754,9 +754,9 @@ file_table AS (
     return (
       <LandingPageLayout
         icon={{
-          href: resultsRec.dcc_short_label ? `/info/dcc/${results.records[0].dcc_short_label}` : "",
-          src: getDCCIcon(results ? results.records[0].dcc_short_label : ""),
-          alt: resultsRec.dcc_short_label ? results.records[0].dcc_short_label : ""
+          href: resultsRec.dcc_short_label ? `/info/dcc/${resultsRec.dcc_short_label}` : "",
+          src: getDCCIcon(results ? resultsRec.dcc_short_label : ""),
+          alt: resultsRec.dcc_short_label ? resultsRec.dcc_short_label : ""
         }}
         title={resultsRec.project_name ?? ""}
         subtitle={""}
