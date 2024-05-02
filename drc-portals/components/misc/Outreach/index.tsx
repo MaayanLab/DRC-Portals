@@ -72,11 +72,12 @@ const GridView = ({featured, children}: {featured: Boolean, children: React.Reac
 }
 
 
-const OutreachComponent = ({outreach, featured, orientation, now}: {
+const OutreachComponent = ({outreach, featured, orientation, now, past=false}: {
   outreach: OutreachType[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
-  now: Date
+  now: Date,
+  past?: Boolean
 }) =>(
   <Box sx={{ minHeight: 100 }}>
     <GridView featured={featured}>
@@ -161,12 +162,16 @@ const OutreachComponent = ({outreach, featured, orientation, now}: {
                 </>
                 
               }
-              <Stack direction={"row"}>
-                {!featured && <ExportCalendar event={e} />}
-                <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                  <Button sx={featured && {marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
-                </Link>
-              </Stack>
+              <Grid container justifyContent={"space-between"}>
+                <Grid item>
+                  {(!featured && !past) && <ExportCalendar event={e} />}
+                </Grid>
+                <Grid item>
+                  <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
+                    <Button sx={featured && {marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                  </Link>
+                </Grid>
+              </Grid>
             </Stack>
           </Wrapper>
         )
@@ -345,7 +350,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             </Typography>
           </Grid>}
           <Grid item xs={12}>
-            <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation}/>
+            <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true}/>
           </Grid>
         </Grid>
       )
