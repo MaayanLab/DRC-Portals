@@ -97,8 +97,8 @@ with open(publications_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id
+    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured)
+      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured
       from publication_tmp
       on conflict (id)
         do update
@@ -114,7 +114,13 @@ cur.execute('''
             doi = excluded.doi,
             authors = excluded.authors,
             landmark = excluded.landmark,
-            tool_id = excluded.tool_id
+            tool_id = excluded.tool_id,
+            carousel = excluded.carousel,
+            carousel_title = excluded.carousel_title,
+            carousel_link = excluded.carousel_link,
+            carousel_description = excluded.carousel_description,
+            image = excluded.image,
+            featured = excluded.featured
     ;
   ''')
 cur.execute('drop table publication_tmp;')
