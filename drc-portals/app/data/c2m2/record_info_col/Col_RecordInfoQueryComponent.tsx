@@ -8,6 +8,10 @@ import ExpandableTable from "../ExpandableTable";
 import {capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
 
 const file_count_limit = 100;
+const file_count_limit_proj = 100;
+const file_count_limit_sub = 100;
+const file_count_limit_bios = 100;
+const file_count_limit_col = 100;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -481,7 +485,7 @@ file_table AS (
     INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                               AND f.project_id_namespace = ui.project_id_namespace
                               AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
-    limit ${file_count_limit}
+    limit ${file_count_limit_proj}
 )
 , /* Mano */
   file_table_limited as (
@@ -509,7 +513,7 @@ file_table AS (
   ), /* Mano */
   file_sub_table AS (
     SELECT * from file_sub_table_keycol
-    limit ${file_count_limit}    
+    limit ${file_count_limit_sub}    
   ),
   file_sub_table_limited as (
     SELECT * 
@@ -534,7 +538,7 @@ file_table AS (
     ), /* Mano */
     file_bios_table AS (
       SELECT * from file_bios_table_keycol
-      limit ${file_count_limit}    
+      limit ${file_count_limit_bios}    
     ),
     file_bios_table_limited as (
     SELECT * 
@@ -559,7 +563,7 @@ file_table AS (
     ), /* Mano */
     file_col_table AS (
       SELECT * from file_col_table_keycol
-      limit ${file_count_limit}    
+      limit ${file_count_limit_col}    
     ),
     file_col_table_limited as (
     SELECT * 
@@ -728,11 +732,11 @@ file_table AS (
 
     { label: 'Biosamples', value: results ? resultsRec.count_bios?.toLocaleString() : undefined },
     { label: 'Subjects', value: results ? resultsRec.count_sub?.toLocaleString() : undefined },
+    { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
     { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
     { label: 'Files (that describe subject)', value: results ? results.count_file_sub?.toLocaleString() : undefined },
     { label: 'Files (that describe biosample)', value: results ? results.count_file_bios?.toLocaleString() : undefined },
     { label: 'Files (that describe OR are in collection)', value: results ? results.count_file_col?.toLocaleString() : undefined },
-  { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
 
   ];
 
@@ -740,9 +744,9 @@ file_table AS (
 
   const categories: Category[] = [];
   console.log("Static columns in  file");
-  addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   console.log(staticFileProjColumns);
 
+  addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
   addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
   addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
@@ -755,10 +759,10 @@ file_table AS (
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
   const collectionTableTitle = "Collections: " + results?.count_col;
-  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit, results?.count_file) + " listed)";
-  const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
-  const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
-  const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
+  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit_proj, results?.count_file) + " listed)";
+  const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + Math.min(file_count_limit_sub, results?.count_file_sub) + " listed)";
+  const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + Math.min(file_count_limit_bios, results?.count_file_bios) + " listed)";
+  const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + Math.min(file_count_limit_col, results?.count_file_col) + " listed)";
 
 
   const t4: number = performance.now();

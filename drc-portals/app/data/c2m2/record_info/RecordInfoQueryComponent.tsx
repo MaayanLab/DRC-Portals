@@ -8,6 +8,10 @@ import ExpandableTable from "../ExpandableTable";
 import { capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
 
 const file_count_limit = 100;
+const file_count_limit_proj = 100;
+const file_count_limit_sub = 100;
+const file_count_limit_bios = 100;
+const file_count_limit_col = 100;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -481,7 +485,7 @@ file_table AS (
     INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                               AND f.project_id_namespace = ui.project_id_namespace
                               AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
-    limit ${file_count_limit}
+    limit ${file_count_limit_proj}
 )
 , /* Mano */
   file_table_limited as (
@@ -505,11 +509,11 @@ file_table AS (
       file_table_keycol.id_namespace = c2m2.file_describes_subject.file_id_namespace)
     INNER JOIN sub_info ON 
     (sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
-      sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace) /* 2024/03/07 match subject */
-  ), /* Mano */
+      sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace) /* 2024/03/07 match subject */    /** limit ${file_count_limit_sub}     **/
+    ), /* Mano */
   file_sub_table AS (
     SELECT * from file_sub_table_keycol
-    limit ${file_count_limit}    
+    limit ${file_count_limit_sub}    
   ),
   file_sub_table_limited as (
     SELECT * 
@@ -519,7 +523,7 @@ file_table AS (
   ), /* Mano */
   count_file_sub AS (
     select count(*)::int as count
-      from file_sub_table_keycol
+    from file_sub_table_keycol
   ), /* Mano */
 
   file_bios_table_keycol AS (
@@ -534,7 +538,7 @@ file_table AS (
     ), /* Mano */
   file_bios_table AS (
     SELECT * from file_bios_table_keycol
-    limit ${file_count_limit}    
+    limit ${file_count_limit_bios}    
   ),
   file_bios_table_limited as (
     SELECT * 
@@ -559,7 +563,7 @@ file_table AS (
     ), /* Mano */
   file_col_table AS (
     SELECT * from file_col_table_keycol
-    limit ${file_count_limit}    
+    limit ${file_count_limit_col}    
   ),
   file_col_table_limited as (
     SELECT * 
@@ -728,11 +732,11 @@ file_table AS (
 
       { label: 'Biosamples', value: results ? resultsRec.count_bios?.toLocaleString() : undefined },
       { label: 'Subjects', value: results ? resultsRec.count_sub?.toLocaleString() : undefined },
+      { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
       { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
       { label: 'Files (that describe subject)', value: results ? results.count_file_sub?.toLocaleString() : undefined },
       { label: 'Files (that describe biosample)', value: results ? results.count_file_bios?.toLocaleString() : undefined },
       { label: 'Files (that describe OR are in collection)', value: results ? results.count_file_col?.toLocaleString() : undefined },
-      { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
 
     ];
 
@@ -740,9 +744,9 @@ file_table AS (
 
     const categories: Category[] = [];
     console.log("Static columns in  biosample");
-    addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     console.log(staticBiosampleColumns);
 
+    addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
@@ -755,10 +759,10 @@ file_table AS (
     const biosampleTableTitle = "Biosamples: " + results?.count_bios;
     const subjectTableTitle = "Subjects: " + results?.count_sub;
     const collectionTableTitle = "Collections: " + results?.count_col;
-    const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit, results?.count_file) + " listed)";
-    const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub;
-    const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios;
-    const fileCollTableTitle = "Files related to collection: " + results?.count_file_col;
+    const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit_proj, results?.count_file) + " listed)";
+    const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + Math.min(file_count_limit_sub, results?.count_file_sub) + " listed)";
+    const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + Math.min(file_count_limit_bios, results?.count_file_bios) + " listed)";
+    const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + Math.min(file_count_limit_col, results?.count_file_col) + " listed)";
 
 
     const t4: number = performance.now();
@@ -874,3 +878,35 @@ file_table AS (
     return <div>Error fetching record info query results</div>;
   }
 }
+
+// Keep these comments to remind of a trial I already did to improve speed
+// Using some code string twice, so, listing it here
+// This string doesn't involve anything that the user inputs or something 
+// based on that, so, there is no risk of SQL injection here.
+// Conclusion based on observing the time taken:
+// Since nearly the same query gets executed twice (+ the limit added in the 
+// first execution) in this approach of using ${Prisma.sql([file_sub_table_query_code_part2])},
+// it actually ends up taking more time for "LINCS 2021" project: 83 vs 96 seconds.
+// Thus, we will not use this approach.
+/**Mano
+const file_sub_table_query_code_part2 = `FROM c2m2.file_describes_subject
+INNER JOIN file_table_keycol ON 
+(file_table_keycol.local_id = c2m2.file_describes_subject.file_local_id AND 
+  file_table_keycol.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+INNER JOIN sub_info ON 
+(sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
+  sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace)`;
+
+  // Part of code in query:
+    file_sub_table_keycol AS (
+    SELECT DISTINCT c2m2.file_describes_subject.*
+    ** ${Prisma.sql([file_sub_table_query_code_part2])} **
+  
+  // and
+    count_file_sub AS (
+    select count(*)::int as count
+    ** from (SELECT DISTINCT c2m2.file_describes_subject.* ${Prisma.sql([file_sub_table_query_code_part2])}) **
+    from file_sub_table_keycol
+  ),
+
+**/

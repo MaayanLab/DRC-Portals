@@ -551,3 +551,34 @@ c2m2.file inner join c2m2.file_describes_subject on
 c2m2.file.local_id = c2m2.file_describes_subject.file_local_id 
 where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
 0
+
+--- Timing for count vs. actual record
+--- join file with project and file_format
+EXPLAIN (ANALYZE)
+select f.local_id, f.project_local_id, f.file_format, p.name, p.description, ff.name, ff.description 
+from c2m2.file f left join c2m2.project p on (f.project_local_id = p.local_id) 
+left join c2m2.file_format ff on (f.file_format = ff.id);
+
+EXPLAIN (ANALYZE)
+select count(*) from (
+select f.local_id, f.project_local_id, f.file_format, p.name, p.description, ff.name, ff.description 
+from c2m2.file f left join c2m2.project p on (f.project_local_id = p.local_id) 
+left join c2m2.file_format ff on (f.file_format = ff.id));
+
+--- join file with file_describes_in_collection
+EXPLAIN (ANALYZE)
+select f.local_id, f.project_local_id, f.file_format, fd.collection_local_id, c.name, c.description
+from c2m2.file f left join c2m2.file_describes_in_collection fd on (f.local_id = fd.file_local_id)
+left join c2m2.collection c on (fd.collection_local_id = c.local_id); 
+
+EXPLAIN (ANALYZE)
+select f.local_id, f.project_local_id, f.file_format, fd.collection_local_id, c.name, c.description
+from c2m2.file f left join c2m2.file_describes_in_collection fd on (f.local_id = fd.file_local_id)
+left join c2m2.collection c on (fd.collection_local_id = c.local_id) limit 1000; 
+
+EXPLAIN (ANALYZE)
+select count(*) from (
+select f.local_id, f.project_local_id, f.file_format, fd.collection_local_id, c.name, c.description
+from c2m2.file f left join c2m2.file_describes_in_collection fd on (f.local_id = fd.file_local_id)
+left join c2m2.collection c on (fd.collection_local_id = c.local_id)); 
+
