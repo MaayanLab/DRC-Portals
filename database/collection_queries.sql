@@ -337,3 +337,4 @@ lists no file related to that collection even though there is one in file_descri
 --- Try to set project_local_id as well Unspecified for this case.
 --- File: search_col/Col_SearchQueryComponent.tsx
 --- for CTE part allres: see:             COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
+

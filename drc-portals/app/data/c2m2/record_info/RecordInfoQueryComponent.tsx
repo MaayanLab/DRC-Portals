@@ -538,14 +538,14 @@ file_table AS (
   ), /* Mano */
 
   file_col_table AS (
-    SELECT DISTINCT c2m2.file_describes_collection.*
-    FROM c2m2.file_describes_collection
+    SELECT DISTINCT c2m2.file_describes_in_collection.*
+    FROM c2m2.file_describes_in_collection
     INNER JOIN file_table ON 
-    (file_table.local_id = c2m2.file_describes_collection.file_local_id AND 
-      file_table.id_namespace = c2m2.file_describes_collection.file_id_namespace)
+    (file_table.local_id = c2m2.file_describes_in_collection.file_local_id AND 
+      file_table.id_namespace = c2m2.file_describes_in_collection.file_id_namespace)
     INNER JOIN col_info ON 
-    (col_info.collection_local_id = c2m2.file_describes_collection.collection_local_id AND 
-      col_info.collection_id_namespace = c2m2.file_describes_collection.collection_id_namespace) /* 2024/03/07 match collection */
+    (col_info.collection_local_id = c2m2.file_describes_in_collection.collection_local_id AND 
+      col_info.collection_id_namespace = c2m2.file_describes_in_collection.collection_id_namespace) /* 2024/03/07 match collection */
     ), /* Mano */
   file_col_table_limited as (
     SELECT * 
@@ -715,6 +715,9 @@ file_table AS (
       { label: 'Biosamples', value: results ? resultsRec.count_bios?.toLocaleString() : undefined },
       { label: 'Subjects', value: results ? resultsRec.count_sub?.toLocaleString() : undefined },
       { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
+      { label: 'Files (that describe subject)', value: results ? results.count_file_sub?.toLocaleString() : undefined },
+      { label: 'Files (that describe biosample)', value: results ? results.count_file_bios?.toLocaleString() : undefined },
+      { label: 'Files (that describe OR are in collection)', value: results ? results.count_file_col?.toLocaleString() : undefined },
       { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
 
     ];
