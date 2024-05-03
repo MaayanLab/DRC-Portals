@@ -19,8 +19,9 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
             size="small"
             onClick={async () => {
                 const currentG2SGSession = Cookies.get('session_id')
+                console.log(currentG2SGSession)
                 if (currentG2SGSession === undefined) {
-                    const req = await fetch('http://localhost:3001/api/addGeneset', {
+                    const req = await fetch('https://g2sg.cfde.cloud/api/addGeneset', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
@@ -29,10 +30,10 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
                         body: JSON.stringify(props.body),
                     })
                     const { session_id } = await req.json()
-                    window.open(`http://localhost:3001/analyze/${session_id}`, '_blank')
+                    window.open(`https://g2sg.cfde.cloud/analyze/${session_id}`, '_blank')
                 } else {
                     const bodyWithSession = { ...props.body, session_id: currentG2SGSession }
-                    const req = await fetch('http://localhost:3001/api/addToSession', {
+                    const req = await fetch('https://g2sg.cfde.cloud/api/addToSession', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
@@ -40,11 +41,13 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
                         },
                         body: JSON.stringify(bodyWithSession),
                     })
-                    if (req.status === 400) {
+                    if (!req.ok) {
                         const errorText = await req.json()
+                        console.log(errorText)
+                        // TO DO: add error handling here 
                     } else {
                         const { session_id } = await req.json()
-                        window.open(`http://localhost:3001/analyze/${session_id}`, '_blank')
+                        window.open(`https://g2sg.cfde.cloud/analyze/${session_id}`, '_blank')
                     }
                 }
             }}
