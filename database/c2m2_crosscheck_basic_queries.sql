@@ -462,3 +462,92 @@ count | 23901
 
 select count(*) from c2m2.ffl_biosample where biosample_local_id is null AND subject_local_id is null;
 0
+
+--- pages in Record_Info tables are linked, also files for biosample, etc are subset of file, 
+--- so, any limit on file also translates to them. Better to keep independent. Some trial queries
+--- to understand this.
+
+--- https://ucsd-sslab.ngrok.app/data/c2m2/record_info?q=intestine&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR001549%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Canatomy_name%3Aintestine%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data&p=1
+--- https://ucsd-sslab.ngrok.app/data/c2m2/record_info?q=Stanford_TMC&t=dcc_name:HuBMAP|project_local_id:Stanford%20TMC|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:large%20intestine|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified
+--- https://ucsd-sslab.ngrok.app/data/c2m2/record_info?q=Stanford_TMC&t=dcc_name%3AHuBMAP%7Cproject_local_id%3AStanford+TMC%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AUnspecified%7Canatomy_name%3Alarge+intestine%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AUnspecified&p=2
+
+select distinct collection_local_id, count(collection_local_id) as count from c2m2.file_in_collection where collection_id_namespace ilike '%hubmap%' group by collection_local_id;
+select count(*) from (select distinct collection_local_id from c2m2.file_in_collection where collection_id_namespace ilike '%hubmap%');
+  1185
+
+drc=# select distinct file_id_namespace, count(file_id_namespace) as count from c2m2.file_in_collection group by file_id_namespace;
+                   file_id_namespace                    |  count  
+--------------------------------------------------------+---------
+ adult_gtex                                             |     498
+ egtex                                                  |      50
+ ERCC-exRNA                                             |  178133
+ https://data.4dnucleome.org                            |   42830
+ https://druggablegenome.net/cfde_idg_drugcentral_drugs |    4673
+ https://druggablegenome.net/cfde_idg_tcrd_diseases     |    1899
+ https://druggablegenome.net/cfde_idg_tcrd_targets      |   19295
+ https://www.druggablegenome.net/                       |   48876
+ https://www.lincsproject.org/                          |     465
+ SPARC.file:                                            |   94970
+ tag:hmpdacc.org,2022-04-04:                            |   36849
+ tag:hubmapconsortium.org,2023:                         | 9417470
+ tag:motrpac-data.org,2023:                             |   18980
+(13 rows)
+
+drc=# select distinct id_namespace, count(id_namespace) as count from c2m2.file group by id_namespace;
+                      id_namespace                      |  count  
+--------------------------------------------------------+---------
+ adult_gtex                                             |     498
+ egtex                                                  |      50
+ ERCC-exRNA                                             |  178133
+ https://data.4dnucleome.org                            |   42412
+ https://druggablegenome.net/cfde_idg_drugcentral_drugs |    4673
+ https://druggablegenome.net/cfde_idg_tcrd_diseases     |    1899
+ https://druggablegenome.net/cfde_idg_tcrd_targets      |   19295
+ https://www.data.glygen.org/                           |    1941
+ https://www.druggablegenome.net/                       |   50026
+ https://www.lincsproject.org/                          | 1495871
+ https://www.metabolomicsworkbench.org/                 |    4178
+ kidsfirst:                                             |  290423
+ SPARC.file:                                            |   94970
+ tag:hmpdacc.org,2022-04-04:                            |  251136
+ tag:hubmapconsortium.org,2023:                         | 9417470
+ tag:motrpac-data.org,2023:                             |   18980
+(16 rows)
+
+--- Most file_in_collection from hubmap; some collections have ~200,000 files
+drc=# select distinct project_local_id, count(project_local_id) as count from c2m2.file where id_namespace ilike '%hubmap%' group by project_local_id;
+             project_local_id              |  count  
+-------------------------------------------+---------
+ Broad Institute RTI                       |     589
+ General Electric RTI                      |    3635
+ Purdue TTD                                |     401
+ Stanford RTI                              |    1477
+ Stanford TMC                              | 6512659
+ TTD Pacific Northwest National Laboratory |       8
+ University of California San Diego TMC    |    2035
+ University of Florida TMC                 | 2893429
+ Vanderbilt TMC                            |    3237
+
+--- hubmap has > 6M files in a project
+
+--- Searched for intestine; DCC 4DN
+https://ucsd-sslab.ngrok.app/data/c2m2/search?q=intestine&p=1&t=dcc%3A4D+NUCLEOME+DATA+COORDINATION+AND+INTEGRATION+CENTER
+
+select count(*) from (select distinct c2m2.file_describes_in_collection.file_local_id from 
+c2m2.file inner join c2m2.file_describes_in_collection on 
+c2m2.file.local_id = c2m2.file_describes_in_collection.file_local_id 
+where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
+6540
+For chosen data type, we get just 153 files related to collection
+
+select count(*) from (select distinct c2m2.file_describes_biosample.file_local_id from 
+c2m2.file inner join c2m2.file_describes_biosample on 
+c2m2.file.local_id = c2m2.file_describes_biosample.file_local_id 
+where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
+0
+
+select count(*) from (select distinct c2m2.file_describes_subject.file_local_id from 
+c2m2.file inner join c2m2.file_describes_subject on 
+c2m2.file.local_id = c2m2.file_describes_subject.file_local_id 
+where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
+0

@@ -495,12 +495,14 @@ file_table AS (
       from file_table_keycol
   ), /* Mano */
 
+  /* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
+  /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
   file_sub_table AS (
     SELECT DISTINCT c2m2.file_describes_subject.*
     FROM c2m2.file_describes_subject
-    INNER JOIN file_table ON 
-    (file_table.local_id = c2m2.file_describes_subject.file_local_id AND 
-      file_table.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+    INNER JOIN file_table_keycol ON 
+    (file_table_keycol.local_id = c2m2.file_describes_subject.file_local_id AND 
+      file_table_keycol.id_namespace = c2m2.file_describes_subject.file_id_namespace)
     INNER JOIN sub_info ON 
     (sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
       sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace) /* 2024/03/07 match subject */
@@ -519,9 +521,9 @@ file_table AS (
   file_bios_table AS (
     SELECT DISTINCT c2m2.file_describes_biosample.*
     FROM c2m2.file_describes_biosample
-    INNER JOIN file_table ON 
-    (file_table.local_id = c2m2.file_describes_biosample.file_local_id AND 
-      file_table.id_namespace = c2m2.file_describes_biosample.file_id_namespace)
+    INNER JOIN file_table_keycol ON 
+    (file_table_keycol.local_id = c2m2.file_describes_biosample.file_local_id AND 
+      file_table_keycol.id_namespace = c2m2.file_describes_biosample.file_id_namespace)
     INNER JOIN bios_info ON 
     (bios_info.biosample_local_id = c2m2.file_describes_biosample.biosample_local_id AND 
       bios_info.biosample_id_namespace = c2m2.file_describes_biosample.biosample_id_namespace) /* 2024/03/07 match biosample */
@@ -540,9 +542,9 @@ file_table AS (
   file_col_table AS (
     SELECT DISTINCT c2m2.file_describes_in_collection.*
     FROM c2m2.file_describes_in_collection
-    INNER JOIN file_table ON 
-    (file_table.local_id = c2m2.file_describes_in_collection.file_local_id AND 
-      file_table.id_namespace = c2m2.file_describes_in_collection.file_id_namespace)
+    INNER JOIN file_table_keycol ON 
+    (file_table_keycol.local_id = c2m2.file_describes_in_collection.file_local_id AND 
+      file_table_keycol.id_namespace = c2m2.file_describes_in_collection.file_id_namespace)
     INNER JOIN col_info ON 
     (col_info.collection_local_id = c2m2.file_describes_in_collection.collection_local_id AND 
       col_info.collection_id_namespace = c2m2.file_describes_in_collection.collection_id_namespace) /* 2024/03/07 match collection */
