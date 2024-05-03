@@ -497,7 +497,7 @@ file_table AS (
 
   /* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
   /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
-  file_sub_table AS (
+  file_sub_table_keycol AS (
     SELECT DISTINCT c2m2.file_describes_subject.*
     FROM c2m2.file_describes_subject
     INNER JOIN file_table_keycol ON 
@@ -507,6 +507,10 @@ file_table AS (
     (sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
       sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace) /* 2024/03/07 match subject */
   ), /* Mano */
+  file_sub_table AS (
+    SELECT DISTINCT file_sub_table_keycol.* from file_sub_table_keycol
+    limit ${file_count_limit}    
+  ),
   file_sub_table_limited as (
     SELECT * 
     FROM file_sub_table
@@ -515,10 +519,10 @@ file_table AS (
   ), /* Mano */
   count_file_sub AS (
     select count(*)::int as count
-      from file_sub_table
+      from file_sub_table_keycol
   ), /* Mano */
 
-  file_bios_table AS (
+  file_bios_table_keycol AS (
     SELECT DISTINCT c2m2.file_describes_biosample.*
     FROM c2m2.file_describes_biosample
     INNER JOIN file_table_keycol ON 
@@ -528,7 +532,11 @@ file_table AS (
     (bios_info.biosample_local_id = c2m2.file_describes_biosample.biosample_local_id AND 
       bios_info.biosample_id_namespace = c2m2.file_describes_biosample.biosample_id_namespace) /* 2024/03/07 match biosample */
     ), /* Mano */
-  file_bios_table_limited as (
+    file_bios_table AS (
+      SELECT DISTINCT file_bios_table_keycol.* from file_bios_table_keycol
+      limit ${file_count_limit}    
+    ),
+    file_bios_table_limited as (
     SELECT * 
     FROM file_bios_table
     OFFSET ${offset}
@@ -536,10 +544,10 @@ file_table AS (
   ), /* Mano */
   count_file_bios AS (
     select count(*)::int as count
-      from file_bios_table
+      from file_bios_table_keycol
   ), /* Mano */
 
-  file_col_table AS (
+  file_col_table_keycol AS (
     SELECT DISTINCT c2m2.file_describes_in_collection.*
     FROM c2m2.file_describes_in_collection
     INNER JOIN file_table_keycol ON 
@@ -549,7 +557,11 @@ file_table AS (
     (col_info.collection_local_id = c2m2.file_describes_in_collection.collection_local_id AND 
       col_info.collection_id_namespace = c2m2.file_describes_in_collection.collection_id_namespace) /* 2024/03/07 match collection */
     ), /* Mano */
-  file_col_table_limited as (
+    file_col_table AS (
+      SELECT DISTINCT file_col_table_keycol.* from file_col_table_keycol
+      limit ${file_count_limit}    
+    ),
+    file_col_table_limited as (
     SELECT * 
     FROM file_col_table
     OFFSET ${offset}
@@ -557,7 +569,7 @@ file_table AS (
   ), /* Mano */
   count_file_col AS (
     select count(*)::int as count
-      from file_col_table
+      from file_col_table_keycol
   ) /* Mano */
 
   SELECT
