@@ -136,7 +136,7 @@ export default async function Page(props: PageProps) {
         <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules
             .filter(({ compatible }) => compatible({ id: props.params.id, node: gene_set.node }))
-            .map(({ button: ModButton }, i) => <ModButton item={{ id: props.params.id, node: gene_set.node }} />)}
+            .map(({ button: ModButton }, i) => <ModButton key={i} item={{ id: props.params.id, node: gene_set.node }} />)}
         </Grid>
       </Grid>
       <SearchablePagedTable
