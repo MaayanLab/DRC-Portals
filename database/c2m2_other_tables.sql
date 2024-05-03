@@ -1,10 +1,13 @@
-/* run in psql as \i c2m2_other_tables.sql or on bash prompt:
-psql -h localhost -U drc -d drc -a -f c2m2_other_tables.sql
+/* DO NOT DELETE ANY OF THE COMMENTS */
+/* 
+run in psql as \i c2m2_other_tables.sql or on bash prompt:
+psql -h localhost -U drc -d drc -p [5432|5433] -a -f c2m2_other_tables.sql
 */
 
 --- This script generates other tables from the basic c2m2 tables (or other tables)
 
---- project_file_data_type
+-------------------------------------------------------------------------------
+--- project_data_type
 DROP TABLE IF EXISTS c2m2.project_data_type;
 CREATE TABLE c2m2.project_data_type as (
 select distinct
@@ -26,6 +29,41 @@ DO $$
 BEGIN
     ALTER TABLE c2m2.project_data_type ADD COLUMN pk_id serial PRIMARY KEY;
 END $$;
+
+--- test
+select count(*) from c2m2.project_data_type;
+
+-------------------------------------------------------------------------------
+--- Union of file_describes_collection and file_in_collection for ease of a single query
+--- Specify column names explicitly
+
+DROP TABLE IF EXISTS c2m2.file_describes_in_collection;
+CREATE TABLE c2m2.file_describes_in_collection as (
+    select distinct * from (
+    (select file_id_namespace, file_local_id, collection_id_namespace, collection_local_id from c2m2.file_describes_collection)
+    union
+    (select file_id_namespace, file_local_id, collection_id_namespace, collection_local_id from c2m2.file_in_collection)
+    )
+);
+
+DO $$ 
+BEGIN
+    ALTER TABLE c2m2.file_describes_in_collection ADD COLUMN pk_id serial PRIMARY KEY;
+
+    DROP INDEX IF EXISTS file_describes_in_collection_idx;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file_describes_in_collection' 
+    AND indexname = 'file_describes_in_collection_idx') THEN
+        CREATE INDEX file_describes_in_collection_idx ON c2m2.file_describes_in_collection USING 
+        btree(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id);
+    END IF;
+END $$;
+
+--- test:
+select count(*) from c2m2.file_describes_collection;
+select count(*) from c2m2.file_in_collection;
+select count(*) from c2m2.file_describes_in_collection;
+-------------------------------------------------------------------------------
+
 
 --- To see table index names: select * from pg_indexes where schemaname = 'c2m2';
 --- To list all column names of a table:
