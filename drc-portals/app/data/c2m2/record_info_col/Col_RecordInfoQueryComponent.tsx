@@ -756,13 +756,23 @@ file_table AS (
   addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
   addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
 
+  // Define the actual count of records in table displayed here and use at two or more places
+  const count_file_table_withlimit = results?.file_table_full.length ?? 0;
+  const count_file_sub_table_withlimit = results?.file_sub_table_full.length ?? 0;
+  const count_file_bios_table_withlimit = results?.file_bios_table_full.length ?? 0;
+  const count_file_col_table_withlimit = results?.file_col_table_full.length ?? 0;
+    
   const biosampleTableTitle = "Biosamples: " + results?.count_bios;
   const subjectTableTitle = "Subjects: " + results?.count_sub;
   const collectionTableTitle = "Collections: " + results?.count_col;
-  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit_proj, results?.count_file) + " listed)";
-  const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + Math.min(file_count_limit_sub, results?.count_file_sub) + " listed)";
-  const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + Math.min(file_count_limit_bios, results?.count_file_bios) + " listed)";
-  const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + Math.min(file_count_limit_col, results?.count_file_col) + " listed)";
+  //const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit_proj, results?.count_file) + " listed)";
+  //const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + Math.min(file_count_limit_sub, results?.count_file_sub) + " listed)";
+  //const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + Math.min(file_count_limit_bios, results?.count_file_bios) + " listed)";
+  //const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + Math.min(file_count_limit_col, results?.count_file_col) + " listed)";
+  const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
+  const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
+  const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
+  const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
 
 
   const t4: number = performance.now();
@@ -785,6 +795,7 @@ file_table AS (
       metadata={metadata}
       categories={categories}
     >
+
       <ExpandableTable
         data={biosamplePrunedData}
         full_data={results?.biosamples_table_full}
@@ -796,7 +807,6 @@ file_table AS (
         dynamicColumns={dynamicBiosampleColumns}
         getNameFromTable={getNameFromBiosampleTable}
       />
-
 
       <ExpandableTable
         data={subjectPrunedData}
@@ -829,7 +839,8 @@ file_table AS (
         tableTitle={fileProjTableTitle}
         searchParams={searchParams}
         //count={results?.count_file ?? 0} // Provide count directly as a prop
-        count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
+        //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
+        count={count_file_table_withlimit} // Provide count directly as a prop
         colNames={newFileProjColumns}
         dynamicColumns={newFileProjColumns}
         getNameFromTable={getNameFromFileProjTable}
@@ -841,34 +852,41 @@ file_table AS (
         downloadFileName={projectLocalId + "_FilesSubTable_Collection.json"}
         tableTitle={fileSubTableTitle}
         searchParams={searchParams}
-        count={results?.count_file_sub ?? 0} // Provide count directly as a prop
+        //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
+        //count={results?.file_sub_table_full.length ?? 0} // Provide count directly as a prop
+        count={count_file_sub_table_withlimit} // Provide count directly as a prop
         colNames={dynamicFileSubColumns}
         dynamicColumns={dynamicFileSubColumns}
         getNameFromTable={getNameFromFileProjTable}
       />
+
       <ExpandableTable
         data={fileBiosPrunedData}
         full_data={results?.file_bios_table_full}
         downloadFileName={projectLocalId + "_FilesBiosTable_Collection.json"}
         tableTitle={fileBiosTableTitle}
         searchParams={searchParams}
-        count={results?.count_file_bios ?? 0} // Provide count directly as a prop
+        //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
+        //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
+        count={count_file_bios_table_withlimit} // Provide count directly as a prop
         colNames={dynamicFileBiosColumns}
         dynamicColumns={dynamicFileBiosColumns}
         getNameFromTable={getNameFromFileProjTable}
       /> */}
+
       <ExpandableTable
         data={fileCollPrunedData}
         full_data={results?.file_col_table_full}
         downloadFileName={projectLocalId + "_FilesCollTable_Collection.json"}
         tableTitle={fileCollTableTitle}
         searchParams={searchParams}
-        count={results?.count_file_col ?? 0} // Provide count directly as a prop
+        //count={results?.count_file_col ?? 0} // Provide count directly as a prop
+        //count={results?.file_col_table_full.length ?? 0} // Provide count directly as a prop
+        count={count_file_col_table_withlimit} // Provide count directly as a prop
         colNames={dynamicFileCollColumns}
         dynamicColumns={dynamicFileCollColumns}
         getNameFromTable={getNameFromFileProjTable}
       />
-
 
     </LandingPageLayout>
   )
@@ -877,3 +895,35 @@ file_table AS (
         return <div>Error fetching record info query results</div>;
     }
 }
+
+// Keep these comments to remind of a trial I already did to improve speed
+// Using some code string twice, so, listing it here
+// This string doesn't involve anything that the user inputs or something 
+// based on that, so, there is no risk of SQL injection here.
+// Conclusion based on observing the time taken:
+// Since nearly the same query gets executed twice (+ the limit added in the 
+// first execution) in this approach of using ${Prisma.sql([file_sub_table_query_code_part2])},
+// it actually ends up taking more time for "LINCS 2021" project: 83 vs 96 seconds.
+// Thus, we will not use this approach.
+/**Mano
+const file_sub_table_query_code_part2 = `FROM c2m2.file_describes_subject
+INNER JOIN file_table_keycol ON 
+(file_table_keycol.local_id = c2m2.file_describes_subject.file_local_id AND 
+  file_table_keycol.id_namespace = c2m2.file_describes_subject.file_id_namespace)
+INNER JOIN sub_info ON 
+(sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
+  sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace)`;
+
+  // Part of code in query:
+    file_sub_table_keycol AS (
+    SELECT DISTINCT c2m2.file_describes_subject.*
+    ** ${Prisma.sql([file_sub_table_query_code_part2])} **
+  
+  // and
+    count_file_sub AS (
+    select count(*)::int as count
+    ** from (SELECT DISTINCT c2m2.file_describes_subject.* ${Prisma.sql([file_sub_table_query_code_part2])}) **
+    from file_sub_table_keycol
+  ),
+
+**/

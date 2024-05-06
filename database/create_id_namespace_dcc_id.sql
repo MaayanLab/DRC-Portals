@@ -6,6 +6,8 @@ This script can be run as (upon starting psql shell, or equivalent command):
 \i create_id_namespace_dcc_id.sql
 OR, directly specify the sql file name in psql command:
 psql -h localhost -U drc -d drc -p [5432|5433] -a -f create_id_namespace_dcc_id.sql
+psql -h localhost -U drc -d drc -p [5432|5433] -a -f create_id_namespace_dcc_id.sql -o log/log_create_id_namespace_dcc_id.log
+
 */
 
 DROP TABLE IF EXISTS c2m2.id_namespace_dcc_id RESTRICT;
