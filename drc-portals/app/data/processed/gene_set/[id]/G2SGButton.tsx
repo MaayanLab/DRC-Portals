@@ -18,10 +18,7 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
             color="secondary"
             size="small"
             onClick={async () => {
-                const currentG2SGSession = Cookies.get('session_id')
-                console.log(currentG2SGSession)
-                if (currentG2SGSession === undefined) {
-                    const req = await fetch('https://g2sg.cfde.cloud/api/addGeneset', {
+                    const req = await fetch('https://g2sg.cfde.cloud/api/addUserGeneset', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
@@ -29,27 +26,8 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
                         },
                         body: JSON.stringify(props.body),
                     })
-                    const { session_id } = await req.json()
-                    window.open(`https://g2sg.cfde.cloud/analyze/${session_id}`, '_blank')
-                } else {
-                    const bodyWithSession = { ...props.body, session_id: currentG2SGSession }
-                    const req = await fetch('https://g2sg.cfde.cloud/api/addToSession', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(bodyWithSession),
-                    })
-                    if (!req.ok) {
-                        const errorText = await req.json()
-                        console.log(errorText)
-                        // TO DO: add error handling here 
-                    } else {
-                        const { session_id } = await req.json()
-                        window.open(`https://g2sg.cfde.cloud/analyze/${session_id}`, '_blank')
-                    }
-                }
+                    const { geneset_url } = await req.json()
+                    window.open(geneset_url, '_blank')
             }}
         >Submit</Button>
     </CardButton>
