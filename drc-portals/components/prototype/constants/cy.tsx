@@ -415,15 +415,6 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["minus-30-loop-edge"],
-    data: {
-      id: "109",
-      source: "4",
-      target: "4",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
     data: {
       id: "110",
       source: "1",
@@ -467,15 +458,6 @@ export const SCHEMA_EDGES = [
     data: {
       id: "115",
       source: "1",
-      target: "3",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["30-loop-edge"],
-    data: {
-      id: "116",
-      source: "3",
       target: "3",
       label: CONTAINS_TYPE,
     },
