@@ -11,13 +11,11 @@ export default function PrototypeContainer() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
-  // Search Bar state
   const [searchQuery, setSearchQuery] = useState<string | null>(
     searchParams.get("q")
   );
 
-  const handleSearchSubmit = (state: string) => {
+  const updateQuery = (state: string) => {
     const query = btoa(state);
     router.push(`${pathname}?q=${query}`);
     setSearchQuery(query);
@@ -26,7 +24,7 @@ export default function PrototypeContainer() {
   return (
     <>
       <Grid item xs={12}>
-        <GraphSchemaContainer></GraphSchemaContainer>
+        <GraphSchemaContainer onPathSearch={updateQuery}></GraphSchemaContainer>
       </Grid>
       {/* TODO: Make the column size dependent on the presence of the other columns */}
       {/* <Grid item xs={12} lg={3}>
@@ -47,7 +45,7 @@ export default function PrototypeContainer() {
       >
         <GraphSearchContainer
           query={searchQuery}
-          onSubmit={handleSearchSubmit}
+          onSubmit={updateQuery}
         ></GraphSearchContainer>
       </Grid>
       {/* TODO: Make the column size dependent on the presence of the other columns */}

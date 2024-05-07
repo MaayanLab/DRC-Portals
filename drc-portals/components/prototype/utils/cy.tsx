@@ -1,5 +1,11 @@
-import { Box, Stack, Typography } from "@mui/material";
-import { EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
+import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import RestoreIcon from "@mui/icons-material/Restore";
+import {
+  EventObject,
+  EventObjectEdge,
+  EventObjectNode,
+  Position,
+} from "cytoscape";
 import { Record } from "neo4j-driver";
 import { ReactNode } from "react";
 
@@ -14,6 +20,7 @@ import {
   CytoscapeEdge,
   CytoscapeNode,
   CytoscapeNodeData,
+  CytoscapeReference,
 } from "../interfaces/cy";
 import { SubGraph, NodeResult, RelationshipResult } from "../interfaces/neo4j";
 
@@ -199,4 +206,37 @@ export const showElement = (event: EventObjectNode | EventObjectEdge) => {
 export const hideElement = (event: EventObjectNode | EventObjectEdge) => {
   // We remove hovered here because the node is necessarily hovered when a context menu is opened for it
   event.target.removeClass("highlight hovered").addClass("dimmed");
+};
+
+export const resetChart = (
+  key: string,
+  title: string,
+  positions: Map<string, Position>,
+  cyRef: CytoscapeReference
+) => {
+  const fn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      cy.batch(() => {
+        // Reset node positions
+        cy.nodes().forEach((el) => {
+          el.position(positions.get(el.id()) as Position);
+        });
+
+        // Reset styles
+        cy.elements().removeClass("highlight dimmed");
+      });
+    }
+  };
+  return (
+    <Tooltip key={key} title={title} arrow>
+      <IconButton
+        sx={{ borderRadius: 1 }}
+        aria-label="reset-chart"
+        onClick={fn}
+      >
+        <RestoreIcon />
+      </IconButton>
+    </Tooltip>
+  );
 };

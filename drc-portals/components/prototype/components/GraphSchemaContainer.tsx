@@ -2,66 +2,129 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  IconButton,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import RestoreIcon from "@mui/icons-material/Restore";
-import { Position } from "cytoscape";
+import { EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
+import { useEffect, useRef, useState } from "react";
 
 import {
   SCHEMA_ELEMENTS,
   SCHEMA_LAYOUT,
-  SCHEMA_NODES,
+  INITIAL_NODE_POSITIONS,
   SCHEMA_STYLESHEET,
 } from "../constants/cy";
-import { CytoscapeReference } from "../interfaces/cy";
+import {
+  CustomCxtMenuItem,
+  CustomEdgeCxtMenuItem,
+  CustomNodeCxtMenuItem,
+  CytoscapeReference,
+} from "../interfaces/cy";
+import { SchemaData } from "../interfaces/schema";
+import { resetChart } from "../utils/cy";
+import { convertPathToSearchValue, isPathEligible } from "../utils/schema";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 
-export default function GraphSchemaContainer() {
-  // TODO: Custom context menu options:
-  //  - Prepend to Path: prepends a node or relationship to the path array
-  //  - Append to Path: appends a node or relationship to the path array
-  //  - Search Path
+type GraphSchemaContainerProps = {
+  onPathSearch: (state: string) => void;
+};
 
-  const INITIAL_NODE_POSITIONS = new Map<string, Position>(
-    SCHEMA_NODES.map((el) => [
-      el.data.id,
-      { x: el.position.x, y: el.position.y },
-    ])
-  );
+export default function GraphSchemaContainer(
+  graphSchemaContainerProps: GraphSchemaContainerProps
+) {
+  const { onPathSearch } = graphSchemaContainerProps;
+  const [path, setPath] = useState<SchemaData[]>([]);
+  const pathRef = useRef(path);
+  const customTools = [
+    // Reset Chart button
+    (cyRef: CytoscapeReference) =>
+      resetChart(
+        "schema-chart-toolbar-reset-btn",
+        "Reset Chart",
+        INITIAL_NODE_POSITIONS,
+        cyRef
+      ),
+  ];
 
-  const resetChart = (cyRef: CytoscapeReference) => {
-    const fn = () => {
-      const cy = cyRef.current;
-      if (cy !== undefined) {
-        cy.batch(() => {
-          // Reset node positions
-          cy.nodes().forEach((el) => {
-            el.position(INITIAL_NODE_POSITIONS.get(el.id()) as Position);
-          });
+  useEffect(() => {
+    pathRef.current = path;
+  }, [path]);
 
-          // Reset styles
-          cy.elements().removeClass("highlight dimmed");
-        });
-      }
-    };
-    return (
-      <Tooltip key="schema-chart-toolbar-reset-btn" title="Reset Chart" arrow>
-        <IconButton
-          sx={{ borderRadius: 1 }}
-          aria-label="reset-chart"
-          onClick={fn}
-        >
-          <RestoreIcon />
-        </IconButton>
-      </Tooltip>
-    );
+  const searchPath = () => {
+    if (pathRef.current.length > 0) {
+      onPathSearch(
+        JSON.stringify({ value: convertPathToSearchValue(pathRef.current) })
+      );
+    }
   };
 
-  const customTools = [resetChart];
+  const resetPath = (event: EventObject) => {
+    setPath([]);
+    event.cy.elements().removeClass("path-element");
+  };
+
+  const appendNodeToPath = (event: EventObjectNode) => {
+    setPath((prevPath) => {
+      const data = event.target.data();
+      const pathCopy = [...prevPath];
+
+      event.cy.batch(() => {
+        event.cy.elements().removeClass("path-eligible");
+        event.target.addClass("path-element");
+        event.target.connectedEdges().addClass("path-eligible");
+      });
+      pathCopy.push({ id: data.id, label: data.label });
+      return pathCopy;
+    });
+  };
+
+  const appendEdgeToPath = (event: EventObjectEdge) => {
+    setPath((prevPath) => {
+      const data = event.target.data();
+      const pathCopy = [...prevPath];
+
+      event.cy.batch(() => {
+        event.cy.elements().removeClass("path-eligible");
+        event.target.addClass("path-element");
+        event.target.connectedNodes().addClass("path-eligible");
+      });
+      pathCopy.push({
+        id: data.id,
+        label: data.label,
+        source: data.source,
+        target: data.target,
+      });
+      return pathCopy;
+    });
+  };
+
+  const customStaticCxtMenuItems: CustomCxtMenuItem[] = [
+    {
+      fn: searchPath,
+      title: "Search Path",
+      showFn: () => pathRef.current.length > 0,
+    },
+    {
+      fn: resetPath,
+      title: "Reset Path",
+      showFn: () => pathRef.current.length > 0,
+    },
+  ];
+  const customNodeCxtMenuItems: CustomNodeCxtMenuItem[] = [
+    {
+      fn: appendNodeToPath,
+      title: "Add to Path",
+      showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
+    },
+  ];
+  const customEdgeCxtMenuItems: CustomEdgeCxtMenuItem[] = [
+    {
+      fn: appendEdgeToPath,
+      title: "Add to Path",
+      showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
+    },
+  ];
 
   return (
     <Accordion>
@@ -86,6 +149,9 @@ export default function GraphSchemaContainer() {
           legendPosition={{ top: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
           customTools={customTools}
+          customStaticCxtMenuItems={customStaticCxtMenuItems}
+          customNodeCxtMenuItems={customNodeCxtMenuItems}
+          customEdgeCxtMenuItems={customEdgeCxtMenuItems}
         ></CytoscapeChart>
       </AccordionDetails>
     </Accordion>

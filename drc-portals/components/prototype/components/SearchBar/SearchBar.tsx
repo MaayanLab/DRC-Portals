@@ -20,7 +20,7 @@ interface SearchBarProps {
   error: string | null;
   loading: boolean;
   clearError: () => void;
-  onSubmit: (value: SearchBarState) => void;
+  onSubmit: (state: SearchBarState) => void;
 }
 
 /**

@@ -5,7 +5,7 @@ import {
   styled,
   tooltipClasses,
 } from "@mui/material";
-import { Css, Stylesheet } from "cytoscape";
+import { Css, Position, Stylesheet } from "cytoscape";
 import { forwardRef } from "react";
 
 import { ColaLayoutOptions } from "../interfaces/cy";
@@ -77,6 +77,7 @@ export const ChartTooltip = styled(
 export const NODE_FONT_SIZE = "14px";
 export const NODE_FONT_FAMILY = "arial";
 export const NODE_DIAMETER = 125;
+export const NODE_BORDER_WIDTH = 5;
 
 // Default edge properties
 export const EDGE_COLOR = "#797979";
@@ -85,6 +86,9 @@ export const EDGE_COLOR = "#797979";
 export const MAX_NODE_LINES = 3;
 export const MAX_NODE_LABEL_WIDTH = 100;
 export const MIN_ZOOMED_FONT_SIZE = 8;
+
+// Schema-specific Properties
+export const PATH_COLOR = "#c634eb";
 
 export const DEFAULT_LAYOUT: ColaLayoutOptions = {
   name: "cola",
@@ -126,7 +130,7 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
     selector: "node:selected",
     style: {
       "border-color": "#336699",
-      "border-width": 5,
+      "border-width": NODE_BORDER_WIDTH,
     },
   },
   {
@@ -340,6 +344,10 @@ export const SCHEMA_NODES = [
     data: { id: "24", label: NCBI_TAXONOMY_LABEL },
   },
 ];
+
+export const INITIAL_NODE_POSITIONS = new Map<string, Position>(
+  SCHEMA_NODES.map((el) => [el.data.id, { x: el.position.x, y: el.position.y }])
+);
 
 export const SCHEMA_EDGES = [
   {
@@ -754,6 +762,22 @@ export const SCHEMA_STYLESHEET: Stylesheet[] = [
     style: {
       label: "data(label)",
       "font-size": SCHEMA_FONT_SIZE,
+    },
+  },
+  {
+    selector: "node.path-element",
+    style: {
+      "border-color": PATH_COLOR,
+      "border-width": NODE_BORDER_WIDTH,
+      opacity: 1,
+    },
+  },
+  {
+    selector: "edge.path-element",
+    style: {
+      "line-color": PATH_COLOR,
+      "target-arrow-color": PATH_COLOR,
+      opacity: 1,
     },
   },
 ];

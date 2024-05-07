@@ -2,6 +2,9 @@ import {
   BaseLayoutOptions,
   EdgeDataDefinition,
   EdgeDefinition,
+  EventObject,
+  EventObjectEdge,
+  EventObjectNode,
   NodeDataDefinition,
   NodeDefinition,
 } from "cytoscape";
@@ -10,6 +13,22 @@ import { MutableRefObject, ReactNode } from "react";
 export type CytoscapeReference = MutableRefObject<cytoscape.Core | undefined>;
 
 export type CustomToolbarFnFactory = (cyRef: CytoscapeReference) => ReactNode;
+
+export interface CustomCxtMenuItem {
+  fn: (event: EventObject) => void;
+  title: string;
+  showFn?: (event: EventObject) => boolean;
+}
+
+export interface CustomNodeCxtMenuItem extends CustomCxtMenuItem {
+  fn: (event: EventObjectNode) => void;
+  showFn?: (event: EventObjectNode) => boolean;
+}
+
+export interface CustomEdgeCxtMenuItem extends CustomCxtMenuItem {
+  fn: (event: EventObjectEdge) => void;
+  showFn?: (event: EventObjectEdge) => boolean;
+}
 
 export interface CytoscapeNodeData extends NodeDataDefinition {
   id: string;
