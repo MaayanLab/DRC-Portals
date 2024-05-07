@@ -92,9 +92,9 @@ async function fetchQueryResults(searchParams: any) {
             data_type_filters: { data_type_name: string, count: number, }[],
           }>>`
         WITH allres_full AS (
-          SELECT DISTINCT c2m2.ffl_biosample.*,
+          SELECT DISTINCT c2m2.ffl_biosample_collection.*,
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
-            FROM c2m2.ffl_biosample
+            FROM c2m2.ffl_biosample_collection
             WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
             /*ORDER BY rank DESC , dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name */        
         ),

@@ -774,7 +774,6 @@ file_table AS (
   const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
   const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
 
-
   const t4: number = performance.now();
   
   console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");

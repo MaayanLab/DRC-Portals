@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
+import {capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
 
 const file_count_limit = 100;
 const file_count_limit_proj = 100;
@@ -35,7 +35,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     // Generate the query clause for filters
 
-    const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample");
+    const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
     const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
 
     // To measure time taken by different parts
@@ -263,9 +263,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     }>>`
   WITH allres_full AS (
-    SELECT DISTINCT c2m2.ffl_biosample.*,
+    SELECT DISTINCT c2m2.ffl_biosample_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
-      FROM c2m2.ffl_biosample
+      FROM c2m2.ffl_biosample_collection
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${Prisma.sql([filterClause])}
       ORDER BY rank DESC
   ),
