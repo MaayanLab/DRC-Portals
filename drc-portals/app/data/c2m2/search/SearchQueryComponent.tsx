@@ -78,6 +78,34 @@ async function fetchQueryResults(searchParams: any) {
               count_col: number,
               record_info_url: string,
             }[],
+            records_full: {
+              //rank: number,
+              dcc_name: string,
+              dcc_abbreviation: string,
+              dcc_short_label: string,
+              taxonomy_name: string,
+              taxonomy_id: string,
+              disease_name: string,
+              disease: string,
+              anatomy_name: string,
+              anatomy: string,
+              gene_name: string,
+              gene: string,
+              protein_name: string,
+              protein: string,
+              compound_name: string,
+              compound: string,
+              data_type_name: string,
+              data_type: string,
+              project_name: string,
+              project_description: string,
+              project_persistent_id: string,
+              count: number, // this is based on across all-columns of ffl_biosample
+              count_bios: number,
+              count_sub: number,
+              count_col: number,
+              record_info_url: string,
+            }[],
             count: number,
             // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
             // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
@@ -213,6 +241,7 @@ async function fetchQueryResults(searchParams: any) {
         )
         
         SELECT
+        (SELECT COALESCE(jsonb_agg(allres_filtered.*), '[]'::jsonb) AS records_full FROM allres_filtered ), 
         (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited ), 
           (SELECT count FROM total_count) as count,
           (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
@@ -382,7 +411,7 @@ async function fetchQueryResults(searchParams: any) {
                   </Button>
                 </Link>
               }
-              data={results?.records}
+              data={results?.records_full}
               downloadFileName="CFDEC2M2MainSearchTable.json"
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
