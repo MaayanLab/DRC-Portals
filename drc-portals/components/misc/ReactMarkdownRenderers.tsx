@@ -1,46 +1,39 @@
 import React from "react";
 
-export async function fetchC2m2Markdown( doc: string ) { 
-  const prefix = 'https://raw.githubusercontent.com/wiki/nih-cfde/published-documentation/'
-  return (
-    fetch(prefix.concat(doc))
-      .then((res) => res.text())
-      .then((text) => text)
-      .catch((err) => "\n\n`Error fetching external content`")
-  )
-}
-
 export function LinkRenderer(props: any) {
   if (props.href.startsWith("/img")) {
     return (
-      <a href={props.href} target="_blank">
+      <a 
+        className="link text-blue-500 hover:cursor-pointer" 
+        href={props.href} target="_blank">
         {props.children}
       </a>
     )
   } else if (props.href.startsWith("#") || props.href.startsWith("./") ) {
     return (
-      <a href={props.href}>
+      <a
+        className="link text-blue-500 hover:cursor-pointer"  
+        href={props.href}>
         {props.children}
       </a>
     );
   } else {
     return (
-      <a href={props.href} target="_blank">
+      <a
+        className="link text-blue-500 hover:cursor-pointer"  
+        href={props.href} target="_blank">
         {props.children}
       </a>
     )
   }
 }
 
-function flatten(text: string, child: any) : string {
-  return typeof child === 'string'
-    ? text + child
-    : React.Children.toArray(child.props.children).reduce(flatten, text);
-};
-
-export function HeadingRenderer(props: any) {
-  const children = React.Children.toArray(props.children)
-  const text = children.reduce(flatten, '')
-  const slug = text.toLowerCase().replace(/\W/g, '-')
-  return React.createElement(props.node.tagName, {id: slug}, props.children)
+export function H2Renderer(props: {children: any}) {
+  const slug = props.children.toLowerCase().replace(/\W/g, '-')
+  const link = `#${slug}`
+  return (
+    <h2 className="prose font-semibold text-2xl mb-2" id={slug}>
+      {props.children}
+    </h2>
+  )
 }
