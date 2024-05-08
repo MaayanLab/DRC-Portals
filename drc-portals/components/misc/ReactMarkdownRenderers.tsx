@@ -37,3 +37,13 @@ export function H2Renderer(props: any) {
     </h2>
   )
 }
+
+export function H3Renderer(props: any) {
+  const slug = props.children.toLowerCase().replace(/\W/g, '-')
+  const link = `#${slug}`
+  return (
+    <h3 className="prose font-semibold text-xl my-4" id={slug}>
+      {props.children}
+    </h3>
+  )
+}
