@@ -37,7 +37,7 @@ with kg_assertion_helper.writer() as kg_assertion:
         kg_relations = set()
         with node_helper.writer() as node:
           def ensure_entity(entity_type, entity_label, entity_description=None):
-            if entity_type in {'Gene', 'ENSEMBL'}:
+            if entity_type == 'Gene':
               for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
                 def ensure():
@@ -73,7 +73,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                   node.writerow(dict(
                     id=entity_id,
                     type='entity',
-                    label=entity_label.capitalize().replace('_', ' '),
+                    label=entity_label,
                     description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                   ))
                 return entity_id
@@ -117,7 +117,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                         node.writerow(dict(
                           id=relation_id,
                           type='kg_relation',
-                          label=assertion['relation'].capitalize().replace('_', ' '),
+                          label=assertion['relation'],
                           description="A relationship in the knowledge graph",
                         ))
                       if assertion['evidence_class'] == 'nan':
