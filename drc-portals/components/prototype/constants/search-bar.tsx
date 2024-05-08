@@ -94,10 +94,10 @@ export const PROPERTY_OPERATORS: ReadonlyMap<string, string[]> = new Map([
     prop,
     [...STRING_OPERATORS],
   ]),
-  ...NUMBER_PROPERTIES.map((prop): [string, string[]] => [
-    prop,
-    [...NUMBER_OPERATORS],
-  ]),
+  // ...NUMBER_PROPERTIES.map((prop): [string, string[]] => [
+  //   prop,
+  //   [...NUMBER_OPERATORS],
+  // ]),
   // TODO: Add array, bool, and date operators
 ]);
 

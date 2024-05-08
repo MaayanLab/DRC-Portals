@@ -31,6 +31,7 @@ export interface SettingsPropertyFormProps {
   liftValue: (value: SearchBarOption) => void;
 }
 
+// TODO: Need to implement dynamic property type evaluation so we can filter on number, bool, date, etc.
 export default function SettingsPropertyForm(
   settingsPropertyFormProps: SettingsPropertyFormProps
 ) {
