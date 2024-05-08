@@ -63,7 +63,7 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
-              <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
+              <Link href="/info/training_and_outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
               {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
               </Link> */}

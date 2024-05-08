@@ -7,6 +7,9 @@ import CardContent from '@mui/material/CardContent'
 
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 import Stack from '@mui/material/Stack'
 import Chip from '@mui/material/Chip'
@@ -24,6 +27,8 @@ import { Outreach as OutreachType } from "@prisma/client"
 import DeleteIcon from '@mui/icons-material/Delete';
 import Markdown from "../MarkdownComponent"
 import ExportCalendar from "./ExportCalendar"
+import { parseAsJson } from 'next-usequerystate';
+
 export const shuffle = (array: OutreachType[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
     const j = Math.floor(Math.random() * (i + 1)); 
@@ -55,80 +60,70 @@ export const Wrapper = ({featured, children, orientation}: {featured: Boolean, c
   }
 }
 
-const GridView = ({featured, children}: {featured: Boolean, children: React.ReactNode[]}) => {
-  if (featured) {
-    return (
-      <Grid container>
-        {children}
-      </Grid>
-    )
-  } else {
-    return (
-      <MasonryClient defaultHeight={1500}>
-        {children}
-      </MasonryClient>
-    )
-  }
+
+export interface OutreachParams {
+  type?: Array<'outreach'|'training'>,
+  tags?: Array<string>,
+  expand_filter?: boolean,
+  events?: Array<'past'| 'active' | 'recurring'>
 }
 
-
-const OutreachComponent = ({outreach, featured, orientation, now, past=false}: {
+const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}: {
   outreach: OutreachType[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
   now: Date,
-  past?: Boolean
+  past?: Boolean,
+  filter?: OutreachParams,
+  expand_filter: boolean,
 }) =>(
   <Box sx={{ minHeight: 100 }}>
-    <GridView featured={featured}>
+    <MasonryClient defaultHeight={1500} columns={expand_filter ? 2: 3}>
       {outreach.map((e,i)=>{
         let tags:JsonArray = []
         if (Array.isArray(e.tags)) {
           tags = e.tags
         }
         return (
-          <Wrapper key={i} featured={featured} orientation={orientation || 'horizontal'}>
-            <Stack spacing={orientation === 'vertical' ? 1: 2}>
-              { (e.image && orientation == "horizontal") && 
-                  <div className="flex flex-row justify-center"
-                    style={{
-                      background: "linear-gradient(diagonal, #336699, #006666)",
-                      overflow: "hidden",  
-                      // height: "100%",
-                      minHeight: 200,
-                      position: "relative",
-                      zIndex: 2
-                    }}
-                  >
-                    <Image src={e.image} alt={e.title} fill={true} style={{objectFit: "contain"}}/>
-                    {/* <Image src={e.image} alt={e.title} width={400} height={300}/> */}
-                  </div>
-              }
-              {orientation !== 'vertical' && <div className="flex flex-row mb-5">
-                {tags.map((tag, i)=>
-                  <Link href={`/info/outreach?tag=${tag}`}>
-                    <Chip variant="filled" sx={{ textTransform: "capitalize", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
-                  </Link>
-                )}
-              </div>}
-              <Typography color="secondary" variant="h5">{e.title}</Typography>
-              <Markdown markdown={e.short_description}/>
-              {orientation === 'vertical' ?
-                (e.application_end && e.application_end > now) ? 
-                  <Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  }): "Passed"}`}
-                  </Typography> :
-                  e.start_date &&
-                    <Typography variant="body2" color="secondary"><b>Starts</b>: {`${e.start_date.toLocaleDateString("en-US", {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}`}
-                    </Typography>
-                : <>
+          <Card>
+            <CardContent>
+              <Stack spacing={2}>
+                { (e.image) && 
+                    <div className="flex flex-row justify-center"
+                      style={{
+                        background: "linear-gradient(diagonal, #336699, #006666)",
+                        overflow: "hidden",  
+                        // height: "100%",
+                        minHeight: 200,
+                        position: "relative",
+                        zIndex: 2
+                      }}
+                    >
+                      <Image src={e.image} alt={e.title} fill={true} style={{objectFit: "contain"}}/>
+                      {/* <Image src={e.image} alt={e.title} width={400} height={300}/> */}
+                    </div>
+                }
+                <div className="flex flex-row mb-5">
+                  {tags.map((tag, i)=> {
+                    const new_filter = filter
+                    new_filter.tags = [`${tag}`]
+                    return (
+                      <Link href={`/info/training_and_outreach?filter=${JSON.stringify(new_filter)}`}>
+                        <Chip variant="filled" sx={{ textTransform: "capitalize", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
+                      </Link>
+                    )
+                  })}
+                </div>
+                <Typography color="secondary" variant="h5">{e.title}</Typography>
+                <Box sx={{
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: '5',
+                                        WebkitBoxOrient: 'vertical',
+                }}>
+                  <Markdown markdown={e.short_description}/>
+                </Box>
                   {e.application_start && <Typography variant="body2" color="secondary"><b>Application opens:</b> {`${e.application_start.toLocaleDateString("en-US", {
                                   weekday: 'long',
                                   year: 'numeric',
@@ -159,39 +154,27 @@ const OutreachComponent = ({outreach, featured, orientation, now, past=false}: {
                                         day: 'numeric',
                                       })}`}
                     </Typography>}
-                </>
-                
-              }
-              <Grid container justifyContent={"space-between"}>
-                <Grid item>
-                  {(!featured && !past && (e.start_date || e.application_start)) && <ExportCalendar event={e} />}
+                <Grid container justifyContent={"space-between"}>
+                  <ExportCalendar event={e} />
+                  <Grid item>
+                    <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
+                      <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                    </Link>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                    <Button sx={featured && {marginLeft: -2}} color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
-                  </Link>
-                </Grid>
-              </Grid>
-            </Stack>
-          </Wrapper>
+              </Stack>
+            </CardContent>
+          </Card>
         )
       })}
-      {(featured && orientation !== 'vertical') && 
-        <Paper key="box" sx={{height: 300, width: 300, position: "relative"}}>
-          <Box sx={{position: "absolute", bottom: 50, left: 30}}>
-            <Typography variant="h2" color="secondary">
-              Training & Outreach
-            </Typography>
-            <Link href="/info/outreach">
-              <Button variant="outlined" color="secondary">
-                SEE MORE
-              </Button>
-            </Link>
-          </Box>
-        </Paper>}
-      </GridView>
+      </MasonryClient>
     </Box>
 )
+
+const type_tags = {
+  training: ["fellowship", "workshop", "internship", "course"],
+  outreach: ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon"]
+}
 
 
 async function Outreach({featured=true, orientation='horizontal', size=2, searchParams}:{
@@ -199,179 +182,234 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
   active?: Boolean,
   orientation?: 'horizontal' | 'vertical',
   size?: number,
-  searchParams?: {tag: string}
+  searchParams?: {
+    filter?: string
+  },
+  type?: 'outreach' | 'training'
 }) {
     const now = new Date()
-    if (featured) {
-      let outreach = await prisma.outreach.findMany({
-        where: {
-          active: true,
-          featured: true,
-          OR: [
-            {
-              end_date: {
-                gte: now
-              }
-            },
-            {
-              end_date: null
-            }
-          ],
-        },
-        orderBy: {
-          start_date: { sort: 'desc', nulls: 'last' },
-        }
-      })
-      outreach = shuffle(outreach).slice(0,size)
-      return <OutreachComponent now={now} outreach={outreach} featured={featured} orientation={orientation}/>
-    } else {
-      const now = new Date()
-      const tag_filter:{tags?: {
-        path: [],
-        array_contains: string
-      }} = {}
-      if (searchParams && searchParams.tag) {
-        tag_filter.tags =  {
-            path: [],
-            array_contains: searchParams.tag
-        }
-      }
-      const featured_events = await prisma.outreach.findMany({
-        where: {
-          active: true,
-          featured: true,
-          OR: [
-            {
-              end_date: {
-                gte: now
-              }
-            },
-            {
-              end_date: null,
-              start_date: {
-                gte: now
-              }
-            }
-          ],
-          ...tag_filter
-        },
-        orderBy: {
-          start_date: { sort: 'asc', nulls: 'last' }
-        }
-      })
-      const current = await prisma.outreach.findMany({
-        where: {
-          active: true,
-          OR: [
-            {
-              end_date: {
-                gte: now
-              }
-            },
-            {
-              end_date: null,
-              start_date: {
-                gte: now
-              }
-            },
-            {
-              end_date: null,
-              start_date: null,
-              application_start: null
-            },
-            {
-              application_start: {
-                gte: now
+    
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], expand_filter: true, events: ['active', 'recurring']})
+    const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
+    const {tags, type, expand_filter, events=[]} = parsedParams
+
+    let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]): [...type_tags.outreach, ...type_tags.training]
+    const type_filter = type ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]).map(tag=>({tags: {
+      path: [],
+      array_contains: tag
+    }})): []
+    const tag_filter = tags? tags.map(tag=>({tags: {
+      path: [],
+      array_contains: tag
+    }})): []
+
+    const where_tags = []
+    if (type_filter.length) where_tags.push({OR: type_filter})
+    if (tag_filter.length) where_tags.push({OR: tag_filter})
+    const current = (events && (events.length === 0 || events.indexOf('active') > -1)) ? await prisma.outreach.findMany({
+      where: {
+        active: true,
+        AND: [
+          // date filters
+          {
+            OR: [
+              {
+                end_date: {
+                  gte: now
+                }
               },
-              end_date: null,
-              start_date: null,
-            }
-          ],
-          ...tag_filter
-        },
-        orderBy: {
-          start_date: { sort: 'desc', nulls: 'last' }
+              {
+                end_date: null,
+                start_date: {
+                  gte: now
+                }
+              },
+              {
+                application_start: {
+                  gte: now
+                },
+                end_date: null,
+                start_date: null,
+              },
+            ]
+          },
+          ...where_tags,
+        ],
+        
+      },
+      orderBy: {
+        start_date: { sort: 'desc', nulls: 'last' }
+      }
+    }): []
+
+    const recurring = (events && (events.length === 0 || events.indexOf('recurring') > -1)) ?  await prisma.outreach.findMany({
+      where: {
+        active: true,
+        end_date: null,
+        start_date: null,
+        application_start: null,
+        AND: where_tags.length ? where_tags: undefined,
+      },
+      orderBy: {
+        start_date: { sort: 'desc', nulls: 'last' }
+      }
+    }): []
+    
+    const past = (events && (events.length === 0 || events.indexOf('past') > -1)) ? await prisma.outreach.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                end_date: {
+                  lt: now
+                }
+              },
+              {
+                end_date: null,
+                start_date: {
+                  lt: now
+                }
+              },
+              {
+                start_date: null,
+                end_date: null,
+                application_start: {
+                  lte: now
+                }
+              },
+            ],
+          },
+          ...where_tags
+        ],
+      },
+      orderBy: {
+        start_date: { sort: 'desc', nulls: 'last' }
+      }
+    }): []
+    return (
+      <Grid container spacing={1} sx={{marginTop: 2}}>
+        {expand_filter && <Grid item xs={12} sm={3}>
+          <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+            <Button variant="outlined" color="secondary">
+              Collapse Filter
+            </Button>
+          </Link>
+          <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", marginTop: 1 }} elevation={0}>
+            <Stack spacing={1}>
+              <Typography variant={'body1'}><b>Event Type</b></Typography>
+              <FormGroup>
+                <FormControlLabel control={
+                  <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)}, "type": ${JSON.stringify( (type && type.indexOf('outreach') > -1) ? type.filter(t=>t!=='outreach'): [...(type || []), 'outreach'])}}`}>
+                    <Checkbox checked={(type && (type).indexOf('outreach') > -1)}/>
+                  </Link>} label="Outreach" />
+                <FormControlLabel control={
+                  <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)},"type": ${JSON.stringify( (type && type.indexOf('training') > -1) ? type.filter(t=>t!=='training'): [...(type || []), 'training'])}}`}>
+                    <Checkbox checked={(type && (type).indexOf('training') > -1)}/>
+                  </Link>} label="Training" />
+              </FormGroup>
+              <Typography variant={'body1'}><b>Event Status</b></Typography>
+                <FormGroup>
+                  <FormControlLabel control={
+                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('active') > -1) ? events.filter(i=>i!== 'active'): [...(events || []), 'active']})}`}>
+                      <Checkbox checked={(events && (events).indexOf('active') > -1)}/>
+                    </Link>} label="Active" />
+                    <FormControlLabel control={
+                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('recurring') > -1) ? events.filter(i=>i!== 'recurring'): [...(events || []), 'recurring']})}`}>
+                      <Checkbox checked={(events && (events).indexOf('recurring') > -1)}/>
+                    </Link>} label="Recurring" />
+                    <FormControlLabel control={
+                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('past') > -1) ? events.filter(i=>i!== 'past'): [...(events || []), 'past']})}`}>
+                      <Checkbox checked={(events && (events).indexOf('past') > -1)}/>
+                    </Link>} label="Past" />
+                </FormGroup>
+              <Typography variant={'body1'}><b>Event Tag</b></Typography>
+                <FormGroup>
+                  {distinct_tags.map((tag)=>(
+                    <FormControlLabel key={`${tag}`} control={
+                      <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)}, "type": ${JSON.stringify(type)}, "tags": ${JSON.stringify((tags && tags.indexOf(String(tag)) > -1) ? tags.filter(t=>t!==tag): [...(tags || []), String(tag)])}}`}>
+                        <Checkbox checked={(tags && (tags).indexOf(String(tag)) > -1)}/>
+                      </Link>} label={`${tag}`} />
+                  ))}
+                </FormGroup>
+            </Stack>
+          </Paper>
+        </Grid>
         }
-      })
-      
-      const past = await prisma.outreach.findMany({
-        where: {
-          OR: [
-            {
-              end_date: {
-                lt: now
-              }
-            },
-            {
-              end_date: null,
-              start_date: {
-                lt: now
-              }
-            },
-            {
-              start_date: null,
-              application_start: {
-                lte: now
-              }
-            }
-          ],
-          ...tag_filter
-        },
-        orderBy: {
-          start_date: { sort: 'desc', nulls: 'last' }
-        }
-      })
-      return (
-        <Grid container spacing={1} sx={{marginTop: 2}}>
-          {(searchParams && searchParams.tag) && 
-            <Grid item xs={12} sx={{textAlign: 'right'}}>
-              <Link href={'/info/outreach'}>
-                <Chip variant="filled" 
-                  sx={{ background: searchParams.tag === "internship"? "#7187C3": "#EDF0F8", 
-                    color: searchParams.tag === "internship"?"#FFF":"#29527A", 
-                    minWidth: 150, borderRadius: 2, textTransform: 'capitalize'}} 
-                    label={searchParams.tag?.toString()}
-                    icon={<DeleteIcon color={searchParams.tag === "internship" ? "primary": "secondary"}/>}
-                  />
-              </Link>
+        <Grid item xs={12} sm={expand_filter ? 9:12}>
+          <Grid container>
+            <Grid item xs={12}>
+              <Grid container justifyContent={"space-between"}>
+                <Grid item sx={{height: 50}}>
+                  { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+                    <Button variant="outlined" color="secondary">
+                      Expand Filter
+                    </Button>
+                  </Link>
+                  }
+                </Grid>
+                <Grid item>
+                  {tags && tags.map(tag=>(
+                    <Link key={tag} href={'/info/training_and_outreach'}>
+                      <Chip variant="filled" 
+                        sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", 
+                          color: tag === "internship"?"#FFF":"#29527A", 
+                          minWidth: 150, borderRadius: 2, textTransform: 'capitalize', marginLeft: 1}} 
+                          label={tag?.toString()}
+                          icon={<DeleteIcon color={tag === "internship" ? "primary": "secondary"}/>}
+                        />
+                    </Link>
+                  ))}
+                </Grid>
+              </Grid>
             </Grid>
-          }
-          {(current.length + featured_events.length) > 0 && 
+          {(current.length) > 0 && 
             <>
               <Grid item xs={12}>
-                <Typography variant="h3" color="secondary">
-                  Active Outreach Events
+                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                  Active Events
                 </Typography>
               </Grid>
               <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={[...featured_events, ...current]} featured={featured} orientation={orientation}/>
+                <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
+              </Grid>
+            </>
+          }
+          {(recurring.length) > 0 && 
+            <>
+              <Grid item xs={12}>
+                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                  Recurring Events
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <OutreachComponent now={now} outreach={recurring} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
               </Grid>
             </>
           }
           {past.length > 0 && 
             <>
               <Grid item xs={12}>
-                <Typography variant="h3" color="secondary">
-                  Past Outreach Events
+                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                  Past Events
                 </Typography>
               </Grid>
               <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true}/>
+                <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true} filter={parsedParams} expand_filter={expand_filter || false}/>
               </Grid>
             </>
         }
-        {(past.length === 0 && current.length === 0 && featured_events.length === 0)  &&
+        {(past.length === 0 && current.length === 0 && recurring.length === 0)  &&
           <Grid item xs={12} sx={{marginTop: 10}}>
             <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
               No events found
             </Typography>
           </Grid>
-
         }
+          </Grid>
         </Grid>
-      )
-    }
-
+      </Grid>
+    )
   }
 
 export default Outreach
