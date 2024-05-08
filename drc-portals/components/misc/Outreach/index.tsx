@@ -23,19 +23,22 @@ import Grid from "@mui/material/Grid"
 import MasonryClient from "../MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-import { Outreach as OutreachType } from "@prisma/client"
 import DeleteIcon from '@mui/icons-material/Delete';
 import Markdown from "../MarkdownComponent"
 import ExportCalendar from "./ExportCalendar"
 import { parseAsJson } from 'next-usequerystate';
+import { Prisma } from "@prisma/client"
+import { Tooltip, IconButton, Avatar, CardActions } from "@mui/material"
 
-export const shuffle = (array: OutreachType[]) => { 
-  for (let i = array.length - 1; i > 0; i--) { 
-    const j = Math.floor(Math.random() * (i + 1)); 
-    [array[i], array[j]] = [array[j], array[i]]; 
-  } 
-  return array; 
-}; 
+type OutreachWithDCC = Prisma.OutreachGetPayload<{
+  include: {
+      dccs: {
+        include: {
+          dcc: true
+        }
+      }
+  }
+}>
 
 export const Wrapper = ({featured, children, orientation}: {featured: Boolean, children: React.ReactNode, orientation: 'horizontal'| 'vertical'}) => {
   if (featured) {
@@ -69,7 +72,7 @@ export interface OutreachParams {
 }
 
 const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}: {
-  outreach: OutreachType[], 
+  outreach: OutreachWithDCC[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
   now: Date,
@@ -87,7 +90,23 @@ const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}
         return (
           <Card>
             <CardContent>
-              <Stack spacing={2}>
+              <Stack spacing={1}>
+                <div className="flex items-center gap-1">
+                  {e.start_date  &&
+                    <Paper elevation={0} sx={{backgroundColor: "#EDF0F8", color: "secondary.main",  minWidth: 65, padding: 1}}>
+                      <Typography variant="caption">{e.start_date.toLocaleString('default', { month: 'short' })}</Typography>
+                      <Typography variant="h4">{e.start_date.toLocaleString('default', { day: '2-digit' })}</Typography>
+                      <Typography variant="caption">{e.start_date.toLocaleString('default', { year: 'numeric' })}</Typography>
+                    </Paper>
+                  }
+                  {e.end_date  &&
+                    <Paper elevation={0} sx={{backgroundColor: "secondary.main", color: "#EDF0F8", minWidth: 65, padding: 1}}>
+                      <Typography variant="caption">{e.end_date.toLocaleString('default', { month: 'short' })}</Typography>
+                      <Typography variant="h4">{e.end_date.toLocaleString('default', { day: '2-digit' })}</Typography>
+                      <Typography variant="caption">{e.end_date.toLocaleString('default', { year: 'numeric' })}</Typography>
+                    </Paper>
+                  }
+                </div>
                 { (e.image) && 
                     <div className="flex flex-row justify-center"
                       style={{
@@ -115,17 +134,29 @@ const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}
                   })}
                 </div>
                 <Typography color="secondary" variant="h5">{e.title}</Typography>
-                <Box sx={{
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: '5',
-                                        WebkitBoxOrient: 'vertical',
-                }}>
-                  <Markdown markdown={e.short_description}/>
-                </Box>
-                  {e.application_start && <Typography variant="body2" color="secondary"><b>Application opens:</b> {`${e.application_start.toLocaleDateString("en-US", {
-                                  weekday: 'long',
+                <Markdown markdown={e.short_description}/>
+                {e.dccs.length > 0 && 
+                    <div className="flex items-center gap-1">
+                      <div><Typography variant="body2" color="secondary"><b>Hosted by:</b></Typography></div>
+                      
+                              {e.dccs.map(({dcc})=>(
+                                  <div key={dcc.short_label} className="flex items-center justify-center relative">
+                                      <Link href={`/info/dcc/${dcc.short_label}`}>
+                                          <Tooltip title={dcc.short_label}>
+                                              <IconButton sx={{minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 70: 40, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 60: 40}}>
+                                                  {dcc.icon ? 
+                                                      <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>:
+                                                      <Avatar>{dcc.label[0]}</Avatar>
+                                                  }
+                                              </IconButton>
+                                          </Tooltip>
+                                      </Link>
+                                  </div>
+                              ))}
+                    </div>
+                  }
+                
+                  {(e.application_start && e.application_start  > now)&& <Typography variant="body2" color="secondary"><b>Application opens:</b> {`${e.application_start.toLocaleDateString("en-US", {
                                   year: 'numeric',
                                   month: 'long',
                                   day: 'numeric',
@@ -133,37 +164,20 @@ const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}
                     </Typography>}
                     {(e.application_end && e.application_end > now) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
                     `${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
-                                        weekday: 'long',
                                         year: 'numeric',
                                         month: 'long',
                                         day: 'numeric',
                                       }): "Passed"}`
                     }
                     </Typography>}
-                    {e.start_date && <Typography variant="body2" color="secondary"><b>Start date:</b> {`${e.start_date.toLocaleDateString("en-US", {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                      })}`}
-                    </Typography>}
-                    {e.end_date && <Typography variant="body2" color="secondary"><b>End date:</b> {`${e.end_date.toLocaleDateString("en-US", {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                      })}`}
-                    </Typography>}
-                <Grid container justifyContent={"space-between"}>
-                  <ExportCalendar event={e} />
-                  <Grid item>
-                    <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
-                      <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
-                    </Link>
-                  </Grid>
-                </Grid>
               </Stack>
             </CardContent>
+            <CardActions>
+                <ExportCalendar event={e} />
+                <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
+                  <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                </Link>
+            </CardActions>
           </Card>
         )
       })}
@@ -207,6 +221,13 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
     if (type_filter.length) where_tags.push({OR: type_filter})
     if (tag_filter.length) where_tags.push({OR: tag_filter})
     const current = (events && (events.length === 0 || events.indexOf('active') > -1)) ? await prisma.outreach.findMany({
+      include: {
+        dccs: {
+            include: {
+                dcc: true
+            }
+        }
+      },
       where: {
         active: true,
         AND: [
@@ -252,7 +273,14 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       },
       orderBy: {
         start_date: { sort: 'desc', nulls: 'last' }
-      }
+      },
+      include: {
+        dccs: {
+            include: {
+                dcc: true
+            }
+        }
+      },
     }): []
     
     const past = (events && (events.length === 0 || events.indexOf('past') > -1)) ? await prisma.outreach.findMany({
@@ -285,7 +313,14 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       },
       orderBy: {
         start_date: { sort: 'desc', nulls: 'last' }
-      }
+      },
+      include: {
+        dccs: {
+            include: {
+                dcc: true
+            }
+        }
+      },
     }): []
     return (
       <Grid container spacing={1} sx={{marginTop: 2}}>
