@@ -38,7 +38,7 @@ with kg_assertion_helper.writer() as kg_assertion:
         with node_helper.writer() as node:
           def ensure_entity(entity_type, entity_label, entity_description=None):
             if entity_type == 'Gene':
-              for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
+              for gene_ensembl in gene_lookup.get(entity_label, []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
                 def ensure():
                   if gene_id not in genes:
@@ -62,7 +62,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                 yield ensure
             elif entity_type:
               entity_type = map_type.get(entity_type, entity_type)
-              entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
+              entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
               def ensure():
                 if entity_id not in entities:
                   entities.add(entity_id)

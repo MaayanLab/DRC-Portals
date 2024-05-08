@@ -24,7 +24,7 @@ const modules: {
           params.append('filter', JSON.stringify({
             start: 'Gene',
             start_field: 'label',
-            start_term: `${item.node.label} gene`,
+            start_term: item.node.label,
             end_field: 'label',
           }))
         } else {
