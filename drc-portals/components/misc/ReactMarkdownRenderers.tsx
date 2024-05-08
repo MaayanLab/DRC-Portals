@@ -28,11 +28,11 @@ export function LinkRenderer(props: any) {
   }
 }
 
-export function H2Renderer(props: {children: any}) {
+export function H2Renderer(props: any) {
   const slug = props.children.toLowerCase().replace(/\W/g, '-')
   const link = `#${slug}`
   return (
-    <h2 className="prose font-semibold text-2xl mb-2" id={slug}>
+    <h2 className="prose font-semibold text-2xl my-6" id={slug}>
       {props.children}
     </h2>
   )

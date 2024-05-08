@@ -14,7 +14,6 @@ import { C2m2Table, C2m2SubmissionPrep } from "@/components/misc/ExternalC2m2"
   - [Datapackage Submission](#datapackage-submission)
   - [Tutorial](#tutorial)
 
-<br />
 ## Introduction
 The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. A complete C2M2 submission, also called an "instance" or a "datapackage", is a zipped folder containing multiple tab-delimited files (TSVs) representing metadata records along with a JSON schema. To read more about datapackages, skip to the [Frictionless Data Packages](#frictionless-data-packages) section. 
 
@@ -22,7 +21,6 @@ Each TSV file is a **data table** containing various **data records** (rows) and
 
 This page is adapted from the [original C2M2 documentation](https://github.com/nih-cfde/published-documentation) developed by the CFDE Coordination Center (CFDE-CC). 
 
-<br />
 ## Resources
 - The [c2m2-frictionless-dataclass](https://github.com/nih-cfde/c2m2-frictionless-dataclass/tree/main) 
   - This repository includes the `c2m2-frictionless` Python package, which contains specific helper functions for C2M2 datapackage building and validation. 
@@ -31,14 +29,12 @@ This page is adapted from the [original C2M2 documentation](https://github.com/n
 - The most up-to-date [C2M2 ontology preparation script and files](https://osf.io/bq6k9/)
 - The original [C2M2 documentation](https://github.com/nih-cfde/c2m2/blob/master/draft-C2M2_specification/README.md) from the CFDE Coordination Center contains more details on the concepts discussed here.
 
-<br />
 ## Frictionless Data Packages
 C2M2 instances are also known as "datapackages" based on the [Data Package](http://frictionlessdata.io/docs/data-package/) meta-specification from [Frictionless Data](http://frictionlessdata.io/). 
 
 From the original C2M2 documentation: 
 > The Data Package meta-specification is a platform-agnostic toolkit for defining format and content requirements for files so that automatic validation can be performed on those files, just as a database management system stores definitions for database tables and automatically validates incoming data based on those definitions. Using this toolkit, the C2M2 JSON Schema specification defines foreign-key relationships between metadata fields (TSV columns), rules governing missing data, required content types and formats for particular fields, and other similar database management constraints. These architectural rules help to guarantee the internal structural integrity of each C2M2 submission, while also serving as a baseline standard to create compatibility across multiple submissions received from different DCCs.
 
-<br />
 ## Identifiers
 In order to standardize and integrate information across DCCs, there must be a system of assigning unambiguous identifiers to individual DCC concepts and resources. These are the "C2M2 IDs", consisting of a `id_namespace` prefix and `local_id` suffix. Additionally, the C2M2 also allows individual resources to be assigned a `persistent_id`. 
 
@@ -53,7 +49,6 @@ From the original C2M2 documentation:
 >        - protocols not appearing in the above registries but explicitly approved by the CFDE-CC. Currently, this list is limited to one protocol, namely drs:// URIs identifying GA4GH Data Repository Service resources.  
 >    3. if representing a file, an ID used as a `persistent_id` cannot be a direct-download URL for that file: it must instead be an identifier permanently attached to the file and only indirectly resolvable (through the scheme or prefix specified within the ID) to the file itself  
 
-<br />
 ## C2M2 Tables
 
 _Sourced from the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/C2M2-Table-Summary)_
@@ -62,7 +57,6 @@ All of the tables in a C2M2 datapackage are inter-linked via foreign key relatio
 
 <C2m2Table />
 
-<br />
 ## Reference Tables
 
 Certain table fields within the C2M2 are restricted to only a few pre-defined values, such as `biosample_disease.association_type` or `subject.granularity`. Reference tables containing the allowed values for these fields, which were originally published on the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/C2M2-Table-Summary), are linked below: 
@@ -76,14 +70,12 @@ Certain table fields within the C2M2 are restricted to only a few pre-defined va
   - [subject_role](https://osf.io/fapnr/)
   - [subject_sex](https://osf.io/wepsz/)
 
-<br />
 ## Submission Prep Script
 
 _Sourced from the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/submission-prep-script)_
 
 <C2m2SubmissionPrep />
 
-<br />
 ## Datapackage Submission
 
 As an optional but recommended step before submitting your data package, you may validate your pipeline using either the `c2m2-frictionless` Python package (see [Resources](#resources)) or by following the steps below, from the [CFDE-CC Documentation Wiki Quickstart](https://github.com/nih-cfde/published-documentation/wiki/Quickstart#optional-frictionless): 
@@ -103,16 +95,13 @@ For specific instructions on using the submission system, see the [Contribution 
 
 To submit a datapackage, navigate to the [Submission System](https://data.cfde.cloud/submit/form).
 
-<br />
 ## Tutorial
 For the April 2022 CFDE Cross-Pollination meeting, the LINCS DCC demonstrated a Jupyter Notebook tutorial on building the `file`, `biosample`, and `subject` tables for LINCS L1000 signature data. The code and files can be found at the following link: 
 
 [LINCS C2M2 Demo (04-05-2022 Cross-Pollination)](https://github.com/nih-cfde/LINCS-metadata/tree/main/scripts/April-CrossPollination-Demo)
 
 Code snippets from this tutorial corresponding to each step are reproduced below. Note that the C2M2 datapackage building process will vary across DCCs, depending on the types of generated data, ontologies, and access standards in place. In general, the process will be as follows: 
-
 1. Become familiar with the current structure of the C2M2, including the required fields across the entity and association tables, and download the most recent version of the [JSON schema](https://osf.io/c63aw/). Gather any metadata mapping files you may need. 
-
 2. Identify the relevant namespace for all files, and build the `id_namespace` and `dcc` tables first. 
 
     - For LINCS, the namespace "https://lincsproject.org" is used. The following code will generate the LINCS `id_namespace` table: 
@@ -212,6 +201,5 @@ Code snippets from this tutorial corresponding to each step are reproduced below
     
 10. Compress the entire directory into a *.zip file and upload to the [CFDE Workbench Metadata and Data Submission System](https://data.cfde.cloud/submit/form). 
 
-<br />
 ### Return to [Documentation](/.)
 <br /><br />
