@@ -75,7 +75,7 @@ export default function DataLayout({
       <Grid item className="flex grow">
         <Background background="#E7F3F5">
           <NavBreadcrumbs/>
-          {children}
+          <div>{children}</div>
         </Background>
       </Grid>
       <Grid item><Footer/></Grid>

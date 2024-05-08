@@ -50,6 +50,12 @@ model Publication {
   authors       String
   tool_id       String?
   landmark      Boolean                   @default(false)
+  featured      Boolean                   @default(false)
+  carousel      Boolean                   @default(false)
+  carousel_title  String?
+  carousel_link String?
+  carousel_description String?
+  image         String?
   dccs          DCCPublication[]
   partnertships PartnershipPublications[]
   tool          Tool?                     @relation(fields: [tool_id], references: [id])

@@ -33,7 +33,7 @@ const TweetC = z.object({
         indices: z.tuple([z.number(), z.number()]),
         display_url: z.string(),
         media_url_https: z.string(),
-        expanded_url: z.string(),
+        expanded_url: z.string().optional(),
         type: z.string(),
         sizes: z.object({
           large: z.object({
@@ -62,7 +62,7 @@ const TweetC = z.object({
         url: z.string(),
         indices: z.array(z.number()),
         display_url: z.string(),
-        expanded_url: z.string(),
+        expanded_url: z.string().optional(),
       })),
     }),
     full_text: z.string(),
@@ -108,7 +108,7 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
     elements.push({
       start: url.indices[0],
       end: url.indices[1],
-      element: <a className="text-cyan-500 hover:underline" href={url.expanded_url}>{url.display_url}</a>
+      element: <a className="text-cyan-500 hover:underline" href={url.expanded_url || url.display_url}>{url.display_url}</a>
     })
   }
   for (const user_mention of actual_tweet.legacy.entities.user_mentions) {
@@ -124,7 +124,7 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
         elements.push({
           start: medium.indices[0],
           end: medium.indices[1],
-          element: <a href={medium.expanded_url} target="_blank"><img className="rounded-xl my-2" src={medium.media_url_https} width={medium.sizes.small.w} height={medium.sizes.small.h} /></a>
+          element: <a href={medium.expanded_url || medium.display_url} target="_blank"><img className="rounded-xl my-2" src={medium.media_url_https} width={medium.sizes.small.w} height={medium.sizes.small.h} /></a>
         })
       }
     }

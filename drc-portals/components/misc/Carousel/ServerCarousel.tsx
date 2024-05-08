@@ -4,9 +4,9 @@ import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
 import Link from "next/link"
 import prisma from "@/lib/prisma"
-import { shuffle } from "../Outreach"
+
 export default async function ServerCarousel () {
-    let outreach = await prisma.outreach.findMany({
+    const outreach = await prisma.outreach.findMany({
         where: {
           active: true,
           carousel: true
@@ -15,12 +15,26 @@ export default async function ServerCarousel () {
           start_date: { sort: 'asc', nulls: 'last' },
         }
       })
-    outreach = shuffle(outreach)
     const outreach_items = outreach.map(o=>({
         name: o.title,
         description: o.short_description,
         icon: o.image || '',
         url: o.link || '',
+    }))
+    const publications = await prisma.publication.findMany({
+        where: {
+          carousel: true
+        },
+        orderBy: {
+          year: { sort: 'desc', nulls: 'last' },
+        }
+      })
+    
+    const publication_items = publications.map(o=>({
+        name: o.carousel_title || o.title,
+        description: o.carousel_description,
+        icon: o.image || '',
+        url: o.carousel_link || `https://www.doi.org/${o.doi}` || '',
     }))
     const items = [
         {
@@ -54,9 +68,10 @@ export default async function ServerCarousel () {
             url: "https://pubmed.ncbi.nlm.nih.gov/36409836/"
         }
       ]
-      
     
-    const children = [...outreach_items, ...items].map( (item, i) => (
+    console.log(publication_items)
+    
+    const children = [...outreach_items, ...publication_items, ...items].map( (item, i) => (
         <Box key={i} sx={{
             minHeight: 300, 
             width: 640,

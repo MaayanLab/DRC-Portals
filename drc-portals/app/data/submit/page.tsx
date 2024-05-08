@@ -100,7 +100,7 @@ The Entity Page Template and Example are  links to:
 \Example live entity page from GTEx: [https://www.gtexportal.org/home/gene/MAPK3](https://www.gtexportal.org/home/gene/MAPK3)`
 
     return (
-        <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid container spacing={2}>
             <Container className="justify-content-center">
                 <Typography variant="h3" color="#111827.dark" className='p-5'>HOW TO SUBMIT DATA AND METADATA TO THE PORTAL?</Typography>
                 <Typography variant="subtitle1" color="#374151" sx={{ mb: 3, ml: 2 }}>

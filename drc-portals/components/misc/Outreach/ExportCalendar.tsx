@@ -19,7 +19,17 @@ const ExportCalendar = ({event}: {event: Outreach}) => {
         pad(event?.start_date.getUTCMinutes()),
         pad(event?.start_date.getUTCSeconds()),
         'Z'
-        ].join(''): ''
+        ].join(''): event.application_start ? 
+        [
+            event?.application_start.getUTCFullYear(),
+            pad(event?.application_start.getUTCMonth() + 1),
+            pad(event?.application_start.getUTCDate()),
+            'T',
+            pad(event?.application_start.getUTCHours()),
+            pad(event?.application_start.getUTCMinutes()),
+            pad(event?.application_start.getUTCSeconds()),
+            'Z'
+        ].join(''):''
     
     const end_date = event.end_date ? [
         event?.end_date.getUTCFullYear(),
@@ -29,6 +39,15 @@ const ExportCalendar = ({event}: {event: Outreach}) => {
         pad(event?.end_date.getUTCHours()),
         pad(event?.end_date.getUTCMinutes()),
         pad(event?.end_date.getUTCSeconds()),
+        'Z'
+        ].join(''): event.application_end ? [
+        event?.application_end.getUTCFullYear(),
+        pad(event?.application_end.getUTCMonth() + 1),
+        pad(event?.application_end.getUTCDate()),
+        'T',
+        pad(event?.application_end.getUTCHours()),
+        pad(event?.application_end.getUTCMinutes()),
+        pad(event?.application_end.getUTCSeconds()),
         'Z'
         ].join(''): start_date    
 
