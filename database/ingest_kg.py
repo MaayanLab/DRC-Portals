@@ -60,7 +60,7 @@ with kg_assertion_helper.writer() as kg_assertion:
                     ))
                   return gene_id
                 yield ensure
-            else:
+            elif entity_type:
               entity_type = map_type.get(entity_type, entity_type)
               entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
               def ensure():
