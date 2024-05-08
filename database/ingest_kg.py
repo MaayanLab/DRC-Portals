@@ -94,14 +94,17 @@ with kg_assertion_helper.writer() as kg_assertion:
             assertion_nodes = {}
             for assertion_node_file in assertions_extract_path.glob('*.nodes.csv'):
               with assertion_node_file.open('r') as fr:
-                assertion_node_reader = csv.DictReader(fr, fieldnames=next(fr).strip().split(','), delimiter=',')
+                columns = next(fr).strip().split(',')
+                columns[0] = 'id'
+                assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
                 for assertion_node in tqdm(assertion_node_reader, desc=f"Processing {assertion_node_file.name}..."):
                   # TODO: capture other metdata
                   assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
             # register all of the edges
             for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
               with assertion_edge_file.open('r') as fr:
-                assertion_edge_reader = csv.DictReader(fr, fieldnames=next(fr).strip().split(','), delimiter=',')
+                columns = next(fr).strip().split(',')
+                assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
                 for assertion in tqdm(assertion_edge_reader, desc=f"Processing {assertion_edge_file.name}..."):
                   for ensure_source_id in assertion_nodes.get(assertion['source'], []):
                     for ensure_target_id in assertion_nodes.get(assertion['target'], []):
