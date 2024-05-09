@@ -88,6 +88,7 @@ model Outreach {
   application_end   DateTime?     @db.Timestamptz(3)
   link              String?
   image             String?
+  cfde_specific     Boolean       @default(false)
   dccs              DCCOutreach[]
 
   @@map("outreach")
@@ -141,12 +142,14 @@ model UseCase {
   title             String
   short_description String
   description       String
-  inputs            Json
-  outputs           Json
-  sources           Json
+  tool_icon         String?
+  inputs            Json?
+  outputs           Json?
+  sources           Json?
   link              String?
   image             String?
   tutorial          String?
+  featured          Boolean      @default(false)
   creator_dcc_id    String?
   creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
   source_dccs       DCCUseCase[]
