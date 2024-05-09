@@ -332,7 +332,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
           </Link>
           <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", marginTop: 1 }} elevation={0}>
             <Stack spacing={1}>
-              <Typography variant={'body1'}><b>Event Type</b></Typography>
+              <Typography variant={'body1'}><b>Type</b></Typography>
               <FormGroup>
                 <FormControlLabel control={
                   <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)}, "type": ${JSON.stringify( (type && type.indexOf('outreach') > -1) ? type.filter(t=>t!=='outreach'): [...(type || []), 'outreach'])}}`}>
@@ -343,7 +343,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                     <Checkbox checked={(type && (type).indexOf('training') > -1)}/>
                   </Link>} label="Training" />
               </FormGroup>
-              <Typography variant={'body1'}><b>Event Status</b></Typography>
+              <Typography variant={'body1'}><b>Status</b></Typography>
                 <FormGroup>
                   <FormControlLabel control={
                     <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('active') > -1) ? events.filter(i=>i!== 'active'): [...(events || []), 'active']})}`}>
@@ -358,13 +358,13 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                       <Checkbox checked={(events && (events).indexOf('past') > -1)}/>
                     </Link>} label="Past" />
                 </FormGroup>
-              <Typography variant={'body1'}><b>Event Tag</b></Typography>
+              <Typography variant={'body1'}><b>Tag</b></Typography>
                 <FormGroup>
                   {distinct_tags.map((tag)=>(
                     <FormControlLabel key={`${tag}`} control={
                       <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)}, "type": ${JSON.stringify(type)}, "tags": ${JSON.stringify((tags && tags.indexOf(String(tag)) > -1) ? tags.filter(t=>t!==tag): [...(tags || []), String(tag)])}}`}>
                         <Checkbox checked={(tags && (tags).indexOf(String(tag)) > -1)}/>
-                      </Link>} label={`${tag}`} />
+                      </Link>} sx={{textTransform: "capitalize"}} label={`${tag}`} />
                   ))}
                 </FormGroup>
             </Stack>
@@ -402,7 +402,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             <>
               <Grid item xs={12}>
                 <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Active Events
+                  Active
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -414,7 +414,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             <>
               <Grid item xs={12}>
                 <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Recurring Events
+                  Recurring
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -426,7 +426,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             <>
               <Grid item xs={12}>
                 <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Past Events
+                  Past
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -437,7 +437,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
         {(past.length === 0 && current.length === 0 && recurring.length === 0)  &&
           <Grid item xs={12} sx={{marginTop: 10}}>
             <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
-              No events found
+              No records found
             </Typography>
           </Grid>
         }
