@@ -149,7 +149,7 @@ model UseCase {
   link              String?
   image             String?
   tutorial          String?
-  featured          Boolean      @default(false)
+  featured          Boolean?      @default(false)
   creator_dcc_id    String?
   creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
   source_dccs       DCCUseCase[]

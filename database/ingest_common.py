@@ -102,6 +102,9 @@ dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/d
 partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/032724/partnerships.tsv', 'partnerships.tsv')
 partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_partnership_publication.tsv', 'partnership_publications.tsv')
 tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/tools.tsv', 'tools.tsv')
+dcc_usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/usecase_files/current_dcc_usecase.tsv', 'dcc_usecase.tsv')
+usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/usecase_files/current_usecase.tsv', 'usecase.tsv')
+
 #%%
 def current_dcc_assets():
   dcc_assets = pd.merge(
