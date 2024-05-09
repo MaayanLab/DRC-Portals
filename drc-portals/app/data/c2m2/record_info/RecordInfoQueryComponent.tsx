@@ -897,9 +897,9 @@ file_table AS (
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
     //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
     addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, "Files related to Project", categories);
-    addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
-    addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
-    addCategoryColumns(staticFileColColumns, getNameFromFileProjTable, "Files related to Collection", categories);
+    addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, "Files related to Subject", categories);
+    addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, "Files related to Biosample", categories);
+    addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, "Files related to Collection", categories);
 
     // Define the actual count of records in table displayed here and use at two or more places
     const count_file_table_withlimit = results?.file_table_full.length ?? 0;
