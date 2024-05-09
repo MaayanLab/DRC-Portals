@@ -53,7 +53,6 @@ export default function SettingsPropertyForm(
     // Only continue if we could create a new filter
     if (newFilter !== undefined) {
       updatedValue.filters.push(newFilter);
-      setValue(updatedValue);
       liftValue(updatedValue);
     } else {
       console.warn(`Could not create filter for entity ${value.name}!`);
@@ -63,7 +62,6 @@ export default function SettingsPropertyForm(
   const deleteFilter = (index: number) => () => {
     const updatedValue = { ...value };
     updatedValue.filters.splice(index, 1);
-    setValue(updatedValue);
     liftValue(updatedValue);
   };
 
@@ -73,7 +71,6 @@ export default function SettingsPropertyForm(
       ...updatedValue.filters[index],
       ...update,
     };
-    setValue(updatedValue);
     liftValue(updatedValue);
   };
 
