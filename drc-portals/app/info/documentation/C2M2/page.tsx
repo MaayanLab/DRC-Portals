@@ -1,6 +1,6 @@
 import { Grid, Toolbar } from "@mui/material";
 import ScrollToTop from "@/components/misc/ScrollToTop";
-import C2M2 from './C2M2.mdx';
+import C2M2 from '../markdown/C2M2.mdx';
 import { H2Renderer, LinkRenderer } from "@/components/misc/ReactMarkdownRenderers";
 import React from "react";
 

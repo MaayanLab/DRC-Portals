@@ -5,10 +5,10 @@ import dynamic from 'next/dynamic'
 import { notFound } from "next/navigation";
 
 const pageMap : { [ key: string ] : Function } = {
-  'FAIRshake': dynamic(() => import('./FAIRshake.mdx')),
-  'OpenAPI': dynamic(() => import('./OpenAPI.mdx')),
-  'PWBMetanodes': dynamic(() => import('./PWBMetanodes.mdx')),
-  'KGAssertions': dynamic(() => import('./KGAssertions.mdx'))
+  'FAIRshake': dynamic(() => import('../markdown/FAIRshake.mdx')),
+  'OpenAPI': dynamic(() => import('../markdown/OpenAPI.mdx')),
+  'PWBMetanodes': dynamic(() => import('../markdown/PWBMetanodes.mdx')),
+  'KGAssertions': dynamic(() => import('../markdown/KGAssertions.mdx'))
 }
 
 export default function StandardsPage(
