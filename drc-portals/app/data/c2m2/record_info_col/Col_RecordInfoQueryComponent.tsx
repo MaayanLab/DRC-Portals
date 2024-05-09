@@ -72,194 +72,320 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         compound_description: string,
         taxonomy_description: string,
 
-        count: number, // this is based on across all-columns of ffl_biosample 
-        count_bios: number,
-        count_sub: number,
-        count_col: number,
-      }[],
+      count: number, // this is based on across all-columns of ffl_biosample 
       count_bios: number,
       count_sub: number,
       count_col: number,
-      biosamples_table: {
-        biosample_id_namespace: string,
-        biosample_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        biosample_persistent_id: string,
-        biosample_creation_time: string,
-        sample_prep_method_name: string,
-        anatomy_name: string,
-        disease_name: string,
-        disease_association_type_name: string,
-        subject_id_namespace: string,
-        subject_local_id: string,
-        biosample_age_at_sampling: string,
-        gene_name: string,
-        substance_name: string
-      }[],
-      collections_table: {
-        collection_id_namespace: string,
-        collection_local_id: string,
-        persistent_id: string,
-        creation_time: string,
-        abbreviation: string,
-        name: string,
-        description: string,
-        has_time_series_data: string
-      }[],
-      subjects_table: {
-        subject_id_namespace: string,
-        subject_local_id: string,
-        subject_race_name: string,
-        subject_granularity_name: string,
-        subject_sex_name: string,
-        subject_ethnicity_name: string,
-        subject_role_name: string,
-        subject_age_at_enrollment: string
-      }[],
-      sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
-      count_file: number,
-      file_table: {
-        id_namespace: string,
-        local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        persistent_id: string,
-        creation_time: string,
-        size_in_bytes: bigint,
-        uncompressed_size_in_bytes: bigint,
-        sha256: string,
-        md5: string,
-        filename: string,
-        file_format: string,
-        compression_format: string,
-        data_type: string,
-        assay_type: string,
-        analysis_type: string,
-        mime_type: string,
-        bundle_collection_id_namespace: string,
-        bundle_collection_local_id: string,
-        dbgap_study_id: string,
-        data_type_name: string,
-        assay_type_name: string,
-        analysis_type_name: string
-        //biosample_id_namespace: string,
-        //biosample_local_id: string,
-        //subject_id_namespace: string,
-        //subject_local_id: string,
-        //collection_id_namespace: string, 
-        //collection_local_id: string
-      }[],
-      count_file_sub: number,
-      file_sub_table: {
-        file_id_namespace: string,
-        file_local_id: string,
-        subject_id_namespace: string,
-        subject_local_id: string
-      }[],
-      count_file_bios: number,
-      file_bios_table: {
-        file_id_namespace: string,
-        file_local_id: string,
-        biosample_id_namespace: string,
-        biosample_local_id: string
-      }[],
-      count_file_col: number,
-      file_col_table: {
-        file_id_namespace: string,
-        file_local_id: string,
-        collection_id_namespace: string,
-        collection_local_id: string
-      }[],
+    }[],
+    count_bios: number,
+    count_sub: number,
+    count_col: number,
+    biosamples_table: {
+      biosample_id_namespace: string,
+      biosample_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      biosample_persistent_id: string,
+      biosample_creation_time: string,
+      sample_prep_method_name: string,
+      anatomy_name: string,
+      disease_name: string,
+      disease_association_type_name: string,
+      subject_id_namespace: string,
+      subject_local_id: string,
+      biosample_age_at_sampling: string,
+      gene_name: string,
+      substance_name: string
+    }[],
+    collections_table: {
+      collection_id_namespace: string,
+      collection_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      abbreviation: string,
+      name: string,
+      description: string,
+      has_time_series_data: string
+    }[],
+    subjects_table: {
+      subject_id_namespace: string,
+      subject_local_id: string,
+      subject_race_name: string,
+      subject_granularity_name: string,
+      subject_sex_name: string,
+      subject_ethnicity_name: string,
+      subject_role_name: string,
+      subject_age_at_enrollment: string
+    }[],
+    sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
+    count_file: number,
+    file_table: {
+      id_namespace: string,
+      local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+      //biosample_id_namespace: string,
+      //biosample_local_id: string,
+      //subject_id_namespace: string,
+      //subject_local_id: string,
+      //collection_id_namespace: string, 
+      //collection_local_id: string
+    }[],
+    count_file_sub: number,
+    file_sub_table: {
+      file_id_namespace: string,
+      file_local_id: string,
+      subject_id_namespace: string,
+      subject_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+  }[],
+    count_file_bios: number,
+    file_bios_table: {
+      file_id_namespace: string,
+      file_local_id: string,
+      biosample_id_namespace: string,
+      biosample_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+  }[],
+    count_file_col: number,
+    file_col_table: {
+      file_id_namespace: string,
+      file_local_id: string,
+      collection_id_namespace: string,
+      collection_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+  }[],
 
       // based on full table
 
-      biosamples_table_full: {
-        biosample_id_namespace: string,
-        biosample_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        biosample_persistent_id: string,
-        biosample_creation_time: string,
-        sample_prep_method_name: string,
-        anatomy_name: string,
-        disease_name: string,
-        disease_association_type_name: string,
-        subject_id_namespace: string,
-        subject_local_id: string,
-        biosample_age_at_sampling: string,
-        gene_name: string,
-        substance_name: string
-      }[],
-      collections_table_full: {
-        collection_id_namespace: string,
-        collection_local_id: string,
-        persistent_id: string,
-        creation_time: string,
-        abbreviation: string,
-        name: string,
-        description: string,
-        has_time_series_data: string
-      }[],
-      subjects_table_full: {
-        subject_id_namespace: string,
-        subject_local_id: string,
-        subject_race_name: string,
-        subject_granularity_name: string,
-        subject_sex_name: string,
-        subject_ethnicity_name: string,
-        subject_role_name: string,
-        subject_age_at_enrollment: string
-      }[],
-      file_table_full: {
-        id_namespace: string,
-        local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        persistent_id: string,
-        creation_time: string,
-        size_in_bytes: bigint,
-        uncompressed_size_in_bytes: bigint,
-        sha256: string,
-        md5: string,
-        filename: string,
-        file_format: string,
-        compression_format: string,
-        data_type: string,
-        assay_type: string,
-        analysis_type: string,
-        mime_type: string,
-        bundle_collection_id_namespace: string,
-        bundle_collection_local_id: string,
-        dbgap_study_id: string,
-        data_type_name: string,
-        assay_type_name: string,
-        analysis_type_name: string
-        //biosample_id_namespace: string,
-        //biosample_local_id: string,
-        //subject_id_namespace: string,
-        //subject_local_id: string,
-        //collection_id_namespace: string, 
-        //collection_local_id: string
-      }[],
-      file_sub_table_full: {
-        file_id_namespace: string,
-        file_local_id: string,
-        subject_id_namespace: string,
-        subject_local_id: string
-      }[],
-      file_bios_table_full: {
-        file_id_namespace: string,
-        file_local_id: string,
-        biosample_id_namespace: string,
-        biosample_local_id: string
-      }[],
-      file_col_table_full: {
-        file_id_namespace: string,
-        file_local_id: string,
-        collection_id_namespace: string,
-        collection_local_id: string
-      }[],
+    biosamples_table_full: {
+      biosample_id_namespace: string,
+      biosample_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      biosample_persistent_id: string,
+      biosample_creation_time: string,
+      sample_prep_method_name: string,
+      anatomy_name: string,
+      disease_name: string,
+      disease_association_type_name: string,
+      subject_id_namespace: string,
+      subject_local_id: string,
+      biosample_age_at_sampling: string,
+      gene_name: string,
+      substance_name: string
+    }[],
+    collections_table_full: {
+      collection_id_namespace: string,
+      collection_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      abbreviation: string,
+      name: string,
+      description: string,
+      has_time_series_data: string
+    }[],
+    subjects_table_full: {
+      subject_id_namespace: string,
+      subject_local_id: string,
+      subject_race_name: string,
+      subject_granularity_name: string,
+      subject_sex_name: string,
+      subject_ethnicity_name: string,
+      subject_role_name: string,
+      subject_age_at_enrollment: string
+    }[],
+    file_table_full: {
+      id_namespace: string,
+      local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+      //biosample_id_namespace: string,
+      //biosample_local_id: string,
+      //subject_id_namespace: string,
+      //subject_local_id: string,
+      //collection_id_namespace: string, 
+      //collection_local_id: string
+    }[],
+    file_sub_table_full: {
+      file_id_namespace: string,
+      file_local_id: string,
+      subject_id_namespace: string,
+      subject_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+  }[],
+    file_bios_table_full: {
+      file_id_namespace: string,
+      file_local_id: string,
+      biosample_id_namespace: string,
+      biosample_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+  }[],
+    file_col_table_full: {
+      file_id_namespace: string,
+      file_local_id: string,
+      collection_id_namespace: string,
+      collection_local_id: string,
+      project_id_namespace: string,
+      project_local_id: string,
+      persistent_id: string,
+      creation_time: string,
+      size_in_bytes: bigint,
+      uncompressed_size_in_bytes: bigint,
+      sha256: string,
+      md5: string,
+      filename: string,
+      file_format: string,
+      compression_format: string,
+      data_type: string,
+      assay_type: string,
+      analysis_type: string,
+      mime_type: string,
+      bundle_collection_id_namespace: string,
+      bundle_collection_local_id: string,
+      dbgap_study_id: string,
+      data_type_name: string,
+      assay_type_name: string,
+      analysis_type_name: string
+  }[],
 
     }>>`
   WITH allres_full AS (
@@ -452,129 +578,137 @@ file_table_keycol AS (
                             AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) /* 2024/03/07 match data type */
 ),
 file_table AS (
-    SELECT DISTINCT 
-        f.id_namespace,
-        f.local_id,
-        f.project_id_namespace,
-        f.project_local_id,
-        f.persistent_id,
-        f.creation_time,
-        f.size_in_bytes,
-        f.uncompressed_size_in_bytes,
-        f.sha256,
-        f.md5,
-        f.filename,
-        f.file_format,
-        f.compression_format,
-        f.mime_type,
-        f.dbgap_study_id,
-        dt.name AS data_type_name,
-        at.name AS assay_type_name,
-        aty.name AS analysis_type_name
-    FROM unique_info ui INNER JOIN c2m2.file AS f ON (f.project_local_id = ui.project_local_id 
-      AND f.project_id_namespace = ui.project_id_namespace
-      AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
-    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-    /* Mano: 2024/04/19: will it be much faster to do: ui INNER JOIN f LEFT JOIN dt LEFT JOIN at LEFT JOIN aty */
-    /* FROM c2m2.file AS f
-    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-    INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
-                              AND f.project_id_namespace = ui.project_id_namespace
-                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
-    limit ${file_count_limit_proj}
+  SELECT DISTINCT 
+      f.id_namespace,
+      f.local_id,
+      f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+      f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
+      f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+      dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
+  FROM c2m2.file AS f INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
+    AND f.project_id_namespace = ui.project_id_namespace
+    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+  LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+  LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+  LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+  limit ${file_count_limit_proj}
 )
 , /* Mano */
-  file_table_limited as (
-    SELECT * 
-    FROM file_table
-    OFFSET ${offset}
-    LIMIT ${limit}
-  ), /* Mano */
-  count_file AS (
-    select count(*)::int as count
-      from file_table_keycol
-  ), /* Mano */
+file_table_limited as (
+  SELECT * 
+  FROM file_table
+  OFFSET ${offset}
+  LIMIT ${limit}
+), /* Mano */
+count_file AS (
+  select count(*)::int as count
+    from file_table_keycol
+), /* Mano */
 
-  /* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
-  /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
-  file_sub_table_keycol AS (
-    SELECT DISTINCT c2m2.file_describes_subject.*
-    FROM c2m2.file_describes_subject
-    INNER JOIN file_table_keycol ON 
-    (file_table_keycol.local_id = c2m2.file_describes_subject.file_local_id AND 
-      file_table_keycol.id_namespace = c2m2.file_describes_subject.file_id_namespace)
-    INNER JOIN sub_info ON 
-    (sub_info.subject_local_id = c2m2.file_describes_subject.subject_local_id AND 
-      sub_info.subject_id_namespace = c2m2.file_describes_subject.subject_id_namespace) /* 2024/03/07 match subject */
+/* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
+/* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
+file_sub_table_keycol AS (
+  SELECT DISTINCT fds.*,
+  f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+  f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
+  f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+  dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
+FROM c2m2.file_describes_subject fds
+  INNER JOIN file_table_keycol ftk ON 
+  (ftk.local_id = fds.file_local_id AND ftk.id_namespace = fds.file_id_namespace)
+  INNER JOIN sub_info ON 
+  (sub_info.subject_local_id = fds.subject_local_id AND sub_info.subject_id_namespace = fds.subject_id_namespace) /* 2024/03/07 match subject */    /** limit ${file_count_limit_sub}     **/
+  /* Mano: even though columns of ftk are from f only, # rows ftk << #rows f */
+  INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
+  INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
+    AND f.project_id_namespace = ui.project_id_namespace
+    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+  LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+  LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+  LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
   ), /* Mano */
-  file_sub_table AS (
-    SELECT * from file_sub_table_keycol
-    limit ${file_count_limit_sub}    
-  ),
-  file_sub_table_limited as (
-    SELECT * 
-    FROM file_sub_table
-    OFFSET ${offset}
-    LIMIT ${limit}
-  ), /* Mano */
-  count_file_sub AS (
-    select count(*)::int as count
-      from file_sub_table_keycol
-  ), /* Mano */
+file_sub_table AS (
+  SELECT * from file_sub_table_keycol
+  limit ${file_count_limit_sub}    
+),
+file_sub_table_limited as (
+  SELECT * 
+  FROM file_sub_table
+  OFFSET ${offset}
+  LIMIT ${limit}
+), /* Mano */
+count_file_sub AS (
+  select count(*)::int as count
+  from file_sub_table_keycol
+), /* Mano */
 
-  file_bios_table_keycol AS (
-    SELECT DISTINCT c2m2.file_describes_biosample.*
-    FROM c2m2.file_describes_biosample
-    INNER JOIN file_table_keycol ON 
-    (file_table_keycol.local_id = c2m2.file_describes_biosample.file_local_id AND 
-      file_table_keycol.id_namespace = c2m2.file_describes_biosample.file_id_namespace)
-    INNER JOIN bios_info ON 
-    (bios_info.biosample_local_id = c2m2.file_describes_biosample.biosample_local_id AND 
-      bios_info.biosample_id_namespace = c2m2.file_describes_biosample.biosample_id_namespace) /* 2024/03/07 match biosample */
-    ), /* Mano */
-    file_bios_table AS (
-      SELECT * from file_bios_table_keycol
-      limit ${file_count_limit_bios}    
-    ),
-    file_bios_table_limited as (
-    SELECT * 
-    FROM file_bios_table
-    OFFSET ${offset}
-    LIMIT ${limit}
+file_bios_table_keycol AS (
+  SELECT DISTINCT fdb.*,
+  f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+  f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
+  f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+  dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
+FROM c2m2.file_describes_biosample fdb
+  INNER JOIN file_table_keycol ftk ON 
+  (ftk.local_id = fdb.file_local_id AND ftk.id_namespace = fdb.file_id_namespace)
+  INNER JOIN bios_info ON 
+  (bios_info.biosample_local_id = fdb.biosample_local_id AND bios_info.biosample_id_namespace = fdb.biosample_id_namespace) /* 2024/03/07 match biosample */
+  INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
+  INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
+    AND f.project_id_namespace = ui.project_id_namespace
+    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+  LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+  LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+  LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
   ), /* Mano */
-  count_file_bios AS (
-    select count(*)::int as count
-      from file_bios_table_keycol
-  ), /* Mano */
+file_bios_table AS (
+  SELECT * from file_bios_table_keycol
+  limit ${file_count_limit_bios}    
+),
+file_bios_table_limited as (
+  SELECT * 
+  FROM file_bios_table
+  OFFSET ${offset}
+  LIMIT ${limit}
+), /* Mano */
+count_file_bios AS (
+  select count(*)::int as count
+    from file_bios_table_keycol
+), /* Mano */
 
-  file_col_table_keycol AS (
-    SELECT DISTINCT c2m2.file_describes_in_collection.*
-    FROM c2m2.file_describes_in_collection
-    INNER JOIN file_table_keycol ON 
-    (file_table_keycol.local_id = c2m2.file_describes_in_collection.file_local_id AND 
-      file_table_keycol.id_namespace = c2m2.file_describes_in_collection.file_id_namespace)
-    INNER JOIN col_info ON 
-    (col_info.collection_local_id = c2m2.file_describes_in_collection.collection_local_id AND 
-      col_info.collection_id_namespace = c2m2.file_describes_in_collection.collection_id_namespace) /* 2024/03/07 match collection */
-    ), /* Mano */
-    file_col_table AS (
-      SELECT * from file_col_table_keycol
-      limit ${file_count_limit_col}    
-    ),
-    file_col_table_limited as (
-    SELECT * 
-    FROM file_col_table
-    OFFSET ${offset}
-    LIMIT ${limit}
+file_col_table_keycol AS (
+  SELECT DISTINCT fdc.*,
+  f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+  f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
+  f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+  dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
+FROM c2m2.file_describes_in_collection fdc
+  INNER JOIN file_table_keycol ftk ON 
+  (ftk.local_id = fdc.file_local_id AND ftk.id_namespace = fdc.file_id_namespace)
+  INNER JOIN col_info ON 
+  (col_info.collection_local_id = fdc.collection_local_id AND col_info.collection_id_namespace = fdc.collection_id_namespace) /* 2024/03/07 match collection */
+  INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
+  INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
+    AND f.project_id_namespace = ui.project_id_namespace
+    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+  LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+  LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+  LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
   ), /* Mano */
-  count_file_col AS (
-    select count(*)::int as count
-      from file_col_table_keycol
-  ) /* Mano */
+file_col_table AS (
+  SELECT * from file_col_table_keycol
+  limit ${file_count_limit_col}    
+),
+file_col_table_limited as (
+  SELECT * 
+  FROM file_col_table
+  OFFSET ${offset}
+  LIMIT ${limit}
+), /* Mano */
+count_file_col AS (
+  select count(*)::int as count
+    from file_col_table_keycol
+) /* Mano */
 
   SELECT
   (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
@@ -933,3 +1067,12 @@ INNER JOIN sub_info ON
   ),
 
 **/
+
+    /* Mano: 2024/04/19: will it be much faster to do: ui INNER JOIN f LEFT JOIN dt LEFT JOIN at LEFT JOIN aty */
+    /* FROM c2m2.file AS f
+    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+    INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
+                              AND f.project_id_namespace = ui.project_id_namespace
+                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
