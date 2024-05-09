@@ -15,7 +15,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     th: (props) => <th className="prose" {...props} />,
     ul: (props) => <ul className="prose list-disc list-inside [&_p]:inline" {...props} />,
     ol: (props) => <ol className="prose list-decimal list-inside [&_p]:inline" {...props} />,
-    code: (props) => <span className="font-mono font-semibold my-4" {...props} />,
+    code: (props) => <code className="font-mono my-4" {...props} />,
     blockquote: (props) => <blockquote className="prose before:prose-p:content-none after:prose-p:content-none bg-white p-4 my-4 border-s-4" {...props} />,
     img: (props) => <img className="my-4" {...props} />  
   }
