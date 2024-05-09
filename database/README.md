@@ -93,5 +93,4 @@ psql -h localhost -U drc -d drc -p ${dbport} -a -f ingest_slim.sql
 
 
 # .. and other scripts above
-
 ```
