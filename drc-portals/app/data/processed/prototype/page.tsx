@@ -7,12 +7,10 @@ export default async function Page() {
     <Grid
       container
       justifyContent={"center"}
-      sx={{ paddingTop: 5, paddingBottom: 5 }}
+      sx={{ paddingTop: 2, paddingBottom: 2 }}
       spacing={2}
     >
-      <Grid item container xs={12} spacing={2}>
-        <PrototypeContainer></PrototypeContainer>
-      </Grid>
+      <PrototypeContainer></PrototypeContainer>
     </Grid>
   );
 }

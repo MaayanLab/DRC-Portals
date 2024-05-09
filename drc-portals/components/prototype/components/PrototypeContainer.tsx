@@ -22,40 +22,12 @@ export default function PrototypeContainer() {
   };
 
   return (
-    <>
-      <Grid item xs={12}>
-        <GraphSchemaContainer onPathSearch={updateQuery}></GraphSchemaContainer>
-      </Grid>
-      {/* TODO: Make the column size dependent on the presence of the other columns */}
-      {/* <Grid item xs={12} lg={3}>
-          <Paper sx={{padding: "12px 24px" }} elevation={0}>
-            <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
-              <Typography variant="h5">Path Settings</Typography>
-            </div>
-          </Paper>
-        </Grid> */}
-      {/* TODO: Make the column size dependent on the presence of the other columns */}
-      <Grid
-        item
-        xs={12}
-        sx={{
-          height: "640px",
-          position: "relative",
-        }}
-      >
-        <GraphSearchContainer
-          query={searchQuery}
-          onSubmit={updateQuery}
-        ></GraphSearchContainer>
-      </Grid>
-      {/* TODO: Make the column size dependent on the presence of the other columns */}
-      {/* <Grid item xs={12} lg={3}>
-          <Paper sx={{padding: "12px 24px" }} elevation={0}>
-            <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
-              <Typography variant="h5">Entity Details</Typography>
-            </div>
-          </Paper>
-        </Grid> */}
-    </>
+    <Grid item container xs={12} spacing={1}>
+      <GraphSchemaContainer onPathSearch={updateQuery}></GraphSchemaContainer>
+      <GraphSearchContainer
+        query={searchQuery}
+        onSubmit={updateQuery}
+      ></GraphSearchContainer>
+    </Grid>
   );
 }

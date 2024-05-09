@@ -1,17 +1,19 @@
-import { styled } from "@mui/material";
-import { ElementDefinition } from "cytoscape";
+import { Grid, styled } from "@mui/material";
+import { ElementDefinition, EventObjectNode } from "cytoscape";
 import { useEffect, useState } from "react";
 
-import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
-import SearchBar from "./SearchBar/SearchBar";
-
 import { DEFAULT_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
+import { CustomNodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { SearchBarState } from "../interfaces/search-bar";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
 import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
 import { createCypher, getStateFromQuery } from "../utils/search-bar";
+
+import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
+import GraphEntityDetailsContainer from "./GraphEntityDetailsContainer";
+import SearchBar from "./SearchBar/SearchBar";
 
 type GraphSearchContainerProps = {
   query: string | null;
@@ -28,6 +30,9 @@ export default function GraphSearchContainer(
   const [loading, setLoading] = useState<boolean>(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [elements, setElements] = useState<ElementDefinition[]>([]);
+  const [entityDetails, setEntityDetails] = useState<
+    CytoscapeNodeData | undefined
+  >(undefined);
   const BASIC_SEARCH_ERROR_MSG =
     "An error occured during your search. Please try again later.";
   const SEARCH_QUERY_ERROR_MSG = "There was an error in your search query.";
@@ -41,6 +46,13 @@ export default function GraphSearchContainer(
     zIndex: 1,
     padding: "inherit",
   });
+
+  const customNodeCxtMenuItems: CustomNodeCxtMenuItem[] = [
+    {
+      fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
+      title: "Show Details",
+    },
+  ];
 
   const clearSearchError = () => {
     setSearchError(null);
@@ -105,22 +117,44 @@ export default function GraphSearchContainer(
   };
 
   return (
-    <>
-      <SearchBarContainer>
-        <SearchBar
-          state={state}
-          error={searchError}
-          loading={loading}
-          clearError={clearSearchError}
-          onSubmit={handleSubmit}
-        ></SearchBar>
-      </SearchBarContainer>
-      <CytoscapeChart
-        elements={elements}
-        layout={DEFAULT_LAYOUT}
-        stylesheet={DEFAULT_STYLESHEET}
-        toolbarPosition={{ top: 10, right: 10 }}
-      ></CytoscapeChart>
-    </>
+    <Grid
+      container
+      item
+      spacing={1}
+      xs={12}
+      sx={{
+        height: "640px",
+      }}
+    >
+      <Grid
+        item
+        xs={12}
+        lg={entityDetails === undefined ? 12 : 9}
+        sx={{ position: "relative", height: "inherit" }}
+      >
+        <SearchBarContainer>
+          <SearchBar
+            state={state}
+            error={searchError}
+            loading={loading}
+            clearError={clearSearchError}
+            onSubmit={handleSubmit}
+          ></SearchBar>
+        </SearchBarContainer>
+        <CytoscapeChart
+          elements={elements}
+          layout={DEFAULT_LAYOUT}
+          stylesheet={DEFAULT_STYLESHEET}
+          toolbarPosition={{ top: 10, right: 10 }}
+          customNodeCxtMenuItems={customNodeCxtMenuItems}
+        ></CytoscapeChart>
+      </Grid>
+      {entityDetails !== undefined ? (
+        <GraphEntityDetailsContainer
+          entityDetails={entityDetails}
+          onCloseDetails={() => setEntityDetails(undefined)}
+        />
+      ) : null}
+    </Grid>
   );
 }

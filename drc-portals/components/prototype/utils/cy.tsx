@@ -126,6 +126,37 @@ export const truncateLabelToFitNode = (label: string) => {
   }
 };
 
+export const createNodeLabels = (labels: string[]) => (
+  <Stack direction="row" sx={{ margin: "6px 0px", padding: "3px 7px" }}>
+    {labels
+      .filter(keyInFactoryMapFilter)
+      .map((label) =>
+        (ENTITY_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
+      )}
+  </Stack>
+);
+
+export const createNodeProperties = (
+  properties: { [key: string]: any },
+  textProps: any
+) => (
+  <Stack direction="column">
+    {Object.entries(properties).map(([key, val], index) => (
+      <div
+        key={`prop-${key}-${index}`}
+        style={{
+          margin: "0px 7px",
+          padding: "2px 0px",
+        }}
+      >
+        <Typography {...textProps}>
+          <b>{key}</b>: {val}
+        </Typography>
+      </div>
+    ))}
+  </Stack>
+);
+
 export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
   if (node.neo4j?.labels && node.neo4j?.properties) {
     const tooltipBorderColor =
@@ -146,28 +177,11 @@ export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
           color: "#000",
         }}
       >
-        <Stack direction="row" sx={{ margin: "6px 0px", padding: "3px 7px" }}>
-          {node.neo4j.labels
-            .filter(keyInFactoryMapFilter)
-            .map((label) =>
-              (ENTITY_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
-            )}
-        </Stack>
-        <Stack direction="column">
-          {Object.entries(node.neo4j.properties).map(([key, val], index) => (
-            <div
-              key={`cy-tooltip-prop-${key}-${index}`}
-              style={{
-                margin: "0px 7px",
-                padding: "2px 0px",
-              }}
-            >
-              <Typography variant="body2" noWrap>
-                <b>{key}</b>: {val}
-              </Typography>
-            </div>
-          ))}
-        </Stack>
+        {createNodeLabels(node.neo4j.labels)}
+        {createNodeProperties(node.neo4j.properties, {
+          variant: "body2",
+          noWrap: true,
+        })}
       </Box>
     );
   } else {
