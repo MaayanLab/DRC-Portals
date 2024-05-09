@@ -7,11 +7,12 @@ import {
   Collapse,
   IconButton,
   IconButtonProps,
+  TextField,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import { PROPERTY_MAP } from "../../constants/neo4j";
 import { SearchBarOption } from "../../interfaces/search-bar";
@@ -21,6 +22,7 @@ import {
 } from "../../utils/search-bar";
 
 import SettingsPropertyForm from "./SettingsPropertyForm";
+import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -58,6 +60,14 @@ export default function SettingsCard(settingsCardProps: SettingsCardProps) {
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
+  };
+
+  const handleNodeLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newLimit = parseInt(event.target.value);
+    liftValue({
+      ...value,
+      limit: Number.isNaN(newLimit) ? 1 : newLimit,
+    });
   };
 
   return (
@@ -99,6 +109,25 @@ export default function SettingsCard(settingsCardProps: SettingsCardProps) {
               This {isRelationshipOption(value) ? "relationship" : "node"} has
               no possible properties on which to filter.
             </Typography>
+          )}
+          {isRelationshipOption(value) ? null : (
+            <Box
+              sx={{
+                "& .MuiFormControl-root": { m: "0.35em", width: "25ch" },
+                display: "flex",
+              }}
+            >
+              <TextField
+                required
+                color="secondary"
+                label="Limit"
+                name="limit"
+                type="number"
+                value={value.limit || DEFAULT_QUERY_SETTINGS.limit}
+                onChange={handleNodeLimitChange}
+                InputProps={{ inputProps: { min: 1, max: 1000 } }}
+              />
+            </Box>
           )}
         </CardContent>
       </Collapse>

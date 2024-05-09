@@ -19,7 +19,9 @@ export const BaseSearchBarOptionSchema = z.object({
 });
 export type BaseSearchBarOption = z.infer<typeof BaseSearchBarOptionSchema>;
 
-export const NodeOptionSchema = BaseSearchBarOptionSchema.extend({});
+export const NodeOptionSchema = BaseSearchBarOptionSchema.extend({
+  limit: z.number().optional(),
+});
 export type NodeOption = z.infer<typeof NodeOptionSchema>;
 
 export enum Direction {

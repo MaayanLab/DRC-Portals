@@ -73,7 +73,7 @@ export const createPredicate = (
 
 export const createWhereClause = (predicates: string[]) => {
   if (predicates.length === 0) {
-    return "";
+    return "// No WHERE clause in this query!";
   }
 
   let clause = "WHERE ";
@@ -97,12 +97,17 @@ export const createCypher = (state: SearchBarState) => {
   let cypherTraversal = "";
   const isSingleNode = value.length === 1 && !isRelationshipOption(value[0]);
   const wherePredicates: string[] = [];
+  const nodeLimits: [string, number][] = [];
 
   value.forEach((entity, index) => {
     const entityIsRelationship = isRelationshipOption(entity);
     const variable = entityIsRelationship ? `r${index}` : `n${index}`;
     const prevIsRelationship =
       index > 0 ? isRelationshipOption(value[index - 1]) : false;
+
+    if (!entityIsRelationship && entity.limit !== undefined) {
+      nodeLimits.push([variable, entity.limit]);
+    }
 
     // If the first element of the path is a relationship, prepend it with an anonymous node
     if (index === 0 && entityIsRelationship) {
@@ -149,13 +154,28 @@ export const createCypher = (state: SearchBarState) => {
     }
   });
 
-  const queryStmts = [`MATCH path=${cypherTraversal}`];
+  const whereClause = createWhereClause(wherePredicates);
+  const queryStmts = [];
+  const prevVars: string[] = [];
 
-  if (wherePredicates.length > 0) {
-    queryStmts.push(createWhereClause(wherePredicates));
-  }
+  nodeLimits.forEach(([nodeVar, limit], idx) => {
+    queryStmts.push(
+      "CALL {",
+      prevVars.length > 0
+        ? `\tWITH ${prevVars.join(", ")}`
+        : "\t// No previous vars to include!",
+      `\tMATCH ${cypherTraversal}`,
+      `\t${whereClause}`,
+      `\tRETURN DISTINCT ${nodeVar}`,
+      `\tLIMIT ${limit}`,
+      "}"
+    );
+    prevVars.push(nodeVar);
+  });
 
   queryStmts.push(
+    `MATCH path=${cypherTraversal}`,
+    whereClause,
     "WITH path",
     `SKIP ${settings?.skip || 0}`,
     `LIMIT ${settings?.limit || 10}`,
