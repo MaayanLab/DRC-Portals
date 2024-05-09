@@ -677,7 +677,7 @@ file_table AS (
   ), /* Mano */
 
   file_col_table_keycol AS (
-    SELECT DISTINCT fdc.*,
+    SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
     f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
     f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
     f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
