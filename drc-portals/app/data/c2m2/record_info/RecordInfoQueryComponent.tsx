@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import {capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
 
 const file_count_limit = 100;
 const file_count_limit_proj = 100;
@@ -798,7 +798,7 @@ file_table AS (
 
     const metadata = [
       { label: 'Project ID', value: projectLocalId },
-      ( resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> } : resultsRec?.project_persistent_id,
+      (resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> } : resultsRec?.project_persistent_id,
       //resultsRec?.taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600">{resultsRec?.taxonomy_name}</Link> } : null,
       //resultsRec?.anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600">{resultsRec?.anatomy_name}</Link> } : null,
       {
@@ -846,7 +846,7 @@ file_table AS (
         ) : resultsRec?.protein_name
       },
       resultsRec?.protein_description ? { label: 'Protein Description', value: capitalizeFirstLetter(resultsRec?.protein_description) } : null,
-  
+
       {
         label: 'Compound', value: resultsRec?.compound_name && resultsRec?.compound_name !== "Unspecified" ? (
           <Link href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
@@ -855,7 +855,7 @@ file_table AS (
         ) : resultsRec?.compound_name
       },
       resultsRec?.compound_description ? { label: 'Compound Description', value: capitalizeFirstLetter(resultsRec?.compound_description) } : null,
-    
+
       {
         label: 'Data type', value: resultsRec?.data_type_name && resultsRec?.data_type_name !== "Unspecified" ? (
           <Link href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
@@ -895,7 +895,7 @@ file_table AS (
     const count_file_sub_table_withlimit = results?.file_sub_table_full.length ?? 0;
     const count_file_bios_table_withlimit = results?.file_bios_table_full.length ?? 0;
     const count_file_col_table_withlimit = results?.file_col_table_full.length ?? 0;
-    
+
     const biosampleTableTitle = "Biosamples: " + results?.count_bios;
     const subjectTableTitle = "Subjects: " + results?.count_sub;
     const collectionTableTitle = "Collections: " + results?.count_col;
@@ -965,63 +965,70 @@ file_table AS (
           getNameFromTable={getNameFromCollectionTable}
         />
 
-        {/* ((results?.count_file_bios > 0) ||  (results?.count_file_sub > 0))? "" : */}
-        <ExpandableTable
-          data={fileProjPrunedData}
-          full_data={results?.file_table_full}
-          downloadFileName={projectLocalId + "_FilesProjTable.json"}
-          tableTitle={fileProjTableTitle}
-          searchParams={searchParams}
-          //count={results?.count_file ?? 0} // Provide count directly as a prop
-          //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
-          count={count_file_table_withlimit} // Provide count directly as a prop
-          colNames={newFileProjColumns}
-          dynamicColumns={newFileProjColumns}
-          getNameFromTable={getNameFromFileProjTable}
-        />
+        {(count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) && (
+          <ExpandableTable
+            data={fileProjPrunedData}
+            full_data={results?.file_table_full}
+            downloadFileName={projectLocalId + "_FilesProjTable.json"}
+            tableTitle={fileProjTableTitle}
+            searchParams={searchParams}
+            //count={results?.count_file ?? 0} // Provide count directly as a prop
+            //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
+            count={count_file_table_withlimit} // Provide count directly as a prop
+            colNames={newFileProjColumns}
+            dynamicColumns={newFileProjColumns}
+            getNameFromTable={getNameFromFileProjTable}
+          />
+        )}
 
         {/* (results?.count_file_bios > 0) ? "" : */}
-        <ExpandableTable
-          data={fileSubPrunedData}
-          full_data={results?.file_sub_table_full}
-          downloadFileName={projectLocalId + "_FilesSubTable.json"}
-          tableTitle={fileSubTableTitle}
-          searchParams={searchParams}
-          //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
-          //count={results?.file_sub_table_full.length ?? 0} // Provide count directly as a prop
-          count={count_file_sub_table_withlimit} // Provide count directly as a prop
-          colNames={dynamicFileSubColumns}
-          dynamicColumns={dynamicFileSubColumns}
-          getNameFromTable={getNameFromFileProjTable}
-        />
+        {(count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) && (
+          <ExpandableTable
+            data={fileSubPrunedData}
+            full_data={results?.file_sub_table_full}
+            downloadFileName={projectLocalId + "_FilesSubTable.json"}
+            tableTitle={fileSubTableTitle}
+            searchParams={searchParams}
+            //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
+            //count={results?.file_sub_table_full.length ?? 0} // Provide count directly as a prop
+            count={count_file_sub_table_withlimit} // Provide count directly as a prop
+            colNames={dynamicFileSubColumns}
+            dynamicColumns={dynamicFileSubColumns}
+            getNameFromTable={getNameFromFileProjTable}
+          />
+        )}
 
-        <ExpandableTable
-          data={fileBiosPrunedData}
-          full_data={results?.file_bios_table_full}
-          downloadFileName={projectLocalId + "_FilesBiosTable.json"}
-          tableTitle={fileBiosTableTitle}
-          searchParams={searchParams}
-          //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
-          //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
-          count={count_file_bios_table_withlimit} // Provide count directly as a prop
-          colNames={dynamicFileBiosColumns}
-          dynamicColumns={dynamicFileBiosColumns}
-          getNameFromTable={getNameFromFileProjTable}
-        />
+        {count_file_bios_table_withlimit > 0 && (
+          <ExpandableTable
+            data={fileBiosPrunedData}
+            full_data={results?.file_bios_table_full}
+            downloadFileName={projectLocalId + "_FilesBiosTable.json"}
+            tableTitle={fileBiosTableTitle}
+            searchParams={searchParams}
+            //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
+            //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
+            count={count_file_bios_table_withlimit} // Provide count directly as a prop
+            colNames={dynamicFileBiosColumns}
+            dynamicColumns={dynamicFileBiosColumns}
+            getNameFromTable={getNameFromFileProjTable}
+          />
+        )}
 
-        <ExpandableTable
-          data={fileCollPrunedData}
-          full_data={results?.file_col_table_full}
-          downloadFileName={projectLocalId + "_FilesCollTable.json"}
-          tableTitle={fileCollTableTitle}
-          searchParams={searchParams}
-          //count={results?.count_file_col ?? 0} // Provide count directly as a prop
-          //count={results?.file_col_table_full.length ?? 0} // Provide count directly as a prop
-          count={count_file_col_table_withlimit} // Provide count directly as a prop
-          colNames={dynamicFileCollColumns}
-          dynamicColumns={dynamicFileCollColumns}
-          getNameFromTable={getNameFromFileProjTable}
-        />
+        {count_file_col_table_withlimit > 0 && (
+          <ExpandableTable
+            data={fileCollPrunedData}
+            full_data={results?.file_col_table_full}
+            downloadFileName={projectLocalId + "_FilesCollTable.json"}
+            tableTitle={fileCollTableTitle}
+            searchParams={searchParams}
+            //count={results?.count_file_col ?? 0} // Provide count directly as a prop
+            //count={results?.file_col_table_full.length ?? 0} // Provide count directly as a prop
+            count={count_file_col_table_withlimit} // Provide count directly as a prop
+            colNames={dynamicFileCollColumns}
+            dynamicColumns={dynamicFileCollColumns}
+            getNameFromTable={getNameFromFileProjTable}
+          />
+        )}
 
       </LandingPageLayout>
     )
