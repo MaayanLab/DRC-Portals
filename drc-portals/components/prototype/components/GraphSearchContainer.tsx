@@ -84,7 +84,7 @@ export default function GraphSearchContainer(
         setState(state);
 
         // Finally, try querying Neo4j with the cypher we created
-        setInitialNetworkData(createCypher(state))
+        setInitialNetworkData(cypher)
           .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
           .finally(() => setLoading(false));
       } else {
