@@ -72,320 +72,320 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         compound_description: string,
         taxonomy_description: string,
 
-      count: number, // this is based on across all-columns of ffl_biosample 
+        count: number, // this is based on across all-columns of ffl_biosample 
+        count_bios: number,
+        count_sub: number,
+        count_col: number,
+      }[],
       count_bios: number,
       count_sub: number,
       count_col: number,
-    }[],
-    count_bios: number,
-    count_sub: number,
-    count_col: number,
-    biosamples_table: {
-      biosample_id_namespace: string,
-      biosample_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      biosample_persistent_id: string,
-      biosample_creation_time: string,
-      sample_prep_method_name: string,
-      anatomy_name: string,
-      disease_name: string,
-      disease_association_type_name: string,
-      subject_id_namespace: string,
-      subject_local_id: string,
-      biosample_age_at_sampling: string,
-      gene_name: string,
-      substance_name: string
-    }[],
-    collections_table: {
-      collection_id_namespace: string,
-      collection_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      abbreviation: string,
-      name: string,
-      description: string,
-      has_time_series_data: string
-    }[],
-    subjects_table: {
-      subject_id_namespace: string,
-      subject_local_id: string,
-      subject_race_name: string,
-      subject_granularity_name: string,
-      subject_sex_name: string,
-      subject_ethnicity_name: string,
-      subject_role_name: string,
-      subject_age_at_enrollment: string
-    }[],
-    sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
-    count_file: number,
-    file_table: {
-      id_namespace: string,
-      local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-      //biosample_id_namespace: string,
-      //biosample_local_id: string,
-      //subject_id_namespace: string,
-      //subject_local_id: string,
-      //collection_id_namespace: string, 
-      //collection_local_id: string
-    }[],
-    count_file_sub: number,
-    file_sub_table: {
-      file_id_namespace: string,
-      file_local_id: string,
-      subject_id_namespace: string,
-      subject_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-  }[],
-    count_file_bios: number,
-    file_bios_table: {
-      file_id_namespace: string,
-      file_local_id: string,
-      biosample_id_namespace: string,
-      biosample_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-  }[],
-    count_file_col: number,
-    file_col_table: {
-      file_id_namespace: string,
-      file_local_id: string,
-      collection_id_namespace: string,
-      collection_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-  }[],
+      biosamples_table: {
+        biosample_id_namespace: string,
+        biosample_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        biosample_persistent_id: string,
+        biosample_creation_time: string,
+        sample_prep_method_name: string,
+        anatomy_name: string,
+        disease_name: string,
+        disease_association_type_name: string,
+        subject_id_namespace: string,
+        subject_local_id: string,
+        biosample_age_at_sampling: string,
+        gene_name: string,
+        substance_name: string
+      }[],
+      collections_table: {
+        collection_id_namespace: string,
+        collection_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        abbreviation: string,
+        name: string,
+        description: string,
+        has_time_series_data: string
+      }[],
+      subjects_table: {
+        subject_id_namespace: string,
+        subject_local_id: string,
+        subject_race_name: string,
+        subject_granularity_name: string,
+        subject_sex_name: string,
+        subject_ethnicity_name: string,
+        subject_role_name: string,
+        subject_age_at_enrollment: string
+      }[],
+      sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
+      count_file: number,
+      file_table: {
+        id_namespace: string,
+        local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+        //biosample_id_namespace: string,
+        //biosample_local_id: string,
+        //subject_id_namespace: string,
+        //subject_local_id: string,
+        //collection_id_namespace: string, 
+        //collection_local_id: string
+      }[],
+      count_file_sub: number,
+      file_sub_table: {
+        file_id_namespace: string,
+        file_local_id: string,
+        subject_id_namespace: string,
+        subject_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+      }[],
+      count_file_bios: number,
+      file_bios_table: {
+        file_id_namespace: string,
+        file_local_id: string,
+        biosample_id_namespace: string,
+        biosample_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+      }[],
+      count_file_col: number,
+      file_col_table: {
+        file_id_namespace: string,
+        file_local_id: string,
+        collection_id_namespace: string,
+        collection_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+      }[],
 
       // based on full table
 
-    biosamples_table_full: {
-      biosample_id_namespace: string,
-      biosample_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      biosample_persistent_id: string,
-      biosample_creation_time: string,
-      sample_prep_method_name: string,
-      anatomy_name: string,
-      disease_name: string,
-      disease_association_type_name: string,
-      subject_id_namespace: string,
-      subject_local_id: string,
-      biosample_age_at_sampling: string,
-      gene_name: string,
-      substance_name: string
-    }[],
-    collections_table_full: {
-      collection_id_namespace: string,
-      collection_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      abbreviation: string,
-      name: string,
-      description: string,
-      has_time_series_data: string
-    }[],
-    subjects_table_full: {
-      subject_id_namespace: string,
-      subject_local_id: string,
-      subject_race_name: string,
-      subject_granularity_name: string,
-      subject_sex_name: string,
-      subject_ethnicity_name: string,
-      subject_role_name: string,
-      subject_age_at_enrollment: string
-    }[],
-    file_table_full: {
-      id_namespace: string,
-      local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-      //biosample_id_namespace: string,
-      //biosample_local_id: string,
-      //subject_id_namespace: string,
-      //subject_local_id: string,
-      //collection_id_namespace: string, 
-      //collection_local_id: string
-    }[],
-    file_sub_table_full: {
-      file_id_namespace: string,
-      file_local_id: string,
-      subject_id_namespace: string,
-      subject_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-  }[],
-    file_bios_table_full: {
-      file_id_namespace: string,
-      file_local_id: string,
-      biosample_id_namespace: string,
-      biosample_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-  }[],
-    file_col_table_full: {
-      file_id_namespace: string,
-      file_local_id: string,
-      collection_id_namespace: string,
-      collection_local_id: string,
-      project_id_namespace: string,
-      project_local_id: string,
-      persistent_id: string,
-      creation_time: string,
-      size_in_bytes: bigint,
-      uncompressed_size_in_bytes: bigint,
-      sha256: string,
-      md5: string,
-      filename: string,
-      file_format: string,
-      compression_format: string,
-      data_type: string,
-      assay_type: string,
-      analysis_type: string,
-      mime_type: string,
-      bundle_collection_id_namespace: string,
-      bundle_collection_local_id: string,
-      dbgap_study_id: string,
-      data_type_name: string,
-      assay_type_name: string,
-      analysis_type_name: string
-  }[],
+      biosamples_table_full: {
+        biosample_id_namespace: string,
+        biosample_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        biosample_persistent_id: string,
+        biosample_creation_time: string,
+        sample_prep_method_name: string,
+        anatomy_name: string,
+        disease_name: string,
+        disease_association_type_name: string,
+        subject_id_namespace: string,
+        subject_local_id: string,
+        biosample_age_at_sampling: string,
+        gene_name: string,
+        substance_name: string
+      }[],
+      collections_table_full: {
+        collection_id_namespace: string,
+        collection_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        abbreviation: string,
+        name: string,
+        description: string,
+        has_time_series_data: string
+      }[],
+      subjects_table_full: {
+        subject_id_namespace: string,
+        subject_local_id: string,
+        subject_race_name: string,
+        subject_granularity_name: string,
+        subject_sex_name: string,
+        subject_ethnicity_name: string,
+        subject_role_name: string,
+        subject_age_at_enrollment: string
+      }[],
+      file_table_full: {
+        id_namespace: string,
+        local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+        //biosample_id_namespace: string,
+        //biosample_local_id: string,
+        //subject_id_namespace: string,
+        //subject_local_id: string,
+        //collection_id_namespace: string, 
+        //collection_local_id: string
+      }[],
+      file_sub_table_full: {
+        file_id_namespace: string,
+        file_local_id: string,
+        subject_id_namespace: string,
+        subject_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+      }[],
+      file_bios_table_full: {
+        file_id_namespace: string,
+        file_local_id: string,
+        biosample_id_namespace: string,
+        biosample_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+      }[],
+      file_col_table_full: {
+        file_id_namespace: string,
+        file_local_id: string,
+        collection_id_namespace: string,
+        collection_local_id: string,
+        project_id_namespace: string,
+        project_local_id: string,
+        persistent_id: string,
+        creation_time: string,
+        size_in_bytes: bigint,
+        uncompressed_size_in_bytes: bigint,
+        sha256: string,
+        md5: string,
+        filename: string,
+        file_format: string,
+        compression_format: string,
+        data_type: string,
+        assay_type: string,
+        analysis_type: string,
+        mime_type: string,
+        bundle_collection_id_namespace: string,
+        bundle_collection_local_id: string,
+        dbgap_study_id: string,
+        data_type_name: string,
+        assay_type_name: string,
+        analysis_type_name: string
+      }[],
 
     }>>`
   WITH allres_full AS (
@@ -763,6 +763,9 @@ count_file_col AS (
 
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
     const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
+
+    // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
+
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
 
@@ -771,15 +774,25 @@ count_file_col AS (
       staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
         results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
 
+    const newFileSubColumns = priorityFileCols.concat(dynamicFileSubColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, priorityFileCols);
+
     const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
     const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
       staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
         results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
 
+    const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
+
     const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-    const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns,
-      staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
+    const { prunedData: fileColPrunedData, columnNames: fileColColNames, dynamicColumns: dynamicFileColColumns,
+      staticColumns: staticFileColColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
         results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
+
+    const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
+
 
     const t2: number = performance.now();
 
@@ -888,7 +901,7 @@ count_file_col AS (
     // addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, "Files related to Project", categories); // Avi suggested no need
     addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
     addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
-    addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
+    addCategoryColumns(staticFileColColumns, getNameFromFileProjTable, "Files related to Collection", categories);
 
     // Define the actual count of records in table displayed here and use at two or more places
     const count_file_table_withlimit = results?.file_table_full.length ?? 0;
@@ -990,8 +1003,8 @@ count_file_col AS (
           //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
           //count={results?.file_sub_table_full.length ?? 0} // Provide count directly as a prop
           count={count_file_sub_table_withlimit} // Provide count directly as a prop
-          colNames={dynamicFileSubColumns}
-          dynamicColumns={dynamicFileSubColumns}
+          colNames={newFileSubColumns}
+          dynamicColumns={newFileSubColumns}
           getNameFromTable={getNameFromFileProjTable}
         />
         )}
@@ -1006,15 +1019,15 @@ count_file_col AS (
             //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
             //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
             count={count_file_bios_table_withlimit} // Provide count directly as a prop
-            colNames={dynamicFileBiosColumns}
-            dynamicColumns={dynamicFileBiosColumns}
+            colNames={newFileBiosColumns}
+            dynamicColumns={newFileBiosColumns}
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
 
         {count_file_col_table_withlimit > 0 && (
           <ExpandableTable
-            data={fileCollPrunedData}
+            data={fileColPrunedData}
             full_data={results?.file_col_table_full}
             downloadFileName={projectLocalId + "_FilesCollTable_Collection.json"}
             tableTitle={fileCollTableTitle}
@@ -1022,8 +1035,8 @@ count_file_col AS (
             //count={results?.count_file_col ?? 0} // Provide count directly as a prop
             //count={results?.file_col_table_full.length ?? 0} // Provide count directly as a prop
             count={count_file_col_table_withlimit} // Provide count directly as a prop
-            colNames={dynamicFileCollColumns}
-            dynamicColumns={dynamicFileCollColumns}
+            colNames={newFileColColumns}
+            dynamicColumns={newFileColColumns}
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
@@ -1068,11 +1081,11 @@ INNER JOIN sub_info ON
 
 **/
 
-    /* Mano: 2024/04/19: will it be much faster to do: ui INNER JOIN f LEFT JOIN dt LEFT JOIN at LEFT JOIN aty */
-    /* FROM c2m2.file AS f
-    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-    INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
-                              AND f.project_id_namespace = ui.project_id_namespace
-                              AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
+/* Mano: 2024/04/19: will it be much faster to do: ui INNER JOIN f LEFT JOIN dt LEFT JOIN at LEFT JOIN aty */
+/* FROM c2m2.file AS f
+LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
+                          AND f.project_id_namespace = ui.project_id_namespace
+                          AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */

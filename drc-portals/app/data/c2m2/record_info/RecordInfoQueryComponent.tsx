@@ -756,13 +756,15 @@ file_table AS (
       staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
         results?.collections_table_full ?? [], collections_table_columnsToIgnore);
 
+    const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
+
     const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
     const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns,
       staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
         results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
 
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
-    const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
+    
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
 
@@ -771,15 +773,24 @@ file_table AS (
       staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
         results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
 
+    const newFileSubColumns = priorityFileCols.concat(dynamicFileSubColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, priorityFileCols);
+
     const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
     const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
       staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
         results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
 
+        const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
+        const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
+
     const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-    const { prunedData: fileCollPrunedData, columnNames: fileCollColNames, dynamicColumns: dynamicFileCollColumns,
-      staticColumns: staticFileCollColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
+    const { prunedData: fileColPrunedData, columnNames: fileColColNames, dynamicColumns: dynamicFileColColumns,
+      staticColumns: staticFileColColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
         results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
+    
+        const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
+        const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
 
     const t2: number = performance.now();
 
@@ -888,7 +899,7 @@ file_table AS (
     addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, "Files related to Project", categories);
     addCategoryColumns(staticFileSubColumns, getNameFromFileProjTable, "Files related to Subject", categories);
     addCategoryColumns(staticFileBiosColumns, getNameFromFileProjTable, "Files related to Biosample", categories);
-    addCategoryColumns(staticFileCollColumns, getNameFromFileProjTable, "Files related to Collection", categories);
+    addCategoryColumns(staticFileColColumns, getNameFromFileProjTable, "Files related to Collection", categories);
 
     // Define the actual count of records in table displayed here and use at two or more places
     const count_file_table_withlimit = results?.file_table_full.length ?? 0;
@@ -906,7 +917,7 @@ file_table AS (
     const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
     const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
     const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
-    const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
+    const fileColTableTitle = "Files related to collection: " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
 
     const t4: number = performance.now();
 
@@ -992,8 +1003,8 @@ file_table AS (
             //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
             //count={results?.file_sub_table_full.length ?? 0} // Provide count directly as a prop
             count={count_file_sub_table_withlimit} // Provide count directly as a prop
-            colNames={dynamicFileSubColumns}
-            dynamicColumns={dynamicFileSubColumns}
+            colNames={newFileSubColumns}
+            dynamicColumns={newFileSubColumns}
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
@@ -1008,24 +1019,24 @@ file_table AS (
             //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
             //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
             count={count_file_bios_table_withlimit} // Provide count directly as a prop
-            colNames={dynamicFileBiosColumns}
-            dynamicColumns={dynamicFileBiosColumns}
+            colNames={newFileBiosColumns}
+            dynamicColumns={newFileBiosColumns}
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
 
         {count_file_col_table_withlimit > 0 && (
           <ExpandableTable
-            data={fileCollPrunedData}
+            data={fileColPrunedData}
             full_data={results?.file_col_table_full}
             downloadFileName={projectLocalId + "_FilesCollTable.json"}
-            tableTitle={fileCollTableTitle}
+            tableTitle={fileColTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_col ?? 0} // Provide count directly as a prop
             //count={results?.file_col_table_full.length ?? 0} // Provide count directly as a prop
             count={count_file_col_table_withlimit} // Provide count directly as a prop
-            colNames={dynamicFileCollColumns}
-            dynamicColumns={dynamicFileCollColumns}
+            colNames={newFileColColumns}
+            dynamicColumns={newFileColColumns}
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
