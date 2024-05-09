@@ -660,79 +660,79 @@ file_table AS (
   // The following items are present in metadata
   
   const resultsRec = results?.records[0];
-  const projectLocalId = resultsRec.project_local_id;// Assuming it's the same for all rows
+  const projectLocalId = resultsRec?.project_local_id;// Assuming it's the same for all rows
 
   const metadata = [
     { label: 'Project ID', value: projectLocalId },
-    ( resultsRec.project_persistent_id && isURL(resultsRec.project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${resultsRec.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec.project_name}</Link> } : null,
-    //resultsRec.taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`} className="underline cursor-pointer text-blue-600">{resultsRec.taxonomy_name}</Link> } : null,
-    //resultsRec.anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${resultsRec.anatomy}`} className="underline cursor-pointer text-blue-600">{resultsRec.anatomy_name}</Link> } : null,
+    ( resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> } : null,
+    //resultsRec?.taxonomy_name ? { label: 'Taxonomy', value: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600">{resultsRec?.taxonomy_name}</Link> } : null,
+    //resultsRec?.anatomy_name ? { label: 'Anatomy/Sample Source', value: <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600">{resultsRec?.anatomy_name}</Link> } : null,
     {
-      label: 'Taxonomy', value: resultsRec.taxonomy_name && resultsRec.taxonomy_name != "Unspecified" ?
-        <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {resultsRec.taxonomy_name}
+      label: 'Taxonomy', value: resultsRec?.taxonomy_name && resultsRec?.taxonomy_name != "Unspecified" ?
+        <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {resultsRec?.taxonomy_name}
         </Link>
-        : resultsRec.taxonomy_name
+        : resultsRec?.taxonomy_name
     },
-    resultsRec.taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(resultsRec.taxonomy_description) } : null,
-
-    {
-      label: 'Sample Source', value: resultsRec.anatomy_name && resultsRec.anatomy_name != "Unspecified" ?
-        <Link href={`http://purl.obolibrary.org/obo/${resultsRec.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {capitalizeFirstLetter(resultsRec.anatomy_name)}
-        </Link>
-
-        : resultsRec.anatomy_name
-    },
-    resultsRec.anatomy_description ? { label: 'Sample Source Description', value: resultsRec.anatomy_description } : null,
+    resultsRec?.taxonomy_description ? { label: 'Taxonomy/Species Description', value: capitalizeFirstLetter(resultsRec?.taxonomy_description) } : null,
 
     {
-      label: 'Disease', value: resultsRec.disease_name && resultsRec.disease_name !== "Unspecified" ? (
-        <Link href={`http://purl.obolibrary.org/obo/${resultsRec.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {capitalizeFirstLetter(resultsRec.disease_name)}
+      label: 'Sample Source', value: resultsRec?.anatomy_name && resultsRec?.anatomy_name != "Unspecified" ?
+        <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {capitalizeFirstLetter(resultsRec?.anatomy_name)}
         </Link>
-      ) : resultsRec.disease_name
+
+        : resultsRec?.anatomy_name
     },
-    resultsRec.disease_description ? { label: 'Disease Description', value: resultsRec.disease_description } : null,
+    resultsRec?.anatomy_description ? { label: 'Sample Source Description', value: resultsRec?.anatomy_description } : null,
 
     {
-      label: 'Gene', value: resultsRec.gene_name && resultsRec.gene_name !== "Unspecified" ? (
-        <Link href={`http://www.ensembl.org/id/${resultsRec.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {resultsRec.gene_name}
+      label: 'Disease', value: resultsRec?.disease_name && resultsRec?.disease_name !== "Unspecified" ? (
+        <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {capitalizeFirstLetter(resultsRec?.disease_name)}
         </Link>
-      ) : resultsRec.gene_name
+      ) : resultsRec?.disease_name
     },
-    resultsRec.gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(resultsRec.gene_description) } : null,
+    resultsRec?.disease_description ? { label: 'Disease Description', value: resultsRec?.disease_description } : null,
 
     {
-      label: 'Protein', value: resultsRec.protein_name && resultsRec.protein_name !== "Unspecified" ? (
-        <Link href={`https://www.uniprot.org/uniprotkb/${resultsRec.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {resultsRec.protein_name}
+      label: 'Gene', value: resultsRec?.gene_name && resultsRec?.gene_name !== "Unspecified" ? (
+        <Link href={`http://www.ensembl.org/id/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {resultsRec?.gene_name}
         </Link>
-      ) : resultsRec.protein_name
+      ) : resultsRec?.gene_name
     },
-    resultsRec.protein_description ? { label: 'Protein Description', value: capitalizeFirstLetter(resultsRec.protein_description) } : null,
+    resultsRec?.gene_description ? { label: 'Gene Description', value: capitalizeFirstLetter(resultsRec?.gene_description) } : null,
 
     {
-      label: 'Compound', value: resultsRec.compound_name && resultsRec.compound_name !== "Unspecified" ? (
-        <Link href={`http://www.ensembl.org/id/${resultsRec.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {resultsRec.compound_name}
+      label: 'Protein', value: resultsRec?.protein_name && resultsRec?.protein_name !== "Unspecified" ? (
+        <Link href={`https://www.uniprot.org/uniprotkb/${resultsRec?.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {resultsRec?.protein_name}
         </Link>
-      ) : resultsRec.compound_name
+      ) : resultsRec?.protein_name
     },
-    resultsRec.compound_description ? { label: 'Compound Description', value: capitalizeFirstLetter(resultsRec.compound_description) } : null,
+    resultsRec?.protein_description ? { label: 'Protein Description', value: capitalizeFirstLetter(resultsRec?.protein_description) } : null,
 
     {
-      label: 'Data type', value: resultsRec.data_type_name && resultsRec.data_type_name !== "Unspecified" ? (
-        <Link href={`http://edamontology.org/${resultsRec.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
-          {capitalizeFirstLetter(resultsRec.data_type_name)}
+      label: 'Compound', value: resultsRec?.compound_name && resultsRec?.compound_name !== "Unspecified" ? (
+        <Link href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {resultsRec?.compound_name}
         </Link>
-      ) : resultsRec.data_type_name
+      ) : resultsRec?.compound_name
+    },
+    resultsRec?.compound_description ? { label: 'Compound Description', value: capitalizeFirstLetter(resultsRec?.compound_description) } : null,
+
+    {
+      label: 'Data type', value: resultsRec?.data_type_name && resultsRec?.data_type_name !== "Unspecified" ? (
+        <Link href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          {capitalizeFirstLetter(resultsRec?.data_type_name)}
+        </Link>
+      ) : resultsRec?.data_type_name
     },
 
-    { label: 'Biosamples', value: results ? resultsRec.count_bios?.toLocaleString() : undefined },
-    { label: 'Subjects', value: results ? resultsRec.count_sub?.toLocaleString() : undefined },
-    { label: 'Collections', value: results ? resultsRec.count_col?.toLocaleString() : undefined },
+    { label: 'Biosamples', value: results ? resultsRec?.count_bios?.toLocaleString() : undefined },
+    { label: 'Subjects', value: results ? resultsRec?.count_sub?.toLocaleString() : undefined },
+    { label: 'Collections', value: results ? resultsRec?.count_col?.toLocaleString() : undefined },
     { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
     { label: 'Files (that describe subject)', value: results ? results.count_file_sub?.toLocaleString() : undefined },
     { label: 'Files (that describe biosample)', value: results ? results.count_file_bios?.toLocaleString() : undefined },
@@ -784,13 +784,13 @@ file_table AS (
   return (
     <LandingPageLayout
       icon={{
-        href: resultsRec.dcc_short_label ? `/info/dcc/${resultsRec.dcc_short_label}` : "",
-        src: getDCCIcon(results ? resultsRec.dcc_short_label : ""),
-        alt: resultsRec.dcc_short_label ? resultsRec.dcc_short_label : ""
+        href: resultsRec?.dcc_short_label ? `/info/dcc/${resultsRec?.dcc_short_label}` : "",
+        src: getDCCIcon(results ? resultsRec?.dcc_short_label : ""),
+        alt: resultsRec?.dcc_short_label ? resultsRec?.dcc_short_label : ""
       }}
-      title={resultsRec.project_name ?? ""}
+      title={resultsRec?.project_name ?? ""}
       subtitle={""}
-      description={format_description(resultsRec.project_description ?? "")}
+      description={format_description(resultsRec?.project_description ?? "")}
       metadata={metadata}
       categories={categories}
     >
