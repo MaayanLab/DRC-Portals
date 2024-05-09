@@ -37,13 +37,13 @@ const overrides = {
     p: {
         component: ({children, ...props}: {children: ReactNode})=><Typography {...props} variant="body1">{children}</Typography>,
         props: {
-            sx: { marginBottom: 2, textAlign: "left" },
+            sx: { textAlign: "left" },
         },
     },
 	span: {
         component: ({children, ...props}: {children: ReactNode})=><Typography {...props} variant="body1">{children}</Typography>,
         props: {
-            sx: { marginBottom: 2, textAlign: "left" },
+            sx: { textAlign: "left" },
         },
     },
     img: {

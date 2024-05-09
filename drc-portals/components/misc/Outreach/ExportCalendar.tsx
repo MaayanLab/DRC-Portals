@@ -1,5 +1,5 @@
 'use client'
-import { Button } from "@mui/material"
+import { Button, Grid } from "@mui/material"
 import { Outreach } from "@prisma/client";
 import fileDownload from 'js-file-download';
 import Icon from '@mdi/react';
@@ -9,7 +9,6 @@ const pad = (n:number) => n < 10 ? `0${n}` : `${n}`
     
 const ExportCalendar = ({event}: {event: Outreach}) => {
     const export_event = () => {
-
     const start_date = event.start_date ? [
         event?.start_date.getUTCFullYear(),
         pad(event?.start_date.getUTCMonth() + 1),
@@ -68,8 +67,14 @@ END:VEVENT
 END:VCALENDAR`
         fileDownload(ics, `${event.title}.ics`)
     }
+    const now = new Date()
+    const event_dates = [event.end_date, event.start_date, event.application_end, event.application_start].filter(i=>i!==null && i > now)
+    if (event_dates.length === 0)
+        return null
     return (
-        <Button onClick={export_event} color="secondary" endIcon={<Icon path={mdiCalendar} size={1} />}>ADD TO CALENDAR</Button>
+        <Grid item>
+            <Button onClick={export_event} color="secondary" endIcon={<Icon path={mdiCalendar} size={1} />}>ADD TO CALENDAR</Button>
+        </Grid>
     )
 }
 
