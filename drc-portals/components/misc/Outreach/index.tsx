@@ -68,7 +68,8 @@ export interface OutreachParams {
   type?: Array<'outreach'|'training'>,
   tags?: Array<string>,
   expand_filter?: boolean,
-  events?: Array<'past'| 'active' | 'recurring'>
+  status?: Array<'past'| 'active' | 'recurring'>,
+  cfde_specific?: boolean
 }
 
 const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}: {
@@ -203,10 +204,10 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
 }) {
     const now = new Date()
     
-    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], expand_filter: true, events: ['active', 'recurring']})
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
-    const {tags, type, expand_filter, events=[]} = parsedParams
-
+    const {tags, type, expand_filter, status=[], cfde_specific} = parsedParams
+    console.log(cfde_specific)
     let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]): [...type_tags.outreach, ...type_tags.training]
     const type_filter = type ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]).map(tag=>({tags: {
       path: [],
@@ -218,9 +219,11 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
     }})): []
 
     const where_tags = []
+    if (cfde_specific) where_tags.push({cfde_specific: true})
     if (type_filter.length) where_tags.push({OR: type_filter})
     if (tag_filter.length) where_tags.push({OR: tag_filter})
-    const current = (events && (events.length === 0 || events.indexOf('active') > -1)) ? await prisma.outreach.findMany({
+    console.log(where_tags)
+    const current = (status && (status.length === 0 || status.indexOf('active') > -1)) ? await prisma.outreach.findMany({
       include: {
         dccs: {
             include: {
@@ -263,7 +266,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       }
     }): []
 
-    const recurring = (events && (events.length === 0 || events.indexOf('recurring') > -1)) ?  await prisma.outreach.findMany({
+    const recurring = (status && (status.length === 0 || status.indexOf('recurring') > -1)) ?  await prisma.outreach.findMany({
       where: {
         active: true,
         end_date: null,
@@ -283,7 +286,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       },
     }): []
     
-    const past = (events && (events.length === 0 || events.indexOf('past') > -1)) ? await prisma.outreach.findMany({
+    const past = (status && (status.length === 0 || status.indexOf('past') > -1)) ? await prisma.outreach.findMany({
       where: {
         AND: [
           {
@@ -335,34 +338,38 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
               <Typography variant={'body1'}><b>Type</b></Typography>
               <FormGroup>
                 <FormControlLabel control={
-                  <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)}, "type": ${JSON.stringify( (type && type.indexOf('outreach') > -1) ? type.filter(t=>t!=='outreach'): [...(type || []), 'outreach'])}}`}>
+                  <Link href={`/info/training_and_outreach?filter={"cfde_specific": ${cfde_specific}, "expand_filter": ${expand_filter}, "status": ${JSON.stringify(status)}, "type": ${JSON.stringify( (type && type.indexOf('outreach') > -1) ? type.filter(t=>t!=='outreach'): [...(type || []), 'outreach'])}}`}>
                     <Checkbox checked={(type && (type).indexOf('outreach') > -1)}/>
                   </Link>} label="Outreach" />
                 <FormControlLabel control={
-                  <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)},"type": ${JSON.stringify( (type && type.indexOf('training') > -1) ? type.filter(t=>t!=='training'): [...(type || []), 'training'])}}`}>
+                  <Link href={`/info/training_and_outreach?filter={"cfde_specific": ${cfde_specific}, "expand_filter": ${expand_filter}, "status": ${JSON.stringify(status)},"type": ${JSON.stringify( (type && type.indexOf('training') > -1) ? type.filter(t=>t!=='training'): [...(type || []), 'training'])}}`}>
                     <Checkbox checked={(type && (type).indexOf('training') > -1)}/>
                   </Link>} label="Training" />
+                <FormControlLabel control={
+                  <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, status, type, cfde_specific: !cfde_specific})}`}>
+                    <Checkbox checked={cfde_specific}/>
+                  </Link>} label="CFDE specific activity" />
               </FormGroup>
               <Typography variant={'body1'}><b>Status</b></Typography>
                 <FormGroup>
                   <FormControlLabel control={
-                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('active') > -1) ? events.filter(i=>i!== 'active'): [...(events || []), 'active']})}`}>
-                      <Checkbox checked={(events && (events).indexOf('active') > -1)}/>
+                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({cfde_specific, expand_filter, type, tags, status: (status && status.indexOf('active') > -1) ? status.filter(i=>i!== 'active'): [...(status || []), 'active']})}`}>
+                      <Checkbox checked={(status && (status).indexOf('active') > -1)}/>
                     </Link>} label="Active" />
                     <FormControlLabel control={
-                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('recurring') > -1) ? events.filter(i=>i!== 'recurring'): [...(events || []), 'recurring']})}`}>
-                      <Checkbox checked={(events && (events).indexOf('recurring') > -1)}/>
+                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({cfde_specific, expand_filter, type, tags, status: (status && status.indexOf('recurring') > -1) ? status.filter(i=>i!== 'recurring'): [...(status || []), 'recurring']})}`}>
+                      <Checkbox checked={(status && (status).indexOf('recurring') > -1)}/>
                     </Link>} label="Recurring" />
                     <FormControlLabel control={
-                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, type, tags, events: (events && events.indexOf('past') > -1) ? events.filter(i=>i!== 'past'): [...(events || []), 'past']})}`}>
-                      <Checkbox checked={(events && (events).indexOf('past') > -1)}/>
+                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({cfde_specific, expand_filter, type, tags, status: (status && status.indexOf('past') > -1) ? status.filter(i=>i!== 'past'): [...(status || []), 'past']})}`}>
+                      <Checkbox checked={(status && (status).indexOf('past') > -1)}/>
                     </Link>} label="Past" />
                 </FormGroup>
               <Typography variant={'body1'}><b>Tag</b></Typography>
                 <FormGroup>
                   {distinct_tags.map((tag)=>(
                     <FormControlLabel key={`${tag}`} control={
-                      <Link href={`/info/training_and_outreach?filter={"expand_filter": ${expand_filter}, "events": ${JSON.stringify(events)}, "type": ${JSON.stringify(type)}, "tags": ${JSON.stringify((tags && tags.indexOf(String(tag)) > -1) ? tags.filter(t=>t!==tag): [...(tags || []), String(tag)])}}`}>
+                      <Link href={`/info/training_and_outreach?filter={"cfde_specific": ${cfde_specific}, "expand_filter": ${expand_filter}, "status": ${JSON.stringify(status)}, "type": ${JSON.stringify(type)}, "tags": ${JSON.stringify((tags && tags.indexOf(String(tag)) > -1) ? tags.filter(t=>t!==tag): [...(tags || []), String(tag)])}}`}>
                         <Checkbox checked={(tags && (tags).indexOf(String(tag)) > -1)}/>
                       </Link>} sx={{textTransform: "capitalize"}} label={`${tag}`} />
                   ))}
@@ -384,7 +391,8 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                   }
                 </Grid>
                 <Grid item>
-                  {tags && tags.map(tag=>(
+                  <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
+                  {/* {tags && tags.map(tag=>(
                     <Link key={tag} href={'/info/training_and_outreach'}>
                       <Chip variant="filled" 
                         sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", 
@@ -394,7 +402,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                           icon={<DeleteIcon color={tag === "internship" ? "primary": "secondary"}/>}
                         />
                     </Link>
-                  ))}
+                  ))} */}
                 </Grid>
               </Grid>
             </Grid>
