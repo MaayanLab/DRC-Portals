@@ -327,7 +327,8 @@ const fileProjTable: { [key: string]: string } = {
     "data_type_name": "Data type",
     "assay_type_name": "Assay type",
     "analysis_type_name": "Analysis type",
-    "mime_type": "MIME type"
+    "mime_type": "MIME type",
+    "pk_id": "Primary Key"
 }
 
 export function getNameFromFileProjTable(iconKey: string): string {
