@@ -1,39 +1,43 @@
-import { Grid, Typography } from "@mui/material";
-import ReactMarkdown from 'react-markdown'
-import { LinkRenderer, HeadingRenderer } from '@/components/misc/ReactMarkdownRenderers'
-import path from 'path'
-import { readFileSync } from 'fs'
+import { Grid, Toolbar } from "@mui/material";
+import ScrollToTop from "@/components/misc/ScrollToTop";
+import { H2Renderer, H3Renderer, LinkRenderer } from '@/components/misc/ReactMarkdownRenderers'
+import dynamic from 'next/dynamic'
+import { notFound } from "next/navigation";
 
-const title_map: { [ key: string ]: string }= {
-  'OpenAPI': 'OpenAPI and SmartAPI',
-  'PWBMetanodes': 'Playbook Workflow Builder',
-  'KGAssertions': 'Data Distillery Knowledge Graph Assertions'
+const pageMap : { [ key: string ] : Function } = {
+  'FAIRshake': dynamic(() => import('../markdown/FAIRshake.mdx')),
+  'OpenAPI': dynamic(() => import('../markdown/OpenAPI.mdx')),
+  'PWBMetanodes': dynamic(() => import('../markdown/PWBMetanodes.mdx')),
+  'KGAssertions': dynamic(() => import('../markdown/KGAssertions.mdx'))
 }
 
 export default function StandardsPage(
   { params } : { params: { doc: string } }
 ) {
-  const markdown = readFileSync(
-    path.resolve('app/info/documentation/markdown', './doc.md'.replace('doc', params.doc)), 
-    {encoding:'utf8', flag:'r'}
-  )
-  var title = (params.doc in title_map) ? title_map[params.doc] : params.doc
-  return (
-    <Grid container sx={{ml:3, mt:3}}>
-      <Grid item xs={12}>
-        <Typography variant="h1" color="secondary.dark">{title}</Typography>
+  if (params.doc in pageMap) {
+    const props = {
+      components: {
+        a: LinkRenderer,
+        h2: H2Renderer,
+        h3: H3Renderer
+      }
+    }
+    return (
+      <Grid container sx={{ml:3, mt:3}}>
+        <Grid item sx={{mb:5}}>
+          <Toolbar 
+            variant="dense" 
+            disableGutters 
+            sx={{ minHeight:20, height:20 }} 
+            id="back-to-top-anchor" />
+          {pageMap[params.doc](props)}
+        <ScrollToTop />
+        </Grid>
       </Grid>
-      <Grid item sx={{mb:5}}>
-        <br/>
-        <ReactMarkdown 
-          components={{ 
-            a: LinkRenderer,
-            h2: HeadingRenderer,
-            h3: HeadingRenderer
-        }} className="prose">
-          {markdown}
-        </ReactMarkdown>
-      </Grid>
-    </Grid>
-  )
+    )
+  } else {
+    return (
+      notFound()
+    )
+  }
 }

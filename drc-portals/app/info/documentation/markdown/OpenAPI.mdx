@@ -1,3 +1,5 @@
+# OpenAPI and SmartAPI
+
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
@@ -27,7 +29,8 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
   - `servers`: List of available servers called by API
   - `paths`: List of endpoints/operations for the API
 
-    JSON
+    <br /><br />
+    **JSON**
     ```
     {
       "openapi": "3.0",
@@ -51,7 +54,7 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
     }
     ```
 
-    YAML
+    **YAML**
     ```
     openapi: 3.0
     info: 
@@ -79,241 +82,245 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
 
   - For a POST method, the input will take the form of a Request Body Object, which also requires a media type. The most common media types are `text/plain` for plaintext inputs, `application/json` for JSON-formatted inputs, and `multipart/form-data` for single or multiple file upload inputs. Below, we define our example POST request. 
 
-  Example input
-  ```
-  {
-    "id": 1,
-    "type": "tool",
-    "title": "NewDigitalObject",
-    "url": "https://newdigitalobject.com",
-    "authors": [
-      "John Doe", 
-      "Jane Doe"
-    ]
-  }
-  ```
+    <br /><br />
+    **Example input**
+    ```
+    {
+      "id": 1,
+      "type": "tool",
+      "title": "NewDigitalObject",
+      "url": "https://newdigitalobject.com",
+      "authors": [
+        "John Doe", 
+        "Jane Doe"
+      ]
+    }
+    ```
 
-  JSON specification
-  ```
-  "paths": {
-    "/create_digital_object": {
-      "post": {
-        "operationId": "create_digital_object",
-        "description": "Create a digital object",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "url", 
-                  "title"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "integer"
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "data",
-                      "repo",
-                      "test",
-                      "tool"
-                    ]
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "url": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength: 1
-                  },
-                  "authors": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
+    **JSON**
+    ```
+    "paths": {
+      "/create_digital_object": {
+        "post": {
+          "operationId": "create_digital_object",
+          "description": "Create a digital object",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "url", 
+                    "title"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer"
                     },
-                    "uniqueItems": true
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "data",
+                        "repo",
+                        "test",
+                        "tool"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "maxLength": 255,
+                      "minLength: 1
+                    },
+                    "authors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                      },
+                      "uniqueItems": true
+                    }
                   }
                 }
               }
             }
-          }
-        },
-        "responses": { ... }
+          },
+          "responses": { ... }
+        }
       }
     }
-  }
-  
-  ```
+    
+    ```
 
-  YAML specification
-  ```
-  paths:
-    /create_digital_object:
-      post: 
-        operationId: create_digital_object
-        description: Create a digital object
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                - url
-                - title
-                properties:
-                  id:
-                    type: integer
-                  type: 
-                    type: string
-                    enum: 
-                    - data
-                    - repo
-                    - test
-                    - tool
-                  title:
-                    type: string
-                  url:
-                    type: string
-                    maxLength: 255
-                    minLength: 1
-                  authors:
-                    type: array
-                    items:
+    **YAML**
+    ```
+    paths:
+      /create_digital_object:
+        post: 
+          operationId: create_digital_object
+          description: Create a digital object
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required:
+                  - url
+                  - title
+                  properties:
+                    id:
+                      type: integer
+                    type: 
                       type: string
-                    uniqueItems: true
-  ```
+                      enum: 
+                      - data
+                      - repo
+                      - test
+                      - tool
+                    title:
+                      type: string
+                    url:
+                      type: string
+                      maxLength: 255
+                      minLength: 1
+                    authors:
+                      type: array
+                      items:
+                        type: string
+                      uniqueItems: true
+    ```
 
   - For a GET method, the input may require defined parameters, which can usually be located within the path or the header of a request. In the example below, we search for our newly added digital object by its title.
+    
+    <br /><br />
+    **Example path**
+    ```
+    https://fairshake.cloud/get_digital_object?title=NewDigitalObject"
+    ```
 
-  Example path:
-  ```
-  https://fairshake.cloud/get_digital_object?title=NewDigitalObject"
-  ```
-
-  JSON specifiation
-  ```
-  "paths": {
-    "/create_digital_object": { ... },
-    "/get_digital_object": {
-      "get": {
-        "operationId": "get_digital_object",
-        "description": "Get a list of digital objects",
-        "parameters": [
-          {
-            "name": "url",
-            "in": "query",
-            "description": "URL of digital object",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "title",
-            "in": "query",
-            "description": "Title of digital object",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": { ... }
+    **JSON**
+    ```
+    "paths": {
+      "/create_digital_object": { ... },
+      "/get_digital_object": {
+        "get": {
+          "operationId": "get_digital_object",
+          "description": "Get a list of digital objects",
+          "parameters": [
+            {
+              "name": "url",
+              "in": "query",
+              "description": "URL of digital object",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "title",
+              "in": "query",
+              "description": "Title of digital object",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": { ... }
+        }
       }
     }
-  }
-  ```
+    ```
 
-  YAML specification
-  ```
-  paths:
-    /create_digital_object:
-      ...
-    /get_digital_object:
-      get:
-        operationId: get_digital_object
-        description: Get a list of digital objects
-        parameters:
-        - name: url
-          in: query
-          description: URL of digital object
-          required: false
-          type: string
-        - name: title
-          in: query
-          description: Title of digital object
-          required: true
-          type: string
-  ```
+    **YAML**
+    ```
+    paths:
+      /create_digital_object:
+        ...
+      /get_digital_object:
+        get:
+          operationId: get_digital_object
+          description: Get a list of digital objects
+          parameters:
+          - name: url
+            in: query
+            description: URL of digital object
+            required: false
+            type: string
+          - name: title
+            in: query
+            description: Title of digital object
+            required: true
+            type: string
+    ```
 
 ### Responses
 
 4. For each potential endpoint, determine the type of response that should be returned for each status. The requested data should be returned only when the status code is 20X (200, 201, etc.). Defining the schema for a response will be similar to defining a schema for an input or request body. In our example GET request, a successful response is a list of digital objects that all must follow the same schema as the POST request defined earlier for submitting a digital object. 
 
-  Example response
-  ```
-  {
-    "count": 1
-    "results": [
-      {
-        "id": 1,
-        "type": "tool",
-        "title": "NewDigitalObject",
-        "url": "https://newdigitalobject.com",
-        "authors": [
-          "John Doe", 
-          "Jane Doe"
-        ]
-      }
-    ]
-  }
-  ```
+    <br /><br />
+    **Example response**
+    ```
+    {
+      "count": 1
+      "results": [
+        {
+          "id": 1,
+          "type": "tool",
+          "title": "NewDigitalObject",
+          "url": "https://newdigitalobject.com",
+          "authors": [
+            "John Doe", 
+            "Jane Doe"
+          ]
+        }
+      ]
+    }
+    ```
 
-  JSON specification
-  ```
-  "paths": {
-    "/get_digital_object": {
-      "get": {
-        "operationId": "get_digital_object",
-        "description": "Get a list of digital objects",
-        "parameters": { ... },
-        "responses": {
-          "200": {
-            "description": "Successfully get a list of digital objects",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "count": {
-                      "type": "integer"
-                    },
-                    "results": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer
-                          },
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "data",
-                              "repo",
-                              "test", 
-                              "tool"
-                            ]
-                          },
-                          "url": {
-                            "type": "string",
-                          },
-                          "authors": {
-                            "type": "array",
-                            "items": {
+    **JSON**
+    ```
+    "paths": {
+      "/get_digital_object": {
+        "get": {
+          "operationId": "get_digital_object",
+          "description": "Get a list of digital objects",
+          "parameters": { ... },
+          "responses": {
+            "200": {
+              "description": "Successfully get a list of digital objects",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "count": {
+                        "type": "integer"
+                      },
+                      "results": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer
+                            },
+                            "type": {
                               "type": "string",
+                              "enum": [
+                                "data",
+                                "repo",
+                                "test", 
+                                "tool"
+                              ]
+                            },
+                            "url": {
+                              "type": "string",
+                            },
+                            "authors": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                              }
                             }
                           }
                         }
@@ -327,49 +334,48 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
         }
       }
     }
-  }
-  ```
+    ```
 
-  YAML specification
-  ```
-  paths:
-    /get_digital_object:
-      get:
-        operationId: get_digital_object
-        description: Get a list of digital objects
-        parameters:
-          ...
-        responses:
-          200:
-            description: Successfully get a list of digital objects
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties: 
-                    count: 
-                      type: integer
-                    results:
-                      type: array
-                      items:
-                        type: object
-                        properties: 
-                          id: 
-                            type: integer
-                          type: 
-                            type: string
-                            enum:
-                            - data
-                            - repo
-                            - test
-                            - tool
-                          url:
-                            type: string
-                          authors:
-                            type: array
-                            items:
+    **YAML**
+    ```
+    paths:
+      /get_digital_object:
+        get:
+          operationId: get_digital_object
+          description: Get a list of digital objects
+          parameters:
+            ...
+          responses:
+            200:
+              description: Successfully get a list of digital objects
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties: 
+                      count: 
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties: 
+                            id: 
+                              type: integer
+                            type: 
                               type: string
-  ```
+                              enum:
+                              - data
+                              - repo
+                              - test
+                              - tool
+                            url:
+                              type: string
+                            authors:
+                              type: array
+                              items:
+                                type: string
+    ```
   Note that OpenAPI/SmartAPI allow for the definition of `Components`, which are reusable objects within a single API specification. These can be `schemas`, `parameters`, `requestBodies`, or other objects that may come up in multiple paths. In the examples above, the digital object schema could have been defined as a `schema` component, and the reference `#/components/schemas/DigitalObject` could have been used in place of its full definition under the `create_digital_object` `requestBody` and `responses` as well as the `get_digital_object` `responses`.
 
   - For error codes (4XX, 5XX), you may choose to “catch” these errors by defining some behavior that should occur if the error is triggered. 
@@ -382,6 +388,7 @@ As an example, the following tutorial will adapt two endpoints from the [FAIRsha
 - [Example SmartAPI v3.0 specifications](https://github.com/SmartAPI/smartAPI-Specification/tree/OpenAPI.next/examples/v3.0)
 - [Swagger Editor](https://editor.swagger.io/)
 
+<br />
 While not required, it is highly recommended to use a dedicated OpenAPI or SmartAPI editor, such as Swagger, to generate API specifications. Such tools designated for writing OpenAPIs/SmartAPIs can help with debugging and auto-formatting, as well as with testing and publishing API documentation. 
 
 #### Return to [Documentation](./)
