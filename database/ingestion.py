@@ -12,6 +12,8 @@ from ingest_common import (
   dcc_partnerships_path,
   partnership_publications_path,
   tools_path,
+  dcc_usecase_path,
+  usecase_path,
 )
 
 cur = connection.cursor()
@@ -172,9 +174,9 @@ with open(outreach_path(), 'r') as fr:
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel)
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific
       from outreach_tmp
       on conflict (id)
         do update
@@ -191,7 +193,8 @@ cur.execute('''
             application_end = excluded.application_end,
             link = excluded.link,
             image = excluded.image,
-            carousel = excluded.carousel
+            carousel = excluded.carousel,
+            cfde_specific = excluded.cfde_specific
     ;
   ''')
 cur.execute('drop table outreach_tmp;')
@@ -312,6 +315,74 @@ cur.execute('''
   ''')
 cur.execute('drop table partnership_publications_tmp;')
 connection.commit()
+
+# Use Cases
+
+cur = connection.cursor()
+
+cur.execute('''
+  DELETE FROM dcc_usecase;
+''')
+
+cur.execute('''
+  DELETE FROM usecase;
+''') 
+cur.execute('''
+  create table usecase_tmp
+  as table usecase
+  with no data;
+''')
+
+with open(usecase_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
+    cur.copy_from(fr, 'usecase_tmp',
+      columns=columns,
+      null='',
+      sep='\t',
+    )
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+    insert into usecase (%s)
+      select %s
+      from usecase_tmp
+      on conflict (id)
+        do update
+        set %s
+    ;
+  '''%(column_string, column_string, set_string))
+cur.execute('drop table usecase_tmp;')
+connection.commit()
+
+cur = connection.cursor()
+cur.execute('''
+  create table dcc_usecase_tmp
+  as table dcc_usecase
+  with no data;
+''')
+
+
+with open(dcc_usecase_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
+    cur.copy_from(fr, 'dcc_usecase_tmp',
+      columns=columns,
+      null='',
+      sep='\t',
+    )
+
+column_string = ", ".join(columns)
+
+cur.execute('''
+    insert into dcc_usecase (%s)
+      select %s
+      from dcc_usecase_tmp
+      on conflict 
+        do nothing
+    ;
+  '''%(column_string, column_string))
+cur.execute('drop table dcc_usecase_tmp;')
+connection.commit()
+
 
 # DCC Assets
 cur = connection.cursor()

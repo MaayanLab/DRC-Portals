@@ -27,7 +27,7 @@ export default async function InfoFooter() {
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiGithub} size={1} /> 
                   <Typography variant='footer' className='flex'>
-                    Github Repository
+                    GitHub Repository
                   </Typography>
                 </div>
               </Link>

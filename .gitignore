@@ -6,5 +6,6 @@ output/
 kub/
 venv
 outreach_files/
+usecase_files/
 publication_files/
 playground*
