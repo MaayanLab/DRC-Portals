@@ -16,9 +16,9 @@ import {
   SCHEMA_STYLESHEET,
 } from "../constants/cy";
 import {
-  CustomCxtMenuItem,
-  CustomEdgeCxtMenuItem,
-  CustomNodeCxtMenuItem,
+  CxtMenuItem,
+  EdgeCxtMenuItem,
+  NodeCxtMenuItem,
   CytoscapeReference,
 } from "../interfaces/cy";
 import { SchemaData } from "../interfaces/schema";
@@ -100,7 +100,7 @@ export default function GraphSchemaContainer(
     });
   };
 
-  const customStaticCxtMenuItems: CustomCxtMenuItem[] = [
+  const staticCxtMenuItems: CxtMenuItem[] = [
     {
       fn: searchPath,
       title: "Search Path",
@@ -112,14 +112,14 @@ export default function GraphSchemaContainer(
       showFn: () => pathRef.current.length > 0,
     },
   ];
-  const customNodeCxtMenuItems: CustomNodeCxtMenuItem[] = [
+  const nodeCxtMenuItems: NodeCxtMenuItem[] = [
     {
       fn: appendNodeToPath,
       title: "Add to Path",
       showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
     },
   ];
-  const customEdgeCxtMenuItems: CustomEdgeCxtMenuItem[] = [
+  const edgeCxtMenuItems: EdgeCxtMenuItem[] = [
     {
       fn: appendEdgeToPath,
       title: "Add to Path",
@@ -153,9 +153,9 @@ export default function GraphSchemaContainer(
             legendPosition={{ top: 10, left: 10 }}
             toolbarPosition={{ top: 10, right: 10 }}
             customTools={customTools}
-            customStaticCxtMenuItems={customStaticCxtMenuItems}
-            customNodeCxtMenuItems={customNodeCxtMenuItems}
-            customEdgeCxtMenuItems={customEdgeCxtMenuItems}
+            staticCxtMenuItems={staticCxtMenuItems}
+            nodeCxtMenuItems={nodeCxtMenuItems}
+            edgeCxtMenuItems={edgeCxtMenuItems}
           ></CytoscapeChart>
         </AccordionDetails>
       </Accordion>

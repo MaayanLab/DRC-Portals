@@ -23,9 +23,9 @@ import { v4 } from "uuid";
 
 import { ChartContainer, ChartTooltip } from "../../constants/cy";
 import {
-  CustomCxtMenuItem,
-  CustomEdgeCxtMenuItem,
-  CustomNodeCxtMenuItem,
+  CxtMenuItem,
+  EdgeCxtMenuItem,
+  NodeCxtMenuItem,
   CustomToolbarFnFactory,
   CytoscapeNodeData,
 } from "../../interfaces/cy";
@@ -50,9 +50,9 @@ type CytoscapeChartProps = {
   legendPosition?: PositionOffsets;
   toolbarPosition?: PositionOffsets;
   customTools?: CustomToolbarFnFactory[];
-  customStaticCxtMenuItems?: CustomCxtMenuItem[];
-  customNodeCxtMenuItems?: CustomNodeCxtMenuItem[];
-  customEdgeCxtMenuItems?: CustomEdgeCxtMenuItem[];
+  staticCxtMenuItems?: CxtMenuItem[];
+  nodeCxtMenuItems?: NodeCxtMenuItem[];
+  edgeCxtMenuItems?: EdgeCxtMenuItem[];
 };
 
 export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
@@ -64,9 +64,9 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     legendPosition,
     toolbarPosition,
     customTools,
-    customStaticCxtMenuItems,
-    customNodeCxtMenuItems,
-    customEdgeCxtMenuItems,
+    staticCxtMenuItems,
+    nodeCxtMenuItems,
+    edgeCxtMenuItems,
   } = cytoscapeProps;
 
   const cyRef = useRef<cytoscape.Core>();
@@ -132,7 +132,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   };
 
   const getStaticMenuItems = (event: EventObject) => {
-    const staticCxtMenuItems = [
+    const items = [
       <MenuItem
         key={`${cmpKey}-static-ctx-menu-0`}
         onClick={contextMenuItemSelectWrapper(resetHighlights, event)}
@@ -141,9 +141,9 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       </MenuItem>,
     ];
 
-    if (customStaticCxtMenuItems !== undefined) {
-      staticCxtMenuItems.push(
-        ...customStaticCxtMenuItems
+    if (staticCxtMenuItems !== undefined) {
+      items.push(
+        ...staticCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
           .map((val, idx) => (
             <MenuItem
@@ -156,7 +156,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       );
     }
 
-    return staticCxtMenuItems;
+    return items;
   };
 
   const handleContextMenu = (event: EventObject, menuItems: JSX.Element[]) => {
@@ -238,7 +238,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
   };
 
   const handleCxtTapNode = (event: EventObjectNode) => {
-    const nodeCxtMenuItems = [
+    const items = [
       <Divider key={`${cmpKey}-node-ctx-menu-divider`} variant="middle" />,
       <MenuItem
         key={`${cmpKey}-node-ctx-menu-0`}
@@ -249,9 +249,9 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       ...getSharedMenuItems(event),
     ];
 
-    if (customNodeCxtMenuItems !== undefined) {
-      nodeCxtMenuItems.push(
-        ...customNodeCxtMenuItems
+    if (nodeCxtMenuItems !== undefined) {
+      items.push(
+        ...nodeCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
           .map((val, idx) => (
             <MenuItem
@@ -264,16 +264,16 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       );
     }
 
-    handleContextMenu(event, nodeCxtMenuItems);
+    handleContextMenu(event, items);
     cxtTapHandleSelectState(event);
   };
 
   const handleCxtTapEdge = (event: EventObjectEdge) => {
-    const edgeCxtMenuItems = [...getSharedMenuItems(event)];
+    const items = [...getSharedMenuItems(event)];
 
-    if (customEdgeCxtMenuItems !== undefined) {
-      edgeCxtMenuItems.push(
-        ...customEdgeCxtMenuItems
+    if (edgeCxtMenuItems !== undefined) {
+      items.push(
+        ...edgeCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
           .map((val, idx) => (
             <MenuItem
@@ -286,7 +286,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
       );
     }
 
-    handleContextMenu(event, edgeCxtMenuItems);
+    handleContextMenu(event, items);
     cxtTapHandleSelectState(event);
   };
 

@@ -3,7 +3,7 @@ import { ElementDefinition, EventObjectNode } from "cytoscape";
 import { useEffect, useState } from "react";
 
 import { DEFAULT_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
-import { CustomNodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
+import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { SearchBarState } from "../interfaces/search-bar";
 import { getDriver } from "../neo4j";
@@ -47,7 +47,7 @@ export default function GraphSearchContainer(
     padding: "inherit",
   });
 
-  const customNodeCxtMenuItems: CustomNodeCxtMenuItem[] = [
+  const nodeCxtMenuItems: NodeCxtMenuItem[] = [
     {
       fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
       title: "Show Details",
@@ -146,7 +146,7 @@ export default function GraphSearchContainer(
           layout={DEFAULT_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}
           toolbarPosition={{ top: 10, right: 10 }}
-          customNodeCxtMenuItems={customNodeCxtMenuItems}
+          nodeCxtMenuItems={nodeCxtMenuItems}
         ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (

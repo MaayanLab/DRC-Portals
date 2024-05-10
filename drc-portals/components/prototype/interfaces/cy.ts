@@ -14,18 +14,18 @@ export type CytoscapeReference = MutableRefObject<cytoscape.Core | undefined>;
 
 export type CustomToolbarFnFactory = (cyRef: CytoscapeReference) => ReactNode;
 
-export interface CustomCxtMenuItem {
+export interface CxtMenuItem {
   fn: (event: EventObject) => void;
   title: string;
   showFn?: (event: EventObject) => boolean;
 }
 
-export interface CustomNodeCxtMenuItem extends CustomCxtMenuItem {
+export interface NodeCxtMenuItem extends CxtMenuItem {
   fn: (event: EventObjectNode) => void;
   showFn?: (event: EventObjectNode) => boolean;
 }
 
-export interface CustomEdgeCxtMenuItem extends CustomCxtMenuItem {
+export interface EdgeCxtMenuItem extends CxtMenuItem {
   fn: (event: EventObjectEdge) => void;
   showFn?: (event: EventObjectEdge) => boolean;
 }
