@@ -1,5 +1,12 @@
 import React, { ReactNode } from 'react';
 import { Metadata } from "next";
+import CryptoJS from 'crypto-js';
+
+// Function to generate MD5 hash
+export const generateMD5Hash = (inputString: string) => {
+  return CryptoJS.MD5(inputString).toString();
+}
+
 
 export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);

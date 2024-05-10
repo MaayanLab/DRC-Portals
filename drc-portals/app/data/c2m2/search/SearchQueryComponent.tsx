@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
-import { getDCCIcon, capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils";
+import { getDCCIcon, capitalizeFirstLetter, isURL , generateMD5Hash} from "@/app/data/c2m2/utils";
 
 type PageProps = { searchParams: Record<string, string> }
 type FilterObject = {
@@ -412,7 +412,7 @@ async function fetchQueryResults(searchParams: any) {
                 </Link>
               }
               data={results?.records_full}
-              downloadFileName="CFDEC2M2MainSearchTable.json"
+              downloadFileName={generateMD5Hash(searchParams.q) + ".json"} 
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
               <SearchablePagedTable
