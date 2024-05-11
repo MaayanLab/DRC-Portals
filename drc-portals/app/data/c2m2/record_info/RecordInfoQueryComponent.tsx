@@ -739,8 +739,7 @@ file_table AS (
 
     const t1: number = performance.now();
     
-
-  // Create download filename for this recordInfo bsed on md5sum
+  // Create download filename for this recordInfo based on md5sum
   // Stringify q and t from searchParams pertaining to this record
   const qString = JSON.stringify(searchParams.q);
   const tString = JSON.stringify(searchParams.t);
@@ -749,8 +748,7 @@ file_table AS (
   const concatenatedString = `${qString}${tString}`;
   const recordInfoHashFileName = generateMD5Hash(concatenatedString);
 
-
-    // First remove the empty columns and sort columns such that most varying appears first
+  // First remove the empty columns and sort columns such that most varying appears first
 
     const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
     const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,

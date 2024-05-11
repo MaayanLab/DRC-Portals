@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
-import { getDCCIcon, capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils";
+import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash} from "@/app/data/c2m2/utils";
 
 type PageProps = { searchParams: Record<string, string> }
 type FilterObject = {
@@ -236,6 +236,15 @@ async function fetchQueryResults(searchParams: any) {
           // console.log(results.dcc_filters)
           // console.log(results.taxonomy_filters)
         
+          // Create download filename for this recordInfo based on md5sum
+          // Stringify q and t from searchParams pertaining to this record
+          const qString = JSON.stringify(searchParams.q);
+          const tString = JSON.stringify(searchParams.t);
+
+          // Concatenate qString and tString into a single string
+          const concatenatedString = `${qString}${tString}`;
+          const SearchHashFileName = generateMD5Hash(concatenatedString);
+
           const t2: number = performance.now();
         
           const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
@@ -383,7 +392,7 @@ async function fetchQueryResults(searchParams: any) {
                 </Link>
               }
               data={results?.records}
-              downloadFileName="CFDEC2M2MainSearchTable_Collection.json"
+              downloadFileName={SearchHashFileName + "_CFDEC2M2MainSearchTable_Collection.json"}
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
               <SearchablePagedTable
