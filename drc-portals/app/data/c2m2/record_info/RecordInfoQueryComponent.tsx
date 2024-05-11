@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
-import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns } from "@/app/data/c2m2/utils"
+import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
@@ -738,6 +738,17 @@ file_table AS (
 ` : [undefined];
 
     const t1: number = performance.now();
+    
+
+  // Create download filename for this recordInfo bsed on md5sum
+  // Stringify q and t from searchParams pertaining to this record
+  const qString = JSON.stringify(searchParams.q);
+  const tString = JSON.stringify(searchParams.t);
+
+  // Concatenate qString and tString into a single string
+  const concatenatedString = `${qString}${tString}`;
+  const recordInfoHashFileName = generateMD5Hash(concatenatedString);
+
 
     // First remove the empty columns and sort columns such that most varying appears first
 
@@ -925,6 +936,7 @@ file_table AS (
     console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
     console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
     console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
+    
 
     return (
       <LandingPageLayout
@@ -943,7 +955,7 @@ file_table AS (
         <ExpandableTable
           data={biosamplePrunedData}
           full_data={results?.biosamples_table_full}
-          downloadFileName={projectLocalId + "_BiosamplesTable.json"}
+          downloadFileName={recordInfoHashFileName + "_BiosamplesTable.json"}
           tableTitle={biosampleTableTitle}
           searchParams={searchParams}
           count={results?.count_bios ?? 0} // Provide count directly as a prop
@@ -955,7 +967,7 @@ file_table AS (
         <ExpandableTable
           data={subjectPrunedData}
           full_data={results?.subjects_table_full}
-          downloadFileName={projectLocalId + "_SubjectsTable.json"}
+          downloadFileName={recordInfoHashFileName + "_SubjectsTable.json"}
           tableTitle={subjectTableTitle}
           searchParams={searchParams}
           count={results?.count_sub ?? 0} // Provide count directly as a prop
@@ -967,7 +979,7 @@ file_table AS (
         <ExpandableTable
           data={collectionPrunedData}
           full_data={results?.collections_table_full}
-          downloadFileName={projectLocalId + "_CollectionsTable.json"}
+          downloadFileName={recordInfoHashFileName + "_CollectionsTable.json"}
           tableTitle={collectionTableTitle}
           searchParams={searchParams}
           count={results?.count_col ?? 0} // Provide count directly as a prop
@@ -980,7 +992,7 @@ file_table AS (
           <ExpandableTable
             data={fileProjPrunedData}
             full_data={results?.file_table_full}
-            downloadFileName={projectLocalId + "_FilesProjTable.json"}
+            downloadFileName={recordInfoHashFileName + "_FilesProjTable.json"}
             tableTitle={fileProjTableTitle}
             searchParams={searchParams}
             //count={results?.count_file ?? 0} // Provide count directly as a prop
@@ -997,7 +1009,7 @@ file_table AS (
           <ExpandableTable
             data={fileSubPrunedData}
             full_data={results?.file_sub_table_full}
-            downloadFileName={projectLocalId + "_FilesSubTable.json"}
+            downloadFileName={recordInfoHashFileName + "_FilesSubTable.json"}
             tableTitle={fileSubTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
@@ -1013,7 +1025,7 @@ file_table AS (
           <ExpandableTable
             data={fileBiosPrunedData}
             full_data={results?.file_bios_table_full}
-            downloadFileName={projectLocalId + "_FilesBiosTable.json"}
+            downloadFileName={recordInfoHashFileName + "_FilesBiosTable.json"}
             tableTitle={fileBiosTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
@@ -1029,7 +1041,7 @@ file_table AS (
           <ExpandableTable
             data={fileColPrunedData}
             full_data={results?.file_col_table_full}
-            downloadFileName={projectLocalId + "_FilesCollTable.json"}
+            downloadFileName={recordInfoHashFileName + "_FilesCollTable.json"}
             tableTitle={fileColTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_col ?? 0} // Provide count directly as a prop
