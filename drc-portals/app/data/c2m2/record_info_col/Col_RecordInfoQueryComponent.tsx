@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
+import {capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
 
 const file_count_limit = 100;
 const file_count_limit_proj = 100;
@@ -994,7 +994,8 @@ count_file_col AS (
           />
         )}
 
-        {(count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) && (<ExpandableTable
+        {(count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) && (
+        <ExpandableTable
           data={fileSubPrunedData}
           full_data={results?.file_sub_table_full}
           downloadFileName={projectLocalId + "_FilesSubTable_Collection.json"}

@@ -239,7 +239,7 @@ drc=# select * from c2m2.biosample_from_subject where subject_local_id = 'EXR-AK
 ------------------------+-----------------------+----------------------+-----------------------+-----------------
  ERCC-exRNA             | EXR-AKRIC1AKGBM001-BS | ERCC-exRNA           | EXR-AKRIC1AKGBM001-DO | 0.0
 
---- So, in the OR part focusing on subject, require that subject's projetc is not parent of biosample's project
+--- So, in the OR part focusing on subject, require that subject's project is not parent of biosample's project
 select count(*) from (select distinct c2m2.project.id_namespace, c2m2.biosample.local_id as biosample_local_id,
   c2m2.subject.local_id as subject_local_id, c2m2.biosample.project_local_id as biosample_project_local_id,
   c2m2.subject.project_local_id as subject_project_local_id
@@ -462,6 +462,22 @@ count | 23901
 
 select count(*) from c2m2.ffl_biosample where biosample_local_id is null AND subject_local_id is null;
 0
+
+--- project_name is null but collection_local_id is not null
+select * from c2m2.ffl_biosample_collection where project_name is null and collection_local_id is not null limit 1;
+--- collection_local_id               | gs://adult-gtex/haplotype_expression/v8/
+select collection_local_id, collection_name, collection_persistent_id from c2m2.ffl_biosample_collection where project_name is null limit 10;
+collection_local_id      | gs://adult-gtex/haplotype_expression/v8/
+collection_name          | gs://adult-gtex/haplotype_expression/v8
+collection_persistent_id | 3278b892-9564-5e27-8930-a7b25af99344
+-[ RECORD 2 ]------------+---------------------------------------------
+collection_local_id      | gs://egtex/methylation/epic-arrays/metadata/
+collection_name          | gs://egtex/methylation/epic-arrays/metadata
+collection_persistent_id | f7804321-e184-531e-8096-dc0faeaef73d
+-[ RECORD 3 ]------------+---------------------------------------------
+collection_local_id      | gs://egtex/methylation/wgbs/
+collection_name          | gs://egtex/methylation/wgbs
+collection_persistent_id | d237386c-36b0-5f9b-83f7-f42b7755a965
 
 --- pages in Record_Info tables are linked, also files for biosample, etc are subset of file, 
 --- so, any limit on file also translates to them. Better to keep independent. Some trial queries

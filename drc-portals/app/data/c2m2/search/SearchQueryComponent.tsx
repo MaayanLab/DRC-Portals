@@ -153,7 +153,7 @@ async function fetchQueryResults(searchParams: any) {
             REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
             /* allres_full.project_name AS project_name, */
             COALESCE(allres_full.project_name, 
-              concat_ws('', 'Dummy: Biosample(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+              concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
             c2m2.project.description AS project_description,
             allres_full.project_persistent_id as project_persistent_id,
             COUNT(*)::INT AS count,
