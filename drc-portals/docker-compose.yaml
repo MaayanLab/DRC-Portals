@@ -90,7 +90,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     ports:
-      - 5432:5432
+      - 5433:5432
     volumes:
       - drc-portal-postgres:/var/lib/postgresql/data
 
