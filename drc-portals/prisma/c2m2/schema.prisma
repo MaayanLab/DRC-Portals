@@ -1,12 +1,14 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "multiSchema"]
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  output   = "./generated/c2m2_client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas = ["c2m2"]
 }
 
 model analysis_type {
@@ -15,6 +17,7 @@ model analysis_type {
   description                            String? @default("") @db.VarChar
   synonyms                               String? @default("") @db.VarChar
   file_file_analysis_typeToanalysis_type file[]  @relation("file_analysis_typeToanalysis_type")
+  
   @@schema("c2m2")
 }
 
@@ -25,6 +28,7 @@ model anatomy {
   synonyms                                               String?              @default("") @db.VarChar
   biosample_biosample_anatomyToanatomy                   biosample[]          @relation("biosample_anatomyToanatomy")
   collection_anatomy_collection_anatomy_anatomyToanatomy collection_anatomy[] @relation("collection_anatomy_anatomyToanatomy")
+  
   @@schema("c2m2")
 }
 
@@ -34,6 +38,7 @@ model assay_type {
   description                      String? @default("") @db.VarChar
   synonyms                         String? @default("") @db.VarChar
   file_file_assay_typeToassay_type file[]  @relation("file_assay_typeToassay_type")
+  
   @@schema("c2m2")
 }
 
@@ -270,6 +275,7 @@ model compound {
   synonyms                                                   String?               @default("") @db.VarChar
   collection_compound_collection_compound_compoundTocompound collection_compound[] @relation("collection_compound_compoundTocompound")
   substance_substance_compoundTocompound                     substance[]           @relation("substance_compoundTocompound")
+  
   @@schema("c2m2")
 }
 
@@ -279,6 +285,7 @@ model data_type {
   description                    String? @default("") @db.VarChar
   synonyms                       String? @default("") @db.VarChar
   file_file_data_typeTodata_type file[]  @relation("file_data_typeTodata_type")
+
   @@schema("c2m2")
 }
 
@@ -293,6 +300,7 @@ model dcc {
   project_id_namespace String  @db.VarChar
   project_local_id     String  @db.VarChar
   project              project @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
+
   @@schema("c2m2")
 }
 
@@ -305,6 +313,7 @@ model disease {
   collection_disease_collection_disease_diseaseTodisease collection_disease[] @relation("collection_disease_diseaseTodisease")
   phenotype_disease_phenotype_disease_diseaseTodisease   phenotype_disease[]  @relation("phenotype_disease_diseaseTodisease")
   subject_disease_subject_disease_diseaseTodisease       subject_disease[]    @relation("subject_disease_diseaseTodisease")
+  
   @@schema("c2m2")
 }
 
@@ -312,21 +321,22 @@ model disease_association_type {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model ffl_biosample {
   searchable                         Unsupported("tsvector")?
-  biosample_id_namespace             String?                  @db.VarChar
-  biosample_local_id                 String?                  @db.VarChar
+  biosample_id_namespace             String                  @db.VarChar
+  biosample_local_id                 String                  @db.VarChar
   project_id_namespace               String?                  @db.VarChar
   project_local_id                   String?                  @db.VarChar
   biosample_persistent_id            String?                  @db.VarChar
   biosample_creation_time            String?                  @db.VarChar
   sample_prep_method                 String?                  @db.VarChar
   anatomy                            String?                  @db.VarChar
-  biosample_disease_association_type String?                  @db.VarChar
+  disease_association_type           String?                  @db.VarChar
   disease                            String?                  @db.VarChar
   subject_id_namespace               String?                  @db.VarChar
   subject_local_id                   String?                  @db.VarChar
@@ -349,6 +359,8 @@ model ffl_biosample {
   compound_name                      String?                  @db.VarChar
   project_name                       String?                  @db.VarChar
   project_abbreviation               String?                  @db.VarChar
+  data_type_id                       String?                  @db.VarChar
+  data_type_name                     String?                  @db.VarChar
   subject_role_taxonomy_taxonomy_id  String?                  @db.VarChar
   ncbi_taxonomy_name                 String?                  @db.VarChar
   collection_name                    String?                  @db.VarChar
@@ -363,8 +375,26 @@ model ffl_biosample {
   subject_role_taxonomy_role_id      String?                  @db.VarChar
   subject_role_name                  String?                  @db.VarChar
   disease_association_type_name      String?                  @db.VarChar
+  phenotype_association_type         String?                  @db.VarChar
+  phenotype                          String?                  @db.VarChar
+  phenotype_association_type_name    String?                  @db.VarChar
+  phenotype_name                     String?                  @db.VarChar
 
-  @@ignore
+  @@id([biosample_id_namespace, biosample_local_id])
+  @@index([searchable], map: "ffl_biosample_idx_searchable", type: Gin)
+  @@index(fields: [dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name], map: "ffl_biosample_idx_dcc_sp_dis_ana", type: BTree)
+  @@index(fields: [dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name], map: "ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data", type: BTree)
+  @@schema("c2m2")
+}
+
+model project_data_type {
+  project_id_namespace               String?                  @db.VarChar
+  project_local_id                   String?                  @db.VarChar
+  data_type_id                       String?                  @db.VarChar
+  data_type_name                     String?                  @db.VarChar
+  data_type_description              String?                  @db.VarChar
+  pk_id                              Int                      @id @db.Integer
+  
   @@schema("c2m2")
 }
 
@@ -449,6 +479,7 @@ model file_format {
   synonyms                                  String? @default("") @db.VarChar
   file_file_file_formatTofile_format        file[]  @relation("file_file_formatTofile_format")
   file_file_compression_formatTofile_format file[]  @relation("file_compression_formatTofile_format")
+  
   @@schema("c2m2")
 }
 
@@ -499,6 +530,7 @@ model gene {
   ncbi_taxonomy                              ncbi_taxonomy     @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gene_ncbi_taxonomy_1")
   phenotype_gene_phenotype_gene_geneTogene   phenotype_gene[]  @relation("phenotype_gene_geneTogene")
   protein_gene_protein_gene_geneTogene       protein_gene[]    @relation("protein_gene_geneTogene")
+  
   @@schema("c2m2")
 }
 
@@ -512,6 +544,7 @@ model id_namespace {
   file_file_id_namespaceToid_namespace             file[]       @relation("file_id_namespaceToid_namespace")
   project_project_id_namespaceToid_namespace       project[]    @relation("project_id_namespaceToid_namespace")
   subject_subject_id_namespaceToid_namespace       subject[]    @relation("subject_id_namespaceToid_namespace")
+
   @@schema("c2m2")
 }
 
@@ -525,6 +558,7 @@ model ncbi_taxonomy {
   gene                  gene[]
   protein               protein[]
   subject_role_taxonomy subject_role_taxonomy[]
+  
   @@schema("c2m2")
 }
 
@@ -537,6 +571,7 @@ model phenotype {
   phenotype_disease_phenotype_disease_phenotypeTophenotype       phenotype_disease[]    @relation("phenotype_disease_phenotypeTophenotype")
   phenotype_gene_phenotype_gene_phenotypeTophenotype             phenotype_gene[]       @relation("phenotype_gene_phenotypeTophenotype")
   subject_phenotype_subject_phenotype_phenotypeTophenotype       subject_phenotype[]    @relation("subject_phenotype_phenotypeTophenotype")
+  
   @@schema("c2m2")
 }
 
@@ -544,6 +579,7 @@ model phenotype_association_type {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
@@ -609,6 +645,7 @@ model protein {
   collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
   ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
   protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
+  
   @@schema("c2m2")
 }
 
@@ -628,6 +665,7 @@ model sample_prep_method {
   description                                                String?     @default("") @db.VarChar
   synonyms                                                   String?     @default("") @db.VarChar
   biosample_biosample_sample_prep_methodTosample_prep_method biosample[] @relation("biosample_sample_prep_methodTosample_prep_method")
+  
   @@schema("c2m2")
 }
 
@@ -673,6 +711,7 @@ model subject_ethnicity {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
@@ -680,6 +719,7 @@ model subject_granularity {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
@@ -721,6 +761,7 @@ model subject_race_cv {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
@@ -728,6 +769,7 @@ model subject_role {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
@@ -747,6 +789,7 @@ model subject_sex {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
+  
   @@schema("c2m2")
 }
 
@@ -771,5 +814,6 @@ model substance {
   collection_substance_collection_substance_substanceTosubstance collection_substance[] @relation("collection_substance_substanceTosubstance")
   subject_substance_subject_substance_substanceTosubstance       subject_substance[]    @relation("subject_substance_substanceTosubstance")
   compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_substance_compound_1")
+  
   @@schema("c2m2")
 }
