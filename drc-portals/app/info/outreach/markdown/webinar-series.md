@@ -3,35 +3,35 @@
 The CFDE Webinar Series brings the varied programs of the CFDE to the broad biomedical research community. Join us on the last Friday of each month at 1-2 PM ET to learn the science behind the research programs that comprise CFDE, as well as about the CFDE as a whole and its coordination Centers. Please visit [CFDE Knowledge Center](https://hugeamp.org/research.html?pageid=CFDE_webinars) for more details.
 
 
-## Upcoming Webinars
+# Upcoming Webinars
 
-### Playbook Workflow Builder and CFDE Workbench
+## Playbook Workflow Builder and CFDE Workbench
 Friday, May 31st, 2024, 1-2 PM ET
 
-#### Agenda
+### Agenda
 - Playbook Workflow Builder Partnership *Daniel Clarke*
 - CFDE Workbench *Avi Ma’ayan*
 - *More details will be added once ready*
 
-##### Presenting Entity: [LINCS](https://info.cfde.cloud/dcc/LINCS) DCC and Data Resource Center (DRC)
+#### Presenting Entity: [LINCS](https://info.cfde.cloud/dcc/LINCS) DCC and Data Resource Center (DRC)
 
 
-### Friday, June 28, 2024 at 1 PM ET
+## Friday, June 28, 2024 at 1 PM ET
 - *More details will be added once ready*
 
-### Friday, July 26, 2024 at 1 PM ET
+## Friday, July 26, 2024 at 1 PM ET
 - *More details will be added once ready*
 
 
-## Past Webinars
+# Past Webinars
 
 
 
-### Webinar #1 by Metabolomics and KC
+## Webinar #1 by Metabolomics and KC
 
 <img style="float: left; width:25%; margin-right: 5%;" src="https://hugeampkpncms.org/sites/default/files/images/CFDE_webinar_26April2024.png">
 
-#### Agenda
+### Agenda
 
 ▶ **Overview of the CFDE** *NIH Program Officers*
 
