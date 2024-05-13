@@ -83,9 +83,7 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     ADMIN_NODE_CLASS,
     {
-      color: "#000",
       backgroundColor: ADMIN_NODE_COLOR,
-      textOutlineColor: "#fff",
     },
   ],
   [
@@ -103,6 +101,7 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     CORE_NODE_CLASS,
     {
+      color: "#fff",
       backgroundColor: CORE_NODE_COLOR,
     },
   ],

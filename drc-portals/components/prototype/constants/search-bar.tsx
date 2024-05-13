@@ -3,7 +3,7 @@ import { Box, Divider, Typography, styled } from "@mui/material";
 import { PropertyValue, SearchQuerySettings } from "../interfaces/search-bar";
 
 import { EDGE_COLOR } from "./cy";
-import { NUMBER_PROPERTIES, STRING_PROPERTIES } from "./neo4j";
+import { STRING_PROPERTIES } from "./neo4j";
 
 export const NodeElement = styled(Box)(() => ({
   display: "flex",
