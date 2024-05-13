@@ -90,11 +90,11 @@ export const NUMBER_OPERATORS: ReadonlyArray<string> = [
 ];
 
 export const PROPERTY_OPERATORS: ReadonlyMap<string, string[]> = new Map([
-  ...STRING_PROPERTIES.map((prop): [string, string[]] => [
+  ...Array.from(STRING_PROPERTIES).map((prop): [string, string[]] => [
     prop,
     [...STRING_OPERATORS],
   ]),
-  // ...NUMBER_PROPERTIES.map((prop): [string, string[]] => [
+  // ...Array.from(NUMBER_PROPERTIES).map((prop): [string, string[]] => [
   //   prop,
   //   [...NUMBER_OPERATORS],
   // ]),

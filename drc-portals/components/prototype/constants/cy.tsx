@@ -44,10 +44,12 @@ import {
   PREPPED_VIA_TYPE,
   PRODUCED_TYPE,
   PROJECT_LABEL,
+  PROPERTY_MAP,
   PROTEIN_LABEL,
   REFERENCES_TYPE,
   SAMPLED_FROM_TYPE,
   SAMPLE_PREP_METHOD_LABEL,
+  STRING_PROPERTIES,
   SUBJECT_ETHNICITY_LABEL,
   SUBJECT_GRANULARITY_LABEL,
   SUBJECT_LABEL,
@@ -113,7 +115,6 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
     selector: "node[label]",
     style: {
       label: "data(label)",
-      color: "#000",
       "font-family": NODE_FONT_FAMILY,
       "font-size": NODE_FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
@@ -219,126 +220,309 @@ const FIFTH_ROW_TERMS_Y = 675;
 
 const SCHEMA_FONT_SIZE = "10";
 
+const getNodeProps = (label: string) => {
+  return (PROPERTY_MAP.get(label) as string[]).reduce((o, prop) => {
+    let type: string;
+
+    // TODO: Add additional property types as they become available
+    if (STRING_PROPERTIES.has(prop)) {
+      type = "string";
+    } else {
+      type = "unknown";
+    }
+
+    return { ...o, [prop]: type };
+  }, {});
+};
+
 export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ID_NAMESPACE_LABEL) || ""],
     position: { x: 0, y: -25 },
-    data: { id: "1", label: ID_NAMESPACE_LABEL },
+    data: {
+      id: "1",
+      label: ID_NAMESPACE_LABEL,
+      neo4j: {
+        labels: [ID_NAMESPACE_LABEL],
+        properties: getNodeProps(ID_NAMESPACE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(DCC_LABEL) || ""],
     position: { x: -340, y: -380 },
-    data: { id: "2", label: DCC_LABEL },
+    data: {
+      id: "2",
+      label: DCC_LABEL,
+      neo4j: {
+        labels: [DCC_LABEL],
+        properties: getNodeProps(DCC_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(PROJECT_LABEL) || ""],
     position: { x: -1 * CONTAINER_X, y: CONTAINER_Y },
-    data: { id: "3", label: PROJECT_LABEL },
+    data: {
+      id: "3",
+      label: PROJECT_LABEL,
+      neo4j: {
+        labels: [PROJECT_LABEL],
+        properties: getNodeProps(PROJECT_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(COLLECTION_LABEL) || ""],
     position: { x: CONTAINER_X, y: CONTAINER_Y },
-    data: { id: "4", label: COLLECTION_LABEL },
+    data: {
+      id: "4",
+      label: COLLECTION_LABEL,
+      neo4j: {
+        labels: [COLLECTION_LABEL],
+        properties: getNodeProps(COLLECTION_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(ASSAY_TYPE_LABEL) || ""],
     position: { x: -1 * CORE_CHILD_X, y: CORE_Y - SIBLING_Y_OFFSET * 3 },
-    data: { id: "5", label: ASSAY_TYPE_LABEL },
+    data: {
+      id: "5",
+      label: ASSAY_TYPE_LABEL,
+      neo4j: {
+        labels: [ASSAY_TYPE_LABEL],
+        properties: getNodeProps(ASSAY_TYPE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(DATA_TYPE_LABEL) || ""],
     position: { x: -1 * CORE_CHILD_X, y: CORE_Y - SIBLING_Y_OFFSET },
-    data: { id: "6", label: DATA_TYPE_LABEL },
+    data: {
+      id: "6",
+      label: DATA_TYPE_LABEL,
+      neo4j: {
+        labels: [DATA_TYPE_LABEL],
+        properties: getNodeProps(DATA_TYPE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(FILE_FORMAT_LABEL) || ""],
     position: { x: -1 * CORE_CHILD_X, y: CORE_Y + SIBLING_Y_OFFSET },
-    data: { id: "7", label: FILE_FORMAT_LABEL },
+    data: {
+      id: "7",
+      label: FILE_FORMAT_LABEL,
+      neo4j: {
+        labels: [FILE_FORMAT_LABEL],
+        properties: getNodeProps(FILE_FORMAT_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(ANALYSIS_TYPE_LABEL) || ""],
     position: { x: -1 * CORE_CHILD_X, y: CORE_Y + SIBLING_Y_OFFSET * 3 },
-    data: { id: "8", label: ANALYSIS_TYPE_LABEL },
+    data: {
+      id: "8",
+      label: ANALYSIS_TYPE_LABEL,
+      neo4j: {
+        labels: [ANALYSIS_TYPE_LABEL],
+        properties: getNodeProps(ANALYSIS_TYPE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(FILE_LABEL) || ""],
     position: { x: -1 * CORE_X, y: CORE_Y },
-    data: { id: "9", label: FILE_LABEL },
+    data: {
+      id: "9",
+      label: FILE_LABEL,
+      neo4j: {
+        labels: [FILE_LABEL],
+        properties: getNodeProps(FILE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_LABEL) || ""],
     position: { x: CORE_X, y: CORE_Y },
-    data: { id: "10", label: SUBJECT_LABEL },
+    data: {
+      id: "10",
+      label: SUBJECT_LABEL,
+      neo4j: {
+        labels: [SUBJECT_LABEL],
+        properties: getNodeProps(SUBJECT_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_SEX_LABEL) || ""],
     position: { x: CORE_CHILD_X, y: CORE_Y - SIBLING_Y_OFFSET * 3 },
-    data: { id: "11", label: SUBJECT_SEX_LABEL },
+    data: {
+      id: "11",
+      label: SUBJECT_SEX_LABEL,
+      neo4j: {
+        labels: [SUBJECT_SEX_LABEL],
+        properties: getNodeProps(SUBJECT_SEX_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_ETHNICITY_LABEL) || ""],
     position: { x: CORE_CHILD_X, y: CORE_Y - SIBLING_Y_OFFSET },
-    data: { id: "12", label: SUBJECT_ETHNICITY_LABEL },
+    data: {
+      id: "12",
+      label: SUBJECT_ETHNICITY_LABEL,
+      neo4j: {
+        labels: [SUBJECT_ETHNICITY_LABEL],
+        properties: getNodeProps(SUBJECT_ETHNICITY_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_RACE_LABEL) || ""],
     position: { x: CORE_CHILD_X, y: CORE_Y + SIBLING_Y_OFFSET },
-    data: { id: "13", label: SUBJECT_RACE_LABEL },
+    data: {
+      id: "13",
+      label: SUBJECT_RACE_LABEL,
+      neo4j: {
+        labels: [SUBJECT_RACE_LABEL],
+        properties: getNodeProps(SUBJECT_RACE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_GRANULARITY_LABEL) || ""],
     position: { x: CORE_CHILD_X, y: CORE_Y + SIBLING_Y_OFFSET * 3 },
-    data: { id: "14", label: SUBJECT_GRANULARITY_LABEL },
+    data: {
+      id: "14",
+      label: SUBJECT_GRANULARITY_LABEL,
+      neo4j: {
+        labels: [SUBJECT_GRANULARITY_LABEL],
+        properties: getNodeProps(SUBJECT_GRANULARITY_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(BIOSAMPLE_LABEL) || ""],
     position: { x: 0, y: 150 },
-    data: { id: "15", label: BIOSAMPLE_LABEL },
+    data: {
+      id: "15",
+      label: BIOSAMPLE_LABEL,
+      neo4j: {
+        labels: [BIOSAMPLE_LABEL],
+        properties: getNodeProps(BIOSAMPLE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(ANATOMY_LABEL) || ""],
     position: { x: -1 * FIRST_ROW_TERMS_X, y: FIRST_ROW_TERMS_Y },
-    data: { id: "16", label: ANATOMY_LABEL },
+    data: {
+      id: "16",
+      label: ANATOMY_LABEL,
+      neo4j: {
+        labels: [ANATOMY_LABEL],
+        properties: getNodeProps(ANATOMY_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(PHENOTYPE_LABEL) || ""],
     position: { x: FIRST_ROW_TERMS_X, y: FIRST_ROW_TERMS_Y },
-    data: { id: "17", label: PHENOTYPE_LABEL },
+    data: {
+      id: "17",
+      label: PHENOTYPE_LABEL,
+      neo4j: {
+        labels: [PHENOTYPE_LABEL],
+        properties: getNodeProps(PHENOTYPE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SAMPLE_PREP_METHOD_LABEL) || ""],
     position: { x: -1 * SECOND_ROW_TERMS_X, y: SECOND_ROW_TERMS_Y },
-    data: { id: "18", label: SAMPLE_PREP_METHOD_LABEL },
+    data: {
+      id: "18",
+      label: SAMPLE_PREP_METHOD_LABEL,
+      neo4j: {
+        labels: [SAMPLE_PREP_METHOD_LABEL],
+        properties: getNodeProps(SAMPLE_PREP_METHOD_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(DISEASE_LABEL) || ""],
     position: { x: SECOND_ROW_TERMS_X, y: SECOND_ROW_TERMS_Y },
-    data: { id: "19", label: DISEASE_LABEL },
+    data: {
+      id: "19",
+      label: DISEASE_LABEL,
+      neo4j: {
+        labels: [DISEASE_LABEL],
+        properties: getNodeProps(DISEASE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(COMPOUND_LABEL) || ""],
     position: { x: 0, y: THIRD_ROW_TERMS_Y },
-    data: { id: "20", label: COMPOUND_LABEL },
+    data: {
+      id: "20",
+      label: COMPOUND_LABEL,
+      neo4j: {
+        labels: [COMPOUND_LABEL],
+        properties: getNodeProps(COMPOUND_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(GENE_LABEL) || ""],
     position: { x: -192, y: FOURTH_ROW_TERMS_Y },
-    data: { id: "21", label: GENE_LABEL },
+    data: {
+      id: "21",
+      label: GENE_LABEL,
+      neo4j: {
+        labels: [GENE_LABEL],
+        properties: getNodeProps(GENE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(SUBSTANCE_LABEL) || ""],
     position: { x: 0, y: FOURTH_ROW_TERMS_Y },
-    data: { id: "22", label: SUBSTANCE_LABEL },
+    data: {
+      id: "22",
+      label: SUBSTANCE_LABEL,
+      neo4j: {
+        labels: [SUBSTANCE_LABEL],
+        properties: getNodeProps(SUBSTANCE_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(PROTEIN_LABEL) || ""],
     position: { x: -237, y: 590 },
-    data: { id: "23", label: PROTEIN_LABEL },
+    data: {
+      id: "23",
+      label: PROTEIN_LABEL,
+      neo4j: {
+        labels: [PROTEIN_LABEL],
+        properties: getNodeProps(PROTEIN_LABEL),
+      },
+    },
   },
   {
     classes: [NODE_CLASS_MAP.get(NCBI_TAXONOMY_LABEL) || ""],
     position: { x: 0, y: FIFTH_ROW_TERMS_Y },
-    data: { id: "24", label: NCBI_TAXONOMY_LABEL },
+    data: {
+      id: "24",
+      label: NCBI_TAXONOMY_LABEL,
+      neo4j: {
+        labels: [NCBI_TAXONOMY_LABEL],
+        properties: getNodeProps(NCBI_TAXONOMY_LABEL),
+      },
+    },
   },
 ];
 

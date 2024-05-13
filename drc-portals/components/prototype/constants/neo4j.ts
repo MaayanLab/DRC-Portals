@@ -273,7 +273,7 @@ export const ROLE_ID_PROPERTY = "role_id";
 export const AGE_AT_SAMPLING_PROPERTY = "age_at_sampling";
 export const OBSERVED_PROPERTY = "observed";
 
-export const STRING_PROPERTIES: ReadonlyArray<string> = [
+export const STRING_PROPERTIES: Set<string> = new Set([
   ID_PROPERTY,
   LOCAL_ID_PROPERTY,
   PERSISTENT_ID_PROPERTY,
@@ -293,25 +293,25 @@ export const STRING_PROPERTIES: ReadonlyArray<string> = [
   GRANULARITY_PROPERTY,
   SEX_PROPERTY,
   ETHNICITY_PROPERTY,
-];
+]);
 
-export const NUMBER_PROPERTIES: ReadonlyArray<string> = [
+export const NUMBER_PROPERTIES: Set<string> = new Set([
   SIZE_IN_BYTES_PROPERTY,
   UNCOMPRESSED_SIZE_IN_BYTES_PROPERTY,
   AGE_AT_ENROLLMENT_PROPERTY,
   AGE_AT_SAMPLING_PROPERTY,
-];
+]);
 
-export const STRING_ARRAY_PROPERTIES: ReadonlyArray<string> = [
+export const STRING_ARRAY_PROPERTIES: Set<string> = new Set([
   SYNONYMS_PROPERTY,
-];
+]);
 
-export const DATE_PROPERTIES: ReadonlyArray<string> = [CREATION_TIME_PROPERTY];
+export const DATE_PROPERTIES: Set<string> = new Set([CREATION_TIME_PROPERTY]);
 
-export const BOOL_PROPERTIES: ReadonlyArray<string> = [
+export const BOOL_PROPERTIES: Set<string> = new Set([
   HAS_TIME_SERIES_DATA_PROPERTY,
   OBSERVED_PROPERTY,
-];
+]);
 
 export const PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map([
   [
