@@ -9,11 +9,13 @@ import Select from 'react-select';
 import ReverseSearchL1000 from '../Gene/reverseSearchL1000'
 import ImpcPhenotypes from '../Gene/impcPhenotypes'
 import ScoredGTExTissue from '../Gene/scoredGTExTissue'
+import ScoredARCHS4Tissue from '../Gene/scoredARCHS4Tissue'
 import RegElementSetInfo from '../Gene/RegElementSetInfo'
 import KidsFirstTumorExpr from '../Gene/KidsFirstTumorExpr'
 
 let processMapper: Record<string, any> = {
     'GtexGeneExpression': ScoredGTExTissue,
+    'ARCHS4GeneExpression': ScoredARCHS4Tissue,
     'ReverseSearchL1000': ReverseSearchL1000,
     'ImpcPhenotypes': ImpcPhenotypes,
     'RegElementSetInfo': RegElementSetInfo,

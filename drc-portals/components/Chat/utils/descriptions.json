@@ -3,6 +3,10 @@
     "desc": "I can query the expression of your gene across tissues from GTEx version 8 and produced a plot of z-scored values. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
   },
+  "ARCHS4GeneExpression": {
+    "desc": "I can query the expression of your gene across tissues from ARCHS4 and produced a plot of z-scored values. Please ensure the gene symbol below is correct:",
+    "input": "GeneInput"
+  },
   "ImpcPhenotypes": {
     "desc": "I can query IMPC which contains mouse phenotype information associated with gene markers. It's API allows us to identify phenotypes significantly associated with a gene. Please ensure the gene symbol below is correct: ",
     "input": "GeneInput"
@@ -26,5 +30,9 @@
   "GlyGenbyGlyTouCan": {
     "desc": "I can query the GlyGen database to identify a information about your glycan. Please ensure the glycan name below is correct:",
     "input": "GlycanInput"
+  },
+  "PhenotypeSmallMolecules": {
+    "desc": "I can first query Enrichr for terms related to the phenotype. Matching terms from the MGI Mammalian Phenotype Level 4 2019, KEGG 2021 Human, and GO Biological Process 2021 libraries are assembled into three collections of gene sets (GMTs). All the identified gene sets for each GMT are combined using the union set operation. Reversers and mimickers from over 1 million signatures are identified using SigCom LINCS. Mean scores were computed across the GMTs and the drugs were filtered by FDA Approved Drugs with the help of PubChem APIs.",
+    "input": "PhenotypeInput"
   }
 }

@@ -17,6 +17,20 @@
   {
     "type": "function",
     "function": {
+      "name": "ARCHS4GeneExpression",
+      "description": "Z-scored gene expression across tissues from ARCHS4. Takes a single gene as an input",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "geneSymbol": { "type": "string", "description": "Gene symbol" }
+        },
+        "required": ["geneSymbol"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "ImpcPhenotypes",
       "description": "Mouse phenotypes significantly associated with a gene",
       "parameters": {
@@ -113,6 +127,23 @@
           }
         },
         "required": ["glycan"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "PhenotypeSmallMolecules",
+      "description": "Find small molecules that are most likely to induce a given phenotype or biological process",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "glycan": {
+            "type": "string",
+            "description": "Phenotype to be analyzed."
+          }
+        },
+        "required": ["phenotype"]
       }
     }
   }

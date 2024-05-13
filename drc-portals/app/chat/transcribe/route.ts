@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
         })
         if (res.ok) {
             const transcription = await res.json();
-            console.log(transcription)
             return new NextResponse(
               JSON.stringify(transcription), {
                 status: 200,

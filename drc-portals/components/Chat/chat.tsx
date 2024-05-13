@@ -9,6 +9,7 @@ import { getFunctionInput, getFunctionText } from "./utils/constants";
 import GeneInput from "./Inputs/geneInput";
 import GeneSetInput from "./Inputs/geneSetInput";
 import GlycanInput from "./Inputs/glycanInput";
+import PhenotypeInput from "./Inputs/phenotypeInput";
 import { Input } from "@mui/material";
 import DccIcons from "./dccIcons";
 
@@ -42,6 +43,7 @@ let processMapper: Record<string, any> = {
   GeneInput: GeneInput,
   GeneSetInput: GeneSetInput,
   GlycanInput: GlycanInput,
+  PhenotypeInput: PhenotypeInput,
 };
 
 export default function Chat() {
@@ -78,9 +80,7 @@ export default function Chat() {
         }),
       };
       const res = await fetch(`/chat/assistant`, options);
-      console.log(res);
       const data: ResponseData = await res.json();
-      console.log(data);
       if (!threadId) {
         setThreadId(data.threadId);
       }
@@ -283,7 +283,7 @@ export default function Chat() {
         />
         <ChatExample
           example={
-            "Which L1000 drugs most signfigantly up or down regulate STAT3?"
+            "Which L1000 drugs most significantly up or down regulate STAT3?"
           }
           submit={submit}
         />
@@ -292,7 +292,7 @@ export default function Chat() {
           submit={submit}
         />
         <ChatExample
-          example={"Which mouse phenotypes signfigantly associated with ACE2?"}
+          example={"Which mouse phenotypes significantly associated with ACE2?"}
           submit={submit}
         />
         <ChatExample
@@ -309,6 +309,14 @@ export default function Chat() {
         />
         <ChatExample
           example={"How can I integrate data from SenNet and A2CPS?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"In which ARCHS4 tissues is NFATC1 expressed?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"Which small molecules or drugs may induce autophagy?"}
           submit={submit}
         />
       </div>
