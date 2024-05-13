@@ -199,8 +199,6 @@ export default function ReverseSearchL1000(props: any) {
             marker: { color: color }
         }]
 
-        console.log(data)
-
         return (
             <div>
                 <div className='text-center'>

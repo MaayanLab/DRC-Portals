@@ -48,7 +48,6 @@ export default function KidsFirstTumorExpr(props: any) {
     }
 
     const { data, isLoading, error } = useSWR([body], () => getPlaybookKidsFirstData(body));
-    console.log(data)
 
     if (error) {
         return <>{error}</>

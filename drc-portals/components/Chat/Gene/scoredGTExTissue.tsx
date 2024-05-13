@@ -33,7 +33,6 @@ export default function ScoredGTExTissue(props: any) {
         },
     }
     const {data, isLoading, error} = useSWR([body], () => getPlaybookGTExPlotData(body));
-    console.log(data)
 
     if (error) {
         return <>{error}</>
