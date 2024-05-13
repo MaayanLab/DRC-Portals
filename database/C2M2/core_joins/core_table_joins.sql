@@ -1,4 +1,4 @@
-/* (Being in folder .../database/c2m2/) Run on psql as \i core_table_joins.sql */
+/* (Being in folder .../database/core_joins/) Run on psql as \i core_table_joins.sql */
 /* Or on linux command prompt:psql -h localhost -U drc -d drc -p [5432|5433] -a -f core_table_joins.sql; */
 
 drop table if exists c2m2.allCollection;

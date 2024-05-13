@@ -12,6 +12,8 @@
 #[mano@sc-cfdewebdev prisma]$ #cp schema.prisma ../../../../DRC-Portals/drc-portals/prisma/.
 #[mano@sc-cfdewebdev prisma]$ 
 
+# Be in the folder database/C2M2
+
 # Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc. This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too). This script can be run as (upon starting psql shell, or equivalent command):
 # \i create_id_namespace_dcc_id.sql
 # OR, directly specify the sql file name in psql command:
