@@ -11,16 +11,16 @@ interface GraphEntityDetailsContainerProps {
 }
 
 export default function GraphEntityDetailsContainer(
-  graphEntityDetailsContainerProps: GraphEntityDetailsContainerProps
+  cmpProps: GraphEntityDetailsContainerProps
 ) {
-  const { onCloseDetails } = graphEntityDetailsContainerProps;
+  const { onCloseDetails } = cmpProps;
   const [entityDetails, setEntityDetails] = useState<CytoscapeNodeData>(
-    graphEntityDetailsContainerProps.entityDetails
+    cmpProps.entityDetails
   );
 
   useEffect(() => {
-    setEntityDetails(graphEntityDetailsContainerProps.entityDetails);
-  }, [graphEntityDetailsContainerProps.entityDetails]);
+    setEntityDetails(cmpProps.entityDetails);
+  }, [cmpProps.entityDetails]);
 
   return (
     <Grid item xs={12} lg={3} sx={{ height: "inherit" }}>

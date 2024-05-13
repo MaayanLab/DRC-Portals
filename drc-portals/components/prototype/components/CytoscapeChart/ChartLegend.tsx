@@ -71,7 +71,11 @@ export default function ChartLegend() {
       <AccordionDetails>
         <Stack>
           {Array.from(legend.entries()).map(([key, el]) => (
-            <Box key={`legend-${cmpKey}-${key}`} display="flex" sx={{ m: 1, alignItems: "center" }}>
+            <Box
+              key={`legend-${cmpKey}-${key}`}
+              display="flex"
+              sx={{ m: 1, alignItems: "center" }}
+            >
               <Typography sx={{ marginRight: 1 }}>{key}</Typography>
               {el}
             </Box>

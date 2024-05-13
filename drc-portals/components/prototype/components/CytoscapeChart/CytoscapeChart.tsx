@@ -55,7 +55,7 @@ type CytoscapeChartProps = {
   edgeCxtMenuItems?: EdgeCxtMenuItem[];
 };
 
-export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
+export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const cmpKey = `cy-chart-${v4()}`;
   const {
     elements,
@@ -67,7 +67,7 @@ export default function CytoscapeChart(cytoscapeProps: CytoscapeChartProps) {
     staticCxtMenuItems,
     nodeCxtMenuItems,
     edgeCxtMenuItems,
-  } = cytoscapeProps;
+  } = cmpProps;
 
   const cyRef = useRef<cytoscape.Core>();
   const [hoveredNode, setHoveredNode] = useState<CytoscapeNodeData | null>(

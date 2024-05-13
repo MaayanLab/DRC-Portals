@@ -21,9 +21,9 @@ type GraphSearchContainerProps = {
 };
 
 export default function GraphSearchContainer(
-  graphSearchContainerProps: GraphSearchContainerProps
+  cmpProps: GraphSearchContainerProps
 ) {
-  const { query, onSubmit } = graphSearchContainerProps;
+  const { query, onSubmit } = cmpProps;
   const [state, setState] = useState<SearchBarState | undefined>(
     query === null ? undefined : getStateFromQuery(query)
   );

@@ -29,8 +29,8 @@ interface SearchBarProps {
  * - Query limit
  */
 
-export default function SearchBar(searchBarProps: SearchBarProps) {
-  const { state, error, loading, clearError, onSubmit } = searchBarProps;
+export default function SearchBar(cmpProps: SearchBarProps) {
+  const { state, error, loading, clearError, onSubmit } = cmpProps;
   const [value, setValue] = useState<SearchBarOption[]>(state?.value || []);
   const [options, setOptions] = useState<SearchBarOption[]>(getOptions(value));
   const [settings, setSettings] = useState<SearchQuerySettings>(

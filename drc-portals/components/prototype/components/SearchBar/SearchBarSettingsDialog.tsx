@@ -30,14 +30,12 @@ export interface SearchSettingsDialogProps {
 }
 
 export default function SearchSettingsDialog(
-  searchSettingsDialogProps: SearchSettingsDialogProps
+  cmpProps: SearchSettingsDialogProps
 ) {
-  const { open, onClose, onSubmit } = searchSettingsDialogProps;
-  const [value, setValue] = useState<SearchBarOption[]>(
-    searchSettingsDialogProps.value
-  );
+  const { open, onClose, onSubmit } = cmpProps;
+  const [value, setValue] = useState<SearchBarOption[]>(cmpProps.value);
   const [settings, setSettings] = useState<SearchQuerySettings>(
-    searchSettingsDialogProps.settings
+    cmpProps.settings
   );
 
   const pathSettingsDivider = (
@@ -51,8 +49,8 @@ export default function SearchSettingsDialog(
   useEffect(() => {
     // If the dialog was just opened, make sure it has the latest values from the props
     if (open) {
-      setValue(searchSettingsDialogProps.value);
-      setSettings(searchSettingsDialogProps.settings);
+      setValue(cmpProps.value);
+      setSettings(cmpProps.settings);
     }
   }, [open]);
 

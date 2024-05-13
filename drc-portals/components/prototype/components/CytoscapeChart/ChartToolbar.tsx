@@ -16,9 +16,9 @@ type ChartToolbarProps = {
   customTools?: CustomToolbarFnFactory[];
 };
 
-export default function ChartToolbar(chartToolbarProps: ChartToolbarProps) {
+export default function ChartToolbar(cmpProps: ChartToolbarProps) {
   const cmpKey = `chart-toolbar-${v4()}`;
-  const { cyRef, customTools } = chartToolbarProps;
+  const { cyRef, customTools } = cmpProps;
 
   const ToolbarIconBtn = styled(IconButton)({
     borderRadius: 1,

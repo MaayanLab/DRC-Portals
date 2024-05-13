@@ -35,13 +35,11 @@ export interface SettingsCardProps {
   deleteValue: () => void;
 }
 
-export default function SettingsCard(settingsCardProps: SettingsCardProps) {
-  const { liftValue, deleteValue } = settingsCardProps;
+export default function SettingsCard(cmpProps: SettingsCardProps) {
+  const { liftValue, deleteValue } = cmpProps;
   const [expanded, setExpanded] = useState(false);
-  const [value, setValue] = useState(settingsCardProps.value);
-  const [element, setElement] = useState(
-    createEntityElement(settingsCardProps.value)
-  );
+  const [value, setValue] = useState(cmpProps.value);
+  const [element, setElement] = useState(createEntityElement(cmpProps.value));
 
   const ExpandMore = styled((props: ExpandMoreProps) => {
     const { expand, ...other } = props;
@@ -54,9 +52,9 @@ export default function SettingsCard(settingsCardProps: SettingsCardProps) {
   }));
 
   useEffect(() => {
-    setValue(settingsCardProps.value);
-    setElement(createEntityElement(settingsCardProps.value));
-  }, [settingsCardProps.value]);
+    setValue(cmpProps.value);
+    setElement(createEntityElement(cmpProps.value));
+  }, [cmpProps.value]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);

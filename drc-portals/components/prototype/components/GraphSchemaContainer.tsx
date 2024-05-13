@@ -32,9 +32,9 @@ type GraphSchemaContainerProps = {
 };
 
 export default function GraphSchemaContainer(
-  graphSchemaContainerProps: GraphSchemaContainerProps
+  cmpProps: GraphSchemaContainerProps
 ) {
-  const { onPathSearch } = graphSchemaContainerProps;
+  const { onPathSearch } = cmpProps;
   const [path, setPath] = useState<SchemaData[]>([]);
   const pathRef = useRef(path);
   const customTools = [

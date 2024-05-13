@@ -33,18 +33,18 @@ export interface SettingsPropertyFormProps {
 
 // TODO: Need to implement dynamic property type evaluation so we can filter on number, bool, date, etc.
 export default function SettingsPropertyForm(
-  settingsPropertyFormProps: SettingsPropertyFormProps
+  cmpProps: SettingsPropertyFormProps
 ) {
-  const { liftValue } = settingsPropertyFormProps;
-  const [value, setValue] = useState(settingsPropertyFormProps.value);
+  const { liftValue } = cmpProps;
+  const [value, setValue] = useState(cmpProps.value);
   const [properties, setProperties] = useState(
-    getEntityProperties(settingsPropertyFormProps.value)
+    getEntityProperties(cmpProps.value)
   );
 
   useEffect(() => {
-    setValue(settingsPropertyFormProps.value);
-    setProperties(getEntityProperties(settingsPropertyFormProps.value));
-  }, [settingsPropertyFormProps.value]);
+    setValue(cmpProps.value);
+    setProperties(getEntityProperties(cmpProps.value));
+  }, [cmpProps.value]);
 
   const handleAddFilterClick = () => {
     const updatedValue = { ...value };
