@@ -218,3 +218,31 @@ export const truncateTextToFitWidth = (
   // If any characters should be removed return a slice of the label, otherwise just return the label
   return label.length - low ? label.slice(0, low) + "..." : label;
 };
+
+// The following two functions can be used to decide the appropriate text color for ideal contrast, preferably in advance but also on the
+// fly.
+
+export const hexToRgb = (hex: string) => {
+  // Remove '#' if present
+  hex = hex.replace(/^#/, "");
+
+  // Parse the hex code into RGB components
+  const bigint = parseInt(hex, 16);
+
+  // Return RGB values as an object
+  return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+};
+
+export const getContrastText = (rgb: { r: number; g: number; b: number }) => {
+  console.log("getContrastText");
+  const {r, g, b} = rgb;
+  const uicolors = [r / 255, g / 255, b / 255];
+  const c = uicolors.map((col) => {
+    if (col <= 0.03928) {
+      return col / 12.92;
+    }
+    return Math.pow((col + 0.055) / 1.055, 2.4);
+  });
+  const L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
+  return (L > 0.179) ? "#000" : "#fff";
+};

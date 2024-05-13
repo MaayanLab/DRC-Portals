@@ -83,18 +83,22 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     ADMIN_NODE_CLASS,
     {
+
+      color: "#000",
       backgroundColor: ADMIN_NODE_COLOR,
     },
   ],
   [
     BIOSAMPLE_RELATED_NODE_CLASS,
     {
+      color: "#000",
       backgroundColor: BIOSAMPLE_RELATED_NODE_COLOR,
     },
   ],
   [
     CONTAINER_NODE_CLASS,
     {
+      color: "#000",
       backgroundColor: CONTAINER_NODE_COLOR,
     },
   ],
@@ -108,18 +112,21 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     FILE_RELATED_NODE_CLASS,
     {
+      color: "#000",
       backgroundColor: FILE_RELATED_NODE_COLOR,
     },
   ],
   [
     SUBJECT_RELATED_NODE_CLASS,
     {
+      color: "#000",
       backgroundColor: SUBJECT_RELATED_NODE_COLOR,
     },
   ],
   [
     TERM_NODE_CLASS,
     {
+      color: "#000",
       backgroundColor: TERM_NODE_COLOR,
     },
   ],
