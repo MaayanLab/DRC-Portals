@@ -1,7 +1,7 @@
 // SearchQueryComponent.tsx
 
 import { generateFilterQueryString } from '@/app/data/c2m2/utils';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import FilterSet from "@/app/data/c2m2/FilterSet"

@@ -1,7 +1,7 @@
-import { PrismaClient } from '.prisma/client'
+import { PrismaClient } from '.prisma/client/c2m2'
 import singleton from '@/lib/singleton'
 
-export default singleton('prisma', () => {
+export default singleton('prisma-c2m2', () => {
   if (process.env.NODE_ENV === 'development') {
     const prisma = new PrismaClient({
       log: [

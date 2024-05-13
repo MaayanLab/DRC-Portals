@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/c2m2";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash} from "@/app/data/c2m2/utils"
 import { Prisma } from "@prisma/client";

@@ -2,13 +2,12 @@ generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "multiSchema"]
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
-  output   = "./generated/c2m2_client"
+  output   = "../../node_modules/.prisma/client/c2m2"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas = ["c2m2"]
+  url      = env("C2M2_DATABASE_URL")
 }
 
 model analysis_type {
@@ -17,8 +16,6 @@ model analysis_type {
   description                            String? @default("") @db.VarChar
   synonyms                               String? @default("") @db.VarChar
   file_file_analysis_typeToanalysis_type file[]  @relation("file_analysis_typeToanalysis_type")
-  
-  @@schema("c2m2")
 }
 
 model anatomy {
@@ -28,8 +25,6 @@ model anatomy {
   synonyms                                               String?              @default("") @db.VarChar
   biosample_biosample_anatomyToanatomy                   biosample[]          @relation("biosample_anatomyToanatomy")
   collection_anatomy_collection_anatomy_anatomyToanatomy collection_anatomy[] @relation("collection_anatomy_anatomyToanatomy")
-  
-  @@schema("c2m2")
 }
 
 model assay_type {
@@ -38,8 +33,6 @@ model assay_type {
   description                      String? @default("") @db.VarChar
   synonyms                         String? @default("") @db.VarChar
   file_file_assay_typeToassay_type file[]  @relation("file_assay_typeToassay_type")
-  
-  @@schema("c2m2")
 }
 
 model biosample {
@@ -63,7 +56,6 @@ model biosample {
   file_describes_biosample                                            file_describes_biosample[]
 
   @@id([id_namespace, local_id])
-  @@schema("c2m2")
 }
 
 model biosample_disease {
@@ -75,7 +67,6 @@ model biosample_disease {
   disease_biosample_disease_diseaseTodisease disease   @relation("biosample_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_disease_disease_2")
 
   @@id([biosample_id_namespace, biosample_local_id, association_type, disease])
-  @@schema("c2m2")
 }
 
 model biosample_from_subject {
@@ -88,7 +79,6 @@ model biosample_from_subject {
   subject                subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_from_subject_subject_2")
 
   @@id([biosample_id_namespace, biosample_local_id, subject_id_namespace, subject_local_id])
-  @@schema("c2m2")
 }
 
 model biosample_gene {
@@ -99,7 +89,6 @@ model biosample_gene {
   gene_biosample_gene_geneTogene gene      @relation("biosample_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_gene_gene_2")
 
   @@id([biosample_id_namespace, biosample_local_id, gene])
-  @@schema("c2m2")
 }
 
 model biosample_in_collection {
@@ -111,7 +100,6 @@ model biosample_in_collection {
   collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_in_collection_collection_2")
 
   @@id([biosample_id_namespace, biosample_local_id, collection_id_namespace, collection_local_id])
-  @@schema("c2m2")
 }
 
 model biosample_substance {
@@ -122,7 +110,6 @@ model biosample_substance {
   substance_biosample_substance_substanceTosubstance substance @relation("biosample_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_substance_substance_2")
 
   @@id([biosample_id_namespace, biosample_local_id, substance])
-  @@schema("c2m2")
 }
 
 model collection {
@@ -153,7 +140,6 @@ model collection {
   subject_in_collection                                                                                                       subject_in_collection[]
 
   @@id([id_namespace, local_id])
-  @@schema("c2m2")
 }
 
 model collection_anatomy {
@@ -164,7 +150,6 @@ model collection_anatomy {
   collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_anatomy_collection_1")
 
   @@id([collection_id_namespace, collection_local_id, anatomy])
-  @@schema("c2m2")
 }
 
 model collection_compound {
@@ -175,7 +160,6 @@ model collection_compound {
   compound_collection_compound_compoundTocompound compound   @relation("collection_compound_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_compound_compound_2")
 
   @@id([collection_id_namespace, collection_local_id, compound])
-  @@schema("c2m2")
 }
 
 model collection_defined_by_project {
@@ -187,7 +171,6 @@ model collection_defined_by_project {
   project                 project    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_defined_by_project_project_2")
 
   @@id([collection_id_namespace, collection_local_id, project_id_namespace, project_local_id])
-  @@schema("c2m2")
 }
 
 model collection_disease {
@@ -198,7 +181,6 @@ model collection_disease {
   disease_collection_disease_diseaseTodisease disease    @relation("collection_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_disease_disease_2")
 
   @@id([collection_id_namespace, collection_local_id, disease])
-  @@schema("c2m2")
 }
 
 model collection_gene {
@@ -209,7 +191,6 @@ model collection_gene {
   gene_collection_gene_geneTogene gene       @relation("collection_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_gene_gene_2")
 
   @@id([collection_id_namespace, collection_local_id, gene])
-  @@schema("c2m2")
 }
 
 model collection_in_collection {
@@ -221,7 +202,6 @@ model collection_in_collection {
   collection_collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection     collection @relation("collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection", fields: [subset_collection_id_namespace, subset_collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_in_collection_collection_2")
 
   @@id([superset_collection_id_namespace, superset_collection_local_id, subset_collection_id_namespace, subset_collection_local_id])
-  @@schema("c2m2")
 }
 
 model collection_phenotype {
@@ -232,7 +212,6 @@ model collection_phenotype {
   phenotype_collection_phenotype_phenotypeTophenotype phenotype  @relation("collection_phenotype_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_phenotype_phenotype_2")
 
   @@id([collection_id_namespace, collection_local_id, phenotype])
-  @@schema("c2m2")
 }
 
 model collection_protein {
@@ -243,7 +222,6 @@ model collection_protein {
   protein_collection_protein_proteinToprotein protein    @relation("collection_protein_proteinToprotein", fields: [protein], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_protein_protein_2")
 
   @@id([collection_id_namespace, collection_local_id, protein])
-  @@schema("c2m2")
 }
 
 model collection_substance {
@@ -254,7 +232,6 @@ model collection_substance {
   substance_collection_substance_substanceTosubstance substance  @relation("collection_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_substance_substance_2")
 
   @@id([collection_id_namespace, collection_local_id, substance])
-  @@schema("c2m2")
 }
 
 model collection_taxonomy {
@@ -265,7 +242,6 @@ model collection_taxonomy {
   ncbi_taxonomy           ncbi_taxonomy @relation(fields: [taxon], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_taxonomy_ncbi_taxonomy_2")
 
   @@id([collection_id_namespace, collection_local_id, taxon])
-  @@schema("c2m2")
 }
 
 model compound {
@@ -275,8 +251,6 @@ model compound {
   synonyms                                                   String?               @default("") @db.VarChar
   collection_compound_collection_compound_compoundTocompound collection_compound[] @relation("collection_compound_compoundTocompound")
   substance_substance_compoundTocompound                     substance[]           @relation("substance_compoundTocompound")
-  
-  @@schema("c2m2")
 }
 
 model data_type {
@@ -286,7 +260,6 @@ model data_type {
   synonyms                       String? @default("") @db.VarChar
   file_file_data_typeTodata_type file[]  @relation("file_data_typeTodata_type")
 
-  @@schema("c2m2")
 }
 
 model dcc {
@@ -301,7 +274,6 @@ model dcc {
   project_local_id     String  @db.VarChar
   project              project @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
 
-  @@schema("c2m2")
 }
 
 model disease {
@@ -313,16 +285,12 @@ model disease {
   collection_disease_collection_disease_diseaseTodisease collection_disease[] @relation("collection_disease_diseaseTodisease")
   phenotype_disease_phenotype_disease_diseaseTodisease   phenotype_disease[]  @relation("phenotype_disease_diseaseTodisease")
   subject_disease_subject_disease_diseaseTodisease       subject_disease[]    @relation("subject_disease_diseaseTodisease")
-  
-  @@schema("c2m2")
 }
 
 model disease_association_type {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -384,7 +352,6 @@ model ffl_biosample {
   @@index([searchable], map: "ffl_biosample_idx_searchable", type: Gin)
   @@index(fields: [dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name], map: "ffl_biosample_idx_dcc_sp_dis_ana", type: BTree)
   @@index(fields: [dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name], map: "ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data", type: BTree)
-  @@schema("c2m2")
 }
 
 model project_data_type {
@@ -394,8 +361,6 @@ model project_data_type {
   data_type_name                     String?                  @db.VarChar
   data_type_description              String?                  @db.VarChar
   pk_id                              Int                      @id @db.Integer
-  
-  @@schema("c2m2")
 }
 
 model file {
@@ -433,7 +398,6 @@ model file {
   file_in_collection                               file_in_collection[]
 
   @@id([id_namespace, local_id])
-  @@schema("c2m2")
 }
 
 model file_describes_biosample {
@@ -445,7 +409,6 @@ model file_describes_biosample {
   file                   file      @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_biosample_file_1")
 
   @@id([file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id])
-  @@schema("c2m2")
 }
 
 model file_describes_collection {
@@ -457,7 +420,6 @@ model file_describes_collection {
   file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_collection_file_1")
 
   @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
-  @@schema("c2m2")
 }
 
 model file_describes_subject {
@@ -469,7 +431,6 @@ model file_describes_subject {
   subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_subject_subject_2")
 
   @@id([file_id_namespace, file_local_id, subject_id_namespace, subject_local_id])
-  @@schema("c2m2")
 }
 
 model file_format {
@@ -479,8 +440,6 @@ model file_format {
   synonyms                                  String? @default("") @db.VarChar
   file_file_file_formatTofile_format        file[]  @relation("file_file_formatTofile_format")
   file_file_compression_formatTofile_format file[]  @relation("file_compression_formatTofile_format")
-  
-  @@schema("c2m2")
 }
 
 model file_in_collection {
@@ -492,7 +451,6 @@ model file_in_collection {
   file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_in_collection_file_1")
 
   @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
-  @@schema("c2m2")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -516,7 +474,6 @@ model fl_biosample {
   substance               String? @db.VarChar
 
   @@ignore
-  @@schema("c2m2")
 }
 
 model gene {
@@ -530,8 +487,6 @@ model gene {
   ncbi_taxonomy                              ncbi_taxonomy     @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gene_ncbi_taxonomy_1")
   phenotype_gene_phenotype_gene_geneTogene   phenotype_gene[]  @relation("phenotype_gene_geneTogene")
   protein_gene_protein_gene_geneTogene       protein_gene[]    @relation("protein_gene_geneTogene")
-  
-  @@schema("c2m2")
 }
 
 model id_namespace {
@@ -545,7 +500,6 @@ model id_namespace {
   project_project_id_namespaceToid_namespace       project[]    @relation("project_id_namespaceToid_namespace")
   subject_subject_id_namespaceToid_namespace       subject[]    @relation("subject_id_namespaceToid_namespace")
 
-  @@schema("c2m2")
 }
 
 model ncbi_taxonomy {
@@ -558,8 +512,6 @@ model ncbi_taxonomy {
   gene                  gene[]
   protein               protein[]
   subject_role_taxonomy subject_role_taxonomy[]
-  
-  @@schema("c2m2")
 }
 
 model phenotype {
@@ -571,16 +523,12 @@ model phenotype {
   phenotype_disease_phenotype_disease_phenotypeTophenotype       phenotype_disease[]    @relation("phenotype_disease_phenotypeTophenotype")
   phenotype_gene_phenotype_gene_phenotypeTophenotype             phenotype_gene[]       @relation("phenotype_gene_phenotypeTophenotype")
   subject_phenotype_subject_phenotype_phenotypeTophenotype       subject_phenotype[]    @relation("subject_phenotype_phenotypeTophenotype")
-  
-  @@schema("c2m2")
 }
 
 model phenotype_association_type {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 model phenotype_disease {
@@ -590,7 +538,6 @@ model phenotype_disease {
   phenotype_phenotype_disease_phenotypeTophenotype phenotype @relation("phenotype_disease_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_disease_phenotype_1")
 
   @@id([phenotype, disease])
-  @@schema("c2m2")
 }
 
 model phenotype_gene {
@@ -600,7 +547,6 @@ model phenotype_gene {
   phenotype_phenotype_gene_phenotypeTophenotype phenotype @relation("phenotype_gene_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_gene_phenotype_1")
 
   @@id([phenotype, gene])
-  @@schema("c2m2")
 }
 
 model project {
@@ -621,7 +567,6 @@ model project {
   subject                                                                                            subject[]
 
   @@id([id_namespace, local_id])
-  @@schema("c2m2")
 }
 
 model project_in_project {
@@ -633,7 +578,6 @@ model project_in_project {
   project_project_in_project_child_project_id_namespace_child_project_local_idToproject   project @relation("project_in_project_child_project_id_namespace_child_project_local_idToproject", fields: [child_project_id_namespace, child_project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_in_project_project_2")
 
   @@id([parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id])
-  @@schema("c2m2")
 }
 
 model protein {
@@ -645,8 +589,6 @@ model protein {
   collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
   ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
   protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
-  
-  @@schema("c2m2")
 }
 
 model protein_gene {
@@ -656,7 +598,6 @@ model protein_gene {
   protein_protein_gene_proteinToprotein protein @relation("protein_gene_proteinToprotein", fields: [protein], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_gene_protein_1")
 
   @@id([protein, gene])
-  @@schema("c2m2")
 }
 
 model sample_prep_method {
@@ -665,8 +606,6 @@ model sample_prep_method {
   description                                                String?     @default("") @db.VarChar
   synonyms                                                   String?     @default("") @db.VarChar
   biosample_biosample_sample_prep_methodTosample_prep_method biosample[] @relation("biosample_sample_prep_methodTosample_prep_method")
-  
-  @@schema("c2m2")
 }
 
 model subject {
@@ -692,7 +631,6 @@ model subject {
   subject_substance                               subject_substance[]
 
   @@id([id_namespace, local_id])
-  @@schema("c2m2")
 }
 
 model subject_disease {
@@ -704,23 +642,18 @@ model subject_disease {
   subject                                  subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_disease_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, association_type, disease])
-  @@schema("c2m2")
 }
 
 model subject_ethnicity {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 model subject_granularity {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 model subject_in_collection {
@@ -732,7 +665,6 @@ model subject_in_collection {
   subject                 subject    @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_in_collection_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id])
-  @@schema("c2m2")
 }
 
 model subject_phenotype {
@@ -744,7 +676,6 @@ model subject_phenotype {
   subject                                          subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_phenotype_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, association_type, phenotype])
-  @@schema("c2m2")
 }
 
 model subject_race {
@@ -754,23 +685,18 @@ model subject_race {
   subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_race_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, race])
-  @@schema("c2m2")
 }
 
 model subject_race_cv {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 model subject_role {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 model subject_role_taxonomy {
@@ -782,15 +708,12 @@ model subject_role_taxonomy {
   subject              subject       @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_role_taxonomy_subject_1")
 
   @@id([subject_id_namespace, subject_local_id, role_id, taxonomy_id])
-  @@schema("c2m2")
 }
 
 model subject_sex {
   id          String @id @db.VarChar
   name        String @db.VarChar
   description String @db.VarChar
-  
-  @@schema("c2m2")
 }
 
 model subject_substance {
@@ -801,7 +724,6 @@ model subject_substance {
   substance_subject_substance_substanceTosubstance substance @relation("subject_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_substance_substance_2")
 
   @@id([subject_id_namespace, subject_local_id, substance])
-  @@schema("c2m2")
 }
 
 model substance {
@@ -814,6 +736,4 @@ model substance {
   collection_substance_collection_substance_substanceTosubstance collection_substance[] @relation("collection_substance_substanceTosubstance")
   subject_substance_subject_substance_substanceTosubstance       subject_substance[]    @relation("subject_substance_substanceTosubstance")
   compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_substance_compound_1")
-  
-  @@schema("c2m2")
 }

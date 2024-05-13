@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && next build",
+    "generate:primary": "npx prisma generate --schema=prisma/schema.prisma",
+    "generate:c2m2": "npx prisma generate --schema=prisma/c2m2/schema.prisma",
+    "generate": "npm run generate:primary && npm run generate:c2m2",
+    "build": "npm run generate && next build",
     "start": "next start",
     "lint": "next lint",
     "version": "npm run build && ts-node cli/version-compose.ts && docker-compose build drc-portal-app",

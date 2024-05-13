@@ -2,9 +2,7 @@
 // npx prisma generate
 // then run this
 
-import { PrismaClient } from '@prisma/client/'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 async function main() {
   const allsamples = await prisma.geneEntity.findMany()
