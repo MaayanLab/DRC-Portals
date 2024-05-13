@@ -17,11 +17,12 @@ import { mdiArrowRight } from "@mdi/js";
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
-
+import { ReadMore } from "@/components/misc/ReadMore";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
-            short_label: decodeURI(params.dcc)
+            short_label: decodeURI(params.dcc),
+            active: true
         },
         include: {
             publications: {
@@ -80,10 +81,13 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         <CardContent>
                             <Stack spacing={2}>
                                 <Typography variant="h2" color="secondary">
-                                    {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
+                                    {dcc.label}{dcc.short_label && dcc.short_label !== dcc.label && ` (${dcc.short_label})`}
                                 </Typography>
+                                {/* <ReadMore text={dcc.description?.replace(/["]+/g, '')}
+                                    link={dcc.cf_site}
+                                /> */}
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>)</>}
+                                    {dcc.description} {dcc.cf_site && <>(Retrieved from the <Link href={dcc.cf_site} className="underline">NIH Common Fund site</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>

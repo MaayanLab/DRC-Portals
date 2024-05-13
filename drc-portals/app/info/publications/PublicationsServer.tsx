@@ -58,7 +58,7 @@ export default async function PublicationsServer({
       },
     })
     return (
-        <div className="mt-5">
+        <div>
             <Typography variant="h2" color="secondary">CFDE Associated and CF Programs Landmark Publications</Typography>
             <div className="mb-5 mt-10">
               <Typography variant="subtitle1" color="secondary">

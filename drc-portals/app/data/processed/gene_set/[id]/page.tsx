@@ -1,3 +1,4 @@
+import React from 'react'
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
@@ -5,6 +6,9 @@ import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from "next";
 import { cache } from "react";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import modules from "./modules";
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -48,10 +52,18 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('gene_set', null)
   const item = await getItem(props.params.id)
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('gene_set', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      item.node.dcc?.short_label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 
@@ -117,6 +129,16 @@ export default async function Page(props: PageProps) {
         { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >
+      <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
+        <Grid item xs={12} sx={{marginBottom: 5}}>
+          <Typography variant="h2" color="secondary">Analyze</Typography>
+        </Grid>
+        <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {modules
+            .filter(({ compatible }) => compatible({ id: props.params.id, node: gene_set.node }))
+            .map(({ button: ModButton }, i) => <ModButton key={i} item={{ id: props.params.id, node: gene_set.node }} />)}
+        </Grid>
+      </Grid>
       <SearchablePagedTable
         label="Genes"
         q={searchParams.q ?? ''}

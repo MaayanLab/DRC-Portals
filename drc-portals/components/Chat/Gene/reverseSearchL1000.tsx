@@ -3,8 +3,24 @@ import dynamic from 'next/dynamic';
 import useSWR from 'swr';
 import { PlotParams } from 'react-plotly.js';
 import TableView from '@/components/Chat/vis/tableView';
+import PlaybookButton from '../playbookButton';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false, loading: () => <div>Loading...</div> })
+
+const getPlaybookL1000= async (body: any) => {
+
+    const options: any = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body)
+
+    }
+    const res = await fetch(`/chat/fetchPlaybook`, options)
+    const data = await res.json()
+    return data
+};
 
 
 const getL100Sigs = async (gene: string, dir: string, perturb: string) => {
@@ -21,12 +37,13 @@ const getL100Sigs = async (gene: string, dir: string, perturb: string) => {
     }
 
     const res = await fetch(`/chat/l1000sigs`, options)
+    if (!res.ok) throw new Error(res.statusText)
     const data = await res.json()
     return data
 };
 
 export default function ReverseSearchL1000(props: any) {
-    const gene = props.genesymbol
+    const gene = props.geneSymbol
     const dir = props.dir
     const perturb = props.perturb
 
@@ -34,6 +51,35 @@ export default function ReverseSearchL1000(props: any) {
     const dirdown = "down"
     const upres = useSWR([gene, dirup, perturb], () => getL100Sigs(gene, dirup, perturb));
     const downres = useSWR([gene, dirdown, perturb], () => getL100Sigs(gene, dirdown, perturb));
+
+    const body = {
+        "data": {
+            "12c02bd3-f2ec-c719-533f-b1bb3b0170b7": {
+                "type": "Input[Gene]",
+                "value": gene
+            }
+        },
+        "workflow": [
+            {
+                "id": "83efe773-027b-4f21-688d-b27555938a04",
+                "type": "Input[Gene]",
+                "data": {
+                    "id": "12c02bd3-f2ec-c719-533f-b1bb3b0170b7"
+                }
+            },
+            {
+                "id": "ee9c0c69-347e-8eec-ea68-d2eb0e7925cd",
+                "type": "LINCSL1000ReverseSearch",
+                "inputs": {
+                    "gene": {
+                        "id": "83efe773-027b-4f21-688d-b27555938a04"
+                    }
+                }
+            }
+        ]
+    }
+    const {data, isLoading, error} = useSWR([body], () => getPlaybookL1000(body));
+
 
     if (!gene && !dir) {
         return <>No data provided</>
@@ -113,6 +159,7 @@ export default function ReverseSearchL1000(props: any) {
                     />
                 </div>
                 <TableView rowData={rowData} />
+                {data.id ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
             </div>
         )
 
@@ -161,6 +208,7 @@ export default function ReverseSearchL1000(props: any) {
                     />
                 </div>
                 <TableView rowData={res.data} />
+                {data.id ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
             </div>
         )
     }

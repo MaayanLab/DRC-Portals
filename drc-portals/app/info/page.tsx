@@ -14,7 +14,7 @@ import Divider from '@mui/material/Divider'
 import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
-import Outreach from "@/components/misc/Outreach"
+import Outreach from "@/components/misc/Outreach/featured"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
@@ -36,7 +36,7 @@ export default async function Home() {
                         padding: 5, 
                         borderRadius: 0, 
                         width: "100vw", 
-                        minHeight: "100vh",
+                        // minHeight: "100vh",
                         color: "#FFF",
                         marginLeft: "calc((-100vw + 100%) / 2)", 
                         marginRight: "calc((-100vw + 100%) / 2)",
@@ -101,36 +101,36 @@ export default async function Home() {
                     borderColor: "#7187C3"
                   }}>
                       <Stack spacing={2}>
-                        <Link href="/info/outreach"><Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
+                        <Link href="/info/training_and_outreach"><Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
                         <Outreach orientation="vertical" size={1}/> 
-                        {/* <Link href="/info/outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}
+                        {/* <Link href="/info/training_and_outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}
                         <Paper elevation={0}>
                           <Stack>
                             <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
                             <Link href='/data'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                DATA PORTAL
+                                METADATA SEARCH
                               </Button>
                             </Link>
                             <Link href='/data/chat'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                CHAT
+                                CHATBOT
                               </Button>
                             </Link>
-                            <Link href='/info/dcc'>
+                            <Link href='https://playbook-workflow-builder.cloud/playbooks'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                DCCS
+                                USE CASES
                               </Button>
                             </Link>
-                            <Link href='/info/standards'>
+                            <Link href='/data/tools_and_workflows'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                STANDARDS & PROTOCOLS
+                                CFDE TOOLS
                               </Button>
                             </Link>
                           </Stack>
                         </Paper>
-                        <Divider/>
-                        <Paper elevation={0}>
+                        {/* <Divider/> */}
+                        {/* <Paper elevation={0}>
                           <Stack>
                             <Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", width: 233}}variant="subtitle1">COMMUNITY</Typography>
                             <Link href='/info/partnerships'>
@@ -138,7 +138,7 @@ export default async function Home() {
                                 PARTNERSHIPS
                               </Button>
                             </Link>
-                            <Link href='/info/outreach'>
+                            <Link href='/info/training_and_outreach'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                 TRAINING & OUTREACH
                               </Button>
@@ -154,7 +154,7 @@ export default async function Home() {
                               </Button>
                             </Link>
                           </Stack>
-                        </Paper>
+                        </Paper> */}
                       </Stack>
                 </Grid>
               </Grid>
@@ -200,14 +200,14 @@ export default async function Home() {
                 <Grid container spacing={2} sx={{height: 300}} justifyContent={"space-around"} alignItems={"center"}>
                   <Grid item sx={{width: 400}}>
                     <Typography variant={"h1"} sx={{textTransform: "uppercase"}} color="inherit">
-                      Standards and Protocols
+                      Documentation
                     </Typography>
                     <Typography variant={"subtitle1"} color="inherit">
                       Learn more about the standards and protocols for accessing and submitting data to the portal
                     </Typography>
                   </Grid>
                 <Grid item>
-                  <Link href="/">
+                  <Link href="/info/documentation">
                     <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                   </Link>
                 </Grid>

@@ -58,44 +58,42 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
         <Grid item xs={12}>
           <Paper sx={{
-            boxShadow: "none",
-            width: "100vw",
-            minHeight: 560,
-            marginLeft: "calc((-100vw + 100%) / 2)",
-            marginRight: "calc((-100vw + 100%) / 2)",
-            position: "relative",
-            overflow: "hidden"
-          }}
-            className="flex"
+                        boxShadow: "none", 
+                        width: "100vw", 
+                        minHeight: 560,
+                        marginLeft: "calc((-100vw + 100%) / 2)", 
+                        marginRight: "calc((-100vw + 100%) / 2)",
+                        position: "relative",
+                        overflow: "hidden"
+                      }}
+                className="flex"
           >
-            <BlurBig sx={{ position: "absolute", left: "-20%" }} className="pointer-events-none" />
-            <BlurBig sx={{ position: "absolute", right: "-15%" }} className="pointer-events-none" />
-            <Container maxWidth="lg" className="m-auto">
-              <Grid container spacing={2} alignItems={"center"}>
-                <Grid item xs={12}>
-                  <form action="/data/processed/search" method="GET">
-                    <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
-                      <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
-                      <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets</Typography>
-                      <SearchField q="" error={searchParams.error} width={'544px'} />
-                      <Typography variant="stats_sub">
-                        Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
-                          {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
-                            <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
-                          ))}
-                        </Stack>
-                      </Typography>
-                      <div className="flex align-center space-x-10">
-                        <Button sx={{ textTransform: 'uppercase' }} color="secondary">Learn More</Button>
-                        <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit" formAction="/data/c2m2/search">C2M2 Metadata</Button>
-                        <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit" formAction="/data/c2m2/search_col">C2M2 Collection Metadata</Button>
-                        <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit">Processed Data</Button>
-                      </div>
-                    </Stack>
-                  </form>
-                </Grid>
+          <BlurBig sx={{position: "absolute", left: "-20%"}} className="pointer-events-none" />
+          <BlurBig sx={{position: "absolute", right: "-15%"}} className="pointer-events-none" />
+          <Container maxWidth="lg" className="m-auto">
+            <Grid container spacing={2} alignItems={"center"}>
+              <Grid item xs={12}>
+                <form action="/data/processed/search" method="GET">
+                  <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
+                    <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
+                    <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
+                    <SearchField q="" error={searchParams.error} width={'544px'}/>
+                    <Typography variant="stats_sub">
+                      Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
+                        {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                          <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                        ))}
+                      </Stack>
+                    </Typography>
+                    <div className="flex align-center space-x-10">
+                      <Link href="/data/processed/search/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
+                      <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
+                    </div>
+                  </Stack>
+                </form>
               </Grid>
-            </Container>
+            </Grid>
+          </Container>
           </Paper>
         </Grid>
         <Grid item xs={12} sx={{ my: 8 }}>

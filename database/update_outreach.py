@@ -63,6 +63,7 @@ for i in df.index:
             ind += 1
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
+outreach_df.index.name = "id"
 outreach_df.to_csv(outreach_file, sep="\t", header=True, quoting=csv.QUOTE_NONE)
 dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=True, index=None)
 
@@ -84,7 +85,16 @@ upload_file(dcc_outreach_file, bucket, filename)
 
 # ingest
 print("ingesting...")
+
 cur = connection.cursor()
+
+cur.execute('''
+  DELETE FROM dcc_outreach;
+''')
+
+cur.execute('''
+  DELETE FROM outreach;
+''') 
 cur.execute('''
   create table outreach_tmp
   as table outreach
@@ -95,16 +105,16 @@ with open(outreach_file, 'r') as fr:
     next(fr)
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel'),
+       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel', 'cfde_specific'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel)
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific
       from outreach_tmp
       on conflict (id)
         do update
@@ -121,7 +131,8 @@ cur.execute('''
             application_end = excluded.application_end,
             link = excluded.link,
             image = excluded.image,
-            carousel = excluded.carousel
+            carousel = excluded.carousel,
+            cfde_specific = excluded.cfde_specific
     ;
   ''')
 cur.execute('drop table outreach_tmp;')
@@ -142,9 +153,6 @@ with open(dcc_outreach_file, 'r') as fr:
       sep='\t',
     )
 
-cur.execute('''
-  DELETE FROM dcc_outreach;
-''')
 
 cur.execute('''
     insert into dcc_outreach (outreach_id, dcc_id)

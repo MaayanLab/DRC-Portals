@@ -22,17 +22,17 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Logo href={`/data`} title="CFDE Workbench" color="inherit" />
+              <Logo title="CFDE Workbench" href="/data" color="inherit" />
               <Divider sx={{borderColor: "#FFF"}}/>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/">
+              <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiGithub} size={1} /> 
                   <Typography variant='subtitle2' className='flex'>
-                    Github Repository
+                    GitHub Repository
                   </Typography>
                 </div>
               </Link>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/issues/new">
+              <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
                   <Typography variant='subtitle2' className='flex'>
@@ -48,9 +48,14 @@ export default async function InfoFooter() {
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
-                  <Link href="/info">
-                    <Typography variant="footer">Information Portal</Typography>
-                  </Link>
+                  <Link href="/info/dcc">
+                <Typography variant="footer">CF-DCCs</Typography>
+              </Link>
+              <Link href="/info">
+                <Typography variant="footer">Information Portal</Typography>
+              </Link>
+              <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+              <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
               </Stack>
           </Grid>
           <Grid item>
@@ -58,7 +63,7 @@ export default async function InfoFooter() {
               <Typography variant="subtitle1"><b>Data & Metadata</b></Typography>
               <Link href="/data"><Typography variant="footer">Metadata Search Engine</Typography></Link>
               <Link href="/data/matrix"><Typography variant="footer">Data Matrix</Typography></Link>
-              <Link href="/data/contribute/form"><Typography variant="footer">Contribute</Typography></Link>
+              <Link href="/data/submit"><Typography variant="footer">Submit</Typography></Link>             
             </Stack>
           </Grid>
           <Grid item>
@@ -69,17 +74,19 @@ export default async function InfoFooter() {
                 <Typography variant="footer">Use Cases</Typography>
               </Link>
               <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
+              <Link href="/data/archiving"><Typography variant="footer">Archiving Service</Typography></Link>
               {/* <Link href="/data/coming_soon"><Typography variant="footer">Cross DCC Use Cases</Typography></Link> */}
             </Stack>
           </Grid>
         </Grid>
         <Grid item xs={12} sx={{marginTop: 5, marginRight: 5, marginLeft: 6}}>
           <Stack spacing={2} direction={"row"} justifyContent="space-between">
-              <div className='flex space-x-2'>
+              {/* <div className='flex space-x-2'>
                 <Link href="/"><Typography variant="caption">Terms of Service</Typography></Link>
                 <Link href="/"><Typography variant="caption">Privacy Policy</Typography></Link>
-              </div>
+              </div> */}
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
+              <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This work is support by the NIH Common Fund CFDE program (Grant # OT2OD036435)</Typography></Link>
           </Stack>
         </Grid>
       </Container>

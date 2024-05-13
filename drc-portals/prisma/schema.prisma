@@ -5,7 +5,6 @@ generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
   previewFeatures = ["fullTextSearch"]
-  output          = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -14,38 +13,52 @@ datasource db {
 }
 
 model DCC {
-  id           String           @id @default(uuid())
-  label        String
-  short_label  String?
-  description  String?
-  homepage     String
-  icon         String?
-  annotation   Json?
-  cfde_partner Boolean          @default(false)
-  publications DCCPublication[]
-  assets       DccAsset[]
-  outreach     DCCOutreach[]
-  nodes        Node[]
-  kg_assertions KGAssertion[]
+  id               String            @id @default(uuid())
+  label            String
+  short_label      String?
+  description      String?
+  homepage         String
+  icon             String?
+  annotation       Json?
+  cfde_partner     Boolean           @default(false)
+  active           Boolean           @default(true)
+  cf_site          String?
+  publications     DCCPublication[]
+  Users            User[]
+  assets           DccAsset[]
+  outreach         DCCOutreach[]
+  partnerships     DCCPartnerships[]
+  usecases_created UseCase[]
+  usecases         DCCUseCase[]
+  nodes            Node[]
+  kg_assertions    KGAssertion[]
 
   @@map("dccs")
 }
 
 model Publication {
-  id      String           @id @default(uuid())
-  title   String
-  year    String?
-  page    String?
-  volume  String?
-  issue   String?
-  journal String?
-  pmid    String?
-  pmcid   String?
-  doi     String?
-  authors String
-  tool_id String?
-  dccs    DCCPublication[]
-  tool    Tool?            @relation(fields: [tool_id], references: [id])
+  id            String                    @id @default(uuid())
+  title         String
+  year          String?
+  page          String?
+  volume        String?
+  issue         String?
+  journal       String?
+  pmid          String?
+  pmcid         String?
+  doi           String?
+  authors       String
+  tool_id       String?
+  landmark      Boolean                   @default(false)
+  featured      Boolean                   @default(false)
+  carousel      Boolean                   @default(false)
+  carousel_title  String?
+  carousel_link String?
+  carousel_description String?
+  image         String?
+  dccs          DCCPublication[]
+  partnertships PartnershipPublications[]
+  tool          Tool?                     @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
 }
@@ -68,12 +81,14 @@ model Outreach {
   tags              Json
   featured          Boolean       @default(false)
   active            Boolean       @default(false)
+  carousel          Boolean       @default(false)
   start_date        DateTime?     @db.Timestamptz(3)
   end_date          DateTime?     @db.Timestamptz(3)
   application_start DateTime?     @db.Timestamptz(3)
   application_end   DateTime?     @db.Timestamptz(3)
   link              String?
   image             String?
+  cfde_specific     Boolean       @default(false)
   dccs              DCCOutreach[]
 
   @@map("outreach")
@@ -89,6 +104,69 @@ model DCCOutreach {
   @@map("dcc_outreach")
 }
 
+model Partnerships {
+  id           String                    @id @default(uuid())
+  title        String
+  description  String?
+  status       String?
+  website      String?
+  image        String?
+  dccs         DCCPartnerships[]
+  publications PartnershipPublications[]
+
+  @@map("partnerships")
+}
+
+model DCCPartnerships {
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
+  dcc            DCC          @relation(fields: [dcc_id], references: [id])
+  dcc_id         String
+
+  @@id([partnership_id, dcc_id])
+  @@map("dcc_partnerships")
+}
+
+model PartnershipPublications {
+  partnership    Partnerships @relation(fields: [partnership_id], references: [id])
+  partnership_id String
+  publication    Publication  @relation(fields: [publication_id], references: [id])
+  publication_id String
+
+  @@id([partnership_id, publication_id])
+  @@map("partnership_publications")
+}
+
+model UseCase {
+  id                String       @id @default(uuid())
+  title             String
+  short_description String
+  description       String
+  tool_icon         String?
+  inputs            Json?
+  outputs           Json?
+  sources           Json?
+  link              String?
+  image             String?
+  tutorial          String?
+  featured          Boolean?      @default(false)
+  creator_dcc_id    String?
+  creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
+  source_dccs       DCCUseCase[]
+
+  @@map("usecase")
+}
+
+model DCCUseCase {
+  usecase    UseCase @relation(fields: [usecase_id], references: [id])
+  usecase_id String
+  dcc        DCC     @relation(fields: [dcc_id], references: [id])
+  dcc_id     String
+
+  @@id([usecase_id, dcc_id])
+  @@map("dcc_usecase")
+}
+
 model Tool {
   id           String        @id @default(uuid())
   label        String
@@ -102,24 +180,54 @@ model Tool {
 
 model DccAsset {
   dcc_id           String
-  dcc              DCC?                 @relation(fields: [dcc_id], references: [id])
-  filetype         String
-  filename         String
-  link             String               @unique
-  size             BigInt?
-  lastmodified     DateTime             @default(now())
-  current          Boolean              @default(true)
+  dcc              DCC?                @relation(fields: [dcc_id], references: [id])
+  link             String              @unique
+  created          DateTime            @default(now())
+  lastmodified     DateTime            @default(now())
+  current          Boolean             @default(true)
   creator          String?
-  creatorId        User?                @relation(fields: [creator], references: [email])
-  dccapproved      Boolean              @default(false)
-  drcapproved      Boolean              @default(false)
-  annotation       Json?                @db.JsonB
+  creatorId        User?               @relation(fields: [creator], references: [email])
+  dccapproved      Boolean             @default(false)
+  drcapproved      Boolean             @default(false)
   library          GeneSetLibraryNode?
   c2m2_datapackage C2M2Datapackage?
+  node             DCCAssetNode?
+  deleted          Boolean             @default(false)
+  fileAsset        FileAsset?
+  codeAsset        CodeAsset?
 
-  @@id([dcc_id, filetype, link, lastmodified])
-  @@unique([dcc_id, filetype, link, lastmodified])
+  @@id([dcc_id, link, lastmodified])
+  @@unique([dcc_id, link, lastmodified])
   @@map("dcc_assets")
+}
+
+model FileAsset {
+  filetype       String
+  filename       String
+  link           String    @unique
+  size           BigInt?
+  sha256checksum String?
+  dccAsset       DccAsset? @relation(fields: [link], references: [link])
+
+  @@id([filetype, link])
+  @@unique([filetype, link])
+  @@map("file_assets")
+}
+
+model CodeAsset {
+  type              String
+  name              String
+  link              String    @unique
+  description       String?   @db.Text
+  openAPISpec       Boolean?
+  smartAPISpec      Boolean?
+  smartAPIURL       String?
+  entityPageExample String?
+  dccAsset          DccAsset? @relation(fields: [link], references: [link])
+
+  @@id([type, link])
+  @@unique([type, link])
+  @@map("code_assets")
 }
 
 // Processed data search
@@ -129,6 +237,7 @@ enum NodeType {
   gene_set_library
   c2m2_file
   kg_relation
+  dcc_asset
 }
 
 model Node {
@@ -137,7 +246,7 @@ model Node {
   type        NodeType
   label       String
   description String
-  searchable       Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
+  searchable  Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
 
   dcc              DCC?                @relation(fields: [dcc_id], references: [id])
   entity           EntityNode?
@@ -145,11 +254,12 @@ model Node {
   gene_set_library GeneSetLibraryNode?
   c2m2_file        C2M2FileNode?
   kg_relation_node KGRelationNode?
+  dcc_asset        DCCAssetNode?
 
-  @@map("node")
   @@index([type])
   @@index([label(ops: raw("gin_trgm_ops"))], map: "node_label_trgm", type: Gin)
   @@index([searchable], map: "node_searchable_fts", type: Gin)
+  @@map("node")
 }
 
 model EntityNode {
@@ -174,10 +284,10 @@ model KGRelationNode {
 }
 
 model KGAssertion {
-  id          String @id @db.Uuid
-  relation_id String @db.Uuid
-  source_id   String @db.Uuid
-  target_id   String @db.Uuid
+  id          String  @id @db.Uuid
+  relation_id String  @db.Uuid
+  source_id   String  @db.Uuid
+  target_id   String  @db.Uuid
   dcc_id      String?
   SAB         String
   evidence    Json?
@@ -195,7 +305,7 @@ model GeneEntity {
   entrez  String
   ensembl String
 
-  entity             EntityNode                 @relation(fields: [id], references: [id])
+  entity             EntityNode           @relation(fields: [id], references: [id])
   gene_set_libraries GeneSetLibraryNode[]
   gene_sets          GeneSetNode[]
 
@@ -230,10 +340,14 @@ model C2M2FileNode {
   c2m2_datapackage_id String    @db.Uuid
   creation_time       DateTime? @db.Timestamptz()
   persistent_id       String?
+  access_url          String?
   size_in_bytes       BigInt?
   file_format         String?
   data_type           String?
   assay_type          String?
+  mime_type           String?
+  md5                 String?
+  sha256              String?
 
   node             Node            @relation(fields: [id], references: [id])
   c2m2_datapackage C2M2Datapackage @relation(fields: [c2m2_datapackage_id], references: [id], onDelete: Cascade)
@@ -249,6 +363,15 @@ model C2M2Datapackage {
   dcc_asset  DccAsset       @relation(fields: [dcc_asset_link], references: [link], onDelete: Cascade)
 
   @@map("c2m2_datapackage")
+}
+
+model DCCAssetNode {
+  id        String   @id @db.Uuid
+  link      String   @unique
+  node      Node     @relation(fields: [id], references: [id])
+  dcc_asset DccAsset @relation(fields: [link], references: [link])
+
+  @@map("dcc_asset_node")
 }
 
 // End processed data search
@@ -291,6 +414,7 @@ model User {
   sessions      Session[]
   dcc           String?
   role          Role       @default(USER)
+  dccs          DCC[]      
   dccAsset      DccAsset[]
 }
 
@@ -302,7 +426,6 @@ enum Role {
   ADMIN
 }
 
-
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -312,3 +435,10 @@ model VerificationToken {
 }
 
 // End Next-Auth schema
+
+// A generic key-value store
+model KVStore {
+  key String @id
+  value Json
+  @@map("kvstore")
+}

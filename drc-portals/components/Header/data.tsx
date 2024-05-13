@@ -1,78 +1,82 @@
-import Image from 'next/image'
-import Link from 'next/link'
 import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 
 import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
-import { Logo } from '../styled/Logo'
+import Link from 'next/link';
+import { 
+	Grid,
+	Button,
+	Toolbar,
+	Typography,
+	Stack
+} from '@mui/material';
+
 import UserComponent from '../misc/LoginComponents/UserComponent'
-import SearchParamSearchField from '@/app/data/c2m2/SearchParamSearchField' //C2M2: changed processed to c2m2 for headers
-import DataPortalButton from './dataportal_button'
-export default async function InfoHeader() {
+import { DataComponent } from './DataComponent';
+import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
+import { Logo } from '../styled/Logo'
+import { TextNav } from './client';
+
+
+const nav = [
+  {title: "Search", href: "/data"},
+  {title: "Chatbot", href: "/data/chat"},
+  {title: "Data Matrix", href: "/data/matrix"},
+  {title: "Use Cases", href: "https://playbook-workflow-builder.cloud/playbooks", new_tab: true},
+  {title: "Tools & Workflows", href: "/data/tools_and_workflows"},
+  {title: "Submit", href: "/data/submit"},
+  {title: "Documentation", href: "/info/documentation"},
+  
+]
+
+export default async function Header() {
   const session = await getServerSession(authOptions) 
   return (
     <Container maxWidth="lg">
       <AppBar position="static" sx={{color: "#000"}}>
-        <Toolbar>
-            <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
-              <Grid item>
-                <Logo href={`/data`} title="CFDE Workbench" size='large' color="secondary"/>
-              </Grid>
-              <Grid item>
-                <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                  {/* <Link href="/data/coming_soon">
-                    <Typography variant="nav">KNOWLEDGE PORTAL</Typography>
-                  </Link> */}
-                  <Link href="/info">
-                    <Typography variant="nav">INFORMATION PORTAL</Typography>
-                  </Link>
-                  <Link href="/info/partnerships">
-                    <Typography variant="nav">PARTNERSHIPS</Typography>
-                  </Link>
-                  <Link href="/data/contribute/form">
-                    <Typography variant="nav">CONTRIBUTE</Typography>
-                  </Link>
-                  <Link href="/data/chat"><Typography variant="nav">CHATBOT</Typography></Link>
-                  <UserComponent session={session}/>
-                </Stack>
-              </Grid>
-              <Grid item xs={12}></Grid>
-              <Grid item>
-                  <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                    {/* <Link href="/info">
-                      <Typography variant="nav">INFORMATION PORTAL</Typography>
-                    </Link> */}
-                    <DataPortalButton />
-                    <Link href="/data/matrix">
-                      <Typography variant="nav">DATA MATRIX</Typography>
+      <Toolbar>
+			  <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
+          <Grid item>
+            <Logo title="CFDE Workbench" href="/data" size='large' color="secondary"/>
+          </Grid>
+          <Grid item>
+            <Stack direction={"row"} alignItems={"center"} spacing={2}>
+              <Link href="/info">
+                <Typography variant="nav"><b>Information Portal</b></Typography>
+              </Link>
+              <Link href={"/data"}>
+                <Typography variant="nav" sx={{textDecoration: "underline", textDecorationThickness: 2}}><b>Data Portal</b></Typography>
+              </Link>
+              {/* <Link href={"mailto:help@cfde.cloud"}>
+                <Typography variant="nav">Support</Typography>
+              </Link> */}
+              <UserComponent session={session}/>
+            </Stack>
+				  </Grid>
+          <Grid item xs={12}> 
+            <Grid container alignItems={"center"} spacing={2}>
+              {nav.map(({title, href})=>(
+                <Grid item key={title}>
+                  { href.indexOf('http') > -1 ? 
+                    <Link href={href} target="_blank" rel="noopener noreferrer">
+                      <Typography variant="nav">{title}</Typography>
+                    </Link>:
+                    <Link href={`${href}`}>
+                      <TextNav title={title} path={href.replace('/data', '')}/>
                     </Link>
-                    <Link href="/data/tools_and_workflows">
-                      <Typography variant="nav">TOOLS AND WORKFLOWS</Typography>
-                    </Link>
-                    <Link href="https://playbook-workflow-builder.cloud/playbooks">
-                      <Typography variant="nav">USE CASES</Typography>
-                    </Link>
-                    <Link href="/info/standards">
-                      <Typography variant="nav">STANDARDS & PROTOCOLS</Typography>
-                    </Link>
-                    <Link href="/data/review">
-                      <Typography variant="nav">REVIEW</Typography>
-                    </Link>
-                    {/* <Link href="/data/coming_soon">
-                      <Typography variant="nav">CROSSCUT DCC USE CASES</Typography>
-                    </Link> */}
-                  </Stack>
-              </Grid>
-              <Grid item>
-                <SearchParamSearchField />
-              </Grid>
+                  }
+                </Grid>
+              ))}
             </Grid>
-        </Toolbar>
+          </Grid>
+          <DataComponent>
+            <Grid item xs={12} sx={{textAlign: 'right'}}>
+              <SearchParamSearchField />
+            </Grid>
+          </DataComponent>
+        </Grid>
+      </Toolbar>
       </AppBar>
     </Container>
   )

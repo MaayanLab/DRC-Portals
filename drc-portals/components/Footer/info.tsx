@@ -21,17 +21,17 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Logo href={`/info`} title="CFDE Workbench" color="inherit"/>
+              <Logo title="CFDE Workbench" href="/info" color="inherit"/>
               <Divider sx={{borderColor: "#FFF"}}/>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/">
+              <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiGithub} size={1} /> 
                   <Typography variant='footer' className='flex'>
-                    Github Repository
+                    GitHub Repository
                   </Typography>
                 </div>
               </Link>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/issues/new">
+              <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
                   <Typography variant='footer' className='flex'>
@@ -57,17 +57,19 @@ export default async function InfoFooter() {
                 <Typography variant="footer">Knowledge Portal</Typography>
               </Link> */}
               <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+              <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
-              <Link href="/info/outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
+              <Link href="/info/training_and_outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
               {/* <Link href="/info/coming_soon">
                 <Typography variant="footer">Products</Typography>
               </Link> */}
-              <Link href="/info/standards"><Typography variant="footer">Standards & Protocols</Typography></Link>
+              <Link href="/info/documentation"><Typography variant="footer">Documentation</Typography></Link>
               <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
+              <Link href="/info/qr"><Typography variant="footer">Get QR Codes</Typography></Link>
             </Stack>
           </Grid>
           <Grid item>
@@ -87,6 +89,7 @@ export default async function InfoFooter() {
                 <Link href="/info/coming_soon"><Typography variant="caption">Privacy Policy</Typography></Link>
               </div> */}
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
+              <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This work is support by the NIH Common Fund CFDE program (Grant # OT2OD036435)</Typography></Link>
           </Stack>
         </Grid>
       </Container>

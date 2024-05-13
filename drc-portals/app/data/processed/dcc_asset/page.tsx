@@ -8,8 +8,11 @@ import { Metadata, ResolvingMetadata } from 'next'
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = pluralize(type_to_string('dcc_asset', null))
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('dcc_asset', null))}`,
+    title: `${(await parent).title?.absolute} | ${title}`,
+    keywords: [title, parentMetadata.keywords].join(', '),
   }
 }
 

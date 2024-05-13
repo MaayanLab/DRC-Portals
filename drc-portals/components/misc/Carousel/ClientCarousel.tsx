@@ -8,7 +8,7 @@ export default function ClientCarousel({children}: {children: React.ReactNode}) 
     return (
       <Stack spacing={1} alignItems={"center"}>
         <Typography variant="subtitle2" color="secondary">
-          PRODUCTS & PARTNERSHIPS
+          PRODUCTS, PARTNERSHIPS, & EVENTS
         </Typography>
         <div style={{position: "relative"}}>
           <Carousel height={400} 

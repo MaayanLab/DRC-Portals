@@ -1,0 +1,17 @@
+import S3Browser from './S3Browser.tsx'
+
+# Archiving Service
+
+The DRC is offering the archiving of select tools, databases, and portals from CFDE participating CF programs using low-cost [Amazon Glacier Deep Archive](https://aws.amazon.com/pm/s3-glacier/) for backup and archiving.
+
+The goal of this activity is that these resources could be restored in the future long-term if hosting by their producers is no longer possible.
+
+The archive is organized by DCC, application, and a timestamp of when the snapshot was created. Each snapshot is a `.zip` archive containing what is needed to bring it back up, including database dumps, source code, and [Docker](https://www.docker.com/) containers to run the application and any its dependencies.
+
+The current set of archives are listed below:
+
+<S3Browser />
+
+The archived resources are accessible via [AWS S3](https://aws.amazon.com/s3/), and can be downloaded with Requester Pays. See [this user guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html) for more details.
+
+If you are interested in contributing to the archive, please contact us at [help@cfde.cloud](mailto:help@cfde.cloud).

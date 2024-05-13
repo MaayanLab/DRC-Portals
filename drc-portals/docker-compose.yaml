@@ -3,14 +3,15 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.2.49
+    image: maayanlab/drc-portal:0.6.21
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres:5432/${POSTGRES_DB}?schema=public
-      - NEXTAUTH_URL
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
+      - PUBLIC_URL=https://cfde.cloud
+      - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
       - NEXTAUTH_GITHUB
@@ -23,6 +24,8 @@ services:
       - S3_BUCKET
       - S3_REGION
       - OPENAI_API_KEY
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID
+      - ASSISTANT_ID
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
@@ -30,20 +33,11 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://data.cfde.cloud
-        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
-        nginx.ingress.kubernetes.io/auth-secret: auth
-        nginx.ingress.kubernetes.io/auth-type: basic
     ports:
       - 80
     environment:
       nginx_server_name: data.cfde.cloud
-      nginx_proxy_00: / http://drc-portal-app:3000/data
-      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: /data/? https://data.cfde.cloud
-      nginx_redirect_01: /info/? https://info.cfde.cloud
-      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$$1
-      nginx_redirect_03: /auth/? https://cfde.cloud/auth
-      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
+      nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
 
   drc-portal-info-proxy:
     image: maayanlab/proxy:1.2.9
@@ -51,20 +45,11 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://info.cfde.cloud
-        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
-        nginx.ingress.kubernetes.io/auth-secret: auth
-        nginx.ingress.kubernetes.io/auth-type: basic
     ports:
       - 80
     environment:
       nginx_server_name: info.cfde.cloud
-      nginx_proxy_00: / http://drc-portal-app:3000/info
-      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: /data/? https://data.cfde.cloud
-      nginx_redirect_01: /data/(.+) https://data.cfde.cloud/data/$$1
-      nginx_redirect_02: /info/? https://info.cfde.cloud
-      nginx_redirect_03: /auth/? https://cfde.cloud/auth
-      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
+      nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
 
   drc-portal-proxy:
     image: maayanlab/proxy:1.2.9
@@ -76,15 +61,12 @@ services:
         nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
         nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
-      - 80
+      - 80:80
     environment:
       nginx_server_name: cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: / https://info.cfde.cloud
-      nginx_redirect_01: /data/? https://data.cfde.cloud
-      nginx_redirect_02: /data/(.+) https://data.cfde.cloud/data/$$1
-      nginx_redirect_03: /info/? https://info.cfde.cloud
-      nginx_redirect_04: /info/(.+) https://info.cfde.cloud/info/$$1
+      nginx_redirect_00: /info(/.*)? https://info.cfde.cloud$$1
+      nginx_redirect_01: /data(/.*)? https://data.cfde.cloud$$1
 
   drc-portal-cfde-info-redirect:
     image: maayanlab/proxy:1.2.9
@@ -125,6 +107,39 @@ services:
       - 5432:5432
     volumes:
       - drc-portal-postgres-2:/var/lib/postgresql/data
+
+  drc-portal-backup:
+    build: ../database/backup
+    image: maayanlab/drc-portal-postgres-backup:0.0.0
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      cron: '0 0 * * *'
+    deploy:
+      replicas: 0
+    environment:
+      - POSTGRES_HOST=${PRIMARY_DATABASE}
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - S3_POSTGRES_BACKUP_AWS_ACCESS_KEY_ID
+      - S3_POSTGRES_BACKUP_AWS_SECRET_ACCESS_KEY
+      - S3_POSTGRES_BACKUP_AWS_DEFAULT_REGION
+      - S3_POSTGRES_BACKUP_PREFIX
+
+  drc-portal-twitter:
+    build: ../twitter
+    image: maayanlab/drc-portal-twitter:0.1.2
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      cron: '0 * * * *'
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
+      - TWITTER_TWEETS_FROM
+      - TWITTER_USERNAME
+      - TWITTER_EMAIL
+      - TWITTER_PASSWORD
 
 volumes:
   drc-portal-postgres:

@@ -14,7 +14,7 @@ export default function InfoLayout({
   children: React.ReactNode
 }) {
   return (
-    <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
+    <>
       <Grid item><Header/></Grid>
       <Grid item className="flex grow">
         <Background>
@@ -23,6 +23,6 @@ export default function InfoLayout({
         </Background>
       </Grid>
       <Grid item><Footer/></Grid>
-    </Grid>
+    </>
   )
 }

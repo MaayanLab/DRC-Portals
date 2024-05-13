@@ -1,21 +1,24 @@
 import React from 'react';
-import { Container, Typography, Link, Grid, Box } from '@mui/material';
+import { Typography, Link, Grid } from '@mui/material';
 import prisma from '@/lib/prisma'
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from '@/components/misc/ReadMore';
+import { notFound } from 'next/navigation';
 
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
   const dcc = decodeURI(params.dcc)
   const dcc_dbinfo = await prisma.dCC.findFirst({
     where: {
-      short_label: dcc
+      short_label: dcc,
+      active: true
     },
     select: {
       id: true,
       description: true,
       icon: true,
       homepage: true,
+      cf_site: true
     }
   })
   if (dcc_dbinfo) {
@@ -44,7 +47,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             src={dcc_dbinfo.icon ? dcc_dbinfo.icon: ''} alt={dcc} />
         </Grid>
         <Grid item xs={12}>
-          <ReadMore text={description_text} />
+          <ReadMore text={description_text} link={dcc_dbinfo.cf_site}/>
         </Grid>
         <DCCAccordion dcc={dcc} fulldata={assets} />
         <Link sx={{mt:2, mb:5}} href="/data/matrix">
@@ -53,15 +56,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
       </Grid>    
       )
   } else {
-    return (
-      <Container>
-        <Typography sx={{mt:2}} variant="h2" color="secondary" gutterBottom>{dcc}</Typography>
-        Page unavailable
-        <Link sx={{mt:2, mb:5}} href="/data/matrix">
-          <Typography fontSize="14pt" color="#3470e5">Back to all files</Typography>
-        </Link>
-      </Container>
-    )
+    return notFound()
   }
   
 }
