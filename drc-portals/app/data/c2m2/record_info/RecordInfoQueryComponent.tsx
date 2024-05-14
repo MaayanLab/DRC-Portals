@@ -991,6 +991,7 @@ file_table AS (
             data={fileProjPrunedData}
             full_data={results?.file_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesProjTable.json"}
+            drsBundle
             tableTitle={fileProjTableTitle}
             searchParams={searchParams}
             //count={results?.count_file ?? 0} // Provide count directly as a prop
@@ -1008,6 +1009,7 @@ file_table AS (
             data={fileSubPrunedData}
             full_data={results?.file_sub_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesSubTable.json"}
+            drsBundle
             tableTitle={fileSubTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
@@ -1024,6 +1026,7 @@ file_table AS (
             data={fileBiosPrunedData}
             full_data={results?.file_bios_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesBiosTable.json"}
+            drsBundle
             tableTitle={fileBiosTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
@@ -1040,6 +1043,7 @@ file_table AS (
             data={fileColPrunedData}
             full_data={results?.file_col_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesCollTable.json"}
+            drsBundle
             tableTitle={fileColTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_col ?? 0} // Provide count directly as a prop
