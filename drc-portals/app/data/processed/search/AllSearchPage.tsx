@@ -37,13 +37,13 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const filterClause = searchParams.t ? Prisma_join([
+  const filterClause = searchParams.et ? Prisma_join([
     // when DCC is available, we'll filter by entities per-dcc
-    searchParams.t.some(t => t.type === 'dcc')
+    searchParams.et.some(t => t.type === 'dcc')
       ? Prisma_join(
-        searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma_join([
+        searchParams.et.filter(t => t.type === 'dcc').map(t => Prisma_join([
           Prisma.sql`"results"."dcc_id" = ${t.entity_type}`,
-          Prisma_join(searchParams.t ? searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+          Prisma_join(searchParams.et ? searchParams.et.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
             (
               "results"."type" = ${t.type}::"NodeType"
             )
@@ -52,13 +52,13 @@ export default async function Page(props: PageProps) {
         ' or '
       )
       // otherwise, we filter by entity type independent of dcc
-      : Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+      : Prisma_join(searchParams.et.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
           "results"."type" = ${t.type}::"NodeType"
         )
         `), ' or '),
     // entities not associated with a DCC should be independently filterable
-    Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+    Prisma_join(searchParams.et.filter(t => t.entity_type !== null).map(t => Prisma.sql`
       (
         "results"."type" = 'entity'::"NodeType"
         ${t.entity_type ? Prisma.sql`

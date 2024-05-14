@@ -33,7 +33,7 @@ export default function SearchTabs(props: React.PropsWithChildren<{
       onChange={(evt, value) => {
         console.log(evt, value)
         const searchParams = new URLSearchParams(rawSearchParams)
-        searchParams.delete('t')
+        searchParams.delete('et')
         searchParams.set('p', '1')
         searchParams.set('s', value)
         router.push(`?${searchParams.toString()}`, { scroll: false })

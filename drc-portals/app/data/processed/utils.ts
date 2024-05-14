@@ -88,5 +88,13 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       const [type, entity_type] = t.split(':')
       return { type, entity_type: entity_type ? entity_type : null }
     }) : undefined),
+    et: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split('|') : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(t => {
+      const [type, entity_type] = t.split(':')
+      return { type, entity_type: entity_type ? entity_type : null }
+    }) : undefined),
   }).parse(props.searchParams)
 }

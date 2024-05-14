@@ -33,9 +33,9 @@ export default async function Page(props: PageProps) {
     ), total_count as (
       select count(*)::int as count
       from "results"
-      ${searchParams.t ? Prisma.sql`
+      ${searchParams.et ? Prisma.sql`
       where
-        ${Prisma.join(searchParams.t.map(t =>  t.type === 'dcc' ? 
+        ${Prisma.join(searchParams.et.map(t =>  t.type === 'dcc' ? 
           Prisma.sql`
           "results"."dcc_id" = ${t.entity_type}
           `
