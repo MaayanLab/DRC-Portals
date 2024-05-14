@@ -172,9 +172,12 @@ model DCCUseCase {
 model Tool {
   id           String        @id @default(uuid())
   label        String
+  short_description  String?
   description  String?
   url          String
   icon         String?
+  image        String?
+  featured     Boolean?     @default(false)
   publications Publication[]
 
   @@map("tools")
