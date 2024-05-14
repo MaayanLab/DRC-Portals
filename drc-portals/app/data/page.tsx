@@ -48,7 +48,7 @@ const tool_cards = [
     "title": "Use Cases",
     "description": "Explore crosscut DCC use cases encoded in Playbook Workflow Builder use cases",
     "icon": mdiLaptop,
-    "link": "https://playbook-workflow-builder.cloud/playbooks"
+    "link": "/data/usecases"
   }
 ]
 

@@ -70,7 +70,7 @@ export default async function InfoFooter() {
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Tools & Usecases</b></Typography>
               <Link href="/data/tools_and_workflows"><Typography variant="footer">Tools and Workflows</Typography></Link>
-              <Link href="https://playbook-workflow-builder.cloud/playbooks">
+              <Link href="/data/usecases">
                 <Typography variant="footer">Use Cases</Typography>
               </Link>
               <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>

@@ -29,7 +29,9 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
 
     const resolve_citation = async () => {
         if (!citation) {
-            const val = await fetch_pmcid(pmcid)
+            const pmc = pmcid.replace('PMC', '')
+            const res = await fetch(`https://api.ncbi.nlm.nih.gov/lit/ctxp/v1/pmc/?format=csl&id=${pmc}`)
+            const val = await res.json()
             console.log(val)
             const c = new Cite(val)
             setCitation(c)

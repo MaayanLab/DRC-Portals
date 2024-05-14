@@ -78,7 +78,7 @@ export default async function InfoFooter() {
                   <Link href="/data"><Typography variant="footer">Data & Metadata</Typography></Link>
                   <Link href="/data/tools_and_workflows"><Typography variant="footer">Tools</Typography></Link>
                   <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
-                  <Link href="https://playbook-workflow-builder.cloud/playbooks"><Typography variant="footer">Use Cases</Typography></Link>
+                  <Link href="/data/usecases"><Typography variant="footer">Use Cases</Typography></Link>
               </Stack>
           </Grid>
         </Grid>

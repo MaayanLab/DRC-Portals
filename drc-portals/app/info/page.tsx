@@ -117,7 +117,7 @@ export default async function Home() {
                                 CHATBOT
                               </Button>
                             </Link>
-                            <Link href='https://playbook-workflow-builder.cloud/playbooks'>
+                            <Link href='/data/usecases'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                 USE CASES
                               </Button>
