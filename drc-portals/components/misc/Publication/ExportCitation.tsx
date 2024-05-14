@@ -5,7 +5,6 @@ import { useState } from "react"
 import fileDownload from 'js-file-download';
 require('@citation-js/plugin-csl')
 require('@citation-js/plugin-ris')
-require('@citation-js/plugin-bibtex')
 
 const fetch_pmcid = (pmcid:string) => {
     pmcid = pmcid.replace('PMC', '')
@@ -31,6 +30,7 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
     const resolve_citation = async () => {
         if (!citation) {
             const val = await fetch_pmcid(pmcid)
+            console.log(val)
             const c = new Cite(val)
             setCitation(c)
             return c

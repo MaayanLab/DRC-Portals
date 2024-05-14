@@ -23,13 +23,12 @@ import Grid from "@mui/material/Grid"
 import MasonryClient from "../MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-import DeleteIcon from '@mui/icons-material/Delete';
 import Markdown from "../MarkdownComponent"
 import ExportCalendar from "./ExportCalendar"
 import { parseAsJson } from 'next-usequerystate';
 import { Prisma } from "@prisma/client"
 import { Tooltip, IconButton, Avatar, CardActions } from "@mui/material"
-
+import { ClientCheckbox } from "./ClientCheckBox"
 type OutreachWithDCC = Prisma.OutreachGetPayload<{
   include: {
       dccs: {
@@ -65,14 +64,14 @@ export const Wrapper = ({featured, children, orientation}: {featured: Boolean, c
 
 
 export interface OutreachParams {
-  type?: Array<'outreach'|'training'>,
-  tags?: Array<string>,
+  type: Array<string>,
+  tags: Array<string>,
   expand_filter?: boolean,
-  status?: Array<'past'| 'active' | 'recurring'>,
+  status: Array<string>,
   cfde_specific?: boolean
 }
 
-const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}: {
+const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
   outreach: OutreachWithDCC[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
@@ -125,7 +124,7 @@ const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}
                 }
                 <div className="flex flex-row mb-5">
                   {tags.map((tag, i)=> {
-                    const new_filter = filter
+                    const new_filter = filter || {tags: []}
                     new_filter.tags = [`${tag}`]
                     return (
                       <Link href={`/info/training_and_outreach?filter=${JSON.stringify(new_filter)}`}>
@@ -186,9 +185,10 @@ const OutreachComponent = ({outreach, past=false, filter={}, now, expand_filter}
     </Box>
 )
 
-const type_tags = {
-  training: ["fellowship", "workshop", "internship", "course"],
-  outreach: ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon"]
+const type_tags = (type: string) => {
+  if (type === "training") return ["fellowship", "workshop", "internship", "course"]
+  else if (type === "outreach") return ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon"]
+  else return []
 }
 
 
@@ -204,12 +204,11 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
 }) {
     const now = new Date()
     
-    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
     const {tags, type, expand_filter, status=[], cfde_specific} = parsedParams
-    console.log(cfde_specific)
-    let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]): [...type_tags.outreach, ...type_tags.training]
-    const type_filter = type ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]).map(tag=>({tags: {
+    let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]): [...type_tags('outreach'), ...type_tags('training')]
+    const type_filter = type ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]).map(tag=>({tags: {
       path: [],
       array_contains: tag
     }})): []
@@ -222,7 +221,6 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
     if (cfde_specific) where_tags.push({cfde_specific: true})
     if (type_filter.length) where_tags.push({OR: type_filter})
     if (tag_filter.length) where_tags.push({OR: tag_filter})
-    console.log(where_tags)
     const current = (status && (status.length === 0 || status.indexOf('active') > -1)) ? await prisma.outreach.findMany({
       include: {
         dccs: {
@@ -337,41 +335,20 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
             <Stack spacing={1}>
               <Typography variant={'body1'}><b>Type</b></Typography>
               <FormGroup>
-                <FormControlLabel control={
-                  <Link href={`/info/training_and_outreach?filter={"cfde_specific": ${cfde_specific}, "expand_filter": ${expand_filter}, "status": ${JSON.stringify(status)}, "type": ${JSON.stringify( (type && type.indexOf('outreach') > -1) ? type.filter(t=>t!=='outreach'): [...(type || []), 'outreach'])}}`}>
-                    <Checkbox checked={(type && (type).indexOf('outreach') > -1)}/>
-                  </Link>} label="Outreach" />
-                <FormControlLabel control={
-                  <Link href={`/info/training_and_outreach?filter={"cfde_specific": ${cfde_specific}, "expand_filter": ${expand_filter}, "status": ${JSON.stringify(status)},"type": ${JSON.stringify( (type && type.indexOf('training') > -1) ? type.filter(t=>t!=='training'): [...(type || []), 'training'])}}`}>
-                    <Checkbox checked={(type && (type).indexOf('training') > -1)}/>
-                  </Link>} label="Training" />
-                <FormControlLabel control={
-                  <Link href={`/info/training_and_outreach?filter=${JSON.stringify({expand_filter, status, type, cfde_specific: !cfde_specific})}`}>
-                    <Checkbox checked={cfde_specific}/>
-                  </Link>} label="CFDE specific activity" />
+                <ClientCheckbox query_key="type" value='outreach' label="Outreach"/>
+                <ClientCheckbox query_key="type" value='training' label="Training"/>
+                <ClientCheckbox query_key="cfde_specific" value={'cfde_specific'} label="CFDE specific activity"/>
               </FormGroup>
               <Typography variant={'body1'}><b>Status</b></Typography>
                 <FormGroup>
-                  <FormControlLabel control={
-                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({cfde_specific, expand_filter, type, tags, status: (status && status.indexOf('active') > -1) ? status.filter(i=>i!== 'active'): [...(status || []), 'active']})}`}>
-                      <Checkbox checked={(status && (status).indexOf('active') > -1)}/>
-                    </Link>} label="Active" />
-                    <FormControlLabel control={
-                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({cfde_specific, expand_filter, type, tags, status: (status && status.indexOf('recurring') > -1) ? status.filter(i=>i!== 'recurring'): [...(status || []), 'recurring']})}`}>
-                      <Checkbox checked={(status && (status).indexOf('recurring') > -1)}/>
-                    </Link>} label="Recurring" />
-                    <FormControlLabel control={
-                    <Link href={`/info/training_and_outreach?filter=${JSON.stringify({cfde_specific, expand_filter, type, tags, status: (status && status.indexOf('past') > -1) ? status.filter(i=>i!== 'past'): [...(status || []), 'past']})}`}>
-                      <Checkbox checked={(status && (status).indexOf('past') > -1)}/>
-                    </Link>} label="Past" />
+                  <ClientCheckbox query_key="status" value='active' label="Active"/>
+                  <ClientCheckbox query_key="status" value='recurring' label="Recurring"/>
+                  <ClientCheckbox query_key="status" value='past' label="Past"/>
                 </FormGroup>
               <Typography variant={'body1'}><b>Tag</b></Typography>
                 <FormGroup>
                   {distinct_tags.map((tag)=>(
-                    <FormControlLabel key={`${tag}`} control={
-                      <Link href={`/info/training_and_outreach?filter={"cfde_specific": ${cfde_specific}, "expand_filter": ${expand_filter}, "status": ${JSON.stringify(status)}, "type": ${JSON.stringify(type)}, "tags": ${JSON.stringify((tags && tags.indexOf(String(tag)) > -1) ? tags.filter(t=>t!==tag): [...(tags || []), String(tag)])}}`}>
-                        <Checkbox checked={(tags && (tags).indexOf(String(tag)) > -1)}/>
-                      </Link>} sx={{textTransform: "capitalize"}} label={`${tag}`} />
+                    <ClientCheckbox key={tag} query_key="tags" value={tag} label={tag}/>
                   ))}
                 </FormGroup>
             </Stack>

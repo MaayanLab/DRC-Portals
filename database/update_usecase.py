@@ -56,6 +56,7 @@ for i, row in df.iterrows():
 		"short_description": row["short_description"],
 		"description": row["description"],
 		"tool_icon": row["tool_icon"],
+    "tool_name": row["tool_name"],
 		"inputs": json.dumps(list(set(row["inputs"].strip().split("; ")))) if type(row["inputs"]) == str else '',
 		"sources": json.dumps(list(set(row["sources"].strip().split("; ")))) if type(row["sources"]) == str else '',
 		"link": row["link"],
