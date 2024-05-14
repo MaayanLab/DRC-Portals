@@ -1,8 +1,5 @@
-import Link from "next/link"
-import Paper from '@mui/material/Paper'
+
 import Typography from '@mui/material/Typography'
-import Button from "@mui/material/Button"
-import Chip from "@mui/material/Chip"
 import { Prisma } from "@prisma/client"
 
 import prisma from '@/lib/prisma'

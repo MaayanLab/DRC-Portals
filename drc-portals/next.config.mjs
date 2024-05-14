@@ -110,6 +110,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: "minio.dev.maayanlab.cloud",
+      },
+      {
+        protocol: 'https',
         hostname: 'cfde-drc.s3.amazonaws.com',
         port: '',
         pathname: '/assets/**',
