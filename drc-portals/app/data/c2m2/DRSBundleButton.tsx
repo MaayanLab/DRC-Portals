@@ -8,13 +8,13 @@ interface DRSBundleButtonProps {
 }
 
 const DRSBundleButton: React.FC<DRSBundleButtonProps> = ({ data }) => {
-  const ref = React.useRef<HTMLInputElement>(null)
+  const ref = React.useRef<HTMLTextAreaElement>(null)
   const access_urls = React.useMemo(() => data?.filter(({access_url}) => !!access_url).map(({ access_url }) => access_url), [data])
   if (!data || data.length == 0) return null; // Render nothing if data is undefined
 
   const handleDRSBundle = React.useCallback(() => {
     if (!ref.current) return
-    console.log(JSON.stringify(data))
+    console.log(JSON.stringify({ data, access_urls }))
     Object.assign(ref.current, { value: access_urls?.join('\n') })
     ref.current.select();
     ref.current.setSelectionRange(0, 99999); // For mobile devices
@@ -23,9 +23,8 @@ const DRSBundleButton: React.FC<DRSBundleButtonProps> = ({ data }) => {
 
   return (
     <>
-      <input
+      <textarea
         ref={ref}
-        type="text"
         className="hidden"
       />
       <Button
