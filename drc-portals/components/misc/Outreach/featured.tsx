@@ -1,15 +1,11 @@
 import React from "react"
 import Link from "next/link"
-import Image from "next/image"
-import Divider from '@mui/material/Divider'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 
-import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 
 import Stack from '@mui/material/Stack'
-import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 
 import { JsonArray } from "next-auth/adapters"
@@ -17,14 +13,11 @@ import prisma from '@/lib/prisma'
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid"
 
-import MasonryClient from "../MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
 import { Outreach as OutreachType } from "@prisma/client"
-import DeleteIcon from '@mui/icons-material/Delete';
+
 import Markdown from "../MarkdownComponent"
-import ExportCalendar from "./ExportCalendar"
-import { parseAsJson } from 'next-usequerystate';
 
 export const shuffle = (array: OutreachType[]) => { 
   for (let i = array.length - 1; i > 0; i--) { 
