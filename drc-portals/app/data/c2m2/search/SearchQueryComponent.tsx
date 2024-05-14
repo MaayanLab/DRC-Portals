@@ -42,7 +42,7 @@ async function fetchQueryResults(searchParams: any) {
     const filterConditionStr = generateFilterQueryString(searchParams, "allres");
     const filterClause = !filterConditionStr.isEmpty() ? SQL.template`WHERE ${filterConditionStr}` : SQL.empty();
     const cascading: boolean = true;
-    const cascading_tablename = cascading ? SQL.raw`allres_filtered` : SQL.raw`allres`;
+    const cascading_tablename = cascading ? SQL.raw('allres_filtered') : SQL.raw('allres');
 
     // Your SQL query goes here
 
