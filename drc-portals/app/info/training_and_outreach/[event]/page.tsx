@@ -4,13 +4,11 @@ import { mdiHelpRhombusOutline } from '@mdi/js';
 
 import March2024F2F from "./March2024F2F";
 
-
 export default async function OutreachEvent ({params}: {
 	params: {
 		event: string
 	}
 }) {
-	
 	if (params.event === "2024-march-all-hands-meeting") {
 		return <March2024F2F />
 	} else {
