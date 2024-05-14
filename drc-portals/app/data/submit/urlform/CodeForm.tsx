@@ -463,10 +463,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                     InputLabelProps={{ style: { fontSize: 16 } }}
                                 />
                             </Grid>
-                            <Grid
-                            item
-                            justifyContent={'center'}
-                        >
+                            <Grid item justifyContent={'center'} >
                             <div style={{width:'100%'}}>
                             <Status status={status} />
                             </div>

@@ -7,12 +7,29 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import ListItemText from '@mui/material/ListItemText';
 import { List, ListItem, Typography, Link, Button } from '@mui/material';
-import Nav from './Nav';
 import { StyledAccordionComponent } from './StyledAccordion';
 import Markdown from 'react-markdown'
 import dynamic from 'next/dynamic';
 
 const YoutubeVideo = dynamic(() => import('./YoutubeVideo'))
+
+import notDCCnotDRCApproved from "@/public/img/submission_system/notdcc_notdrc_approved.png"
+import dCCnotDRCApproved from "@/public/img/submission_system/dcc_notdrc_approved.png"
+import dCCDRCApproved from "@/public/img/submission_system/dcc_drc_approved.png"
+import currentAsset from "@/public/img/submission_system/current_asset.png"
+import archivedAsset from "@/public/img/submission_system/archived_asset.png"
+import file_upload_1 from "@/public/img/submission_system/file_upload_1.png"
+import file_upload_2 from "@/public/img/submission_system/file_upload_2.png"
+import file_upload_3 from "@/public/img/submission_system/file_upload_3.png"
+import file_upload_4 from "@/public/img/submission_system/file_upload_4.png"
+import file_upload_5 from "@/public/img/submission_system/file_upload_5.png"
+import file_upload_6 from "@/public/img/submission_system/file_upload_6.png"
+import file_upload_7 from "@/public/img/submission_system/file_upload_7.png"
+import file_upload_8 from "@/public/img/submission_system/file_upload_8.png"
+import checksum_validation_1 from "@/public/img/submission_system/checksum_validation_1.png"
+import ReactMarkdown from 'react-markdown';
+
+
 
 export default function Documentation() {
     const macMarkdown = `
@@ -26,20 +43,33 @@ export default function Documentation() {
     `
     const codeAssetSubmission = `
 1. Go to the [Code Assets Upload Form](/data/submit/urlform) page OR Click on the "Submit" tab in the navigation bar or in the footer and click on the "Submit and Manage File/Code Assets" button on the Submit page: 
+    ![Navigating to code assets page](/img/submission_system/file_upload_1.png)
+    ##### Figure 1: A screenshot of Submission System showing navigation to Code Assets Upload Form. 
+
 2. On the Code Assets Upload Form, fill out all the fields: 
     - Select the DCC for which the asset is affiliated with
     - Select the code asset type you wish to submit from the available options ETL, API, PWB Metanode, Entity Page Template, Chatbot Specifications and Apps URL. If submitting an API asset. Please see the *API Code Asset Submission Steps* section
     - Enter the URL for the code asset in the URL field. Only valid HTTPS URLs are accepted.
+    ![Filling in code asset information](/img/submission_system/code_submit_1.png)
+    ##### Figure 2: A screenshot of Code Assets Upload Form showing submission of code asset. 
+
 3. After clicking on the “Submit Form” button: 
     - If an upload is successful, a green banner with “Success! Code Asset Uploaded” should appear. 
     - If an upload is unsuccessful, a red banner with an error message will appear.
+    ![Successful code asset submission](/img/submission_system/code_submit_2.png)
+    ##### Figure 3: A screenshot of Code Assets Upload Form showing success banner with successful submission of code asset. 
+
 4. Details of your uploaded code asset should appear on the [Uploaded Assets](/data/submit/uploaded) page. 
+    ![Submitted code asset on Uploaded Asset page](/img/submission_system/code_submit_3.png)
+    ##### Figure 4: A screenshot of Uploaded Assets page showing submitted code asset information.
 
 #### API Code Asset Submission Steps
 1. Follow Steps 1-3 of the *Code Asset Submission Steps* section. 
 2. Enter the URL of the page that documents the DCC APIs. 
     - If the API documentation meets OpenAPI specifications, check the OpenAPI Specifications box.
     - If the API documentation is deposited in the SmartAPI registry, check the Deposited in SmartAPI box and insert the SmartAPI URL (the link to the page that displays the page of the API on the SmartAPI website) in the provided textbox.
+    ![Submitting an API code asset](/img/submission_system/code_submit_4.png)
+    ##### Figure 5: A screenshot of Code Assets Upload Form page showing submission of API code asset.
 
 #### Asset Upload Submission Troubleshooting/FAQ: 
 1. Before uploading, ensure that all your account information has been entered/is accurate on the [My Account](/data/submit/account) page
@@ -47,29 +77,52 @@ export default function Documentation() {
     - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
     - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
     - If Role is inaccurate, please contact the DRC to update your information.
+
+    ![Submitting an API code asset](/img/submission_system/FAQ_myaccount_1.png)
+    ##### Figure 6: A screenshot of Data Portal showing navigation to My Account page that displays user account information.
+
 2. If you are to be an Uploader or Approver for your DCC and have “Access Denied” on the [Code Assets Upload Form](/data/submit/urlform) and [Uploaded Assets](/data/submit/uploaded) pages, please contact the DRC through email to grant you access.
 3. If a mistake has been made in a submission, go to the [Uploaded Assets](/data/submit/uploaded) page, delete the incorrectly submitted asset by clicking on the delete icon on the row of the given file and reupload the corrected file.
     `
 
     const assetApproval = `
 1. Go to the [Uploaded Assets](/data/submit/uploaded) page OR Click on the “Submit” tab in the navigation bar or in the footer, click on the "Submit and Manage File/Code Assets" button on the Submit page and on the *Uploaded Assets* tab 
+![Navigating to code assets page](/img/submission_system/file_upload_1.png)
+![Navigating to code assets page](/img/submission_system/asset_approval_1.png)
+##### Figure 1: A screenshot of Submission System showing navigation to Code Assets Upload Form. 
 2. Here you will find all uploaded assets that fall under your jurisdiction. 
-    - For DCC Approvers, these are all assets that have been uploaded or submitted for your DCC. 
-    - For DRC Approvers, these are all assets that have been uploaded/submitted by uploaders across all DCCs. 
+
 3. All unapproved assets that you are authorized to approve will be marked by the “Approve Upload” button under the DCC status or DRC status columns for DCC and DRC Approvers respectively. 
+
+- For DCC Approvers, these are all assets that have been uploaded or submitted for your DCC. 
+    ![Uploaded Assets page](/img/submission_system/asset_approval_2.png)
+    ##### Figure 2: A screenshot of Uploaded Assets page in the view of a LINCS DCC Approver. 
+
+    - For DRC Approvers, these are all assets that have been uploaded/submitted by uploaders across all DCCs. 
+    ![Uploaded Assets page](/img/submission_system/asset_approval_3.png)
+    ##### Figure 3: A screenshot of Uploaded Assets page in the view of a DRC Approver. 
+
 4. To approve an asset, click on the “Approve Upload” button to approve the file. 
+    ![Uploaded Assets page](/img/submission_system/asset_approval_4.png)
+    ##### Figure 4: A screenshot of Uploaded Assets page showing approval of a submitted asset. 
+
 5. To remove the approved status of a asset, click on the button under the DCC/DRC status column. This reverses the Approval action. 
+    ![Uploaded Assets page](/img/submission_system/asset_approval_5.png)
+    ##### Figure 5: A screenshot of Uploaded Assets page showing approval removal of a submitted asset. 
+
 6. Similar steps are done to set an asset as the most current version. 
     - To toggle between setting an asset as Current and Archived, click on the button under Current column. Please note that:
         - Multiple assets of the same asset type can be set as current for a DCC. 
         - DCC and DRC approvers are authorized to change the current status of assets for affiliated DCCs/all DCCs respectively.
+        ![Uploaded Assets page](/img/submission_system/asset_approval_6.png)
+        ##### Figure 6: A screenshot of Uploaded Assets page showing changing archived/current status of a submitted asset. 
 
 #### Troubleshooting/FAQ: 
 1. If you are to be a DCC or DRC Approver and have “Access Denied” on the [Uploaded Assets](/data/submit/uploaded) page, please contact the DRC through email to change your role and grant you access.
 2. If a DCC that you are affiliated with is not listed as one of your DCC options on the [My Account](/data/submit/account) page, please contact the DRC through email to update your information. You will not be allowed to approve uploaded files for this DCC otherwise.
 `
 
-    const deleteUsers = `
+    const deleteAssets = `
 Both Uploaders and Approvers can delete uploaded assets.
 1. On the [Uploaded Assets](/data/submit/uploaded) page, click on the delete icon next to the asset you wish to delete.
 2. A pop up will appear verifying your decision to delete the given asset. 
@@ -80,14 +133,35 @@ Both Uploaders and Approvers can delete uploaded assets.
     const adminUsers = `
 #### Create a User: 
 1. Go to the [Admin](/data/submit/admin) page and click on the "Create New User" button,
+    ![Navigate to Admin page](/img/submission_system/admin_page_1.png)
+    ##### Figure 1: A screenshot of Admin page showing navigation to admin page. 
+
+    ![Navigate to Admin page](/img/submission_system/admin_page_2.png)
+    ##### Figure 2: A screenshot of Admin page showing creation of user. 
+
 2. Fill out the new user's information and click the “Create User” button. If successful, a banner with “User Creation Successful” should appear. 
+    ![Navigate to Admin page](/img/submission_system/admin_page_3.png)
+    ##### Figure 3: A screenshot of Admin page showing format of filling in new user information. 
+
 #### Update User Information
-1. Go to the [Admin](/data/submit/admin) page and select the users whose information is to be updated. 
+1. Go to the [Admin](/data/submit/admin) page and select the users whose information is to be updated and click on the Update User Information button. 
+    ![Navigate to Admin page](/img/submission_system/admin_page_4.png)
+    ##### Figure 4: A screenshot of Admin page showing selection of user to update user information. 
+
 2. In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. An alert with “User Information Updated” will appear if the update operation is successful. 
+    ![Navigate to Admin page](/img/submission_system/admin_page_5.png)
+    ##### Figure 5: A screenshot of Admin page showing filling in in updated user information. 
+
 3. When all selected users' information have been updated, click on “Done” or outside the dialog box.
+    ![Navigate to Admin page](/img/submission_system/admin_page_6.png)
+    ##### Figure 6: A screenshot of Admin page showing success banner with update of user information 
+
 #### Delete Users
 1. Go to the [Admin](/data/submit/admin) page and select the users to delete. 
+
 2. Click on the  “Delete Users” button to delete selected users. **Please note that the delete operation is irreversible.**
+    ![Navigate to Admin page](/img/submission_system/admin_page_7.png)
+    ##### Figure 7: A screenshot of Admin page showing deletion of selected user. 
 `
 
     const entityPageText = `
@@ -243,7 +317,7 @@ The Entity Page Template and Example are  links to:
 
                     <StyledAccordionComponent heading="Asset Approval Status" content={
                         <>
-                            <Box sx={{ p: 1, m: 1, }}>
+                            <Box sx={{ p: 1, m: 1 }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Not Approved</Typography>
                                 <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
                                     This is the first stage of approval. All assets that are just uploaded or submitted by a DCC uploader will first be placed in this category.
@@ -254,6 +328,8 @@ The Entity Page Template and Example are  links to:
                                     {' '} icon on the <Link color="#111827" href="/data/submit/uploaded">Uploaded Assets</Link> page, icon which represents
                                     that the file was not reviewed by the DCC approver or evaluated by the DRC.
                                 </Typography>
+                                <center><Image src={notDCCnotDRCApproved} alt='Screenshot showing not approved asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 1: A screenshot of Uploaded Assets page showing a submitted asset without DCC or DRC approval. <i>View of Uploader User</i></Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>DCC Approved</Typography>
@@ -265,6 +341,8 @@ The Entity Page Template and Example are  links to:
                                     </span>
                                     {' '}icon under the DCC Status column on the <Link color="#111827" href="/data/submit/uploaded">Uploaded Assets</Link> page.
                                 </Typography>
+                                <center><Image src={dCCnotDRCApproved} alt='Screenshot showing DCC but not DRC approved asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 2: A screenshot of Uploaded Assets page showing a submitted asset with DCC approval but without DRC approval. <i>View of Uploader User</i></Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>DRC Approved</Typography>
@@ -277,6 +355,8 @@ The Entity Page Template and Example are  links to:
                                     {' '}icon under the “DRC Status” column on the <Link color="#111827" href="/data/submit/uploaded">Uploaded Assets </Link>
                                     page. Please note that DCC and DRC approval status are independent of each other.
                                 </Typography>
+                                <center><Image src={dCCDRCApproved} alt='Screenshot showing DCC and DRC approved asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 3: A screenshot of Uploaded Assets page showing a submitted asset with both DCC approval and DRC approval. <i>View of Uploader User</i></Typography>
                             </Box>
                         </>}
                     />
@@ -292,6 +372,8 @@ The Entity Page Template and Example are  links to:
                                     </span> icon under the 'Current' column on the <Link color="#111827" href="/data/submit/uploaded">Uploaded Assets</Link> page is considered the current version
                                     of that file type for a given DCC.
                                 </Typography>
+                                <center><Image src={currentAsset} alt='Screenshot showing current asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 1: A screenshot of Uploaded Assets page showing a current asset. <i>View of Uploader User</i></Typography>
                             </Box>
                             <Box sx={{ p: 1, m: 1, }}>
                                 <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Archived</Typography>
@@ -304,6 +386,8 @@ The Entity Page Template and Example are  links to:
                                     is considered an archived version of that asset type.
                                     Please note that both DCC and DRC approvers can change the current status of an asset.
                                 </Typography>
+                                <center><Image src={archivedAsset} alt='Screenshot showing archived asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 2: A screenshot of Uploaded Assets page showing an archived asset. <i>View of Uploader User</i></Typography>
                             </Box>
                         </>
                     }
@@ -367,19 +451,29 @@ The Entity Page Template and Example are  links to:
                                 <List sx={{ listStyle: "decimal", pl: 4 }}>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         Go to the <Link href="/data/submit/form" color="#111827" target="_blank">Data and Metadata Upload Form</Link> OR Click on the "Submit" tab in the navigation bar or in the footer and click on the "Submit and Manage File/Code Assets" button.
+                                        <center><Image src={file_upload_1} alt='Screenshot showing navigation to Data and Metadata Upload Form' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 1: A screenshot of Submission System showing navigation to Data and Metadata Upload Form.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         On the Upload Form page, upload your processed data by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
+                                        <center><Image src={file_upload_2} alt='A screenshot of Data and Metadata Upload Form showing file selection' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 2: A screenshot of Data and Metadata Upload Form showing file selection.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         The file you have selected should appear under “File to Upload”.
                                         If you select a wrong file, you can delete it by clicking on the delete icon next to the file name or by re-uploading the correct file.
+                                        <center><Image src={file_upload_3} alt='A screenshot of Data and Metadata Upload Form showing selected file' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 3: A screenshot of Data and Metadata Upload Form showing selected file.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         Select the DCC that the files to upload were generated from. Only DCCs that you are affiliated with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option is not provided, please contact the DRC to update this information.
+                                        <center><Image src={file_upload_4} alt='A screenshot of Data and Metadata Upload Form showing DCC selection' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 4: A screenshot of Data and Metadata Upload Form showing DCC selection.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         Select the file asset type that you wish to upload the file as and click on the "Submit Form" button.
+                                        <center><Image src={file_upload_5} alt='A screenshot of Data and Metadata Upload Form showing file asset type selection' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 5: A screenshot of Data and Metadata Upload Form showing file asset type selection.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         <strong>Unexpected File type: </strong>There are file extensions that are expected for each file asset type. If the extension of the selected file
@@ -402,15 +496,20 @@ The Entity Page Template and Example are  links to:
                                                 XMT: .(x)mt e.g .gmt or .dmt
                                             </ListItemText>
                                         </List>
-
+                                        <center><Image src={file_upload_6} alt='A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 6: A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         If an upload is successful, a green banner with “Success! File Uploaded” should appear.
                                         If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error.
                                         Ensure that the file you have selected for upload files has either a .csv, .txt, .zip or .(x)mt file extension and is not larger than 5GB.
+                                        <center><Image src={file_upload_7} alt='A screenshot of Data and Metadata Upload Form showing successful file upload banner' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 7: A screenshot of Data and Metadata Upload Form showing successful file upload banner.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         Details of your uploaded file should appear on the <Link href="/data/submit/uploaded" color="#111827" target="_blank">Uploaded Assets</Link> page.
+                                        <center><Image src={file_upload_8} alt='A screenshot of Uploaded Assets page showing uploaded file asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 8: A screenshot of Uploaded Assets page showing uploaded file asset.</Typography>
                                     </ListItem>
                                 </List>
                             </Box>
@@ -428,6 +527,8 @@ The Entity Page Template and Example are  links to:
                                 <List sx={{ listStyle: "decimal", pl: 4 }}>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         The checksum of a successfully uploaded file is displayed on the <Link href="/data/submit/uploaded" target="_blank" color="#111827">Uploaded Assets</Link> page under the File Info dropdown of each file.
+                                        <center><Image src={checksum_validation_1} alt='A screenshot of Uploaded Assets page showing the SHA-256 checksum of uploaded file asset' style={{ width: '70%', height: 'auto' }} /></center>
+                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 9: A screenshot of Uploaded Assets page showing the SHA-256 checksum of uploaded file asset.</Typography>
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         To verify file integrity after downloading a file from the portal:
@@ -461,9 +562,15 @@ The Entity Page Template and Example are  links to:
                     <StyledAccordionComponent heading="Code Assets Upload Form" content={
                         <Box sx={{ p: 1, m: 1, }}>
                             <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Code Asset Submission Steps</Typography>
-
-                            <Markdown className="prose min-w-full">{codeAssetSubmission}</Markdown>
-
+                            <ReactMarkdown
+                                className="prose min-w-full"
+                                components={{
+                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
+                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
+                                }}>
+                                {codeAssetSubmission}
+                            </ReactMarkdown>
+                            {/* <Markdown className="prose min-w-full">{codeAssetSubmission}</Markdown> */}
                         </Box>
                     }
                     />
@@ -472,8 +579,15 @@ The Entity Page Template and Example are  links to:
                     <StyledAccordionComponent heading="Asset Approval Steps" content={
                         <Box sx={{ p: 1, m: 1, }}>
                             <Typography color={'#FF0000'} style={{ fontStyle: 'bold', textAlign: 'center' }} sx={{ padding: 1 }}>This section is for DCC and DRC Approvers Only</Typography>
-                            <Markdown className="prose min-w-full">{assetApproval}</Markdown>
-
+                            <ReactMarkdown
+                                className="prose min-w-full"
+                                components={{
+                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
+                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
+                                }}>
+                                {assetApproval}
+                            </ReactMarkdown>
+                            {/* <Markdown className="prose min-w-full">{assetApproval}</Markdown> */}
                         </Box>
                     }
                     />
@@ -481,7 +595,15 @@ The Entity Page Template and Example are  links to:
 
                     <StyledAccordionComponent heading="Delete File or Code Assets" content={
                         <Box sx={{ p: 1, m: 1, }}>
-                            <Markdown className="prose min-w-full" >{deleteUsers}</Markdown>
+                            <ReactMarkdown
+                                className="prose min-w-full"
+                                components={{
+                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
+                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
+                                }}>
+                                {deleteAssets}
+                            </ReactMarkdown>
+                            {/* <Markdown className="prose min-w-full" >{deleteAssets}</Markdown> */}
                         </Box>
 
                     }
@@ -490,7 +612,15 @@ The Entity Page Template and Example are  links to:
                     <StyledAccordionComponent heading="Admin User Documentation" content={
                         <Box sx={{ p: 1, m: 1, }}>
                             <Typography color={'#FF0000'} style={{ fontStyle: 'bold', textAlign: 'center' }} sx={{ padding: 1 }}>This section is for Admin Users Only</Typography>
-                            <Markdown className="prose min-w-full">{adminUsers}</Markdown>
+                            <ReactMarkdown
+                                className="prose min-w-full"
+                                components={{
+                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
+                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
+                                }}>
+                                {adminUsers}
+                            </ReactMarkdown>
+                            {/* <Markdown className="prose min-w-full">{adminUsers}</Markdown> */}
                         </Box>
                     }
                     />
