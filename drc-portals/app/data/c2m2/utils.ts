@@ -171,9 +171,9 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
                 //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
                 if (t.entity_type !== "Unspecified") { // was using "null"
                     //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
-                    typeFilters[t.type].push(SQL.template`${SQL.raw`"${schemaname}"."${tablename}"."${SQL.assert_in(t.type, valid_colnames)}"`} = ${t.entity_type}`);
+                    typeFilters[t.type].push(SQL.template`${SQL.raw`"${schemaname}"."${tablename}"."${SQL.assert_in(t.type, valid_colnames)}"`} = ${t.entity_type.replace(/'/g, "''")}`);
                 } else {
-                    typeFilters[t.type].push(SQL.template`"${SQL.raw`${schemaname}"."${tablename}"."${SQL.assert_in(t.type, valid_colnames)}"`} is null`);
+                    typeFilters[t.type].push(SQL.template`${SQL.raw`"${schemaname}"."${tablename}"."${SQL.assert_in(t.type, valid_colnames)}"`} is null`);
                     //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
                 }
             }
@@ -212,10 +212,10 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
             //typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${t.type}_name"`} = ${t.entity_type}`);
-            typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${SQL.assert_in(t.type, valid_colnames)}_name"`} = ${t.entity_type}`);
+            typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}"."${SQL.assert_in(t.type, valid_colnames)}_name"`} = ${t.entity_type.replace(/'/g, "''")}`);
         } else {
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
-            typeFilters[t.type].push(SQL.template`"${SQL.raw`${tablename}"."${SQL.assert_in(t.type, valid_colnames)}_name"`} = ${'Unspecified'}`);
+            typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}"."${SQL.assert_in(t.type, valid_colnames)}_name"`} = ${'Unspecified'}`);
           }
         }
       });
