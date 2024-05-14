@@ -1,13 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
-import { Typography, Grid, Card, CardContent, Paper, Button, Stack, CardActions } from "@mui/material";
+import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container } from "@mui/material";
 
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-import Avatar from "@mui/material/Avatar";
 import { Prisma } from "@prisma/client";
-import MasonryClient from "@/components/misc/MasonryClient";
+import ClientCarousel from "../usecases/ClientCarousel";
 type ToolsWithPublications = Prisma.ToolGetPayload<{
     include: {
         publications: true
@@ -38,7 +37,7 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
 						</Stack>
 
 						{tool.url && 
-						<Link href={tool.url}>
+						<Link href={tool.url} target="_blank" rel="noopener noreferrer">
 							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
 								GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB': tool.label.toUpperCase()}
 							</Button>
@@ -57,7 +56,65 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
     </Card>
 )
 
+const CarouselCard = ({tool}: {tool: ToolsWithPublications}) => (
+	<Box sx={{
+		minHeight: 300, 
+		width: 640,
+		textAlign: "center", 
+		border: 1,
+		borderRadius: 5,
+		borderColor: "rgba(81, 123, 154, 0.5)", 
+		padding: 2
+	}}>
+		<Link href={tool.url || ''} target="_blank" rel="noopener noreferrer">
+			<Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none", background: "#FFF"}}>
+				<div className="flex grow items-center justify-center relative">
+					<Image src={tool.image || tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{objectFit: "contain"}}/>
+				</div>
+			</Box>
+		</Link>
+	</Box>
+)
+const ServerCarousel = ({tools}: {tools: Array<ToolsWithPublications>}) => {
+	return tools.map( (tool, i) => (
+		<Container key={i} maxWidth="lg">
+			<Grid container spacing={2}>
+				<Grid item xs={12} sm={5}>
+					<Stack direction="column"
+						alignItems="flex-start"
+						spacing={2}
+						sx={{height: "90%"}}
+					>
+						<Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
+						<Typography variant="h3" color="secondary.dark">{tool.label}</Typography>
+						<Typography variant="subtitle1">{tool.description}</Typography>
+						{tool.url && 
+						<Link href={tool.url} target="_blank" rel="noopener noreferrer">
+							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
+                                GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB': tool.label.toUpperCase()}
+							</Button>
+						</Link>}
+					</Stack>
+				</Grid>
+				<Grid item xs={12} sm={7}>
+					<CarouselCard tool={tool}/>
+				</Grid>
+			</Grid>
+		</Container>
+    ))
+}
+
+
 export default async function ToolsPage() {
+    const featured_tools = await prisma.tool.findMany({
+        where: {
+            featured: true
+        },
+        include: {
+            publications: true
+        },
+        orderBy: [{publications: {_count: 'desc'}}, {label: 'asc'}, {id: 'asc'}],
+    })
     const tools = await prisma.tool.findMany({
         include: {
             publications: true
@@ -67,6 +124,11 @@ export default async function ToolsPage() {
 
     return (
         <Grid container spacing={2} sx={{marginTop: 2}}>
+            <Grid item xs={12}>
+				<ClientCarousel title="" height={500}>
+					<ServerCarousel tools={featured_tools}/>
+				</ClientCarousel>
+			</Grid>
 			<Grid item xs={12} sx={{marginTop: 10}}>
                 <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">TOOLS AND WORKFLOWS</Typography>
             </Grid>

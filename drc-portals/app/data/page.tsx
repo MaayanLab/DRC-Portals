@@ -222,7 +222,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                         </Typography>
                       </div>
 
-                      <div><Link href="https://playbook-workflow-builder.cloud/playbooks" target="_blank" rel="noopener noreferrer"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></Link></div>
+                      <div><Link href="/data/usecases"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1}/>}>Use Cases</Button></Link></div>
                     </CardContent>
                   </Card>
                 </Grid>

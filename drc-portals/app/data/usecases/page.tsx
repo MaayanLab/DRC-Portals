@@ -43,7 +43,7 @@ const UseCaseCard = ({usecase}:{usecase: UseCaseWithDCC}) => (
 						</Stack>
 
 						{usecase.link && 
-						<Link href={usecase.link}>
+						<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
 							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
 								GO TO USE CASE
 							</Button>
@@ -95,7 +95,7 @@ const ServerCarousel = ({usecases}: {usecases: Array<UseCaseWithDCC>}) => {
 						<Typography variant="h3" color="secondary.dark">{usecase.title}</Typography>
 						<Typography variant="subtitle1">{usecase.description}</Typography>
 						{usecase.link && 
-						<Link href={usecase.link}>
+						<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
 							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
 								GO TO USE CASE
 							</Button>
