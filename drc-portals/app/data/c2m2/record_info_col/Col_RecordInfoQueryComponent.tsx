@@ -1,11 +1,11 @@
 import prisma from "@/lib/prisma/c2m2";
 import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash} from "@/app/data/c2m2/utils"
-import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
 import {capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
+import SQL from "@/lib/prisma/raw";
 
 const file_count_limit = 100;
 const file_count_limit_proj = 100;
@@ -36,7 +36,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     // Generate the query clause for filters
 
     const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_collection");
-    const filterClause = filterConditionStr.length ? ` AND ${filterConditionStr}` : '';
+    const filterClause = !filterConditionStr.isEmpty() ? SQL.template` AND ${filterConditionStr}` : SQL.empty();
 
     // To measure time taken by different parts
     const t0: number = performance.now();
@@ -387,12 +387,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         analysis_type_name: string
       }[],
 
-    }>>`
+    }>>(SQL.template`
   WITH allres_full AS (
     SELECT DISTINCT c2m2.ffl_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
       FROM c2m2.ffl_collection
-      WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${Prisma.sql([filterClause])}
+      WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${filterClause}
       ORDER BY rank DESC
   ),
   allres AS (
@@ -735,7 +735,7 @@ count_file_col AS (
   (SELECT COALESCE(jsonb_agg(file_bios_table.*), '[]'::jsonb) FROM file_bios_table) AS file_bios_table_full,
   (SELECT COALESCE(jsonb_agg(file_col_table.*), '[]'::jsonb) FROM file_col_table) AS file_col_table_full
   ;
-` : [undefined];
+`.toPrismaSql()) : [undefined];
 
     const t1: number = performance.now();
 

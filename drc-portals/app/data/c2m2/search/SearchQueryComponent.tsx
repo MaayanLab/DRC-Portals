@@ -3,7 +3,6 @@
 import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
-import { Prisma } from "@prisma/client";
 import FilterSet from "@/app/data/c2m2/FilterSet"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
@@ -13,6 +12,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { getDCCIcon, capitalizeFirstLetter, isURL , generateMD5Hash} from "@/app/data/c2m2/utils";
+import SQL from '@/lib/prisma/raw';
 
 type PageProps = { searchParams: Record<string, string> }
 type FilterObject = {
@@ -40,9 +40,9 @@ async function fetchQueryResults(searchParams: any) {
     const limit = searchParams.r;
 
     const filterConditionStr = generateFilterQueryString(searchParams, "allres");
-    const filterClause = filterConditionStr.length ? `WHERE ${filterConditionStr}` : '';
+    const filterClause = !filterConditionStr.isEmpty() ? SQL.template`WHERE ${filterConditionStr}` : SQL.empty();
     const cascading: boolean = true;
-    const cascading_tablename = cascading ? "allres_filtered" : "allres";
+    const cascading_tablename = cascading ? SQL.raw`allres_filtered` : SQL.raw`allres`;
 
     // Your SQL query goes here
 
@@ -118,7 +118,7 @@ async function fetchQueryResults(searchParams: any) {
             protein_filters: { protein_name: string, count: number, }[],
             compound_filters: { compound_name: string, count: number, }[],
             data_type_filters: { data_type_name: string, count: number, }[],
-          }>>`
+          }>>(SQL.template`
         WITH allres_full AS (
           SELECT DISTINCT c2m2.ffl_biosample_collection.*,
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
@@ -179,7 +179,7 @@ async function fetchQueryResults(searchParams: any) {
           '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
           '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
           FROM allres
-          ${Prisma.sql([filterClause])}        
+          ${filterClause}
         ),
         allres_limited AS (
           SELECT *
@@ -193,50 +193,50 @@ async function fetchQueryResults(searchParams: any) {
         ),
         dcc_name_count AS (
           SELECT dcc_name, dcc_short_label, COUNT(*) AS count 
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY dcc_name, dcc_short_label ORDER BY dcc_short_label, dcc_name
         ),
         taxonomy_name_count AS (
           SELECT taxonomy_name, COUNT(*) AS count
           /* SELECT CASE WHEN taxonomy_name IS NULL THEN 'Unspecified' ELSE taxonomy_name END AS taxonomy_name, COUNT(*) AS count */
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY taxonomy_name ORDER BY taxonomy_name
         ),
         disease_name_count AS (
           SELECT disease_name, COUNT(*) AS count
           /* SELECT CASE WHEN disease_name IS NULL THEN 'Unspecified' ELSE disease_name END AS disease_name, COUNT(*) AS count */
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY disease_name ORDER BY disease_name
         ),
         anatomy_name_count AS (
           SELECT anatomy_name, COUNT(*) AS count
           /* SELECT CASE WHEN anatomy_name IS NULL THEN 'Unspecified' ELSE anatomy_name END AS anatomy_name, COUNT(*) AS count */
-          FROM ${Prisma.sql([cascading_tablename])} 
+          FROM ${cascading_tablename} 
           GROUP BY anatomy_name ORDER BY anatomy_name
         ),
         project_name_count AS (
           SELECT project_name, COUNT(*) AS count 
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY project_name ORDER BY project_name
         ),
         gene_name_count AS (
           SELECT gene_name, COUNT(*) AS count 
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY gene_name ORDER BY gene_name
         ),
         protein_name_count AS (
           SELECT protein_name, COUNT(*) AS count 
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY protein_name ORDER BY protein_name
         ),
         compound_name_count AS (
           SELECT compound_name, COUNT(*) AS count 
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY compound_name ORDER BY compound_name
         ),
         data_type_name_count AS (
           SELECT data_type_name, COUNT(*) AS count 
-          FROM ${Prisma.sql([cascading_tablename])}
+          FROM ${cascading_tablename}
           GROUP BY data_type_name ORDER BY data_type_name
         )
         
@@ -254,7 +254,7 @@ async function fetchQueryResults(searchParams: any) {
           (SELECT COALESCE(jsonb_agg(compound_name_count.*), '[]'::jsonb) FROM compound_name_count) AS compound_filters,
           (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
           
-          ` : [undefined];
+          `.toPrismaSql()) : [undefined];
         
           const t1: number = performance.now();
         
