@@ -1,12 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
-import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box } from "@mui/material";
+import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container } from "@mui/material";
 import { Prisma } from "@prisma/client";
-import MasonryClient from "@/components/misc/MasonryClient";
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-import ClientCarousel from "@/components/misc/Carousel/ClientCarousel";
+import ClientCarousel from "./ClientCarousel";
 import { parseAsJson } from "next-usequerystate";
 import PaginationComponent from "./paginate";
 type UseCaseWithDCC = Prisma.UseCaseGetPayload<{
@@ -18,13 +17,6 @@ type UseCaseWithDCC = Prisma.UseCaseGetPayload<{
         }
     }
   }>
-const shuffle = (array: UseCaseWithDCC[]) => { 
-    for (let i = array.length - 1; i > 0; i--) { 
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [array[i], array[j]] = [array[j], array[i]]; 
-    } 
-    return array; 
-  }; 
 
 const UseCaseCard = ({usecase}:{usecase: UseCaseWithDCC}) => (
 	<Card sx={{height: 375}}>
@@ -82,7 +74,6 @@ const CarouselCard = ({usecase}: {usecase: UseCaseWithDCC}) => (
 	}}>
 		<Link href={usecase.link || ''} target="_blank" rel="noopener noreferrer">
 			<Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none", background: "#FFF"}}>
-				<div><Typography variant="subtitle2" color="secondary">{usecase.title}</Typography></div>
 				<div className="flex grow items-center justify-center relative">
 					<Image src={usecase.featured_image || usecase.image || '/img/favicon.png'} alt={usecase.title} fill={true} style={{objectFit: "contain"}}/>
 				</div>
@@ -91,8 +82,31 @@ const CarouselCard = ({usecase}: {usecase: UseCaseWithDCC}) => (
 	</Box>
 )
 const ServerCarousel = ({usecases}: {usecases: Array<UseCaseWithDCC>}) => {
-	return usecases.map( (item, i) => (
-        <div key={i}><CarouselCard usecase={item}/></div>
+	return usecases.map( (usecase, i) => (
+		<Container key={i} maxWidth="lg">
+			<Grid container spacing={2}>
+				<Grid item xs={12} sm={5}>
+					<Stack direction="column"
+						alignItems="flex-start"
+						spacing={2}
+						sx={{height: "90%"}}
+					>
+						<Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
+						<Typography variant="h3" color="secondary.dark">{usecase.title}</Typography>
+						<Typography variant="subtitle1">{usecase.description}</Typography>
+						{usecase.link && 
+						<Link href={usecase.link}>
+							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
+								GO TO USE CASE
+							</Button>
+						</Link>}
+					</Stack>
+				</Grid>
+				<Grid item xs={12} sm={7}>
+					<CarouselCard usecase={usecase}/>
+				</Grid>
+			</Grid>
+		</Container>
     ))
 }
 
@@ -134,25 +148,10 @@ export default async function UseCasePage({searchParams}: {searchParams: {
 
     return (
         <Grid container spacing={2} sx={{marginTop: 2}}>
-			<Grid item xs={12} sm={5}>
-				<Stack direction="column"
-					alignItems="flex-start"
-					spacing={2}
-					sx={{height: "90%"}}
-				>
-					<Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
-					<Typography variant="h3" color="secondary.dark">{featured_usecases[0].title}</Typography>
-					<Typography variant="subtitle1">{featured_usecases[0].description}</Typography>
-					{featured_usecases[0].link && 
-					<Link href={featured_usecases[0].link}>
-						<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
-							GO TO USE CASE
-						</Button>
-					</Link>}
-				</Stack>
-			</Grid>
-			<Grid item xs={12} sm={7}>
-				<CarouselCard usecase={featured_usecases[0]}/>
+			<Grid item xs={12}>
+				<ClientCarousel title="">
+					<ServerCarousel usecases={featured_usecases}/>
+				</ClientCarousel>
 			</Grid>
             <Grid item xs={12} sx={{marginTop: 10}}>
                 <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">USE CASES</Typography>
