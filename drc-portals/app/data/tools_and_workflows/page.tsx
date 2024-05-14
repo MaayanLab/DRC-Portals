@@ -34,6 +34,18 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
 							<Typography variant={'caption'} color="secondary">
 								{tool.short_description}
 							</Typography>
+                            {tool.publications.length > 0 &&
+                            <div className="flex items-center">
+                                <Typography variant="subtitle1"><b>Publications:</b></Typography>
+                                {tool.publications.map((pub, i)=>(
+                                    <Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
+                                        <Button color="secondary">
+                                            {pub.doi}
+                                        </Button>
+                                    </Link>
+                                ))}
+                                </div>
+                            }
 						</Stack>
 
 						{tool.url && 
