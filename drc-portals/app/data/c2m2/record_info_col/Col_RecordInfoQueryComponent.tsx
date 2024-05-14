@@ -992,6 +992,7 @@ count_file_col AS (
             data={fileProjPrunedData}
             full_data={results?.file_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesProjTable_Collection.json"}
+            drsBundle
             tableTitle={fileProjTableTitle}
             searchParams={searchParams}
             //count={results?.count_file ?? 0} // Provide count directly as a prop
@@ -1008,6 +1009,7 @@ count_file_col AS (
           data={fileSubPrunedData}
           full_data={results?.file_sub_table_full}
           downloadFileName={recordInfoHashFileName + "_FilesSubTable_Collection.json"}
+          drsBundle
           tableTitle={fileSubTableTitle}
           searchParams={searchParams}
           //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
@@ -1024,6 +1026,7 @@ count_file_col AS (
             data={fileBiosPrunedData}
             full_data={results?.file_bios_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesBiosTable_Collection.json"}
+            drsBundle
             tableTitle={fileBiosTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
@@ -1040,6 +1043,7 @@ count_file_col AS (
             data={fileColPrunedData}
             full_data={results?.file_col_table_full}
             downloadFileName={recordInfoHashFileName + "_FilesCollTable_Collection.json"}
+            drsBundle
             tableTitle={fileCollTableTitle}
             searchParams={searchParams}
             //count={results?.count_file_col ?? 0} // Provide count directly as a prop

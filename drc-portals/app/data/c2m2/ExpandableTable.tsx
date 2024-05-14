@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AccordionDetails } from '@mui/material';
 import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
 import DownloadButton from "./DownloadButton";
+import DRSBundleButton from "./DRSBundleButton";
 import { isURL } from './utils';
 import Link from 'next/link';
 
@@ -13,6 +14,7 @@ interface ExpandableTableProps {
     data?: { [key: string]: string | bigint; }[];
     full_data?: { [key: string]: string | bigint; }[];
     downloadFileName?: string;
+    drsBundle?: boolean;
     tableTitle: string;
     searchParams: {
         q?: string | null | undefined;
@@ -30,6 +32,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     data,
     full_data,
     downloadFileName,
+    drsBundle,
     tableTitle,
     searchParams,
     count,
@@ -77,7 +80,10 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                 ))
                             ))}
                         />
-                        <DownloadButton data={full_data} filename={downloadFileName} />
+                        <div className="flex flex-row gap-4">
+                            {drsBundle && <DRSBundleButton data={full_data} />}
+                            <DownloadButton data={full_data} filename={downloadFileName} />
+                        </div>
                     </AccordionDetails>
                 </Accordion>
             )}
