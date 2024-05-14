@@ -69,7 +69,6 @@ export default async function ServerCarousel () {
         }
       ]
     
-    console.log(publication_items)
     
     const children = [...outreach_items, ...publication_items, ...items].map( (item, i) => (
         <Box key={i} sx={{
@@ -92,7 +91,7 @@ export default async function ServerCarousel () {
         </Box>
     ))
 
-    return <ClientCarousel>{children}</ClientCarousel>
+    return <ClientCarousel title="PRODUCTS, PARTNERSHIPS, & EVENTS">{children}</ClientCarousel>
 
 }
 

@@ -23,7 +23,6 @@ import Grid from "@mui/material/Grid"
 import MasonryClient from "../MasonryClient"
 import Icon from '@mdi/react';
 import { mdiArrowRight } from "@mdi/js"
-import DeleteIcon from '@mui/icons-material/Delete';
 import Markdown from "../MarkdownComponent"
 import ExportCalendar from "./ExportCalendar"
 import { parseAsJson } from 'next-usequerystate';
@@ -207,7 +206,6 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
     const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
     const {tags, type, expand_filter, status=[], cfde_specific} = parsedParams
-    console.log(cfde_specific)
     let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]): [...type_tags.outreach, ...type_tags.training]
     const type_filter = type ? type.reduce((acc:Array<string>, i:'outreach'|'training')=>([...acc, ...type_tags[i]]),[]).map(tag=>({tags: {
       path: [],

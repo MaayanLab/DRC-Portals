@@ -142,6 +142,7 @@ model UseCase {
   title             String
   short_description String
   description       String
+  tool_name         String?
   tool_icon         String?
   inputs            Json?
   outputs           Json?
@@ -150,6 +151,7 @@ model UseCase {
   image             String?
   tutorial          String?
   featured          Boolean?      @default(false)
+  featured_image    String?
   creator_dcc_id    String?
   creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
   source_dccs       DCCUseCase[]

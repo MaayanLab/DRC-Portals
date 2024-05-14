@@ -4,12 +4,12 @@ import Typography from "@mui/material/Typography"
 import Stack from "@mui/material/Stack"
 
 
-export default function ClientCarousel({children}: {children: React.ReactNode}) {
+export default function ClientCarousel({children, title}: {children: React.ReactNode, title?: string}) {
     return (
       <Stack spacing={1} alignItems={"center"}>
-        <Typography variant="subtitle2" color="secondary">
-          PRODUCTS, PARTNERSHIPS, & EVENTS
-        </Typography>
+        {title && <Typography variant="subtitle2" color="secondary">
+          {title}
+        </Typography>}
         <div style={{position: "relative"}}>
           <Carousel height={400} 
             sx={{minHeight: 400, width:640}} indicators={true}

@@ -5,7 +5,6 @@ import { useState } from "react"
 import fileDownload from 'js-file-download';
 require('@citation-js/plugin-csl')
 require('@citation-js/plugin-ris')
-require('@citation-js/plugin-bibtex')
 
 const fetch_pmcid = (pmcid:string) => {
     pmcid = pmcid.replace('PMC', '')
