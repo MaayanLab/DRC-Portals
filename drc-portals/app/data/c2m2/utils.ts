@@ -163,12 +163,17 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
             }
             if (t.entity_type) {
 
+                // t.entity_type is getting sanitized when using the SQL template, but SQL.RAW part is not, 
+                // but OK since schemaname, tablename and t.type are set by the DB and not by the user.
+                const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name', 
+                'ncbi_taxonomy_name', 'anatomy_name', 'gene_name', 'protein_name', 'compound_name', 
+                'data_type_name'];
                 //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
                 if (t.entity_type !== "Unspecified") { // was using "null"
                     //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
-                    typeFilters[t.type].push(SQL.template`${SQL.raw`"${schemaname}"."${tablename}"."${SQL.assert_in(t.type, [])}"`} = ${t.entity_type}`);
+                    typeFilters[t.type].push(SQL.template`${SQL.raw`"${schemaname}"."${tablename}"."${SQL.assert_in(t.type, valid_colnames)}"`} = ${t.entity_type}`);
                 } else {
-                    typeFilters[t.type].push(SQL.template`"${SQL.raw`${schemaname}"."${tablename}"."${SQL.assert_in(t.type, [])}"`} is null`);
+                    typeFilters[t.type].push(SQL.template`"${SQL.raw`${schemaname}"."${tablename}"."${SQL.assert_in(t.type, valid_colnames)}"`} is null`);
                     //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = 'Unspecified'`);
                 }
             }
@@ -200,13 +205,17 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         }
         if (t.entity_type) {
   
-          //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+            const valid_colnames: string[] = ['dcc', 'disease', 
+            'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
+            'data_type'];
+    //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
-        typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${t.type}_name"`} = ${t.entity_type}`);
-          } else {
+            //typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${t.type}_name"`} = ${t.entity_type}`);
+            typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${SQL.assert_in(t.type, valid_colnames)}_name"`} = ${t.entity_type}`);
+        } else {
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
-            typeFilters[t.type].push(SQL.template`"${SQL.raw`${tablename}"."${t.type}_name"`} = ${'Unspecified'}`);
+            typeFilters[t.type].push(SQL.template`"${SQL.raw`${tablename}"."${SQL.assert_in(t.type, valid_colnames)}_name"`} = ${'Unspecified'}`);
           }
         }
       });
