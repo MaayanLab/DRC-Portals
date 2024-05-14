@@ -52,7 +52,7 @@ class TableHelper:
 #%%
 # Establish connection to database
 
-load_dotenv('../drc-portals/.env')
+load_dotenv(pathlib.Path(__file__).parent.parent / 'drc-portals' / '.env')
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
