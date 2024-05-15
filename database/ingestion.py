@@ -176,9 +176,9 @@ with open(outreach_path(), 'r') as fr:
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific)
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, recording, meeting_link)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, recording, meeting_link
       from outreach_tmp
       on conflict (id)
         do update
@@ -196,7 +196,9 @@ cur.execute('''
             link = excluded.link,
             image = excluded.image,
             carousel = excluded.carousel,
-            cfde_specific = excluded.cfde_specific
+            cfde_specific = excluded.cfde_specific,
+            recording = excluded.recording,
+            meeting_link = excluded.meeting_link
     ;
   ''')
 cur.execute('drop table outreach_tmp;')

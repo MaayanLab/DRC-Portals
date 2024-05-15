@@ -88,6 +88,8 @@ model Outreach {
   application_start DateTime?     @db.Timestamptz(3)
   application_end   DateTime?     @db.Timestamptz(3)
   link              String?
+  recording         String?
+  meeting_link      String?
   image             String?
   cfde_specific     Boolean       @default(false)
   dccs              DCCOutreach[]
