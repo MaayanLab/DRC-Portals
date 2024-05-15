@@ -20,17 +20,16 @@
     ![A screenshot of Data and Metadata Upload Form showing file asset type selection](../../../../public/img/submission_system/file_upload_5.png)
     ##### Figure 5: A screenshot of Data and Metadata Upload Form showing file asset type selection.
 
-6. Unexpected File type: There are file extensions that are expected for each file asset type. If the extension of the selected file does not match one of the expected extensions based on the entered File Asset Type, a dialog box will appear requesting you to confirm your upload of this unexpected file type. If the unexpected file type is intentional, click on the 'Yes Continue' button to proceed with the upload, otherwise click 'No' to cancel the upload.
+6. **Unexpected File type**: There are file extensions that are expected for each file asset type. If the extension of the selected file does not match one of the expected extensions based on the entered File Asset Type, a dialog box will appear requesting you to confirm your upload of this unexpected file type. If the unexpected file type is intentional, click on the 'Yes Continue' button to proceed with the upload, otherwise click 'No' to cancel the upload.
 The recommended extensions for each file asset type are:
-- C2M2: .zip
-- KG Assertions: .zip
-- Attribute Table: .h5 or .hdf5
-- XMT: .(x)mt e.g .gmt or .dmt
-
+    - C2M2: .zip
+    - KG Assertions: .zip
+    - Attribute Table: .h5 or .hdf5
+    - XMT: .(x)mt e.g .gmt or .dmt
     ![A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection](../../../../public/img/submission_system/file_upload_6.png)
     ##### Figure 6: A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection.
 
-7. If an upload is successful, a green banner with “Success! File Uploaded” should appear. If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error. Ensure that the file you have selected for upload files has either a .csv, .txt, .zip or .(x)mt file extension and is not larger than 5GB.
+7. If an upload is successful, a green banner with “Success! File Uploaded” should appear. If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error. Please ensure that the file you have selected for upload is not larger than 5GB.
     ![A screenshot of Data and Metadata Upload Form showing successful file upload banner](../../../../public/img/submission_system/file_upload_7.png)
     ##### Figure 7: A screenshot of Data and Metadata Upload Form showing successful file upload banner.
 
@@ -66,4 +65,4 @@ A checksum is a digital fingerprint that can be made from a sequence of bytes, o
         shasum -a 256 [file location]
         ```
 
-If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
+- If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download. 

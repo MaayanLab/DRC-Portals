@@ -131,7 +131,7 @@ Both Uploaders and Approvers can delete uploaded assets.
     ![Uploaded Assets page](/img/submission_system/asset_approval_7.png)
     ##### Figure 1: A screenshot of Uploaded Assets page showing deleting submitted asset. 
 
-4. **For DCC and DRC approvers**: If a current asset is deleted, please update the current status of the otherwise most to update DCC asset of that type.
+4. **For DCC and DRC approvers**: If a current asset is deleted, please update the current status of the otherwise most up-to-date DCC asset of that type.
 `
 
     const adminUsers = `
@@ -506,7 +506,7 @@ The Entity Page Template and Example are  links to:
                                     <ListItem sx={{ display: "list-item", color: "#374151" }}>
                                         If an upload is successful, a green banner with “Success! File Uploaded” should appear.
                                         If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error.
-                                        Ensure that the file you have selected for upload files has either a .csv, .txt, .zip or .(x)mt file extension and is not larger than 5GB.
+                                        Please ensure that the file you have selected for upload is not larger than 5GB.
                                         <center><Image src={file_upload_7} alt='A screenshot of Data and Metadata Upload Form showing successful file upload banner' style={{ width: '70%', height: 'auto' }} /></center>
                                         <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 7: A screenshot of Data and Metadata Upload Form showing successful file upload banner.</Typography>
                                     </ListItem>
