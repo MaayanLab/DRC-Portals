@@ -24,6 +24,7 @@ const nav = [
   {title: "Partnerships", href: "/info/partnerships"},
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},
+  {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
   {title: "Documentation", href: "/info/documentation"},
   // {title: "About", href: "/info/coming_soon"},
 ]
