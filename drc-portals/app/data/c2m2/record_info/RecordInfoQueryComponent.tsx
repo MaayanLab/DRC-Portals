@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma/c2m2";
-import { format_description, pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
 import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import {capitalizeFirstLetter, isURL, reorderStaticCols } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 
 const file_count_limit = 100;
@@ -30,8 +30,42 @@ export async function RecordInfoQueryComponent(props: PageProps) {
 
 async function fetchRecordInfoQueryResults(searchParams: any) {
   try {
-    const offset = (searchParams.p - 1) * searchParams.r
-    const limit = searchParams.r
+    const offset = (searchParams.p - 1) * searchParams.r;
+    const limit = searchParams.r;
+
+    console.log("In function fetchRecordInfoQueryResuts");
+
+
+
+
+    console.log("******");
+    console.log("p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
+    // Declare different offsets for all the tables and this is needed to fine grain pagination
+    const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
+    const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
+    console.log("bioSamplTbl_p = " + bioSamplTbl_p + " bioSamplTblOffset = " + bioSamplTblOffset);
+    const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
+    const colTblOffset = (colTbl_p - 1) * limit;
+    console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
+    const subTbl_p = searchParams.colTbl_p !== undefined ? searchParams.subTbl_p : 1;
+    const subTblOffset = (subTbl_p - 1) * limit;
+    console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
+    const fileProjTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileProjTbl_p : 1;
+    const fileProjTblOffset = (fileProjTbl_p - 1) * limit;
+    console.log("fileProjTbl_p = " + fileProjTbl_p + " fileProjTblOffset = " + fileProjTblOffset);
+    const fileBiosTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileBiosTbl_p : 1;
+    const fileBiosTblOffset = (fileBiosTbl_p - 1) * limit;
+    console.log("fileBiosTbl_p = " + fileBiosTbl_p + " fileBiosTblOffset = " + fileBiosTblOffset);
+    const fileSubTbl_p = searchParams.fileSubTbl_p !== undefined ? searchParams.fileSubTbl_p : 1;
+    const fileSubTblOffset = (fileSubTbl_p - 1) * limit;
+    console.log("fileSubTbl_p = " + fileSubTbl_p + " fileSubTblOffset = " + fileSubTblOffset);
+    const fileColTbl_p = searchParams.fileColTbl_p !== undefined ? searchParams.fileColTbl_p : 1;
+    const fileColTblOffset = (fileColTbl_p - 1) * limit;
+    console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
+
+    console.log("*********");
+
+
 
     // Generate the query clause for filters
 
@@ -471,7 +505,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
   ), biosamples_table_limited as (
     SELECT * 
     FROM biosamples_table
-    OFFSET ${offset}
+    OFFSET ${bioSamplTblOffset}
     LIMIT ${limit}
 
   ),
@@ -494,7 +528,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
   subjects_table_limited as (
     SELECT * 
     FROM subjects_table
-    OFFSET ${offset}
+    OFFSET ${subTblOffset}
     LIMIT ${limit}
 
   ),
@@ -518,7 +552,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
   collections_table_limited as (
     SELECT * 
     FROM collections_table
-    OFFSET ${offset}
+    OFFSET ${colTblOffset}
     LIMIT ${limit}
   ),
   count_col AS (
@@ -597,7 +631,7 @@ file_table AS (
   file_table_limited as (
     SELECT * 
     FROM file_table
-    OFFSET ${offset}
+    OFFSET ${fileProjTblOffset}
     LIMIT ${limit}
   ), /* Mano */
   count_file AS (
@@ -634,7 +668,7 @@ file_table AS (
   file_sub_table_limited as (
     SELECT * 
     FROM file_sub_table
-    OFFSET ${offset}
+    OFFSET ${fileSubTblOffset}
     LIMIT ${limit}
   ), /* Mano */
   count_file_sub AS (
@@ -668,7 +702,7 @@ file_table AS (
   file_bios_table_limited as (
     SELECT * 
     FROM file_bios_table
-    OFFSET ${offset}
+    OFFSET ${fileBiosTblOffset}
     LIMIT ${limit}
   ), /* Mano */
   count_file_bios AS (
@@ -702,7 +736,7 @@ file_table AS (
   file_col_table_limited as (
     SELECT * 
     FROM file_col_table
-    OFFSET ${offset}
+    OFFSET ${fileColTblOffset}
     LIMIT ${limit}
   ), /* Mano */
   count_file_col AS (
@@ -738,17 +772,17 @@ file_table AS (
 `.toPrismaSql()) : [undefined];
 
     const t1: number = performance.now();
-    
-  // Create download filename for this recordInfo based on md5sum
-  // Stringify q and t from searchParams pertaining to this record
-  const qString = JSON.stringify(searchParams.q);
-  const tString = JSON.stringify(searchParams.t);
 
-  // Concatenate qString and tString into a single string
-  const concatenatedString = `${qString}${tString}`;
-  const recordInfoHashFileName = generateMD5Hash(concatenatedString);
+    // Create download filename for this recordInfo based on md5sum
+    // Stringify q and t from searchParams pertaining to this record
+    const qString = JSON.stringify(searchParams.q);
+    const tString = JSON.stringify(searchParams.t);
 
-  // First remove the empty columns and sort columns such that most varying appears first
+    // Concatenate qString and tString into a single string
+    const concatenatedString = `${qString}${tString}`;
+    const recordInfoHashFileName = generateMD5Hash(concatenatedString);
+
+    // First remove the empty columns and sort columns such that most varying appears first
 
     const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
     const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,
@@ -773,7 +807,7 @@ file_table AS (
         results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
 
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
-    
+
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
 
@@ -790,16 +824,16 @@ file_table AS (
       staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
         results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
 
-        const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
-        const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
+    const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
 
     const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
     const { prunedData: fileColPrunedData, columnNames: fileColColNames, dynamicColumns: dynamicFileColColumns,
       staticColumns: staticFileColColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
         results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
-    
-        const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
-        const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
+
+    const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
+    const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
 
     const t2: number = performance.now();
 
@@ -934,7 +968,7 @@ file_table AS (
     console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
     console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
     console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
-    
+
 
     return (
       <LandingPageLayout
@@ -959,6 +993,7 @@ file_table AS (
           count={results?.count_bios ?? 0} // Provide count directly as a prop
           colNames={dynamicBiosampleColumns}
           dynamicColumns={dynamicBiosampleColumns}
+          tablePrefix="bioSamplTbl"
           getNameFromTable={getNameFromBiosampleTable}
         />
 
@@ -971,6 +1006,7 @@ file_table AS (
           count={results?.count_sub ?? 0} // Provide count directly as a prop
           colNames={dynamicSubjectColumns}
           dynamicColumns={dynamicSubjectColumns}
+          tablePrefix="subTbl"
           getNameFromTable={getNameFromSubjectTable}
         />
 
@@ -983,6 +1019,7 @@ file_table AS (
           count={results?.count_col ?? 0} // Provide count directly as a prop
           colNames={dynamicCollectionColumns}
           dynamicColumns={dynamicCollectionColumns}
+          tablePrefix="colTbl"
           getNameFromTable={getNameFromCollectionTable}
         />
 
@@ -999,6 +1036,7 @@ file_table AS (
             count={count_file_table_withlimit} // Provide count directly as a prop
             colNames={newFileProjColumns}
             dynamicColumns={newFileProjColumns}
+            tablePrefix="fileProjTbl"
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
@@ -1017,6 +1055,7 @@ file_table AS (
             count={count_file_sub_table_withlimit} // Provide count directly as a prop
             colNames={newFileSubColumns}
             dynamicColumns={newFileSubColumns}
+            tablePrefix="fileSubTbl"
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
@@ -1034,6 +1073,7 @@ file_table AS (
             count={count_file_bios_table_withlimit} // Provide count directly as a prop
             colNames={newFileBiosColumns}
             dynamicColumns={newFileBiosColumns}
+            tablePrefix="fileBiosTbl"
             getNameFromTable={getNameFromFileProjTable}
           />
         )}
@@ -1051,6 +1091,7 @@ file_table AS (
             count={count_file_col_table_withlimit} // Provide count directly as a prop
             colNames={newFileColColumns}
             dynamicColumns={newFileColColumns}
+            tablePrefix="fileColTbl"
             getNameFromTable={getNameFromFileProjTable}
           />
         )}

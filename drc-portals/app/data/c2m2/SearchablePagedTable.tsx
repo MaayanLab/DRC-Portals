@@ -68,10 +68,14 @@ export function PreviewButton(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
-  q?: string, p: number, r: number, count?: number,
+  q?: string, 
+  p: number, 
+  r: number, 
+  count?: number,
   t?: { type: string; entity_type: string | null; }[] | undefined,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
+  tablePrefix: string // Add tablePrefix here
 }>) {
 
   return (
@@ -98,7 +102,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 <TagComponent q={props.q} t={props.t} />
               </Box>
             }
-            <FormPagination p={props.p} r={props.r} count={props.count} />
+            <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} /> {/* Pass tablePrefix here */}
 
             <TableContainer component={Paper} elevation={0} style={{ maxHeight: 700, overflow: 'auto' }}>
               <Table stickyHeader aria-label="simple table">
@@ -142,13 +146,9 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 </TableBody>
               </Table>
             </TableContainer>
-
-
           </Stack>
-
         )}
       </Grid>
-
     </Grid>
   )
 }

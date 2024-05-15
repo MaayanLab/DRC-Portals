@@ -429,6 +429,7 @@ async function fetchQueryResults(searchParams: any) {
                 p={searchParams.p}
                 r={searchParams.r}
                 t={searchParams.t}
+                tablePrefix='C2M2MainSearchTbl'
                 count={results?.count}
                 columns={[
                   <>View</>,

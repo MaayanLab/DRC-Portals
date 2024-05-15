@@ -26,6 +26,7 @@ interface ExpandableTableProps {
     colNames: string[];
     dynamicColumns: string[];
     getNameFromTable?: (column: string) => string; // Optional: Function to get column names
+    tablePrefix: string; // Add tablePrefix here
 }
 
 const ExpandableTable: React.FC<ExpandableTableProps> = ({
@@ -39,6 +40,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     colNames,
     dynamicColumns,
     getNameFromTable,
+    tablePrefix, // Destructure tablePrefix here
 }) => {
     if (!data || !full_data) return null; // Return nothing if data or full_data is undefined
 
@@ -56,7 +58,8 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                     <AccordionDetails>
                         {/* Assuming SearchablePagedTable can accept this new data format directly or is similarly adjusted */}
                         <SearchablePagedTable
-                            //q={searchParams.q ?? ''}
+                            tablePrefix={tablePrefix} // Pass the tablePrefix prop here
+                            // q={searchParams.q ?? ''}
                             p={searchParams.p}
                             r={searchParams.r}
                             count={count}
