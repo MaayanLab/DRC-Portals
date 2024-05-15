@@ -8,8 +8,6 @@ import CardContent from '@mui/material/CardContent'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 
 import Stack from '@mui/material/Stack'
 import Chip from '@mui/material/Chip'
@@ -29,7 +27,7 @@ import { parseAsJson } from 'next-usequerystate';
 import { Prisma } from "@prisma/client"
 import { Tooltip, IconButton, Avatar, CardActions } from "@mui/material"
 import { ClientCheckbox } from "./ClientCheckBox"
-type OutreachWithDCC = Prisma.OutreachGetPayload<{
+export type OutreachWithDCC = Prisma.OutreachGetPayload<{
   include: {
       dccs: {
         include: {
@@ -128,7 +126,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                         background: "linear-gradient(diagonal, #336699, #006666)",
                         overflow: "hidden",  
                         // height: "100%",
-                        minHeight: 200,
+                        minHeight: 150,
                         position: "relative",
                         zIndex: 2
                       }}
@@ -189,9 +187,14 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
             </CardContent>
             <CardActions>
                 <ExportCalendar event={e} />
+                {(e.link || '' ).indexOf('https') > -1 ?
                 <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
                   <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                </Link>:
+                <Link href={e.link || ''}>
+                  <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
                 </Link>
+                }
             </CardActions>
           </Card>
         )
