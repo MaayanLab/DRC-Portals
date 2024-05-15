@@ -38,8 +38,8 @@ const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 		}
 	}
 	return (
-		<Grid container spacing={2} alignItems={'flex-start'} justifyContent={"center"} sx={{marginBottom: 2}}>
-			<Grid item xs={12} sm={6} className="relative" sx={{height: 300}}>
+		<Grid container spacing={2} alignItems={'center'} justifyContent={"center"} sx={{marginBottom: 2}}>
+			<Grid item xs={12} sm={6} className="relative" sx={{height: 200}}>
 				<Image src={webinar.image || '/img/favicon.png'} alt={webinar.title} fill={true} style={{objectFit: "contain"}}/>
 			</Grid>
 			<Grid item xs={12} sm={6}>
@@ -106,8 +106,8 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 		}
 	}
 	return (
-		<Grid container spacing={2} alignItems={'flex-start'} justifyContent={"center"} sx={{marginBottom: 2}}>
-			<Grid item xs={12} sm={6} className="relative" sx={{height: 300}}>
+		<Grid container spacing={2} alignItems={'center'} justifyContent={"center"} sx={{marginBottom: 2}}>
+			<Grid item xs={12} sm={6} className="relative" sx={{height: 200}}>
 				<Image src={webinar.image || '/img/favicon.png'} alt={webinar.title} fill={true} style={{objectFit: "contain"}}/>
 			</Grid>
 			<Grid item xs={12} sm={6}>
