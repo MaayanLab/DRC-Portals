@@ -137,12 +137,12 @@ export default async function ToolsPage() {
     return (
         <Grid container spacing={2} sx={{marginTop: 2}}>
             <Grid item xs={12}>
-				<ClientCarousel title="" height={500}>
+				<ClientCarousel title="">
 					<ServerCarousel tools={featured_tools}/>
 				</ClientCarousel>
 			</Grid>
-			<Grid item xs={12} sx={{marginTop: 10}}>
-                <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">TOOLS AND WORKFLOWS</Typography>
+			<Grid item xs={12} sx={{marginTop: 2}}>
+                <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">ALL TOOLS AND WORKFLOWS</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Typography sx={{textAlign: "center"}} variant="body2">

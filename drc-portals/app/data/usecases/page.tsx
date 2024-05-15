@@ -153,8 +153,8 @@ export default async function UseCasePage({searchParams}: {searchParams: {
 					<ServerCarousel usecases={featured_usecases}/>
 				</ClientCarousel>
 			</Grid>
-            <Grid item xs={12} sx={{marginTop: 10}}>
-                <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">USE CASES</Typography>
+            <Grid item xs={12} sx={{marginTop: 2}}>
+                <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">ALL USE CASES</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Typography sx={{textAlign: "center"}} variant="body2">
