@@ -24,14 +24,14 @@ export default async function InfoFooter() {
             <Stack direction={"column"} spacing={2}>
               <Logo title="CFDE Workbench" href="/data" color="inherit" />
               <Divider sx={{borderColor: "#FFF"}}/>
-              <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
+              {/* <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiGithub} size={1} /> 
                   <Typography variant='subtitle2' className='flex'>
                     GitHub Repository
                   </Typography>
                 </div>
-              </Link>
+              </Link> */}
               <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
                   <Icon path={mdiBugOutline} size={1} /> 
