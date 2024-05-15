@@ -6,13 +6,7 @@ import fileDownload from 'js-file-download';
 import '@citation-js/plugin-csl'
 import '@citation-js/plugin-ris'
 
-const fetch_pmcid = (pmcid:string) => {
-    pmcid = pmcid.replace('PMC', '')
-    const url = `https://api.ncbi.nlm.nih.gov/lit/ctxp/v1/pmc/?format=csl&id=${pmcid}`
-    const headers = {}
 
-    return util.fetchFileAsync(url, { headers })
-}
 
 const resolve_citation = cache(async (pmcid: string) => {
     const pmc = pmcid.replace('PMC', '')
@@ -36,6 +30,7 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
     
 
     const download_citation = async (format: string) => {
+        handleClose()
         const val = await resolve_citation(pmcid)
         const c = new Cite(val)
         let formatted = ''
@@ -55,7 +50,6 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
               })
         }
         fileDownload(formatted, `${format}.txt`)
-        handleClose()
     }
     return (
         <>
