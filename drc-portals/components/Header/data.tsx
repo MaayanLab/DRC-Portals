@@ -26,6 +26,7 @@ const nav = [
   {title: "Use Cases", href: "/data/usecases"},
   {title: "Tools & Workflows", href: "/data/tools_and_workflows"},
   {title: "Submit", href: "/data/submit"},
+  {title: "Review", href: "/data/review"},
   {title: "Documentation", href: "/info/documentation"},
   
 ]
