@@ -14,7 +14,7 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
   }>
 
   const ToolCard = ({tool}:{tool: ToolsWithPublications}) => (
-	<Card sx={{height: 270}}>
+	<Card sx={{height: 280}}>
 		<CardContent>
 			<Grid container spacing={2}>
 				<Grid item xs={8}>
