@@ -58,7 +58,7 @@ DTSTART:${start_date}
 DTEND:${end_date}
 SUMMARY:${event.title}
 DESCRIPTION:${event.description}
-URL:${event.link}
+URL:${event.meeting_link || event.link}
 BEGIN:VALARM
 TRIGGER:-PT15M
 ACTION:DISPLAY
