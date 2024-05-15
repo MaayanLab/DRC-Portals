@@ -50,10 +50,14 @@ dcc_outreach_columns = ["outreach_id", "dcc_id"]
 outreach_df = pd.DataFrame("-", index=[], columns=outreach_columns)
 dcc_outreach_df = pd.DataFrame("-", index=[], columns=dcc_outreach_columns)
 ind = 0
+outreach_df = outreach_df.fillna('')
 for i in df.index:
     val = df.loc[i]
     title = val["title"]
-    uid = str(uuid5(NAMESPACE_URL, title))
+    start_date = val["start_date"]
+    end_date = val["end_date"]
+    string_id = title + str(start_date) + str(end_date)
+    uid = str(uuid5(NAMESPACE_URL, string_id))
     v = {c: val[c] for c in outreach_columns}
     outreach_df.loc[uid] = val
     if type(val["dcc"]) == str and val["dcc"].strip() != '':
@@ -104,16 +108,16 @@ cur.execute('''
 with open(outreach_file, 'r') as fr:
     next(fr)
     cur.copy_from(fr, 'outreach_tmp',
-      columns=('id', 'title', 'short_description', 'description', 'tags', 'featured','active',
+      columns=('id', 'title', 'short_description', 'description', 'tags', 'agenda', 'featured','active',
        'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel', 'cfde_specific'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
-    insert into outreach (id, title, short_description, description, tags, featured,active,
+    insert into outreach (id, title, short_description, description, tags, agenda, featured,active,
        start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific)
-      select id, title, short_description, description, tags, featured,active,
+      select id, title, short_description, description, tags, agenda, featured,active,
        start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific
       from outreach_tmp
       on conflict (id)
@@ -123,6 +127,7 @@ cur.execute('''
             short_description = excluded.short_description,
             description = excluded.description,
             tags = excluded.tags,
+            agenda = excluded.agenda,
             featured = excluded.featured,
             active = excluded.active,
             start_date = excluded.start_date,

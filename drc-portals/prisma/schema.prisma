@@ -79,6 +79,7 @@ model Outreach {
   short_description String
   description       String
   tags              Json
+  agenda            Json?
   featured          Boolean       @default(false)
   active            Boolean       @default(false)
   carousel          Boolean       @default(false)
