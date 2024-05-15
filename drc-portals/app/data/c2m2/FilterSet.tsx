@@ -186,7 +186,10 @@ const applyFilters = () => {
         disableCloseOnSelect
         limitTags={3}
         id="filterSet"
-        options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+        options={options
+          .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id)) // Filter out already selected options
+          .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
+        }
         groupBy={(option) => option.firstLetter}
         getOptionLabel={(option) => `${option.name} (${option.count})`}
         value={selectedFiltersForAutocomplete}
