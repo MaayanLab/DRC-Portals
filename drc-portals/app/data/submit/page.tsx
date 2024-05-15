@@ -5,217 +5,78 @@ import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import ListItemText from '@mui/material/ListItemText';
-import { List, ListItem, Typography, Link, Button } from '@mui/material';
+import {Typography, Link, Button } from '@mui/material';
 import { StyledAccordionComponent } from './StyledAccordion';
-import Markdown from 'react-markdown'
 import dynamic from 'next/dynamic';
-import ReactMarkdown from 'react-markdown';
 
 const YoutubeVideo = dynamic(() => import('./YoutubeVideo'))
 
-import notDCCnotDRCApproved from "@/public/img/submission_system/notdcc_notdrc_approved.png"
-import dCCnotDRCApproved from "@/public/img/submission_system/dcc_notdrc_approved.png"
-import dCCDRCApproved from "@/public/img/submission_system/dcc_drc_approved.png"
-import currentAsset from "@/public/img/submission_system/current_asset.png"
-import archivedAsset from "@/public/img/submission_system/archived_asset.png"
-import file_upload_1 from "@/public/img/submission_system/file_upload_1.png"
-import file_upload_2 from "@/public/img/submission_system/file_upload_2.png"
-import file_upload_3 from "@/public/img/submission_system/file_upload_3.png"
-import file_upload_4 from "@/public/img/submission_system/file_upload_4.png"
-import file_upload_5 from "@/public/img/submission_system/file_upload_5.png"
-import file_upload_6 from "@/public/img/submission_system/file_upload_6.png"
-import file_upload_7 from "@/public/img/submission_system/file_upload_7.png"
-import file_upload_8 from "@/public/img/submission_system/file_upload_8.png"
-import checksum_validation_1 from "@/public/img/submission_system/checksum_validation_1.png"
+const OnboardingDocs = dynamic(() => import('./docs/onboardingDocs.mdx'))
+const FileAssetTypes = dynamic(() => import('./docs/fileAssets.mdx'))
+const CodeAssetTypes = dynamic(() => import('./docs/codeAssets.mdx'))
+const FileAssetSubmission = dynamic(() => import('./docs/fileAssetSubmission.mdx'))
+const CodeAssetSubmission = dynamic(() => import('./docs/codeAssetSubmission.mdx'))
+const AssetManagement = dynamic(() => import('./docs/assetManagement.mdx'))
+const AdminUserDocs = dynamic(() => import('./docs/adminUserDocs.mdx'))
+const AssetApprovalStatus = dynamic(() => import('./docs/assetApprovalStatus.mdx'))
+const AssetCurrentStatus = dynamic(() => import('./docs/assetCurrentStatus.mdx'))
 
-// const OnboardingDocs = dynamic(() => import('./docs/onboardingDocs.mdx'))
+function CustomH1({ children }: { children?: any }) {
+    return <h3 style={{ color: 'black', fontSize: '16px', borderBottom: 'solid', fontWeight: 600 }}>{children}</h3>
+}
+
+function CustomParagraph({ children }: { children?: any }) {
+    return <p className="prose min-w-full">{children}</p>
+}
+
+function CustomList({ children }: { children?: any }) {
+    return <li className="prose min-w-full">{children}</li>
+}
+
+
+function CustomNumberedList({ children }: { children?: any }) {
+    return <ol className="prose min-w-full list-decimal list-inside [&_p]:inline">{children}</ol>
+}
+
+
+function CustomBulletList({ children }: { children?: any }) {
+    return <ul className="prose min-w-full list-disc list-inside [&_p]:inline">{children}</ul>
+}
+
+
+const MyImage = (props: any) => (
+    <img style={{ maxWidth: "70%", borderRadius: "15px", display: 'block', marginLeft: 'auto', marginRight: 'auto' }} {...props} />
+)
+
+
+function CustomH5({ children }: { children?: any }) {
+    return <center><h5 style={{ fontSize: 14 }}>{children}</h5></center>
+}
+
+
+function CustomIconsFaCircleExclamation({ props }: { props: any }) {
+    return <FaCircleExclamation style={{ display: 'inline-flex', alignItems: 'center' }} />
+}
+
+function CustomIconsBsCheckCircleFill({ props }: { props: any }) {
+    return <BsCheckCircleFill style={{ display: 'inline-flex', alignItems: 'center' }} />
+}
+
+
+const components = {
+    h3: CustomH1,
+    p: CustomParagraph,
+    li: CustomList,
+    ol: CustomNumberedList,
+    img: MyImage,
+    h5: CustomH5,
+    ul: CustomBulletList,
+    FaCircleExclamation: CustomIconsFaCircleExclamation,
+    BsCheckCircleFill: CustomIconsBsCheckCircleFill
+}
 
 
 export default function Documentation() {
-    const macMarkdown = `
-    shasum -a 256 [file location]
-    `
-    const linuxMarkdown = `
-    sha256sum [file location]
-    `
-    const windowsMarkdown = `
-    certutil -hashfile [file location] SHA256
-    `
-    const codeAssetSubmission = `
-1. Go to the Code Assets Upload Form page. This page can found by clicking on the "Submit" tab in the navigation bar or in the footer and on the "Submit and Manage File/Code Assets" button on the Submit page: 
-    ![Navigating to code assets page](/img/submission_system/file_upload_1.png)
-    ##### Figure 1: A screenshot of Submission System showing navigation to Code Assets Upload Form. 
-
-2. On the Code Assets Upload Form, fill out all the fields: 
-    - Select the DCC for which the asset is affiliated with
-    - Select the code asset type you wish to submit from the available options ETL, API, PWB Metanode, Entity Page Template, Chatbot Specifications and Apps URL. If submitting an API asset. Please see the *API Code Asset Submission Steps* section
-    - Enter the URL for the code asset in the URL field. Only valid HTTPS URLs are accepted.
-    ![Filling in code asset information](/img/submission_system/code_submit_1.png)
-    ##### Figure 2: A screenshot of Code Assets Upload Form showing submission of code asset. 
-
-3. After clicking on the “Submit Form” button: 
-    - If an upload is successful, a green banner with “Success! Code Asset Uploaded” should appear. 
-    - If an upload is unsuccessful, a red banner with an error message will appear.
-    ![Successful code asset submission](/img/submission_system/code_submit_2.png)
-    ##### Figure 3: A screenshot of Code Assets Upload Form showing success banner with successful submission of code asset. 
-
-4. Details of your uploaded code asset should appear on the Uploaded Assets page. 
-    ![Submitted code asset on Uploaded Asset page](/img/submission_system/code_submit_3.png)
-    ##### Figure 4: A screenshot of Uploaded Assets page showing submitted code asset information.
-
-#### API Code Asset Submission Steps
-1. Follow Steps 1-3 of the *Code Asset Submission Steps* section. 
-2. Enter the URL of the page that documents the DCC APIs. 
-    - If the API documentation meets OpenAPI specifications, check the OpenAPI Specifications box.
-    - If the API documentation is deposited in the SmartAPI registry, check the Deposited in SmartAPI box and insert the SmartAPI URL (the link to the page that displays the page of the API on the SmartAPI website) in the provided textbox.
-    ![Submitting an API code asset](/img/submission_system/code_submit_4.png)
-    ##### Figure 5: A screenshot of Code Assets Upload Form page showing submission of API code asset.
-
-#### Asset Upload Submission Troubleshooting/FAQ: 
-1. Before uploading, ensure that all your account information has been entered/is accurate on the My Account page
-    - If your email is missing, please fill it out and click 'Save Changes' or press the enter key
-    - If you do not have any DCCs associated with your account, please contact the DRC to update your information. 
-    - If a DCC that you are affiliated with (and you are an uploader for) is not listed as one of your DCC options, please contact the DRC through email to update your information. 
-    - If Role is inaccurate, please contact the DRC to update your information.
-
-    ![Submitting an API code asset](/img/submission_system/FAQ_myaccount_1.png)
-    ##### Figure 6: A screenshot of Data Portal showing navigation to My Account page that displays user account information.
-
-2. If you are to be an Uploader or Approver for your DCC and have “Access Denied” on the Code Assets Upload Form and Uploaded Assets pages, please contact the DRC through email to grant you access.
-3. If a mistake has been made in a submission, go to the Uploaded Assets page, delete the incorrectly submitted asset by clicking on the delete icon on the row of the given file and reupload the corrected file.
-    `
-
-    const assetApproval = `
-1. Go to the Uploaded Assets page. This page can be found by  clicking on the “Submit” tab in the navigation bar or in the footer, clicking on the "Submit and Manage File/Code Assets" button on the Submit page and on the *Uploaded Assets* tab 
-![Navigating to code assets page](/img/submission_system/file_upload_1.png)
-![Navigating to code assets page](/img/submission_system/asset_approval_1.png)
-##### Figure 1: A screenshot of Submission System showing navigation to Code Assets Upload Form. 
-2. Here you will find all uploaded assets that fall under your jurisdiction. 
-
-3. All unapproved assets that you are authorized to approve will be marked by the “Approve Upload” button under the DCC status or DRC status columns for DCC and DRC Approvers respectively. 
-
-- For DCC Approvers, these are all assets that have been uploaded or submitted for your DCC. 
-    ![Uploaded Assets page](/img/submission_system/asset_approval_2.png)
-    ##### Figure 2: A screenshot of Uploaded Assets page in the view of a LINCS DCC Approver. 
-
-    - For DRC Approvers, these are all assets that have been uploaded/submitted by uploaders across all DCCs. 
-    ![Uploaded Assets page](/img/submission_system/asset_approval_3.png)
-    ##### Figure 3: A screenshot of Uploaded Assets page in the view of a DRC Approver. 
-
-4. To approve an asset, click on the “Approve Upload” button to approve the file. 
-    ![Uploaded Assets page](/img/submission_system/asset_approval_4.png)
-    ##### Figure 4: A screenshot of Uploaded Assets page showing approval of a submitted asset. 
-
-5. To remove the approved status of a asset, click on the button under the DCC/DRC status column. This reverses the Approval action. 
-    ![Uploaded Assets page](/img/submission_system/asset_approval_5.png)
-    ##### Figure 5: A screenshot of Uploaded Assets page showing approval removal of a submitted asset. 
-
-6. Similar steps are done to set an asset as the most current version. 
-    - To toggle between setting an asset as Current and Archived, click on the button under Current column. Please note that:
-        - Multiple assets of the same asset type can be set as current for a DCC. 
-        - DCC and DRC approvers are authorized to change the current status of assets for affiliated DCCs/all DCCs respectively.
-        ![Uploaded Assets page](/img/submission_system/asset_approval_6.png)
-        ##### Figure 6: A screenshot of Uploaded Assets page showing changing archived/current status of a submitted asset. 
-
-#### Troubleshooting/FAQ: 
-1. If you are to be a DCC or DRC Approver and have “Access Denied” on the Uploaded Assets page, please contact the DRC through email to change your role and grant you access.
-2. If a DCC that you are affiliated with is not listed as one of your DCC options on the My Account page, please contact the DRC through email to update your information. You will not be allowed to approve uploaded files for this DCC otherwise.
-`
-
-    const deleteAssets = `
-Both Uploaders and Approvers can delete uploaded assets.
-1. On the Uploaded Assets page, click on the delete icon next to the asset you wish to delete.
-2. A pop up will appear verifying your decision to delete the given asset. 
-3. Click on "Yes, Delete" to confirm the deletion of the asset. **Please note that the delete operation is permanent**.
-    ![Uploaded Assets page](/img/submission_system/asset_approval_7.png)
-    ##### Figure 1: A screenshot of Uploaded Assets page showing deleting submitted asset. 
-
-4. **For DCC and DRC approvers**: If a current asset is deleted, please update the current status of the otherwise most up-to-date DCC asset of that type.
-`
-
-    const adminUsers = `
-#### Create a User: 
-1. Go to the Admin page and click on the "Create New User" button,
-    ![Navigate to Admin page](/img/submission_system/admin_page_1.png)
-    ##### Figure 1: A screenshot of Admin page showing navigation to admin page. 
-
-    ![Navigate to Admin page](/img/submission_system/admin_page_2.png)
-    ##### Figure 2: A screenshot of Admin page showing creation of user. 
-
-2. Fill out the new user's information and click the “Create User” button. If successful, a banner with “User Creation Successful” should appear. 
-    ![Navigate to Admin page](/img/submission_system/admin_page_3.png)
-    ##### Figure 3: A screenshot of Admin page showing format of filling in new user information. 
-
-#### Update User Information
-1. Go to the Admin page and select the users whose information is to be updated and click on the Update User Information button. 
-    ![Navigate to Admin page](/img/submission_system/admin_page_4.png)
-    ##### Figure 4: A screenshot of Admin page showing selection of user to update user information. 
-
-2. In the dialog box that appears, for each user, select their new role and DCC information and click “Update”. An alert with “User Information Updated” will appear if the update operation is successful. 
-    ![Navigate to Admin page](/img/submission_system/admin_page_5.png)
-    ##### Figure 5: A screenshot of Admin page showing filling in in updated user information. 
-
-3. When all selected users' information have been updated, click on “Done” or outside the dialog box.
-    ![Navigate to Admin page](/img/submission_system/admin_page_6.png)
-    ##### Figure 6: A screenshot of Admin page showing success banner with update of user information 
-
-#### Delete Users
-1. Go to the Admin page and select the users to delete. 
-
-2. Click on the  “Delete Users” button to delete selected users. **Please note that the delete operation is irreversible.**
-    ![Navigate to Admin page](/img/submission_system/admin_page_7.png)
-    ##### Figure 7: A screenshot of Admin page showing deletion of selected user. 
-`
-
-    const onboardingDocs = `
-### User Roles
-
-As a Common Fund Data Coordinating Center (DCC) you have 3 role options for your users of the submission system:
-
-- User: This is a general user of the platform who cannot upload, approve, or view non-public files. You can have as many users in this role as you want.
-- Uploader: Can submit data packages, but can't approve data packages/files. Users can see files that they submitted for their DCC, but can't approve them. You can have as many users in this role as you want.
-- Approver: Can submit new packages and approve a submitted package. You can have as many users in this role as you want.
-
-Any given person in your DCC can only have 1 role. 
-
-### Onboarding Process
-To do onboarding and give a member of your DCC Approver or Uploader privileges, have the PI or PM of your DCC contact the DRC via email ([help@cfde.cloud](help@cfde.cloud)) with the following information about the concerned members: 
-- Name
-- Email
-- Role
-- DCC 
-
-Please also indicate if the user has previously logged into the portal (has a user account) or has never accessed the portal (is a new user). 
-
-When the user(s) have been registered, each of them will receive an email from a member of the DRC notifying them of their registration.  
-
-### Logging into the Portal after Registration
-1. You can log into the portal by entering the email address you were registered with into the email field here: 
-2. You will be sent a registration confirmation link to that email. If you do not find the link in your inbox, please also check your spam folder as the email may be sent there. 
-        ![Login with after registration](/img/submission_system/onboarding_email.png)
-##### Figure 1: A screenshot of login page. 
-
-### Verifying Account Information
-Before submitting or approving assets, please go to My Account page and verify that all the role and DCC information is correct. 
-Go the My Account page by clicking on the user icon on the top right of the screen and click on My Account. 
-        ![Finding My Account page](/img/submission_system/FAQ_myaccount_1.png)
-##### Figure 2: A screenshot of Data Portal showing navigation to My Account page.
-
-If your email is missing (you logged into the portal using ORCID): 
-1. If you were registered with your email, log out of the portal and sign in with the email you were registered with. 
-2. Otherwise, please enter your email and press save changes or the enter key. **Please note that your email can only be saved once so be careful to ensure that it is accurately entered**.
-`
-
-    const entityPageText = `
-The Entity Page Template and Example are  links to: 
-1. A template used to create the landing page displaying the datasheet about a gene, a metabolite, and protein, a cell type, or other entities from a DCC; 
-2. The example URL provides a valid URL to an existing entity page that presents a single view of a given entity. 
-
-\Example of a template from GTEx: [https://www.gtexportal.org/home/gene/<GENE_NAME>](https://www.gtexportal.org/home/gene/<GENE_NAME>). 
-
-\Example live entity page from GTEx: [https://www.gtexportal.org/home/gene/MAPK3](https://www.gtexportal.org/home/gene/MAPK3)`
-
     return (
         <Grid container spacing={2}>
             <Container className="justify-content-center">
@@ -235,396 +96,62 @@ The Entity Page Template and Example are  links to:
                 <Grid item>
                     <StyledAccordionComponent heading="Onboarding to the Submission System" content={
                         <Box sx={{ p: 1, m: 1 }}>
-                            <ReactMarkdown
-                                className="prose min-w-full"
-                                components={{
-                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
-                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
-                                }}>
-                                {onboardingDocs}
-                            </ReactMarkdown>
-                            {/* <OnboardingDocs /> */}
+                            <OnboardingDocs components={components} />
                         </Box>
                     } />
 
-                    <StyledAccordionComponent heading='File Types' content={<>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>XMT</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                XMT files are text based files which contain a collection of sets of a given entity type.
-                                The 'X' in XMT stands for the entity that the sets contain
-                                For example, .gmt files are XMT files that contain a collection of gene sets while
-                                .dmt files are XMT files that contain a collection of drug sets.
-                                On each row of the XMT file, the first column contains the Term associated with the set while all other
-                                columns contain the set entities.
-
-                            </Typography>
+                    <StyledAccordionComponent heading='File Types' content={
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <FileAssetTypes components={components} />
                         </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>C2M2</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format.
-                                The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies.
-                                Please explore the C2M2 technical wiki for more information about how to prepare your
-                                metadata into C2M2 compatible files. Please also see the C2M2 section in the <Link href="/info/documentation" color='#111827' target='_blank'>Documentation</Link> page of the
-                                CFDE Workbench portal on how to create C2M2 files.
-                            </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>KG Assertions</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                A knowledge graph is a network that illustrates the relationship between different entities which may come from
-                                different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the
-                                entities represented in the knowledge graph e.g GO Ontology terms. Edges characterize the relationship between
-                                nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and
-                                edges that could be used to create a knowledge graph.
-                                For example, a KG Assertions file for nodes would contain columns which define information about each node:
-                                id, label, ontology_label. A KG Assertions file for edges would contain columns that comprises the necessary
-                                information about each edge: its source and target nodes, the labels for these nodes and their relationship.
-
-                            </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Attribute Table</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                Attribute tables are files containing tables that describe the relationship between two entities with one
-                                entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a
-                                given row and column is then a value defining nature of the relationship between the row entity and the
-                                column entity e.g. the qualitative score of similarity between a given gene and a given tissue type.
-
-                            </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            The recommended extensions for each file asset type are:
-                            <List sx={{ listStyleType: 'disc', pl: 3 }}>
-                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                    C2M2: .zip
-                                </ListItemText>
-                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                    KG Assertions: .zip
-                                </ListItemText>
-                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                    Attribute Table: .h5 or .hdf5
-                                </ListItemText>
-                                <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                    XMT: .(x)mt e.g .gmt or .dmt
-                                </ListItemText>
-                            </List>
-                        </Box>
-                    </>
                     } />
 
-                    <StyledAccordionComponent heading='Code Asset Types' content={<>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>ETL</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                Extract, transform, load (ETL) is the process of converting the DCC raw data into various processed data formats such as the C2M2,
-                                XMT, KG assertions, attribute tables, and database tables.The ETL URL should point to the DCC GitHub repo containing the scripts that
-                                process the data by the DCC to generate these processed datasets.
-                            </Typography>
+                    <StyledAccordionComponent heading='Code Asset Types' content={
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <CodeAssetTypes components={components} />
                         </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>API</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs
-                                should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these
-                                API into the API repository SmartAPI. <br></br>
-                                <strong>OpenAPI: </strong> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written
-                                in YAML or JSON. <br></br>
-                                <strong>SmartAPI: </strong> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features
-                                additional metadata elements and value sets to promote the interoperability of RESTful APIs. <br></br>
-                                Learn more about generating an OpenAPI or SmartAPI specification on the <Link href="/info/documentation/OpenAPI" color='#111827' target='_blank'>Documentation</Link> page.
-                                <br></br>Example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="#111827">exRNA openAPI link </Link>
-                            </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Playbook Workflow Builder (PWB) Metanodes</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                A PWB metanode is a workflow engine component  implemented by defining the semantic description, typescript-constrained type,
-                                and functionality of a node in the network of PWB workflows. See Playbook Partnership documentation  and <Link href="/info/documentation" color='#111827' target='_blank'>Documentation</Link> page
-                                for more information about developing and publishing metanodes. The form requires a GitHub link to a script describing a Playbook
-                                metanode.
-                                <br></br>Example: <Link href='https://github.com/nih-cfde/playbook-partnership/blob/eece1eb07365d6255b44708b64606aa42eef5563/components/MW/metabolite_summary/index.tsx' color="#111827" target="_blank"><u>PWB Metanode</u></Link> created by the Metabolomics DCC
-                            </Typography>
-
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Entity Page Template and Example</Typography>
-                            <Markdown className="prose min-w-full p-2" >{entityPageText}</Markdown>
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Chatbot Specifications</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                Chatbot specifications URL is a link to a manifest file containing metadata and OpenAPI specifications which can be used to develop a chat plugin for large language models. These plugins allow the large language models to function as specialized chatbots that have access to the exposed API endpoints described in the manifest files and can call these APIs based on user input. See ChatGPT plugins documentation for more information on how to develop chatbot specifications.
-                                <br></br>Example: <Link href="https://github.com/openai/plugins-quickstart/blob/3096542ef96b77f93d6b13a0ea105641c3763284/.well-known/ai-plugin.json" color="#111827" target="_blank">ai-plugin specs template</Link>
-                            </Typography>
-
-                        </Box>
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Apps URL</Typography>
-                            <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                An Apps URL is a link to a page(s) that serves a listing of bioinformatics tools, workflows, and databases produced by the DCC.
-                                <br></br>Example: <Link color="#111827" href="https://lincsproject.org/LINCS/tools" target="_blank">LINCS Apps URL</Link>
-                            </Typography>
-                        </Box>
-
-                    </>
                     } />
 
                     <StyledAccordionComponent heading="Asset Approval Status" content={
-                        <>
-                            <Box sx={{ p: 1, m: 1 }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Not Approved</Typography>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    This is the first stage of approval. All assets that are just uploaded or submitted by a DCC uploader will first be placed in this category.
-                                    The asset will be tagged by the {' '}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <FaCircleExclamation />
-                                    </span>
-                                    {' '} icon on the Uploaded Assets page, icon which represents
-                                    that the file was not reviewed by the DCC approver or evaluated by the DRC.
-                                </Typography>
-                                <center><Image src={notDCCnotDRCApproved} alt='Screenshot showing not approved asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 1: A screenshot of Uploaded Assets page showing a submitted asset without DCC or DRC approval. <i>View of Uploader User</i></Typography>
-                            </Box>
-                            <Box sx={{ p: 1, m: 1, }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>DCC Approved</Typography>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    When an asset has been approved by a DCC approver (appointed by each DCC), the status of the asset will be updated to
-                                    'DCC Approved' which is tagged by the{' '}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <BsCheckCircleFill />
-                                    </span>
-                                    {' '}icon under the DCC Status column on the Uploaded Assets page.
-                                </Typography>
-                                <center><Image src={dCCnotDRCApproved} alt='Screenshot showing DCC but not DRC approved asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 2: A screenshot of Uploaded Assets page showing a submitted asset with DCC approval but without DRC approval. <i>View of Uploader User</i></Typography>
-                            </Box>
-                            <Box sx={{ p: 1, m: 1, }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>DRC Approved</Typography>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    When an asset has been approved by an appointed DRC approver, the status of the asset will be updated to 'DRC Approved'.
-                                    This status is  tagged by the{' '}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <BsCheckCircleFill />
-                                    </span>
-                                    {' '}icon under the “DRC Status” column on the Uploaded Assets page. Please note that DCC and DRC approval status are independent of each other.
-                                </Typography>
-                                <center><Image src={dCCDRCApproved} alt='Screenshot showing DCC and DRC approved asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 3: A screenshot of Uploaded Assets page showing a submitted asset with both DCC approval and DRC approval. <i>View of Uploader User</i></Typography>
-                            </Box>
-                        </>}
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <AssetApprovalStatus components={components} />
+                        </Box>
+                    }
                     />
 
                     <StyledAccordionComponent heading="Current vs Archived Status" content={
-                        <>
-                            <Box sx={{ p: 1, m: 1, }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Current</Typography>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    An asset tagged by the {' '}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <BsCheckCircleFill />
-                                    </span> icon under the 'Current' column on the Uploaded Assets page is considered the current version
-                                    of that file type for a given DCC.
-                                </Typography>
-                                <center><Image src={currentAsset} alt='Screenshot showing current asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 1: A screenshot of Uploaded Assets page showing a current asset. <i>View of Uploader User</i></Typography>
-                            </Box>
-                            <Box sx={{ p: 1, m: 1, }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Archived</Typography>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    An asset tagged by the  {' '}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <FaCircleExclamation />
-                                    </span>
-                                    {' '} icon under the 'Current' column on the Uploaded Assets page,
-                                    is considered an archived version of that asset type.
-                                    Please note that both DCC and DRC approvers can change the current status of an asset.
-                                </Typography>
-                                <center><Image src={archivedAsset} alt='Screenshot showing archived asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 2: A screenshot of Uploaded Assets page showing an archived asset. <i>View of Uploader User</i></Typography>
-                            </Box>
-                        </>
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <AssetCurrentStatus components={components} />
+                        </Box>
                     }
                     />
 
                     <StyledAccordionComponent heading="Data and Metadata Upload Form" content={
-                        <>
-                            <Box sx={{ p: 1, m: 1, }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>File Upload Steps</Typography>
-                                <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        Go to the Data and Metadata Upload Form OR Click on the "Submit" tab in the navigation bar or in the footer and click on the "Submit and Manage File/Code Assets" button.
-                                        <center><Image src={file_upload_1} alt='Screenshot showing navigation to Data and Metadata Upload Form' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 1: A screenshot of Submission System showing navigation to Data and Metadata Upload Form.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        On the Upload Form page, upload your processed data by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
-                                        <center><Image src={file_upload_2} alt='A screenshot of Data and Metadata Upload Form showing file selection' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 2: A screenshot of Data and Metadata Upload Form showing file selection.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        The file you have selected should appear under “File to Upload”.
-                                        If you select a wrong file, you can delete it by clicking on the delete icon next to the file name or by re-uploading the correct file.
-                                        <center><Image src={file_upload_3} alt='A screenshot of Data and Metadata Upload Form showing selected file' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 3: A screenshot of Data and Metadata Upload Form showing selected file.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        Select the DCC that the files to upload were generated from. Only DCCs that you are affiliated with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option is not provided, please contact the DRC to update this information.
-                                        <center><Image src={file_upload_4} alt='A screenshot of Data and Metadata Upload Form showing DCC selection' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 4: A screenshot of Data and Metadata Upload Form showing DCC selection.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        Select the file asset type that you wish to upload the file as and click on the "Submit Form" button.
-                                        <center><Image src={file_upload_5} alt='A screenshot of Data and Metadata Upload Form showing file asset type selection' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 5: A screenshot of Data and Metadata Upload Form showing file asset type selection.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        <strong>Unexpected File type: </strong>There are file extensions that are expected for each file asset type. If the extension of the selected file
-                                        does not match one of the expected extensions based on the entered File Asset Type, a dialog box will appear requesting you to confirm your
-                                        upload of this unexpected file type. If the unexpected file type is intentional, click on the 'Yes Continue' button to proceed with the upload, otherwise
-                                        click 'No' to cancel the upload.
-                                        <br></br>
-                                        The recommended extensions for each file asset type are:
-                                        <List sx={{ listStyleType: 'disc', pl: 3 }}>
-                                            <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                                C2M2: .zip
-                                            </ListItemText>
-                                            <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                                KG Assertions: .zip
-                                            </ListItemText>
-                                            <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                                Attribute Table: .h5 or .hdf5
-                                            </ListItemText>
-                                            <ListItemText sx={{ display: 'list-item', padding: 0 }}>
-                                                XMT: .(x)mt e.g .gmt or .dmt
-                                            </ListItemText>
-                                        </List>
-                                        <center><Image src={file_upload_6} alt='A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 6: A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        If an upload is successful, a green banner with “Success! File Uploaded” should appear.
-                                        If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error.
-                                        Please ensure that the file you have selected for upload is not larger than 5GB.
-                                        <center><Image src={file_upload_7} alt='A screenshot of Data and Metadata Upload Form showing successful file upload banner' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 7: A screenshot of Data and Metadata Upload Form showing successful file upload banner.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        Details of your uploaded file should appear on the Uploaded Assets page.
-                                        <center><Image src={file_upload_8} alt='A screenshot of Uploaded Assets page showing uploaded file asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 8: A screenshot of Uploaded Assets page showing uploaded file asset.</Typography>
-                                    </ListItem>
-                                </List>
-                            </Box>
-                            <Box sx={{ p: 1, m: 1, }}>
-                                <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>File Integrity Validation</Typography>
-                                <Typography sx={{ textAlign: 'left' }} className="p-2" color="#374151">
-                                    A checksum is a digital fingerprint that can be made from a sequence of bytes, otherwise known as a bitstream e.g. the contents of a file.
-                                    Just like a fingerprint, a checksum is unique to the bitstream. Any change to the bitstream, however big or small, will cause the value of
-                                    its checksum to change completely. Checksums can be used to detect changes in the contents of a file which occur during file upload and
-                                    download. During file submission on the site, file integrity is verified using the SHA256 checksum algorithm. A checksum is calculated
-                                    from the file a user upload browser-side and compared to the checksum calculated from the file received by the AWS S3 bucket. If these
-                                    checksum values are the same, which shows that the file was unchanged/uncorrupted during upload, the file upload is successful. Otherwise,
-                                    if the values are different, the system will throw an error.
-                                </Typography>
-                                <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        The checksum of a successfully uploaded file is displayed on the Uploaded Assets page under the File Info dropdown of each file.
-                                        <center><Image src={checksum_validation_1} alt='A screenshot of Uploaded Assets page showing the SHA-256 checksum of uploaded file asset' style={{ width: '70%', height: 'auto' }} /></center>
-                                        <Typography variant='subtitle2' display={'flex'} sx={{ justifyContent: 'center' }}>Figure 9: A screenshot of Uploaded Assets page showing the SHA-256 checksum of uploaded file asset.</Typography>
-                                    </ListItem>
-                                    <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                        To verify file integrity after downloading a file from the portal:
-                                    </ListItem>
-                                    <List sx={{ listStyle: "disc", pl: 4 }}>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Download the intended file
-                                        </ListItem>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            Calculate the checksum in your terminal:
-                                            <br></br>
-                                            For Windows: <Markdown className="prose">{windowsMarkdown}</Markdown>
-                                            <br></br>
-                                            For Linux: <Markdown className="prose">{linuxMarkdown}</Markdown>
-                                            <br></br>
-                                            For MacOS: <Markdown className="prose">{macMarkdown}</Markdown>
-                                        </ListItem>
-                                        <ListItem sx={{ display: "list-item", color: "#374151" }}>
-                                            If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download
-                                        </ListItem>
-                                    </List>
-
-                                </List>
-                            </Box>
-
-
-                        </>
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <FileAssetSubmission components={components} />
+                        </Box>
                     }
                     />
 
                     <StyledAccordionComponent heading="Code Assets Upload Form" content={
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography style={{ textAlign: 'left' }} variant='body1' sx={{ fontWeight: 'bold', borderBottom: 1 }}>Code Asset Submission Steps</Typography>
-                            <ReactMarkdown
-                                className="prose min-w-full"
-                                components={{
-                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
-                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
-                                }}>
-                                {codeAssetSubmission}
-                            </ReactMarkdown>
-                            {/* <Markdown className="prose min-w-full">{codeAssetSubmission}</Markdown> */}
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <CodeAssetSubmission components={components} />
                         </Box>
                     }
                     />
 
 
                     <StyledAccordionComponent heading="Asset Approval Steps" content={
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography color={'#FF0000'} style={{ fontStyle: 'bold', textAlign: 'center' }} sx={{ padding: 1 }}>This section is for DCC and DRC Approvers Only</Typography>
-                            <ReactMarkdown
-                                className="prose min-w-full"
-                                components={{
-                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
-                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
-                                }}>
-                                {assetApproval}
-                            </ReactMarkdown>
-                            {/* <Markdown className="prose min-w-full">{assetApproval}</Markdown> */}
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <AssetManagement components={components} />
                         </Box>
                     }
                     />
 
-
-                    <StyledAccordionComponent heading="Delete File or Code Assets" content={
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <ReactMarkdown
-                                className="prose min-w-full"
-                                components={{
-                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
-                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
-                                }}>
-                                {deleteAssets}
-                            </ReactMarkdown>
-                            {/* <Markdown className="prose min-w-full" >{deleteAssets}</Markdown> */}
-                        </Box>
-
-                    }
-                    />
 
                     <StyledAccordionComponent heading="Admin User Documentation" content={
-                        <Box sx={{ p: 1, m: 1, }}>
-                            <Typography color={'#FF0000'} style={{ fontStyle: 'bold', textAlign: 'center' }} sx={{ padding: 1 }}>This section is for Admin Users Only</Typography>
-                            <ReactMarkdown
-                                className="prose min-w-full"
-                                components={{
-                                    img: ({ node, ...props }) => <img style={{ maxWidth: '70%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}{...props} />,
-                                    h5: ({ node, ...props }) => <center><h5 style={{ fontSize: 14 }}{...props} /></center>,
-                                }}>
-                                {adminUsers}
-                            </ReactMarkdown>
-                            {/* <Markdown className="prose min-w-full">{adminUsers}</Markdown> */}
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <AdminUserDocs components={components} />
                         </Box>
                     }
                     />
