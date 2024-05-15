@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
  * 
  * Usage:
  *   const mytable = 'table'
- *   const select = SQL.template`select * from ${SQL.raw`${mytable}`}`
+ *   const select = SQL.template`select * from ${SQL.raw(mytable)}`
  *   const filters = [SQL.template`value = ${value}`, SQL.template`value2 = ${value2}`]
  *   const final = SQL.template`
  *     ${select}
@@ -26,15 +26,15 @@ export default class SQL {
   static empty(): SQL {
     return new SQL()
   }
-  static raw(strings: TemplateStringsArray, ...variables: string[]): SQL {
-    return new SQL(strings.flatMap((sql, i) => i > 0 ? [{ type: 'raw', sql: variables[i-1] }, { type: 'raw', sql }] : [{ type: 'raw', sql }]))
+  static raw(sql: string): SQL {
+    return new SQL([{ type: 'raw', sql }])
   }
   static param(value: unknown): SQL {
     return new SQL([{ type: 'param', value }])
   }
-  static assert_in<T>(value: T, valid: T[]) {
+  static assert_in(value: string, valid: string[]) {
     if (!valid.includes(value)) throw new Error(`${value} not in ${valid}`)
-    return value
+    return new SQL([{ type: 'raw', sql: value }])
   }
   static join(sep: string, ...parts: SQL[]): SQL {
     return new SQL(parts.flatMap((part, i) => i > 0 ? [{ type: 'raw', sql: sep }, ...part.parts] : part.parts))

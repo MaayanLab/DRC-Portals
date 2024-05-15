@@ -62,6 +62,7 @@ psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection.sql -o log/lo
 ./gen_ingest_slim_script.sh ingest_slim.sql
 psql "$(python3 dburl.py)" -a -f ingest_slim.sql
 
+psql "$(python3 dburl.py)" -a -f infer_access_urls.sql
 
 # .. and other scripts above
 ```

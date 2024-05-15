@@ -41,6 +41,7 @@ model biosample {
   project_id_namespace                                                String                     @db.VarChar
   project_local_id                                                    String                     @db.VarChar
   persistent_id                                                       String?                    @default("") @db.VarChar
+  access_url                                                          String?                    @default("") @db.VarChar
   creation_time                                                       String?                    @default("") @db.VarChar
   sample_prep_method                                                  String?                    @default("") @db.VarChar
   anatomy                                                             String?                    @default("") @db.VarChar
