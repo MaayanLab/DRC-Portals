@@ -32,7 +32,6 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
             const pmc = pmcid.replace('PMC', '')
             const res = await fetch(`https://api.ncbi.nlm.nih.gov/lit/ctxp/v1/pmc/?format=csl&id=${pmc}`)
             const val = await res.json()
-            console.log(val)
             const c = new Cite(val)
             setCitation(c)
             return c
@@ -41,8 +40,8 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
     }
 
     const download_citation = async (format: string) => {
-        handleClose()
         const citation = await resolve_citation()
+        console.log(citation)
         let formatted = ''
         if (format === 'RIS') {
             formatted = citation.format('ris')
@@ -60,6 +59,7 @@ const ExportCitation = ({pmcid}: {pmcid:string}) => {
               })
         }
         fileDownload(formatted, `${format}.txt`)
+        handleClose()
     }
     return (
         <>
