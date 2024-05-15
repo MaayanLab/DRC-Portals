@@ -1,0 +1,69 @@
+# File Asset Submission
+
+1. Go to the Data and Metadata Upload Form OR Click on the "Submit" tab in the navigation bar or in the footer and click on the "Submit and Manage File/Code Assets" button.
+    ![Screenshot showing navigation to Data and Metadata Upload Form](../../../../public/img/submission_system/file_upload_1.png)
+    ##### Figure 1: A screenshot of Submission System showing navigation to Data and Metadata Upload Form. 
+
+2. On the Upload Form page, upload your processed data by either dragging and dropping it in the upload box, or clicking in the box or on the "Choose File" button.
+    ![A screenshot of Data and Metadata Upload Form showing file selection](../../../../public/img/submission_system/file_upload_2.png)
+    ##### Figure 2: A screenshot of Data and Metadata Upload Form showing file selection.
+
+3. The file you have selected should appear under “File to Upload”. If you select a wrong file, you can delete it by clicking on the delete icon next to the file name or by re-uploading the correct file.
+    ![A screenshot of Data and Metadata Upload Form showing selected file](../../../../public/img/submission_system/file_upload_3.png)
+    ##### Figure 3: A screenshot of Data and Metadata Upload Form showing selected file. 
+
+4. Select the DCC that the files to upload were generated from. Only DCCs that you are affiliated with will be provided as an option in the dropdown menu. If you are affiliated with a DCC and the option is not provided, please contact the DRC to update this information.
+    ![A screenshot of Data and Metadata Upload Form showing DCC selection](../../../../public/img/submission_system/file_upload_4.png)
+    ##### Figure 4: A screenshot of Data and Metadata Upload Form showing DCC selection.
+
+5. Select the file asset type that you wish to upload the file as and click on the "Submit Form" button.
+    ![A screenshot of Data and Metadata Upload Form showing file asset type selection](../../../../public/img/submission_system/file_upload_5.png)
+    ##### Figure 5: A screenshot of Data and Metadata Upload Form showing file asset type selection.
+
+6. Unexpected File type: There are file extensions that are expected for each file asset type. If the extension of the selected file does not match one of the expected extensions based on the entered File Asset Type, a dialog box will appear requesting you to confirm your upload of this unexpected file type. If the unexpected file type is intentional, click on the 'Yes Continue' button to proceed with the upload, otherwise click 'No' to cancel the upload.
+The recommended extensions for each file asset type are:
+- C2M2: .zip
+- KG Assertions: .zip
+- Attribute Table: .h5 or .hdf5
+- XMT: .(x)mt e.g .gmt or .dmt
+
+    ![A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection](../../../../public/img/submission_system/file_upload_6.png)
+    ##### Figure 6: A screenshot of Data and Metadata Upload Form showing pop up that appears with unexpected file type selection.
+
+7. If an upload is successful, a green banner with “Success! File Uploaded” should appear. If an upload is unsuccessful, a red banner with an error message will appear with the reason for the upload error. Ensure that the file you have selected for upload files has either a .csv, .txt, .zip or .(x)mt file extension and is not larger than 5GB.
+    ![A screenshot of Data and Metadata Upload Form showing successful file upload banner](../../../../public/img/submission_system/file_upload_7.png)
+    ##### Figure 7: A screenshot of Data and Metadata Upload Form showing successful file upload banner.
+
+8. Details of your uploaded file should appear on the Uploaded Assets page.
+    ![A screenshot of Uploaded Assets page showing uploaded file asset](../../../../public/img/submission_system/file_upload_8.png)
+    ##### Figure 8: A screenshot of Uploaded Assets page showing uploaded file asset.
+
+## File Integrity Validation
+
+A checksum is a digital fingerprint that can be made from a sequence of bytes, otherwise known as a bitstream e.g. the contents of a file. Just like a fingerprint, a checksum is unique to the bitstream. Any change to the bitstream, however big or small, will cause the value of its checksum to change completely. Checksums can be used to detect changes in the contents of a file which occur during file upload and download. During file submission on the site, file integrity is verified using the SHA256 checksum algorithm. A checksum is calculated from the file a user upload browser-side and compared to the checksum calculated from the file received by the AWS S3 bucket. If these checksum values are the same, which shows that the file was unchanged/uncorrupted during upload, the file upload is successful. Otherwise, if the values are different, the system will throw an error.
+
+1. The checksum of a successfully uploaded file is displayed on the Uploaded Assets page under the File Info dropdown of each file.
+    ![A screenshot of Uploaded Assets page showing the SHA-256 checksum of uploaded file asset](../../../../public/img/submission_system/checksum_validation_1.png)
+    ##### Figure 9: A screenshot of Uploaded Assets page showing the SHA-256 checksum of uploaded file asset.
+
+
+
+2. To verify file integrity after downloading a file from the portal:
+- Download the intended file
+- Calculate the checksum in your terminal:
+    - For Windows:
+        ```
+        certutil -hashfile [file location] SHA256
+        ```
+
+    - For Linux:
+        ```
+        sha256sum [file location]
+        ```
+
+    - For MacOS:
+        ```
+        shasum -a 256 [file location]
+        ```
+
+If the string that is returned is the same as that displayed for the file on the portal, then the file contents have not been changed during download

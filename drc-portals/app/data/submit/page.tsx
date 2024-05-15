@@ -148,7 +148,7 @@ Both Uploaders and Approvers can delete uploaded assets.
     ##### Figure 3: A screenshot of Admin page showing format of filling in new user information. 
 
 #### Update User Information
-1. Go to the [Admin](/data/submit/admin) page and select the users whose information is to be updated and click on the Update User Information button. 
+1. Go to the Admin page and select the users whose information is to be updated and click on the Update User Information button. 
     ![Navigate to Admin page](/img/submission_system/admin_page_4.png)
     ##### Figure 4: A screenshot of Admin page showing selection of user to update user information. 
 
@@ -321,7 +321,6 @@ The Entity Page Template and Example are  links to:
                                 Extract, transform, load (ETL) is the process of converting the DCC raw data into various processed data formats such as the C2M2,
                                 XMT, KG assertions, attribute tables, and database tables.The ETL URL should point to the DCC GitHub repo containing the scripts that
                                 process the data by the DCC to generate these processed datasets.
-                                <br></br>Example: <Link color="#111827">LINCS ETL script</Link>
                             </Typography>
                         </Box>
                         <Box sx={{ p: 1, m: 1, }}>
