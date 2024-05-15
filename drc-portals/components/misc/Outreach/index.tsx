@@ -71,6 +71,13 @@ export interface OutreachParams {
   cfde_specific?: boolean
 }
 
+const same_date = (start_date:Date|null, end_date:Date|null) => {
+  if (!start_date || ! end_date) return false
+  return start_date.getFullYear() === end_date.getFullYear() &&
+    start_date.getMonth() === end_date.getMonth() &&
+    start_date.getDate() === end_date.getDate();
+}
+
 const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
   outreach: OutreachWithDCC[], 
   featured: Boolean,
@@ -87,6 +94,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
         if (Array.isArray(e.tags)) {
           tags = e.tags
         }
+        if (same_date(e.start_date, e.end_date)) console.log(e.title, e.start_date?.toDateString(), e.end_date?.toDateString())
         return (
           <Card>
             <CardContent>
@@ -99,11 +107,18 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                       <Typography variant="caption">{e.start_date.toLocaleString('default', { year: 'numeric' })}</Typography>
                     </Paper>
                   }
-                  {e.end_date  &&
+                  {(e.end_date && !same_date(e.start_date, e.end_date))  && 
                     <Paper elevation={0} sx={{backgroundColor: "secondary.main", color: "#EDF0F8", minWidth: 65, padding: 1}}>
                       <Typography variant="caption">{e.end_date.toLocaleString('default', { month: 'short' })}</Typography>
                       <Typography variant="h4">{e.end_date.toLocaleString('default', { day: '2-digit' })}</Typography>
                       <Typography variant="caption">{e.end_date.toLocaleString('default', { year: 'numeric' })}</Typography>
+                    </Paper>
+                  }
+                  {(e.start_date && e.end_date && same_date(e.start_date, e.end_date))  && 
+                    <Paper elevation={0} sx={{backgroundColor: "secondary.main", color: "#EDF0F8", minWidth: 65, padding: 1}}>
+                      <Typography variant="h5">{e.start_date.toLocaleString('default', { hour: '2-digit', hour12: true, minute: '2-digit'})}</Typography>
+                      <Typography variant="caption">to</Typography>
+                      <Typography variant="h5">{e.end_date.toLocaleString('default', { hour: '2-digit', hour12: true, minute: '2-digit'})}</Typography>
                     </Paper>
                   }
                 </div>
