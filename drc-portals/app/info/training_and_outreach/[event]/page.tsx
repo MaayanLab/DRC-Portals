@@ -3,7 +3,7 @@ import Icon from '@mdi/react';
 import { mdiHelpRhombusOutline } from '@mdi/js';
 
 import March2024F2F from "./March2024F2F";
-
+import CFDEWebinarSeries from "./CFDEWebinarSeries";
 export default async function OutreachEvent ({params}: {
 	params: {
 		event: string
@@ -11,7 +11,10 @@ export default async function OutreachEvent ({params}: {
 }) {
 	if (params.event === "2024-march-all-hands-meeting") {
 		return <March2024F2F />
-	} else {
+	} else if (params.event === "cfde-webinar-series") {
+		return <CFDEWebinarSeries />
+	}
+	else {
 		return (
 		<Container maxWidth="sm" >
             <Stack spacing={5} sx={{marginTop: 10}} alignItems={"center"}>
