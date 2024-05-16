@@ -2,6 +2,7 @@
 
 import { Grid, styled } from "@mui/material";
 import { ElementDefinition, EventObjectNode } from "cytoscape";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { DEFAULT_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
@@ -17,13 +18,10 @@ import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
 import SearchBar from "./SearchBar/SearchBar";
 
-type GraphSearchContainerProps = {
-  query: string | null;
-  onSubmit: (state: string) => void;
-};
-
-export default function GraphSearch(cmpProps: GraphSearchContainerProps) {
-  const { query, onSubmit } = cmpProps;
+export default function GraphSearch() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [query, setQuery] = useState<string | null>(searchParams.get("q"));
   const [state, setState] = useState<SearchBarState | undefined>(
     query === null ? undefined : getStateFromQuery(query)
   );
@@ -54,12 +52,18 @@ export default function GraphSearch(cmpProps: GraphSearchContainerProps) {
     },
   ];
 
+  const updateQuery = (state: string) => {
+    const query = btoa(state);
+    router.push(`?q=${query}`);
+    setQuery(query);
+  };
+
   const clearSearchError = () => {
     setSearchError(null);
   };
 
   const handleSubmit = (state: SearchBarState) => {
-    onSubmit(JSON.stringify(state));
+    updateQuery(JSON.stringify(state));
   };
 
   useEffect(() => {

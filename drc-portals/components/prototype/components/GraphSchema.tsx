@@ -2,6 +2,7 @@
 
 import { Grid } from "@mui/material";
 import { EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -24,12 +25,8 @@ import { convertPathToSearchValue, isPathEligible } from "../utils/schema";
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
 
-type GraphSchemaContainerProps = {
-  onPathSearch: (state: string) => void;
-};
-
-export default function GraphSchema(cmpProps: GraphSchemaContainerProps) {
-  const { onPathSearch } = cmpProps;
+export default function GraphSchema() {
+  const router = useRouter();
   const [path, setPath] = useState<SchemaData[]>([]);
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
@@ -50,9 +47,14 @@ export default function GraphSchema(cmpProps: GraphSchemaContainerProps) {
     pathRef.current = path;
   }, [path]);
 
+  const updateQuery = (state: string) => {
+    const query = btoa(state);
+    router.push(`search?q=${query}`);
+  };
+
   const searchPath = () => {
     if (pathRef.current.length > 0) {
-      onPathSearch(
+      updateQuery(
         JSON.stringify({ value: convertPathToSearchValue(pathRef.current) })
       );
     }
