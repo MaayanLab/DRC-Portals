@@ -114,9 +114,9 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                   }
                   {(e.start_date && e.end_date && same_date(e.start_date, e.end_date))  && 
                     <Paper elevation={0} sx={{backgroundColor: "secondary.main", color: "#EDF0F8", minWidth: 65, padding: 1}}>
-                      <Typography variant="h5">{e.start_date.toLocaleString('default', { hour: '2-digit', hour12: true, minute: '2-digit'})}</Typography>
-                      <Typography variant="caption">to</Typography>
-                      <Typography variant="h5">{e.end_date.toLocaleString('default', { hour: '2-digit', hour12: true, minute: '2-digit'})}</Typography>
+                      <Typography variant="h5">{e.start_date.toLocaleString('default', { hour: 'numeric', hour12: true, minute: 'numeric', timeZone: "America/New_York"})}</Typography>
+                      <Typography variant="body1">to</Typography>
+                      <Typography variant="h5">{e.end_date.toLocaleString('default', { hour: 'numeric', hour12: true, minute: 'numeric', timeZone: "America/New_York"})} ET</Typography>
                     </Paper>
                   }
                 </div>
