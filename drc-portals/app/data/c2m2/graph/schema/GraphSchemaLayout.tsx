@@ -10,7 +10,7 @@ export default async function GraphSchemaLayout() {
 
   const updateQuery = (state: string) => {
     const query = btoa(state);
-    router.push(`c2m2/graph/search?q=${query}`);
+    router.push(`search?q=${query}`);
   };
 
   return (
