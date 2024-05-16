@@ -1,4 +1,11 @@
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  ListItem,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
   EventObject,
@@ -150,7 +157,17 @@ export const createNodeProperties = (
         }}
       >
         <Typography {...textProps}>
-          <b>{key}</b>: {val}
+          <b>{key}</b>:
+          {Array.isArray(val)
+            ? val.map((arrItem, arrIdx) => (
+                <ListItem
+                  key={`prop-${key}-${index}-${arrIdx}`}
+                  sx={{ display: "list-item" }}
+                >
+                  {arrItem}
+                </ListItem>
+              ))
+            : val}
         </Typography>
       </div>
     ))}
