@@ -976,7 +976,7 @@ file_table AS (
     console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
     console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
     console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
-
+    console.log("newFileColColumns: ", newFileColColumns);
 
     return (
       <LandingPageLayout
