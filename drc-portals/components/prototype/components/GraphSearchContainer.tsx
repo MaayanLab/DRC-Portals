@@ -1,3 +1,5 @@
+"use client";
+
 import { Grid, styled } from "@mui/material";
 import { ElementDefinition, EventObjectNode } from "cytoscape";
 import { useEffect, useState } from "react";

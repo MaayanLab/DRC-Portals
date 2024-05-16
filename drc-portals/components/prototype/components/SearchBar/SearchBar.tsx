@@ -1,3 +1,5 @@
+"use client";
+
 import Autocomplete from "@mui/material/Autocomplete";
 import { CircularProgress, IconButton, Paper, Popper } from "@mui/material";
 import TextField from "@mui/material/TextField";
