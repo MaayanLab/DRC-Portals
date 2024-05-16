@@ -760,7 +760,7 @@ count_file_col AS (
       staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
         results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
 
-    const collections_table_columnsToIgnore: string[] = ['collection_id_namespace', 'persistent_id'];
+    const collections_table_columnsToIgnore: string[] = ['collection_id_namespace']; // don't include 'persistent_id' here
     const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
       staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
         results?.collections_table_full ?? [], collections_table_columnsToIgnore);

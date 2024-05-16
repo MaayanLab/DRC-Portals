@@ -11,8 +11,10 @@ import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
-import { getDCCIcon, capitalizeFirstLetter, isURL , generateMD5Hash} from "@/app/data/c2m2/utils";
+import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash} from "@/app/data/c2m2/utils";
 import SQL from '@/lib/prisma/raw';
+
+const allres_filtered_maxrow_limit = 100000;
 
 type PageProps = { searchParams: Record<string, string> }
 type FilterObject = {
@@ -107,6 +109,7 @@ async function fetchQueryResults(searchParams: any) {
               record_info_url: string,
             }[],
             count: number,
+            all_count: number, // this refers to total rows in (filtercause applied on allres but without applying allres_filtered_maxrow_limit)
             // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
             // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
             dcc_filters: { dcc_name: string, dcc_short_label: string, count: number, }[],
@@ -171,6 +174,7 @@ async function fetchQueryResults(searchParams: any) {
           ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
             protein_name, compound_name, data_type_name
         ),
+        allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres ${filterClause}),
         allres_filtered AS (
           SELECT allres.*, 
           concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
@@ -180,6 +184,7 @@ async function fetchQueryResults(searchParams: any) {
           '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
           FROM allres
           ${filterClause}
+          LIMIT ${allres_filtered_maxrow_limit}
         ),
         allres_limited AS (
           SELECT *
@@ -243,8 +248,9 @@ async function fetchQueryResults(searchParams: any) {
         SELECT
         (SELECT COALESCE(jsonb_agg(allres_filtered.*), '[]'::jsonb) AS records_full FROM allres_filtered ), 
         (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited ), 
-          (SELECT count FROM total_count) as count,
-          (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
+        (SELECT count FROM total_count) as count,
+        (SELECT filtered_count FROM allres_filtered_count) as all_count,
+        (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
           (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
           (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
           (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
@@ -325,8 +331,9 @@ async function fetchQueryResults(searchParams: any) {
           }));
         
           const t3: number = performance.now();
-          console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
-          console.log("Elapsed time for creating data for filters: ", t3 - t2, "milliseconds");
+          console.log("Total count of results (after filterclause but before allres_filtered_maxrow_limit): ", results?.all_count);
+          console.log("Elapsed time for DB queries: ", t1 - t0, " milliseconds");
+          console.log("Elapsed time for creating data for filters: ", t3 - t2, " milliseconds");
         
           // console.log("Length of DCC Filters")
           // console.log(DccFilters.length);
@@ -342,8 +349,10 @@ async function fetchQueryResults(searchParams: any) {
 
           return (
             <ListingPageLayout
-              count={results?.count} // This matches with #records in the table on the right (without filters applied)
-              searchText={searchParams.q}
+            count={results?.count} // This matches with #records in the table on the right (without limit)
+            all_count={results?.all_count} // This matches with #records in the table on the right (without any limit)
+            all_count_limit={allres_filtered_maxrow_limit}
+            searchText={searchParams.q}
               filters={
                 <>
                   {DiseaseFilters.length > 1 && (
@@ -550,4 +559,4 @@ async function fetchQueryResults(searchParams: any) {
   
   // Not reached since already returtned
   //const t5: number = performance.now();
-  //console.log("Elapsed time for display (filters + table): ", t5 - t4, "milliseconds");
+  //console.log("Elapsed time for display (filters + table): ", t5 - t4, " milliseconds");
