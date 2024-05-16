@@ -4,7 +4,6 @@ import { Grid } from "@mui/material";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import GraphSchemaContainer from "./GraphSchemaContainer";
 import GraphSearchContainer from "./GraphSearchContainer";
 
 export default function PrototypeContainer() {
@@ -23,7 +22,6 @@ export default function PrototypeContainer() {
 
   return (
     <Grid item container xs={12} spacing={1}>
-      <GraphSchemaContainer onPathSearch={updateQuery}></GraphSchemaContainer>
       <GraphSearchContainer
         query={searchQuery}
         onSubmit={updateQuery}

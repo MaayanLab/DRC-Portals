@@ -1,11 +1,6 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Grid,
-  Typography,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+"use client";
+
+import { Grid } from "@mui/material";
 import { EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
 import { useEffect, useRef, useState } from "react";
 
@@ -137,38 +132,32 @@ export default function GraphSchemaContainer(
   ];
 
   return (
-    <Grid container item spacing={1} xs={12}>
-      <Grid item xs={12} lg={entityDetails === undefined ? 12 : 9}>
-        <Accordion>
-          <AccordionSummary
-            sx={{ height: "inherit" }}
-            expandIcon={<ExpandMoreIcon color="secondary" />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography color="secondary">
-              View Interactive Graph Schema
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails
-            sx={{
-              height: "640px",
-              position: "relative",
-            }}
-          >
-            <CytoscapeChart
-              elements={SCHEMA_ELEMENTS}
-              layout={SCHEMA_LAYOUT}
-              stylesheet={SCHEMA_STYLESHEET}
-              legendPosition={{ top: 10, left: 10 }}
-              toolbarPosition={{ top: 10, right: 10 }}
-              customTools={customTools}
-              staticCxtMenuItems={staticCxtMenuItems}
-              nodeCxtMenuItems={nodeCxtMenuItems}
-              edgeCxtMenuItems={edgeCxtMenuItems}
-            ></CytoscapeChart>
-          </AccordionDetails>
-        </Accordion>
+    <Grid
+      container
+      item
+      spacing={1}
+      xs={12}
+      sx={{
+        height: "640px",
+      }}
+    >
+      <Grid
+        item
+        xs={12}
+        lg={entityDetails === undefined ? 12 : 9}
+        sx={{ position: "relative", height: "inherit" }}
+      >
+        <CytoscapeChart
+          elements={SCHEMA_ELEMENTS}
+          layout={SCHEMA_LAYOUT}
+          stylesheet={SCHEMA_STYLESHEET}
+          legendPosition={{ top: 10, left: 10 }}
+          toolbarPosition={{ top: 10, right: 10 }}
+          customTools={customTools}
+          staticCxtMenuItems={staticCxtMenuItems}
+          nodeCxtMenuItems={nodeCxtMenuItems}
+          edgeCxtMenuItems={edgeCxtMenuItems}
+        ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (
         <GraphEntityDetailsContainer

@@ -1,3 +1,5 @@
+"use client";
+
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, Grid, IconButton, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
