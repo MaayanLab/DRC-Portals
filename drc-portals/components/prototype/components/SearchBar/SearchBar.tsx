@@ -33,9 +33,9 @@ interface SearchBarProps {
 
 export default function SearchBar(cmpProps: SearchBarProps) {
   const { state, error, loading, clearError, onSubmit } = cmpProps;
-  const [value, setValue] = useState<SearchBarOption[]>(state?.value || []);
-  const [options, setOptions] = useState<SearchBarOption[]>(getOptions(value));
-  const [settings, setSettings] = useState<SearchQuerySettings>(
+  const [value, setValue] = useState(state?.value || []);
+  const [options, setOptions] = useState(getOptions(value));
+  const [settings, setSettings] = useState(
     state?.settings || DEFAULT_QUERY_SETTINGS
   );
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);

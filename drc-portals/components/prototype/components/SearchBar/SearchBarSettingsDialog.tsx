@@ -35,10 +35,8 @@ export default function SearchSettingsDialog(
   cmpProps: SearchSettingsDialogProps
 ) {
   const { open, onClose, onSubmit } = cmpProps;
-  const [value, setValue] = useState<SearchBarOption[]>(cmpProps.value);
-  const [settings, setSettings] = useState<SearchQuerySettings>(
-    cmpProps.settings
-  );
+  const [value, setValue] = useState(cmpProps.value);
+  const [settings, setSettings] = useState(cmpProps.settings);
 
   const pathSettingsDivider = (
     <Box

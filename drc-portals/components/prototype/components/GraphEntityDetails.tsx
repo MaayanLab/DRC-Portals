@@ -16,9 +16,7 @@ export default function GraphEntityDetails(
   cmpProps: GraphEntityDetailsContainerProps
 ) {
   const { onCloseDetails } = cmpProps;
-  const [entityDetails, setEntityDetails] = useState<CytoscapeNodeData>(
-    cmpProps.entityDetails
-  );
+  const [entityDetails, setEntityDetails] = useState(cmpProps.entityDetails);
 
   useEffect(() => {
     setEntityDetails(cmpProps.entityDetails);

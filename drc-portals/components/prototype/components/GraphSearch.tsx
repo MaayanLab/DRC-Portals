@@ -21,11 +21,11 @@ import SearchBar from "./SearchBar/SearchBar";
 export default function GraphSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [query, setQuery] = useState<string | null>(searchParams.get("q"));
-  const [state, setState] = useState<SearchBarState | undefined>(
+  const [query, setQuery] = useState(searchParams.get("q"));
+  const [state, setState] = useState(
     query === null ? undefined : getStateFromQuery(query)
   );
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [elements, setElements] = useState<ElementDefinition[]>([]);
   const [entityDetails, setEntityDetails] = useState<
