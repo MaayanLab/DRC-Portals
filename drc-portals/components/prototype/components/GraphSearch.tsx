@@ -8,11 +8,14 @@ import { useEffect, useState } from "react";
 import { DEFAULT_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
 import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
-import { SearchBarState } from "../interfaces/search-bar";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
 import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
-import { createCypher, getStateFromQuery } from "../utils/search-bar";
+import {
+  createCypher,
+  createSynonymSearchCypher,
+  getStateFromQuery,
+} from "../utils/search-bar";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
@@ -22,9 +25,7 @@ export default function GraphSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [query, setQuery] = useState(searchParams.get("q"));
-  const [state, setState] = useState(
-    query === null ? undefined : getStateFromQuery(query)
-  );
+  const [searchValue, setSearchValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [elements, setElements] = useState<ElementDefinition[]>([]);
@@ -52,47 +53,62 @@ export default function GraphSearch() {
     },
   ];
 
-  const updateQuery = (state: string) => {
-    const query = btoa(state);
-    router.push(`?q=${query}`);
-    setQuery(query);
-  };
-
   const clearSearchError = () => {
     setSearchError(null);
   };
 
-  const handleSubmit = (state: SearchBarState) => {
-    updateQuery(JSON.stringify(state));
+  const handleSubmit = (term: string) => {
+    const query = btoa(JSON.stringify(term));
+    router.push(`?q=${query}`);
+    setQuery(query);
+  };
+
+  const handleInvalidQuery = () => {
+    setSearchError(SEARCH_QUERY_ERROR_MSG);
+    setLoading(false);
   };
 
   useEffect(() => {
     if (query !== null) {
-      const state = getStateFromQuery(query);
+      let parsedQuery: any;
+      try {
+        // Attempt to parse the query to a JSON object, and abort if the parse fails for any reason
+        parsedQuery = JSON.parse(atob(query));
+      } catch {
+        handleInvalidQuery();
+        return;
+      }
+
+      const state = getStateFromQuery(parsedQuery);
       if (state !== undefined) {
-        let cypher: string;
+        // Regardless of the value of "state", clear the search value, since we reach this point as a result of using the advanced search
+        setSearchValue(null);
         setLoading(true);
 
+        let cypher: string;
         try {
           // "state" *should* be a valid SearchBarState object, but we wrap "createCypher" in a try-block just in case
           cypher = createCypher(state);
         } catch {
           // If we couldn't parse the state object into cypher, abort
-          setSearchError(BASIC_SEARCH_ERROR_MSG);
-          setLoading(false);
+          handleInvalidQuery();
           return;
         }
-
-        // If we couldn't create the cypher, the state object probably wasn't valid. So, we only set the search bar state after we've
-        // created the cypher.
-        setState(state);
 
         // Finally, try querying Neo4j with the cypher we created
         setInitialNetworkData(cypher)
           .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
           .finally(() => setLoading(false));
+      } else if (typeof parsedQuery === "string") {
+        setSearchValue(parsedQuery);
+        setLoading(true);
+
+        // If the query parsed as a string object, run a synonym search instead
+        setInitialNetworkData(createSynonymSearchCypher(parsedQuery))
+          .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
+          .finally(() => setLoading(false));
       } else {
-        setSearchError(SEARCH_QUERY_ERROR_MSG);
+        handleInvalidQuery();
       }
     }
   }, [query]);
@@ -138,7 +154,7 @@ export default function GraphSearch() {
       >
         <SearchBarContainer>
           <SearchBar
-            state={state}
+            value={searchValue}
             error={searchError}
             loading={loading}
             clearError={clearSearchError}

@@ -1,3 +1,4 @@
+import { IconButton, styled } from "@mui/material";
 import { CSSProperties } from "react";
 import {
   ADMIN_LABELS,
@@ -32,6 +33,10 @@ import {
   SUBSTANCE_LABEL,
   TERM_LABELS,
 } from "./neo4j";
+
+export const TransparentIconButton = styled(IconButton)({
+  "&.MuiIconButton-root:hover": { backgroundColor: "transparent" },
+});
 
 // Entity class style names
 export const ADMIN_NODE_CLASS = "admin-node";
@@ -83,7 +88,6 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     ADMIN_NODE_CLASS,
     {
-
       color: "#000",
       backgroundColor: ADMIN_NODE_COLOR,
     },

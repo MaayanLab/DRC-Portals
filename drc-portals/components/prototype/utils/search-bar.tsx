@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Paper, Popper, Stack } from "@mui/material";
 import { ReactElement } from "react";
 
 import {
@@ -35,9 +35,16 @@ import {
   keyInFactoryMapFilter,
 } from "./shared";
 
-export const getStateFromQuery = (q: string): SearchBarState | undefined => {
+export const CustomPaper = (props: any) => (
+  <Paper {...props} sx={{ width: "fit-content" }} />
+);
+
+export const CustomPopper = (props: any) => (
+  <Popper {...props} placement="bottom-start" />
+);
+
+export const getStateFromQuery = (state: any): SearchBarState | undefined => {
   try {
-    const state = JSON.parse(atob(q));
     SearchBarStateSchema.parse(state);
     return state;
   } catch {
@@ -193,7 +200,6 @@ export const createCypher = (state: SearchBarState) => {
       `RETURN collect(DISTINCT ${NODE_REPR_OBJECT_STR}) AS nodes, collect(DISTINCT ${REL_REPR_OBJECT_STR}) AS relationships`
     );
   }
-
   return queryStmts.join("\n");
 };
 
@@ -463,4 +469,56 @@ export const createPropertyFilter = (
   } else {
     return undefined;
   }
+};
+
+export const createSynonymSearchCypher = (
+  searchTerm: string,
+  synLimit = 100,
+  termLimit = 100,
+  coreLimit = 10,
+  projLimit = 3,
+  dccLimit = 1
+) => {
+  const queryStmts: string[] = [];
+
+  // TODO: Consider pushing the parameterization to the driver
+  queryStmts.push(
+    `
+  CALL db.index.fulltext.queryNodes("synonymIdx", "${searchTerm}")
+  YIELD node AS synonym
+  WITH synonym
+  LIMIT ${synLimit}
+  CALL {
+    WITH synonym
+    MATCH (synonym)<-[:HAS_SYNONYM]-(term)
+    RETURN DISTINCT term
+    LIMIT ${termLimit}
+  }
+  CALL {
+    WITH synonym, term
+    MATCH (term)<-[]-(core)
+    WHERE core:File OR core:Biosample OR core:Subject
+    RETURN DISTINCT core
+    LIMIT ${coreLimit}
+  }
+  CALL {
+    WITH synonym, term, core
+    MATCH (core)<-[:CONTAINS]-(project:Project)
+    RETURN DISTINCT project
+    LIMIT ${projLimit}
+  }
+  CALL {
+    WITH synonym, term, core, project
+    MATCH (project)<-[*]-(dcc:DCC)
+    RETURN DISTINCT dcc
+    LIMIT ${dccLimit}
+  }
+  MATCH path=(term)<-[]-(core)<-[:CONTAINS]-(project:Project)<-[*]-(dcc:DCC)
+  UNWIND nodes(path) AS n
+  UNWIND relationships(path) AS r
+  RETURN collect(DISTINCT ${NODE_REPR_OBJECT_STR}) AS nodes, collect(DISTINCT ${REL_REPR_OBJECT_STR}) AS relationships
+  `
+  );
+
+  return queryStmts.join("\n");
 };
