@@ -157,12 +157,12 @@ export const createNodeProperties = (
         }}
       >
         <Typography {...textProps}>
-          <b>{key}</b>:
+          <b>{`${key}: `}</b>
           {Array.isArray(val)
             ? val.map((arrItem, arrIdx) => (
                 <ListItem
                   key={`prop-${key}-${index}-${arrIdx}`}
-                  sx={{ display: "list-item" }}
+                  sx={{ display: "list-item", py: 0 }}
                 >
                   {arrItem}
                 </ListItem>
