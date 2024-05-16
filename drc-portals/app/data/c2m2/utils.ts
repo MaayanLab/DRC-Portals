@@ -410,6 +410,7 @@ const fileProjTable: { [key: string]: string } = {
     "bundle_collection_local_id": "Bundle Collection ID",
     "project_local_id": "Project ID",
     "persistent_id": "Persistent ID",
+    "access_url": "Access URL",
     "creation_time": "Creation time",
     "size_in_bytes": "Size (bytes)",
     "uncompressed_size_in_bytes": "Uncompressed size (bytes)",

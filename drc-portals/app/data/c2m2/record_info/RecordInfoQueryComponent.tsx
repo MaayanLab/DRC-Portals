@@ -159,6 +159,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -193,6 +194,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -221,6 +223,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -249,6 +252,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -314,6 +318,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -347,6 +352,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -374,6 +380,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -401,6 +408,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
+        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -615,7 +623,7 @@ file_table AS (
     SELECT DISTINCT 
         f.id_namespace,
         f.local_id,
-        f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+        f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
         f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
         f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
         dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
@@ -643,7 +651,7 @@ file_table AS (
   /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
   file_sub_table_keycol AS (
     SELECT DISTINCT fds.*,
-    f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+    f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
     f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
     f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
     dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
@@ -678,7 +686,7 @@ file_table AS (
 
   file_bios_table_keycol AS (
     SELECT DISTINCT fdb.*,
-    f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+    f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
     f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
     f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
     dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
@@ -712,7 +720,7 @@ file_table AS (
 
   file_col_table_keycol AS (
     SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
-    f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
+    f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
     f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
     f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
     dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
