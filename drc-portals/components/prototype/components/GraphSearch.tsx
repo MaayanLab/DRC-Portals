@@ -14,7 +14,7 @@ import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
 import { createCypher, getStateFromQuery } from "../utils/search-bar";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
-import GraphEntityDetailsContainer from "./GraphEntityDetailsContainer";
+import GraphEntityDetails from "./GraphEntityDetails";
 import SearchBar from "./SearchBar/SearchBar";
 
 type GraphSearchContainerProps = {
@@ -22,9 +22,7 @@ type GraphSearchContainerProps = {
   onSubmit: (state: string) => void;
 };
 
-export default function GraphSearchContainer(
-  cmpProps: GraphSearchContainerProps
-) {
+export default function GraphSearch(cmpProps: GraphSearchContainerProps) {
   const { query, onSubmit } = cmpProps;
   const [state, setState] = useState<SearchBarState | undefined>(
     query === null ? undefined : getStateFromQuery(query)
@@ -152,7 +150,7 @@ export default function GraphSearchContainer(
         ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (
-        <GraphEntityDetailsContainer
+        <GraphEntityDetails
           entityDetails={entityDetails}
           onCloseDetails={() => setEntityDetails(undefined)}
         />

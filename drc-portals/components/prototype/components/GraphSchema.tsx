@@ -22,15 +22,13 @@ import { resetChart } from "../utils/cy";
 import { convertPathToSearchValue, isPathEligible } from "../utils/schema";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
-import GraphEntityDetailsContainer from "./GraphEntityDetailsContainer";
+import GraphEntityDetails from "./GraphEntityDetails";
 
 type GraphSchemaContainerProps = {
   onPathSearch: (state: string) => void;
 };
 
-export default function GraphSchemaContainer(
-  cmpProps: GraphSchemaContainerProps
-) {
+export default function GraphSchema(cmpProps: GraphSchemaContainerProps) {
   const { onPathSearch } = cmpProps;
   const [path, setPath] = useState<SchemaData[]>([]);
   const [entityDetails, setEntityDetails] = useState<
@@ -160,7 +158,7 @@ export default function GraphSchemaContainer(
         ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (
-        <GraphEntityDetailsContainer
+        <GraphEntityDetails
           entityDetails={entityDetails}
           onCloseDetails={() => setEntityDetails(undefined)}
         />

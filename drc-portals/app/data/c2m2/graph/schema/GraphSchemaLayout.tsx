@@ -3,7 +3,7 @@
 import { Grid } from "@mui/material";
 import { useRouter } from "next/navigation";
 
-import GraphSchemaContainer from "@/components/prototype/components/GraphSchemaContainer";
+import GraphSchema from "@/components/prototype/components/GraphSchema";
 
 export default async function GraphSchemaLayout() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default async function GraphSchemaLayout() {
       spacing={2}
     >
       <Grid item container xs={12} spacing={1}>
-        <GraphSchemaContainer onPathSearch={updateQuery}></GraphSchemaContainer>
+        <GraphSchema onPathSearch={updateQuery}></GraphSchema>
       </Grid>
     </Grid>
   );

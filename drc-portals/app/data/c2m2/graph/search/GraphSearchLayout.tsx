@@ -4,7 +4,7 @@ import { Grid } from "@mui/material";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import GraphSearchContainer from "@/components/prototype/components/GraphSearchContainer";
+import GraphSearch from "@/components/prototype/components/GraphSearch";
 
 export default function GraphSearchLayout() {
   const searchParams = useSearchParams();
@@ -28,10 +28,7 @@ export default function GraphSearchLayout() {
       spacing={2}
     >
       <Grid item container xs={12} spacing={1}>
-        <GraphSearchContainer
-          query={searchQuery}
-          onSubmit={updateQuery}
-        ></GraphSearchContainer>
+        <GraphSearch query={searchQuery} onSubmit={updateQuery}></GraphSearch>
       </Grid>
     </Grid>
   );

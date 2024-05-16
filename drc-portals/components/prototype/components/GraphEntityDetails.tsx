@@ -12,7 +12,7 @@ interface GraphEntityDetailsContainerProps {
   onCloseDetails: () => void;
 }
 
-export default function GraphEntityDetailsContainer(
+export default function GraphEntityDetails(
   cmpProps: GraphEntityDetailsContainerProps
 ) {
   const { onCloseDetails } = cmpProps;
