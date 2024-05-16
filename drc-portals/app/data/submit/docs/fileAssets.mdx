@@ -1,0 +1,27 @@
+### XMT
+
+XMT files are text based files which contain a collection of sets of a given entity type. The 'X' in XMT stands for the entity that the sets contain For example, .gmt files are XMT files that contain a collection of gene sets while .dmt files are XMT files that contain a collection of drug sets. On each row of the XMT file, the first column contains the Term associated with the set while all other columns contain the set entities.
+
+
+
+### C2M2
+
+The Crosscut Metadata Model (C2M2) is a collection of files coded in the frictionless data package format. The collection of files are a zipped set of TSV files containing metadata standardized to a set of known ontologies. Please explore the C2M2 technical wiki for more information about how to prepare your metadata into C2M2 compatible files. Please also see the C2M2 section in the Documentation page of the CFDE Workbench portal on how to create C2M2 files.
+
+
+
+### KG Assertions
+
+A knowledge graph is a network that illustrates the relationship between different entities which may come from different datasets. A knowledge graph consists of three main components: nodes, edges and labels. Nodes are the entities represented in the knowledge graph e.g GO Ontology terms. Edges characterize the relationship between nodes e.g. co-expressed with. Knowledge graph assertions are files which contain information about the nodes and edges that could be used to create a knowledge graph. For example, a KG Assertions file for nodes would contain columns which define information about each node: id, label, ontology_label. A KG Assertions file for edges would contain columns that comprises the necessary information about each edge: its source and target nodes, the labels for these nodes and their relationship.
+
+
+
+### Attribute Table
+
+Attribute tables are files containing tables that describe the relationship between two entities with one entity type on the rows (e.g genes) and another on the columns (e.g tissue types). The intersection of a given row and column is then a value defining nature of the relationship between the row entity and the column entity e.g. the qualitative score of similarity between a given gene and a given tissue type.
+
+The recommended extensions for each file asset type are:
+- C2M2: `.zip`
+- KG Assertions: `.zip`
+- Attribute Table: `.h5` or `.hdf5`
+- XMT: .(x)mt e.g `.gmt` or `.dmt`
