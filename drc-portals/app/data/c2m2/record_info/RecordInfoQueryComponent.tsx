@@ -6,6 +6,7 @@ import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
 import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
+import { ColorLensOutlined } from "@mui/icons-material";
 
 const file_count_limit = 100;
 const file_count_limit_proj = 100;
@@ -977,6 +978,7 @@ file_table AS (
     console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
     console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
     console.log("newFileColColumns: ", newFileColColumns);
+    console.log(" One row of file col table: ", results?.file_col_table[0]);
 
     return (
       <LandingPageLayout
