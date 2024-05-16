@@ -1,6 +1,4 @@
 import React from 'react'
-import { BsCheckCircleFill } from "react-icons/bs";
-import { FaCircleExclamation } from "react-icons/fa6";
 import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
@@ -22,7 +20,7 @@ const AssetApprovalStatus = dynamic(() => import('./docs/assetApprovalStatus.mdx
 const AssetCurrentStatus = dynamic(() => import('./docs/assetCurrentStatus.mdx'))
 
 function CustomH1({ children }: { children?: any }) {
-    return <h3 style={{ color: 'black', fontSize: '16px', borderBottom: 'solid', fontWeight: 600 }}>{children}</h3>
+    return <h3 style={{ color: 'black', fontSize: '16px', borderBottom: 'solid', fontWeight: 600, marginTop: 15 }}>{children}</h3>
 }
 
 function CustomParagraph({ children }: { children?: any }) {
@@ -49,19 +47,13 @@ const MyImage = (props: any) => (
 )
 
 
-function CustomH5({ children }: { children?: any }) {
-    return <center><h5 style={{ fontSize: 14 }}>{children}</h5></center>
+// function CustomH5({ children }: { children?: any }) {
+//     return <center><h5 style={{ fontSize: 14 }}>{children}</h5></center>
+// }
+
+function CustomEm({ children }: { children?: any }){
+    return <em className="caption" style={{ fontSize: 14, fontStyle: 'normal', textAlign:'center', display:'block'}}>{children}</em>
 }
-
-
-function CustomIconsFaCircleExclamation({ props }: { props: any }) {
-    return <FaCircleExclamation style={{ display: 'inline-flex', alignItems: 'center' }} />
-}
-
-function CustomIconsBsCheckCircleFill({ props }: { props: any }) {
-    return <BsCheckCircleFill style={{ display: 'inline-flex', alignItems: 'center' }} />
-}
-
 
 const components = {
     h3: CustomH1,
@@ -69,10 +61,9 @@ const components = {
     li: CustomList,
     ol: CustomNumberedList,
     img: MyImage,
-    h5: CustomH5,
+    // h5:  CustomH5,
     ul: CustomBulletList,
-    FaCircleExclamation: CustomIconsFaCircleExclamation,
-    BsCheckCircleFill: CustomIconsBsCheckCircleFill
+    em: CustomEm
 }
 
 
