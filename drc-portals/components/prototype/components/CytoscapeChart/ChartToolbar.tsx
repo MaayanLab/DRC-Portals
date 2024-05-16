@@ -6,10 +6,7 @@ import Divider from "@mui/material/Divider";
 import { styled } from "@mui/system";
 import { v4 } from "uuid";
 
-import {
-  CustomToolbarFnFactory,
-  CytoscapeReference,
-} from "../../interfaces/cy";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 
 type ChartToolbarProps = {
   cyRef: CytoscapeReference;

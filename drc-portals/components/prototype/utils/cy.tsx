@@ -20,16 +20,16 @@ import {
   CytoscapeEdge,
   CytoscapeNode,
   CytoscapeNodeData,
-  CytoscapeReference,
 } from "../interfaces/cy";
 import { SubGraph, NodeResult, RelationshipResult } from "../interfaces/neo4j";
+import { CytoscapeReference } from "../types/cy";
+import { NodeElementFactory } from "../types/shared";
 
 import {
   ENTITY_TO_FACTORY_MAP,
   getNodeDisplayProperty,
   keyInFactoryMapFilter,
   truncateTextToFitWidth,
-  NodeElementFactory,
 } from "./shared";
 
 export const createCytoscapeNodeFromNeo4j = (

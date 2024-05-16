@@ -9,5 +9,3 @@ export interface SchemaEdgeData {
   source: string;
   target: string;
 }
-
-export type SchemaData = SchemaNodeData | SchemaEdgeData;

@@ -28,9 +28,10 @@ import {
   CxtMenuItem,
   EdgeCxtMenuItem,
   NodeCxtMenuItem,
-  CustomToolbarFnFactory,
   CytoscapeNodeData,
 } from "../../interfaces/cy";
+import { PositionOffsets } from "../../interfaces/shared";
+import { CustomToolbarFnFactory } from "../../types/cy";
 import {
   createNodeTooltip,
   hideElement,

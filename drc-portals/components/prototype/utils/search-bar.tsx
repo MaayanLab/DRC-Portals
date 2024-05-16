@@ -13,22 +13,23 @@ import {
 import {
   OPERATOR_FUNCTIONS,
   PROPERTY_OPERATORS,
-  PredicateFn,
 } from "../constants/search-bar";
+import { Direction } from "../enums/search-bar";
 import {
   BasePropertyFilter,
-  Direction,
   NodeOption,
   RelationshipOption,
-  SearchBarOption,
   SearchBarState,
-  SearchBarStateSchema,
 } from "../interfaces/search-bar";
+import { SearchBarStateSchema } from "../schemas/search-bar";
+import { PredicateFn, SearchBarOption } from "../types/search-bar";
+import {
+  NodeElementFactory,
+  RelationshipElementFactory,
+} from "../types/shared";
 
 import {
   ENTITY_TO_FACTORY_MAP,
-  NodeElementFactory,
-  RelationshipElementFactory,
   createAnonymousNodeElement,
   createLineDividerElement,
   keyInFactoryMapFilter,

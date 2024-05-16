@@ -17,10 +17,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { PROPERTY_OPERATORS } from "../../constants/search-bar";
-import {
-  BasePropertyFilter,
-  SearchBarOption,
-} from "../../interfaces/search-bar";
+import { BasePropertyFilter } from "../../interfaces/search-bar";
+import { SearchBarOption } from "../../types/search-bar";
 import {
   createPropertyFilter,
   getEntityProperties,
@@ -28,7 +26,7 @@ import {
   isRelationshipOption,
 } from "../../utils/search-bar";
 
-export interface SettingsPropertyFormProps {
+interface SettingsPropertyFormProps {
   value: SearchBarOption;
   liftValue: (value: SearchBarOption) => void;
 }

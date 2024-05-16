@@ -1,5 +1,5 @@
 import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
-import { CSSProperties, Fragment, ReactElement } from "react";
+import { CSSProperties, Fragment } from "react";
 import { v4 } from "uuid";
 
 import { EDGE_COLOR } from "../constants/cy";
@@ -21,6 +21,7 @@ import {
   NodeElement,
   RelationshipElement,
 } from "../constants/search-bar";
+import { Direction } from "../enums/search-bar";
 import {
   ADMIN_NODE_CLASS,
   BIOSAMPLE_RELATED_NODE_CLASS,
@@ -33,18 +34,11 @@ import {
   TERM_NODE_CLASS,
 } from "../constants/shared";
 import { NodeResult } from "../interfaces/neo4j";
-import { Direction } from "../interfaces/search-bar";
-
-export type NodeElementFactory = (name: string) => ReactElement;
-
-export type RelationshipElementFactory = (
-  name: string,
-  direction: Direction
-) => ReactElement;
-
-export type GraphElementFactory =
-  | NodeElementFactory
-  | RelationshipElementFactory;
+import {
+  GraphElementFactory,
+  NodeElementFactory,
+  RelationshipElementFactory,
+} from "../types/shared";
 
 const createNodeElement = (label: string, style?: CSSProperties) => (
   <NodeElement key={v4()} style={style}>
@@ -235,7 +229,7 @@ export const hexToRgb = (hex: string) => {
 
 export const getContrastText = (rgb: { r: number; g: number; b: number }) => {
   console.log("getContrastText");
-  const {r, g, b} = rgb;
+  const { r, g, b } = rgb;
   const uicolors = [r / 255, g / 255, b / 255];
   const c = uicolors.map((col) => {
     if (col <= 0.03928) {
@@ -243,6 +237,6 @@ export const getContrastText = (rgb: { r: number; g: number; b: number }) => {
     }
     return Math.pow((col + 0.055) / 1.055, 2.4);
   });
-  const L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
-  return (L > 0.179) ? "#000" : "#fff";
+  const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  return L > 0.179 ? "#000" : "#fff";
 };

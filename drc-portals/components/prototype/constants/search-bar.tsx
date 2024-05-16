@@ -1,6 +1,7 @@
 import { Box, Divider, Typography, styled } from "@mui/material";
 
-import { PropertyValue, SearchQuerySettings } from "../interfaces/search-bar";
+import { SearchQuerySettings } from "../interfaces/search-bar";
+import { PredicateFn } from "../types/search-bar";
 
 import { EDGE_COLOR } from "./cy";
 import { STRING_PROPERTIES } from "./neo4j";
@@ -100,12 +101,6 @@ export const PROPERTY_OPERATORS: ReadonlyMap<string, string[]> = new Map([
   // ]),
   // TODO: Add array, bool, and date operators
 ]);
-
-export type PredicateFn = (
-  variable: string,
-  property: string,
-  value: PropertyValue
-) => string;
 
 export const OPERATOR_FUNCTIONS: ReadonlyMap<string, PredicateFn> = new Map([
   [

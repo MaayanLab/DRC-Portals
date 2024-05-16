@@ -17,21 +17,21 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { PROPERTY_MAP } from "../../constants/neo4j";
-import { SearchBarOption } from "../../interfaces/search-bar";
+import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
+import { SearchBarOption } from "../../types/search-bar";
 import {
   createEntityElement,
   isRelationshipOption,
 } from "../../utils/search-bar";
 
 import SettingsPropertyForm from "./SettingsPropertyForm";
-import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
 
 // TODO: Could add `next` and `prev` here, which would enable us to allow the user to change the label/type of the entity.
-export interface SettingsCardProps {
+interface SettingsCardProps {
   value: SearchBarOption;
   liftValue: (value: SearchBarOption) => void;
   deleteValue: () => void;

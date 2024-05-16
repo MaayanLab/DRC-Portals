@@ -16,14 +16,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
-import {
-  SearchBarOption,
-  SearchQuerySettings,
-} from "../../interfaces/search-bar";
+import { SearchQuerySettings } from "../../interfaces/search-bar";
+import { SearchBarOption } from "../../types/search-bar";
 
 import SettingsCard from "./SettingsCard";
 
-export interface SearchSettingsDialogProps {
+interface SearchSettingsDialogProps {
   open: boolean;
   value: SearchBarOption[];
   settings: SearchQuerySettings;

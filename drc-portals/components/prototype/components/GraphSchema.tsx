@@ -15,10 +15,10 @@ import {
   CxtMenuItem,
   EdgeCxtMenuItem,
   NodeCxtMenuItem,
-  CytoscapeReference,
   CytoscapeNodeData,
 } from "../interfaces/cy";
-import { SchemaData } from "../interfaces/schema";
+import { CytoscapeReference } from "../types/cy";
+import { SchemaData } from "../types/schema";
 import { resetChart } from "../utils/cy";
 import { convertPathToSearchValue, isPathEligible } from "../utils/schema";
 

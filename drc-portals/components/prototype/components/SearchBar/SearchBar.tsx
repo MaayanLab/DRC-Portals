@@ -9,10 +9,10 @@ import { v4 } from "uuid";
 
 import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
 import {
-  SearchBarOption,
   SearchQuerySettings,
   SearchBarState,
 } from "../../interfaces/search-bar";
+import { SearchBarOption } from "../../types/search-bar";
 import { createSearchPathEl, getOptions } from "../../utils/search-bar";
 
 import SearchSettingsDialog from "./SearchBarSettingsDialog";
