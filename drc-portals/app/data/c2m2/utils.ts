@@ -225,7 +225,7 @@ export const tableToName = [
     { table: 'substance', label: 'Substance' }
 ];
 
-export function generateFilterQueryStringForRecordInfo(schemaname: string, tablename: string) {
+export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
     const filters: SQL[] = [];
 
     //const tablename = "allres";

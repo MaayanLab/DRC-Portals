@@ -18,7 +18,7 @@ type PageProps = { params: { id: string }, searchParams: Record<string, string |
 export async function RecordInfoQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props);
   console.log("In RecordInfoQueryComponent");
-
+  
   try {
     const results = await fetchRecordInfoQueryResults(searchParams);
     return results;
@@ -39,7 +39,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
 
     console.log("******");
-    console.log("p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
+    console.log("q = " + searchParams.q +" p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
     // Declare different offsets for all the tables and this is needed to fine grain pagination
     const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
     const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
