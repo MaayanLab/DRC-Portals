@@ -10,7 +10,7 @@ update c2m2.file set access_url = (
 /*
 
 Note: These cases give examples where persistent_id is like URL but not that of a file with some extension, 
-so access_url is ''. This is correct behavior. May be in some OWG meeting, we can mentiion about it in the 
+so access_url is ''. This is correct behavior. May be in some OWG meeting, we can mention about it in the 
 context of distinction between persistent_id and access_url.
 
 drc=# select local_id,persistent_id, access_url from c2m2.file where persistent_id != access_url and id_namespace ilike '%lincs%' limit 10;
