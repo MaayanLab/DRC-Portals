@@ -69,12 +69,12 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                             rows={data.map(row => (
                                 dynamicColumns.map(column => (
                                     // Render persistent_id as hyperlink if it's a URL
-                                    column.toLowerCase().includes('persistent') && isURL(row[column]) ? (
-                                        <Link href={row[column].startsWith('drs://') ? 
-                                        row[column].replace(/^drs:\/\//i, 'https://') :
-                                        row[column]} className="underline cursor-pointer text-blue-600"
+                                    ( (column.toLowerCase().includes('persistent') || column.toLowerCase().includes('access')) 
+                                    && isURL(row[column]) ) ? (
+                                        <Link href={row[column]}
+                                         className="underline cursor-pointer text-blue-600"
                                             key={column} target="_blank" rel="noopener noreferrer">
-                                            {row[column].startsWith('drs://')?row[column].substring(6):row[column]}
+                                            {row[column]}
                                         </Link> 
                                     ) : (
                                         // Ensure bigint values are converted to string
@@ -95,3 +95,6 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 };
 
 export default ExpandableTable;
+
+// To replace drs:// with https:// : //{ /* row[column].startsWith('drs://') ? row[column].replace(/^drs:\/\//i, 'https://') : row[column] */ }
+// To not show drs:// in display: { /* row[column].startsWith('drs://')?row[column].substring(6):row[column] */}
