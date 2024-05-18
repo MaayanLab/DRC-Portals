@@ -7,7 +7,9 @@ from uuid import uuid5, NAMESPACE_URL
 import boto3
 from botocore.exceptions import ClientError
 from ingest_common import connection
+import json
 
+# python update_outreach.py outreach.tsv [webinar.tsv]
 if len(sys.argv) == 0 or not sys.argv[1].endswith("tsv"):
     raise Exception("Please add a tsv file")
 
@@ -65,6 +67,49 @@ for i in df.index:
             dcc_id = dcc_mapper[dcc]
             dcc_outreach_df.loc[ind] = [uid, dcc_mapper[dcc]]
             ind += 1
+
+## Add webinars
+if len(sys.argv) > 2:
+  print('updating webinars...')
+  webinar_filename = sys.argv[2]  
+  df2 = pd.read_csv(webinar_filename, sep="\t")
+  webinars = {}
+  for i, val in df2.fillna('').iterrows():
+      title = 'CFDE Webinar Series'
+      label = val['label']
+      start_date = val["start"]
+      end_date = val["end"]
+      string_id = title + str(start_date) + str(end_date)
+      uid = str(uuid5(NAMESPACE_URL, string_id))
+      if uid not in outreach_df.index:
+          print(uid)
+      else:
+          if uid not in webinars:
+              webinars[uid] = {
+                  "speakers": {},
+                  "agenda": []
+              }
+          if label not in webinars[uid]['speakers']:
+              webinars[uid]['speakers'][label] = []
+              webinars[uid]['agenda'].append({
+                  "label": val["label"],
+                  "summary": val["summary"],
+                  "video_link": val["video_link"]
+              })
+          webinars[uid]['speakers'][label].append({
+              "presenter": val["presenter"],
+              "affiliation": val["affiliation"]
+          })
+  for k, v in webinars.items():
+    agenda = []
+    for i in v["agenda"]:
+      agenda.append({
+        "presenters": v["speakers"][i["label"]],
+        **i
+      })
+    outreach_df.at[k,'agenda'] = json.dumps(agenda, ensure_ascii=False)
+
+
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
 outreach_df.index.name = "id"
@@ -109,16 +154,16 @@ with open(outreach_file, 'r') as fr:
     next(fr)
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'agenda', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel', 'cfde_specific', 'recording', 'meeting_link'),
+       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel', 'cfde_specific', 'flyer'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, agenda, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, recording, meeting_link)
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer)
       select id, title, short_description, description, tags, agenda, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, recording, meeting_link
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer
       from outreach_tmp
       on conflict (id)
         do update
@@ -138,8 +183,7 @@ cur.execute('''
             image = excluded.image,
             carousel = excluded.carousel,
             cfde_specific = excluded.cfde_specific,
-            recording = excluded.recording,
-            meeting_link = excluded.meeting_link
+            flyer = excluded.flyer
     ;
   ''')
 cur.execute('drop table outreach_tmp;')

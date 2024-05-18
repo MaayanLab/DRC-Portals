@@ -1,29 +1,29 @@
 import Image from "next/image";
 import { Grid,
 	Typography,
-	Tooltip,
 	Stack,
 	List,
 	ListItem,
-	Avatar,
-	IconButton,
 	Button,
+	Paper,
+	Box
 } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import prisma from "@/lib/prisma";
 import { OutreachWithDCC } from "@/components/misc/Outreach";
 import Link from "next/link";
-import ExportCalendar from "@/components/misc/Outreach/ExportCalendar";
 
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiYoutube, mdiClipboardEditOutline } from "@mdi/js"
+import { mdiYoutube, mdiClipboardEditOutline } from "@mdi/js"
 import YoutubeEmbed from "@/components/misc/YoutubeEmbed";
 type AgendaType = {
-	agenda: string,
-	subtitle: string,
-	summary: string,
-	presenter: string,
-	affiliation: string,
+	label: string,
+	summary?: string,
+	presenters: Array<{
+		presenter: string,
+		affiliation: string
+	}>,
+	video_link?: string
 }
 
 const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
@@ -34,32 +34,58 @@ const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 		}
 	}
 	return (
-		<Stack spacing={2} sx={{marginBottom: 2}}>
-			{presenters.length > 0 && 
-				<List>
-					{presenters.map((presenter)=>(
-						<ListItem key={presenter.agenda}>
-							<Stack spacing={1}>
-								<Typography variant="body1">
-									<b>{presenter.agenda}</b> &nbsp;
-									<i>{presenter.presenter}</i>
-								</Typography>
-								{presenter.summary && <Typography variant="body1">
-										<b>Summary:</b> {presenter.summary}
-								</Typography>}
-							</Stack>
-						</ListItem>
-					))}
-				</List>
-			}
-			{(webinar.start_date && webinar.end_date) && <Typography variant="h5">{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}, {webinar.start_date.toLocaleTimeString('default', {hour: 'numeric', hour12: true, timeZone: 'UTC'}).replace(" PM","")}-{webinar.end_date.toLocaleTimeString('default', {hour: 'numeric', hour12: true, timeZoneName: 'short', timeZone: 'UTC'})}</Typography>}
-			<div className="flex justify-start" style={{marginLeft: -15}}>
-				<ExportCalendar event={webinar}/>
-				<Link href={'https://hugeamp.org/research.html?pageid=CFDE_webinars'} target="_blank" rel="noopener noreferrer">
-					<Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
-				</Link>
-			</div>
-		</Stack>
+		<Grid container sx={{marginBottom: 2}}>
+			<Grid item xs={12} sm={6}>
+				<Stack>
+					{presenters.length > 0 && 
+						<List sx={{marginLeft: -2}}>
+							{presenters.map((section)=>(
+								<ListItem key={section.label}>
+									<Stack>
+										<Typography variant="body1">
+											<b>{section.label}</b>
+										</Typography>
+										{section.presenters.map(({presenter, affiliation})=>(
+											<>
+												<Typography variant="body1">
+													{presenter}
+												</Typography>
+												<Typography variant="body1">
+													<i>{affiliation}</i>
+												</Typography>
+											</>
+										))}
+										{section.summary && <Typography variant="body1">
+												<b>Summary:</b> {section.summary}
+										</Typography>}
+									</Stack>
+								</ListItem>
+							))}
+						</List>
+					}
+					{(webinar.start_date && webinar.end_date) && <Typography sx={{marginBottom: 2}} variant="body1">{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}, {webinar.start_date.toLocaleTimeString('default', {hour: 'numeric', hour12: true, timeZone: 'America/New_York'}).replace(" PM","")}-{webinar.end_date.toLocaleTimeString('default', {hour: 'numeric', hour12: true, timeZone: 'America/New_York'})} ET</Typography>}
+					<Link href="https://broadinstitute.zoom.us/webinar/register/WN_x0bGLLt4TbqFGlxlMM-T2A#/registration" target="_blank" rel="noopener noreferrer">
+						<Button variant="contained" color="secondary" endIcon={<Icon path={mdiClipboardEditOutline} size={1}/>}>
+							REGISTER FOR WEBINAR
+						</Button>
+					</Link>
+				</Stack>
+			</Grid>
+			<Grid item xs={12} sm={6}>
+					{webinar.image && 
+						<Paper elevation={0} className="flex flex-row relative" sx={{height: 250, backgroundColor: "transparent"}}>
+							<Image src={webinar.image} alt={webinar.title} fill={true} style={{objectFit: "contain"}}/>
+						</Paper>
+					}	
+					{webinar.flyer &&
+					<div className="flex flext-col justify-center">
+						<Link href={webinar.flyer}  target="_blank" rel="noopener noreferrer">
+							<Button color="secondary">Download flyer as PDF</Button>
+						</Link>
+					</div>
+					}	
+			</Grid>
+		</Grid>
 	)
 }
 
@@ -71,35 +97,48 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 		}
 	}
 	return (
-		<Grid container alignItems={'flex-start'} sx={{marginBottom: 2}}>
-			<Grid item xs={12} sm={6}>
-				<Stack spacing={2}>
-					{presenters.length > 0 && 
-						<List>
-							{presenters.map((presenter)=>(
-								<ListItem key={presenter.agenda}>
-									<Stack spacing={1}>
+		<Stack sx={{marginBottom: 2}}>
+			{(webinar.start_date && webinar.end_date) && <Typography variant="body1">{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}</Typography>}
+			{presenters.length > 0 && 
+				<List sx={{marginLeft: -2}}>
+					{presenters.map((section)=>(
+						<ListItem key={section.label}>
+							<Grid container>
+								<Grid item xs={12} sm={7}>
+									<Stack>
 										<Typography variant="body1">
-											<b>{presenter.agenda}</b> &nbsp;
-											<i>{presenter.presenter}</i>
+										<b>{section.label}</b>
 										</Typography>
+										<div className="flex flex-col space-y-2">
+										{section.presenters.map(({presenter, affiliation})=>(
+											<div className="flex flex-col">
+												<Typography variant="body1">
+													{presenter}
+												</Typography>
+												<Typography variant="body1">
+													<i>{affiliation}</i>
+												</Typography>
+											</div>
+										))}
+										</div>
+										{section.video_link && <Link href={section.video_link} target="_blank" rel="noopener noreferrer">
+											<Button  color="secondary" endIcon={<Icon path={mdiYoutube} size={1} />} sx={{marginLeft: -2}}>
+												WATCH VIDEO ON YOUTUBE
+											</Button>
+										</Link>}
 									</Stack>
-								</ListItem>
-							))}
-						</List>
-					}
-					{(webinar.start_date && webinar.end_date) && <Typography variant="h5">Held on {webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}</Typography>}
-					{webinar.recording && <Link href={webinar.recording} target="_blank" rel="noopener noreferrer">
-						<Button  color="secondary" endIcon={<Icon path={mdiYoutube} size={1} />} sx={{marginLeft: -2}}>
-							WATCH VIDEO ON
-						</Button>
-					</Link>}
-				</Stack>
-			</Grid>
-			{webinar.recording && <Grid item xs={12} sm={6}>
-				<YoutubeEmbed embedId={webinar.recording.split("?v=")[1]}/>
-			</Grid>}
-		</Grid>
+								</Grid>
+								<Grid item xs={12} sm={5}>
+									{section.video_link && 
+										<YoutubeEmbed embedId={section.video_link.split("?v=")[1]}/>
+									}
+								</Grid>
+							</Grid>
+						</ListItem>
+					))}
+				</List>
+			}
+		</Stack>
 	)
 }
 
@@ -144,25 +183,8 @@ const CFDEWebinarSeries = async () => {
 			</Grid>
 			<Grid item xs={12}>
 				<Typography variant="body1">
-					The CFDE Webinar Series is established to highlight NIH Common Fund (CF) Data Coordination Centers (DCCs). Join us on the last Friday of each month at 1-2 PM ET to learn about the data, tools and research conducted by the  CFDE and the DCCs.
+				Join us on the last Friday of each month from 1-2 PM Eastern Time to learn more about how the CFDE is harmonizing and discovering new knowledge by integrating datasets, tools and other resources from a collection of NIH Common Fund programs.
 				</Typography>
-			</Grid>
-			<Grid item xs={12}>
-				<Typography variant="h3" color="secondary">
-					Sign Up
-				</Typography>
-			</Grid>
-			<Grid item xs={12}>
-				<div className="flex flex-col">
-					<Link href="https://broadinstitute.zoom.us/webinar/register/WN_x0bGLLt4TbqFGlxlMM-T2A#/registration" rel="noopener noreferrer">
-						<Button color="secondary">https://broadinstitute.zoom.us/webinar/register/WN_x0bGLLt4TbqFGlxlMM-T2A#/registration</Button>
-					</Link>
-					<Link href="https://broadinstitute.zoom.us/webinar/register/WN_x0bGLLt4TbqFGlxlMM-T2A#/registration" rel="noopener noreferrer">
-						<Button sx={{marginLeft: 2}} variant="contained" color="secondary" endIcon={<Icon path={mdiClipboardEditOutline} size={1}/>}>
-							SIGN UP
-						</Button>
-					</Link>
-				</div>
 			</Grid>
 			<Grid item xs={12}>
 				<Typography variant="h3" color="secondary">
