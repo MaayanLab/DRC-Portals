@@ -27,7 +27,7 @@ function parseKeycloakUserinfo(accessToken: string) {
   }).safeParse(userInfo)
   if (!userInfoParsed.success) return
   const roles = userInfoParsed.data.resource_access["DRC-Portal"].roles.filter(role => role.startsWith('role:')).map(role => role.slice('role:'.length))
-  const dccs = userInfoParsed.data.resource_access["DRC-Portal"].roles.filter(role => role.startsWith('dcc:')).map(role => role.slice('dcc:'.length))
+  const dccs = userInfoParsed.data.resource_access["DRC-Portal"].roles.filter(role => role.startsWith('dcc:')).map(role => role.slice('dcc:'.length)).filter((dcc) => dcc !== '*')
   return {
     name: userInfoParsed.data.name,
     email: userInfoParsed.data.email,
