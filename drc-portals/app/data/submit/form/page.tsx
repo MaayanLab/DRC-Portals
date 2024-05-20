@@ -10,7 +10,6 @@ export default async function UploadForm() {
   const session = await getServerSession(authOptions)
   if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
   const user = session.keycloakInfo
-  console.log(user)
   if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/form")
   if (!(user.roles.includes('UPLOADER') || user.roles.includes('READONLY') || user.roles.includes('DRC_APPROVER'))) {
     return (

@@ -352,7 +352,7 @@ export function PaginatedTable({ userFiles, roles }: {
                 approvedSymboldcc = <BsCheckCircleFill size={20} />
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} userRoles={roles}/>
             )
         })
     } else if (roles.includes('DCC_APPROVER')) {
@@ -363,7 +363,7 @@ export function PaginatedTable({ userFiles, roles }: {
             if (userFile.drcapproved) {
                 approvedSymbol = <BsCheckCircleFill size={20} />
             }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />)
+            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} userRoles={roles} />)
         })
     } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
@@ -380,7 +380,7 @@ export function PaginatedTable({ userFiles, roles }: {
                 currentSymbol = <BsCheckCircleFill size={20} />
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} userRoles={roles}/>
             )
         })
     }
