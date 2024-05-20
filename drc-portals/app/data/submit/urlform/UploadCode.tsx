@@ -4,13 +4,19 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { CodeAsset, User } from '@prisma/client';
+import { CodeAsset } from '@prisma/client';
 import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
+import { getAllKeycloakUsers } from '@/lib/auth/keycloakInfo';
 
-
+type User = {
+    name: string;
+    email: string;
+    roles: string[];
+    dccs: string[];
+  }
 
 // used in development only
 const dccMapping: { [key: string]: string } = {
@@ -36,16 +42,13 @@ const dccMapping: { [key: string]: string } = {
 }
 
 
+
 export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not allowed to create')
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
+    if (!(user.roles.includes('UPLOADER') || user.roles.includes('DRC_APPROVER'))) throw new Error('not allowed to create')
     if (!user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
@@ -113,13 +116,9 @@ export const findCodeAsset = async (link: string) => {
 export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not an allowed to upload')
+    const user = session.keycloakInfo
+    if (!user) throw new Error('No user found')
+    if (!(user.roles.includes('UPLOADER') || user.roles.includes('DRC_APPROVER'))) throw new Error('not allowed to create')
     if (!user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
@@ -185,20 +184,8 @@ export async function sendUploadReceipt(user: User, assetInfo: { codeAsset: Code
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const approversList = await prisma.dCC.findFirst({
-        where: {
-            short_label: dcc
-        },
-        select: {
-            Users: {
-                where: {
-                    role: 'DCC_APPROVER'
-                }
-            }
-        }
-    })
-
-    const approvers = approversList ? approversList.Users : []
+    const allUsers = await getAllKeycloakUsers()
+    const approvers = allUsers.filter((user) => user.roles.includes('DCC_APPROVER'))
     for (let approver of approvers) {
         const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} />);
         if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')

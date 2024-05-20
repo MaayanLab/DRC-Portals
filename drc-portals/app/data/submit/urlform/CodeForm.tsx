@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { DCCSelect } from '../form/DCCSelect';
-import { $Enums, CodeAsset, DCC, DccAsset, FileAsset, User } from '@prisma/client';
+import { CodeAsset, DccAsset, FileAsset } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -164,7 +164,14 @@ type fullDCCAsset = {
     codeAsset: CodeAsset | null;
 } & DccAsset
 
-export function CodeForm(user: User & { dccs: DCC[] }) {
+type User = {
+    name: string;
+    email: string;
+    roles: string[];
+    dccs: string[];
+  }
+
+export function CodeForm(user: User ) {
 
     const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<StatusType>({})
@@ -367,7 +374,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                 />
                             </Grid>
                             <Grid item>
-                                <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
+                                <DCCSelect dccOptions={user.dccs.toString()} />
                             </Grid>
                         </Grid>
                         <Grid container direction='row' justifyContent="center" className='mb-5' spacing={2}>
@@ -478,7 +485,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                             alignItems="center"
                         >
                             <FormControl>
-                                <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+                                <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }} disabled={user.roles.includes('READONLY')}>
                                     Submit
                                 </Button>
                             </FormControl>

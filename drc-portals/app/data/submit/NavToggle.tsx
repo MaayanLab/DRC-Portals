@@ -60,18 +60,6 @@ export default function ColorToggleButton({ userAdmin, loggedIn, registered }: {
                     UPLOADED ASSETS
                 </Typography>
             </ToggleButton>
-            {userAdmin && <ToggleButton value={"/submit/admin"} href={"/data/submit/admin"}
-                disabled={!registered || !loggedIn}
-                sx={{
-                    "&.Mui-disabled": {
-                        background: "#eaeaea",
-                        color: "#c0c0c0"
-                    }
-                }}>
-                <Typography variant="nav" align='center' color={(registered && loggedIn) ? 'secondary' : 'grey'}>
-                    ADMIN
-                </Typography>
-            </ToggleButton>}
         </ToggleButtonGroup>
     );
 }

@@ -14,17 +14,14 @@ export default async function Nav() {
       </Container>
     )
   } else {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: session.user.id
-      }
-    })
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     let userAdmin = false
-    if (user?.role === 'ADMIN') {
+    if (user.roles.includes('ADMIN')) {
       userAdmin = true;
     }
     let registered = false
-    if (user?.role !== 'USER') {
+    if (user.roles.includes('UPLOADER') || user.roles.includes('DCC_APPROVER') || user.roles.includes('DRC_APPROVER') || user.roles.includes('READONLY') || user.roles.includes('ADMIN')) {
       registered = true;
     }
     return (

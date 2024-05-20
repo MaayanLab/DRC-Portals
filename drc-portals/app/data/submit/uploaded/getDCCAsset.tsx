@@ -10,6 +10,7 @@ import { render } from '@react-email/render';
 import { DCCApprover_DCCApprovedEmail, DCCApprover_DRCApprovedEmail, DRCApprover_DCCApprovedEmail, DRCApprover_DRCApprovedEmail, Uploader_DCCApprovedEmail, Uploader_DRCApprovedEmail } from "../Email"
 
 import nodemailer from 'nodemailer'
+import { getAllKeycloakUsers } from "@/lib/auth/keycloakInfo"
 
 export async function updateAssetApproval(file: {
     dcc: {
@@ -20,14 +21,10 @@ export async function updateAssetApproval(file: {
 }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
+    if (!(user.roles.includes('DRC_APPROVER') || user.roles.includes('DCC_APPROVER') || user.roles.includes('ADMIN'))) throw new Error('user not allowed to update status')
     if (file.dcc_drc === 'drc') {
         const approved = await prisma.dccAsset.update({
             where: {
@@ -47,9 +44,9 @@ export async function updateAssetApproval(file: {
                 fileAsset: true
             }
         })
-        if (file.drcapproved === false) {
-            await sendDRCApprovedEmails(approved)
-        }
+        // if (file.drcapproved === false) {
+        //     await sendDRCApprovedEmails(approved)
+        // }
         revalidatePath('/data/submit/uploaded')
         return "updated"
     } else if (file.dcc_drc === 'dcc') {
@@ -72,9 +69,9 @@ export async function updateAssetApproval(file: {
             }
         })
         revalidatePath('/data/submit//uploaded')
-        if (file.dccapproved === false) {
-            await sendDCCApprovedEmails(approved)
-        }
+        // if (file.dccapproved === false) {
+        //     await sendDCCApprovedEmails(approved)
+        // }
         return "updated"
     }
 }
@@ -82,14 +79,11 @@ export async function updateAssetApproval(file: {
 export async function updateAssetCurrent(file: DccAsset) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
+    if (!(user.roles.includes('DRC_APPROVER') || user.roles.includes('DCC_APPROVER') || user.roles.includes('ADMIN'))) throw new Error('user not allowed to update status')
     const approved = await prisma.dccAsset.update({
         where: {
             link: file.link,
@@ -106,14 +100,11 @@ export async function updateAssetCurrent(file: DccAsset) {
 export async function deleteAsset(file: DccAsset) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN' || user.role === 'UPLOADER')) throw new Error('user not allowed to delete file')
+    if (!(user.roles.includes('DRC_APPROVER') || user.roles.includes('DCC_APPROVER') || user.roles.includes('ADMIN') || user.roles.includes('UPLOADER'))) throw new Error('user not allowed to delete ')
     const deleted = await prisma.dccAsset.update({
         where: {
             link: file.link,
@@ -137,14 +128,9 @@ export async function sendDCCApprovedEmails(asset: {
 } & DccAsset | null) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    // user here is a DCC approver
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
-    if (user.role === 'DCC_APPROVER') {
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+    if (user.roles.includes('DCC_APPROVER')) {
         if (asset) {
             const uploader = await prisma.user.findFirst({
                 where: {
@@ -230,38 +216,18 @@ export async function sendDRCApprovedEmails(asset: {
 } & DccAsset | null) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    // user here is a DRC approver
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
-    if (user.role === 'DRC_APPROVER') {
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
+    if (user.roles.includes('DRC_APPROVER')) {
         if (asset) {
             const uploader = await prisma.user.findFirst({
                 where: {
                     email: asset.creator
                 }
             });
-            const DCCApproversList = await prisma.dCC.findFirst({
-                where: {
-                    short_label: asset.dcc?.short_label
-                }, 
-                select: {
-                    Users : {
-                        where : {
-                            role: 'DCC_APPROVER'
-                        }
-                    }
-                }
-            })
-            const DCCApprovers = DCCApproversList ? DCCApproversList.Users : []
-            const DRCApprovers = await prisma.user.findMany({
-                where: {
-                    role: 'DRC_APPROVER'
-                }
-            });
+            const allUsers = await getAllKeycloakUsers()
+            const DCCApprovers = allUsers.filter((user) => user.roles.includes('DCC_APPROVER'))
+            const DRCApprovers = allUsers.filter((user) => user.roles.includes('DRC_APPROVER'))
             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             // email uploader 
