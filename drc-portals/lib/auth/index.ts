@@ -9,13 +9,41 @@ import ORCIDProvider from '@/lib/auth/providers/orcid'
 import GlobusProvider from '@/lib/auth/providers/globus'
 import type { OAuthConfig } from 'next-auth/providers/index'
 import PrismaAdapterEx from './adapters/prisma'
+import { z } from 'zod'
+import { jwtDecode } from "jwt-decode";
 
+function parseKeycloakUserinfo(accessToken: string) {
+  if (!accessToken) return
+  const userInfo = jwtDecode(accessToken)
+  console.log({ userInfo })
+  const userInfoParsed = z.object({
+    iss: z.literal('https://auth.cfde.cloud/realms/cfde'),
+    name: z.string(),
+    email: z.string(),
+    resource_access: z.object({
+      'DRC-Portal': z.object({
+        roles: z.string().array(),
+      }),
+    }),
+  }).safeParse(userInfo)
+  if (!userInfoParsed.success) return
+  const roles = userInfoParsed.data.resource_access["DRC-Portal"].roles.filter(role => role.startsWith('role:')).map(role => role.slice('role:'.length))
+  const dccs = userInfoParsed.data.resource_access["DRC-Portal"].roles.filter(role => role.startsWith('dcc:')).map(role => role.slice('dcc:'.length))
+  return {
+    name: userInfoParsed.data.name,
+    email: userInfoParsed.data.email,
+    roles,
+    dccs,
+  }
+}
+type KeycloakUserInfo = ReturnType<typeof parseKeycloakUserinfo>
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string
     } & DefaultSession['user']
+    keycloakInfo: KeycloakUserInfo
   }
 }
 
@@ -101,14 +129,15 @@ export const authOptions: NextAuthOptions = {
       if (account) {
         // Persist the OAuth access_token and or the user id to the token right after signin
         token.id = user?.id
+        token.accessToken = account.access_token
       }
       return token
     },
     session({ session, token }) {
-      // session.accessToken = token.accessToken
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
+      session.keycloakInfo = parseKeycloakUserinfo(token.accessToken as string)
       return session
     },
     async redirect({ url, baseUrl }) {

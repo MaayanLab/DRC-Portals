@@ -4,19 +4,19 @@ import MenuItem from '@mui/material/MenuItem';
 import { SignOutLink } from '@/lib/auth/links';
 import { AccountLink } from './MyAccount';
 import { Session } from 'next-auth';
-import getKeycloakInfo from "@/lib/auth/keycloakInfo";
 
 export default async function UserComponent ({session}: {session: Session | null})  {
     if (session === null) {
         return <Signin/>
     } else {
-        const userInfo = await getKeycloakInfo(session.user)
         return (
             <UserAvatar session={session}>
-                <MenuItem>
-                    <AccountLink />
-                </MenuItem>
-                {userInfo?.roles?.includes('ADMIN') ?
+                {session.keycloakInfo ?
+                    <MenuItem>
+                        <AccountLink />
+                    </MenuItem>
+                    : null}
+                {session.keycloakInfo?.roles?.includes('ADMIN') ?
                     <MenuItem>
                         <a href={`https://auth.cfde.cloud/admin/cfde/console/`}>Admin Console</a>
                     </MenuItem>
