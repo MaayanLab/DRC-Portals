@@ -144,7 +144,7 @@ services:
   drc-auth:
     build: ../auth
     platform: linux/amd64
-    image: maayanlab/drc-auth:0.1.0
+    image: maayanlab/drc-auth:0.2.6
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       restartPolicy: Always
@@ -160,6 +160,10 @@ services:
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
+    # useful for testing the theme
+    # command: bin/kc.sh start --spi-theme-static-max-age=-1 --spi-theme-cache-themes=false --spi-theme-cache-templates=false
+    # volumes:
+    #   - ../auth/themes/drc-portal:/opt/keycloak/themes/drc-portal/
 
 volumes:
   drc-portal-postgres:
