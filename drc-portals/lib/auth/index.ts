@@ -15,7 +15,6 @@ import { jwtDecode } from "jwt-decode";
 function parseKeycloakUserinfo(accessToken: string) {
   if (!accessToken) return
   const userInfo = jwtDecode(accessToken)
-  console.log({ userInfo })
   const userInfoParsed = z.object({
     iss: z.literal('https://auth.cfde.cloud/realms/cfde'),
     name: z.string(),
@@ -129,7 +128,7 @@ export const authOptions: NextAuthOptions = {
       if (account) {
         // Persist the OAuth access_token and or the user id to the token right after signin
         token.id = user?.id
-        token.accessToken = account.access_token
+        token.keycloakInfo = parseKeycloakUserinfo(account.access_token as string)
       }
       return token
     },
@@ -137,7 +136,11 @@ export const authOptions: NextAuthOptions = {
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
-      session.keycloakInfo = parseKeycloakUserinfo(token.accessToken as string)
+      session.keycloakInfo = token.keycloakInfo as KeycloakUserInfo
+      if (session.keycloakInfo) {
+        session.user.name = session.keycloakInfo.name
+        session.user.email = session.keycloakInfo.email
+      }
       return session
     },
     async redirect({ url, baseUrl }) {
