@@ -6,9 +6,11 @@ import { Grid,
 	ListItem,
 	Button,
 	Paper,
-	Box
+	Accordion,
+	AccordionSummary,
+	AccordionDetails
 } from "@mui/material";
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import prisma from "@/lib/prisma";
 import { OutreachWithDCC } from "@/components/misc/Outreach";
 import Link from "next/link";
@@ -16,6 +18,7 @@ import Link from "next/link";
 import Icon from '@mdi/react';
 import { mdiYoutube, mdiClipboardEditOutline } from "@mdi/js"
 import YoutubeEmbed from "@/components/misc/YoutubeEmbed";
+import Markdown from "@/components/misc/MarkdownComponent";
 type AgendaType = {
 	label: string,
 	summary?: string,
@@ -25,6 +28,39 @@ type AgendaType = {
 	}>,
 	video_link?: string
 }
+
+
+const Summary = ({section}: {section: AgendaType}) => (
+	<Stack>
+		<Typography variant="body1">
+			<b>{section.label}</b>
+		</Typography>
+		{section.presenters.map(({presenter, affiliation})=>(
+			<>
+				<Typography variant="body1">
+					{presenter}
+				</Typography>
+				<Typography variant="body1">
+					<i>{affiliation}</i>
+				</Typography>
+			</>
+		))}
+		{section.summary &&
+		<Accordion elevation={0} sx={{background: 'inherit'}}>
+			<AccordionSummary
+					expandIcon={<ExpandMoreIcon />}
+					aria-controls={`${section.label}-content`}
+					id={`${section.label}-header`}
+					sx={{paddingLeft: 0, marginLeft: -1, marginTop: -1, flexDirection: 'row-reverse',}}
+			>
+				<Typography variant="body1">Summary</Typography>
+			</AccordionSummary>
+			<AccordionDetails>
+				<Markdown markdown={section.summary}/>
+			</AccordionDetails>
+		</Accordion>}
+	</Stack>
+)
 
 const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 	const presenters: Array<AgendaType> = []
@@ -41,24 +77,7 @@ const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 						<List sx={{marginLeft: -2}}>
 							{presenters.map((section)=>(
 								<ListItem key={section.label}>
-									<Stack>
-										<Typography variant="body1">
-											<b>{section.label}</b>
-										</Typography>
-										{section.presenters.map(({presenter, affiliation})=>(
-											<>
-												<Typography variant="body1">
-													{presenter}
-												</Typography>
-												<Typography variant="body1">
-													<i>{affiliation}</i>
-												</Typography>
-											</>
-										))}
-										{section.summary && <Typography variant="body1">
-												<b>Summary:</b> {section.summary}
-										</Typography>}
-									</Stack>
+									<Summary section={section}/>
 								</ListItem>
 							))}
 						</List>
