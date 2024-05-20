@@ -15,7 +15,7 @@ export const ClientCheckbox = ({query_key, value, label}: {query_key: 'type' | '
     const parsedParams: OutreachParams = query_parser.parseServerSide(filter || undefined)
 	useEffect(()=>{
 		if (query_key !== 'cfde_specific') {
-			if (parsedParams[query_key].indexOf(value) === -1) {
+			if (!parsedParams[query_key] || parsedParams[query_key].indexOf(value) === -1) {
 				setChecked(false)
 			} else {
 				setChecked(true)
