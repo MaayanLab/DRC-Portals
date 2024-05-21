@@ -144,7 +144,7 @@ services:
   drc-auth:
     build: ../auth
     platform: linux/amd64
-    image: maayanlab/drc-auth:0.2.6
+    image: maayanlab/drc-auth:0.2.9
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       restartPolicy: Always
