@@ -20,17 +20,22 @@ export const StyledAccordion = styled((props: AccordionProps) => (
 }))
 
 export const StyledAccordionSummary = styled((props: AccordionSummaryProps) => (
-    <AccordionSummary {...props} expandIcon={<PlayArrowIcon sx={{ color: "#ffffff" }} />} />
+    <AccordionSummary {...props} expandIcon={<PlayArrowIcon sx={{ color: "secondary.main" }} />} />
 ))(({ theme }) => ({
-    backgroundColor: '#b8c4e1',
+    backgroundColor: theme.palette.primary.main,
     flexDirection: 'row-reverse',
+    color: theme.palette.secondary.main,
     "&.Mui-expanded": {
         minHeight: 0,
-        backgroundColor: '#7187C3'
+        backgroundColor: theme.palette.secondary.main,
+        color: '#FFF'
     },
     '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
         transform: 'rotate(90deg)',
-    }
+        '& .MuiSvgIcon-root': {
+        color: "#FFF"
+        }
+    },
 }))
 
 export const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
@@ -44,7 +49,7 @@ export function StyledAccordionComponent({ heading, content }: { heading: string
             <StyledAccordionSummary
                 expandIcon={<ArrowDownwardIcon />}
             >
-                <Typography sx={{fontWeight: 'bold', color: '#ffffff'}}>{heading}</Typography>
+                <Typography sx={{fontWeight: 'bold'}}>{heading}</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails>
                 {content}

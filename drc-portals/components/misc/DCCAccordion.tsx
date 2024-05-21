@@ -35,7 +35,7 @@ function AccordionHeader(
       .toLocaleDateString('en-us', { month:'numeric', day:'numeric', year:'numeric' })
     return (
       <AccordionSummary
-        sx={{ backgroundColor: "#7187C3" }}
+        sx={{ backgroundColor: "tertiary.main" }}
         expandIcon={<ExpandMore />}
         aria-controls="panel1bh-content"
       >

@@ -15,9 +15,9 @@ import IconButton from '@mui/material/IconButton'
 import { Logo } from '../styled/Logo';
 import SocialMedia from '../misc/Socials';
 
-export default async function InfoFooter() {
+export default async function DataFooter() {
   return (
-    <Paper sx={{background: "#336699", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
+    <Paper sx={{background: "#2D5986", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
       <Container maxWidth="lg">
         <Grid container justifyContent={"space-around"}>
           <Grid item>
@@ -48,14 +48,17 @@ export default async function InfoFooter() {
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
+                  <Link href="https://commonfund.nih.gov/dataecosystem" rel="noopener noreferrer">
+                    <Typography variant="footer">About the CFDE</Typography>
+                  </Link>
                   <Link href="/info/dcc">
-                <Typography variant="footer">CF-DCCs</Typography>
-              </Link>
-              <Link href="/info">
-                <Typography variant="footer">Information Portal</Typography>
-              </Link>
-              <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
-              <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
+                    <Typography variant="footer">CF-DCCs</Typography>
+                  </Link>
+                  <Link href="/info">
+                    <Typography variant="footer">Information Portal</Typography>
+                  </Link>
+                  <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+                  <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
               </Stack>
           </Grid>
           <Grid item>

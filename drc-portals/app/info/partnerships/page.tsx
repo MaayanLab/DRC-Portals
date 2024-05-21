@@ -49,7 +49,7 @@ const PartnershipCard = ({partnership}:{partnership: PartnershipsWithDCC}) => (
                 <Grid item xs={12}>
                     <Chip label={partnership.status} 
                         variant="filled"
-                        sx={{borderRadius: 2, textTransform: "uppercase", background: partnership.status === "active"? "#7187C3": "#EDF0F8", color: partnership.status === "active"?"#FFF":"#29527A",}}/>
+                        sx={{borderRadius: 2, textTransform: "uppercase", backgroundColor: partnership.status === "active"? "tertiary.main": "primary.light", color: partnership.status === "active"?"#FFF":"secondary.main",}}/>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant={'body2'} color="secondary">
