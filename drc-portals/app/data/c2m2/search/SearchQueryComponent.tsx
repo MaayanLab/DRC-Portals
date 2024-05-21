@@ -560,3 +560,6 @@ async function fetchQueryResults(searchParams: any) {
   // Not reached since already returtned
   //const t5: number = performance.now();
   //console.log("Elapsed time for display (filters + table): ", t5 - t4, " milliseconds");
+  
+  // Some issue with taxonomy filter.
+  // https://ucsd-sslab.ngrok.app/data/processed/search?q=parkinson&p=1&s=c2m2&t=taxonomy%3AHomo+sapiens
