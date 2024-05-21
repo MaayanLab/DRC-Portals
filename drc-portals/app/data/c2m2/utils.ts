@@ -159,9 +159,11 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 // This is different from search/Page.tsx because it has specifics for this page.
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
 
-export function generateQueryForReview(schemaName: string, tableName: string) {
-    return SQL.template`SELECT * FROM ${schemaName}.${tableName} IS NOT NULL LIMIT 10`;
+export function generateQueryForReview(schemaName: string, tableName: string): SQL {
+    // The SQL template function ensures proper formatting and sanitization
+    return SQL.template`SELECT * FROM "${SQL.raw(schemaName)}"."${SQL.raw(tableName)}"`;
 }
+
 
 export const schemaToDCC = [
     { schema: '_4dn', label: '4DN' },
