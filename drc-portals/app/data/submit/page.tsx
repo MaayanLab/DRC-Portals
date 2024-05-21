@@ -126,18 +126,9 @@ export default function Documentation() {
                     }
                     />
 
-
                     <StyledAccordionComponent heading="Asset Approval Steps" content={
                         <Box sx={{ p: 1, m: 1 }}>
                             <AssetManagement components={components} />
-                        </Box>
-                    }
-                    />
-
-
-                    <StyledAccordionComponent heading="Admin User Documentation" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <AdminUserDocs components={components} />
                         </Box>
                     }
                     />
