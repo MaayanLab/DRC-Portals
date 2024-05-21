@@ -17,7 +17,7 @@ export default function InfoLayout({
     <>
       <Grid item><Header/></Grid>
       <Grid item className="flex grow">
-        <Background>
+        <Background background='#EDF0F8'>
           <NavBreadcrumbs/>
           {children}
         </Background>

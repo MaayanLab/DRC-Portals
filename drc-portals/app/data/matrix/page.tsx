@@ -147,56 +147,56 @@ export default async function DataMatrix() {
                   <TableCell sx={{border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.c2m2 ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#C2M2')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.xmt ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#XMT')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.kg ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#KGAssertions')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.att ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#AttributeTables')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.etl ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ETL')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.api ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#API')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.ent ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#EntityPages')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0, borderRight:2, borderColor: "#c8d2e9" }} align="center"> {
                     item.data.pwb ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#PWBMetanodes')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0 }} align="center"> {
                     item.data.chat ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ChatbotSpecs')}>
-                        <LaunchIcon sx={{color:"#7187C3"}} />
-                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='#7187C3'>Coming soon</Typography>)
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                 </TableRow>
               )

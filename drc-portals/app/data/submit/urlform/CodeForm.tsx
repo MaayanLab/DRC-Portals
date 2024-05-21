@@ -522,10 +522,10 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                     <strong>DCC:</strong> {asset.dcc?.short_label}
                                 </ListItemText>
                                 {asset.codeAsset?.type === 'API' && <><ListItemText>
-                                    <strong>OpenAPISpecs:</strong> {asset.codeAsset.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
+                                    <strong>OpenAPISpecs:</strong> {asset.codeAsset.openAPISpec ? (<CheckCircle sx={{ color: "tertiary.main" }} />) : ((<Error />))}
                                 </ListItemText>
                                     <ListItemText>
-                                        <strong>SmartAPISpecs:</strong> {asset.codeAsset.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}
+                                        <strong>SmartAPISpecs:</strong> {asset.codeAsset.smartAPISpec ? (<CheckCircle sx={{ color: "tertiary.main" }} />) : ((<Error />))}
                                     </ListItemText>
                                     <ListItemText>
                                         <strong>SmartAPIURL:</strong> {asset.codeAsset.smartAPIURL ? asset.codeAsset.smartAPIURL : ''}

@@ -74,10 +74,10 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
                 <TableCell width='20%' align="center" sx={{border:0}}>{item.creator}</TableCell>
                 <TableCell width='15%' align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
-                  {item.dccapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
+                  {item.dccapproved ? (<CheckCircle sx={{color:"tertiary.main"}} />) : (<span />)}
                 </TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
-                  {item.drcapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
+                  {item.drcapproved ? (<CheckCircle sx={{color:"tertiary.main"}} />) : (<span />)}
                 </TableCell>
               </TableRow>
             )
@@ -109,10 +109,10 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
                 <TableCell width="10%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.size}</TableCell>
                 <TableCell width="15%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.lastmodified}</TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
-                  {item.dccapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
+                  {item.dccapproved ? (<CheckCircle sx={{color:"tertiary.main"}} />) : (<span />)}
                 </TableCell>
                 <TableCell width='10%' align="center" sx={{border:0}}>
-                  {item.drcapproved ? (<CheckCircle sx={{color:"#7187C3"}} />) : (<span />)}
+                  {item.drcapproved ? (<CheckCircle sx={{color:"tertiary.main"}} />) : (<span />)}
                 </TableCell>
               </TableRow>
             )

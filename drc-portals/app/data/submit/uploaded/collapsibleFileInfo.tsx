@@ -105,11 +105,11 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                             </TableRow>
                             <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>OpenAPI Specifications</TableCell>
-                                <TableCell>{props.fileInfo.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}</TableCell>
+                                <TableCell>{props.fileInfo.openAPISpec ? (<CheckCircle sx={{ color: "tertiary.main" }} />) : ((<Error />))}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>Deposited in SmartAPI</TableCell>
-                                <TableCell>{props.fileInfo.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : (<Error />)}</TableCell>
+                                <TableCell>{props.fileInfo.smartAPISpec ? (<CheckCircle sx={{ color: "tertiary.main" }} />) : (<Error />)}</TableCell>
                             </TableRow>
                             {props.fileInfo.smartAPIURL && <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>SmartAPI URL</TableCell>

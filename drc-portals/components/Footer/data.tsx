@@ -15,9 +15,9 @@ import IconButton from '@mui/material/IconButton'
 import { Logo } from '../styled/Logo';
 import SocialMedia from '../misc/Socials';
 
-export default async function InfoFooter() {
+export default async function DataFooter() {
   return (
-    <Paper sx={{background: "#336699", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
+    <Paper sx={{background: "#2D5986", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
       <Container maxWidth="lg">
         <Grid container justifyContent={"space-around"}>
           <Grid item>

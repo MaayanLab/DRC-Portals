@@ -163,7 +163,6 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                         { e.img && 
                             <div className="flex flex-row justify-center relative" style={{minHeight: 300}}><Image src={e.img} alt={e.title} fill={true} style={{objectFit: "contain"}}/></div>
                         } 
-                        {/* <Divider sx={{borderColor: "#7187C3"}}/> */}
                         <CardContent className="flex flex-col grow space-y-5 text-left" sx={{paddingLeft: 3, paddingRight: 3}}>
                           <Typography variant="h4">{e.title}</Typography>
                           <Typography variant="caption">
@@ -237,7 +236,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
             bottom: 50,
             right: 50,
           }} aria-label={'chat'} color={'primary'}>
-            <Icon style={{color: "#336699"}} path={mdiChatOutline} size={1} />
+            <Icon style={{color: "#2D5986"}} path={mdiChatOutline} size={1} />
           </Fab>
           </Link>
         </Grid>

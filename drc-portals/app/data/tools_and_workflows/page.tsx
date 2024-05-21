@@ -97,7 +97,7 @@ const ServerCarousel = ({tools}: {tools: Array<ToolsWithPublications>}) => {
 						spacing={2}
 						sx={{height: "90%"}}
 					>
-						<Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
+						<Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
 						<Typography variant="h3" color="secondary.dark">{tool.label}</Typography>
 						<Typography variant="subtitle1">{tool.description}</Typography>
 						{tool.url && 

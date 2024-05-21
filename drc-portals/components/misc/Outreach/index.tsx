@@ -123,7 +123,6 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                 { (e.image) && 
                     <div className="flex flex-row justify-center"
                       style={{
-                        background: "linear-gradient(diagonal, #336699, #006666)",
                         overflow: "hidden",  
                         // height: "100%",
                         minHeight: 150,
@@ -141,7 +140,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                     new_filter.tags = [`${tag}`]
                     return (
                       <Link href={`/info/training_and_outreach?filter=${JSON.stringify(new_filter)}`}>
-                        <Chip variant="filled" sx={{ textTransform: "capitalize", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
+                        <Chip variant="filled" sx={{ textTransform: "capitalize", backgroundColor: tag === "internship"? "tertiary.main": "primary.main", color: tag === "internship"?"#FFF":"secondary.main", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
                       </Link>
                     )
                   })}
@@ -387,17 +386,6 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                 </Grid>
                 <Grid item>
                   <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
-                  {/* {tags && tags.map(tag=>(
-                    <Link key={tag} href={'/info/training_and_outreach'}>
-                      <Chip variant="filled" 
-                        sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", 
-                          color: tag === "internship"?"#FFF":"#29527A", 
-                          minWidth: 150, borderRadius: 2, textTransform: 'capitalize', marginLeft: 1}} 
-                          label={tag?.toString()}
-                          icon={<DeleteIcon color={tag === "internship" ? "primary": "secondary"}/>}
-                        />
-                    </Link>
-                  ))} */}
                 </Grid>
               </Grid>
             </Grid>
