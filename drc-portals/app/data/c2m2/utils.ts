@@ -291,7 +291,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
   
             const valid_colnames: string[] = ['dcc', 'disease', 
             'taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
-            'data_type']; // Not that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
+            'data_type']; // Note that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
     //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
