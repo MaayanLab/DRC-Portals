@@ -40,6 +40,11 @@ dccIconTable["MW"] = "/img/Metabolomics.png";
 dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
 dccIconTable["SPARC"] = "/img/SPARC.svg";
 
+// For C2M2 schematic: neo4j-based and postgres ERD
+const C2M2_neo4j_level0_img = "/img/C2M2_NEO4J_level0.jpg";
+const C2M2_ERD_img = "/img/C2M2_ERD_no_FKlabel_edited.jpg";
+
+
 export function getDCCIcon(iconKey: string): string {
     if (iconKey && dccIconTable.hasOwnProperty(iconKey)) {
         return dccIconTable[iconKey];
@@ -154,9 +159,11 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 // This is different from search/Page.tsx because it has specifics for this page.
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
 
-export function generateQueryForReview(schemaName: string, tableName: string) {
-    return SQL.template`SELECT * FROM ${schemaName}.${tableName} IS NOT NULL LIMIT 10`;
+export function generateQueryForReview(schemaName: string, tableName: string): SQL {
+    // The SQL template function ensures proper formatting and sanitization
+    return SQL.template`SELECT * FROM "${SQL.raw(schemaName)}"."${SQL.raw(tableName)}"`;
 }
+
 
 export const schemaToDCC = [
     { schema: '_4dn', label: '4DN' },
@@ -283,8 +290,8 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         if (t.entity_type) {
   
             const valid_colnames: string[] = ['dcc', 'disease', 
-            'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
-            'data_type'];
+            'taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
+            'data_type']; // Not that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
     //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);

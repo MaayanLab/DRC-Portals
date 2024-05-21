@@ -34,6 +34,8 @@ drc=# select id_namespace,count(*) from c2m2.file where persistent_id ilike 'drs
 drc=# select id_namespace,count(*) from c2m2.file where access_url ilike 'drs://%' group by id_namespace;
 drc=# select id_namespace,count(*) from c2m2.file where access_url ilike 'http%://%' group by id_namespace;
 drc=# select id_namespace,count(*) from c2m2.file where persistent_id ilike 'http%://%' group by id_namespace;
+drc=# select local_id,persistent_id, access_url from c2m2.file where persistent_id ilike 'drs://%' and id_namespace ilike '%lincs%' limit 10;
+drc=# select local_id,persistent_id from c2m2.project where persistent_id ilike '%doi%' and id_namespace ilike '%metabo%' limit 10;
 
 This is how I noticed the difference in the counts.
 */

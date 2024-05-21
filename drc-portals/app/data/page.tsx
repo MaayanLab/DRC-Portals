@@ -76,7 +76,8 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                 <form action="/data/processed/search" method="GET">
                   <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                     <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
-                    <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
+                    {/* <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography> */}
+                    <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' <Link href="/info/documentation/C2M2" key = "Metadata" color="secondary" className="underline cursor-pointer secondary" alt = "Click to find more about crosscut metadata (C2M2)" target="_blank" rel="noopener noreferrer">Metadata</Link> and <Link href="/data/matrix" color="secondary" className="underline cursor-pointer secondary" alt = "Click to find more about processed datasets" target="_blank" rel="noopener noreferrer">Processed Datasets</Link>.</Typography>
                     <SearchField q="" error={searchParams.error} width={'544px'}/>
                     <Typography variant="stats_sub">
                       Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
