@@ -1,7 +1,16 @@
+:root {
+  --pf-v5-global--FontFamily--text: "DM Sans", helvetica, arial, sans-serif;
+  --pf-v5-global--FontFamily--heading: "Hanken Grotesk", helvetica, arial, sans-serif;
+  --pf-v5-global--FontFamily--text--vf: "DM Sans", helvetica, arial, sans-serif;
+  --pf-v5-global--FontFamily--heading--vf: "Hanken Grotesk", helvetica, arial, sans-serif;
+}
 
 body {
   background: linear-gradient(180deg, #FFFFFF 0%, #DBE0ED 100%);
   height: 100vh;
+  font-family: "Hanken Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
 
 .pf-c-tab-content > .pf-c-toolbar {
@@ -54,44 +63,24 @@ body {
   background: transparent;
 }
 
-.login-pf {
-}
-
-div.kc-logo-text {
-  background-image: url(../img/cfde-workbench.png);
-  background-repeat: no-repeat;
-  background-size: contain;
-  min-height: 100px;
-  resize: both;
-  max-width: 50em;
-  margin: 0 auto;
-}
-
-div.kc-logo-text span {
-  display: none;
-}
-
-.pf-v5-c-login {
-  max-width: 50em;
-  margin: 0 auto;
-  align-items: unset;
-  min-height: unset;
-}
-
-.pf-v5-c-login__container {
-  display: block;
+#kc-header {
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
 #kc-header-wrapper {
-  padding-top: 0.5em;
   display:flex;
   flex-direction:row;
   justify-content:center;
   font-size: 40px;
   color:#336699;
+  font-family: "DM Sans", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 500;
-  font-family: 'sans-serif','Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color emoji';
+  font-style: normal;
   text-transform: uppercase;
+  white-space: nowrap;
+  margin-right: 16px;
 }
 
 #kc-header-wrapper > div {
@@ -105,24 +94,4 @@ div.kc-logo-text span {
 #kc-header-wrapper > div > img {
   width: 52px;
   height: 52px;
-}
-
-#social-orcid {
-  background-image: url(https://orcid.org/assets/vectors/orcid.logo.icon.svg);
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-}
-#social-orcid > span {
-  visibility: hidden;
-}
-
-#social-globus {
-  background-image: url(https://www.globus.org/assets/images/logo_globus-solid.svg);
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-}
-#social-globus > span {
-  visibility: hidden;
 }
