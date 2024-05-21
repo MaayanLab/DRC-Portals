@@ -47,6 +47,9 @@ export default async function InfoFooter() {
           <Grid item>
             <Stack spacing={2}>
               <Typography variant="subtitle1"><b>Consortium</b></Typography>
+              <Link href="https://commonfund.nih.gov/dataecosystem" rel="noopener noreferrer">
+                <Typography variant="footer">About the CFDE</Typography>
+              </Link>
               <Link href="/info/dcc">
                 <Typography variant="footer">CF-DCCs</Typography>
               </Link>

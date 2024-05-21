@@ -48,14 +48,17 @@ export default async function DataFooter() {
           <Grid item>
               <Stack spacing={2}>
                   <Typography variant="footer"><b>CFDE Portal</b></Typography>
+                  <Link href="https://commonfund.nih.gov/dataecosystem" rel="noopener noreferrer">
+                    <Typography variant="footer">About the CFDE</Typography>
+                  </Link>
                   <Link href="/info/dcc">
-                <Typography variant="footer">CF-DCCs</Typography>
-              </Link>
-              <Link href="/info">
-                <Typography variant="footer">Information Portal</Typography>
-              </Link>
-              <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
-              <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
+                    <Typography variant="footer">CF-DCCs</Typography>
+                  </Link>
+                  <Link href="/info">
+                    <Typography variant="footer">Information Portal</Typography>
+                  </Link>
+                  <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+                  <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
               </Stack>
           </Grid>
           <Grid item>
