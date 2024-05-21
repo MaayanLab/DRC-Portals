@@ -40,6 +40,11 @@ dccIconTable["MW"] = "/img/Metabolomics.png";
 dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
 dccIconTable["SPARC"] = "/img/SPARC.svg";
 
+// For C2M2 schematic: neo4j-based and postgres ERD
+const C2M2_neo4j_level0_img = "/img/C2M2_NEO4J_level0.jpg";
+const C2M2_ERD_img = "/img/C2M2_ERD_no_FKlabel_edited.jpg";
+
+
 export function getDCCIcon(iconKey: string): string {
     if (iconKey && dccIconTable.hasOwnProperty(iconKey)) {
         return dccIconTable[iconKey];
