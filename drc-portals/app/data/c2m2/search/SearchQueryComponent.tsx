@@ -1,5 +1,4 @@
 // SearchQueryComponent.tsx
-
 import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
@@ -13,6 +12,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash} from "@/app/data/c2m2/utils";
 import SQL from '@/lib/prisma/raw';
+import C2M2MainSearchTable from './C2M2MainSearchTable';
 
 const allres_filtered_maxrow_limit = 100000;
 
@@ -346,7 +346,86 @@ async function fetchQueryResults(searchParams: any) {
           const file_icon_path = "/img/icons/file-magnifiying-glass.png";
         
           // const t4: number = performance.now();
-
+          // THese are passed to the component C2M2MainSearchTable
+          const tableCols = [
+            <>View</>,
+            <>DCC</>,
+            <>Project Name</>,
+            //<>Description</>,
+            <>Attributes</>,
+            <>Assets</>
+            //<>Rank</>
+          ];
+          const tableRows = results ? results.records.map((res, index) => ({
+            id: `row-${index}`, // Generate an ID using the index, prefixed for clarity
+            previewButton: <PreviewButton href={res.record_info_url} alt="More details about this result" />,
+            dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
+            projectName: (res.project_persistent_id && isURL(res.project_persistent_id)) 
+              ? <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> 
+              : <Description description={res.project_name} />,
+            attributes: (
+              <>
+                {res.taxonomy_name !== "Unspecified" && (
+                  <>
+                    <span>Species: </span>
+                    <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`} target="_blank"><i><u>{res.taxonomy_name}</u></i></Link>
+                    <br />
+                  </>
+                )}
+                {res.disease_name !== "Unspecified" && (
+                  <>
+                    <span>Disease: </span>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.disease}`} target="_blank"><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
+                    <br />
+                  </>
+                )}
+                {res.anatomy_name !== "Unspecified" && (
+                  <>
+                    <span>Sample source: </span>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`} target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
+                    <br />
+                  </>
+                )}
+                {res.gene_name !== "Unspecified" && (
+                  <>
+                    <span>Gene: </span>
+                    <Link href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
+                    <br />
+                  </>
+                )}
+                {res.protein_name !== "Unspecified" && (
+                  <>
+                    <span>Protein: </span>
+                    <Link href={`https://www.uniprot.org/uniprotkb/${res.protein}`} target="_blank"><i><u>{res.protein_name}</u></i></Link>
+                    <br />
+                  </>
+                )}
+                {res.compound_name !== "Unspecified" && (
+                  <>
+                    <span>Compound: </span>
+                    <Link href={`https://pubchem.ncbi.nlm.nih.gov/compound/${res.compound}`} target="_blank"><i><u>{res.compound_name}</u></i></Link>
+                    <br />
+                  </>
+                )}
+                {res.data_type_name !== "Unspecified" && (
+                  <>
+                    <span>Data type: </span>
+                    <Link href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
+                    <br />
+                  </>
+                )}
+              </>
+            ),
+            assets: (
+              <>
+                Subjects: {res.count_sub}<br />
+                Biosamples: {res.count_bios}<br />
+                Collections: {res.count_col}<br />
+              </>
+            )
+          })) : [];
+          
+          
           return (
             <ListingPageLayout
             count={results?.count} // This matches with #records in the table on the right (without limit)
@@ -433,103 +512,19 @@ async function fetchQueryResults(searchParams: any) {
               downloadFileName={SearchHashFileName + "_CFDEC2M2MainSearchTable.json"}
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
-              <SearchablePagedTable
+              <C2M2MainSearchTable
                 q={searchParams.q ?? ''}
                 p={searchParams.p}
                 r={searchParams.r}
-                t={searchParams.t}
-                tablePrefix='C2M2MainSearchTbl'
                 count={results?.count}
-                columns={[
-                  <>View</>,
-                  <>DCC</>,
-                  <>Project Name</>,
-                  //<>Description</>,
-                  <>Attributes</>,
-                  <>Assets</>
-                  //<>Rank</>
-                ]}
-                rows={results ? results?.records.map(res => [
-                  <PreviewButton href={res.record_info_url} alt="More details about this result" />,
-                  // [
-                  //<>{res.dcc_abbreviation}</>,
-                  //<SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_abbreviation.split("_")[0]}}`} src={dccIconTable[res.dcc_abbreviation.split("_")[0]]} alt={res.dcc_abbreviation.split("_")[0]} />,
-                  <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
-                  //<Description description={res.dcc_abbreviation.split("_")[0]} />,
-                  //<Description description={res.project_name} />,
-                  //<Link href={`${res.project_persistent_id}`} target="_blank"><u>{res.project_name}</u></Link>,
-                  //(res.project_persistent_id && ( http_pattern.test(res.project_persistent_id) || res.project_persistent_id.includes(doi_pattern))) ? 
-                  (res.project_persistent_id && isURL(res.project_persistent_id)) ?
-                  <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> : 
-                    <Description description={res.project_name} />,
-                
-                  //<TruncatedText text={res.project_description} maxLength={80} />,
-        
-                  <>
-                    {res.taxonomy_name !== "Unspecified" && (
-                      <>
-                        <span>Species: </span>
-                        <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`} target="_blank"><i><u>{res.taxonomy_name}</u></i></Link>
-                        <br />
-                      </>
-        
-                    )}
-                    {/*Taxonomy: <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`}><i><u>{res.taxonomy_name}</u></i></Link><br></br>*/}
-                    {res.disease_name !== "Unspecified" && (
-                      <>
-                        <span>Disease: </span>
-                        <Link href={`http://purl.obolibrary.org/obo/${res.disease}`} target="_blank"><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
-                        <br />
-                      </>
-                    )}
-                    {/*Disease: <Link href={`http://purl.obolibrary.org/obo/${res.disease}`}><i><u>{res.disease_name}</u></i></Link><br></br>*/}
-                    {res.anatomy_name !== "Unspecified" && (
-                      <>
-                        <span>Sample source: </span>
-                        <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}  target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
-                        <br />
-                      </>
-                    )}
-                    {/*Sample: <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`}><i><u>{res.anatomy_name}</u></i></Link><br></br>*/}
-                    {/* Gene: <i>{res.gene_name}</i> */}
-                    {res.gene_name !== "Unspecified" && (
-                      <>
-                        <span>Gene: </span>
-                        <Link href={`http://www.ensembl.org/id/${res.gene}`}  target="_blank"><i><u>{res.gene_name}</u></i></Link>
-                        <br />
-                      </>
-                    )}
-                    {res.protein_name !== "Unspecified" && (
-                      <>
-                        <span>Protein: </span>
-                        <Link href={`https://www.uniprot.org/uniprotkb/${res.protein}`}  target="_blank"><i><u>{res.protein_name}</u></i></Link>
-                        <br />
-                      </>
-                    )}
-                    {res.compound_name !== "Unspecified" && (
-                      <>
-                        <span>Compound: </span>
-                        <Link href={`https://pubchem.ncbi.nlm.nih.gov/compound/${res.compound}`}  target="_blank"><i><u>{res.compound_name}</u></i></Link>
-                        <br />
-                      </>
-                    )}
-                    {res.data_type_name !== "Unspecified" && (
-                      <>
-                        <span>Data type: </span>
-                        <Link href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
-                        <br />
-                      </>
-                    )}
-        
-                  </>,
-                  <>Subjects: {res.count_sub}<br></br>
-                    Biosamples: {res.count_bios}<br></br>
-                    Collections: {res.count_col}<br></br>
-                    { /* #Matches: {res.count} */}
-                  </>
-        
-                ]) : []}
+                t={searchParams.t}
+                columns={tableCols}
+                rows={tableRows}
+                tablePrefix="C2M2MainSearchTbl"
+                data={results?.records_full}
+                downloadFileName={SearchHashFileName + "_CFDEC2M2MainSearchTable.json"}
               />
+              
             </ListingPageLayout>
         )
 

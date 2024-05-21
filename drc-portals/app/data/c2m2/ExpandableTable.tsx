@@ -1,18 +1,26 @@
-import React from 'react';
+'use client';
+import React, { useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { AccordionDetails } from '@mui/material';
-import SearchablePagedTable, { Description } from "@/app/data/c2m2/SearchablePagedTable";
-import DownloadButton from "./DownloadButton";
-import DRSBundleButton from "./DRSBundleButton";
-import { isURL } from './utils';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import SearchablePagedTable, { Description } from './SearchablePagedTable';
+import DownloadButton from './DownloadButton';
+import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
 import Link from 'next/link';
 
+// Function type definition
+type TableFunction = (column: string) => string | undefined;
+
+// Index interface
+interface TableFunctionIndex {
+    [key: string]: TableFunction | undefined;
+}
+
 interface ExpandableTableProps {
-    data?: { [key: string]: string | bigint; }[];
-    full_data?: { [key: string]: string | bigint; }[];
+    data?: { [key: number]: string | bigint }[];
+    full_data?: { [key: number]: string | bigint }[];
     downloadFileName?: string;
     drsBundle?: boolean;
     tableTitle: string;
@@ -20,13 +28,11 @@ interface ExpandableTableProps {
         q?: string | null | undefined;
         p: number;
         r: number;
-        // Include additional properties if they're used
     };
     count: number;
     colNames: string[];
     dynamicColumns: string[];
-    getNameFromTable?: (column: string) => string; // Optional: Function to get column names
-    tablePrefix: string; // Add tablePrefix here
+    tablePrefix: string;
 }
 
 const ExpandableTable: React.FC<ExpandableTableProps> = ({
@@ -39,14 +45,53 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     count,
     colNames,
     dynamicColumns,
-    getNameFromTable,
-    tablePrefix, // Destructure tablePrefix here
+    tablePrefix,
 }) => {
-    if (!data || !full_data) return null; // Return nothing if data or full_data is undefined
+    const [selectedRows, setSelectedRows] = useState<{ [key: string]: any }[]>([]);
+
+    const tableFunctions: TableFunctionIndex = {
+        bioSamplTbl: getNameFromBiosampleTable,
+        subTbl: getNameFromSubjectTable,
+        colTbl: getNameFromCollectionTable,
+        fileProjTbl: getNameFromFileProjTable,
+        fileSubTbl: getNameFromFileProjTable,
+        fileBiosTbl: getNameFromFileProjTable,
+        fileColTbl: getNameFromFileProjTable
+    };
+
+    function getNameFromTable(tblnm: string): ((column: string) => string | undefined) | undefined {
+        return tableFunctions[tblnm]; // Return the function associated with the table name
+    }
+
+    if (!data || !full_data) return null;
+
+    const handleRowSelect = (selectedRows: { [key: string]: any }[]) => {
+        setSelectedRows(selectedRows);
+    };
+
+    // Extracting IDs from selected rows
+    const selectedIds = selectedRows.map(row => row.id);
+
+    // Filtering full_data based on selected IDs
+    const selectedData = full_data.filter(row => selectedIds.includes(row.id));
+
+    const dataToSend = selectedData;
+
+    // Function to check if data has more than just ID columns and is not empty
+    const hasSignificantData = (data) => {
+        // length > 1 since for 1 row it becomes card data. Table is shown only for > 1
+        return data && data.length > 1 && Object.keys(data[0]).length > 1;
+    };
+
+    // Check if the data is significant and not empty
+    const significantDataExists = data && data.length > 0 && hasSignificantData(data);
+
+    // Log for debugging purposes
+    console.log(tablePrefix + " hasSignificantData = " + significantDataExists);
 
     return (
         <>
-            {data.length > 1 && (
+            {significantDataExists && (
                 <Accordion>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
@@ -56,36 +101,41 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                         <Typography>{tableTitle}</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        {/* Assuming SearchablePagedTable can accept this new data format directly or is similarly adjusted */}
                         <SearchablePagedTable
-                            tablePrefix={tablePrefix} // Pass the tablePrefix prop here
-                            // q={searchParams.q ?? ''}
+                            tablePrefix={tablePrefix}
                             p={searchParams.p}
                             r={searchParams.r}
                             count={count}
                             columns={colNames.map(column => (
-                                getNameFromTable ? getNameFromTable(column) : column
+                                getNameFromTable(tablePrefix)?.(column) || column // Use the function or the column name itself
                             ))}
-                            rows={data.map(row => (
-                                dynamicColumns.map(column => (
-                                    // Render persistent_id as hyperlink if it's a URL
-                                    ( (column.toLowerCase().includes('persistent') || column.toLowerCase().includes('access')) 
-                                    && isURL(row[column]) ) ? (
-                                        <Link href={row[column]}
-                                         className="underline cursor-pointer text-blue-600"
-                                            key={column} target="_blank" rel="noopener noreferrer">
-                                            {row[column]}
-                                        </Link> 
-                                    ) : (
-                                        // Ensure bigint values are converted to string
-                                        <Description description={row[column] !== null ? String(row[column]) : 'NA'} key={column} />
-                                    )
-                                ))
-                            ))}
+                            rows={data.map((row, rowIndex) => {
+                                const renderedColumns: { [key: string]: React.ReactNode } = {};
+                                dynamicColumns.forEach((column) => {
+                                    const cellValue = row[column];
+                                    const cellValueString = cellValue !== null ? String(cellValue) : 'NA';
+                                    renderedColumns[column] = (column.toLowerCase().includes('persistent') || column.toLowerCase().includes('access'))
+                                        && isURL(cellValueString) ? (
+                                            <Link
+                                                href={cellValueString}
+                                                className="underline cursor-pointer text-blue-600"
+                                                key={`${rowIndex}-${column}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {cellValueString}
+                                            </Link>
+                                        ) : (
+                                            <Description description={cellValueString} key={`${rowIndex}-${column}`} />
+                                        );
+                                });
+                                return { id: row.id, ...renderedColumns };
+                            })}
+                            onRowSelect={handleRowSelect}
                         />
                         <div className="flex flex-row gap-4">
-                            {drsBundle && <DRSBundleButton data={full_data} />}
-                            <DownloadButton data={full_data} filename={downloadFileName} />
+                            {/*drsBundle && <DRSBundleButtondata={dataToSend} filename={downloadFileName} />*/}
+                            <DownloadButton data={dataToSend} filename={downloadFileName} />
                         </div>
                     </AccordionDetails>
                 </Accordion>
@@ -95,6 +145,3 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 };
 
 export default ExpandableTable;
-
-// To replace drs:// with https:// : //{ /* row[column].startsWith('drs://') ? row[column].replace(/^drs:\/\//i, 'https://') : row[column] */ }
-// To not show drs:// in display: { /* row[column].startsWith('drs://')?row[column].substring(6):row[column] */}

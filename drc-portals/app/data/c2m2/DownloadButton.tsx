@@ -10,6 +10,7 @@ interface DownloadButtonProps {
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.json' }) => {
   if (!data || data.length == 0) return null; // Render nothing if data is undefined
+  
 
   const handleDownload = () => {
     // Convert data to JSON format

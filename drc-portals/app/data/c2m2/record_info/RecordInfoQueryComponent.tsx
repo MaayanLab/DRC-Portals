@@ -19,7 +19,7 @@ type PageProps = { params: { id: string }, searchParams: Record<string, string |
 export async function RecordInfoQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props);
   console.log("In RecordInfoQueryComponent");
-  
+
   try {
     const results = await fetchRecordInfoQueryResults(searchParams);
     return results;
@@ -34,37 +34,37 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const offset = (searchParams.p - 1) * searchParams.r;
     const limit = searchParams.r;
 
-    console.log("In function fetchRecordInfoQueryResuts");
+    // console.log("In function fetchRecordInfoQueryResuts");
 
 
 
 
     console.log("******");
-    console.log("q = " + searchParams.q +" p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
+    console.log("q = " + searchParams.q + " p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
     // Declare different offsets for all the tables and this is needed to fine grain pagination
     const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
     const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
-    console.log("bioSamplTbl_p = " + bioSamplTbl_p + " bioSamplTblOffset = " + bioSamplTblOffset);
+    // console.log("bioSamplTbl_p = " + bioSamplTbl_p + " bioSamplTblOffset = " + bioSamplTblOffset);
     const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
     const colTblOffset = (colTbl_p - 1) * limit;
-    console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
+    // console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
     const subTbl_p = searchParams.colTbl_p !== undefined ? searchParams.subTbl_p : 1;
     const subTblOffset = (subTbl_p - 1) * limit;
-    console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
+    // console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
     const fileProjTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileProjTbl_p : 1;
     const fileProjTblOffset = (fileProjTbl_p - 1) * limit;
-    console.log("fileProjTbl_p = " + fileProjTbl_p + " fileProjTblOffset = " + fileProjTblOffset);
+    // console.log("fileProjTbl_p = " + fileProjTbl_p + " fileProjTblOffset = " + fileProjTblOffset);
     const fileBiosTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileBiosTbl_p : 1;
     const fileBiosTblOffset = (fileBiosTbl_p - 1) * limit;
-    console.log("fileBiosTbl_p = " + fileBiosTbl_p + " fileBiosTblOffset = " + fileBiosTblOffset);
+    // console.log("fileBiosTbl_p = " + fileBiosTbl_p + " fileBiosTblOffset = " + fileBiosTblOffset);
     const fileSubTbl_p = searchParams.fileSubTbl_p !== undefined ? searchParams.fileSubTbl_p : 1;
     const fileSubTblOffset = (fileSubTbl_p - 1) * limit;
-    console.log("fileSubTbl_p = " + fileSubTbl_p + " fileSubTblOffset = " + fileSubTblOffset);
+    // console.log("fileSubTbl_p = " + fileSubTbl_p + " fileSubTblOffset = " + fileSubTblOffset);
     const fileColTbl_p = searchParams.fileColTbl_p !== undefined ? searchParams.fileColTbl_p : 1;
     const fileColTblOffset = (fileColTbl_p - 1) * limit;
-    console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
+    // console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
 
-    console.log("*********");
+   // console.log("*********");
 
 
 
@@ -797,16 +797,34 @@ file_table AS (
     const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,
       staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [],
         results?.biosamples_table_full ?? [], biosample_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const biosamplePrunedDataWithId = biosamplePrunedData.map((row, index) => ({ ...row, id: index }));
+    const biosamples_table_full_withId = results?.biosamples_table_full
+      ? results.biosamples_table_full.map((row, index) => ({ ...row, id: index }))
+      : []; // STOPPED HERE 
+
+
 
     const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
     const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns,
       staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
         results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const subjectPrunedDataWithId = subjectPrunedData.map((row, index) => ({ ...row, id: index }));
+    const subjects_table_full_withId = results?.subjects_table_full
+      ? results.subjects_table_full.map((row, index) => ({ ...row, id: index }))
+      : [];
+
 
     const collections_table_columnsToIgnore: string[] = ['collection_id_namespace']; // don't include 'persistent_id' here
     const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
       staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
         results?.collections_table_full ?? [], collections_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const collectionPrunedDataWithId = collectionPrunedData.map((row, index) => ({ ...row, id: index }));
+    const collections_table_full_withId = results?.collections_table_full
+      ? results.collections_table_full.map((row, index) => ({ ...row, id: index }))
+      : [];
 
     const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
 
@@ -814,6 +832,12 @@ file_table AS (
     const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns,
       staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
         results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const fileProjPrunedDataWithId = fileProjPrunedData.map((row, index) => ({ ...row, id: index }));
+    //console.log("fileProjPrundedDataWithId = "+fileProjPrunedDataWithId);
+    const filesProj_table_full_withId = results?.file_table_full
+      ? results.file_table_full.map((row, index) => ({ ...row, id: index }))
+      : [];
 
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
 
@@ -824,6 +848,11 @@ file_table AS (
     const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
       staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
         results?.file_sub_table_full ?? [], filesSub_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const fileSubPrunedDataWithId = fileSubPrunedData.map((row, index) => ({ ...row, id: index }));
+    const fileSub_table_full_withId = results?.file_sub_table_full
+      ? results.file_sub_table_full.map((row, index) => ({ ...row, id: index }))
+      : [];
 
     const newFileSubColumns = priorityFileCols.concat(dynamicFileSubColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, priorityFileCols);
@@ -832,6 +861,12 @@ file_table AS (
     const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
       staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
         results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const fileBiosPrunedDataWithId = fileBiosPrunedData.map((row, index) => ({ ...row, id: index }));
+    const fileBios_table_full_withId = results?.file_bios_table_full
+      ? results.file_bios_table_full.map((row, index) => ({ ...row, id: index }))
+      : [];
+
 
     const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
@@ -840,19 +875,27 @@ file_table AS (
     const { prunedData: fileColPrunedData, columnNames: fileColColNames, dynamicColumns: dynamicFileColColumns,
       staticColumns: staticFileColColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
         results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
+    // Add 'id' column with 'row-<index>' format
+    const fileColPrunedDataWithId = fileColPrunedData.map((row, index) => ({ ...row, id: index }));
+    const fileCol_table_full_withId = results?.file_col_table_full
+      ? results.file_col_table_full.map((row, index) => ({ ...row, id: index }))
+      : [];
+
+
+
 
     const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
 
     const t2: number = performance.now();
 
-    console.log("Files related to biosample");
-    console.log(results?.file_bios_table.slice(1, 5));
-    console.log("Dynamic columns in files related to biosample");
-    console.log(dynamicFileBiosColumns);
-    console.log("Static columns in files related to biosample");
-    console.log(staticFileBiosColumns);
-    console.log(`count_file: ${results?.count_file}`);
+    // console.log("Files related to biosample");
+    // console.log(results?.file_bios_table.slice(1, 5));
+    // console.log("Dynamic columns in files related to biosample");
+    // console.log(dynamicFileBiosColumns);
+    // console.log("Static columns in files related to biosample");
+    // console.log(staticFileBiosColumns);
+    // console.log(`count_file: ${results?.count_file}`);
 
     // The following items are present in metadata
 
@@ -940,8 +983,8 @@ file_table AS (
     const t3: number = performance.now();
 
     const categories: Category[] = [];
-    console.log("Static columns in  biosample");
-    console.log(staticBiosampleColumns);
+    // console.log("Static columns in  biosample");
+    // console.log(staticBiosampleColumns);
 
     addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
@@ -977,8 +1020,8 @@ file_table AS (
     console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
     console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
     console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
-    console.log("newFileColColumns: ", newFileColColumns);
-    console.log(" One row of file col table: ", results?.file_col_table[0]);
+    //console.log("newFileColColumns: ", newFileColColumns);
+    //console.log(" One row of file col table: ", results?.file_col_table[0]);
 
     return (
       <LandingPageLayout
@@ -995,8 +1038,8 @@ file_table AS (
       >
 
         <ExpandableTable
-          data={biosamplePrunedData}
-          full_data={results?.biosamples_table_full}
+          data={biosamplePrunedDataWithId}
+          full_data={biosamples_table_full_withId}
           downloadFileName={recordInfoHashFileName + "_BiosamplesTable.json"}
           tableTitle={biosampleTableTitle}
           searchParams={searchParams}
@@ -1004,12 +1047,12 @@ file_table AS (
           colNames={dynamicBiosampleColumns}
           dynamicColumns={dynamicBiosampleColumns}
           tablePrefix="bioSamplTbl"
-          getNameFromTable={getNameFromBiosampleTable}
+        //getNameFromTable={getNameFromBiosampleTable}
         />
 
         <ExpandableTable
-          data={subjectPrunedData}
-          full_data={results?.subjects_table_full}
+          data={subjectPrunedDataWithId}
+          full_data={subjects_table_full_withId}
           downloadFileName={recordInfoHashFileName + "_SubjectsTable.json"}
           tableTitle={subjectTableTitle}
           searchParams={searchParams}
@@ -1017,12 +1060,12 @@ file_table AS (
           colNames={dynamicSubjectColumns}
           dynamicColumns={dynamicSubjectColumns}
           tablePrefix="subTbl"
-          getNameFromTable={getNameFromSubjectTable}
+        //getNameFromTable={getNameFromSubjectTable}
         />
 
         <ExpandableTable
-          data={collectionPrunedData}
-          full_data={results?.collections_table_full}
+          data={collectionPrunedDataWithId}
+          full_data={collections_table_full_withId}
           downloadFileName={recordInfoHashFileName + "_CollectionsTable.json"}
           tableTitle={collectionTableTitle}
           searchParams={searchParams}
@@ -1030,13 +1073,13 @@ file_table AS (
           colNames={dynamicCollectionColumns}
           dynamicColumns={dynamicCollectionColumns}
           tablePrefix="colTbl"
-          getNameFromTable={getNameFromCollectionTable}
+        //getNameFromTable={getNameFromCollectionTable}
         />
 
         {(count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) && (
           <ExpandableTable
-            data={fileProjPrunedData}
-            full_data={results?.file_table_full}
+            data={fileProjPrunedDataWithId}
+            full_data={filesProj_table_full_withId}
             downloadFileName={recordInfoHashFileName + "_FilesProjTable.json"}
             drsBundle
             tableTitle={fileProjTableTitle}
@@ -1047,15 +1090,15 @@ file_table AS (
             colNames={newFileProjColumns}
             dynamicColumns={newFileProjColumns}
             tablePrefix="fileProjTbl"
-            getNameFromTable={getNameFromFileProjTable}
+          //getNameFromTable={getNameFromFileProjTable}
           />
         )}
 
         {/* (results?.count_file_bios > 0) ? "" : */}
         {(count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) && (
           <ExpandableTable
-            data={fileSubPrunedData}
-            full_data={results?.file_sub_table_full}
+            data={fileSubPrunedDataWithId}
+            full_data={fileSub_table_full_withId}
             downloadFileName={recordInfoHashFileName + "_FilesSubTable.json"}
             drsBundle
             tableTitle={fileSubTableTitle}
@@ -1066,14 +1109,14 @@ file_table AS (
             colNames={newFileSubColumns}
             dynamicColumns={newFileSubColumns}
             tablePrefix="fileSubTbl"
-            getNameFromTable={getNameFromFileProjTable}
+          //getNameFromTable={getNameFromFileProjTable}
           />
         )}
 
         {count_file_bios_table_withlimit > 0 && (
           <ExpandableTable
-            data={fileBiosPrunedData}
-            full_data={results?.file_bios_table_full}
+            data={fileBiosPrunedDataWithId}
+            full_data={fileBios_table_full_withId}
             downloadFileName={recordInfoHashFileName + "_FilesBiosTable.json"}
             drsBundle
             tableTitle={fileBiosTableTitle}
@@ -1084,14 +1127,14 @@ file_table AS (
             colNames={newFileBiosColumns}
             dynamicColumns={newFileBiosColumns}
             tablePrefix="fileBiosTbl"
-            getNameFromTable={getNameFromFileProjTable}
+          //getNameFromTable={getNameFromFileProjTable}
           />
         )}
 
         {count_file_col_table_withlimit > 0 && (
           <ExpandableTable
-            data={fileColPrunedData}
-            full_data={results?.file_col_table_full}
+            data={fileColPrunedDataWithId}
+            full_data={fileCol_table_full_withId}
             downloadFileName={recordInfoHashFileName + "_FilesCollTable.json"}
             drsBundle
             tableTitle={fileColTableTitle}
@@ -1102,7 +1145,7 @@ file_table AS (
             colNames={newFileColColumns}
             dynamicColumns={newFileColColumns}
             tablePrefix="fileColTbl"
-            getNameFromTable={getNameFromFileProjTable}
+          //getNameFromTable={getNameFromFileProjTable}
           />
         )}
 
