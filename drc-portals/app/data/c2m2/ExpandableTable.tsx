@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import SearchablePagedTable, { Description } from './SearchablePagedTable';
 import DownloadButton from './DownloadButton';
+import DRSBundleButton from './DRSBundleButton';
 import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
 import Link from 'next/link';
 
@@ -145,7 +146,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                             onRowSelect={handleRowSelect}
                         />
                         <div className="flex flex-row gap-4">
-                            {/*drsBundle && <DRSBundleButton data={dataToSend} filename={downloadFileName} />*/}
+                            {drsBundle && <DRSBundleButton data={dataToSend} />}
                             <DownloadButton data={dataToSend} filename={downloadFileName} />
                         </div>
                     </AccordionDetails>
