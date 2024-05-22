@@ -32,7 +32,7 @@ export default async function StandardsPage(
       .replaceAll('./C2M2-Table-Summary', './#c2m2-tables')
       .replaceAll('osf.io/vzgx9', 'osf.io/3sra4')
       .replaceAll('./submission-prep-script', './#submission-prep-script')
-    const title = suffix.includes('_') ? 
+    const title = suffix.includes('-') ? 
       `# ${suffix.split("-")[1].split(".md")[0]}\n\n` : `# ${suffix.split(".md")[0].replaceAll("-"," ")}\n\n`
     const source = '*Sourced from the [CFDE-CC Documentation Wiki]'
       + '(https://github.com/nih-cfde/published-documentation/wiki/' 
