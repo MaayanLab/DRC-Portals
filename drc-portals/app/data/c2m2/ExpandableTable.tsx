@@ -48,6 +48,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     tablePrefix,
 }) => {
     const [selectedRows, setSelectedRows] = useState<{ [key: string]: any }[]>([]);
+    const [selectedData, setSelectedData] = useState<{ [key: string]: string | bigint }[]>([]);
 
     const tableFunctions: TableFunctionIndex = {
         bioSamplTbl: getNameFromBiosampleTable,
@@ -65,20 +66,30 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 
     if (!data || !full_data) return null;
 
-    const handleRowSelect = (selectedRows: { [key: string]: any }[]) => {
+    const handleRowSelect = (selectedRows: { [key: string]: any }[], selectAll: boolean) => {
         setSelectedRows(selectedRows);
+
+        // If all rows are selected, set the selected data to the full data set
+        if (selectAll) {
+            setSelectedData(full_data);
+        } else {
+            // Otherwise, filter the full data based on selected row IDs
+            const selectedIds = selectedRows.map(row => row.id);
+            const newSelectedData = full_data.filter(row => selectedIds.includes(row.id));
+            setSelectedData(newSelectedData);
+        }
     };
 
     // Extracting IDs from selected rows
     const selectedIds = selectedRows.map(row => row.id);
 
     // Filtering full_data based on selected IDs
-    const selectedData = full_data.filter(row => selectedIds.includes(row.id));
+    const filteredSelectedData = full_data.filter(row => selectedIds.includes(row.id));
 
-    const dataToSend = selectedData;
+    const dataToSend = filteredSelectedData.length > 0 ? filteredSelectedData : selectedData;
 
     // Function to check if data has more than just ID columns and is not empty
-    const hasSignificantData = (data) => {
+    const hasSignificantData = (data: { [key: number]: string | bigint }[]) => {
         // length > 1 since for 1 row it becomes card data. Table is shown only for > 1
         return data && data.length > 1 && Object.keys(data[0]).length > 1;
     };
@@ -116,18 +127,18 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                     const cellValueString = cellValue !== null ? String(cellValue) : 'NA';
                                     renderedColumns[column] = (column.toLowerCase().includes('persistent') || column.toLowerCase().includes('access'))
                                         && isURL(cellValueString) ? (
-                                            <Link
-                                                href={cellValueString}
-                                                className="underline cursor-pointer text-blue-600"
-                                                key={`${rowIndex}-${column}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                {cellValueString}
-                                            </Link>
-                                        ) : (
-                                            <Description description={cellValueString} key={`${rowIndex}-${column}`} />
-                                        );
+                                        <Link
+                                            href={cellValueString}
+                                            className="underline cursor-pointer text-blue-600"
+                                            key={`${rowIndex}-${column}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {cellValueString}
+                                        </Link>
+                                    ) : (
+                                        <Description description={cellValueString} key={`${rowIndex}-${column}`} />
+                                    );
                                 });
                                 return { id: row.id, ...renderedColumns };
                             })}

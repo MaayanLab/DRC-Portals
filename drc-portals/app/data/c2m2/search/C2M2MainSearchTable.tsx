@@ -1,4 +1,3 @@
-// C2M2MainSearchTable.jsx
 'use client'
 import React, { useState } from 'react';
 import SearchablePagedTable from '../SearchablePagedTable'; // Adjust the import path as necessary
@@ -22,15 +21,13 @@ const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<{ [key: string]: any }[]>([]);
     const [selectedData, setSelectedData] = useState<{ [key: string]: string | bigint | number; }[]>([]);
 
-    const handleRowSelect = (rows: { [key: string]: any }[]) => {
+    const handleRowSelect = (rows: { [key: string]: any }[], selectAll: boolean) => {
         setSelectedRows(rows);
 
-        // Logging indices of selected rows
-        const selectedIndices = rows.map(row => props.rows.indexOf(row));
-        console.log('Selected rows indices:', selectedIndices);
-
-        // Filter the data array based on selected rows indices
-        if (props.data) {
+        if (selectAll && props.data) {
+            setSelectedData(props.data);
+        } else {
+            const selectedIndices = rows.map(row => props.rows.indexOf(row));
             const newData = selectedIndices.map(index => props.data![index]);
             setSelectedData(newData);
         }

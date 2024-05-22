@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
+import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
 import FormPagination from './FormPagination';
 import SearchField from './SearchField';
 import Link from 'next/link';
@@ -80,34 +80,30 @@ interface SearchablePagedTableProps {
     columns: React.ReactNode[];
     rows: { [key: string]: any }[];
     tablePrefix: string;
-    onRowSelect: (selectedRows: { [key: string]: any }[]) => void;
+    onRowSelect: (selectedRows: { [key: string]: any }[], selectAll: boolean) => void;
 }
 
 const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<{ [key: string]: any }[]>([]);
 
     const handleCheckboxChange = (row: { [key: string]: any }) => {
-      console.log("In handleCheckboxChange");
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
         const updatedSelectedRows = isSelected
             ? selectedRows.filter(selectedRow => selectedRow.id !== row.id)
             : [...selectedRows, row];
 
         setSelectedRows(updatedSelectedRows);
-        props.onRowSelect(updatedSelectedRows);
-        console.log("Checkbox changed:", updatedSelectedRows);
+        props.onRowSelect(updatedSelectedRows, false);
     };
 
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             setSelectedRows(props.rows);
-            props.onRowSelect(props.rows);
-            console.log("All selected:", props.rows);
+            props.onRowSelect(props.rows, true);
             return;
         }
         setSelectedRows([]);
-        props.onRowSelect([]);
-        console.log("None selected");
+        props.onRowSelect([], false);
     };
 
     return (
