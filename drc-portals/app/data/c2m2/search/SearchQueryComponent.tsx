@@ -552,3 +552,4 @@ export async function SearchQueryComponent(props: PageProps) {
   // 2024/05/21: Some issue with taxonomy filter.
   // https://ucsd-sslab.ngrok.app/data/processed/search?q=parkinson&p=1&s=c2m2&t=taxonomy%3AHomo+sapiens
   // Issue fixed by changing ncbi_taxonomy to taxonomy in utils.ts in function generateFilterQueryString
+  //
