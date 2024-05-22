@@ -9,7 +9,6 @@ import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
-import { redirect } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
@@ -129,8 +128,7 @@ export default async function Page(props: PageProps) {
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
-  if (!results) redirect('/data')
-  else if (results.total_count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  if (!results?.total_count) return null
   return (
     <ListingPageLayout
       count={results?.filter_count}
