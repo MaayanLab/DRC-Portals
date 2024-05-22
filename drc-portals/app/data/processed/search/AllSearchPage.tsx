@@ -129,8 +129,7 @@ export default async function Page(props: PageProps) {
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
-  if (!results) redirect('/data')
-  else if (results.total_count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  if (!results?.total_count) return null
   return (
     <ListingPageLayout
       count={results?.filter_count}
