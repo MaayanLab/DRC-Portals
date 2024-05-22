@@ -13,10 +13,11 @@ import Link from "next/link";
 import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash} from "@/app/data/c2m2/utils";
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
+import { FancyTab } from '@/components/misc/FancyTabs';
 
 const allres_filtered_maxrow_limit = 100000;
 
-type PageProps = { searchParams: Record<string, string> }
+type PageProps = { searchParams: Record<string, string>, tab?: boolean }
 type FilterObject = {
     id: string;
     name: string;
@@ -26,18 +27,6 @@ type FilterObject = {
 
 export async function SearchQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
-    // console.log("In SearchQueryComponent");
-
-    try {
-        const results = await fetchQueryResults(searchParams);
-        return results;
-    } catch (error) {
-        console.error('Error fetching search results:', error);
-        return undefined;
-    }
-}
-
-async function fetchQueryResults(searchParams: any) {
     const offset = (searchParams.p - 1) * searchParams.r;
     const limit = searchParams.r;
 
@@ -426,7 +415,7 @@ async function fetchQueryResults(searchParams: any) {
           })) : [];
           
           
-          return (
+          const body = (
             <ListingPageLayout
             count={results?.count} // This matches with #records in the table on the right (without limit)
             all_count={results?.all_count} // This matches with #records in the table on the right (without any limit)
@@ -527,11 +516,13 @@ async function fetchQueryResults(searchParams: any) {
               
             </ListingPageLayout>
         )
+        if (props.tab) return <FancyTab id="c2m2" label={`C2M2 (${results.all_count})`} hidden={results.all_count === 0}>{body}</FancyTab>
+        else return body
 
         
     } catch (error) {
         console.error('Error fetching query results:', error);
-        return <> 
+        const body = <>
         <div className="mb-10">Error fetching query results.</div>
         <Link href="/data">
           <Button
@@ -543,6 +534,8 @@ async function fetchQueryResults(searchParams: any) {
           </Button>
         </Link>
         </>
+        if (props.tab) return <FancyTab id="c2m2" label={`C2M2`} hidden>{body}</FancyTab>
+        else return body
     }
 
     
