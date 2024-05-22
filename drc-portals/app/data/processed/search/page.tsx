@@ -17,7 +17,7 @@ export default async function Page(props: PageProps) {
   return (
     <FancyTabs
       preInitializationFallback={<>Loading...</>}
-      postInitializationFallback={<ErrorRedirect error={`No results for '${props.searchParams.q ?? ''}'`} />}
+      //postInitializationFallback={<ErrorRedirect error={`No results for '${props.searchParams.q ?? ''}'`} />}
     >
       <React.Suspense fallback={<FancyTab id="all" label="All (Loading...)" />}>
         <AllSearchPages {...props} />

@@ -516,7 +516,7 @@ export async function SearchQueryComponent(props: PageProps) {
               
             </ListingPageLayout>
         )
-        if (props.tab) return <FancyTab id="c2m2" label={`C2M2 (${results.all_count})`} hidden={results.all_count === 0}>{body}</FancyTab>
+        if (props.tab) return <FancyTab id="c2m2" priority={results.all_count} label={`C2M2 (${results.all_count})`} hidden={results.all_count === 0}>{body}</FancyTab>
         else return body
 
         
