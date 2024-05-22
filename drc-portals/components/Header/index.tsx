@@ -7,7 +7,8 @@ import {
 	Grid,
 	Toolbar,
 	Stack,
-	Typography
+	Typography,
+	Box
 } from '@mui/material';
 
 import { DataComponent } from './DataComponent';
@@ -100,7 +101,9 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
         </Grid>
       </Toolbar>
       </AppBar>
-	  <DRCDrawer path={path} nav={nav} session={session}/>
+	  <Box sx={{display: {xs: "block", md: "none"}}}>
+	  	<DRCDrawer path={path} nav={nav} session={session}/>
+	  </Box>
     </Container>
   )
 }
