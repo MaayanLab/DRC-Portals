@@ -86,7 +86,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     // Filtering full_data based on selected IDs
     const filteredSelectedData = full_data.filter(row => selectedIds.includes(row.id));
 
-    const dataToSend = filteredSelectedData.length > 0 ? filteredSelectedData : selectedData;
+    const dataToSend = selectedRows.length > 0 ? (selectedIds.length === data.length ? full_data : filteredSelectedData) : selectedData;
 
     // Function to check if data has more than just ID columns and is not empty
     const hasSignificantData = (data: { [key: number]: string | bigint }[]) => {
@@ -145,7 +145,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                             onRowSelect={handleRowSelect}
                         />
                         <div className="flex flex-row gap-4">
-                            {/*drsBundle && <DRSBundleButtondata={dataToSend} filename={downloadFileName} />*/}
+                            {/*drsBundle && <DRSBundleButton data={dataToSend} filename={downloadFileName} />*/}
                             <DownloadButton data={dataToSend} filename={downloadFileName} />
                         </div>
                     </AccordionDetails>
