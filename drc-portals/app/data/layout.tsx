@@ -1,5 +1,5 @@
 import Grid  from '@mui/material/Grid'
-import Header  from '@/components/Header/data'
+import Header  from '@/components/Header/'
 import Footer  from '@/components/Footer/data'
 import { Metadata } from 'next'
 import Background from '@/components/styled/background'
@@ -71,7 +71,7 @@ export default function DataLayout({
 }) {
   return (
     <>
-      <Grid item><Header/></Grid>
+      <Grid item><Header path={"/data"}/></Grid>
       <Grid item className="flex grow">
         <Background background="#E7F3F5">
           <NavBreadcrumbs/>

@@ -4,12 +4,10 @@ import Image from "next/image"
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
-import Chip from '@mui/material/Chip'
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import Divider from '@mui/material/Divider'
 
 import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
