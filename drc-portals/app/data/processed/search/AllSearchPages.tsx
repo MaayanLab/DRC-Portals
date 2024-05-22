@@ -65,17 +65,19 @@ export default async function Page(props: PageProps) {
     ;
   ` : [undefined]
   results.type_counts.sort((a, b) => b.count - a.count)
-  if (results.count) {
-    results.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.type_counts.reduce((all, item) => all + item.count, 0) })
-  }
+  results.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.type_counts.reduce((all, item) => all + item.count, 0) })
   return Object.values(results.type_counts).map(result => (
-    <React.Suspense fallback={null}>
-      <FancyTab id={`${result.type}-${result.entity_type}`} label={`${type_to_string(result.type, result.entity_type)} (${result.count})`} priority={result.count}>
-        <React.Suspense fallback={null}>
-          {result.type === 'all' ? <AllSearchPage {...props} />
-          : <SearchPage searchParams={props.searchParams} type={result.type} entity_type={result.entity_type} />}
-        </React.Suspense>
-      </FancyTab>
-    </React.Suspense>
+    <FancyTab
+      key={`${result.type}-${result.entity_type}`}
+      id={`${result.type}-${result.entity_type}`}
+      label={`${type_to_string(result.type, result.entity_type)} (${result.count})`}
+      priority={result.count}
+      hidden={result.count === 0}
+    >
+      <React.Suspense fallback={null}>
+        {result.type === 'all' ? <AllSearchPage {...props} />
+        : <SearchPage searchParams={props.searchParams} type={result.type} entity_type={result.entity_type} />}
+      </React.Suspense>
+    </FancyTab>
   ))
 }

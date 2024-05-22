@@ -19,13 +19,14 @@ type FancyTabProps = {
   id: string,
   label: string,
   priority?: number,
+  hidden?: boolean,
 }
 const FancyTabContext = React.createContext([undefined as string | undefined, (data: FancyTabProps) => {}] as const)
 
 export function FancyTab(props: React.PropsWithChildren<FancyTabProps>) {
   const [currentTab, register] = React.useContext(FancyTabContext)
   React.useEffect(() => register(props), [props.label, props.id])
-  if (props.id !== currentTab) return null
+  if (props.id !== currentTab || props.hidden) return null
   return <>{props.children}</>
 }
 
@@ -33,13 +34,14 @@ export function FancyTabs(props: React.PropsWithChildren<{
   defaultTab?: string,
   tab?: string,
   onChange?: (evt: any, tab: string) => void,
-  fallback?: React.ReactNode,
+  preInitializationFallback?: React.ReactNode,
+  postInitializationFallback?: React.ReactNode,
 }>) {
-  const [ctx, setCtx] = React.useState({} as Record<string, FancyTabProps>)
+  const [ctx, setCtx] = React.useState({ initialized: false, tabs: {} as Record<string, FancyTabProps> })
   const register = React.useCallback((props: FancyTabProps) => {
-    setCtx(ctx => ({ ...ctx, [props.id]: props }))
+    setCtx(({ tabs }) => ({ initialized: true, tabs: {...tabs, [props.id]: props} }))
     return () => {
-      setCtx(({ [props.id]: _, ...ctx }) => ctx)
+      setCtx(({ tabs: { [props.id]: _, ...tabs } }) => ({ initialized: true, tabs }))
     }
   }, [setCtx])
   const [tab, setTab] = React.useState(props.defaultTab)
@@ -48,10 +50,10 @@ export function FancyTabs(props: React.PropsWithChildren<{
       setTab(props.tab)
   }, [props.tab])
   const tabs = React.useMemo(() => {
-    const tabs = Object.values(ctx)
+    const tabs = Object.values(ctx.tabs).filter(tab => !tab.hidden)
     tabs.sort((a, b) => (b.priority??0) - (a.priority??0))
     return tabs
-  }, [ctx])
+  }, [ctx.tabs])
   const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs[0]?.id, [props.tab, tab, tabs])
   return (
     <Grid>
@@ -70,7 +72,10 @@ export function FancyTabs(props: React.PropsWithChildren<{
           />
         ))}
       </Tabs>
-      {tabs.length === 0 ? props.fallback : null}
+      {tabs.length === 0 ?
+        ctx.initialized ? props.postInitializationFallback
+        : props.preInitializationFallback
+      : null}
       <FancyTabContext.Provider value={[currentTab, register]}>
         {props.children}
       </FancyTabContext.Provider>
