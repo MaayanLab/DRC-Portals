@@ -8,11 +8,11 @@ import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchPara
 import SQL from "@/lib/prisma/raw";
 import { ColorLensOutlined } from "@mui/icons-material";
 
-const file_count_limit = 100;
-const file_count_limit_proj = 100;
-const file_count_limit_sub = 100;
-const file_count_limit_bios = 100;
-const file_count_limit_col = 100;
+const file_count_limit = 1000000;
+const file_count_limit_proj = 1000000;
+const file_count_limit_sub = 1000000;
+const file_count_limit_bios = 1000000;
+const file_count_limit_col = 1000000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -902,6 +902,11 @@ file_table AS (
     const resultsRec = results?.records[0];
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
 
+    const fileProj_table_label_base = "Project associated files with specified data type";
+    const fileSub_table_label_base = "Files that describe subject";
+    const fileBios_table_label_base = "Files that describe biosample";
+    const fileCol_table_label_base = "Files that describe OR are in collection";
+
     const metadata = [
       { label: 'Project ID', value: projectLocalId },
       (resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)) ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> } : resultsRec?.project_persistent_id,
@@ -973,10 +978,10 @@ file_table AS (
       { label: 'Biosamples', value: results ? resultsRec?.count_bios?.toLocaleString() : undefined },
       { label: 'Subjects', value: results ? resultsRec?.count_sub?.toLocaleString() : undefined },
       { label: 'Collections', value: results ? resultsRec?.count_col?.toLocaleString() : undefined },
-      { label: 'Files (for specified project and data type)', value: results ? results.count_file?.toLocaleString() : undefined },
-      { label: 'Files (that describe subject)', value: results ? results.count_file_sub?.toLocaleString() : undefined },
-      { label: 'Files (that describe biosample)', value: results ? results.count_file_bios?.toLocaleString() : undefined },
-      { label: 'Files (that describe OR are in collection)', value: results ? results.count_file_col?.toLocaleString() : undefined },
+      { label: fileProj_table_label_base, value: results ? results.count_file?.toLocaleString() : undefined },
+      { label: fileSub_table_label_base, value: results ? results.count_file_sub?.toLocaleString() : undefined },
+      { label: fileBios_table_label_base, value: results ? results.count_file_bios?.toLocaleString() : undefined },
+      { label: fileCol_table_label_base, value: results ? results.count_file_col?.toLocaleString() : undefined },
 
     ];
 
@@ -991,10 +996,10 @@ file_table AS (
     addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
     //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
-    addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, "Files related to Project", categories);
-    addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, "Files related to Subject", categories);
-    addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, "Files related to Biosample", categories);
-    addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, "Files related to Collection", categories);
+    addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, fileProj_table_label_base, categories);
+    addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, fileSub_table_label_base, categories);
+    addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, fileBios_table_label_base, categories);
+    addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, fileCol_table_label_base, categories);
 
     // Define the actual count of records in table displayed here and use at two or more places
     const count_file_table_withlimit = results?.file_table_full.length ?? 0;
@@ -1009,10 +1014,10 @@ file_table AS (
     //const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + Math.min(file_count_limit_sub, results?.count_file_sub) + " listed)";
     //const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + Math.min(file_count_limit_bios, results?.count_file_bios) + " listed)";
     //const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + Math.min(file_count_limit_col, results?.count_file_col) + " listed)";
-    const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
-    const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
-    const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
-    const fileColTableTitle = "Files related to collection: " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
+    const fileProjTableTitle = fileProj_table_label_base + ": " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
+    const fileSubTableTitle = fileSub_table_label_base + ": " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
+    const fileBiosTableTitle = fileBios_table_label_base + ": " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
+    const fileColTableTitle = fileCol_table_label_base + ": " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
 
     const t4: number = performance.now();
 

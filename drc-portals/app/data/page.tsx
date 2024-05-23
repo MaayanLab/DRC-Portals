@@ -79,7 +79,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                       <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                       {/* <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography> */}
 
-                      <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">Search Common Fund Programs' <Tooltip title="Click to find more about crosscut metadata (C2M2)">
+                      <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">Search Common Fund Programs' <Tooltip title="Click to find more about crosscut metadata model (C2M2)">
                         <Link href="/info/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">Metadata</Link>
                       </Tooltip> and <Tooltip title="Click to find more about processed datasets">
                         <Link href="/data/matrix" key="Processed" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">Processed Datasets</Link>
