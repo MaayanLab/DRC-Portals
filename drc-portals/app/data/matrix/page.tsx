@@ -1,4 +1,4 @@
-import { Table, TableHead, TableRow, TableBody, TableCell} from '@mui/material'
+import { Table, TableHead, TableRow, TableBody, TableCell, List, ListItem, Divider, Button, Stack} from '@mui/material'
 import { Typography, Container, Link } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch';
 import prisma from '@/lib/prisma';
@@ -95,7 +95,7 @@ export default async function DataMatrix() {
         of the CFDE Workbench <Link href="/info" color="#3470e5">
         Information Portal</Link>.</Typography> 
       
-      <Table stickyHeader aria-label="sticky table">
+      <Table stickyHeader aria-label="sticky table" sx={{display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'}}}>
         <colgroup>
             <col style={{width:'19%'}}/>
             <col style={{width:'9%'}}/>
@@ -203,6 +203,86 @@ export default async function DataMatrix() {
             })}
           </TableBody>
         </Table>
+        <List sx={{display: {xs: 'block', sm: 'block', md: 'none', lg: 'none', xl: 'none'}}}>
+          {ordered_data.map((item, idx) => (
+            <ListItem  key={idx}>
+                <Stack spacing={2}>
+                  <div className='flex space-x-2 items-center'>
+                    <Link href={"/info/dcc/".concat(item.data.dcc)}>
+                      <img className="object-scale-down h-14 self-center mx-auto" src={item.data.img} alt={item.data.dcc.concat(" Logo")} />
+                    </Link>
+                  </div>
+                  <Typography variant='subtitle2'>
+                      <b>Datasets and Metadata:</b>
+                  </Typography>  
+                  {
+                      item.data.c2m2 && 
+                        <Link href={"/info/dcc/".concat(item.data.dcc).concat('#C2M2')}>
+                          <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>C2M2</Button>
+                        </Link>
+                    }
+                    {
+                      item.data.xmt && 
+                        <Link href={"/info/dcc/".concat(item.data.dcc).concat('#XMT')}>
+                          <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>XMT</Button>
+                        </Link>
+                    }
+                    {
+                      item.data.kg && 
+                        <Link href={"/info/dcc/".concat(item.data.dcc).concat('#KGAssertions')}>
+                          <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>KG Assertions</Button>
+                        </Link>
+                    }
+                    {
+                      item.data.att && 
+                        <Link href={"/info/dcc/".concat(item.data.dcc).concat('#AttributeTables')}>
+                          <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Attribute Tables</Button>
+                        </Link>
+                    }
+                    {(!item.data.c2m2 && !item.data.kg && !item.data.xmt && !item.data.att) &&
+                        <Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>
+                    }
+                  <Divider/>
+                  <Typography variant='subtitle2'>
+                    <b>Code:</b>
+                  </Typography> 
+                  {  
+                    item.data.etl && 
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ETL')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>ETL</Button>
+                      </Link>
+                  }
+                  {  
+                    item.data.api && 
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#API')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>API</Button>
+                      </Link>
+                  }
+                  {  
+                    item.data.ent && 
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#EntityPages')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Entity Pages</Button>
+                      </Link>
+                  }
+                  {  
+                    item.data.pwb && 
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#PWBMetanodes')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>PWB Metanodes</Button>
+                      </Link>
+                  }
+                  {  
+                    item.data.chat && 
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ChatbotSpecs')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Chatbot Specs</Button>
+                      </Link>
+                  }
+                  {(!item.data.chat && !item.data.pwb && !item.data.ent && !item.data.api && !item.data.etl) &&
+                        <Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>
+                    }
+                </Stack>
+              </ListItem>
+          ))}
+        </List>
     </Container>
   );
 }

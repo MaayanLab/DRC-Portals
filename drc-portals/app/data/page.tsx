@@ -2,23 +2,26 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import CardActions from '@mui/material/CardActions'
-import Container from '@mui/material/Container'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import Icon from '@mdi/react';
-import Fab from '@mui/material/Fab';
-import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
+import { Grid,
+  Card, 
+  CardContent, 
+  CardActions, 
+  Container, 
+  Stack, 
+  Typography, 
+  Fab, 
+  Button, 
+  Paper, 
+  Box,
+ } from '@mui/material'
+import Icon from "@mdi/react"
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
 import SearchField from "./processed/SearchField"
 import { BlurBig } from "@/components/styled/Blur"
 import Stats, { StatsFallback } from "./processed/Stats"
+import { ResponsivePaper } from "../info/styled"
 
 const search_cards = [
   {
@@ -77,8 +80,20 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                       <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
-                        <SearchField q="" error={searchParams.error} width={'544px'}/>
-                        <Typography variant="stats_sub">
+                        <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
+                          <SearchField q="" error={searchParams.error} width={'544px'}/>
+                        </Box>
+                        <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+                          <SearchField q="" error={searchParams.error} width={'270px'}/>
+                        </Box>
+                        <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
+                          Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
+                            {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                              <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                            ))}
+                          </Stack>
+                        </Typography>
+                        <Typography variant="stats_sub_small" sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
                               <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
@@ -139,7 +154,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
           <CFPrograms baseEndpoint="/data/matrix" spacing={2}/>
         </Grid>
         <Grid item xs={12}  sx={{marginTop: 15}}>
-          <Paper sx={{
+          <ResponsivePaper sx={{
                           boxShadow: "none", 
                           background: '#EDF0F8',
                           padding: 5, 
@@ -159,9 +174,12 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                   </Grid>
                   {search_cards.map((e, i)=>(
                     <Grid item key={i}>
-                      <Card sx={{minHeight: 480, width: 400, paddingLeft: 2, paddingRight: 2}} className="flex flex-col space-y-5">
+                      <Card sx={{
+                        minHeight: {xl: 480, lg: 480, md: 480, sm: 200, xs: 200}, 
+                        width: {xl: 400, lg: 400, md: 400, sm: 300, xs: 300}, 
+                        paddingLeft: 2, paddingRight: 2}} className="flex flex-col space-y-5">
                         { e.img && 
-                            <div className="flex flex-row justify-center relative" style={{minHeight: 300}}><Image src={e.img} alt={e.title} fill={true} style={{objectFit: "contain"}}/></div>
+                            <Box className="flex flex-row justify-center relative" sx={{minHeight:  {xl: 300, lg: 300, md: 300, sm: 200, xs: 200}}}><Image src={e.img} alt={e.title} fill={true} style={{objectFit: "contain"}}/></Box>
                         } 
                         <CardContent className="flex flex-col grow space-y-5 text-left" sx={{paddingLeft: 3, paddingRight: 3}}>
                           <Typography variant="h4">{e.title}</Typography>
@@ -177,22 +195,23 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                   ))}
                 </Grid>
               </Container>
-            </Paper>
+            </ResponsivePaper>
         </Grid>
        
         <Grid item xs={12}>
-          <Paper sx={{
-                      boxShadow: "none", 
-                      background: '#A5B4DB',
-                      padding: 5,
-                      borderRadius: 0,
-                      width: "100vw", 
-                      marginLeft: "calc((-100vw + 100%) / 2)", 
-                      marginRight: "calc((-100vw + 100%) / 2)"}}>
+          <ResponsivePaper sx={{
+                        boxShadow: "none", 
+                        background: '#A5B4DB',
+                      }}>
             <Container maxWidth={"lg"}  sx={{marginTop: 5, marginBottom: 5}}>
               <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
                 <Grid item>
-                  <Card sx={{minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left"}}>
+                  <Card sx={{
+                    minHeight: {xl: 300, lg: 300, md: 300, sm: 200, xs: 200}, 
+                    width: {xl: 544, lg: 544, md: 544, sm: 300, xs: 300}, 
+                    paddingLeft: 2, 
+                    paddingRight: 2, 
+                    textAlign: "left"}}>
                     <CardContent className="flex flex-col" sx={{minHeight: 300}}>
                     <Icon path={mdiToolbox} size={1} className="ml-2 mb-2" />
                       <div className="flex flex-col grow">
@@ -209,7 +228,12 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                   </Card>
                 </Grid>
                 <Grid item>
-                  <Card sx={{minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left"}}>
+                  <Card sx={{
+                    minHeight: {xl: 300, lg: 300, md: 300, sm: 200, xs: 200}, 
+                    width: {xl: 544, lg: 544, md: 544, sm: 300, xs: 300}, 
+                    paddingLeft: 2,
+                    paddingRight: 2,
+                    textAlign: "left"}}>
                     <CardContent className="flex flex-col" sx={{minHeight: 300}}>
                     <Icon path={mdiLaptop} size={1} className="ml-2 mb-2" />
                       <div className="flex flex-col grow">
@@ -227,7 +251,7 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                 </Grid>
               </Grid>
             </Container>
-          </Paper>
+          </ResponsivePaper>
         </Grid>
         <Grid item>
           <Link href={"/data/chat"}>

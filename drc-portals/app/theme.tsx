@@ -112,6 +112,12 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
             color: "#9E9E9E"
         },
+        stats_sub_small: {
+            fontSize: 14,
+            fontStyle: "normal",
+            fontWeight: 500,
+            color: "#9E9E9E"
+        },
     },
     palette: {
         primary: {
@@ -266,6 +272,7 @@ declare module '@mui/material/styles' {
       footer: React.CSSProperties;
       stats_h3: React.CSSProperties;
       stats_sub: React.CSSProperties;
+      stats_sub_small: React.CSSProperties;
     }
   
     // allow configuration using `createTheme`
@@ -276,6 +283,7 @@ declare module '@mui/material/styles' {
       footer?: React.CSSProperties;
       stats_h3?: React.CSSProperties;
       stats_sub?: React.CSSProperties;
+      stats_sub_small?: React.CSSProperties;
     }
 
     interface Palette {
@@ -308,6 +316,7 @@ declare module '@mui/material/styles' {
       footer: true;
       stats_h3: true;
       stats_sub: true;
+      stats_sub_small: true;
     }
   }
 

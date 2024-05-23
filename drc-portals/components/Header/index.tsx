@@ -101,7 +101,7 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
         </Grid>
       </Toolbar>
       </AppBar>
-	  <Box sx={{display: {xs: "block", md: "none"}}}>
+	  <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
 		<Stack spacing={1}>
 			<DRCDrawer path={path} nav={nav} session={session}/>
 			{path === "/data" && <SearchParamSearchField />}

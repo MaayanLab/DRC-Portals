@@ -18,7 +18,7 @@ import { mdiArrowRight } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
-import { MarginPaper } from "./styled"
+import { ResponsivePaper } from "./styled"
 import { Box } from "@mui/material"
 export default async function Home() {
   const publications = await prisma.publication.findMany({
@@ -31,7 +31,7 @@ export default async function Home() {
     <main>
       <Grid container spacing={2} alignItems={"center"}>
         <Grid item xs={12}>
-          <MarginPaper color="primary" elevation={0} className="relative"> 
+          <ResponsivePaper color="primary" elevation={0} className="relative"> 
             <BlurSmall sx={{position: 'absolute', top: -100, right: -100}}/>
             <BlurSmall sx={{position: 'absolute', bottom: -100, left: -100}}/>
             <Container maxWidth="lg">
@@ -95,20 +95,13 @@ export default async function Home() {
                                 CFDE TOOLS
                               </Button>
                             </Link>
-                            <Box sx={{display: {xs: "block", sm: "block", md: "none"}}}>
-                            <Link href='/info/documentation'>
-                              <Button color="tertiary" className="flex" endIcon={<Icon path={mdiArrowRight} size={1}/>}>
-                                DOCUMENTATION
-                              </Button>
-                            </Link>
-                            </Box>
                           </Stack>
                         </Paper>
                       </Stack>
                 </Grid>
               </Grid>
             </Container>
-          </MarginPaper>
+          </ResponsivePaper>
         </Grid>
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
@@ -131,7 +124,9 @@ export default async function Home() {
         <Grid item xs={12} md={6}>
           <CFPrograms baseEndpoint="/info/dcc" spacing={2}/>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 10, display: {sm: "none", xs: "none", md: "block"}}}>
+        <Grid item xs={12} sx={{
+            marginTop: 10, 
+          }}>
           <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
             <Grid item>
               <Paper sx={{
@@ -144,7 +139,8 @@ export default async function Home() {
                 borderColor: "#C3E1E6", 
                 boxShadow: 0,
                 position: "relative",
-                overflow: "hidden"
+                overflow: "hidden",
+                display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'}
               }}>
                 <Grid container spacing={2} sx={{height: 300}} justifyContent={"space-around"} alignItems={"center"}>
                   <Grid item sx={{width: 400}}>
@@ -168,14 +164,49 @@ export default async function Home() {
                   right: "30%"
                 }}/>
               </Paper>
+              <Paper sx={{
+                borderRadius: 5, 
+                minHeight: 200, 
+                color: "#FFF", 
+                background: "#2D5986",
+                border:3,
+                borderColor: "#C3E1E6", 
+                boxShadow: 0,
+                position: "relative",
+                overflow: "hidden",
+                padding: 3,
+                display: {xs: 'block', sm: 'block', md: 'none', lg: 'none', xl: 'none'}
+              }}>
+                <Grid container spacing={2} justifyContent={"space-around"} alignItems={"center"}>
+                  <Grid item xs={12}>
+                    <Typography variant={"h2"} sx={{textTransform: "uppercase"}} color="inherit">
+                      Documentation
+                    </Typography>
+                    <Typography variant={"subtitle1"} color="inherit">
+                      Learn more about the standards and protocols for accessing and submitting data to the portal
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Link href="/info/documentation">
+                      <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
+                    </Link>
+                  </Grid>
+                </Grid>
+                <BlurSmall sx={{
+                  backgroundColor: "#C3E1E6",
+                  position: 'absolute', 
+                  bottom: -180, 
+                  right: "30%"
+                }}/>
+              </Paper>
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} sx={{marginTop: 5}}>
-          <MarginPaper sx={{
+          <ResponsivePaper sx={{
                         boxShadow: "none", 
                         background: '#EDF0F8',
-                        padding: 10, 
+                        // padding: 10, 
                         borderRadius: 5, 
                         color: "#000",
                       }}>
@@ -233,7 +264,7 @@ export default async function Home() {
                   </Grid>
               </Grid>
             </Container>
-          </MarginPaper>
+          </ResponsivePaper>
         </Grid>
       </Grid>
     </main>
