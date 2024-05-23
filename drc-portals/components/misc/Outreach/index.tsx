@@ -27,6 +27,8 @@ import { parseAsJson } from 'next-usequerystate';
 import { Prisma } from "@prisma/client"
 import { Tooltip, IconButton, Avatar, CardActions } from "@mui/material"
 import { ClientCheckbox } from "./ClientCheckBox"
+import dynamic from "next/dynamic"
+const ClientExpander = dynamic(()=>(import('./ClientExpander')), {ssr: false})
 export type OutreachWithDCC = Prisma.OutreachGetPayload<{
   include: {
       dccs: {
@@ -341,100 +343,102 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       },
     }): []
     return (
-      <Grid container spacing={1} sx={{marginTop: 2}}>
-        {expand_filter && <Grid item xs={12} sm={3}>
-          <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
-            <Button variant="outlined" color="secondary">
-              Collapse Filter
-            </Button>
-          </Link>
-          <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", marginTop: 1 }} elevation={0}>
-            <Stack spacing={1}>
-              <Typography variant={'body1'}><b>Type</b></Typography>
-              <FormGroup>
-                <ClientCheckbox query_key="type" value='outreach' label="Outreach"/>
-                <ClientCheckbox query_key="type" value='training' label="Training"/>
-                <ClientCheckbox query_key="cfde_specific" value={'cfde_specific'} label="CFDE specific activity"/>
-              </FormGroup>
-              <Typography variant={'body1'}><b>Status</b></Typography>
+      <ClientExpander>
+        <Grid container spacing={1} sx={{marginTop: 2}}>
+          {expand_filter && <Grid item xs={12} sm={3}>
+            <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+              <Button variant="outlined" color="secondary">
+                Collapse Filter
+              </Button>
+            </Link>
+            <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", marginTop: 1 }} elevation={0}>
+              <Stack spacing={1}>
+                <Typography variant={'body1'}><b>Type</b></Typography>
                 <FormGroup>
-                  <ClientCheckbox query_key="status" value='active' label="Active"/>
-                  <ClientCheckbox query_key="status" value='recurring' label="Recurring"/>
-                  <ClientCheckbox query_key="status" value='past' label="Past"/>
+                  <ClientCheckbox query_key="type" value='outreach' label="Outreach"/>
+                  <ClientCheckbox query_key="type" value='training' label="Training"/>
+                  <ClientCheckbox query_key="cfde_specific" value={'cfde_specific'} label="CFDE specific activity"/>
                 </FormGroup>
-              <Typography variant={'body1'}><b>Tag</b></Typography>
-                <FormGroup>
-                  {distinct_tags.map((tag)=>(
-                    <ClientCheckbox key={tag} query_key="tags" value={tag} label={tag}/>
-                  ))}
-                </FormGroup>
-            </Stack>
-          </Paper>
-        </Grid>
-        }
-        <Grid item xs={12} sm={expand_filter ? 9:12}>
-          <Grid container>
-            <Grid item xs={12}>
-              <Grid container justifyContent={"space-between"}>
-                <Grid item sx={{height: 50}}>
-                  { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
-                    <Button variant="outlined" color="secondary">
-                      Expand Filter
-                    </Button>
-                  </Link>
-                  }
-                </Grid>
-                <Grid item>
-                  <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
+                <Typography variant={'body1'}><b>Status</b></Typography>
+                  <FormGroup>
+                    <ClientCheckbox query_key="status" value='active' label="Active"/>
+                    <ClientCheckbox query_key="status" value='recurring' label="Recurring"/>
+                    <ClientCheckbox query_key="status" value='past' label="Past"/>
+                  </FormGroup>
+                <Typography variant={'body1'}><b>Tag</b></Typography>
+                  <FormGroup>
+                    {distinct_tags.map((tag)=>(
+                      <ClientCheckbox key={tag} query_key="tags" value={tag} label={tag}/>
+                    ))}
+                  </FormGroup>
+              </Stack>
+            </Paper>
+          </Grid>
+          }
+          <Grid item xs={12} sm={expand_filter ? 9:12}>
+            <Grid container>
+              <Grid item xs={12}>
+                <Grid container justifyContent={"space-between"}>
+                  <Grid item sx={{height: 50}}>
+                    { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+                      <Button variant="outlined" color="secondary">
+                        Expand Filter
+                      </Button>
+                    </Link>
+                    }
+                  </Grid>
+                  <Grid item>
+                    <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
+                  </Grid>
                 </Grid>
               </Grid>
+            {(current.length) > 0 && 
+              <>
+                <Grid item xs={12}>
+                  <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                    Active
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
+                </Grid>
+              </>
+            }
+            {(recurring.length) > 0 && 
+              <>
+                <Grid item xs={12}>
+                  <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                    Recurring
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <OutreachComponent now={now} outreach={recurring} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
+                </Grid>
+              </>
+            }
+            {past.length > 0 && 
+              <>
+                <Grid item xs={12}>
+                  <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                    Past
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true} filter={parsedParams} expand_filter={expand_filter || false}/>
+                </Grid>
+              </>
+          }
+          {(past.length === 0 && current.length === 0 && recurring.length === 0)  &&
+            <Grid item xs={12} sx={{marginTop: 10}}>
+              <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
+                No records found
+              </Typography>
             </Grid>
-          {(current.length) > 0 && 
-            <>
-              <Grid item xs={12}>
-                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Active
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
-              </Grid>
-            </>
           }
-          {(recurring.length) > 0 && 
-            <>
-              <Grid item xs={12}>
-                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Recurring
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={recurring} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
-              </Grid>
-            </>
-          }
-          {past.length > 0 && 
-            <>
-              <Grid item xs={12}>
-                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Past
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true} filter={parsedParams} expand_filter={expand_filter || false}/>
-              </Grid>
-            </>
-        }
-        {(past.length === 0 && current.length === 0 && recurring.length === 0)  &&
-          <Grid item xs={12} sx={{marginTop: 10}}>
-            <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
-              No records found
-            </Typography>
-          </Grid>
-        }
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </ClientExpander>
     )
   }
 
