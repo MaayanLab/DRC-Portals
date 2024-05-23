@@ -57,7 +57,7 @@ const Tools = () => (
 export default async function DataFooter() {
   return (
     <Paper sx={{background: "#2D5986", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
-      <Container maxWidth="lg" sx={{display: {sm: "none", xs: "none"}}}>
+      <Container maxWidth="lg" sx={{display: {sm: "none", xs: "none", md: "block"}}}>
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
@@ -98,7 +98,7 @@ export default async function DataFooter() {
           </Stack>
         </Grid>
       </Container>
-      <Container maxWidth="sm" sx={{display: {lg: "none", md: "none", xl: "none"}}}>
+      <Container maxWidth="sm" sx={{display: {lg: "none", md: "none", xl: "none", sm: "block"}}}>
         <Stack spacing={2}>
           <Portal />
           <Divider sx={{borderColor: "#FFF"}}/>
@@ -108,7 +108,7 @@ export default async function DataFooter() {
           <Divider sx={{borderColor: "#FFF"}}/>
           <Stack direction={"column"} spacing={2}>
             <Logo title="CFDE Workbench" href="/data" color="inherit"/>
-            <div className='flex items-center space-x-1'>
+            <div className='flex items-center space-x-3'>
               <SocialMedia/>
               <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>

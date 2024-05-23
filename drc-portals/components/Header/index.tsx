@@ -93,16 +93,19 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
               <BottomNav nav={nav} path={path}/>
             </Grid>
           </Grid>
-          <DataComponent>
-            <Grid item xs={12} sx={{textAlign: 'right'}}>
-              <SearchParamSearchField />
-            </Grid>
-          </DataComponent>
+          
+		  <Grid item xs={12} sx={{textAlign: 'right'}}>
+			{path === "/data" && <SearchParamSearchField />}
+		  </Grid>
+          
         </Grid>
       </Toolbar>
       </AppBar>
 	  <Box sx={{display: {xs: "block", md: "none"}}}>
-	  	<DRCDrawer path={path} nav={nav} session={session}/>
+		<Stack spacing={1}>
+			<DRCDrawer path={path} nav={nav} session={session}/>
+			{path === "/data" && <SearchParamSearchField />}
+		</Stack>
 	  </Box>
     </Container>
   )

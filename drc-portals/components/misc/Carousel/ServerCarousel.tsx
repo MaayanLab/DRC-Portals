@@ -4,7 +4,6 @@ import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
 import Link from "next/link"
 import prisma from "@/lib/prisma"
-
 export default async function ServerCarousel () {
     const outreach = await prisma.outreach.findMany({
         where: {
@@ -71,24 +70,30 @@ export default async function ServerCarousel () {
     
     
     const children = [...outreach_items, ...publication_items, ...items].map( (item, i) => (
-        <Box key={i} sx={{
-            minHeight: 300, 
-            width: 640,
-            textAlign: "center", 
-            border: 1,
-            borderRadius: 5,
-            borderColor: "rgba(81, 123, 154, 0.5)", 
-            padding: 2
-        }}>
-            <Link href={item.url} target="_blank" rel="noopener noreferrer">
-                <Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none", background: "#FFF"}}>
-                    <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
-                    <div className="flex grow items-center justify-center relative">
-                        <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
-                    </div>
-                </Box>
-            </Link>
-        </Box>
+        <div key={i}>
+            <Box key={i} sx={{
+                minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
+                width: {xs: 300, sm: 300, md: 450, lg: 600, xl: 600}, 
+                textAlign: "center", 
+                border: 1,
+                borderRadius: 5,
+                borderColor: "rgba(81, 123, 154, 0.5)", 
+                padding: 2
+            }}>
+                <Link href={item.url} target="_blank" rel="noopener noreferrer">
+                    <Box className="flex flex-col" sx={{
+                            minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
+                            boxShadow: "none", 
+                            background: "#FFF"
+                        }}>
+                        <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
+                        <div className="flex grow items-center justify-center relative">
+                            <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
+                        </div>
+                    </Box>
+                </Link>
+            </Box>
+        </div>
     ))
 
     return <ClientCarousel title="PRODUCTS, PARTNERSHIPS, & EVENTS">{children}</ClientCarousel>
