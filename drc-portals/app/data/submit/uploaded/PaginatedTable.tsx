@@ -8,8 +8,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Box, TableFooter, TablePagination, TableSortLabel } from '@mui/material';
-import { BsCheckCircleFill } from "react-icons/bs";
-import { FaCircleExclamation } from "react-icons/fa6";
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
@@ -19,6 +17,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import { useDebounce } from 'use-debounce';
+import { ApprovedSymbol, NotApprovedSymbol } from './tableSymbols';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -346,17 +345,17 @@ export function PaginatedTable({ userFiles, role }: {
 
     if (role === 'UPLOADER') {
         symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let approvedSymbol = <FaCircleExclamation size={20} />
-            let currentSymbol = <FaCircleExclamation size={20} />
+            let approvedSymboldcc = <NotApprovedSymbol />
+            let approvedSymbol =  <NotApprovedSymbol />
+            let currentSymbol =  <NotApprovedSymbol />
             if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
+                approvedSymboldcc = <ApprovedSymbol />
             }
             if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
+                approvedSymbol = <ApprovedSymbol />
             }
             if (userFile.current) {
-                currentSymbol = <BsCheckCircleFill size={20} />
+                currentSymbol =  <ApprovedSymbol />
             }
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
@@ -365,10 +364,10 @@ export function PaginatedTable({ userFiles, role }: {
     } else if (role === 'DCC_APPROVER') {
         symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-            let approvedSymbol = <FaCircleExclamation size={20} />
+            let approvedSymbol = <NotApprovedSymbol />
             let currentSymbol = <CurrentBtn {...userFile} />
             if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
+                approvedSymbol = <ApprovedSymbol />
             }
             return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />)
         })
@@ -376,10 +375,10 @@ export function PaginatedTable({ userFiles, role }: {
     } else {
         symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
+            let approvedSymboldcc =<NotApprovedSymbol />
             let currentSymbol = <CurrentBtn {...userFile} />
             if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
+                approvedSymboldcc = <ApprovedSymbol />
             }
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />

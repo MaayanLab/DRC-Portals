@@ -78,7 +78,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={items.map(item => [
-          item.dcc_asset.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.dcc_asset.dcc.short_label}`} src={item.dcc_asset.dcc.icon} alt={item.dcc_asset.dcc.short_label ?? ''} /> : null,
+          item.dcc_asset.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/gene_set_library/${item.id}`} src={item.dcc_asset.dcc.icon} alt={item.dcc_asset.dcc.short_label ?? ''} /> : null,
           <LinkedTypedNode type="gene_set_library" id={item.id} label={item.node.label} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
