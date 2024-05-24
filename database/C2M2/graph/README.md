@@ -76,7 +76,7 @@ Note that this script _will_ fail if:
 After you have created the Cypher scripts and exported the C2M2 data from Postgres, you can start the Neo4j container and begin the import process. To start the container, simply run:
 
 ```bash
-docker-compose up -d`
+docker-compose up -d
 ```
 
 The `-d` in the command above means to run the container in "detached" mode, essentially meaning the container will run in the background.
