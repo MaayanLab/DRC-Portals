@@ -87,7 +87,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     // Filtering full_data based on selected IDs
     const filteredSelectedData = full_data.filter(row => selectedIds.includes(row.id));
 
-    const dataToSend = selectedRows.length > 0 ? (selectedIds.length === data.length ? full_data : filteredSelectedData) : selectedData;
+    var dataToSend = selectedRows.length > 0 ? (selectedIds.length === data.length ? full_data : filteredSelectedData) : selectedData;
 
     // Function to check if data has more than just ID columns and is not empty
     const hasSignificantData = (data: { [key: number]: string | bigint }[]) => {
@@ -139,7 +139,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                         </Link>
                                     ) : (
                                         column.toLowerCase().includes('size_in_bytes') ?
-                                        (<Description description={cellValueString.replace(/\.0$/, '')} key={`${rowIndex}-${column}`} />) 
+                                        (<Description description={cellValueString.replace(/\.0$/, '')} key={`${rowIndex}-${column}`} />) // temporary fix, better to fix in ingestion py script
                                         : (<Description description={cellValueString} key={`${rowIndex}-${column}`} />)
                                     );
                                 });

@@ -838,7 +838,7 @@ file_table AS (
     const filesProj_table_full_withId = results?.file_table_full
       ? results.file_table_full.map((row, index) => ({ ...row, id: index }))
       : [];
-
+    
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>DYNAMIC",dynamicFileProjColumns)
 
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
@@ -881,8 +881,8 @@ file_table AS (
       ? results.file_col_table_full.map((row, index) => ({ ...row, id: index }))
       : [];
 
-
-
+    // Mano: modify dataToSend so that size_in_bytes and compressed_size_in_bytes don't have .0 at the end
+    // data = data.map(row => ({...row, size_in_bytes: (row.size_in_bytes !=== null) ? row.size_in_bytes.replace(/\.0$/, '') : null   }));
 
     const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
