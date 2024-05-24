@@ -1,0 +1,70 @@
+#!/bin/bash
+set -e
+
+tables=(
+    "analysis_type"
+    "anatomy"
+    "assay_type"
+    "biosample"
+    "biosample_disease"
+    "biosample_from_subject"
+    "biosample_gene"
+    "biosample_in_collection"
+    "biosample_substance"
+    "collection"
+    "collection_anatomy"
+    "collection_compound"
+    "collection_defined_by_project"
+    "collection_disease"
+    "collection_gene"
+    "collection_in_collection"
+    "collection_phenotype"
+    "collection_protein"
+    "collection_substance"
+    "collection_taxonomy"
+    "compound"
+    "data_type"
+    "dcc"
+    "disease"
+    "disease_association_type"
+    "file"
+    "file_describes_biosample"
+    "file_describes_collection"
+    "file_describes_subject"
+    "file_format"
+    "file_in_collection"
+    "gene"
+    "id_namespace"
+    "ncbi_taxonomy"
+    "phenotype"
+    "phenotype_association_type"
+    "phenotype_disease"
+    "phenotype_gene"
+    "project"
+    "project_in_project"
+    "protein"
+    "protein_gene"
+    "sample_prep_method"
+    "subject"
+    "subject_disease"
+    "subject_ethnicity"
+    "subject_granularity"
+    "subject_in_collection"
+    "subject_phenotype"
+    "subject_race"
+    "subject_race_cv"
+    "subject_role"
+    "subject_role_taxonomy"
+    "subject_sex"
+    "subject_substance"
+    "substance"
+)
+
+# Load the Postgres connection vars
+source .env
+
+# Iterate over the array of tables
+for table in "${tables[@]}"; do
+    echo Exporting table $table...
+    PGPASSWORD=$PG_PASSWORD psql -U $PG_USER -d $PG_DBNAME -h $PG_HOST -p $PG_PORT -c "\copy (SELECT * FROM c2m2.$table) TO './import/data/$table.tsv' WITH CSV HEADER DELIMITER E'\t' ESCAPE '\'"
+done

@@ -1,0 +1,23 @@
+version: '3'
+services:
+  neo4j:
+    image: neo4j:5.16.0-enterprise-bullseye
+    container_name: drc-portals-neo4j
+    restart: unless-stopped
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./import:/import
+      - drc-portals-neo4j-data:/var/lib/neo4j/data
+    environment:
+      - USERNAME
+      - PASSWORD
+      - NEO4J_AUTH
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_dbms_cypher_lenient__create__relationship=true
+      - NEO4J_server.directories.import=/import
+      - NEO4JLABS_PLUGINS=["apoc"]
+
+volumes:
+  drc-portals-neo4j-data:
