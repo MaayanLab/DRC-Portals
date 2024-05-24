@@ -38,8 +38,8 @@ In case the example file does not exist, refer to the following to create a new 
 
 ```bash
 # Neo4j vars
-NEO4J_USERNAME=
-NEO4J_PASSWORD=
+USERNAME=
+PASSWORD=
 NEO4J_NEO4J_AUTH=
 
 # Postgres vars
