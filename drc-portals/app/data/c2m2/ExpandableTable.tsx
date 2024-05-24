@@ -138,7 +138,9 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                             {cellValueString}
                                         </Link>
                                     ) : (
-                                        <Description description={cellValueString} key={`${rowIndex}-${column}`} />
+                                        column.toLowerCase().includes('size_in_bytes') ?
+                                        (<Description description={cellValueString.replace(/\.0$/, '')} key={`${rowIndex}-${column}`} />) 
+                                        : (<Description description={cellValueString} key={`${rowIndex}-${column}`} />)
                                     );
                                 });
                                 return { id: row.id, ...renderedColumns };

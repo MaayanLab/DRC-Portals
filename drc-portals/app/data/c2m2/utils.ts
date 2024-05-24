@@ -543,3 +543,9 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
   // Parse and return the parameters
   return schema.parse(props.searchParams);
 }
+
+export function get_partial_list_string(all_count: number, count: number, all_count_limit: number): string {
+  return (all_count ?? 0).toLocaleString() + 
+    ((all_count > all_count_limit) ? "(" + (count ?? 0).toLocaleString() + " listed)" : '')
+    ;
+}

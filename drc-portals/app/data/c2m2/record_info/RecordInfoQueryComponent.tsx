@@ -4,15 +4,15 @@ import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRe
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import { ColorLensOutlined } from "@mui/icons-material";
 
-const file_count_limit = 1000000;
-const file_count_limit_proj = 1000000;
-const file_count_limit_sub = 1000000;
-const file_count_limit_bios = 1000000;
-const file_count_limit_col = 1000000;
+const file_count_limit = 200000;
+const file_count_limit_proj = file_count_limit; // 500000;
+const file_count_limit_sub = file_count_limit; // 500000;
+const file_count_limit_bios = file_count_limit; // 500000;
+const file_count_limit_col = file_count_limit; // 500000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -1010,14 +1010,16 @@ file_table AS (
     const biosampleTableTitle = "Biosamples: " + results?.count_bios;
     const subjectTableTitle = "Subjects: " + results?.count_sub;
     const collectionTableTitle = "Collections: " + results?.count_col;
-    //const fileProjTableTitle = "Files related to project: " + results?.count_file + " (" + Math.min(file_count_limit_proj, results?.count_file) + " listed)";
-    //const fileSubTableTitle = "Files related to subject: " + results?.count_file_sub + " (" + Math.min(file_count_limit_sub, results?.count_file_sub) + " listed)";
-    //const fileBiosTableTitle = "Files related to biosample: " + results?.count_file_bios + " (" + Math.min(file_count_limit_bios, results?.count_file_bios) + " listed)";
-    //const fileCollTableTitle = "Files related to collection: " + results?.count_file_col + " (" + Math.min(file_count_limit_col, results?.count_file_col) + " listed)";
-    const fileProjTableTitle = fileProj_table_label_base + ": " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
-    const fileSubTableTitle = fileSub_table_label_base + ": " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
-    const fileBiosTableTitle = fileBios_table_label_base + ": " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
-    const fileColTableTitle = fileCol_table_label_base + ": " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
+    ////const fileProjTableTitle = fileProj_table_label_base + ": " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
+    ////const fileSubTableTitle = fileSub_table_label_base + ": " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
+    ////const fileBiosTableTitle = fileBios_table_label_base + ": " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
+    ////const fileColTableTitle = fileCol_table_label_base + ": " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
+
+    // get_partial_list_string(count_file_table_withlimit, results?.count_file, file_count_limit_proj)
+    const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(results?.count_file ?? 0, count_file_table_withlimit, file_count_limit_proj);
+    const fileSubTableTitle = fileSub_table_label_base + ": " + get_partial_list_string(results?.count_file_sub ?? 0, count_file_sub_table_withlimit, file_count_limit_sub);
+    const fileBiosTableTitle = fileBios_table_label_base + ": " + get_partial_list_string(results?.count_file_bios ?? 0, count_file_bios_table_withlimit, file_count_limit_bios);
+    const fileColTableTitle = fileCol_table_label_base + ": " + get_partial_list_string(results?.count_file_col ?? 0, count_file_col_table_withlimit, file_count_limit_col);
 
     const t4: number = performance.now();
 
