@@ -1,25 +1,51 @@
-import React from "react"
-import Link from "next/link"
-import Image from "next/image"
+import React, { ReactElement } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import CardActions from '@mui/material/CardActions'
-import Container from '@mui/material/Container'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Container from '@mui/material/Container';
+import Stack from '@mui/material/Stack';
+import { Box, Typography } from '@mui/material';
 import Icon from '@mdi/react';
 import Fab from '@mui/material/Fab';
-import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
-import CFPrograms from "@/components/misc/CFPrograms"
-import SearchField from "./processed/SearchField"
-import { BlurBig } from "@/components/styled/Blur"
-import Stats, { StatsFallback } from "./processed/Stats"
+import CFPrograms from "@/components/misc/CFPrograms";
+import SearchField from "./processed/SearchField";
+import { BlurBig } from "@/components/styled/Blur";
+import Stats, { StatsFallback } from "./processed/Stats";
 import Tooltip from '@mui/material/Tooltip';
+
+// Define the CustomTooltipProps interface
+interface CustomTooltipProps {
+  title: string;
+  imgSrc: string;
+  imgAlt: string;
+  text: string;
+  children: ReactElement;
+}
+
+// CustomTooltip component using the CustomTooltipProps interface
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ imgSrc, imgAlt, text, children }) => {
+  return (
+    <Tooltip
+      title={
+        <Box display="flex" flexDirection="column" alignItems="center" width="100%">
+          <img src={imgSrc} alt={imgAlt} style={{ width: '100%', display: 'block', marginBottom: '5px' }} />
+          <Typography>{text}</Typography>
+        </Box>
+      }
+      arrow
+    >
+      {children}
+    </Tooltip>
+  );
+};
 
 const search_cards = [
   {
@@ -36,7 +62,7 @@ const search_cards = [
     "img": "/img/processed_data.png",
     "link": "/data/matrix"
   }
-]
+];
 
 const tool_cards = [
   {
@@ -51,7 +77,7 @@ const tool_cards = [
     "icon": mdiLaptop,
     "link": "https://playbook-workflow-builder.cloud/playbooks"
   }
-]
+];
 
 export default async function Home({ searchParams }: { searchParams: { error?: string } }) {
   return (
@@ -79,179 +105,195 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                       <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                       {/* <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography> */}
 
-                      <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">Search Common Fund Programs' <Tooltip title="Click to find more about crosscut metadata model (C2M2)">
-                        <Link href="/info/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">Metadata</Link>
-                      </Tooltip> and <Tooltip title="Click to find more about processed datasets">
-                        <Link href="/data/matrix" key="Processed" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">Processed Datasets</Link>
-                      </Tooltip>.
-                    </Typography>
-
-                    <SearchField q="" error={searchParams.error} width={'544px'} />
-                    <Typography variant="stats_sub">
-                      Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
-                        {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
-                          <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
-                        ))}
-                      </Stack>
-                    </Typography>
-                    <div className="flex align-center space-x-10">
-                      <Link href="/data/processed/search/help"><Button sx={{ textTransform: 'uppercase' }} color="secondary">Learn More</Button></Link>
-                      <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit">Search</Button>
-                    </div>
-                  </Stack>
-                </form>
-              </Grid>
-            </Grid>
-          </Container>
-        </Paper>
-      </Grid>
-      <Grid item xs={12} sx={{ my: 8 }}>
-        <Paper sx={{
-          boxShadow: "none",
-          padding: 5,
-          background: "#E7F3F5",
-          width: "100vw",
-          marginLeft: "calc((-100vw + 100%) / 2)",
-          marginRight: "calc((-100vw + 100%) / 2)",
-          marginBottom: 10,
-          position: "relative",
-          overflow: "hide"
-        }}
-          className="flex"
-        >
-          <Container maxWidth="lg" className="m-auto">
-            <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
-              <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
-            </Grid>
-          </Container>
-        </Paper>
-      </Grid>
-      <Grid item xs={12} md={5} >
-        <Stack spacing={2} sx={{ textAlign: "left" }}>
-          <Typography variant="h2" color="secondary" sx={{ textTransform: 'uppercase' }}>
-            Common Fund programs partnered with the CFDE
-          </Typography>
-          <Typography variant="body1" color="secondary" sx={{ width: "95%" }}>
-            The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
-          </Typography>
-          <Link href="/info/dcc">
-            <Button color="secondary" sx={{ marginLeft: -2 }} endIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="subtitle1">
-                Explore CF Programs
-              </Typography>
-            </Button>
-          </Link>
-        </Stack>
-      </Grid>
-      <Grid item xs={12} md={1}></Grid>
-      <Grid item xs={12} md={6}>
-        <CFPrograms baseEndpoint="/data/matrix" spacing={2} />
-      </Grid>
-      <Grid item xs={12} sx={{ marginTop: 15 }}>
-        <Paper sx={{
-          boxShadow: "none",
-          background: '#EDF0F8',
-          padding: 5,
-          width: "100vw",
-          marginLeft: "calc((-100vw + 100%) / 2)",
-          marginRight: "calc((-100vw + 100%) / 2)",
-        }}
-          className="flex"
-        >
-          <Container maxWidth="lg" className="m-auto">
-            <Grid container spacing={5} alignItems={"center"} justifyContent={"center"}>
-              <Grid item xs={12}>
-                <Container maxWidth="md">
-                  <Typography variant="h2" color="secondary" sx={{ textTransform: "uppercase" }}>Metadata and Processed Data</Typography>
-                  <Typography variant="body1" color="secondary">Efficiently locate datasets based on specific attributes and conduct in-depth analyses, driving forward groundbreaking research endeavors.</Typography>
-                </Container>
-              </Grid>
-              {search_cards.map((e, i) => (
-                <Grid item key={i}>
-                  <Card sx={{ minHeight: 480, width: 400, paddingLeft: 2, paddingRight: 2 }} className="flex flex-col space-y-5">
-                    {e.img &&
-                      <div className="flex flex-row justify-center relative" style={{ minHeight: 300 }}><Image src={e.img} alt={e.title} fill={true} style={{ objectFit: "contain" }} /></div>
-                    }
-                    {/* <Divider sx={{borderColor: "#7187C3"}}/> */}
-                    <CardContent className="flex flex-col grow space-y-5 text-left" sx={{ paddingLeft: 3, paddingRight: 3 }}>
-                      <Typography variant="h4">{e.title}</Typography>
-                      <Typography variant="caption">
-                        {e.description}
+                      <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">
+                        Search Common Fund Programs'
+                        <CustomTooltip
+                          title="C2M2 model information"
+                          imgSrc="/img/C2M2_NEO4J_level0.jpg"
+                          imgAlt="Crosscut Metadata (C2M2)"
+                          text="The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. Click to find more about C2M2">
+                          <Link href="/info/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
+                            Metadata
+                          </Link>
+                        </CustomTooltip>
+                        and
+                        <CustomTooltip
+                          title="Processed data information"
+                          imgSrc="/img/Processed_Data_Matrix_Tooltip.JPG"
+                          imgAlt="Processed Datasets"
+                          text="Processed data includes C2M2 metadata data packages, gene and other entity set libraries (XMTs), knowledge graph (KG) assertions, and attribute tables. Click to find more about processed datasets.">
+                          <Link href="/data/matrix" key="Processed" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
+                            Processed Datasets
+                          </Link>
+                        </CustomTooltip>.
                       </Typography>
+
+                      <SearchField q="" error={searchParams.error} width={'544px'} />
+                      <Typography variant="stats_sub">
+                        Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
+                          {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                            <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                          ))}
+                        </Stack>
+                      </Typography>
+                      <div className="flex align-center space-x-10">
+                        <Link href="/data/processed/search/help"><Button sx={{ textTransform: 'uppercase' }} color="secondary">Learn More</Button></Link>
+                        <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit">Search</Button>
+                      </div>
+                    </Stack>
+                  </form>
+                </Grid>
+              </Grid>
+            </Container>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sx={{ my: 8 }}>
+          <Paper sx={{
+            boxShadow: "none",
+            padding: 5,
+            background: "#E7F3F5",
+            width: "100vw",
+            marginLeft: "calc((-100vw + 100%) / 2)",
+            marginRight: "calc((-100vw + 100%) / 2)",
+            marginBottom: 10,
+            position: "relative",
+            overflow: "hide"
+          }}
+            className="flex"
+          >
+            <Container maxWidth="lg" className="m-auto">
+              <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
+                <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
+              </Grid>
+            </Container>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={5} >
+          <Stack spacing={2} sx={{ textAlign: "left" }}>
+            <Typography variant="h2" color="secondary" sx={{ textTransform: 'uppercase' }}>
+              Common Fund programs partnered with the CFDE
+            </Typography>
+            <Typography variant="body1" color="secondary" sx={{ width: "95%" }}>
+              The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
+            </Typography>
+            <Link href="/info/dcc">
+              <Button color="secondary" sx={{ marginLeft: -2 }} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                <Typography variant="subtitle1">
+                  Explore CF Programs
+                </Typography>
+              </Button>
+            </Link>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={1}></Grid>
+        <Grid item xs={12} md={6}>
+          <CFPrograms baseEndpoint="/data/matrix" spacing={2} />
+        </Grid>
+        <Grid item xs={12} sx={{ marginTop: 15 }}>
+          <Paper sx={{
+            boxShadow: "none",
+            background: '#EDF0F8',
+            padding: 5,
+            width: "100vw",
+            marginLeft: "calc((-100vw + 100%) / 2)",
+            marginRight: "calc((-100vw + 100%) / 2)",
+          }}
+            className="flex"
+          >
+            <Container maxWidth="lg" className="m-auto">
+              <Grid container spacing={5} alignItems={"center"} justifyContent={"center"}>
+                <Grid item xs={12}>
+                  <Container maxWidth="md">
+                    <Typography variant="h2" color="secondary" sx={{ textTransform: "uppercase" }}>Metadata and Processed Data</Typography>
+                    <Typography variant="body1" color="secondary">Efficiently locate datasets based on specific attributes and conduct in-depth analyses, driving forward groundbreaking research endeavors.</Typography>
+                  </Container>
+                </Grid>
+                {search_cards.map((e, i) => (
+                  <Grid item key={i}>
+                    <Card sx={{ minHeight: 480, width: 400, paddingLeft: 2, paddingRight: 2 }} className="flex flex-col space-y-5">
+                      {e.img &&
+                        <div className="flex flex-row justify-center relative" style={{ minHeight: 300 }}><Image src={e.img} alt={e.title} fill={true} style={{ objectFit: "contain" }} /></div>
+                      }
+                      {/* <Divider sx={{borderColor: "#7187C3"}}/> */}
+                      <CardContent className="flex flex-col grow space-y-5 text-left" sx={{ paddingLeft: 3, paddingRight: 3 }}>
+                        <Typography variant="h4">{e.title}</Typography>
+                        <Typography variant="caption">
+                          {e.description}
+                        </Typography>
+                      </CardContent>
+                      <CardActions sx={{ paddingLeft: 1, paddingRight: 3 }}>
+                        <Link href={e.link}><Button color="secondary" sx={{ textTransform: "uppercase" }} endIcon={<Icon path={mdiArrowRight} size={1} />}>{e.button}</Button></Link>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Paper sx={{
+            boxShadow: "none",
+            background: '#A5B4DB',
+            padding: 5,
+            borderRadius: 0,
+            width: "100vw",
+            marginLeft: "calc((-100vw + 100%) / 2)",
+            marginRight: "calc((-100vw + 100%) / 2)"
+          }}>
+            <Container maxWidth={"lg"} sx={{ marginTop: 5, marginBottom: 5 }}>
+              <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
+                <Grid item>
+                  <Card sx={{ minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left" }}>
+                    <CardContent className="flex flex-col" sx={{ minHeight: 300 }}>
+                      <Icon path={mdiToolbox} size={1} className="ml-2 mb-2" />
+                      <div className="flex flex-col grow">
+                        <Typography variant="h2" sx={{ fontWeight: 400, width: 150 }} color="secondary">
+                          TOOLS & WORKFLOWS
+                        </Typography>
+                        <Typography variant="body2" color="secondary" sx={{ marginTop: 2 }}>
+                          Explore CFDE products such as bioinformatics tools, software libraries, and workflow engines
+                        </Typography>
+                      </div>
+
+                      <div><Link href="/data/tools_and_workflows"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>CF TOOLS</Button></Link></div>
                     </CardContent>
-                    <CardActions sx={{ paddingLeft: 1, paddingRight: 3 }}>
-                      <Link href={e.link}><Button color="secondary" sx={{ textTransform: "uppercase" }} endIcon={<Icon path={mdiArrowRight} size={1} />}>{e.button}</Button></Link>
-                    </CardActions>
                   </Card>
                 </Grid>
-              ))}
-            </Grid>
-          </Container>
-        </Paper>
-      </Grid>
+                <Grid item>
+                  <Card sx={{ minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left" }}>
+                    <CardContent className="flex flex-col" sx={{ minHeight: 300 }}>
+                      <Icon path={mdiLaptop} size={1} className="ml-2 mb-2" />
+                      <div className="flex flex-col grow">
+                        <Typography variant="h2" sx={{ fontWeight: 400, width: 150 }} color="secondary">
+                          USE CASES
+                        </Typography>
+                        <Typography variant="body2" color="secondary" sx={{ marginTop: 2 }}>
+                          Explore crosscut DCC use cases encoded in Playbook Workflow Builder use cases
+                        </Typography>
+                      </div>
 
-      <Grid item xs={12}>
-        <Paper sx={{
-          boxShadow: "none",
-          background: '#A5B4DB',
-          padding: 5,
-          borderRadius: 0,
-          width: "100vw",
-          marginLeft: "calc((-100vw + 100%) / 2)",
-          marginRight: "calc((-100vw + 100%) / 2)"
-        }}>
-          <Container maxWidth={"lg"} sx={{ marginTop: 5, marginBottom: 5 }}>
-            <Grid container spacing={2} justifyContent={"center"} alignItems={"center"}>
-              <Grid item>
-                <Card sx={{ minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left" }}>
-                  <CardContent className="flex flex-col" sx={{ minHeight: 300 }}>
-                    <Icon path={mdiToolbox} size={1} className="ml-2 mb-2" />
-                    <div className="flex flex-col grow">
-                      <Typography variant="h2" sx={{ fontWeight: 400, width: 150 }} color="secondary">
-                        TOOLS & WORKFLOWS
-                      </Typography>
-                      <Typography variant="body2" color="secondary" sx={{ marginTop: 2 }}>
-                        Explore CFDE products such as bioinformatics tools, software libraries, and workflow engines
-                      </Typography>
-                    </div>
-
-                    <div><Link href="/data/tools_and_workflows"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>CF TOOLS</Button></Link></div>
-                  </CardContent>
-                </Card>
+                      <div><Link href="https://playbook-workflow-builder.cloud/playbooks" target="_blank" rel="noopener noreferrer"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>Use Cases</Button></Link></div>
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Card sx={{ minHeight: 300, width: 544, paddingLeft: 2, paddingRight: 2, textAlign: "left" }}>
-                  <CardContent className="flex flex-col" sx={{ minHeight: 300 }}>
-                    <Icon path={mdiLaptop} size={1} className="ml-2 mb-2" />
-                    <div className="flex flex-col grow">
-                      <Typography variant="h2" sx={{ fontWeight: 400, width: 150 }} color="secondary">
-                        USE CASES
-                      </Typography>
-                      <Typography variant="body2" color="secondary" sx={{ marginTop: 2 }}>
-                        Explore crosscut DCC use cases encoded in Playbook Workflow Builder use cases
-                      </Typography>
-                    </div>
-
-                    <div><Link href="https://playbook-workflow-builder.cloud/playbooks" target="_blank" rel="noopener noreferrer"><Button variant="contained" color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>Use Cases</Button></Link></div>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-          </Container>
-        </Paper>
+            </Container>
+          </Paper>
+        </Grid>
+        <Grid item>
+          <Link href={"/data/chat"}>
+            <Fab sx={{
+              position: 'fixed',
+              bottom: 50,
+              right: 50,
+            }} aria-label={'chat'} color={'primary'}>
+              <Icon style={{ color: "#336699" }} path={mdiChatOutline} size={1} />
+            </Fab>
+          </Link>
+        </Grid>
       </Grid>
-      <Grid item>
-        <Link href={"/data/chat"}>
-          <Fab sx={{
-            position: 'fixed',
-            bottom: 50,
-            right: 50,
-          }} aria-label={'chat'} color={'primary'}>
-            <Icon style={{ color: "#336699" }} path={mdiChatOutline} size={1} />
-          </Fab>
-        </Link>
-      </Grid>
-    </Grid>
-    </main >
-  )
+    </main>
+  );
 }
