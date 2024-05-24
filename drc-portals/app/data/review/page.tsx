@@ -1,20 +1,22 @@
-import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
-import ReviewDisplay from './ReviewDisplay';
+// ParentComponent.jsx
+'use client';  // Ensure this is a client component
+import { useState } from 'react';
 import QueryForm from './QueryForm';
+import ReviewPage from './ReviewPage';
 
-
-export default async function ReviewPage() {
-
-    const mySchema = 'gtex';
-    const myTable = 'file';
-    const query = Prisma.sql`SELECT * FROM ${Prisma.join([Prisma.sql`${Prisma.raw(mySchema + '.' + myTable)}`])} LIMIT 10;`;
-    const result = await prisma.$queryRaw(query);
+export default function ParentComponent() {
+    const [selectedSchema, setSelectedSchema] = useState(null);
+    const [selectedTable, setSelectedTable] = useState(null);
 
     return (
         <>
-        <QueryForm />
-            <ReviewDisplay result={result}/>        
+            <QueryForm 
+                selectedSchema={selectedSchema} 
+                setSelectedSchema={setSelectedSchema} 
+                selectedTable={selectedTable} 
+                setSelectedTable={setSelectedTable} 
+            />
+            <ReviewPage selectedSchema={selectedSchema} selectedTable={selectedTable} />
         </>
     );
 }
