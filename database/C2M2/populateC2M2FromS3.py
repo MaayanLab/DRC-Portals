@@ -19,6 +19,8 @@ import sys
 import time
 import subprocess
 import gc
+import urllib.parse
+from dotenv import load_dotenv
 
 # debug
 debug = 1
@@ -26,12 +28,18 @@ actually_ingest_tables = 1
 
 newline = '\n'
 
+# Lines copied from dburl.py and modified
+load_dotenv(pathlib.Path(__file__).parent.parent.parent/'drc-portals'/'.env')
+c2m2_database_url = urllib.parse.urlparse(os.getenv('C2M2_DATABASE_URL'))
+print(f"{c2m2_database_url.scheme}://{c2m2_database_url.username}:{c2m2_database_url.password}
+      @{c2m2_database_url.hostname}:{c2m2_database_url.port}{c2m2_database_url.path}")
+
 # PostgreSQL connection details
-database_name = "drc"
-user = "drc"
-password = "drcpass"
-host = "localhost"
-port = "5433" # "5432" (default) or "5433"
+database_name = "drc" # c2m2_database_url.path is /drc, don't want the / part, so fixed here
+user = c2m2_database_url.username # "drc"
+password = c2m2_database_url.password # "drcpass"
+host = c2m2_database_url.hostname # "localhost"
+port = c2m2_database_url.port # "5433" # "5432" (default) or "5433"
 
 # Connection parameters
 conn_params = {
