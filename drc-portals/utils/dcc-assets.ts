@@ -1,3 +1,4 @@
+import { getKeycloakUserInfo, getKeycloakUserRoles } from '@/lib/auth/keycloakInfo';
 import { PrismaClient } from '@prisma/client';
 
 export type dccAsset = {
@@ -39,18 +40,11 @@ async function getCreatorAff(
   dcc_approval: boolean, drc_approval: boolean, dccName: string
 ) {
   if (c) {
-  // a creator is attached to the file (aka was submitted)
-    const creator = await prisma.user.findFirst({
-      where: {
-        email: c
-      },
-      select: {
-        role: true
-      }
-    })
-    if (creator) { 
+    const creator = await getKeycloakUserInfo(c)
+    if (creator) {
       // if DRC or Admin upload, mark as DRC even if user is DCC-affiliated
-      if (creator.role == "ADMIN" || creator.role == "DRC_APPROVER") {
+      const creatorRoles = await getKeycloakUserRoles(creator.id)
+      if (creatorRoles.roles.includes("ADMIN") || creatorRoles.roles.includes("DRC_APPROVER")) {
         return "DRC"
       // all other roles (aka just UPLOADER), mark as DCC
       } else {

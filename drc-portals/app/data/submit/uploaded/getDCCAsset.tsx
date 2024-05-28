@@ -10,7 +10,8 @@ import { render } from '@react-email/render';
 import { DCCApprover_DCCApprovedEmail, DCCApprover_DRCApprovedEmail, DRCApprover_DCCApprovedEmail, DRCApprover_DRCApprovedEmail, Uploader_DCCApprovedEmail, Uploader_DRCApprovedEmail } from "../Email"
 
 import nodemailer from 'nodemailer'
-import { getKeycloakUsersWithDRCRole } from "@/lib/auth/keycloakInfo"
+import { getKeycloakUserInfo, getKeycloakUsersWithDRCRole } from "@/lib/auth/keycloakInfo"
+import intersection from "@/utils/intersection"
 
 export async function updateAssetApproval(file: {
     dcc: {
@@ -131,30 +132,14 @@ export async function sendDCCApprovedEmails(asset: {
     const user = session.keycloakInfo
     if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     if (user.roles.includes('DCC_APPROVER')) {
-        if (asset) {
-            const uploader = await prisma.user.findFirst({
-                where: {
-                    email: asset.creator
-                }
-            });
-            const DCCApproversList = await prisma.dCC.findFirst({
-                where: {
-                    short_label: asset.dcc?.short_label
-                }, 
-                select: {
-                    Users : {
-                        where : {
-                            role: 'DCC_APPROVER'
-                        }
-                    }
-                }
-            })
-            const DCCApprovers = DCCApproversList ? DCCApproversList.Users : []
-            const DRCApprovers = await prisma.user.findMany({
-                where: {
-                    role: 'DRC_APPROVER'
-                }
-            });
+        if (asset && asset.dcc && asset.creator) {
+            const uploader = await getKeycloakUserInfo(asset.creator)
+            const DCCApprovers = intersection(
+                await getKeycloakUsersWithDRCRole(`dcc:${asset.dcc.short_label}`),
+                await getKeycloakUsersWithDRCRole('role:DRC_APPROVER'),
+                el => el.id,
+            )
+            const DRCApprovers = await getKeycloakUsersWithDRCRole('role:DRC_APPROVER')
             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             // email uploader 
@@ -219,12 +204,8 @@ export async function sendDRCApprovedEmails(asset: {
     const user = session.keycloakInfo
     if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     if (user.roles.includes('DRC_APPROVER')) {
-        if (asset) {
-            const uploader = await prisma.user.findFirst({
-                where: {
-                    email: asset.creator
-                }
-            });
+        if (asset && asset.creator) {
+            const uploader = await getKeycloakUserInfo(asset.creator)
             const [DCCApprovers, DRCApprovers] = await Promise.all([
                 getKeycloakUsersWithDRCRole('role:DCC_APPROVER'), getKeycloakUsersWithDRCRole('role:DRC_APPROVER')
             ])
