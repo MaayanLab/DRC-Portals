@@ -44,7 +44,9 @@ export async function CountDisplay(props: PageProps, schemaname: string) {
           //console.log("In Review2: point 2")
 
           countstrs.push(`<Typography>Count of rows in table: ${tablename}: ${results?.count}.</Typography>`); // This matches with #records in the table on the right (without limit)
-          tables_counts.push({"tablename": tablename, "label": tableToName[cnt]["label"], "count": Number(results?.count)})
+          if(Number(results?.count) > 0) {
+            tables_counts.push({"tablename": tablename, "label": tableToName[cnt]["label"], "count": Number(results?.count)});
+          }
           cnt = cnt + 1;
         }// ending for
         //return(countstrs);        
