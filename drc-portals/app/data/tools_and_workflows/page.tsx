@@ -70,8 +70,8 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
 
 const CarouselCard = ({tool}: {tool: ToolsWithPublications}) => (
 	<Box sx={{
-		minHeight: 300, 
-		width: 640,
+		minHeight: {xs: 150, sm: 150, md: 300, lg: 300, xl: 300}, 
+		width: {xs: 300, sm: 300, md: 640, lg: 640, xl: 640},
 		textAlign: "center", 
 		border: 1,
 		borderRadius: 5,
@@ -91,6 +91,9 @@ const ServerCarousel = ({tools}: {tools: Array<ToolsWithPublications>}) => {
 	return tools.map( (tool, i) => (
 		<Container key={i} maxWidth="lg">
 			<Grid container spacing={2}>
+				<Grid item xs={12} sm={7} sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+					<CarouselCard tool={tool}/>
+				</Grid>
 				<Grid item xs={12} sm={5}>
 					<Stack direction="column"
 						alignItems="flex-start"
@@ -108,7 +111,7 @@ const ServerCarousel = ({tools}: {tools: Array<ToolsWithPublications>}) => {
 						</Link>}
 					</Stack>
 				</Grid>
-				<Grid item xs={12} sm={7}>
+				<Grid item xs={12} sm={7} sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
 					<CarouselCard tool={tool}/>
 				</Grid>
 			</Grid>
@@ -136,7 +139,12 @@ export default async function ToolsPage() {
 
     return (
         <Grid container spacing={2} sx={{marginTop: 2}}>
-            <Grid item xs={12}>
+			<Grid item xs={12} sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+				<ClientCarousel title="" height={830}>
+					<ServerCarousel tools={featured_tools}/>
+				</ClientCarousel>
+			</Grid>
+			<Grid item xs={12} sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
 				<ClientCarousel title="">
 					<ServerCarousel tools={featured_tools}/>
 				</ClientCarousel>

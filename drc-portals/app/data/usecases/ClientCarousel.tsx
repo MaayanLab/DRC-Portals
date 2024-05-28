@@ -10,7 +10,7 @@ export default function ClientCarousel({children, title, height}: {children: Rea
         </Typography>}
         <div style={{position: "relative"}}>
           <Carousel height={height || 370} 
-            sx={{minHeight: 350, width:'100vw', }} indicators={true}
+            sx={{minHeight: {xs: 800, sm: 800, md: 350, lg: 350, xl: 350}, width:'100vw', }} indicators={true}
             
           >
               	{children}
