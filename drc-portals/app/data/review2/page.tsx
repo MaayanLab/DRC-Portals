@@ -29,7 +29,7 @@ export default async function ReviewPage(props: PageProps) {
     return (
         <>
         {/*<QueryForm />*/}
-        <ReviewDisplay result={result}/>
+        {/*<ReviewDisplay result={result}/>*/}
         Count of rows in tables from schema: {mySchema}
         <ReviewDisplay result={tables_counts}/>
         {/*countstrs_with_br*/}
