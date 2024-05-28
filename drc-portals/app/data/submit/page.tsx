@@ -69,8 +69,8 @@ const components = {
 
 export default function Documentation() {
     return (
-        <Grid container spacing={2}>
-            <Container className="justify-content-center">
+        <Grid container spacing={2} justifyContent={"center"}>
+            <Grid item xs={12}>
                 <Typography variant="h3" color="#111827.dark" className='p-5'>HOW TO SUBMIT DATA AND METADATA TO THE PORTAL?</Typography>
                 <Typography variant="subtitle1" color="#374151" sx={{ mb: 3, ml: 2 }}>
                     This page covers the submission system documentation of the Data Resource Portal.
@@ -80,84 +80,91 @@ export default function Documentation() {
                     role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>. 
                     Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024)
                 </Typography>
-                <Grid item container justifyContent={'center'}>
-                    <Button href='/data/submit/form' variant='contained' sx={{ height: '60px', width: '320px', margin: 3, padding: 1 }} color='tertiary'>
-                        SUBMIT OR MANAGE FILE & CODE ASSETS
-                    </Button>
-                </Grid>
-                <Grid item>
-                    <StyledAccordionComponent heading="Onboarding to the Submission System" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <OnboardingDocs components={components} />
-                        </Box>
-                    } />
+            </Grid>
+            <Grid item xs={12} container justifyContent={'center'}>
+                <Button href='/data/submit/form' variant='contained' sx={{ height: '60px', width: '320px', margin: 3, padding: 1 }} color='tertiary'>
+                    SUBMIT OR MANAGE FILE & CODE ASSETS
+                </Button>
+            </Grid>
+            <Grid item xs={12}>
+                <StyledAccordionComponent heading="Onboarding to the Submission System" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <OnboardingDocs components={components} />
+                    </Box>
+                } />
 
-                    <StyledAccordionComponent heading='File Types' content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <FileAssetTypes components={components} />
-                        </Box>
-                    } />
+                <StyledAccordionComponent heading='File Types' content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <FileAssetTypes components={components} />
+                    </Box>
+                } />
 
-                    <StyledAccordionComponent heading='Code Asset Types' content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <CodeAssetTypes components={components} />
-                        </Box>
-                    } />
+                <StyledAccordionComponent heading='Code Asset Types' content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <CodeAssetTypes components={components} />
+                    </Box>
+                } />
 
-                    <StyledAccordionComponent heading="Asset Approval Status" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <AssetApprovalStatus components={components} />
-                        </Box>
-                    }
-                    />
+                <StyledAccordionComponent heading="Asset Approval Status" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <AssetApprovalStatus components={components} />
+                    </Box>
+                }
+                />
 
-                    <StyledAccordionComponent heading="Current vs Archived Status" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <AssetCurrentStatus components={components} />
-                        </Box>
-                    }
-                    />
+                <StyledAccordionComponent heading="Current vs Archived Status" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <AssetCurrentStatus components={components} />
+                    </Box>
+                }
+                />
 
-                    <StyledAccordionComponent heading="Data and Metadata Upload Form" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <FileAssetSubmission components={components} />
-                        </Box>
-                    }
-                    />
+                <StyledAccordionComponent heading="Data and Metadata Upload Form" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <FileAssetSubmission components={components} />
+                    </Box>
+                }
+                />
 
-                    <StyledAccordionComponent heading="Code Assets Upload Form" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <CodeAssetSubmission components={components} />
-                        </Box>
-                    }
-                    />
-
-
-                    <StyledAccordionComponent heading="Asset Approval Steps" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <AssetManagement components={components} />
-                        </Box>
-                    }
-                    />
+                <StyledAccordionComponent heading="Code Assets Upload Form" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <CodeAssetSubmission components={components} />
+                    </Box>
+                }
+                />
 
 
-                    <StyledAccordionComponent heading="Admin User Documentation" content={
-                        <Box sx={{ p: 1, m: 1 }}>
-                            <AdminUserDocs components={components} />
-                        </Box>
-                    }
-                    />
+                <StyledAccordionComponent heading="Asset Approval Steps" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <AssetManagement components={components} />
+                    </Box>
+                }
+                />
 
-                    <StyledAccordionComponent heading="Instructional Video" content={
-                        <Box sx={{ padding: 3 }}>
+
+                <StyledAccordionComponent heading="Admin User Documentation" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <AdminUserDocs components={components} />
+                    </Box>
+                }
+                />
+
+                <StyledAccordionComponent heading="Instructional Video" content={
+                    <>
+                        <Box sx={{ padding: 3, display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'} }}>
                             <center>
-                                <YoutubeVideo />
+                                <YoutubeVideo size={'large'}/>
                             </center>
                         </Box>
-                    }
-                    />
-                </Grid>
-            </Container >
+                        <Box sx={{ padding: 3, display: {xs: 'block', sm: 'block', md: 'none', lg: 'none', xl: 'none'} }}>
+                            <center>
+                                <YoutubeVideo size={'small'}/>
+                            </center>
+                        </Box>
+                    </>
+                }
+                />
+            </Grid>
         </Grid>
     );
 }
