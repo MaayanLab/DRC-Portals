@@ -37,7 +37,7 @@ export default function SchemaFilter({ selectedFilter }: SchemaFilterProps) {
                 onChange={updateSchemaParam}
                 value={schemaToDCC.find((option) => option.schema === selectedSchema) || null}
                 sx={{ width: '100%' }}
-                renderInput={(params) => <TextField {...params} label="DCC" />}
+                renderInput={(params) => <TextField {...params} label="schema_name" />}
             />
             <br></br>
         </Grid>
