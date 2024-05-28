@@ -8,7 +8,7 @@ import {
 import { Css, Position, Stylesheet } from "cytoscape";
 import { forwardRef } from "react";
 
-import { ColaLayoutOptions } from "../interfaces/cy";
+import { CytoscapeNodeData } from "../interfaces/cy";
 
 import { ENTITY_STYLES_MAP, NODE_CLASS_MAP } from "./shared";
 import {
@@ -76,30 +76,33 @@ export const ChartTooltip = styled(
 }));
 
 // Default node properties
-export const NODE_FONT_SIZE = "14px";
 export const NODE_FONT_FAMILY = "arial";
-export const NODE_DIAMETER = 125;
-export const NODE_BORDER_WIDTH = 5;
+export const NODE_DIAMETER = 30;
+export const NODE_BORDER_WIDTH = 2;
 
 // Default edge properties
+export const ARROW_SCALE = 0.5;
 export const EDGE_COLOR = "#797979";
+export const EDGE_WIDTH = 1;
 
 // Other Properties
+export const FONT_SIZE = "4px";
 export const MAX_NODE_LINES = 3;
-export const MAX_NODE_LABEL_WIDTH = 100;
+export const MAX_NODE_LABEL_WIDTH = 24;
 export const MIN_ZOOMED_FONT_SIZE = 8;
 
 // Schema-specific Properties
 export const PATH_COLOR = "#c634eb";
 
-export const DEFAULT_LAYOUT: ColaLayoutOptions = {
-  name: "cola",
-  infinite: true,
-  fit: false,
+export const D3_FORCE_LAYOUT = {
+  name: "d3-force",
   animate: true,
-  maxSimulationTime: 40000,
-  edgeLength: 350,
-  nodeSpacing: () => 1,
+  infinite: true,
+  linkId: (d: CytoscapeNodeData) => {
+    return d.id;
+  },
+  linkDistance: 80,
+  manyBodyStrength: -300,
 };
 
 export const DEFAULT_STYLESHEET: Stylesheet[] = [
@@ -116,7 +119,7 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
     style: {
       label: "data(label)",
       "font-family": NODE_FONT_FAMILY,
-      "font-size": NODE_FONT_SIZE,
+      "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
       "text-halign": "center",
       "text-valign": "center",
@@ -141,16 +144,18 @@ export const DEFAULT_STYLESHEET: Stylesheet[] = [
   {
     selector: "edge",
     style: {
+      "arrow-scale": ARROW_SCALE,
       "curve-style": "bezier",
       "target-arrow-shape": "triangle",
       "text-rotation": "autorotate",
+      width: EDGE_WIDTH,
     },
   },
   {
     selector: "edge[label]",
     style: {
       label: "data(label)",
-      "font-size": "10",
+      "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
       "text-background-color": "#f2f2f2",
       "text-background-opacity": 1,

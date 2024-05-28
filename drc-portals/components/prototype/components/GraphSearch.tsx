@@ -5,7 +5,7 @@ import { ElementDefinition, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { DEFAULT_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
+import { D3_FORCE_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
 import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
@@ -163,7 +163,7 @@ export default function GraphSearch() {
         </SearchBarContainer>
         <CytoscapeChart
           elements={elements}
-          layout={DEFAULT_LAYOUT}
+          layout={D3_FORCE_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}
           toolbarPosition={{ top: 10, right: 10 }}
           nodeCxtMenuItems={nodeCxtMenuItems}

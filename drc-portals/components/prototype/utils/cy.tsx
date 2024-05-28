@@ -17,7 +17,7 @@ import { Record } from "neo4j-driver";
 import { ReactNode } from "react";
 
 import {
-  NODE_FONT_SIZE,
+  FONT_SIZE,
   MAX_NODE_LABEL_WIDTH,
   NODE_FONT_FAMILY,
   MAX_NODE_LINES,
@@ -110,7 +110,7 @@ export const truncateLabelToFitNode = (label: string) => {
       const newLine = truncateTextToFitWidth(
         lines[i],
         MAX_NODE_LABEL_WIDTH,
-        NODE_FONT_SIZE,
+        FONT_SIZE,
         NODE_FONT_FAMILY
       );
       if (newLine.length !== lines[i].length) {
@@ -127,7 +127,7 @@ export const truncateLabelToFitNode = (label: string) => {
     return truncateTextToFitWidth(
       label,
       MAX_NODE_LABEL_WIDTH,
-      NODE_FONT_SIZE,
+      FONT_SIZE,
       NODE_FONT_FAMILY
     );
   }

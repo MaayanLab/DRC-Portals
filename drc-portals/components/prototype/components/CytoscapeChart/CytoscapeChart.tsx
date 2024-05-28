@@ -18,7 +18,7 @@ import {
   use as useCytoscape,
 } from "cytoscape";
 // @ts-ignore
-import cola from "cytoscape-cola";
+import d3Force from "cytoscape-d3-force";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import { v4 } from "uuid";
@@ -44,7 +44,7 @@ import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
 import "./CytoscapeChart.css";
 
-useCytoscape(cola);
+useCytoscape(d3Force);
 
 type CytoscapeChartProps = {
   elements: ElementDefinition[];
