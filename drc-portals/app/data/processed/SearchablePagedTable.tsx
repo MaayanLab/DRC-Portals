@@ -1,5 +1,5 @@
 import React from "react"
-import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material"
+import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
 import FormPagination from "./FormPagination"
 import SearchField from "./SearchField"
 import Link from "next/link"
@@ -42,11 +42,11 @@ export function SearchablePagedTableCellIcon(props: {
   src: string | StaticImageData, href: string, alt: string
 }) {
   return (
-    <div className="w-32 h-16 relative">
+    <Box sx={{width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}, position: "relative"}}>
       <Link href={props.href}>
         <Image className="object-contain" src={props.src} alt={props.alt} fill />
       </Link>
-    </div>
+    </Box>
   )
 }
 
@@ -70,38 +70,61 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       }
       <Grid item xs={12}>
         <Stack spacing={1}>
-          <TableContainer component={Paper} elevation={0} variant="rounded-top">
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  {props.columns.map((column, i) => (
-                    <TableCell key={i} component="th">
-                      <Typography variant='body1' color="secondary">{column}</Typography>
+          <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block",}}}>
+            <TableContainer component={Paper} elevation={0} variant="rounded-top">
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    {props.columns.map((column, i) => (
+                      <TableCell key={i} component="th">
+                        <Typography variant='body1' color="secondary">{column}</Typography>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {props.rows.length === 0 ? <TableRow>
+                    <TableCell colSpan={props.columns.length} align="center">
+                      No results satisfy the query and filters
                     </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {props.rows.length === 0 ? <TableRow>
-                  <TableCell colSpan={props.columns.length} align="center">
-                    No results satisfy the query and filters
-                  </TableCell>
-                </TableRow> :
-                  props.rows.map((row, i) => (
-                    <TableRow
-                      key={i}
-                      sx={{ 
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}
-                    >
-                      {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
-                        {cell}
-                      </TableCell>)}
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  </TableRow> :
+                    props.rows.map((row, i) => (
+                      <TableRow
+                        key={i}
+                        sx={{ 
+                          '&:last-child td, &:last-child th': { border: 0 },
+                        }}
+                      >
+                        {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
+                          {cell}
+                        </TableCell>)}
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            </Box>
+            <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none",}}}>
+              <List>
+                {props.rows.map((row, i) => (
+                  <React.Fragment key={i}>
+                    <ListItem>
+                      <Grid container justifyContent={"flex-start"} alignItems={"center"}>
+                        <Grid item xs={3}>
+                          {row[0]}
+                        </Grid>
+                        <Grid item xs={9}>
+                          <Stack spacing={1}>
+                            {row.slice(1).map((cell, j) => <div key={j}>{cell}</div>)}
+                          </Stack>
+                        </Grid>
+                      </Grid>
+                    </ListItem>
+                    {(i < props.rows.length - 1 ) && <Divider/>}
+                  </React.Fragment>
+                ))}
+              </List>
+            </Box>
           <FormPagination p={props.p} r={props.r} count={props.count} />
         </Stack>
       </Grid>
