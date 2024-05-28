@@ -12,7 +12,7 @@ import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
-import { getAllKeycloakUsers } from '@/lib/auth/keycloakInfo';
+import { getKeycloakUsersWithDRCRole } from '@/lib/auth/keycloakInfo';
 
 
 type User = {
@@ -208,8 +208,7 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const allUsers = await getAllKeycloakUsers()
-    const approvers = allUsers.filter((user) => user.roles.includes('DCC_APPROVER'))
+    const approvers = await getKeycloakUsersWithDRCRole('role:DCC_APPROVER')
     if (approvers.length > 0) {
         for (let approver of approvers) {
             const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);

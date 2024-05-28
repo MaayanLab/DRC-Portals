@@ -10,7 +10,7 @@ import { render } from '@react-email/render';
 import { DCCApprover_DCCApprovedEmail, DCCApprover_DRCApprovedEmail, DRCApprover_DCCApprovedEmail, DRCApprover_DRCApprovedEmail, Uploader_DCCApprovedEmail, Uploader_DRCApprovedEmail } from "../Email"
 
 import nodemailer from 'nodemailer'
-import { getAllKeycloakUsers } from "@/lib/auth/keycloakInfo"
+import { getKeycloakUsersWithDRCRole } from "@/lib/auth/keycloakInfo"
 
 export async function updateAssetApproval(file: {
     dcc: {
@@ -225,9 +225,9 @@ export async function sendDRCApprovedEmails(asset: {
                     email: asset.creator
                 }
             });
-            const allUsers = await getAllKeycloakUsers()
-            const DCCApprovers = allUsers.filter((user) => user.roles.includes('DCC_APPROVER'))
-            const DRCApprovers = allUsers.filter((user) => user.roles.includes('DRC_APPROVER'))
+            const [DCCApprovers, DRCApprovers] = await Promise.all([
+                getKeycloakUsersWithDRCRole('role:DCC_APPROVER'), getKeycloakUsersWithDRCRole('role:DRC_APPROVER')
+            ])
             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             // email uploader 
