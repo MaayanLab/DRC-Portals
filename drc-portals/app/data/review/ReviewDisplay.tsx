@@ -7,18 +7,25 @@ import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
-export default function ReviewDisplay({ result }) {
+interface ReviewDisplayProps {
+    result: any[];
+    title: string;
+}
+
+export default function ReviewDisplay({ result, title }: ReviewDisplayProps) {
     return (
         <>
             {result.length > 0 && (
                 <Grid item xs={12}>
-                    <Typography variant="h6">Preview</Typography>
-                    <TableContainer>
+                    <Typography variant="h6">{title}</Typography>
+                    <TableContainer style={{ maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     {Object.keys(result[0]).map((key) => (
-                                        <TableCell key={key}>{key}</TableCell>
+                                        <TableCell key={key} style={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+                                            {key}
+                                        </TableCell>
                                     ))}
                                 </TableRow>
                             </TableHead>
@@ -26,7 +33,7 @@ export default function ReviewDisplay({ result }) {
                                 {result.map((row, rowIndex) => (
                                     <TableRow key={rowIndex}>
                                         {Object.values(row).map((value, cellIndex) => (
-                                            <TableCell key={cellIndex}>{value}</TableCell>
+                                            <TableCell key={cellIndex}>{String(value)}</TableCell>
                                         ))}
                                     </TableRow>
                                 ))}

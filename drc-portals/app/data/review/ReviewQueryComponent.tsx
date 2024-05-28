@@ -1,43 +1,109 @@
-
 import prisma from '@/lib/prisma/c2m2';
-import { useSanitizedSearchParams } from "@/app/data/review/utils"
-import { Prisma } from '@prisma/client';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import { useSanitizedSearchParams } from "@/app/data/review/utils";
 import ReviewDisplay from './ReviewDisplay';
-import QueryForm from './QueryForm';
+import SchemaFilter from './SchemaFilter';
+import TableFilter from './TableFilter';
+import { CountDisplay } from './CountDisplay';
+import SQL from '@/lib/prisma/raw';
+import { schemaToDCC } from './utils';
+import { Suspense } from 'react';
 
-type PageProps = { searchParams: Record<string, string>, tab?: boolean }
+type PageProps = { searchParams: Record<string, string>, tab?: boolean };
 
 export async function ReviewQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
 
     console.log("In ReviewQueryComponent");
 
-  try {
-    const results = await fetchReviewQueryResults(searchParams);
-    return results;
-  } catch (error) {
-    console.error('Error fetching search results:', error);
-    return undefined;
-  }
+    if (!searchParams.schema_name) {
+        return <SchemaFilter />;
+    }
+
+    try {
+        const tables_counts = await CountDisplay(searchParams.schema_name);
+        const table_names_for_schema = tables_counts?.map(item => ({ table: item.tablename, label: item.tablename }));
+        const summary_table_title = "Summary for schema " + searchParams.schema_name;
+
+        if (!searchParams.table_name || !table_names_for_schema.find(t => t.table === searchParams.table_name)) {
+            return (
+                <>
+                    <SchemaFilter selectedFilter={searchParams.schema_name} />
+                    {table_names_for_schema && table_names_for_schema.length > 0 && (
+                        <>
+                            <TableFilter tableNames={table_names_for_schema} selectedValue={table_names_for_schema.find(t => t.table === searchParams.table_name)} />
+                            <ReviewDisplay result={tables_counts} title={summary_table_title} />
+                        </>
+                    )}
+                </>
+            );
+        }
+
+        const results = await fetchReviewQueryResults(searchParams, table_names_for_schema, tables_counts, summary_table_title);
+        return results;
+    } catch (error) {
+        console.error('Error fetching review query results:', error);
+        return <SchemaFilter />;
+    }
 }
 
-async function fetchReviewQueryResults(searchParams: any) {
+async function fetchReviewQueryResults(searchParams: any, tableNames: { table: string, label: string }[], tables_counts: { tablename: string, count: number }[], summary_table_title: string) {
     const schema_name = searchParams.schema_name;
     const table_name = searchParams.table_name;
 
-    console.log("Schema name = "+schema_name);
-    console.log("Table name = "+ table_name);
+    console.log("Schema name = " + schema_name);
+    console.log("Table name = " + table_name);
 
-    const query = Prisma.sql`SELECT * FROM ${Prisma.join([Prisma.sql`${Prisma.raw(schema_name + '.' + table_name)}`])} ;`;
-    const result = await prisma.$queryRaw(query);
+    const validSchemas = schemaToDCC.map((item) => item.schema);
+    const validTables = tableNames.map((item) => item.table);
 
-    return(
+    if (!validSchemas.includes(schema_name) || !validTables.includes(table_name)) {
+        throw new Error("Invalid schema or table name");
+    }
+
+    const query = SQL.template`
+        SELECT * FROM "${SQL.assert_in(schema_name, validSchemas)}"."${SQL.assert_in(table_name, validTables)}"
+    `.toPrismaSql();
+
+    const selected_table_rows = await prisma.$queryRaw(query);
+    const table_title = "Records from table " + table_name;
+
+    return (
         <>
-            <QueryForm />
-            <ReviewDisplay
-                result={result}
-            />
+            <SchemaFilter selectedFilter={schema_name} />
+            <TableFilter tableNames={tableNames} selectedValue={tableNames.find(t => t.table === table_name)} />
+            <br></br>
+            <Accordion>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                >
+                    <Typography>{summary_table_title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <ReviewDisplay result={tables_counts} title={"Tables and counts summary"} />
+                </AccordionDetails>
+            </Accordion>
+            <br></br>
+            <Accordion>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                >
+                    <Typography>{table_title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <ReviewDisplay result={selected_table_rows} title={""} />
+                    </Suspense>
+                </AccordionDetails>
+            </Accordion>
         </>
-        
     );
 }
