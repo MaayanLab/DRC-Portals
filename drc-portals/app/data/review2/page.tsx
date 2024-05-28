@@ -5,6 +5,7 @@ import {CountDisplay} from './CountDisplay';
 import QueryForm from './QueryForm';
 import { Typography } from '@mui/material';
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { FaAnglesDown } from 'react-icons/fa6';
 
 type PageProps = { searchParams: Record<string, string>, tab?: boolean }
 
@@ -16,7 +17,8 @@ export default async function ReviewPage(props: PageProps) {
     // Mano: for counts for tables:
     const mySchema = searchParams.q ?? 'c2m2'; // 'gtex'
 
-    const myTable = 'file';
+    const myTable = searchParams.t ?? 'file';
+    const showTable = (searchParams.t !== null) ? true : false;
     const query = Prisma.sql`SELECT * FROM ${Prisma.join([Prisma.sql`${Prisma.raw(mySchema + '.' + myTable)}`])} LIMIT 10;`;
     const result = await prisma.$queryRaw(query);
 
@@ -30,6 +32,8 @@ export default async function ReviewPage(props: PageProps) {
         <>
         {/*<QueryForm />*/}
         {/*<ReviewDisplay result={result}/>*/}
+        Schema: {mySchema}, Table: {myTable}
+        {showTable && <ReviewDisplay result={result}/>}
         Count of rows in tables from schema: {mySchema}
         <ReviewDisplay result={tables_counts}/>
         {/*countstrs_with_br*/}
