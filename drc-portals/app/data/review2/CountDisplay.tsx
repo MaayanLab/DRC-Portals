@@ -25,6 +25,7 @@ export async function CountDisplay(props: PageProps) {
         const t0: number = performance.now();
 
         var countstrs: string[] = [];
+        var tables_counts: {tablename: string, count: number}[] = [];
         var cnt = 0;
         for (const tablename of valid_tablenames) {            
         //const tablename = "project";
@@ -42,10 +43,12 @@ export async function CountDisplay(props: PageProps) {
           console.log(results)
           //console.log("In Review2: point 2")
 
-          countstrs.push(`<Typography>Count of rows in table ${tablename}: ${results?.count}.</Typography>`); // This matches with #records in the table on the right (without limit)
+          countstrs.push(`<Typography>Count of rows in table: ${tablename}: ${results?.count}.</Typography>`); // This matches with #records in the table on the right (without limit)
+          tables_counts.push({"tablename": tablename, "count": Number(results?.count)})
           cnt = cnt + 1;
         }// ending for
-        return(countstrs);        
+        //return(countstrs);        
+        return(tables_counts);
     } catch (error) {
         console.error('Error fetching counts:', error);
         const body = <>

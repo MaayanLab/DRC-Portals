@@ -14,15 +14,18 @@ export default async function ReviewPage(props: PageProps) {
     const query = Prisma.sql`SELECT * FROM ${Prisma.join([Prisma.sql`${Prisma.raw(mySchema + '.' + myTable)}`])} LIMIT 10;`;
     const result = await prisma.$queryRaw(query);
 
-    const countstrs: string[] |undefined = await CountDisplay(props);
-    const countstrs_with_br = countstrs?.join("<br>")
+    //const countstrs: string[] |undefined = await CountDisplay(props);
+    //const countstrs_with_br = countstrs?.join("<br>")
     //console.log("countstr:", countstrs);
     //console.log("countstr:", countstrs_with_br);
+    const tables_counts = await CountDisplay(props);
+    console.log("tables_counts:", tables_counts);
     return (
         <>
         {/*<QueryForm />*/}
         <ReviewDisplay result={result}/>
-        {countstrs_with_br}
+        <ReviewDisplay result={tables_counts}/>
+        {/*countstrs_with_br*/}
         {/*countstrs.map((countstr, index) => (countstr)) */}
         </>
     );

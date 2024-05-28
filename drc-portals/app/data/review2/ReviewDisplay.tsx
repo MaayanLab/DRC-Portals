@@ -7,12 +7,14 @@ import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
-export default function ReviewDisplay({ result }) {
-    return (
+//export default function ReviewDisplay({ result}, title: string) {
+export default function ReviewDisplay({ result}) {
+        return (
         <>
             {result.length > 0 && (
                 <Grid item xs={12}>
                     <Typography variant="h6">Preview</Typography>
+                    {/*<Typography variant="h6">{title}</Typography>*/}
                     <TableContainer>
                         <Table>
                             <TableHead>
