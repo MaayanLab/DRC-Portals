@@ -13,9 +13,9 @@ import { FancyTab } from '@/components/misc/FancyTabs';
 
 type PageProps = { searchParams: Record<string, string>, tab?: boolean }
 
-export async function CountDisplay(props: PageProps) {
+export async function CountDisplay(props: PageProps, schemaname: string) {
     const searchParams = useSanitizedSearchParams(props);
-    const schemaname = 'metabolomics';
+    //const schemaname = 'metabolomics';
 
     const valid_schemanames: string[] = schemaToDCC.map(row => row['schema']);
     const valid_tablenames: string[] = tableToName.map(row => row['table']);
