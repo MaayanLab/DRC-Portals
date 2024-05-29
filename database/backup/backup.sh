@@ -12,5 +12,5 @@ PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump -h "${POSTGRES_HOST}" -U "${POSTGRES_U
     -t '"public"."dcc_assets"' \
     -t '"public"."code_assets"' \
     -t '"public"."file_assets"' \
-    -t '"keycloak".*' \
+    -n keycloak \
   | aws s3 cp - "s3://${S3_POSTGRES_BACKUP_PREFIX}/$(date +%Y-%m-%d).pgdump"
