@@ -27,6 +27,33 @@ services:
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
       - ASSISTANT_ID
 
+  drc-portal-app-dev:
+    build: .
+    platform: linux/amd64
+    image: maayanlab/drc-portal:0.6.29-4
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://dev.cfde.cloud
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
+      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2
+      - PUBLIC_URL=https://dev.cfde.cloud
+      - NEXTAUTH_URL=https://dev.cfde.cloud/auth
+      - NEXTAUTH_SECRET
+      - NEXTAUTH_EMAIL
+      - NEXTAUTH_KEYCLOAK
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
+      - S3_ENDPOINT
+      - S3_BUCKET
+      - S3_REGION
+      - OPENAI_API_KEY
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID
+      - ASSISTANT_ID
+
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
     x-kubernetes:
@@ -108,7 +135,8 @@ services:
 
   drc-portal-backup:
     build: ../database/backup
-    image: maayanlab/drc-portal-postgres-backup:0.0.0
+    platform: linux/amd64
+    image: maayanlab/drc-portal-postgres-backup:0.1.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       restartPolicy: Never
@@ -127,6 +155,7 @@ services:
 
   drc-portal-twitter:
     build: ../twitter
+    platform: linux/amd64
     image: maayanlab/drc-portal-twitter:0.1.2
     x-kubernetes:
       imagePullPolicy: IfNotPresent
@@ -139,6 +168,30 @@ services:
       - TWITTER_EMAIL
       - TWITTER_PASSWORD
 
+  drc-auth:
+    build: ../auth
+    platform: linux/amd64
+    image: maayanlab/drc-auth:0.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      annotations:
+        maayanlab.cloud/ingress: https://auth.cfde.cloud
+    ports:
+      - 8080:8080
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://${PRIMARY_DATABASE}:5432/${POSTGRES_DB}
+      - KC_DB_SCHEMA=keycloak
+      - KC_DB_USERNAME=${POSTGRES_USER}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD
+    # useful for testing the theme
+    # command: bin/kc.sh start --spi-theme-static-max-age=-1 --spi-theme-cache-themes=false --spi-theme-cache-templates=false
+    # volumes:
+    #   - ../auth/themes/drc-portal:/opt/keycloak/themes/drc-portal/
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:
@@ -147,7 +200,7 @@ volumes:
 
   drc-portal-postgres-2:
     x-kubernetes:
-      size: 40Gi
+      size: 100Gi
       class: gp2
 
 x-kubernetes:
