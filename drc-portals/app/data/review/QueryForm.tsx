@@ -57,7 +57,7 @@ export default function QueryForm() {
                         onChange={updateTableParam}
                         value={tableToName.find((option) => option.table === selectedTable) || null}
                         sx={{ width: '100%' }}
-                        renderInput={(params) => <TextField {...params} label="Schema Table" />}
+                        renderInput={(params) => <TextField {...params} label="Table" />}
                     />
                     <Typography variant="body1">Selected Table: {selectedTable}</Typography>
                 </Grid>

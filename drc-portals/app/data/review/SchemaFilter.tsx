@@ -29,7 +29,6 @@ export default function SchemaFilter({ selectedFilter }: SchemaFilterProps) {
     };
 
     return (
-        <Grid item xs={6}>
             <Autocomplete
                 id="schemaSelect"
                 options={schemaToDCC}
@@ -37,9 +36,7 @@ export default function SchemaFilter({ selectedFilter }: SchemaFilterProps) {
                 onChange={updateSchemaParam}
                 value={schemaToDCC.find((option) => option.schema === selectedSchema) || null}
                 sx={{ width: '100%' }}
-                renderInput={(params) => <TextField {...params} label="schema_name" />}
+                renderInput={(params) => <TextField {...params} label="DCC/Schema" />}
             />
-            <br></br>
-        </Grid>
     );
 }

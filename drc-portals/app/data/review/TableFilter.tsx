@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { Autocomplete } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import { Autocomplete, Grid, TextField } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
 
 interface TableFilterProps {
@@ -37,7 +36,7 @@ export default function TableFilter({ tableNames, selectedValue }: TableFilterPr
             onChange={updateTableParam}
             value={tableNames.find((option) => option.table === selectedTable) || null}
             sx={{ width: '100%' }}
-            renderInput={(params) => <TextField {...params} label="Schema Table" />}
+            renderInput={(params) => <TextField {...params} label="Table" />}
         />
     );
 }

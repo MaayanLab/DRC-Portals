@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma/c2m2';
-import Accordion from '@mui/material/Accordion';
+import { Accordion, Grid } from '@mui/material/';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -74,8 +74,14 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
 
     return (
         <>
-            <SchemaFilter selectedFilter={schema_name} />
-            <TableFilter tableNames={tableNames} selectedValue={tableNames.find(t => t.table === table_name)} />
+            <Grid container spacing={2}>
+                <Grid item xs={6}>
+                    <SchemaFilter selectedFilter={schema_name} />
+                </Grid>
+                <Grid item xs={6}>
+                    <TableFilter tableNames={tableNames} selectedValue={tableNames.find(t => t.table === table_name)} />
+                </Grid>
+            </Grid>
             <br></br>
             <Accordion>
                 <AccordionSummary
@@ -86,8 +92,8 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
                     <Typography>{summary_table_title}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ReviewDisplay result={tables_counts} 
-                    title={""} 
+                    <ReviewDisplay result={tables_counts}
+                        title={""}
                     />
                 </AccordionDetails>
             </Accordion>
