@@ -57,8 +57,8 @@ export async function getKeycloakUsersWithDRCRole(role: string) {
   return z.object({
     id: z.string(),
     email: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
+    firstName: z.string().default(''),
+    lastName: z.string().default(''),
   }).transform(({ id, email, firstName, lastName }) => ({ id, email, name: `${firstName} ${lastName}`})).array().parse(await req.json())
 }
 
@@ -98,8 +98,8 @@ export async function getKeycloakUserInfo(email: string) {
   const [userInfo] = z.object({
     id: z.string(),
     email: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
+    firstName: z.string().default(''),
+    lastName: z.string().default(''),
   }).transform(({ id, email, firstName, lastName }) => ({ id, email, name: `${firstName} ${lastName}`})).array().length(1).parse(await req.json())
   return userInfo
 }
