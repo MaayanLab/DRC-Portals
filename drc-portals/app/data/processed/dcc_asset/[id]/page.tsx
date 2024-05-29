@@ -3,7 +3,10 @@ import Link from "next/link"
 import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import { Metadata, ResolvingMetadata } from 'next'
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 import { cache } from "react";
+import modules from "./modules";
 
 type PageProps = { params: { id: string } }
 
@@ -73,6 +76,17 @@ export default async function Page(props: { params: { id: string } }) {
         item.dcc_asset.fileAsset ? { label: 'Size in Bytes', value: item.dcc_asset.fileAsset.size?.toLocaleString() ?? 'unknown' } : null,
         { label: 'Last Modified', value: item.dcc_asset.lastmodified.toLocaleDateString() },
       ]}
-    />
+    >
+      <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
+        <Grid item xs={12} sx={{marginBottom: 5}}>
+          <Typography variant="h2" color="secondary">Analyze</Typography>
+        </Grid>
+        <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {modules
+            .filter(({ compatible }) => compatible({ id: props.params.id, node: item.node }))
+            .map(({ button: ModButton }, i) => <ModButton item={{ id: props.params.id, node: gene_set.node }} />)}
+        </Grid>
+      </Grid>
+    </LandingPageLayout>
   )
 }
