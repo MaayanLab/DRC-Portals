@@ -1,6 +1,7 @@
 #%%
 import csv
 import json
+import zipfile
 from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
@@ -12,47 +13,12 @@ dcc_assets = current_dcc_assets()
 #%%
 # Ingest KG Assertions
 
-assertions = dcc_assets[dcc_assets['filetype'] == 'KGAssertions']
+assertions = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
 assertions_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
-  'Acquired Abnormality': 'Acquired Abnormality',
-  'Amino Acid, Peptide, or Protein': 'Amino Acid, Peptide, or Protein',
-  'Anatomical Abnormality': 'Anatomical Abnormality',
-  'Body Part, Organ, or Organ Component': 'Body Part, Organ, or Organ Component',
-  'Body Substance': 'Body Substance',
-  'Cell Type': 'Cell Type',
-  'Cell': 'Cell',
-  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
-  'Congenital Abnormality': 'Congenital Abnormality',
-  'Diagnostic Procedure': 'Diagnostic Procedure',
-  'Disease or Syndrome': 'Disease',
-  'Disease': 'Disease',
-  'Drug': 'Drug',
-  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
-  'ENSEMBL': 'Transcript',
-  'gene': 'gene',
-  'GLYCAN MOTIF': 'Glycan Motif',
-  'GLYCAN': 'Glycan',
-  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
-  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
-  'GLYGEN GLYCOSYLATION': 'Glycosylation',
-  'GLYGEN RESIDUE': 'Residue',
-  'GLYTOUCAN': 'Glytoucan',
-  'GTEXEQTL': 'eQTL',
-  'Hormone': 'Hormone',
-  'Injury or Poisoning': 'Injury or Poisoning',
-  'Inorganic Chemical': 'Inorganic Chemical',
-  'Laboratory Procedure': 'Laboratory Procedure',
-  'Mental or Behavioral Dysfunction': 'Mental or Behavioral Dysfunction',
-  'Nucleic Acid, Nucleoside, or Nucleotide': 'Nucleic Acid, Nucleoside, or Nucleotide',
-  'Organic Chemical': 'Organic Chemical',
-  'Pharmacologic Substance': 'Pharmacologic Substance',
-  'Phenotype': 'Phenotype',
-  'Sign or Symptom': 'Phenotype',
-  'Therapeutic or Preventive Procedure': 'Laboratory Procedure',
-  'Tissue': 'Tissue',
+  'Gene': 'gene',
 }
 
 entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
@@ -71,8 +37,8 @@ with kg_assertion_helper.writer() as kg_assertion:
         kg_relations = set()
         with node_helper.writer() as node:
           def ensure_entity(entity_type, entity_label, entity_description=None):
-            if entity_type in {'Gene', 'ENSEMBL'}:
-              for gene_ensembl in gene_lookup.get(entity_label.rstrip(' gene'), []):
+            if entity_type == 'Gene':
+              for gene_ensembl in gene_lookup.get(entity_label, []):
                 gene_id = str(uuid5(uuid0, gene_ensembl))
                 def ensure():
                   if gene_id not in genes:
@@ -94,9 +60,9 @@ with kg_assertion_helper.writer() as kg_assertion:
                     ))
                   return gene_id
                 yield ensure
-            elif entity_type in map_type:
-              entity_type = map_type[entity_type]
-              entity_id = str(uuid5(uuid0, '\t'.join((entity_type.lower(), entity_label.lower()))))
+            elif entity_type:
+              entity_type = map_type.get(entity_type, entity_type)
+              entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
               def ensure():
                 if entity_id not in entities:
                   entities.add(entity_id)
@@ -107,69 +73,73 @@ with kg_assertion_helper.writer() as kg_assertion:
                   node.writerow(dict(
                     id=entity_id,
                     type='entity',
-                    label=entity_label.capitalize().replace('_', ' '),
+                    label=entity_label,
                     description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                   ))
                 return entity_id
               yield ensure
           for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
-            if file['dcc_short_label'] in ('4DN',): continue
+            # assemble the full file path for the DCC's asset
             file_path = assertions_path/file['dcc_short_label']/file['filename']
             file_path.parent.mkdir(parents=True, exist_ok=True)
             if not file_path.exists():
               import urllib.request
               urllib.request.urlretrieve(file['link'], file_path)
-            with file_path.open('r') as fr:
-              assertion_reader = csv.DictReader(fr, fieldnames=next(fr).strip().split(','), delimiter=',')
-              for assertion in tqdm(assertion_reader, desc=f"Processing {file['dcc_short_label']}..."):
-                if assertion['source_type'] == 'nan': assertion['source_type'] = None
-                if assertion['source_label'] == 'nan': assertion['source_label'] = None
-                if not assertion['source_label']: assertion['source_label'] = assertion['source']
-                assert assertion['source'] and assertion['source_type'], assertion
-                for ensure_source_id in ensure_entity(
-                  assertion['source_type'],
-                  assertion['source_label'],
-                ):
-                  if assertion['target_type'] == 'nan': assertion['target_type'] = None
-                  if assertion['target_label'] == 'nan': assertion['target_label'] = None
-                  if not assertion['target_label']: assertion['target_label'] = assertion['target']
-                  assert assertion['target'] and assertion['target_type'], assertion
-                  for ensure_target_id in ensure_entity(
-                    assertion['target_type'],
-                    assertion['target_label'],
-                  ):
-                    relation_id = str(uuid5(uuid0, '\t'.join((assertion['relation'],))))
-                    if relation_id not in kg_relations:
-                      kg_relations.add(relation_id)
-                      kg_relation.writerow(dict(
-                        id=relation_id,
-                      ))
-                      node.writerow(dict(
-                        id=relation_id,
-                        type='kg_relation',
-                        label=assertion['relation'].capitalize().replace('_', ' '),
-                        description="A relationship in the knowledge graph",
-                      ))
-                    if assertion['evidence'] == 'nan':
-                      assertion['evidence'] = None
-                    if assertion['evidence']:
-                      try:
-                        assertion['evidence'] = json.loads(assertion['evidence'])
-                      except:
-                        assertion['evidence'] = assertion['evidence']
-                      assertion['evidence'] = json.dumps(assertion['evidence'])
-                    #
-                    source_id = ensure_source_id()
-                    target_id = ensure_target_id()
-                    assertion_id = str(uuid5(uuid0, '\t'.join((file['dcc_id'], source_id, target_id, relation_id, assertion['evidence'] or '',))))
-                    if assertion_id not in kg_assertions:
-                      kg_assertions.add(assertion_id)
-                      kg_assertion.writerow(dict(
-                        id=assertion_id,
-                        relation_id=relation_id,
-                        source_id=source_id,
-                        target_id=target_id,
-                        SAB=assertion['SAB'],
-                        evidence=assertion['evidence'],
-                        dcc_id=file['dcc_id'],
-                      ))
+            # extract the KG Assertion bundle
+            assertions_extract_path = file_path.parent / file_path.stem
+            if not assertions_extract_path.exists():
+              with zipfile.ZipFile(file_path, 'r') as assertions_zip:
+                assertions_zip.extractall(assertions_extract_path)
+            # capture all the nodes
+            assertion_nodes = {}
+            for assertion_node_file in assertions_extract_path.glob('*.nodes.csv'):
+              with assertion_node_file.open('r') as fr:
+                columns = next(fr).strip().split(',')
+                columns[0] = 'id'
+                assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
+                for assertion_node in tqdm(assertion_node_reader, desc=f"Processing {assertion_node_file.name}..."):
+                  # TODO: capture other metdata
+                  assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
+            # register all of the edges
+            for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
+              with assertion_edge_file.open('r') as fr:
+                columns = next(fr).strip().split(',')
+                assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
+                for assertion in tqdm(assertion_edge_reader, desc=f"Processing {assertion_edge_file.name}..."):
+                  for ensure_source_id in assertion_nodes.get(assertion['source'], []):
+                    for ensure_target_id in assertion_nodes.get(assertion['target'], []):
+                      relation_id = str(uuid5(uuid0, '\t'.join((assertion['relation'],))))
+                      if relation_id not in kg_relations:
+                        kg_relations.add(relation_id)
+                        kg_relation.writerow(dict(
+                          id=relation_id,
+                        ))
+                        node.writerow(dict(
+                          id=relation_id,
+                          type='kg_relation',
+                          label=assertion['relation'],
+                          description="A relationship in the knowledge graph",
+                        ))
+                      if assertion['evidence_class'] == 'nan':
+                        assertion['evidence_class'] = None
+                      if assertion['evidence_class']:
+                        try:
+                          assertion['evidence_class'] = json.loads(assertion['evidence_class'])
+                        except:
+                          assertion['evidence_class'] = assertion['evidence_class']
+                        assertion['evidence_class'] = json.dumps(assertion['evidence_class'])
+                      #
+                      source_id = ensure_source_id()
+                      target_id = ensure_target_id()
+                      assertion_id = str(uuid5(uuid0, '\t'.join((file['dcc_id'], source_id, target_id, relation_id, assertion['evidence_class'] or '',))))
+                      if assertion_id not in kg_assertions:
+                        kg_assertions.add(assertion_id)
+                        kg_assertion.writerow(dict(
+                          id=assertion_id,
+                          relation_id=relation_id,
+                          source_id=source_id,
+                          target_id=target_id,
+                          SAB=assertion['SAB'],
+                          evidence=assertion['evidence_class'],
+                          dcc_id=file['dcc_id'],
+                        ))

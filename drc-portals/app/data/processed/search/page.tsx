@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { human_readable, pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import KGNode from '@/public/img/icons/KGNode.png'
@@ -182,7 +182,7 @@ export default async function Page(props: PageProps) {
                 : <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
               : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={href} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
               : null,
-            <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
+            <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.type === 'kg_relation' ? human_readable(item.label) : item.label} search={searchParams.q ?? ''} />,
             <Description description={item.description} search={searchParams.q ?? ''} />,
           ]
         }) ?? []}
