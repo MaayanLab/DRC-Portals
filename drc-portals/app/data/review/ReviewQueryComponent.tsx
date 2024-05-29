@@ -28,8 +28,14 @@ export async function ReviewQueryComponent(props: PageProps) {
         const tables_counts = await CountDisplay(searchParams.schema_name)
         const table_names_for_schema = tables_counts?.map(item => ({ table: item.tablename, label: item.tablename }));
         const schemaEntry = schemaToDCC.find(item => item.schema === searchParams.schema_name);
-        const summary_table_title = "Count Summary for " + (schemaEntry ? schemaEntry.label : searchParams.schema_name) + " (schema: " + (schemaEntry ? schemaEntry.schema : searchParams.schema_name) + ")";
-
+        // const summary_table_name = (schemaEntry ? schemaEntry.label : searchParams.schema_name);
+        const schemaName = schemaEntry ? schemaEntry.label : searchParams.schema_name;
+        // const summary_table_title = "Count Summary for " + (schemaEntry ? schemaEntry.label : searchParams.schema_name) + " (schema: " + (schemaEntry ? schemaEntry.schema : searchParams.schema_name) + ")";
+        const summary_table_title = (
+            <>
+                Count Summary for <strong>{schemaEntry ? schemaEntry.label : searchParams.schema_name}</strong> (schema: {schemaEntry ? schemaEntry.schema : searchParams.schema_name})
+            </>
+        );
         if (!searchParams.table_name || !table_names_for_schema.find(t => t.table === searchParams.table_name)) {
             return (
                 <>
