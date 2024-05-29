@@ -37,7 +37,9 @@ const GroupHeader = styled('div')(({ theme }) => ({
 const GroupItems = styled('ul')({
   padding: 0,
 });
-
+function getFirstLetter(opt: FilterObject): string {
+  return opt.name[0].toUpperCase();
+}
 
 export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
 
   const options = filterList.map((option) => {
-  //  console.log(option);
+    //  console.log(option);
     const firstLetter = option.name[0].toUpperCase();
     const filterCount = option.count;
     return {
@@ -68,12 +70,12 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
-    
+
     // Filter out selected filters from URL parameters
     const updatedSelectedFilters = filterList.filter(filter => {
       return currentFilters.includes(`${id}:${filter.name}`);
     });
-  
+
     setSelectedFilters(updatedSelectedFilters);
     setSelectedFiltersForAutocomplete(updatedSelectedFilters);
   }, [filterList, id]);
@@ -133,26 +135,26 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   };
  */
 
-// Apply filters logic
-const applyFilters = () => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const currentRawFilters = searchParams.get('t');
-  const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+  // Apply filters logic
+  const applyFilters = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentRawFilters = searchParams.get('t');
+    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
-  // Filter out existing filters for the current id, keeping all others intact
-  const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
+    // Filter out existing filters for the current id, keeping all others intact
+    const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
 
-  // Prepare new filters for the current id
-  const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
+    // Prepare new filters for the current id
+    const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
 
-  // Combine other filters with new filters for the current id
-  const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
+    // Combine other filters with new filters for the current id
+    const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
 
-  searchParams.set('t', updatedFilters.join('|'));
-  searchParams.set('p', '1'); // Reset pagination to page 1
-  const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-  window.location.href = newUrl; // Change the URL and reload the page
-};
+    searchParams.set('t', updatedFilters.join('|'));
+    searchParams.set('p', '1'); // Reset pagination to page 1
+    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    window.location.href = newUrl; // Change the URL and reload the page
+  };
 
 
   // Function to filter options based on selected letter
@@ -177,7 +179,7 @@ const applyFilters = () => {
   const indexRows = chunkArray(filterIndex, 8);
 
   return (
-        <>
+    <>
       <div>{filter_title}</div>
       <Autocomplete
         // size='small'
@@ -190,13 +192,13 @@ const applyFilters = () => {
           .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id)) // Filter out already selected options
           .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
         }
-        groupBy={(option) => option.firstLetter}
+        groupBy={(option) => getFirstLetter(option)}
         getOptionLabel={(option) => `${option.name} (${option.count})`}
         value={selectedFiltersForAutocomplete}
         onChange={(event, newValue) => {
           setSelectedFilters(newValue as FilterObject[]);
           console.log(
-            "SELECTED FILTERS :::::::::::::::::::::::::::::::::::::::::::::::::::::::",selectedFilters
+            "SELECTED FILTERS :::::::::::::::::::::::::::::::::::::::::::::::::::::::", selectedFilters
           )
           // Call applyFilters function when filters are selected or deselected
           // applyFilters;
@@ -220,9 +222,9 @@ const applyFilters = () => {
         )}
         sx={{ width: 'auto' }}
         onBlur={() => {
-        // Reload the page when focus is removed from the Autocomplete component
-        applyFilters();
-      }}
+          // Reload the page when focus is removed from the Autocomplete component
+          applyFilters();
+        }}
       // value={selectedFiltersForAutocomplete}
       // onChange={(event, newValue) => {
       //   setSelectedFilters(newValue as FilterObject[]); // Handle selection changes
@@ -230,7 +232,7 @@ const applyFilters = () => {
       // value={selectedFilters} // Bind selected filters to the value prop
       // onChange={handleFilterSelection} // Attach event handler for filter selection
       />
-      </>
+    </>
 
   );
 }
