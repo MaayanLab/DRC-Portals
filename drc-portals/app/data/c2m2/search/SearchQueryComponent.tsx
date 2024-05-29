@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
-import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash} from "@/app/data/c2m2/utils";
+import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename} from "@/app/data/c2m2/utils";
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 import { FancyTab } from '@/components/misc/FancyTabs';
@@ -268,6 +268,7 @@ export async function SearchQueryComponent(props: PageProps) {
           // Concatenate qString and tString into a single string
           const concatenatedString = `${qString}${tString}`;
           const SearchHashFileName = generateMD5Hash(concatenatedString);
+          const qString_clean = sanitizeFilename(qString, '__');
           
           const t2: number = performance.now();
         
@@ -498,7 +499,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 </Link>
               }
               data={results?.records_full}
-              downloadFileName={SearchHashFileName + "_CFDEC2M2MainSearchTable.json"}
+              downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
               <C2M2MainSearchTable
@@ -511,7 +512,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 rows={tableRows}
                 tablePrefix="C2M2MainSearchTbl"
                 data={results?.records_full}
-                downloadFileName={SearchHashFileName + "_CFDEC2M2MainSearchTable.json"}
+                downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
               />
               
             </ListingPageLayout>

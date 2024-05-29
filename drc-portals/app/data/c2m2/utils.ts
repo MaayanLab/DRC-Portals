@@ -549,3 +549,11 @@ export function get_partial_list_string(all_count: number, count: number, all_co
     ((all_count > all_count_limit) ? "(" + (count ?? 0).toLocaleString() + " listed)" : '')
     ;
 }
+
+export function sanitizeFilename(filename: string, repchar: string): string {
+    // Define a regular expression that matches invalid characters
+    const invalidCharacters = /[\/\\:*?"<>|]/g;
+    // Replace invalid characters with an underscore
+    // repchar can be '__'
+    return filename.replace(invalidCharacters, repchar);
+}

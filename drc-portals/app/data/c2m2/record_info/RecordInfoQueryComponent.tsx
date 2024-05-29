@@ -4,7 +4,7 @@ import { getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRe
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import { ColorLensOutlined } from "@mui/icons-material";
 
@@ -790,6 +790,7 @@ file_table AS (
     // Concatenate qString and tString into a single string
     const concatenatedString = `${qString}${tString}`;
     const recordInfoHashFileName = generateMD5Hash(concatenatedString);
+    const qString_clean = sanitizeFilename(qString, '__');
 
     // First remove the empty columns and sort columns such that most varying appears first
 
@@ -1047,7 +1048,7 @@ file_table AS (
         <ExpandableTable
           data={biosamplePrunedDataWithId}
           full_data={biosamples_table_full_withId}
-          downloadFileName={recordInfoHashFileName + "_BiosamplesTable.json"}
+          downloadFileName= {"BiosamplesTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} //{recordInfoHashFileName + "_BiosamplesTable.json"}
           tableTitle={biosampleTableTitle}
           searchParams={searchParams}
           count={results?.count_bios ?? 0} // Provide count directly as a prop
@@ -1060,7 +1061,7 @@ file_table AS (
         <ExpandableTable
           data={subjectPrunedDataWithId}
           full_data={subjects_table_full_withId}
-          downloadFileName={recordInfoHashFileName + "_SubjectsTable.json"}
+          downloadFileName= {"SubjectsTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_SubjectsTable.json"}
           tableTitle={subjectTableTitle}
           searchParams={searchParams}
           count={results?.count_sub ?? 0} // Provide count directly as a prop
@@ -1073,7 +1074,7 @@ file_table AS (
         <ExpandableTable
           data={collectionPrunedDataWithId}
           full_data={collections_table_full_withId}
-          downloadFileName={recordInfoHashFileName + "_CollectionsTable.json"}
+          downloadFileName= {"CollectionsTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_CollectionsTable.json"}
           tableTitle={collectionTableTitle}
           searchParams={searchParams}
           count={results?.count_col ?? 0} // Provide count directly as a prop
@@ -1087,7 +1088,7 @@ file_table AS (
           <ExpandableTable
             data={fileProjPrunedDataWithId}
             full_data={filesProj_table_full_withId}
-            downloadFileName={recordInfoHashFileName + "_FilesProjTable.json"}
+            downloadFileName= {"FilesProjTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesProjTable.json"}
             drsBundle
             tableTitle={fileProjTableTitle}
             searchParams={searchParams}
@@ -1106,7 +1107,7 @@ file_table AS (
           <ExpandableTable
             data={fileSubPrunedDataWithId}
             full_data={fileSub_table_full_withId}
-            downloadFileName={recordInfoHashFileName + "_FilesSubTable.json"}
+            downloadFileName= {"FilesSubTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesSubTable.json"}
             drsBundle
             tableTitle={fileSubTableTitle}
             searchParams={searchParams}
@@ -1124,7 +1125,7 @@ file_table AS (
           <ExpandableTable
             data={fileBiosPrunedDataWithId}
             full_data={fileBios_table_full_withId}
-            downloadFileName={recordInfoHashFileName + "_FilesBiosTable.json"}
+            downloadFileName= {"FilesBiosTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesBiosTable.json"}
             drsBundle
             tableTitle={fileBiosTableTitle}
             searchParams={searchParams}
@@ -1142,7 +1143,7 @@ file_table AS (
           <ExpandableTable
             data={fileColPrunedDataWithId}
             full_data={fileCol_table_full_withId}
-            downloadFileName={recordInfoHashFileName + "_FilesCollTable.json"}
+            downloadFileName= {"FilesCollTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesCollTable.json"}
             drsBundle
             tableTitle={fileColTableTitle}
             searchParams={searchParams}
