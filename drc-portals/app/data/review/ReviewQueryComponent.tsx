@@ -15,6 +15,8 @@ import { Suspense } from 'react';
 
 type PageProps = { searchParams: Record<string, string>, tab?: boolean };
 
+const record_count_limit = 100000;
+
 export async function ReviewQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
 
@@ -72,8 +74,14 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
         throw new Error("Invalid schema or table name");
     }
 
+    const counts_in_table = tables_counts.find(t => t.tablename === table_name)?.count ?? 0;
+    //console.log("counts_in_table: ", counts_in_table);
+    const counts_limit_str = (counts_in_table > record_count_limit) ? " (" + String(record_count_limit) + " out of " + String(counts_in_table) + ")" : "";
+    console.log("counts_limit_str: ", counts_limit_str);
+
     const query = SQL.template`
         SELECT * FROM "${SQL.assert_in(schema_name, validSchemas)}"."${SQL.assert_in(table_name, validTables)}"
+        LIMIT ${record_count_limit}
     `.toPrismaSql();
 
     const selected_table_rows = await prisma.$queryRaw(query);
@@ -110,7 +118,7 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Typography>Records from table <strong>{table_name}</strong></Typography>
+                    <Typography>Records from table <strong>{table_name}</strong>{counts_limit_str}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Suspense fallback={<div>Loading...</div>}>
