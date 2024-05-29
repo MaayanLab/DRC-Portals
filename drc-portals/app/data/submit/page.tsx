@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -42,14 +41,10 @@ function CustomBulletList({ children }: { children?: any }) {
 }
 
 
-const MyImage = (props: any) => (
+const CustomImage = (props: any) => (
     <img style={{ maxWidth: "70%", borderRadius: "15px", display: 'block', marginLeft: 'auto', marginRight: 'auto' }} {...props} />
 )
 
-
-// function CustomH5({ children }: { children?: any }) {
-//     return <center><h5 style={{ fontSize: 14 }}>{children}</h5></center>
-// }
 
 function CustomEm({ children }: { children?: any }){
     return <em className="caption" style={{ fontSize: 14, fontStyle: 'normal', textAlign:'center', display:'block'}}>{children}</em>
@@ -60,8 +55,7 @@ const components = {
     p: CustomParagraph,
     li: CustomList,
     ol: CustomNumberedList,
-    img: MyImage,
-    // h5:  CustomH5,
+    img: CustomImage,
     ul: CustomBulletList,
     em: CustomEm
 }
@@ -78,7 +72,7 @@ export default function Documentation() {
                     Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
                     To submit assets, you must be logged in and registered. Registration involves being assigned a
                     role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>. 
-                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024)
+                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024).
                 </Typography>
             </Grid>
             <Grid item xs={12} container justifyContent={'center'}>
@@ -133,25 +127,16 @@ export default function Documentation() {
                 }
                 />
 
+                    <StyledAccordionComponent heading="Asset Approval Steps" content={
+                        <Box sx={{ p: 1, m: 1 }}>
+                            <AssetManagement components={components} />
+                        </Box>
+                    }
+                    />
 
-                <StyledAccordionComponent heading="Asset Approval Steps" content={
-                    <Box sx={{ p: 1, m: 1 }}>
-                        <AssetManagement components={components} />
-                    </Box>
-                }
-                />
-
-
-                <StyledAccordionComponent heading="Admin User Documentation" content={
-                    <Box sx={{ p: 1, m: 1 }}>
-                        <AdminUserDocs components={components} />
-                    </Box>
-                }
-                />
-
-                <StyledAccordionComponent heading="Instructional Video" content={
+                    <StyledAccordionComponent heading="Instructional Video" content={
                     <>
-                        <Box sx={{ padding: 3, display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'} }}>
+                        <Box sx={{ padding: 3 }}>
                             <center>
                                 <YoutubeVideo size={'large'}/>
                             </center>

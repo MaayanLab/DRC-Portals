@@ -11,24 +11,16 @@ import Nav from '../Nav';
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
   if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id
-    },
-    include: {
-      dccs: true
-    }
-  })
-  if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
-
-  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN' || user.role === 'DCC_APPROVER')) {
+  const user = session.keycloakInfo
+  if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
+    if (!(user.roles.includes('UPLOADER') || user.roles.includes('READONLY') || user.roles.includes('DRC_APPROVER'))) {
     return (
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid md={2} xs={12}>
           <Nav />
         </Grid>
         <Grid md={10} xs={12}>
-          <Alert severity="warning">Access Denied. This page is only accessible to DCC Uploaders and DCC & DRC Approvers</Alert>
+          <Alert severity="warning">Access Denied. This page is only accessible to DCC Uploaders and DRC Approvers</Alert>
         </Grid>
       </Grid>
     )
@@ -70,6 +62,5 @@ export default async function UploadForm() {
         </Grid>
       </Grid>
     </>
-
   );
 }

@@ -7,43 +7,22 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { PaginatedTable } from './PaginatedTable';
 import Nav from '../Nav';
-import { DCC } from '@prisma/client';
 
 
 export default async function UserFiles() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-
     const dccInfo = await prisma.dCC.findMany()
     const dccMapping: { [key: string]: string } = {}
     dccInfo.map((dcc) => {
         dcc.short_label ? dccMapping[dcc.short_label] = dcc.label : dccMapping[dcc.label] = dcc.label
     })
 
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        },
-        include: {
-            dccAsset: {
-                include: {
-                    dcc: {
-                        select: {
-                            label: true,
-                            short_label: true
-                        }
-                    },
-                    fileAsset: true,
-                    codeAsset: true,
-                }
-            },
-            dccs: true
-        },
-    })
-
+    const user = session.keycloakInfo
+    if (!user) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this page
-    if (user.role === 'USER') {
+    if ((user.roles.length === 1) && (user.roles[0] === 'USER')) {
         return (
             <Grid container spacing={2} sx={{ mt: 2 }}>
                 <Grid md={2} xs={12}>
@@ -80,9 +59,6 @@ export default async function UserFiles() {
         </Grid>
     );
 
-    let userDCCArray: string[] = []
-    user.dccs.forEach((dcc: DCC) => { if (dcc.short_label) { userDCCArray.push(dcc.short_label) } })
-
     const allFiles = await prisma.dccAsset.findMany({
         include: {
             dcc: {
@@ -95,12 +71,15 @@ export default async function UserFiles() {
             codeAsset: true,
         },
         where: {
-            ...(user.role === 'DCC_APPROVER' ? {
+            ...((user.roles.includes('DCC_APPROVER')) || (user.roles.includes('READONLY')) ? {
                 dcc: {
                     short_label: {
-                        in: userDCCArray
+                        in: user.dccs
                     }
                 }
+            } : {}),
+            ...(user.roles.length === 2 && user.roles.includes('UPLOADER') ? {
+                creator: user.email
             } : {}),
             deleted: false
         }
@@ -111,10 +90,8 @@ export default async function UserFiles() {
     let userFiles = []
     let headerText;
 
-    if (user.role === 'UPLOADER') {
-        userFiles = user.dccAsset.filter((asset) => asset.deleted === false).map(obj => ({ ...obj, assetType: obj.fileAsset ? obj.fileAsset?.filetype : obj.codeAsset?.type ?? '' }))
-
-        // userFiles = allFiles
+    if (user.roles.length === 2 && user.roles.includes('UPLOADER')) {
+        userFiles = allFiles.map(obj => ({ ...obj, assetType: obj.fileAsset ? obj.fileAsset?.filetype : obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that you have uploaded/submitted for all the DCCs you are affiliated with.
             Expand a row to see additional information for a file or code asset.
@@ -123,7 +100,7 @@ export default async function UserFiles() {
             and current statuses of each file.
         </Typography>
 
-    } else if (user.role === 'DCC_APPROVER') {
+    } else if ((user.roles.includes('DCC_APPROVER')) || (user.roles.includes('READONLY'))) {
         userFiles = allFiles.map(obj => ({ ...obj, assetType: obj.fileAsset ? obj.fileAsset?.filetype : obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that have been uploaded/submitted for your affiliated DCCs.
@@ -132,7 +109,7 @@ export default async function UserFiles() {
             <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the approval
             and current statuses of each file and the steps to approve a file or change its current status.
         </Typography>
-    } else {
+    } else { // admin or drc approver
         userFiles = allFiles.map(obj => ({ ...obj, assetType: obj.fileAsset ? obj.fileAsset?.filetype : obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that have been uploaded/submitted for all the DCCs.
@@ -154,7 +131,7 @@ export default async function UserFiles() {
                     <Container className="justify-content-center">
                         <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
-                        <PaginatedTable userFiles={userFiles} role={user.role} />
+                        <PaginatedTable userFiles={userFiles} roles={user.roles} />
                     </Container>
                 </Grid>
             </Grid>

@@ -2,17 +2,18 @@
 
 As a Common Fund Data Coordinating Center (DCC) you have 3 role options for your users of the submission system:
 
-- User: This is a general user of the platform who cannot upload, approve, or view non-public files. You can have as many users in this role as you want.
+- User: These users are general users of the platform who cannot upload, approve, or view non-public files. You can have as many users in this role as you want.
 - Uploader: Can submit data packages, but can't approve data packages/files. Users can see files that they submitted for their DCC, but can't approve them. You can have as many users in this role as you want.
-- Approver: Can submit new packages and approve a submitted package. These users can view and manage all files that have been submitted for their DCC. You can have as many users in this role as you want.
+- Approver: Cannot submit new packages but can approve a submitted package. These users can view and manage all files that have been submitted for their DCC. You can have as many users in this role as you want.
+- Read-Only: These are users who can see view all pages of the submission system but will not be allowed to submit or approve packages. They can also view all the submitted assets all their assigned DCCs. This role is to be given to the NIH and the PMs of DCCs. You can have as many users in this role as you want. 
 
-Any given person in your DCC can only have 1 role. 
+Any given person in your DCC can be assigned to multiple roles. 
 
 
 
 ### Onboarding Process
 To do onboarding and give a member of your DCC Approver or Uploader privileges, have the PI or PM of your DCC contact the DRC via email ([help@cfde.cloud](mailto:help@cfde.cloud)) with the following information about the concerned members: 
-- Name
+- Full Name
 - Email
 - Role
 - DCC 
@@ -24,20 +25,17 @@ When the user(s) have been registered, each of them will receive an email from a
 
 
 ### Logging into the Portal after Registration
-1. You can log into the portal by entering the email address you were registered with into the email field here: 
-    ![Screenshot of login page](/img/submission_system/onboarding_email.png)
+1. You can log into the portal by clicking on the Sign In with Keycloak button. : 
+    ![Screenshot of login page](/img/submission_system/onboarding_1.png)
     *Figure 1: A screenshot of login page.*
-2. You will be sent a registration confirmation link to that email. If you do not find the link in your inbox, please also check your spam folder as the email may be sent there. 
-
-
-
-
-### Verifying Account Information
-Before submitting or approving assets, please go to My Account page and verify that all the role and DCC information is correct. 
-Go the My Account page by clicking on the user icon on the top right of the screen and click on My Account. 
-![Screenshot of login page](/img/submission_system/FAQ_myaccount_1.png)
-*Figure 2: A screenshot of Data Portal showing navigation to My Account page.* 
-
-If your email is missing (you logged into the portal using ORCID): 
-1. If you were registered with your email, log out of the portal and sign in with the email you were registered with. 
-2. Otherwise, please enter your email and press save changes or the enter key. **Please note that your email can only be saved once so be careful to ensure that it is accurately entered**.
+2. Please enter the email you were registered with in the available field. If you have not set up your password or have forgotten your password, please click on the Forgot Password option to reset it. 
+    ![Screenshot of Keycloak sign in page](/img/submission_system/onboarding_2.png)
+    *Figure 2: A screenshot of Keycloak sign in page.*
+3. You can manage your account by clicking on the My Account from the dropdown options after clicking on the user icon in the header of the portal. 
+    ![Screenshot of Data Portal header showing navigation to My Account page.](/img/submission_system/onboarding_3.png)
+    *Figure 3: A screenshot of Data Portal header showing navigation to My Account page.*
+    ![Screenshot of user account management page](/img/submission_system/onboarding_4.png)
+    *Figure 4: A screenshot of user account management page.*
+4. If you have logged in with another provider on the portal or have multiple accounts, you can link your accounts by clicking on the "Linked Accounts" option in the "Account Security" card and linking your current account with your GitHub, ORCID or Globus accounts. 
+    ![Screenshot of Linked Accounts page](/img/submission_system/onboarding_5.png)
+    *Figure 5: A screenshot of Linked Accounts page.*

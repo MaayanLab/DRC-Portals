@@ -18,6 +18,8 @@ import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import { useDebounce } from 'use-debounce';
 import { ApprovedSymbol, NotApprovedSymbol } from './tableSymbols';
+import { FaCircleExclamation } from 'react-icons/fa6';
+import { BsCheckCircleFill } from 'react-icons/bs';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -259,7 +261,7 @@ function filterSearch(item: ({
 
 }
 
-export function PaginatedTable({ userFiles, role }: {
+export function PaginatedTable({ userFiles, roles }: {
     userFiles: ({
         dcc: {
             label: string;
@@ -268,7 +270,7 @@ export function PaginatedTable({ userFiles, role }: {
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
         assetType: string | null;
-    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
+    } & DccAsset)[], roles: string[]
 }) {
 
     const [page, setPage] = React.useState(0);
@@ -342,8 +344,29 @@ export function PaginatedTable({ userFiles, role }: {
     const [debouncedSortedData] = useDebounce(sortedData, 200); // Debounce after 200ms
 
     let symbolUserFiles;
-
-    if (role === 'UPLOADER') {
+    if (roles.includes('DRC_APPROVER')) {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
+            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
+            let approvedSymboldcc = <FaCircleExclamation size={20} />
+            let currentSymbol = <CurrentBtn {...userFile} />
+            if (userFile.dccapproved) {
+                approvedSymboldcc = <BsCheckCircleFill size={20} />
+            }
+            return (
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} userRoles={roles}/>
+            )
+        })
+    } else if (roles.includes('DCC_APPROVER')) {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
+            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
+            let approvedSymbol = <FaCircleExclamation size={20} />
+            let currentSymbol = <CurrentBtn {...userFile} />
+            if (userFile.drcapproved) {
+                approvedSymbol = <BsCheckCircleFill size={20} />
+            }
+            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} userRoles={roles} />)
+        })
+    } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymboldcc = <NotApprovedSymbol />
             let approvedSymbol =  <NotApprovedSymbol />
@@ -358,30 +381,7 @@ export function PaginatedTable({ userFiles, role }: {
                 currentSymbol =  <ApprovedSymbol />
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
-            )
-        })
-    } else if (role === 'DCC_APPROVER') {
-        symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-            let approvedSymbol = <NotApprovedSymbol />
-            let currentSymbol = <CurrentBtn {...userFile} />
-            if (userFile.drcapproved) {
-                approvedSymbol = <ApprovedSymbol />
-            }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />)
-        })
-
-    } else {
-        symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
-            let approvedSymboldcc =<NotApprovedSymbol />
-            let currentSymbol = <CurrentBtn {...userFile} />
-            if (userFile.dccapproved) {
-                approvedSymboldcc = <ApprovedSymbol />
-            }
-            return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} userRoles={roles}/>
             )
         })
     }

@@ -7,25 +7,27 @@ import { redirect } from 'next/navigation';
 import {
     getSignedUrl
 } from "@aws-sdk/s3-request-presigner";
-import type { FileAsset, User, } from '@prisma/client'
+import type { FileAsset } from '@prisma/client'
 import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
+import { getKeycloakUsersWithDRCRole } from '@/lib/auth/keycloakInfo';
 
 
+type User = {
+    name: string;
+    email: string;
+    roles: string[];
+    dccs: string[];
+  }
 
 async function verifyUser() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
-
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!(user.role === 'ADMIN' || user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER')) throw new Error('not authorized')
+    const user = session.keycloakInfo
+    if (!user) throw new Error('No user found')
+    if (!(user.roles.includes('UPLOADER') || user.roles.includes('DRC_APPROVER'))) throw new Error('not authorized')
 }
 
 
@@ -115,13 +117,10 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
 export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
+    const user = session.keycloakInfo
+    if (!user) throw new Error('No user found')
+    if (!(user.roles.includes('UPLOADER') || user.roles.includes('DRC_APPROVER'))) throw new Error('not authorized to save assets')
+
     if (!user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
@@ -209,19 +208,7 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
 export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const DCCApproversList = await prisma.dCC.findFirst({
-        where: {
-            short_label: dcc
-        }, 
-        select: {
-            Users : {
-                where : {
-                    role: 'DCC_APPROVER'
-                }
-            }
-        }
-    })
-    const approvers = DCCApproversList ? DCCApproversList.Users : []
+    const approvers = await getKeycloakUsersWithDRCRole('role:DCC_APPROVER')
     if (approvers.length > 0) {
         for (let approver of approvers) {
             const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);

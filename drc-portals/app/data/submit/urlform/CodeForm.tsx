@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { DCCSelect } from '../form/DCCSelect';
-import { CodeAsset, DCC, DccAsset, FileAsset, User } from '@prisma/client';
+import { CodeAsset, DccAsset, FileAsset } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -164,7 +164,14 @@ type fullDCCAsset = {
     codeAsset: CodeAsset | null;
 } & DccAsset
 
-export function CodeForm(user: User & { dccs: DCC[] }) {
+type User = {
+    name: string;
+    email: string;
+    roles: string[];
+    dccs: string[];
+  }
+
+export function CodeForm(user: User ) {
 
     const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<StatusType>({})
@@ -174,7 +181,6 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
     const [popOpen, setPopOpen] = React.useState(false)
     const [oldVersion, setOldVersion] = React.useState<fullDCCAsset[]>([])
     const [currentVersion, setCurrentVersion] = React.useState<OtherCodeDataType | APIDataType | null>(null)
-
 
     const handlePopClose = () => {
         setPopOpen(false);
@@ -344,74 +350,141 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                     See the {' '}
                     <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to submit code assets.
                 </Typography>
-                <Box width={'100%'} justifyContent={'center'} display={'flex'}>
-                    <Stack direction='column' spacing={2} justifyContent={'center'}>
-                        <Stack direction='row'>
-                            <TextField
-                                label="Uploader Name"
-                                disabled
-                                defaultValue={user.name}
-                                inputProps={{ style: { fontSize: 16 } }} // font size of input text
-                                InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
-                                fullWidth
-                            />
-                            <TextField
-                                label="Email"
-                                disabled
-                                defaultValue={user.email}
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                                sx={{ mx: 2 }}
-                                fullWidth
-                            />
-                            <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
-                        </Stack>
-                        <Stack direction='row' width={'100%'} spacing={2}>
-                            <div>
-                                <FormControl sx={{ minWidth: 200 }}>
-                                    <InputLabel id="select-url"
-                                        sx={{ fontSize: 16 }} color='secondary'
-                                    >Code Asset Type</InputLabel>
-                                    <Select
-                                        labelId="select-url"
-                                        id="simple-select"
-                                        value={codeType}
-                                        onChange={handleChange}
-                                        autoWidth
-                                        required
-                                        label="Code Asset Type"
-                                        name="assetType"
-                                        sx={{ fontSize: 16 }}
-                                        color='secondary'
-                                    >
-                                        {assetOptions.map((asset) => {
-                                            return <MenuItem key={asset.asset} value={asset.asset} sx={{ fontSize: 16 }}><HtmlTooltip
-                                                title={
-                                                    <React.Fragment>
-                                                        <Typography>{asset.asset}</Typography>
-                                                        {asset.description} <br></br>
-                                                        {'Example:'} {asset.example}
-                                                    </React.Fragment>
-                                                }
-                                                placement="left"
-                                            >
-                                                <Typography sx={{ color: 'black', fontSize: 16 }}>{asset.asset}</Typography>
-                                            </HtmlTooltip></MenuItem>
-                                        })}
-                                    </Select>
-                                </FormControl>
-                            </div>
-                            <TextField sx={{ minWidth: 420 }}
-                                label="Name"
-                                name='name'
-                                required
-                                color='secondary'
-                                placeholder='Enter asset name here'
-                                inputProps={{ style: { fontSize: 16 } }}
-                                InputLabelProps={{ style: { fontSize: 16 } }}
-                                fullWidth
-                            />
-                        </Stack>
+                <Grid container spacing={2} justifyContent={'center'}>
+                    <Grid item container md={9} xs={12}>
+                        <Grid container item direction='row' justifyContent="center" sx={{ mt: 3, mb: 3 }}>
+                            <Grid item>
+                                <TextField
+                                    label="Uploader Name"
+                                    disabled
+                                    defaultValue={user.name}
+                                    inputProps={{ style: { fontSize: 16 } }} // font size of input text
+                                    InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label="Email"
+                                    disabled
+                                    defaultValue={user.email}
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                    sx={{ mx: 2 }}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <DCCSelect dccOptions={user.dccs.join(',')} />
+                            </Grid>
+                        </Grid>
+                        <Grid container direction='row' justifyContent="center" className='mb-5' spacing={2}>
+                            <Grid item>
+                                <div>
+                                    <FormControl sx={{ minWidth: 200 }}>
+                                        <InputLabel id="select-url"
+                                            sx={{ fontSize: 16 }} color='secondary'
+                                        >Code Asset Type</InputLabel>
+                                        <Select
+                                            labelId="select-url"
+                                            id="simple-select"
+                                            value={codeType}
+                                            onChange={handleChange}
+                                            autoWidth
+                                            required
+                                            label="Code Asset Type"
+                                            name="assetType"
+                                            sx={{ fontSize: 16 }}
+                                            color='secondary'
+                                        >
+                                            {assetOptions.map((asset) => {
+                                                return <MenuItem key={asset.asset} value={asset.asset} sx={{ fontSize: 16 }}><HtmlTooltip
+                                                    title={
+                                                        <React.Fragment>
+                                                            <Typography>{asset.asset}</Typography>
+                                                            {asset.description} <br></br>
+                                                            {'Example:'} {asset.example}
+                                                        </React.Fragment>
+                                                    }
+                                                    placement="left"
+                                                >
+                                                    <Typography sx={{ color: 'black', fontSize: 16 }}>{asset.asset}</Typography>
+                                                </HtmlTooltip></MenuItem>
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                            </Grid>
+
+                            <Grid item>
+                                <TextField sx={{ minWidth: 420 }}
+                                    label="Name"
+                                    name='name'
+                                    required
+                                    color='secondary'
+                                    placeholder='Enter asset name here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>
+                            <Grid item justifyContent="center" className='mb-5'>
+                                <TextField sx={{ minWidth: 640 }}
+                                    label="URL"
+                                    name='url'
+                                    required
+                                    color='secondary'
+                                    placeholder='Enter URL here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>
+                            {smartSelected && <Grid item justifyContent="center" className='mb-5'>
+                                <TextField sx={{ minWidth: 640 }}
+                                    label="SmartAPI URL"
+                                    name='smartAPIUrl'
+                                    color='secondary'
+                                    placeholder='Enter SmartAPI URL here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>}
+                            {entitySelected && <Grid item justifyContent="center" className='mb-5'>
+                                <TextField sx={{ minWidth: 640 }}
+                                    label="Entity Page Example"
+                                    name='entityPageExample'
+                                    color='secondary'
+                                    required
+                                    placeholder='Enter Entity Page Example here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>}
+                            <Grid item justifyContent="center">
+                                <TextField sx={{ minWidth: 640 }}
+                                    multiline
+                                    rows={4}
+                                    label="Description"
+                                    name='description'
+                                    color='secondary'
+                                    placeholder='Enter short description here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                />
+                            </Grid>
+                            <Grid item justifyContent={'center'} >
+                                <div style={{width:'100%'}}>
+                                <Status status={status} />
+                                </div>
+                                <TextField sx={{ minWidth: 420 }}
+                                    label="Name"
+                                    name='name'
+                                    required
+                                    color='secondary'
+                                    placeholder='Enter asset name here'
+                                    inputProps={{ style: { fontSize: 16 } }}
+                                    InputLabelProps={{ style: { fontSize: 16 } }}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
                         <TextField sx={{ minWidth: 640 }}
                             label="URL"
                             name='url'
@@ -463,13 +536,13 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                         </div>
                         <Grid container direction="column" alignItems="center">
                             <FormControl>
-                                <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+                                <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }} disabled={user.roles.includes('READONLY')}>
                                     Submit
                                 </Button>
                             </FormControl>
                         </Grid>
-                    </Stack>
-                </Box>
+                    </Grid>
+                </Grid>
 
                 <Dialog
                     open={popOpen}

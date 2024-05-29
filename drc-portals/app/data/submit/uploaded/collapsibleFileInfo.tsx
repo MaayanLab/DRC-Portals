@@ -19,6 +19,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { CheckCircle, Error } from '@mui/icons-material'
 
+type User = {
+    name: string;
+    email: string;
+    roles: string[];
+    dccs: string[];
+}
 
 
 export function CollapsibleArrow({ open, setOpen }: { open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>> }) {
@@ -126,7 +132,7 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
     )
 }
 
-export function DeleteDialogButton({ userFile }: { userFile: DccAsset }) {
+export function DeleteDialogButton({ userFile, userRoles }: { userFile: DccAsset, userRoles: string[] }) {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -141,39 +147,42 @@ export function DeleteDialogButton({ userFile }: { userFile: DccAsset }) {
         deleteAsset(userFile);
         handleClose();
     }
-
-    return (
-        <React.Fragment>
-            <button onClick={handleClickOpen}>
-                <DeleteIcon />
-            </button>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {"Delete Uploaded File?"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete this file? Deleting files is permanent and cannot be undone
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button color="secondary" onClick={handleClose}>No</Button>
-                    <Button color="secondary" onClick={deleteRow} autoFocus>
-                        Yes, Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </React.Fragment>
-    );
+    if (userRoles.includes('READONLY')) {
+        return <></>
+    } else {
+        return (
+            <React.Fragment>
+                <button onClick={handleClickOpen}>
+                    <DeleteIcon />
+                </button>
+                <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Delete Uploaded File?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete this file? Deleting files is permanent and cannot be undone
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="secondary" onClick={handleClose}>No</Button>
+                        <Button color="secondary" onClick={deleteRow} autoFocus>
+                            Yes, Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </React.Fragment>
+        );
+    }
 }
 
 
-export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSymbol }: {
+export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSymbol, userRoles }: {
     userFile: {
         dcc: {
             label: string;
@@ -182,7 +191,7 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
         assetType: string | null;
-    } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element
+    } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element, userRoles: string[]
 }) {
     const [open, setOpen] = React.useState(false);
     const fileInfo = userFile.fileAsset ? { ...userFile.fileAsset } : { ...userFile.codeAsset } as FileAsset | CodeAsset
@@ -204,7 +213,7 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
                 <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><DeleteDialogButton userFile={userFile} /></div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><DeleteDialogButton userFile={userFile} userRoles={userRoles} /></div></TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
