@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import { Grid, Stack, Typography, Card, CardContent } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,18 +7,27 @@ import { isURL } from './utils';
 import DownloadButton from './DownloadButton';
 
 
-export default function LandingPageLayout(props) {
+export default function LandingPageLayout(props: React.PropsWithChildren<{
+  title: React.ReactNode,
+  subtitle: React.ReactNode,
+  description: React.ReactNode,
+  categories: React.ReactNode,
+  metadata?: ({label: React.ReactNode, value: ReactNode} | null)[],
+  icon?: { src: string, href: string, alt: string },
+}>) {
   const [maxHeight, setMaxHeight] = useState(0);
 
   useEffect(() => {
     let maxHeightValue = 0;
-    props.categories?.forEach((category) => {
-      const contentHeight = document.getElementById(`card-content-${category.title}`)?.clientHeight;
-      if (contentHeight && contentHeight > maxHeightValue) {
-        maxHeightValue = contentHeight;
-      }
-    });
-    setMaxHeight(maxHeightValue);
+    if (Array.isArray(props.categories)) { // Check if props.categories is an array
+      props.categories.forEach((category) => {
+        const contentHeight = document.getElementById(`card-content-${category.title}`)?.clientHeight;
+        if (contentHeight && contentHeight > maxHeightValue) {
+          maxHeightValue = contentHeight;
+        }
+      });
+      setMaxHeight(maxHeightValue);
+    }
   }, [props.categories]);
 
   return (
