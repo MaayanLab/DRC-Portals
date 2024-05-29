@@ -268,7 +268,7 @@ export function PaginatedTable({ userFiles, role }: {
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
         assetType: string | null;
-    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
+    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY"
 }) {
 
     const [page, setPage] = React.useState(0);
@@ -343,7 +343,29 @@ export function PaginatedTable({ userFiles, role }: {
 
     let symbolUserFiles;
 
-    if (role === 'UPLOADER') {
+    if ((role === 'DRC_APPROVER') || (role === 'ADMIN')) {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
+            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
+            let approvedSymboldcc =<NotApprovedSymbol />
+            let currentSymbol = <CurrentBtn {...userFile} />
+            if (userFile.dccapproved) {
+                approvedSymboldcc = <ApprovedSymbol />
+            }
+            return (
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} />
+            )
+        })
+    } else if (role === 'DCC_APPROVER') {
+        symbolUserFiles = debouncedSortedData.map((userFile) => {
+            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
+            let approvedSymbol = <NotApprovedSymbol />
+            let currentSymbol = <CurrentBtn {...userFile} />
+            if (userFile.drcapproved) {
+                approvedSymbol = <ApprovedSymbol />
+            }
+            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role}/>)
+        })
+    } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymboldcc = <NotApprovedSymbol />
             let approvedSymbol =  <NotApprovedSymbol />
@@ -358,30 +380,7 @@ export function PaginatedTable({ userFiles, role }: {
                 currentSymbol =  <ApprovedSymbol />
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
-            )
-        })
-    } else if (role === 'DCC_APPROVER') {
-        symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-            let approvedSymbol = <NotApprovedSymbol />
-            let currentSymbol = <CurrentBtn {...userFile} />
-            if (userFile.drcapproved) {
-                approvedSymbol = <ApprovedSymbol />
-            }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />)
-        })
-
-    } else {
-        symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
-            let approvedSymboldcc =<NotApprovedSymbol />
-            let currentSymbol = <CurrentBtn {...userFile} />
-            if (userFile.dccapproved) {
-                approvedSymboldcc = <ApprovedSymbol />
-            }
-            return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role}/>
             )
         })
     }

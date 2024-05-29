@@ -6,7 +6,6 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Alert, Button, Grid } from '@mui/material';
 import Nav from '../Nav';
-import Link from 'next/link';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
@@ -21,7 +20,7 @@ export default async function UploadForm() {
   })
   if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/form")
 
-  if (!(user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'ADMIN' || user.role === 'DCC_APPROVER')) {
+  if (user.role === 'USER') {
     return (
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid md={2} xs={12}>

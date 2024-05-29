@@ -431,6 +431,7 @@ enum Role {
   UPLOADER
   DRC_APPROVER
   ADMIN
+  READONLY
 }
 
 model VerificationToken {

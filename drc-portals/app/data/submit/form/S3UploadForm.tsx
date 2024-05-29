@@ -308,7 +308,7 @@ export function S3UploadForm(user: User & { dccs: DCC[] }
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
             <FormControl>
-              <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+              <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }} disabled={user.role === 'READONLY'}>
                 Submit Form
               </Button>
             </FormControl>
