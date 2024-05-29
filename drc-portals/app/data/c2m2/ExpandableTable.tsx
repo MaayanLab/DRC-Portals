@@ -1,3 +1,4 @@
+// ExpandableTable.tsx
 'use client';
 import React, { useState } from 'react';
 import Accordion from '@mui/material/Accordion';
@@ -10,18 +11,17 @@ import DownloadButton from './DownloadButton';
 import DRSBundleButton from './DRSBundleButton';
 import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
 import Link from 'next/link';
+import { RowType } from './utils'; // Import the RowType
 
-// Function type definition
 type TableFunction = (column: string) => string | undefined;
 
-// Index interface
 interface TableFunctionIndex {
     [key: string]: TableFunction | undefined;
 }
 
 interface ExpandableTableProps {
-    data?: { [key: number]: string | bigint }[];
-    full_data?: { [key: number]: string | bigint }[];
+    data?: RowType[];
+    full_data?: RowType[];
     downloadFileName?: string;
     drsBundle?: boolean;
     tableTitle: string;
@@ -48,8 +48,8 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     dynamicColumns,
     tablePrefix,
 }) => {
-    const [selectedRows, setSelectedRows] = useState<{ [key: string]: any }[]>([]);
-    const [selectedData, setSelectedData] = useState<{ [key: string]: string | bigint }[]>([]);
+    const [selectedRows, setSelectedRows] = useState<RowType[]>([]);
+    const [selectedData, setSelectedData] = useState<RowType[]>([]);
 
     const tableFunctions: TableFunctionIndex = {
         bioSamplTbl: getNameFromBiosampleTable,
@@ -62,43 +62,34 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
     };
 
     function getNameFromTable(tblnm: string): ((column: string) => string | undefined) | undefined {
-        return tableFunctions[tblnm]; // Return the function associated with the table name
+        return tableFunctions[tblnm];
     }
 
     if (!data || !full_data) return null;
 
-    const handleRowSelect = (selectedRows: { [key: string]: any }[], selectAll: boolean) => {
+    const handleRowSelect = (selectedRows: RowType[], selectAll: boolean) => {
         setSelectedRows(selectedRows);
 
-        // If all rows are selected, set the selected data to the full data set
         if (selectAll) {
             setSelectedData(full_data);
         } else {
-            // Otherwise, filter the full data based on selected row IDs
             const selectedIds = selectedRows.map(row => row.id);
             const newSelectedData = full_data.filter(row => selectedIds.includes(row.id));
             setSelectedData(newSelectedData);
         }
     };
 
-    // Extracting IDs from selected rows
     const selectedIds = selectedRows.map(row => row.id);
-
-    // Filtering full_data based on selected IDs
     const filteredSelectedData = full_data.filter(row => selectedIds.includes(row.id));
 
     var dataToSend = selectedRows.length > 0 ? (selectedIds.length === data.length ? full_data : filteredSelectedData) : selectedData;
 
-    // Function to check if data has more than just ID columns and is not empty
-    const hasSignificantData = (data: { [key: number]: string | bigint }[]) => {
-        // length > 1 since for 1 row it becomes card data. Table is shown only for > 1
+    const hasSignificantData = (data: RowType[]) => {
         return data && data.length > 1 && Object.keys(data[0]).length > 1;
     };
 
-    // Check if the data is significant and not empty
     const significantDataExists = data && data.length > 0 && hasSignificantData(data);
 
-    // Log for debugging purposes
     console.log(tablePrefix + " hasSignificantData = " + significantDataExists);
 
     return (
@@ -119,7 +110,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                             r={searchParams.r}
                             count={count}
                             columns={colNames.map(column => (
-                                getNameFromTable(tablePrefix)?.(column) || column // Use the function or the column name itself
+                                getNameFromTable(tablePrefix)?.(column) || column
                             ))}
                             rows={data.map((row, rowIndex) => {
                                 const renderedColumns: { [key: string]: React.ReactNode } = {};
@@ -139,7 +130,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                         </Link>
                                     ) : (
                                         column.toLowerCase().includes('size_in_bytes') ?
-                                        (<Description description={cellValueString.replace(/\.0$/, '')} key={`${rowIndex}-${column}`} />) // temporary fix, better to fix in ingestion py script
+                                        (<Description description={cellValueString.replace(/\.0$/, '')} key={`${rowIndex}-${column}`} />)
                                         : (<Description description={cellValueString} key={`${rowIndex}-${column}`} />)
                                     );
                                 });
