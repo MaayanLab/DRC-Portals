@@ -98,6 +98,7 @@ export const D3_FORCE_LAYOUT = {
   name: "d3-force",
   animate: true,
   infinite: true,
+  fixedAfterDragging: true,
   linkId: (d: CytoscapeNodeData) => {
     return d.id;
   },

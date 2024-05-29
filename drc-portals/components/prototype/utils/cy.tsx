@@ -6,6 +6,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
   EventObject,
@@ -267,6 +268,40 @@ export const resetChart = (
         onClick={fn}
       >
         <RestoreIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+export const unlockD3ForceNodes = (
+  key: string,
+  title: string,
+  cyRef: CytoscapeReference
+) => {
+  // Note that this is directly manipulating some "under the hood" behavior implemented by the d3-force layout. When the
+  // "fixedAfterDragging" option of the layout is set to true, a pair of hidden position properties (fx and fy) are set on nodes after a
+  // drag event concludes. These properties are added to the "scratch" data of the node, a feature supported by Cytoscape.js directly. It
+  // appears that when this scratch position data exists, the layout will not attempt to move the node. It does not seem there is an
+  // alternative method of "unlocking" the nodes after they have been dragged, except perhaps by updating the layout options to set
+  // "fixedAfterDragging" to false.
+  const fn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      cy.nodes().forEach((node) => {
+        const scratch = node.scratch();
+        delete scratch["d3-force"].fx;
+        delete scratch["d3-force"].fy;
+      });
+    }
+  };
+  return (
+    <Tooltip key={key} title={title} arrow>
+      <IconButton
+        sx={{ borderRadius: 1 }}
+        aria-label="reset-chart"
+        onClick={fn}
+      >
+        <LockOpenIcon />
       </IconButton>
     </Tooltip>
   );

@@ -10,7 +10,11 @@ import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
-import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
+import { CytoscapeReference } from "../types/cy";
+import {
+  createCytoscapeElementsFromNeo4j,
+  unlockD3ForceNodes,
+} from "../utils/cy";
 import {
   createCypher,
   createSynonymSearchCypher,
@@ -51,6 +55,16 @@ export default function GraphSearch() {
       fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
       title: "Show Details",
     },
+  ];
+
+  const customTools = [
+    // Unlock All Nodes button
+    (cyRef: CytoscapeReference) =>
+      unlockD3ForceNodes(
+        "search-chart-toolbar-unlock-btn",
+        "Unlock All Nodes",
+        cyRef
+      ),
   ];
 
   const clearSearchError = () => {
@@ -166,6 +180,7 @@ export default function GraphSearch() {
           layout={D3_FORCE_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}
           toolbarPosition={{ top: 10, right: 10 }}
+          customTools={customTools}
           nodeCxtMenuItems={nodeCxtMenuItems}
         ></CytoscapeChart>
       </Grid>
