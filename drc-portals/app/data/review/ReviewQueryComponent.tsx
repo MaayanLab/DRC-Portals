@@ -25,9 +25,10 @@ export async function ReviewQueryComponent(props: PageProps) {
     }
 
     try {
-        const tables_counts = await CountDisplay(searchParams.schema_name);
+        const tables_counts = await CountDisplay(searchParams.schema_name)
         const table_names_for_schema = tables_counts?.map(item => ({ table: item.tablename, label: item.tablename }));
-        const summary_table_title = "Summary for schema " + searchParams.schema_name;
+        const schemaEntry = schemaToDCC.find(item => item.schema === searchParams.schema_name);
+        const summary_table_title = "Count Summary for " + (schemaEntry ? schemaEntry.label : searchParams.schema_name) + " (schema: " + (schemaEntry ? schemaEntry.schema : searchParams.schema_name) + ")";
 
         if (!searchParams.table_name || !table_names_for_schema.find(t => t.table === searchParams.table_name)) {
             return (
@@ -70,7 +71,6 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
     `.toPrismaSql();
 
     const selected_table_rows = await prisma.$queryRaw(query);
-    const table_title = "Records from table " + table_name;
 
     return (
         <>
@@ -86,7 +86,9 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
                     <Typography>{summary_table_title}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ReviewDisplay result={tables_counts} title={"Tables and counts summary"} />
+                    <ReviewDisplay result={tables_counts} 
+                    title={""} 
+                    />
                 </AccordionDetails>
             </Accordion>
             <br></br>
@@ -96,7 +98,7 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Typography>{table_title}</Typography>
+                    <Typography>Records from table <strong>{table_name}</strong></Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Suspense fallback={<div>Loading...</div>}>

@@ -67,7 +67,6 @@ export const tableToName = [
   { table: 'substance', label: 'Substance' }
 ];
 
-
 export function useSanitizedSearchParams(props: { searchParams: Record<string, string | string[] | undefined> }) {
     // Define the schema for known parameters
     const schema = z.object({
