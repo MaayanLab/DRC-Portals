@@ -5,7 +5,7 @@ import { SignOutLink } from '@/lib/auth/links';
 import { AccountLink } from './MyAccount';
 import { Session } from 'next-auth';
 
-export default async function UserComponent ({session}: {session: Session | null})  {
+export default function UserComponent ({session}: {session: Session | null})  {
     if (session === null) {
         return <Signin/>
     } else {
