@@ -11,6 +11,11 @@ export const generateMD5Hash = (inputString: string) => {
   return CryptoJS.MD5(inputString).toString();
 }
 
+export interface RowType {
+    id: string | number; // Adjust the type based on your `id`
+    [key: string]: any; // Use 'any' to include all possible row properties
+}
+
 
 export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);

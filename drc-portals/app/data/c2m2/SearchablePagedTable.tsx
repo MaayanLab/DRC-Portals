@@ -1,3 +1,4 @@
+// SearchablePagedTable.tsx
 'use client'
 import React, { useState } from 'react';
 import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
@@ -9,6 +10,7 @@ import { NodeType } from '@prisma/client';
 import { type_to_string } from '../processed/utils';
 import FindInPageOutlinedIcon from '@mui/icons-material/FindInPageOutlined';
 import TagComponent from './TagComponent';
+import { RowType } from './utils'; // Import the RowType
 
 export function LinkedTypedNode({
     id,
@@ -78,15 +80,15 @@ interface SearchablePagedTableProps {
     count?: number;
     t?: { type: string; entity_type: string | null; }[] | undefined;
     columns: React.ReactNode[];
-    rows: { [key: string]: any }[];
+    rows: RowType[]; // Use the RowType
     tablePrefix: string;
-    onRowSelect: (selectedRows: { [key: string]: any }[], selectAll: boolean) => void;
+    onRowSelect: (selectedRows: RowType[], selectAll: boolean) => void; // Adjust the onRowSelect type
 }
 
 const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
-    const [selectedRows, setSelectedRows] = useState<{ [key: string]: any }[]>([]);
+    const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
 
-    const handleCheckboxChange = (row: { [key: string]: any }) => {
+    const handleCheckboxChange = (row: RowType) => { // Use the RowType
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
         const updatedSelectedRows = isSelected
             ? selectedRows.filter(selectedRow => selectedRow.id !== row.id)
