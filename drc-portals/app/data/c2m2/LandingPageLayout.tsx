@@ -6,20 +6,38 @@ import Image from "next/image";
 import { isURL } from './utils';
 import DownloadButton from './DownloadButton';
 
+interface MetadataItem {
+  label: React.ReactNode;
+  value: ReactNode;
+}
 
-export default function LandingPageLayout(props: React.PropsWithChildren<{
-  title: React.ReactNode,
-  subtitle: React.ReactNode,
-  description: React.ReactNode,
-  categories: React.ReactNode,
-  metadata?: ({label: React.ReactNode, value: ReactNode} | null)[],
-  icon?: { src: string, href: string, alt: string },
-}>) {
+interface Category {
+  title: string;
+  metadata: MetadataItem[];
+}
+
+interface Icon {
+  src: string;
+  href: string;
+  alt: string;
+}
+
+interface LandingPageLayoutProps {
+  title: React.ReactNode;
+  subtitle: React.ReactNode;
+  description: React.ReactNode;
+  categories: Category[];
+  metadata?: (MetadataItem | null)[];
+  icon?: Icon;
+  children?: React.ReactNode;
+}
+
+export default function LandingPageLayout(props: LandingPageLayoutProps) {
   const [maxHeight, setMaxHeight] = useState(0);
 
   useEffect(() => {
     let maxHeightValue = 0;
-    if (Array.isArray(props.categories)) { // Check if props.categories is an array
+    if (Array.isArray(props.categories)) {
       props.categories.forEach((category) => {
         const contentHeight = document.getElementById(`card-content-${category.title}`)?.clientHeight;
         if (contentHeight && contentHeight > maxHeightValue) {
@@ -29,6 +47,17 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       setMaxHeight(maxHeightValue);
     }
   }, [props.categories]);
+
+  const renderMetadataValue = (item: MetadataItem) => {
+    if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
+      return (
+        <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+          {item.value}
+        </Link>
+      );
+    }
+    return item.value;
+  };
 
   return (
     <Grid container sx={{ paddingTop: 5, paddingBottom: 5 }} rowGap={2}>
@@ -52,7 +81,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
         </Stack>
       </Grid>
       <Grid container spacing={2}>
-        {props.categories?.map((category, index) => (
+        {props.categories.map((category, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card variant="outlined" sx={{ mb: 2, height: maxHeight }}>
               <CardContent id={`card-content-${category.title}`}>
@@ -63,13 +92,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
                   item && item.value ? (
                     <Typography key={i} variant="body2">
                       <strong>{item.label}: </strong>
-                      {item.label === 'Persistent ID' && isURL(item.value) ? (
-                        <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
-                          {item.value}
-                        </Link>
-                      ) : (
-                         item.value
-                      )}
+                      {renderMetadataValue(item)}
                     </Typography>
                   ) : null
                 ))}
@@ -79,7 +102,6 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
         ))}
       </Grid>
 
-      {/* Layout for children */}
       {props.children && (
         <Grid container spacing={2}>
           {React.Children.map(props.children, child => (
