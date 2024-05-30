@@ -35,13 +35,22 @@ export default function SearchBar(cmpProps: SearchBarProps) {
     }
   };
 
+  // OnChange fires when an option is chosen from the autocomplete
   const handleOnChange = (event: SyntheticEvent, newValue: string | null) => {
     clearError();
     setValue(newValue);
   };
 
-  const handleOnInputChange = (event: SyntheticEvent, newValue: string) => {
-    clearError();
+  // OnInputChange fires anytime the text value of the autocomplete changes
+  const handleOnInputChange = (
+    event: SyntheticEvent,
+    newValue: string,
+    reason: string
+  ) => {
+    // Only clear the error if the user directly updated the search field
+    if (reason === "input") {
+      clearError();
+    }
     setValue(newValue);
   };
 

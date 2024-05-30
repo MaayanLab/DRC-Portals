@@ -40,6 +40,7 @@ export default function GraphSearch() {
     "An error occured during your search. Please try again later.";
   const SEARCH_QUERY_ERROR_MSG = "There was an error in your search query.";
   const neo4jService: Neo4jService = new Neo4jService(getDriver());
+  let longRequestTimerId: NodeJS.Timeout | null = null;
 
   const SearchBarContainer = styled("div")({
     flexGrow: 1,
@@ -69,6 +70,13 @@ export default function GraphSearch() {
 
   const clearSearchError = () => {
     setSearchError(null);
+  };
+
+  const clearLongRequestTimer = () => {
+    if (longRequestTimerId !== null) {
+      clearTimeout(longRequestTimerId);
+      longRequestTimerId = null;
+    }
   };
 
   const handleSubmit = (term: string) => {
@@ -112,15 +120,25 @@ export default function GraphSearch() {
         // Finally, try querying Neo4j with the cypher we created
         setInitialNetworkData(cypher)
           .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
-          .finally(() => setLoading(false));
+          .finally(() => {
+            setLoading(false);
+            clearLongRequestTimer();
+          });
       } else if (typeof parsedQuery === "string") {
         setSearchValue(parsedQuery);
-        setLoading(true);
 
-        // If the query parsed as a string object, run a synonym search instead
-        setInitialNetworkData(createSynonymSearchCypher(parsedQuery))
-          .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
-          .finally(() => setLoading(false));
+        // Do nothing if the query is empty for any reason
+        if (parsedQuery.length > 0) {
+          setLoading(true);
+
+          // If the query parsed as a string object, run a synonym search instead
+          setInitialNetworkData(createSynonymSearchCypher(parsedQuery))
+            .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
+            .finally(() => {
+              setLoading(false);
+              clearLongRequestTimer();
+            });
+        }
       } else {
         handleInvalidQuery();
       }
@@ -134,11 +152,10 @@ export default function GraphSearch() {
   const setInitialNetworkData = async (value: string) => {
     clearNetwork();
 
-    const longRequestTimer = setTimeout(() => {
+    longRequestTimerId = setTimeout(() => {
       setSearchError("Your search is taking longer than expected...");
     }, 10000);
     const records = await neo4jService.executeRead<SubGraph>(value);
-    clearTimeout(longRequestTimer);
 
     const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
 
