@@ -1,7 +1,5 @@
 import React from 'react'
-import Image from 'next/image'
 import Grid from '@mui/material/Grid';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import {Typography, Link, Button } from '@mui/material';
 import { StyledAccordionComponent } from './StyledAccordion';
@@ -47,10 +45,6 @@ const MyImage = (props: any) => (
 )
 
 
-// function CustomH5({ children }: { children?: any }) {
-//     return <center><h5 style={{ fontSize: 14 }}>{children}</h5></center>
-// }
-
 function CustomEm({ children }: { children?: any }){
     return <em className="caption" style={{ fontSize: 14, fontStyle: 'normal', textAlign:'center', display:'block'}}>{children}</em>
 }
@@ -78,7 +72,7 @@ export default function Documentation() {
                     Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
                     To submit assets, you must be logged in and registered. Registration involves being assigned a
                     role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>. 
-                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024)
+                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024). 
                 </Typography>
             </Grid>
             <Grid item xs={12} container justifyContent={'center'}>
