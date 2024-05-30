@@ -1035,7 +1035,8 @@ file_table AS (
       <LandingPageLayout
         icon={{
           href: resultsRec?.dcc_short_label ? `/info/dcc/${resultsRec?.dcc_short_label}` : "",
-          src: getDCCIcon(results ? resultsRec?.dcc_short_label : ""),
+          //src: getDCCIcon(results ? resultsRec?.dcc_short_label : ""), // Till 2024/05/30 9:50AM PST
+          src: getDCCIcon(resultsRec ? resultsRec?.dcc_short_label : ""),
           alt: resultsRec?.dcc_short_label ? resultsRec?.dcc_short_label : ""
         }}
         title={resultsRec?.project_name ?? ""}

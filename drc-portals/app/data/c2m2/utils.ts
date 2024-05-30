@@ -113,7 +113,7 @@ export function reorderArrayOfObjectsKeys(originalArray: Record<string, any>[], 
 }
 
 interface StaticCols {
-    [key: string]: string | null;
+    [key: string]: string | bigint | null;
   }
   
 export function reorderStaticCols(staticCols: StaticCols, priorityFileCols: string[]): StaticCols {
