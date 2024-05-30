@@ -18,7 +18,6 @@ interface FormRowProps {
 }
 
 export default function AdvancedSearchFormRow(cmpProps: FormRowProps) {
-  // TODO: Fix the clear icon, should be the same as the main search bar
   const { children, description, instructions } = cmpProps;
 
   return (

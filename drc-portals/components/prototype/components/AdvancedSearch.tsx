@@ -168,7 +168,6 @@ export default function AdvancedSearch() {
           <TextField
             fullWidth
             value={anyMatchText}
-            type="search"
             size="small"
             color="secondary"
             onChange={onAnyMatchChange}
@@ -192,7 +191,6 @@ export default function AdvancedSearch() {
           <TextField
             fullWidth
             value={phraseMatchText}
-            type="search"
             size="small"
             color="secondary"
             onChange={onPhraseMatchChange}
@@ -217,7 +215,6 @@ export default function AdvancedSearch() {
           <TextField
             fullWidth
             value={allMatchText}
-            type="search"
             size="small"
             color="secondary"
             onChange={onAllMatchChange}
@@ -242,7 +239,6 @@ export default function AdvancedSearch() {
           <TextField
             fullWidth
             value={noneMatchText}
-            type="search"
             size="small"
             color="secondary"
             onChange={onNoneMatchChange}
