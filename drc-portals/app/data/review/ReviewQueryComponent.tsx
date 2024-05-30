@@ -19,25 +19,22 @@ const record_count_limit = 100000;
 
 export async function ReviewQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
-
+    const mySchemaName = searchParams.schema_name;
     console.log("In ReviewQueryComponent");
 
-    if (!searchParams.schema_name) {
+    if (!mySchemaName) {
         return <SchemaFilter />;
     }
 
     try {
-        const tables_counts = await CountDisplay(searchParams.schema_name)
+        const tables_counts = await CountDisplay(mySchemaName);
         const table_names_for_schema = tables_counts?.map(item => ({ table: item.tablename, label: item.tablename }));
         const schemaEntry = schemaToDCC.find(item => item.schema === searchParams.schema_name);
         // const summary_table_name = (schemaEntry ? schemaEntry.label : searchParams.schema_name);
         const schemaName = schemaEntry ? schemaEntry.label : searchParams.schema_name;
         // const summary_table_title = "Count Summary for " + (schemaEntry ? schemaEntry.label : searchParams.schema_name) + " (schema: " + (schemaEntry ? schemaEntry.schema : searchParams.schema_name) + ")";
-        const summary_table_title = (
-            <>
-                Count Summary for <strong>{schemaEntry ? schemaEntry.label : searchParams.schema_name}</strong> (schema: {schemaEntry ? schemaEntry.schema : searchParams.schema_name})
-            </>
-        );
+        const summary_table_title = `Count Summary for ${schemaEntry ? schemaEntry.label : searchParams.schema_name} (schema: ${schemaEntry ? schemaEntry.schema : searchParams.schema_name})`;
+
         if (!searchParams.table_name || !table_names_for_schema.find(t => t.table === searchParams.table_name)) {
             return (
                 <>

@@ -110,6 +110,8 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
         const [type, entity_type] = t.split(':');
         return { type, entity_type: entity_type ? entity_type : null };
       }) : undefined),
+      schema_name: z.string().optional(),
+      table_name: z.string().optional(),
     }).passthrough();
   
     // Parse and return the parameters
