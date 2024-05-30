@@ -484,7 +484,7 @@ export const createSynonymSearchCypher = (
   // TODO: Consider pushing the parameterization to the driver
   queryStmts.push(
     `
-  CALL db.index.fulltext.queryNodes("synonymIdx", "${searchTerm}")
+  CALL db.index.fulltext.queryNodes('synonymIdx', '${searchTerm}')
   YIELD node AS synonym
   WITH synonym
   LIMIT ${synLimit}
