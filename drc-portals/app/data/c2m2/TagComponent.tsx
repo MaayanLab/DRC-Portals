@@ -69,7 +69,6 @@ const TagComponent = ({
         );
     };
 
-
     const renderTagsByType = () => {
         if (!t) return null;
 
@@ -82,7 +81,7 @@ const TagComponent = ({
             tagGroups[tag.type].push(tag);
         });
 
-        const typeDisplayNames = {
+        const typeDisplayNames: Record<string, string> = {
             'dcc': 'Common Fund Program',
             'taxonomy': 'Species',
             'anatomy': 'Anatomy',
@@ -91,7 +90,6 @@ const TagComponent = ({
             'data_type': 'Data Type'
             // Add more mappings as needed
         };
-
 
         // Render tags grouped by type
         return Object.keys(tagGroups).map((type, index) => (
@@ -110,7 +108,6 @@ const TagComponent = ({
                     ))}
                 </div>
             </div>
-
         ));
     };
 
