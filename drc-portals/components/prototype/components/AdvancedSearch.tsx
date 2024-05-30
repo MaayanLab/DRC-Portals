@@ -1,70 +1,42 @@
 "use client";
 
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 
-interface FormRowProps {
-  value: string;
-  description: JSX.Element;
-  instructions: JSX.Element;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import {
+  COLUMN_SPACING,
+  DCC_NAMES_MAP,
+  LEFT_COLUMN_MD_WIDTH,
+  LEFT_COLUMN_SM_WIDTH,
+  LEFT_COLUMN_XS_WIDTH,
+  MD_COLUMNS,
+  MIDDLE_COLUMN_MD_WIDTH,
+  MIDDLE_COLUMN_SM_WIDTH,
+  MIDDLE_COLUMN_XS_WIDTH,
+  RIGHT_COLUMN_MD_WIDTH,
+  ROW_SPACING,
+  SM_COLUMNS,
+  XS_COLUMNS,
+} from "../constants/advanced-search";
 
-const ROW_SPACING = 1;
-const COLUMN_SPACING = 1;
-const LEFT_COLUMN_XS_WIDTH = 4;
-const MIDDLE_COLUMN_XS_WIDTH = 4;
-const LEFT_COLUMN_SM_WIDTH = 3;
-const MIDDLE_COLUMN_SM_WIDTH = 6;
-const LEFT_COLUMN_MD_WIDTH = 2.5;
-const MIDDLE_COLUMN_MD_WIDTH = 5.5;
-const RIGHT_COLUMN_MD_WIDTH = 4;
-const XS_COLUMNS = 4;
-const SM_COLUMNS = 9;
-const MD_COLUMNS = 12;
-
-function FormRow(cmpProps: FormRowProps) {
-  const { value, description, instructions, onChange } = cmpProps;
-
-  return (
-    <>
-      <Grid
-        item
-        xs={LEFT_COLUMN_XS_WIDTH}
-        sm={LEFT_COLUMN_SM_WIDTH}
-        md={LEFT_COLUMN_MD_WIDTH}
-        alignContent="center"
-      >
-        <Typography>{description}</Typography>
-      </Grid>
-      <Grid
-        item
-        xs={MIDDLE_COLUMN_XS_WIDTH}
-        sm={MIDDLE_COLUMN_SM_WIDTH}
-        md={MIDDLE_COLUMN_MD_WIDTH}
-        alignContent="center"
-      >
-        <TextField
-          fullWidth
-          value={value}
-          type="search"
-          size="small"
-          color="secondary"
-          onChange={onChange}
-        />
-      </Grid>
-      <Grid
-        item
-        md={RIGHT_COLUMN_MD_WIDTH}
-        alignContent="center"
-        display={{ xs: "none", sm: "none", md: "block" }}
-      >
-        <Typography variant="caption">{instructions}</Typography>
-      </Grid>
-    </>
-  );
-}
+import AdvancedSearchFormRow from "./AdvancedSearch/AdvancedSearchFormRow";
 
 export default function AdvancedSearch() {
   const searchParams = useSearchParams();
@@ -75,6 +47,10 @@ export default function AdvancedSearch() {
   const [phraseMatchText, setPhraseMatchText] = useState("");
   const [allMatchText, setAllMatchText] = useState("");
   const [noneMatchText, setNoneMatchText] = useState("");
+  const [includeFile, setIncludeFile] = useState(true);
+  const [includeSubject, setIncludeSubject] = useState(true);
+  const [includeBiosample, setIncludeBiosample] = useState(true);
+  const [dccName, setDccName] = useState<string[]>([]);
 
   const createAdvancedQuery = () => {
     const any = anyMatchText;
@@ -110,6 +86,28 @@ export default function AdvancedSearch() {
     setNoneMatchText(event.target.value);
   };
 
+  const onIncludeFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setIncludeFile(event.target.checked);
+  };
+
+  const onIncludeSubjectChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setIncludeSubject(event.target.checked);
+  };
+
+  const onIncludeBiosampleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setIncludeBiosample(event.target.checked);
+  };
+
+  const onDccChange = (event: SelectChangeEvent<typeof dccName>) => {
+    const {
+      target: { value },
+    } = event;
+    setDccName(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
   const handleSubmit = () => {
     const advancedQuery = createAdvancedQuery();
     const b64Query = btoa(JSON.stringify(advancedQuery));
@@ -118,6 +116,7 @@ export default function AdvancedSearch() {
 
   return (
     <Grid container rowSpacing={ROW_SPACING}>
+      {/* Find Terms Rows */}
       <Grid
         container
         item
@@ -158,16 +157,23 @@ export default function AdvancedSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <FormRow
-          value={anyMatchText}
+        <AdvancedSearchFormRow
           description={<>any of these words:</>}
           instructions={
             <>
               Type the important words: <b>human liver cancer</b>
             </>
           }
-          onChange={onAnyMatchChange}
-        />
+        >
+          <TextField
+            fullWidth
+            value={anyMatchText}
+            type="search"
+            size="small"
+            color="secondary"
+            onChange={onAnyMatchChange}
+          />
+        </AdvancedSearchFormRow>
       </Grid>
       <Grid
         container
@@ -175,16 +181,23 @@ export default function AdvancedSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <FormRow
-          value={phraseMatchText}
+        <AdvancedSearchFormRow
           description={<>this exact word or phrase:</>}
           instructions={
             <>
               Put exact words in quotes: <b>"liver cancer"</b>
             </>
           }
-          onChange={onPhraseMatchChange}
-        />
+        >
+          <TextField
+            fullWidth
+            value={phraseMatchText}
+            type="search"
+            size="small"
+            color="secondary"
+            onChange={onPhraseMatchChange}
+          />
+        </AdvancedSearchFormRow>
       </Grid>
       <Grid
         container
@@ -192,8 +205,7 @@ export default function AdvancedSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <FormRow
-          value={allMatchText}
+        <AdvancedSearchFormRow
           description={<>all of these words:</>}
           instructions={
             <>
@@ -201,8 +213,16 @@ export default function AdvancedSearch() {
               <b>liver AND cancer</b>
             </>
           }
-          onChange={onAllMatchChange}
-        />
+        >
+          <TextField
+            fullWidth
+            value={allMatchText}
+            type="search"
+            size="small"
+            color="secondary"
+            onChange={onAllMatchChange}
+          />
+        </AdvancedSearchFormRow>
       </Grid>
       <Grid
         container
@@ -210,8 +230,7 @@ export default function AdvancedSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <FormRow
-          value={noneMatchText}
+        <AdvancedSearchFormRow
           description={<>none of these words:</>}
           instructions={
             <>
@@ -219,9 +238,144 @@ export default function AdvancedSearch() {
               <b>-human, -"liver cancer"</b>
             </>
           }
-          onChange={onNoneMatchChange}
-        />
+        >
+          <TextField
+            fullWidth
+            value={noneMatchText}
+            type="search"
+            size="small"
+            color="secondary"
+            onChange={onNoneMatchChange}
+          />
+        </AdvancedSearchFormRow>
       </Grid>
+      {/* Divider Row */}
+      <Grid
+        container
+        item
+        columnSpacing={COLUMN_SPACING}
+        columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
+      >
+        <Grid item xs={XS_COLUMNS} sm={SM_COLUMNS} md={MD_COLUMNS}>
+          <Divider />
+        </Grid>
+      </Grid>
+      {/* Narrow Results Rows */}
+      <Grid
+        container
+        item
+        columnSpacing={COLUMN_SPACING}
+        columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
+      >
+        <Grid
+          item
+          xs={LEFT_COLUMN_XS_WIDTH}
+          sm={LEFT_COLUMN_SM_WIDTH}
+          md={LEFT_COLUMN_MD_WIDTH}
+          alignContent="center"
+        >
+          <Typography variant="h4" color="secondary">
+            Then narrow your results by...
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={MIDDLE_COLUMN_XS_WIDTH}
+          sm={MIDDLE_COLUMN_SM_WIDTH}
+          md={MIDDLE_COLUMN_MD_WIDTH}
+        ></Grid>
+        <Grid
+          item
+          md={RIGHT_COLUMN_MD_WIDTH}
+          display={{ xs: "none", sm: "none", md: "block" }}
+        ></Grid>
+      </Grid>
+      <Grid
+        container
+        item
+        columnSpacing={COLUMN_SPACING}
+        columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
+      >
+        <AdvancedSearchFormRow
+          description={<>connected core entities:</>}
+          instructions={<>Find specific core entities.</>}
+        >
+          <FormGroup row sx={{ justifyContent: "space-between" }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  value={includeFile}
+                  checked={includeFile}
+                  onChange={onIncludeFileChange}
+                />
+              }
+              label="File"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  value={includeSubject}
+                  checked={includeSubject}
+                  onChange={onIncludeSubjectChange}
+                />
+              }
+              label="Subject"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  value={includeBiosample}
+                  checked={includeBiosample}
+                  onChange={onIncludeBiosampleChange}
+                />
+              }
+              label="Biosample"
+            />
+          </FormGroup>
+        </AdvancedSearchFormRow>
+      </Grid>
+      <Grid
+        container
+        item
+        columnSpacing={COLUMN_SPACING}
+        columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
+      >
+        <AdvancedSearchFormRow
+          description={<>connected DCC:</>}
+          instructions={<>Find results connected to specific DCCs.</>}
+        >
+          <FormControl fullWidth size="small">
+            <InputLabel id="demo-multiple-checkbox-label" color="secondary">
+              DCC
+            </InputLabel>
+            <Select
+              labelId="demo-multiple-checkbox-label"
+              id="demo-multiple-checkbox"
+              multiple
+              color="secondary"
+              value={dccName}
+              onChange={onDccChange}
+              input={<OutlinedInput label="DCC" color="secondary" />}
+              renderValue={(selected) => selected.join(", ")}
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 244,
+                  },
+                },
+              }}
+            >
+              {Array.from(DCC_NAMES_MAP.entries()).map(([abbrev, _]) => (
+                <MenuItem key={abbrev} value={abbrev}>
+                  <Checkbox checked={dccName.indexOf(abbrev) > -1} />
+                  <ListItemText primary={abbrev} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </AdvancedSearchFormRow>
+      </Grid>
+      {/* Search Button Row */}
       <Grid
         container
         item
