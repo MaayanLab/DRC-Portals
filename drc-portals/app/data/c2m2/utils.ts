@@ -5,7 +5,15 @@ import SQL from '@/lib/prisma/raw';
 import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { z } from 'zod';
 
+export interface MetadataItem {
+    label: string;
+    value: ReactNode;
+}
 
+export interface Category {
+    title: string;
+    metadata: MetadataItem[];
+  }
 // Function to generate MD5 hash
 export const generateMD5Hash = (inputString: string) => {
   return CryptoJS.MD5(inputString).toString();
@@ -443,35 +451,8 @@ export function getNameFromFileProjTable(iconKey: string): string {
 }
 
 
-/* export interface Category {
-    title: string;
-    metadata: { label: React.ReactNode; value: React.ReactNode }[];
-  }
-  
-export  function addCategoryColumns(columns: Record<string, React.ReactNode>, getNameFunction: (key: string) => React.ReactNode, categoryTitle: string, categories: Category[]) {
-      if (!columns || Object.keys(columns).length === 0) return;
-  
-      // Check if the category already exists, if not create a new one
-      let category = categories.find(c => c.title === categoryTitle);
-      if (!category) {
-          category = { title: categoryTitle, metadata: [] };
-          categories.push(category);
-      }
-  
-      for (const [key, value] of Object.entries(columns)) {
-          if (value !== undefined) { // Check if value is not undefined
-              const stringValue = typeof value === 'bigint' ? value.toString() : value.toString();
-              category.metadata.push({ label: getNameFunction(key), value: stringValue });
-          }
-      }
-  } */
 
 
-
-export interface Category {
-    title: string;
-    metadata: { label: ReactNode; value: ReactNode }[];
-}
 
 export function addCategoryColumns(
     columns: Record<string, ReactNode | string | bigint>,

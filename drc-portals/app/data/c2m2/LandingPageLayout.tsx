@@ -3,18 +3,12 @@ import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import { Grid, Stack, Typography, Card, CardContent } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
-import { isURL } from './utils';
+import { isURL , MetadataItem, Category } from './utils';
 import DownloadButton from './DownloadButton';
 
-interface MetadataItem {
-  label: React.ReactNode;
-  value: ReactNode;
-}
 
-interface Category {
-  title: string;
-  metadata: MetadataItem[];
-}
+
+
 
 interface Icon {
   src: string;
