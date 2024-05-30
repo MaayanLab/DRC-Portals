@@ -152,6 +152,8 @@ export default function GraphSearch() {
   const setInitialNetworkData = async (value: string) => {
     clearNetwork();
 
+    // Make sure there isn't an active timer before we set a new id (the old timeout would be orphaned otherwise)
+    clearLongRequestTimer();
     longRequestTimerId = setTimeout(() => {
       setSearchError("Your search is taking longer than expected...");
     }, 10000);
