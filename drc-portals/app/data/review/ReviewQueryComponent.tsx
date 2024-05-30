@@ -81,7 +81,8 @@ async function fetchReviewQueryResults(searchParams: any, tableNames: { table: s
         LIMIT ${record_count_limit}
     `.toPrismaSql();
 
-    const selected_table_rows = await prisma.$queryRaw(query);
+    //const selected_table_rows = await prisma.$queryRaw(query); // Mano: till 2024/05/30: 1:39PM PST
+    const selected_table_rows: any[] = await prisma.$queryRaw(query);
 
     return (
         <>
