@@ -10,6 +10,7 @@ interface SearchBarInputProps {
   showClearBtn: boolean;
   onClear: () => void;
   onSearch: () => void;
+  onAdvancedSearch: () => void;
   onKeyDown: (e: KeyboardEvent) => void;
 }
 
@@ -21,6 +22,7 @@ export default function SearchBarInput(cmpProps: SearchBarInputProps) {
     showClearBtn,
     onClear,
     onSearch,
+    onAdvancedSearch,
     onKeyDown,
   } = cmpProps;
   return (
@@ -41,6 +43,7 @@ export default function SearchBarInput(cmpProps: SearchBarInputProps) {
           <SearchBarEndAdornment
             showClearBtn={showClearBtn}
             onSearch={onSearch}
+            onAdvancedSearch={onAdvancedSearch}
             onClear={onClear}
           />
         ),

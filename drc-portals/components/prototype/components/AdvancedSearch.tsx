@@ -1,10 +1,11 @@
 "use client";
 
 import { Button, Grid, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 
 interface FormRowProps {
+  value: string;
   description: JSX.Element;
   instructions: JSX.Element;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -24,7 +25,7 @@ const SM_COLUMNS = 9;
 const MD_COLUMNS = 12;
 
 function FormRow(cmpProps: FormRowProps) {
-  const { description, instructions, onChange } = cmpProps;
+  const { value, description, instructions, onChange } = cmpProps;
 
   return (
     <>
@@ -46,6 +47,7 @@ function FormRow(cmpProps: FormRowProps) {
       >
         <TextField
           fullWidth
+          value={value}
           type="search"
           size="small"
           color="secondary"
@@ -65,8 +67,11 @@ function FormRow(cmpProps: FormRowProps) {
 }
 
 export default function AdvancedSearch() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [anyMatchText, setAnyMatchText] = useState("");
+  const [anyMatchText, setAnyMatchText] = useState(
+    atob(searchParams.get("q") || "")
+  );
   const [phraseMatchText, setPhraseMatchText] = useState("");
   const [allMatchText, setAllMatchText] = useState("");
   const [noneMatchText, setNoneMatchText] = useState("");
@@ -154,6 +159,7 @@ export default function AdvancedSearch() {
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
         <FormRow
+          value={anyMatchText}
           description={<>any of these words:</>}
           instructions={
             <>
@@ -170,6 +176,7 @@ export default function AdvancedSearch() {
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
         <FormRow
+          value={phraseMatchText}
           description={<>this exact word or phrase:</>}
           instructions={
             <>
@@ -186,6 +193,7 @@ export default function AdvancedSearch() {
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
         <FormRow
+          value={allMatchText}
           description={<>all of these words:</>}
           instructions={
             <>
@@ -203,6 +211,7 @@ export default function AdvancedSearch() {
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
         <FormRow
+          value={noneMatchText}
           description={<>none of these words:</>}
           instructions={
             <>

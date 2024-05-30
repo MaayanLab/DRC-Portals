@@ -85,6 +85,15 @@ export default function GraphSearch() {
     setQuery(query);
   };
 
+  const handleAdvancedSearch = (term: string | null) => {
+    if (term === null || term.length === 0) {
+      router.push(`/data/c2m2/graph/advanced_search`);
+    } else {
+      const query = btoa(term);
+      router.push(`/data/c2m2/graph/advanced_search?q=${query}`);
+    }
+  };
+
   const handleInvalidQuery = () => {
     setSearchError(SEARCH_QUERY_ERROR_MSG);
     setLoading(false);
@@ -192,6 +201,7 @@ export default function GraphSearch() {
             loading={loading}
             clearError={clearSearchError}
             onSubmit={handleSubmit}
+            onAdvancedSearch={handleAdvancedSearch}
           ></SearchBar>
         </SearchBarContainer>
         <CytoscapeChart
