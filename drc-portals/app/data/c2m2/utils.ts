@@ -456,7 +456,7 @@ export function getNameFromFileProjTable(iconKey: string): string {
 
 export function addCategoryColumns(
     columns: Record<string, ReactNode | string | bigint>,
-    getNameFunction: (key: string) => ReactNode,
+    getNameFunction: (key: string) => string,
     categoryTitle: string,
     categories: Category[]
 ) {
@@ -472,6 +472,10 @@ export function addCategoryColumns(
     for (const [key, value] of Object.entries(columns)) {
         if (value !== undefined) { // Check if value is not undefined
             const stringValue = typeof value === 'bigint' ? value.toString() : value;
+            const metadataItem: MetadataItem = { 
+                label: getNameFunction(key), 
+                value: stringValue 
+              };
             category.metadata.push({ label: getNameFunction(key), value: stringValue });
         }
     }
