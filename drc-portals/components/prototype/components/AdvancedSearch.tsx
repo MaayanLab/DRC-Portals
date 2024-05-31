@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import {
   COLUMN_SPACING,
@@ -41,61 +41,51 @@ import AdvancedSearchFormRow from "./AdvancedSearch/AdvancedSearchFormRow";
 export default function AdvancedSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [anyMatchText, setAnyMatchText] = useState(
-    atob(searchParams.get("q") || "")
-  );
-  const [phraseMatchText, setPhraseMatchText] = useState("");
-  const [allMatchText, setAllMatchText] = useState("");
-  const [noneMatchText, setNoneMatchText] = useState("");
-  const [includeFile, setIncludeFile] = useState(true);
-  const [includeSubject, setIncludeSubject] = useState(true);
-  const [includeBiosample, setIncludeBiosample] = useState(true);
+  const [anyValue, setAnyValue] = useState("");
+  const [phraseValue, setPhraseValue] = useState("");
+  const [allValue, setAllValue] = useState("");
+  const [noneValue, setNoneValue] = useState("");
+  const [searchFile, setSearchFile] = useState(true);
+  const [searchSubject, setSearchSubject] = useState(true);
+  const [searchBiosample, setSearchBiosample] = useState(true);
   const [dccName, setDccName] = useState<string[]>([]);
 
   const createAdvancedQuery = () => {
-    const any = anyMatchText;
-    const phrase = phraseMatchText.length === 0 ? "" : `"${phraseMatchText}"`;
-    const all =
-      allMatchText.length === 0
-        ? ""
-        : `(${allMatchText.split(" ").join(" AND ")})`;
-    const none =
-      noneMatchText.length === 0
-        ? ""
-        : noneMatchText
-            .split(" ")
-            .map((s) => `-${s}`)
-            .join(" ");
+    const searchParams = new URLSearchParams();
+    searchParams.set("as_q", anyValue);
+    searchParams.set("as_epq", phraseValue);
+    searchParams.set("as_aq", allValue);
+    searchParams.set("as_eq", noneValue);
 
-    return `${any} ${phrase} ${all} ${none}`.trim();
+    return searchParams.toString();
   };
 
-  const onAnyMatchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setAnyMatchText(event.target.value);
+  const onAnyChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setAnyValue(event.target.value);
   };
 
-  const onPhraseMatchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPhraseMatchText(event.target.value);
+  const onPhraseChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPhraseValue(event.target.value);
   };
 
-  const onAllMatchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setAllMatchText(event.target.value);
+  const onAllChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setAllValue(event.target.value);
   };
 
-  const onNoneMatchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setNoneMatchText(event.target.value);
+  const onNoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setNoneValue(event.target.value);
   };
 
-  const onIncludeFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIncludeFile(event.target.checked);
+  const onSearchFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchFile(event.target.checked);
   };
 
-  const onIncludeSubjectChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIncludeSubject(event.target.checked);
+  const onSearchSubjectChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchSubject(event.target.checked);
   };
 
-  const onIncludeBiosampleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIncludeBiosample(event.target.checked);
+  const onSearchBiosampleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchBiosample(event.target.checked);
   };
 
   const onDccChange = (event: SelectChangeEvent<typeof dccName>) => {
@@ -110,9 +100,46 @@ export default function AdvancedSearch() {
 
   const handleSubmit = () => {
     const advancedQuery = createAdvancedQuery();
-    const b64Query = btoa(JSON.stringify(advancedQuery));
-    router.push(`/data/c2m2/graph/search?q=${b64Query}`);
+    router.push(`/data/c2m2/graph/search?${advancedQuery}`);
   };
+
+  useEffect(() => {
+    let query = searchParams.get("q") || "";
+    const anyQuery = searchParams.get("as_q") || "";
+    const phraseQuery = searchParams.get("as_epq") || "";
+    const allQuery = searchParams.get("as_aq") || "";
+    const noneQuery = searchParams.get("as_eq") || "";
+    const phraseQueryRegex = /(["'])(?:(?=(\\?))\2.)*?\1/;
+    const allQueryRegex = /\B\+\w+/g;
+    const noneQueryRegex = /\B\-\w+/g;
+    const extractedAllQuery = Array.from(query.matchAll(allQueryRegex))
+      .map((m) => m[0].slice(1))
+      .join(" ");
+    const extractedNoneQuery = Array.from(query.matchAll(noneQueryRegex))
+      .map((m) => m[0].slice(1))
+      .join(" ");
+
+    // If the phrase query is empty, try extracting a phrase from "q"
+    if (phraseQuery.length === 0) {
+      const extractedExactPhraseQuery = (
+        Array.from(query.match(phraseQueryRegex) || [])[0] || ""
+      ).slice(1, -1);
+      query = query.replace(phraseQueryRegex, ""); // Remove the first phrase term
+      setPhraseValue(extractedExactPhraseQuery);
+    } else {
+      // Otherwise set the phrase field to the url param
+      setPhraseValue(phraseQuery);
+    }
+
+    // Extract any other special query terms from "q"
+    query = query
+      .replaceAll(allQueryRegex, "") // Remove all exlusion terms
+      .replaceAll(noneQueryRegex, ""); // Remove all inclusion terms
+
+    setAnyValue(`${query.trim()} ${anyQuery}`.trim());
+    setAllValue(`${allQuery} ${extractedAllQuery}`.trim());
+    setNoneValue(`${noneQuery} ${extractedNoneQuery}`.trim());
+  }, []);
 
   return (
     <Grid container rowSpacing={ROW_SPACING}>
@@ -167,10 +194,10 @@ export default function AdvancedSearch() {
         >
           <TextField
             fullWidth
-            value={anyMatchText}
+            value={anyValue}
             size="small"
             color="secondary"
-            onChange={onAnyMatchChange}
+            onChange={onAnyChange}
           />
         </AdvancedSearchFormRow>
       </Grid>
@@ -190,10 +217,10 @@ export default function AdvancedSearch() {
         >
           <TextField
             fullWidth
-            value={phraseMatchText}
+            value={phraseValue}
             size="small"
             color="secondary"
-            onChange={onPhraseMatchChange}
+            onChange={onPhraseChange}
           />
         </AdvancedSearchFormRow>
       </Grid>
@@ -207,17 +234,17 @@ export default function AdvancedSearch() {
           description={<>all of these words:</>}
           instructions={
             <>
-              Type <b>AND</b> between all the words you want:{" "}
-              <b>liver AND cancer</b>
+              Put a plus sign just before the words you want:{" "}
+              <b>+human, +"liver cancer"</b>
             </>
           }
         >
           <TextField
             fullWidth
-            value={allMatchText}
+            value={allValue}
             size="small"
             color="secondary"
-            onChange={onAllMatchChange}
+            onChange={onAllChange}
           />
         </AdvancedSearchFormRow>
       </Grid>
@@ -238,10 +265,10 @@ export default function AdvancedSearch() {
         >
           <TextField
             fullWidth
-            value={noneMatchText}
+            value={noneValue}
             size="small"
             color="secondary"
-            onChange={onNoneMatchChange}
+            onChange={onNoneChange}
           />
         </AdvancedSearchFormRow>
       </Grid>
@@ -300,9 +327,9 @@ export default function AdvancedSearch() {
             <FormControlLabel
               control={
                 <Checkbox
-                  value={includeFile}
-                  checked={includeFile}
-                  onChange={onIncludeFileChange}
+                  value={searchFile}
+                  checked={searchFile}
+                  onChange={onSearchFileChange}
                 />
               }
               label="File"
@@ -310,9 +337,9 @@ export default function AdvancedSearch() {
             <FormControlLabel
               control={
                 <Checkbox
-                  value={includeSubject}
-                  checked={includeSubject}
-                  onChange={onIncludeSubjectChange}
+                  value={searchSubject}
+                  checked={searchSubject}
+                  onChange={onSearchSubjectChange}
                 />
               }
               label="Subject"
@@ -320,9 +347,9 @@ export default function AdvancedSearch() {
             <FormControlLabel
               control={
                 <Checkbox
-                  value={includeBiosample}
-                  checked={includeBiosample}
-                  onChange={onIncludeBiosampleChange}
+                  value={searchBiosample}
+                  checked={searchBiosample}
+                  onChange={onSearchBiosampleChange}
                 />
               }
               label="Biosample"

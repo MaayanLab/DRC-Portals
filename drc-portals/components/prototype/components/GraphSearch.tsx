@@ -15,11 +15,7 @@ import {
   createCytoscapeElementsFromNeo4j,
   unlockD3ForceNodes,
 } from "../utils/cy";
-import {
-  createCypher,
-  createSynonymSearchCypher,
-  getStateFromQuery,
-} from "../utils/search-bar";
+import { createSynonymSearchCypher } from "../utils/search-bar";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
@@ -28,17 +24,15 @@ import SearchBar from "./SearchBar/SearchBar";
 export default function GraphSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [query, setQuery] = useState(searchParams.get("q"));
-  const [searchValue, setSearchValue] = useState<string | null>(null);
+  const [value, setValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [elements, setElements] = useState<ElementDefinition[]>([]);
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
   >(undefined);
   const BASIC_SEARCH_ERROR_MSG =
     "An error occured during your search. Please try again later.";
-  const SEARCH_QUERY_ERROR_MSG = "There was an error in your search query.";
   const neo4jService: Neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
 
@@ -69,7 +63,7 @@ export default function GraphSearch() {
   ];
 
   const clearSearchError = () => {
-    setSearchError(null);
+    setError(null);
   };
 
   const clearLongRequestTimer = () => {
@@ -80,98 +74,104 @@ export default function GraphSearch() {
   };
 
   const handleSubmit = (term: string) => {
-    const query = btoa(JSON.stringify(term));
-    router.push(`?q=${query}`);
-    setQuery(query);
+    const searchParams = new URLSearchParams(`q=${encodeURIComponent(term)}`);
+    router.push(`?${searchParams.toString()}`);
+    setValue(term);
   };
 
   const handleAdvancedSearch = (term: string | null) => {
-    if (term === null || term.length === 0) {
-      router.push(`/data/c2m2/graph/advanced_search`);
-    } else {
-      const query = btoa(term);
-      router.push(`/data/c2m2/graph/advanced_search?q=${query}`);
-    }
-  };
+    let advancedSearchParams;
 
-  const handleInvalidQuery = () => {
-    setSearchError(SEARCH_QUERY_ERROR_MSG);
-    setLoading(false);
+    // If the advanced params are set in the url, ignore the search bar value
+    if (searchParams.has("as_q")) {
+      let query = `?as_q=${searchParams.get("as_q") || ""}`;
+      query += `&as_epq=${searchParams.get("as_epq")}`;
+      query += `&as_aq=${searchParams.get("as_aq")}`;
+      query += `&as_eq=${searchParams.get("as_eq")}`;
+      advancedSearchParams = new URLSearchParams(query);
+    } else {
+      // Otherwise use the search bar value as the initial advanced search query
+      advancedSearchParams = new URLSearchParams(
+        `q=${encodeURIComponent(term || "")}`
+      );
+    }
+    router.push(
+      `/data/c2m2/graph/advanced_search?${advancedSearchParams.toString()}`
+    );
   };
 
   useEffect(() => {
-    if (query !== null) {
-      let parsedQuery: any;
-      try {
-        // Attempt to parse the query to a JSON object, and abort if the parse fails for any reason
-        parsedQuery = JSON.parse(atob(query));
-      } catch {
-        handleInvalidQuery();
-        return;
-      }
+    const query = searchParams.get("q");
+    const anyQuery = searchParams.get("as_q");
+    const phraseQuery = searchParams.get("as_epq");
+    const allQuery = searchParams.get("as_aq");
+    const noneQuery = searchParams.get("as_eq");
+    let newValue = [];
 
-      const state = getStateFromQuery(parsedQuery);
-      if (state !== undefined) {
-        // Regardless of the value of "state", clear the search value, since we reach this point as a result of using the advanced search
-        setSearchValue(null);
-        setLoading(true);
-
-        let cypher: string;
-        try {
-          // "state" *should* be a valid SearchBarState object, but we wrap "createCypher" in a try-block just in case
-          cypher = createCypher(state);
-        } catch {
-          // If we couldn't parse the state object into cypher, abort
-          handleInvalidQuery();
-          return;
-        }
-
-        // Finally, try querying Neo4j with the cypher we created
-        setInitialNetworkData(cypher)
-          .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
-          .finally(() => {
-            setLoading(false);
-            clearLongRequestTimer();
-          });
-      } else if (typeof parsedQuery === "string") {
-        setSearchValue(parsedQuery);
-
-        // Do nothing if the query is empty for any reason
-        if (parsedQuery.length > 0) {
-          setLoading(true);
-
-          // If the query parsed as a string object, run a synonym search instead
-          setInitialNetworkData(createSynonymSearchCypher(parsedQuery))
-            .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
-            .finally(() => {
-              setLoading(false);
-              clearLongRequestTimer();
-            });
-        }
-      } else {
-        handleInvalidQuery();
-      }
+    if (query !== null && query.length > 0) {
+      newValue.push(query);
     }
-  }, [query]);
+
+    if (anyQuery !== null && anyQuery.length > 0) {
+      newValue.push(anyQuery);
+    }
+
+    if (phraseQuery !== null && phraseQuery.length > 0) {
+      newValue.push(`"${phraseQuery}"`);
+    }
+
+    if (allQuery !== null && allQuery.length > 0) {
+      newValue.push(
+        allQuery
+          .split(" ")
+          .map((s) => `+${s}`)
+          .join(" ")
+      );
+    }
+
+    if (noneQuery !== null && noneQuery.length > 0) {
+      newValue.push(
+        noneQuery
+          .split(" ")
+          .map((s) => `-${s}`)
+          .join(" ")
+      );
+    }
+
+    setValue(newValue.join(" "));
+  }, []);
+
+  useEffect(() => {
+    if (value !== null && value.length > 0) {
+      setLoading(true);
+
+      setInitialNetworkData(createSynonymSearchCypher(value))
+        .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
+        .finally(() => {
+          setLoading(false);
+          clearLongRequestTimer();
+        });
+    }
+  }, [value]);
 
   const clearNetwork = () => {
     setElements([]);
   };
 
-  const setInitialNetworkData = async (value: string) => {
+  const setInitialNetworkData = async (cypher: string) => {
     clearNetwork();
 
     // Make sure there isn't an active timer before we set a new id (the old timeout would be orphaned otherwise)
     clearLongRequestTimer();
     longRequestTimerId = setTimeout(() => {
-      setSearchError("Your search is taking longer than expected...");
+      setError("Your search is taking longer than expected...");
     }, 10000);
-    const records = await neo4jService.executeRead<SubGraph>(value);
+    const records = await neo4jService.executeRead<SubGraph>(cypher);
 
     const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
 
     if (cytoscapeElements.length === 0) {
-      setSearchError("We couldn't find any results for your search");
+      setError("We couldn't find any results for your search");
     } else {
       clearSearchError();
       setElements(cytoscapeElements);
@@ -196,8 +196,8 @@ export default function GraphSearch() {
       >
         <SearchBarContainer>
           <SearchBar
-            value={searchValue}
-            error={searchError}
+            value={value}
+            error={error}
             loading={loading}
             clearError={clearSearchError}
             onSubmit={handleSubmit}
