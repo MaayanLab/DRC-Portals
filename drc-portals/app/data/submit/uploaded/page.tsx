@@ -95,7 +95,7 @@ export default async function UserFiles() {
             codeAsset: true,
         },
         where: {
-            ...(user.role === 'DCC_APPROVER' ? {
+            ...((user.role === 'DCC_APPROVER') || (user.role === 'READONLY')  ? {
                 dcc: {
                     short_label: {
                         in: userDCCArray
@@ -123,7 +123,7 @@ export default async function UserFiles() {
             and current statuses of each file.
         </Typography>
 
-    } else if (user.role === 'DCC_APPROVER') {
+    } else if ((user.role === 'DCC_APPROVER') || (user.role === 'READONLY')) {
         userFiles = allFiles.map(obj => ({ ...obj, assetType: obj.fileAsset ? obj.fileAsset?.filetype : obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that have been uploaded/submitted for your affiliated DCCs.
