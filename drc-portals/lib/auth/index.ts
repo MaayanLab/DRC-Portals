@@ -9,7 +9,7 @@ import ORCIDProvider from '@/lib/auth/providers/orcid'
 import GlobusProvider from '@/lib/auth/providers/globus'
 import type { OAuthConfig } from 'next-auth/providers/index'
 import PrismaAdapterEx from './adapters/prisma'
-
+import { Adapter } from 'next-auth/adapters'
 
 declare module 'next-auth' {
   interface Session {
@@ -93,7 +93,7 @@ const cookiePrefix = useSecureCookies ? "__Secure-" : ""
 const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapterEx(),
+  adapter: PrismaAdapterEx() as Adapter,
   providers,
   session: { strategy: 'jwt' },
   callbacks: {

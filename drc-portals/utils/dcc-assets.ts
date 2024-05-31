@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@/prisma';
+import type { PrismaClient } from '.prisma/client'
 
 export type dccAsset = {
   dcc_id: string
