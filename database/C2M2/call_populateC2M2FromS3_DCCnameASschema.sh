@@ -1,8 +1,13 @@
-# Run syntax: python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd}
+# Run syntax: python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} DCC1 DCC1 DCC3 ...
 
 # If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
 #dcc_short=Metabolomics; ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${dcc_short}_${ymd}.log; python populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
 #egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
+
+if [[ $# -lt 1 ]]; then
+        echo -e "Usage: $0 <python_cmd> DCC1 DCC2 ...";
+        exit 1;
+fi
 
 # list of dcc_short_label from ingesting from all DCCs
 dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids%20First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
@@ -10,6 +15,16 @@ dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids%20Firs
 
 # define python command
 python_cmd=$1
+
+if [[ $# -lt 2 ]]; then
+        echo -e "The program will loop over all DCCs:";
+		echo "${dcc_short_labels[@]}";
+else
+		shift;
+		dcc_short_labels=("$@")
+        echo -e "The program will loop over the specified DCCs:";
+		echo "${dcc_short_labels[@]}";
+fi
 
 ymd=$(date +%y%m%d); 
 
@@ -58,4 +73,3 @@ echo -e "${exec_sql_codestr}\n${mismatch_cmdstr}";
 echo -e "# Next, you can check the file ${mismatchf} by opening it, or by running:\n";
 echo -e "wc -l ${mismatchf} #Count of lines in the file\n";
 echo -e "cat ${mismatchf} |more\n";
-
