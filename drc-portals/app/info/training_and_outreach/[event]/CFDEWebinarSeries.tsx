@@ -117,7 +117,7 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 	}
 	return (
 		<Stack sx={{marginBottom: 2}}>
-			{(webinar.start_date && webinar.end_date) && <Typography variant="body1">{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}</Typography>}
+			{(webinar.start_date && webinar.end_date) && <Typography variant="body1" color="secondary"><b>{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}</b></Typography>}
 			{presenters.length > 0 && 
 				<List sx={{marginLeft: -2}}>
 					{presenters.map((section)=>(
@@ -192,6 +192,9 @@ const CFDEWebinarSeries = async () => {
 				}
 			}
 		},
+		orderBy: {
+			start_date: 'desc'
+		}
 	})
 	return (
 		<Grid container spacing={1} justifyContent={"flex-start"}>
