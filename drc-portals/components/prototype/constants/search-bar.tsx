@@ -6,6 +6,15 @@ import { PredicateFn } from "../types/search-bar";
 import { EDGE_COLOR } from "./cy";
 import { STRING_PROPERTIES } from "./neo4j";
 
+export const SearchBarContainer = styled(Box)({
+  flexGrow: 1,
+  position: "absolute",
+  top: 10,
+  left: 10,
+  zIndex: 1,
+  padding: "inherit",
+});
+
 export const NodeElement = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",

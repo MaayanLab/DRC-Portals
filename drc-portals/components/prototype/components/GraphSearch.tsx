@@ -1,11 +1,12 @@
 "use client";
 
-import { Grid, styled } from "@mui/material";
+import { Grid } from "@mui/material";
 import { ElementDefinition, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { D3_FORCE_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
+import { SearchBarContainer } from "../constants/search-bar";
 import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
@@ -35,15 +36,6 @@ export default function GraphSearch() {
     "An error occured during your search. Please try again later.";
   const neo4jService: Neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
-
-  const SearchBarContainer = styled("div")({
-    flexGrow: 1,
-    position: "absolute",
-    top: 10,
-    left: 10,
-    zIndex: 1,
-    padding: "inherit",
-  });
 
   const nodeCxtMenuItems: NodeCxtMenuItem[] = [
     {
@@ -101,44 +93,46 @@ export default function GraphSearch() {
   };
 
   useEffect(() => {
-    const query = searchParams.get("q");
-    const anyQuery = searchParams.get("as_q");
-    const phraseQuery = searchParams.get("as_epq");
-    const allQuery = searchParams.get("as_aq");
-    const noneQuery = searchParams.get("as_eq");
-    let newValue = [];
+    if (searchParams.size > 0) {
+      const query = searchParams.get("q");
+      const anyQuery = searchParams.get("as_q");
+      const phraseQuery = searchParams.get("as_epq");
+      const allQuery = searchParams.get("as_aq");
+      const noneQuery = searchParams.get("as_eq");
+      let newValue = [];
 
-    if (query !== null && query.length > 0) {
-      newValue.push(query);
+      if (query !== null && query.length > 0) {
+        newValue.push(query);
+      }
+
+      if (anyQuery !== null && anyQuery.length > 0) {
+        newValue.push(anyQuery);
+      }
+
+      if (phraseQuery !== null && phraseQuery.length > 0) {
+        newValue.push(`"${phraseQuery}"`);
+      }
+
+      if (allQuery !== null && allQuery.length > 0) {
+        newValue.push(
+          allQuery
+            .split(" ")
+            .map((s) => `+${s}`)
+            .join(" ")
+        );
+      }
+
+      if (noneQuery !== null && noneQuery.length > 0) {
+        newValue.push(
+          noneQuery
+            .split(" ")
+            .map((s) => `-${s}`)
+            .join(" ")
+        );
+      }
+
+      setValue(newValue.join(" "));
     }
-
-    if (anyQuery !== null && anyQuery.length > 0) {
-      newValue.push(anyQuery);
-    }
-
-    if (phraseQuery !== null && phraseQuery.length > 0) {
-      newValue.push(`"${phraseQuery}"`);
-    }
-
-    if (allQuery !== null && allQuery.length > 0) {
-      newValue.push(
-        allQuery
-          .split(" ")
-          .map((s) => `+${s}`)
-          .join(" ")
-      );
-    }
-
-    if (noneQuery !== null && noneQuery.length > 0) {
-      newValue.push(
-        noneQuery
-          .split(" ")
-          .map((s) => `-${s}`)
-          .join(" ")
-      );
-    }
-
-    setValue(newValue.join(" "));
   }, []);
 
   useEffect(() => {

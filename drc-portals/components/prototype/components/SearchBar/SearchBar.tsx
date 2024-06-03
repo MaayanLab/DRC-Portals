@@ -1,7 +1,7 @@
 "use client";
 
 import Autocomplete from "@mui/material/Autocomplete";
-import { KeyboardEvent, SyntheticEvent, useState } from "react";
+import { KeyboardEvent, SyntheticEvent, useEffect, useState } from "react";
 
 import SearchBarInput from "./SearchBarInput";
 
@@ -71,6 +71,10 @@ export default function SearchBar(cmpProps: SearchBarProps) {
       onKeyDown={handleInputKeydown}
     />
   );
+
+  useEffect(() => {
+    setValue(cmpProps.value);
+  }, [cmpProps.value]);
 
   return (
     <Autocomplete
