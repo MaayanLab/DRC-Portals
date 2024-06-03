@@ -11,20 +11,17 @@ export const XS_COLUMNS = 4;
 export const SM_COLUMNS = 9;
 export const MD_COLUMNS = 12;
 
-export const DCC_NAMES_MAP = new Map<string, string>([
-  ["4DN", "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER"],
-  [
-    "ERCC",
-    "The Extracellular Communication Consortium Data Coordination Center",
-  ],
-  ["GTex", "Genotype-Tissue Expression Project"],
-  ["GlyGen", "GlyGen"],
-  ["HMP", "The Human Microbiome Project"],
-  ["HuBMAP", "HuBMAP"],
-  ["IDG", "Illuminating the Druggable Genome"],
-  ["KFDRC", "The Gabriella Miller Kids First Pediatric Research Program"],
-  ["LINCS", "Library of Integrated Network-based Cellular Signatures"],
-  ["MW", "UCSD Metabolomics Workbench"],
-  ["MoTrPAC", "MoTrPAC Molecular Transducers of Physical Activity Consortium"],
-  ["SPARK", "Stimulating Peripheral Activity to Relieve Conditions"],
-]);
+export const DCC_NAMES = [
+  "4DN",
+  "ERCC",
+  "GTex",
+  "GlyGen",
+  "HMP",
+  "HuBMAP",
+  "IDG",
+  "KFDRC",
+  "LINCS",
+  "MW",
+  "MoTrPAC",
+  "SPARK",
+];

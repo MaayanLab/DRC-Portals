@@ -473,17 +473,33 @@ export const createPropertyFilter = (
 
 export const createSynonymSearchCypher = (
   searchTerm: string,
+  searchFile = true,
+  searchSubject = true,
+  searchBiosample = true,
+  dccNames?: string[],
   synLimit = 100,
   termLimit = 100,
-  coreLimit = 10,
-  projLimit = 3,
-  dccLimit = 1
+  coreLimit = 100,
+  projLimit = 10
 ) => {
-  const queryStmts: string[] = [];
+  if (dccNames === undefined) {
+    dccNames = [];
+  }
+
+  const includedTermLabels = [
+    searchFile ? "'File'" : "",
+    searchSubject ? "'Subject'" : "",
+    searchBiosample ? "'Biosample'" : "",
+  ].filter((l) => l !== "");
+  const dccNameFilter =
+    dccNames.length > 0
+      ? `WHERE dcc.abbreviation IN [${dccNames
+          .map((n) => `'${n}'`)
+          .join(", ")}]`
+      : "WHERE TRUE";
 
   // TODO: Consider pushing the parameterization to the driver
-  queryStmts.push(
-    `
+  return `
   CALL db.index.fulltext.queryNodes('synonymIdx', '${searchTerm}')
   YIELD node AS synonym
   WITH synonym
@@ -497,7 +513,10 @@ export const createSynonymSearchCypher = (
   CALL {
     WITH synonym, term
     MATCH (term)<-[]-(core)
-    WHERE core:File OR core:Biosample OR core:Subject
+    WHERE any(
+      label IN labels(core)
+      WHERE label IN [${includedTermLabels.join(", ")}]
+    )
     RETURN DISTINCT core
     LIMIT ${coreLimit}
   }
@@ -510,15 +529,53 @@ export const createSynonymSearchCypher = (
   CALL {
     WITH synonym, term, core, project
     MATCH (project)<-[*]-(dcc:DCC)
+    ${dccNameFilter}
     RETURN DISTINCT dcc
-    LIMIT ${dccLimit}
   }
   MATCH path=(term)<-[]-(core)<-[:CONTAINS]-(project:Project)<-[*]-(dcc:DCC)
   UNWIND nodes(path) AS n
   UNWIND relationships(path) AS r
   RETURN collect(DISTINCT ${NODE_REPR_OBJECT_STR}) AS nodes, collect(DISTINCT ${REL_REPR_OBJECT_STR}) AS relationships
-  `
-  );
+  `;
+};
 
-  return queryStmts.join("\n");
+export const getValueFromSearchParams = (searchParams: URLSearchParams) => {
+  const query = searchParams.get("q");
+  const anyQuery = searchParams.get("as_q");
+  const phraseQuery = searchParams.get("as_epq");
+  const allQuery = searchParams.get("as_aq");
+  const noneQuery = searchParams.get("as_eq");
+  let newValue = [];
+
+  if (query !== null && query.length > 0) {
+    newValue.push(query);
+  }
+
+  if (anyQuery !== null && anyQuery.length > 0) {
+    newValue.push(anyQuery);
+  }
+
+  if (phraseQuery !== null && phraseQuery.length > 0) {
+    newValue.push(`"${phraseQuery}"`);
+  }
+
+  if (allQuery !== null && allQuery.length > 0) {
+    newValue.push(
+      allQuery
+        .split(" ")
+        .map((s) => `+${s}`)
+        .join(" ")
+    );
+  }
+
+  if (noneQuery !== null && noneQuery.length > 0) {
+    newValue.push(
+      noneQuery
+        .split(" ")
+        .map((s) => `-${s}`)
+        .join(" ")
+    );
+  }
+
+  return newValue.join(" ");
 };

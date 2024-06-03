@@ -22,7 +22,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 
 import {
   COLUMN_SPACING,
-  DCC_NAMES_MAP,
+  DCC_NAMES,
   LEFT_COLUMN_MD_WIDTH,
   LEFT_COLUMN_SM_WIDTH,
   LEFT_COLUMN_XS_WIDTH,
@@ -48,7 +48,7 @@ export default function AdvancedSearch() {
   const [searchFile, setSearchFile] = useState(true);
   const [searchSubject, setSearchSubject] = useState(true);
   const [searchBiosample, setSearchBiosample] = useState(true);
-  const [dccName, setDccName] = useState<string[]>([]);
+  const [dccNames, setDccNames] = useState<string[]>([]);
 
   const createAdvancedQuery = () => {
     const searchParams = new URLSearchParams();
@@ -56,6 +56,10 @@ export default function AdvancedSearch() {
     searchParams.set("as_epq", phraseValue);
     searchParams.set("as_aq", allValue);
     searchParams.set("as_eq", noneValue);
+    searchParams.set("as_file", searchFile.toString());
+    searchParams.set("as_sub", searchSubject.toString());
+    searchParams.set("as_bio", searchBiosample.toString());
+    searchParams.set("as_dccs", dccNames.join(","));
 
     return searchParams.toString();
   };
@@ -88,11 +92,11 @@ export default function AdvancedSearch() {
     setSearchBiosample(event.target.checked);
   };
 
-  const onDccChange = (event: SelectChangeEvent<typeof dccName>) => {
+  const onDccChange = (event: SelectChangeEvent<typeof dccNames>) => {
     const {
       target: { value },
     } = event;
-    setDccName(
+    setDccNames(
       // On autofill we get a stringified value.
       typeof value === "string" ? value.split(",") : value
     );
@@ -109,6 +113,10 @@ export default function AdvancedSearch() {
     const phraseQuery = searchParams.get("as_epq") || "";
     const allQuery = searchParams.get("as_aq") || "";
     const noneQuery = searchParams.get("as_eq") || "";
+    const searchFile = searchParams.get("as_file");
+    const searchSubject = searchParams.get("as_sub");
+    const searchBiosample = searchParams.get("as_bio");
+    const dccNames = searchParams.get("as_dccs") || "";
     const phraseQueryRegex = /(["'])(?:(?=(\\?))\2.)*?\1/;
     const allQueryRegex = /\B\+\w+/g;
     const noneQueryRegex = /\B\-\w+/g;
@@ -139,6 +147,16 @@ export default function AdvancedSearch() {
     setAnyValue(`${query.trim()} ${anyQuery}`.trim());
     setAllValue(`${allQuery} ${extractedAllQuery}`.trim());
     setNoneValue(`${noneQuery} ${extractedNoneQuery}`.trim());
+
+    // If the core node search toggles are not present at all, default to true
+    setSearchFile(searchFile === null || searchFile.toLowerCase() === "true");
+    setSearchSubject(
+      searchSubject === null || searchSubject.toLowerCase() === "true"
+    );
+    setSearchBiosample(
+      searchBiosample === null || searchBiosample.toLowerCase() === "true"
+    );
+    setDccNames(dccNames.split(",").filter((n) => n !== ""));
   }, []);
 
   return (
@@ -376,7 +394,7 @@ export default function AdvancedSearch() {
               id="demo-multiple-checkbox"
               multiple
               color="secondary"
-              value={dccName}
+              value={dccNames}
               onChange={onDccChange}
               input={<OutlinedInput label="DCC" color="secondary" />}
               renderValue={(selected) => selected.join(", ")}
@@ -388,9 +406,9 @@ export default function AdvancedSearch() {
                 },
               }}
             >
-              {Array.from(DCC_NAMES_MAP.entries()).map(([abbrev, _]) => (
+              {DCC_NAMES.map((abbrev) => (
                 <MenuItem key={abbrev} value={abbrev}>
-                  <Checkbox checked={dccName.indexOf(abbrev) > -1} />
+                  <Checkbox checked={dccNames.indexOf(abbrev) > -1} />
                   <ListItemText primary={abbrev} />
                 </MenuItem>
               ))}

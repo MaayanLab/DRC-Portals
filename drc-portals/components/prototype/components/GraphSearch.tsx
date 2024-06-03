@@ -16,7 +16,10 @@ import {
   createCytoscapeElementsFromNeo4j,
   unlockD3ForceNodes,
 } from "../utils/cy";
-import { createSynonymSearchCypher } from "../utils/search-bar";
+import {
+  createSynonymSearchCypher,
+  getValueFromSearchParams,
+} from "../utils/search-bar";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
@@ -25,6 +28,10 @@ import SearchBar from "./SearchBar/SearchBar";
 export default function GraphSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const searchFileParam = searchParams.get("as_file");
+  const searchSubjectParam = searchParams.get("as_sub");
+  const searchBiosampleParam = searchParams.get("as_bio");
+  const dccNamesParam = searchParams.get("as_dccs") || "";
   const [value, setValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,10 +83,14 @@ export default function GraphSearch() {
 
     // If the advanced params are set in the url, ignore the search bar value
     if (searchParams.has("as_q")) {
-      let query = `?as_q=${searchParams.get("as_q") || ""}`;
+      let query = `?as_q=${searchParams.get("as_q")}`;
       query += `&as_epq=${searchParams.get("as_epq")}`;
       query += `&as_aq=${searchParams.get("as_aq")}`;
       query += `&as_eq=${searchParams.get("as_eq")}`;
+      query += `&as_file=${searchParams.get("as_file")}`;
+      query += `&as_sub=${searchParams.get("as_sub")}`;
+      query += `&as_bio=${searchParams.get("as_bio")}`;
+      query += `&as_dccs=${searchParams.get("as_dccs")}`;
       advancedSearchParams = new URLSearchParams(query);
     } else {
       // Otherwise use the search bar value as the initial advanced search query
@@ -94,52 +105,36 @@ export default function GraphSearch() {
 
   useEffect(() => {
     if (searchParams.size > 0) {
-      const query = searchParams.get("q");
-      const anyQuery = searchParams.get("as_q");
-      const phraseQuery = searchParams.get("as_epq");
-      const allQuery = searchParams.get("as_aq");
-      const noneQuery = searchParams.get("as_eq");
-      let newValue = [];
-
-      if (query !== null && query.length > 0) {
-        newValue.push(query);
-      }
-
-      if (anyQuery !== null && anyQuery.length > 0) {
-        newValue.push(anyQuery);
-      }
-
-      if (phraseQuery !== null && phraseQuery.length > 0) {
-        newValue.push(`"${phraseQuery}"`);
-      }
-
-      if (allQuery !== null && allQuery.length > 0) {
-        newValue.push(
-          allQuery
-            .split(" ")
-            .map((s) => `+${s}`)
-            .join(" ")
-        );
-      }
-
-      if (noneQuery !== null && noneQuery.length > 0) {
-        newValue.push(
-          noneQuery
-            .split(" ")
-            .map((s) => `-${s}`)
-            .join(" ")
-        );
-      }
-
-      setValue(newValue.join(" "));
+      setValue(getValueFromSearchParams(searchParams));
     }
   }, []);
 
   useEffect(() => {
     if (value !== null && value.length > 0) {
-      setLoading(true);
+      const searchFile =
+        searchFileParam === null
+          ? true
+          : searchFileParam.toLowerCase() === "true";
+      const searchSubject =
+        searchSubjectParam === null
+          ? true
+          : searchSubjectParam.toLowerCase() === "true";
+      const searchBiosample =
+        searchBiosampleParam === null
+          ? true
+          : searchBiosampleParam.toLowerCase() === "true";
+      const dccNames = dccNamesParam.split(",").filter((d) => d !== "");
 
-      setInitialNetworkData(createSynonymSearchCypher(value))
+      setLoading(true);
+      setInitialNetworkData(
+        createSynonymSearchCypher(
+          value,
+          searchFile,
+          searchSubject,
+          searchBiosample,
+          dccNames
+        )
+      )
         .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
         .finally(() => {
           setLoading(false);
