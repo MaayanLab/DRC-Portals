@@ -1,6 +1,6 @@
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
+import ConstructionIcon from "@mui/icons-material/Construction";
 import { Divider, Tooltip } from "@mui/material";
 
 import { TransparentIconButton } from "../../constants/shared";
@@ -41,7 +41,7 @@ export default function SearchBarEndAdornment(
           aria-label="advanced-search"
           onClick={onAdvancedSearch}
         >
-          <TextFieldsIcon />
+          <ConstructionIcon />
         </TransparentIconButton>
       </Tooltip>
       <Tooltip title="Search" arrow>
