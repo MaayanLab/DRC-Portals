@@ -9,7 +9,7 @@ import { useWidth } from './Carousel/helper';
 
 const Wrapper = ({children}: {children: React.ReactNode}) => {
   const width = useWidth()
-  if (['sm', 'xs'].indexOf(width) > -1) {
+  if (['xs'].indexOf(width) > -1) {
     return(
       <Stack spacing={1}>
         {children}
@@ -54,13 +54,13 @@ function AccordionHeader(
       >
         <Wrapper>
           <Typography sx={{ color: '#ffffff', width: {xs: "100%", sm: "100%", md: "33%", lg: "33%", xl: "33%"}, fontSize: '12pt' }}><b>{label}</b></Typography>
-          <Typography sx={{ color: '#ffffff',  display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
+          <Typography sx={{ color: '#ffffff',  display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
             {props.assetInfo.current.length} Current File(s) | {props.assetInfo.archived.length} Archived File(s)
           </Typography>
-          <Typography sx={{ color: '#ffffff',  display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
+          <Typography sx={{ color: '#ffffff',  display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
             {props.assetInfo.current.length} Current File(s)
           </Typography>
-          <Typography sx={{ color: '#ffffff',  display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
+          <Typography sx={{ color: '#ffffff',  display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
             {props.assetInfo.archived.length} Archived File(s)
           </Typography>
           <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>Modified {maxDate}</Typography>

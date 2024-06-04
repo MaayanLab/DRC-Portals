@@ -145,12 +145,12 @@ export default function Documentation() {
 
                 <StyledAccordionComponent heading="Instructional Video" content={
                     <>
-                        <Box sx={{ padding: 3, display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'} }}>
+                        <Box sx={{ padding: 3, display: {xs: 'none', sm: 'block', md: 'block', lg: 'block', xl: 'block'} }}>
                             <center>
                                 <YoutubeVideo size={'large'}/>
                             </center>
                         </Box>
-                        <Box sx={{ padding: 3, display: {xs: 'block', sm: 'block', md: 'none', lg: 'none', xl: 'none'} }}>
+                        <Box sx={{ padding: 3, display: {xs: 'block', sm: 'none', md: 'none', lg: 'none', xl: 'none'} }}>
                             <center>
                                 <YoutubeVideo size={'small'}/>
                             </center>

@@ -151,8 +151,13 @@ export default async function UseCasePage({searchParams}: {searchParams: {
 
     return (
         <Grid container spacing={2} sx={{marginTop: 2}}>
-			<Grid item xs={12} sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+			<Grid item xs={12} sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none"}}}>
 				<ClientCarousel title="" height={830}>
+					<ServerCarousel usecases={featured_usecases}/>
+				</ClientCarousel>
+			</Grid>
+			<Grid item xs={12} sx={{display: {xs: "none", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+				<ClientCarousel title="" height={650}>
 					<ServerCarousel usecases={featured_usecases}/>
 				</ClientCarousel>
 			</Grid>

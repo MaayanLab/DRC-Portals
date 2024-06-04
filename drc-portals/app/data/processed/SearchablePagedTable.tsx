@@ -70,7 +70,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       }
       <Grid item xs={12}>
         <Stack spacing={1}>
-          <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block",}}}>
+          <Box sx={{display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block",}}}>
             <TableContainer component={Paper} elevation={0} variant="rounded-top">
               <Table aria-label="simple table">
                 <TableHead>
@@ -104,7 +104,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
               </Table>
             </TableContainer>
             </Box>
-            <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none",}}}>
+            <Box sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none",}}}>
               <List>
                 {props.rows.map((row, i) => (
                   <React.Fragment key={i}>

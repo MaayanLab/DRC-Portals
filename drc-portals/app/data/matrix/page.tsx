@@ -95,7 +95,7 @@ export default async function DataMatrix() {
         of the CFDE Workbench <Link href="/info" color="#3470e5">
         Information Portal</Link>.</Typography> 
       
-      <Table stickyHeader aria-label="sticky table" sx={{display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'}}}>
+      <Table stickyHeader aria-label="sticky table" sx={{display: {xs: 'none', sm: 'block', md: 'block', lg: 'block', xl: 'block'}}}>
         <colgroup>
             <col style={{width:'19%'}}/>
             <col style={{width:'9%'}}/>
@@ -203,7 +203,7 @@ export default async function DataMatrix() {
             })}
           </TableBody>
         </Table>
-        <List sx={{display: {xs: 'block', sm: 'block', md: 'none', lg: 'none', xl: 'none'}}}>
+        <List sx={{display: {xs: 'block', sm: 'none', md: 'none', lg: 'none', xl: 'none'}}}>
           {ordered_data.map((item, idx) => (
             <ListItem  key={idx}>
                 <Stack spacing={2}>
