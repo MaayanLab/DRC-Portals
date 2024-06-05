@@ -4,4 +4,5 @@ CALL {
 	MATCH (subject_race:SubjectRace {id: row.race})
 	MATCH (subject:Subject {local_id: row.subject_local_id})<-[:CONTAINS]-(subject_id_namespace:IDNamespace {id: row.subject_id_namespace})
 	MERGE (subject)-[:IS_RACE]->(subject_race)
+    SET subject.race = row.race
 } IN TRANSACTIONS OF 10000 ROWS

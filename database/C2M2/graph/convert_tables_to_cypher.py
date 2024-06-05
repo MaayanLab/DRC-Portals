@@ -484,7 +484,8 @@ def create_subject_race_cypher():
     # subject_id_namespace	subject_local_id	race
     match_subject_race_stmt = 'MATCH (subject_race:SubjectRace {id: row.race})\n'
     merge_stmt = 'MERGE (subject)-[:IS_RACE]->(subject_race)'
-    return match_subject_race_stmt + MATCH_SUBJECT_STR + merge_stmt
+    set_stmt = 'SET subject.race = row.race'
+    return match_subject_race_stmt + MATCH_SUBJECT_STR + merge_stmt + set_stmt
 
 
 def create_subject_race_cv_cypher():
