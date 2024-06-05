@@ -54,13 +54,16 @@ export default function AdvancedSearch() {
   const [searchFile, setSearchFile] = useState(true);
   const [searchSubject, setSearchSubject] = useState(true);
   const [searchBiosample, setSearchBiosample] = useState(true);
-  const [dccNames, setDccNames] = useState<string[]>([]);
-  const [subjectGenders, setSubjectGenders] = useState<string[]>([]);
-  const [subjectRaces, setSubjectRaces] = useState<string[]>([]);
+  const [selectedDccs, setSelectedDccs] = useState<string[]>([]);
+  const allDccsSelected = selectedDccs.length === DCC_NAMES.length;
+  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+  const allGendersSelected = selectedGenders.length === SUBJECT_GENDERS.size;
+  const [selectedRaces, setSelectedRaces] = useState<string[]>([]);
+  const allRacesSelected = selectedRaces.length === SUBJECT_RACES.size;
 
   const resetSubjectFilters = () => {
-    setSubjectGenders([]);
-    setSubjectRaces([]);
+    setSelectedGenders([]);
+    setSelectedRaces([]);
   };
 
   const onAnyChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -94,41 +97,57 @@ export default function AdvancedSearch() {
     setSearchBiosample(event.target.checked);
   };
 
-  const onDccChange = (event: SelectChangeEvent<typeof dccNames>) => {
+  const onDccChange = (event: SelectChangeEvent<typeof selectedDccs>) => {
     const {
       target: { value },
     } = event;
 
-    setDccNames(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
+    if (value.indexOf("all") > -1) {
+      setSelectedDccs(allDccsSelected ? [] : Array.from(DCC_NAMES));
+    } else {
+      setSelectedDccs(
+        // On autofill we get a stringified value.
+        typeof value === "string" ? value.split(",") : value
+      );
+    }
   };
 
   const onSubjectGenderChange = (
-    event: SelectChangeEvent<typeof subjectGenders>
+    event: SelectChangeEvent<typeof selectedGenders>
   ) => {
     const {
       target: { value },
     } = event;
 
-    setSubjectGenders(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
+    if (value.indexOf("all") > -1) {
+      setSelectedGenders(
+        allGendersSelected ? [] : Array.from(SUBJECT_GENDERS.keys())
+      );
+    } else {
+      setSelectedGenders(
+        // On autofill we get a stringified value.
+        typeof value === "string" ? value.split(",") : value
+      );
+    }
   };
 
   const onSubjectRaceChange = (
-    event: SelectChangeEvent<typeof subjectRaces>
+    event: SelectChangeEvent<typeof selectedRaces>
   ) => {
     const {
       target: { value },
     } = event;
 
-    setSubjectRaces(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
+    if (value.indexOf("all") > -1) {
+      setSelectedRaces(
+        allRacesSelected ? [] : Array.from(SUBJECT_RACES.keys())
+      );
+    } else {
+      setSelectedRaces(
+        // On autofill we get a stringified value.
+        typeof value === "string" ? value.split(",") : value
+      );
+    }
   };
 
   const handleSubmit = () => {
@@ -140,9 +159,9 @@ export default function AdvancedSearch() {
       searchFile.toString(),
       searchSubject.toString(),
       searchBiosample.toString(),
-      subjectGenders,
-      subjectRaces,
-      dccNames
+      selectedGenders,
+      selectedRaces,
+      selectedDccs
     ).toString();
     router.push(`/data/c2m2/graph/search?${advancedQuery}`);
   };
@@ -194,9 +213,9 @@ export default function AdvancedSearch() {
     setSearchFile(searchFile);
     setSearchSubject(searchSubject);
     setSearchBiosample(searchBiosample);
-    setSubjectGenders(subjectGenders);
-    setSubjectRaces(subjectRaces);
-    setDccNames(dccNames);
+    setSelectedGenders(subjectGenders);
+    setSelectedRaces(subjectRaces);
+    setSelectedDccs(dccNames);
   }, []);
 
   return (
@@ -439,7 +458,7 @@ export default function AdvancedSearch() {
                   id="advanced-search-subject-gender"
                   multiple
                   color="secondary"
-                  value={subjectGenders}
+                  value={selectedGenders}
                   onChange={onSubjectGenderChange}
                   input={
                     <OutlinedInput label="Subject Gender" color="secondary" />
@@ -455,13 +474,23 @@ export default function AdvancedSearch() {
                     },
                   }}
                 >
+                  <MenuItem key={`gender-list-select-all`} value="all">
+                    <Checkbox
+                      checked={allGendersSelected}
+                      indeterminate={
+                        selectedGenders.length > 0 &&
+                        selectedGenders.length < SUBJECT_GENDERS.size
+                      }
+                    />
+                    <ListItemText primary="Select All" />
+                  </MenuItem>
                   {Array.from(SUBJECT_GENDERS.keys()).map((genderKey) => (
                     <MenuItem
                       key={`gender-list-item-${genderKey}`}
                       value={genderKey}
                     >
                       <Checkbox
-                        checked={subjectGenders.indexOf(genderKey) > -1}
+                        checked={selectedGenders.indexOf(genderKey) > -1}
                       />
                       <ListItemText primary={SUBJECT_GENDERS.get(genderKey)} />
                     </MenuItem>
@@ -492,7 +521,7 @@ export default function AdvancedSearch() {
                   id="advanced-search-subject-race"
                   multiple
                   color="secondary"
-                  value={subjectRaces}
+                  value={selectedRaces}
                   onChange={onSubjectRaceChange}
                   input={
                     <OutlinedInput label="Subject Race" color="secondary" />
@@ -508,9 +537,19 @@ export default function AdvancedSearch() {
                     },
                   }}
                 >
+                  <MenuItem key={`race-list-select-all`} value="all">
+                    <Checkbox
+                      checked={allRacesSelected}
+                      indeterminate={
+                        selectedRaces.length > 0 &&
+                        selectedRaces.length < SUBJECT_RACES.size
+                      }
+                    />
+                    <ListItemText primary="Select All" />
+                  </MenuItem>
                   {Array.from(SUBJECT_RACES.keys()).map((raceKey) => (
                     <MenuItem key={`race-list-item-${raceKey}`} value={raceKey}>
-                      <Checkbox checked={subjectRaces.indexOf(raceKey) > -1} />
+                      <Checkbox checked={selectedRaces.indexOf(raceKey) > -1} />
                       <ListItemText primary={SUBJECT_RACES.get(raceKey)} />
                     </MenuItem>
                   ))}
@@ -539,7 +578,7 @@ export default function AdvancedSearch() {
               id="advanced-search-dcc"
               multiple
               color="secondary"
-              value={dccNames}
+              value={selectedDccs}
               onChange={onDccChange}
               input={<OutlinedInput label="DCC" color="secondary" />}
               renderValue={(selected) => selected.join(", ")}
@@ -551,9 +590,19 @@ export default function AdvancedSearch() {
                 },
               }}
             >
+              <MenuItem key={`dcc-list-select-all`} value="all">
+                <Checkbox
+                  checked={allDccsSelected}
+                  indeterminate={
+                    selectedDccs.length > 0 &&
+                    selectedDccs.length < DCC_NAMES.length
+                  }
+                />
+                <ListItemText primary="Select All" />
+              </MenuItem>
               {DCC_NAMES.map((abbrev) => (
-                <MenuItem key={abbrev} value={abbrev}>
-                  <Checkbox checked={dccNames.indexOf(abbrev) > -1} />
+                <MenuItem key={`dcc-list-item-${abbrev}`} value={abbrev}>
+                  <Checkbox checked={selectedDccs.indexOf(abbrev) > -1} />
                   <ListItemText primary={abbrev} />
                 </MenuItem>
               ))}
