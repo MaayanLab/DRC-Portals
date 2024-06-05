@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { format_description, human_readable, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
@@ -109,7 +109,7 @@ export default async function Page(props: { params: { id: string }, searchParams
   `
   return (
     <LandingPageLayout
-      title={item.node.label}
+      title={human_readable(item.node.label)}
       subtitle={type_to_string('kg_relation', null)}
       description={format_description(item.node.description)}
       metadata={[
@@ -132,7 +132,7 @@ export default async function Page(props: { params: { id: string }, searchParams
         rows={results.assertions.map(assertion => [
           assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
           <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} search={searchParams.q ?? ''} />,
-          <LinkedTypedNode type="kg_relation" id={props.params.id} label={item.node.label} focus />,
+          <LinkedTypedNode type="kg_relation" id={props.params.id} label={human_readable(item.node.label)} focus />,
           <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} search={searchParams.q ?? ''} />,
           assertion.evidence?.toString(),
         ])}

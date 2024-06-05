@@ -7,7 +7,7 @@ export function StatsFallback() {
       {[
         { label: 'KG Assertions' },
         { label: 'Files' },
-        { label: 'Drugs' },
+        { label: 'Compounds' },
         { label: 'Genes' },
         { label: 'Gene Sets' },
       ].map(({ label }) => (
@@ -32,7 +32,7 @@ export default async function Stats() {
       union
       select 'Gene sets' as label, (select count(*) from gene_set_node) as count
       union
-      select 'Drugs' as label, (select count(*) from entity_node where type = 'Drug') as count
+      select 'Compounds' as label, (select count(*) from entity_node where type = 'Compound') as count
       union
       select 'Files' as label, (select count(*) from c2m2_file_node) as count
       union
