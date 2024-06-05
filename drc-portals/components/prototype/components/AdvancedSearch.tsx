@@ -33,8 +33,14 @@ import {
   RIGHT_COLUMN_MD_WIDTH,
   ROW_SPACING,
   SM_COLUMNS,
+  SUBJECT_GENDERS,
+  SUBJECT_RACES,
   XS_COLUMNS,
 } from "../constants/advanced-search";
+import {
+  createAdvancedSearchParams,
+  getAdvancedSearchValuesFromParams,
+} from "../utils/advanced-search";
 
 import AdvancedSearchFormRow from "./AdvancedSearch/AdvancedSearchFormRow";
 
@@ -49,19 +55,12 @@ export default function AdvancedSearch() {
   const [searchSubject, setSearchSubject] = useState(true);
   const [searchBiosample, setSearchBiosample] = useState(true);
   const [dccNames, setDccNames] = useState<string[]>([]);
+  const [subjectGenders, setSubjectGenders] = useState<string[]>([]);
+  const [subjectRaces, setSubjectRaces] = useState<string[]>([]);
 
-  const createAdvancedQuery = () => {
-    const searchParams = new URLSearchParams();
-    searchParams.set("as_q", anyValue);
-    searchParams.set("as_epq", phraseValue);
-    searchParams.set("as_aq", allValue);
-    searchParams.set("as_eq", noneValue);
-    searchParams.set("as_file", searchFile.toString());
-    searchParams.set("as_sub", searchSubject.toString());
-    searchParams.set("as_bio", searchBiosample.toString());
-    searchParams.set("as_dccs", dccNames.join(","));
-
-    return searchParams.toString();
+  const resetSubjectFilters = () => {
+    setSubjectGenders([]);
+    setSubjectRaces([]);
   };
 
   const onAnyChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +84,9 @@ export default function AdvancedSearch() {
   };
 
   const onSearchSubjectChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked) {
+      resetSubjectFilters();
+    }
     setSearchSubject(event.target.checked);
   };
 
@@ -96,27 +98,69 @@ export default function AdvancedSearch() {
     const {
       target: { value },
     } = event;
+
     setDccNames(
       // On autofill we get a stringified value.
       typeof value === "string" ? value.split(",") : value
     );
   };
 
+  const onSubjectGenderChange = (
+    event: SelectChangeEvent<typeof subjectGenders>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+
+    setSubjectGenders(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
+  const onSubjectRaceChange = (
+    event: SelectChangeEvent<typeof subjectRaces>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+
+    setSubjectRaces(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
   const handleSubmit = () => {
-    const advancedQuery = createAdvancedQuery();
+    const advancedQuery = createAdvancedSearchParams(
+      anyValue,
+      phraseValue,
+      allValue,
+      noneValue,
+      searchFile.toString(),
+      searchSubject.toString(),
+      searchBiosample.toString(),
+      subjectGenders,
+      subjectRaces,
+      dccNames
+    ).toString();
     router.push(`/data/c2m2/graph/search?${advancedQuery}`);
   };
 
   useEffect(() => {
-    let query = searchParams.get("q") || "";
-    const anyQuery = searchParams.get("as_q") || "";
-    const phraseQuery = searchParams.get("as_epq") || "";
-    const allQuery = searchParams.get("as_aq") || "";
-    const noneQuery = searchParams.get("as_eq") || "";
-    const searchFile = searchParams.get("as_file");
-    const searchSubject = searchParams.get("as_sub");
-    const searchBiosample = searchParams.get("as_bio");
-    const dccNames = searchParams.get("as_dccs") || "";
+    let {
+      query,
+      anyQuery,
+      phraseQuery,
+      allQuery,
+      noneQuery,
+      searchFile,
+      searchSubject,
+      searchBiosample,
+      subjectGenders,
+      subjectRaces,
+      dccNames,
+    } = getAdvancedSearchValuesFromParams(searchParams);
     const phraseQueryRegex = /(["'])(?:(?=(\\?))\2.)*?\1/;
     const allQueryRegex = /\B\+\w+/g;
     const noneQueryRegex = /\B\-\w+/g;
@@ -147,16 +191,12 @@ export default function AdvancedSearch() {
     setAnyValue(`${query.trim()} ${anyQuery}`.trim());
     setAllValue(`${allQuery} ${extractedAllQuery}`.trim());
     setNoneValue(`${noneQuery} ${extractedNoneQuery}`.trim());
-
-    // If the core node search toggles are not present at all, default to true
-    setSearchFile(searchFile === null || searchFile.toLowerCase() === "true");
-    setSearchSubject(
-      searchSubject === null || searchSubject.toLowerCase() === "true"
-    );
-    setSearchBiosample(
-      searchBiosample === null || searchBiosample.toLowerCase() === "true"
-    );
-    setDccNames(dccNames.split(",").filter((n) => n !== ""));
+    setSearchFile(searchFile);
+    setSearchSubject(searchSubject);
+    setSearchBiosample(searchBiosample);
+    setSubjectGenders(subjectGenders);
+    setSubjectRaces(subjectRaces);
+    setDccNames(dccNames);
   }, []);
 
   return (
@@ -375,6 +415,111 @@ export default function AdvancedSearch() {
           </FormGroup>
         </AdvancedSearchFormRow>
       </Grid>
+      {searchSubject ? (
+        <>
+          <Grid
+            container
+            item
+            columnSpacing={COLUMN_SPACING}
+            columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
+          >
+            <AdvancedSearchFormRow
+              description={<>subject gender:</>}
+              instructions={<>Find subjects with this specific gender.</>}
+            >
+              <FormControl fullWidth size="small">
+                <InputLabel
+                  id="advanced-search-subject-gender-label"
+                  color="secondary"
+                >
+                  Subject Gender
+                </InputLabel>
+                <Select
+                  labelId="advanced-search-subject-gender-label"
+                  id="advanced-search-subject-gender"
+                  multiple
+                  color="secondary"
+                  value={subjectGenders}
+                  onChange={onSubjectGenderChange}
+                  input={
+                    <OutlinedInput label="Subject Gender" color="secondary" />
+                  }
+                  renderValue={(selected) =>
+                    selected.map((s) => SUBJECT_GENDERS.get(s)).join(", ")
+                  }
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 244,
+                      },
+                    },
+                  }}
+                >
+                  {Array.from(SUBJECT_GENDERS.keys()).map((genderKey) => (
+                    <MenuItem
+                      key={`gender-list-item-${genderKey}`}
+                      value={genderKey}
+                    >
+                      <Checkbox
+                        checked={subjectGenders.indexOf(genderKey) > -1}
+                      />
+                      <ListItemText primary={SUBJECT_GENDERS.get(genderKey)} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </AdvancedSearchFormRow>
+          </Grid>
+          <Grid
+            container
+            item
+            columnSpacing={COLUMN_SPACING}
+            columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
+          >
+            <AdvancedSearchFormRow
+              description={<>subject race:</>}
+              instructions={<>Find subjects with this specific race.</>}
+            >
+              <FormControl fullWidth size="small">
+                <InputLabel
+                  id="advanced-search-subject-race-label"
+                  color="secondary"
+                >
+                  Subject Race
+                </InputLabel>
+                <Select
+                  labelId="advanced-search-subject-race-label"
+                  id="advanced-search-subject-race"
+                  multiple
+                  color="secondary"
+                  value={subjectRaces}
+                  onChange={onSubjectRaceChange}
+                  input={
+                    <OutlinedInput label="Subject Race" color="secondary" />
+                  }
+                  renderValue={(selected) =>
+                    selected.map((s) => SUBJECT_RACES.get(s)).join(", ")
+                  }
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 244,
+                      },
+                    },
+                  }}
+                >
+                  {Array.from(SUBJECT_RACES.keys()).map((raceKey) => (
+                    <MenuItem key={`race-list-item-${raceKey}`} value={raceKey}>
+                      <Checkbox checked={subjectRaces.indexOf(raceKey) > -1} />
+                      <ListItemText primary={SUBJECT_RACES.get(raceKey)} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </AdvancedSearchFormRow>
+          </Grid>
+        </>
+      ) : null}
       <Grid
         container
         item
@@ -386,12 +531,12 @@ export default function AdvancedSearch() {
           instructions={<>Find results connected to specific DCCs.</>}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="demo-multiple-checkbox-label" color="secondary">
+            <InputLabel id="advanced-search-dcc-label" color="secondary">
               DCC
             </InputLabel>
             <Select
-              labelId="demo-multiple-checkbox-label"
-              id="demo-multiple-checkbox"
+              labelId="advanced-search-dcc-label"
+              id="advanced-search-dcc"
               multiple
               color="secondary"
               value={dccNames}

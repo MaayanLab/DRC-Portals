@@ -12,6 +12,7 @@ import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
 import { CytoscapeReference } from "../types/cy";
+import { getAdvancedSearchValuesFromParams } from "../utils/advanced-search";
 import {
   createCytoscapeElementsFromNeo4j,
   unlockD3ForceNodes,
@@ -28,10 +29,14 @@ import SearchBar from "./SearchBar/SearchBar";
 export default function GraphSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const searchFileParam = searchParams.get("as_file");
-  const searchSubjectParam = searchParams.get("as_sub");
-  const searchBiosampleParam = searchParams.get("as_bio");
-  const dccNamesParam = searchParams.get("as_dccs") || "";
+  const {
+    searchFile,
+    searchSubject,
+    searchBiosample,
+    subjectGenders,
+    subjectRaces,
+    dccNames,
+  } = getAdvancedSearchValuesFromParams(searchParams);
   const [value, setValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +78,7 @@ export default function GraphSearch() {
   };
 
   const handleSubmit = (term: string) => {
-    const searchParams = new URLSearchParams(`q=${encodeURIComponent(term)}`);
+    const searchParams = new URLSearchParams(`q=${term}`);
     router.push(`?${searchParams.toString()}`);
     setValue(term);
   };
@@ -83,20 +88,10 @@ export default function GraphSearch() {
 
     // If the advanced params are set in the url, ignore the search bar value
     if (searchParams.has("as_q")) {
-      let query = `?as_q=${searchParams.get("as_q")}`;
-      query += `&as_epq=${searchParams.get("as_epq")}`;
-      query += `&as_aq=${searchParams.get("as_aq")}`;
-      query += `&as_eq=${searchParams.get("as_eq")}`;
-      query += `&as_file=${searchParams.get("as_file")}`;
-      query += `&as_sub=${searchParams.get("as_sub")}`;
-      query += `&as_bio=${searchParams.get("as_bio")}`;
-      query += `&as_dccs=${searchParams.get("as_dccs")}`;
-      advancedSearchParams = new URLSearchParams(query);
+      advancedSearchParams = searchParams;
     } else {
       // Otherwise use the search bar value as the initial advanced search query
-      advancedSearchParams = new URLSearchParams(
-        `q=${encodeURIComponent(term || "")}`
-      );
+      advancedSearchParams = new URLSearchParams(`q=${term || ""}`);
     }
     router.push(
       `/data/c2m2/graph/advanced_search?${advancedSearchParams.toString()}`
@@ -111,20 +106,6 @@ export default function GraphSearch() {
 
   useEffect(() => {
     if (value !== null && value.length > 0) {
-      const searchFile =
-        searchFileParam === null
-          ? true
-          : searchFileParam.toLowerCase() === "true";
-      const searchSubject =
-        searchSubjectParam === null
-          ? true
-          : searchSubjectParam.toLowerCase() === "true";
-      const searchBiosample =
-        searchBiosampleParam === null
-          ? true
-          : searchBiosampleParam.toLowerCase() === "true";
-      const dccNames = dccNamesParam.split(",").filter((d) => d !== "");
-
       setLoading(true);
       setInitialNetworkData(
         createSynonymSearchCypher(
@@ -132,6 +113,8 @@ export default function GraphSearch() {
           searchFile,
           searchSubject,
           searchBiosample,
+          subjectGenders,
+          subjectRaces,
           dccNames
         )
       )

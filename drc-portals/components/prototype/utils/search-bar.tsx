@@ -476,6 +476,8 @@ export const createSynonymSearchCypher = (
   searchFile = true,
   searchSubject = true,
   searchBiosample = true,
+  subjectGenders?: string[],
+  subjectRaces?: string[],
   dccNames?: string[],
   synLimit = 100,
   termLimit = 100,
@@ -486,17 +488,40 @@ export const createSynonymSearchCypher = (
     dccNames = [];
   }
 
-  const includedTermLabels = [
-    searchFile ? "'File'" : "",
-    searchSubject ? "'Subject'" : "",
-    searchBiosample ? "'Biosample'" : "",
-  ].filter((l) => l !== "");
+  const termFilters = [];
   const dccNameFilter =
     dccNames.length > 0
       ? `WHERE dcc.abbreviation IN [${dccNames
           .map((n) => `'${n}'`)
           .join(", ")}]`
       : "WHERE TRUE";
+
+  if (searchFile) {
+    termFilters.push("(label IN ['File'])");
+  }
+
+  if (searchSubject) {
+    let subjectFilter = "(label IN ['Subject']";
+
+    if (subjectGenders !== undefined && subjectGenders.length > 0) {
+      subjectFilter += `AND core.sex IN [${subjectGenders
+        .map((g) => `'cfde_subject_sex:${g}'`)
+        .join(", ")}]`;
+    }
+
+    if (subjectRaces !== undefined && subjectRaces.length > 0) {
+      subjectFilter += `AND core.race IN [${subjectRaces
+        .map((g) => `'cfde_subject_race:${g}'`)
+        .join(", ")}]`;
+    }
+
+    subjectFilter += ")";
+    termFilters.push(subjectFilter);
+  }
+
+  if (searchBiosample) {
+    termFilters.push("(label IN ['Biosample'])");
+  }
 
   // TODO: Consider pushing the parameterization to the driver
   return `
@@ -515,7 +540,8 @@ export const createSynonymSearchCypher = (
     MATCH (term)<-[]-(core)
     WHERE any(
       label IN labels(core)
-      WHERE label IN [${includedTermLabels.join(", ")}]
+        WHERE
+          ${termFilters.join(" OR\n\t\t")}
     )
     RETURN DISTINCT core
     LIMIT ${coreLimit}
