@@ -5,6 +5,7 @@ import { Table, TableHead, TableRow, TableBody, TableCell, Typography } from '@m
 import { CheckCircle } from '@mui/icons-material'
 import { dccAsset } from '@/utils/dcc-assets';
 import { useWidth } from './Carousel/helper';
+import DisableableLink from './DisableableLink';
 
 export function NameCell(props : {item: dccAsset}) {
   const width = useWidth()
@@ -13,9 +14,9 @@ export function NameCell(props : {item: dccAsset}) {
         <Typography>
           {props.item.filename}
           <br />
-          <Link color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener">
+          <DisableableLink color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener" disabled={!props.item.dccapproved || !props.item.drcapproved}>
             Template
-          </Link>  |  <Link 
+          </DisableableLink>  |  <Link 
             color="#3470e5" fontSize="11pt" className="underline" href={props.item.entitypage} target="_blank" rel="noopener">
             Example
           </Link>
@@ -24,25 +25,25 @@ export function NameCell(props : {item: dccAsset}) {
   } else if ((props.item.openapi) && (!props.item.smartapi)) {
     return (
       <Typography color="#979b9c" fontSize="10pt">
-        <Link color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener">
+        <DisableableLink color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener" disabled={!props.item.dccapproved || !props.item.drcapproved}>
           {props.item.filename}
-        </Link> (OpenAPI)
+        </DisableableLink> (OpenAPI)
       </Typography>
     )
   } else if (props.item.smartapi) {
     const apiurl = props.item.smartapiurl ? props.item.smartapiurl : props.item.link
     return (
       <Typography color="#979b9c" fontSize="10pt">
-        <Link color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener">
+        <DisableableLink color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener" disabled={!props.item.dccapproved || !props.item.drcapproved}>
           {props.item.filename}
-        </Link> (SmartAPI)
+        </DisableableLink> (SmartAPI)
       </Typography>
     )
   } else {
     return (
-      <Link color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener">
+      <DisableableLink color="#3470e5" fontSize="11pt" className="underline" href={props.item.link} target="_blank" rel="noopener" disabled={!props.item.dccapproved || !props.item.drcapproved}>
         {props.item.filename}
-      </Link>
+      </DisableableLink>
     )
   }
 }
@@ -147,9 +148,9 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
             return (
               <TableRow key={idx}>
                 <TableCell width='35%' style={{wordBreak: "break-word"}} sx={{border:0}}>
-                  <Link color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener">
+                  <DisableableLink color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener" disabled={!item.dccapproved && !item.drcapproved}>
                     {item.filename}
-                  </Link>
+                  </DisableableLink>
                 </TableCell>
                 <TableCell width='20%' align="center" sx={{border:0}}>{item.creator}</TableCell>
                 <TableCell width="10%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.size}</TableCell>
