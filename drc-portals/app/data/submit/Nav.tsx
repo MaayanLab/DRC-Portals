@@ -14,17 +14,12 @@ export default async function Nav() {
       </Container>
     )
   } else {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: session.user.id
-      }
-    })
     let userAdmin = false
-    if (user?.role === 'ADMIN') {
+    if (session.user.role === 'ADMIN') {
       userAdmin = true;
     }
     let registered = false
-    if (user?.role !== 'USER') {
+    if (session.user.role !== 'USER') {
       registered = true;
     }
     return (

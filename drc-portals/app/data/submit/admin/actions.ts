@@ -11,14 +11,7 @@ import { redirect } from 'next/navigation';
 async function verifyUser() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (user.role != 'ADMIN') throw new Error('not an admin')
+    if (session.user.role !== 'ADMIN') throw new Error('not an admin')
 }
 
 async function getDCCObjects(dccShortLabels: string[]) {
