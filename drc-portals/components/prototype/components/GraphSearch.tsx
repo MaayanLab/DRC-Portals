@@ -5,18 +5,18 @@ import { ElementDefinition, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { D3_FORCE_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
+import {
+  D3_FORCE_LAYOUT,
+  D3_FORCE_TOOLS,
+  DEFAULT_STYLESHEET,
+} from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
 import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
-import { CytoscapeReference } from "../types/cy";
 import { getAdvancedSearchValuesFromParams } from "../utils/advanced-search";
-import {
-  createCytoscapeElementsFromNeo4j,
-  unlockD3ForceNodes,
-} from "../utils/cy";
+import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
 import {
   createSynonymSearchCypher,
   getValueFromSearchParams,
@@ -56,15 +56,7 @@ export default function GraphSearch() {
     },
   ];
 
-  const customTools = [
-    // Unlock All Nodes button
-    (cyRef: CytoscapeReference) =>
-      unlockD3ForceNodes(
-        "search-chart-toolbar-unlock-btn",
-        "Unlock All Nodes",
-        cyRef
-      ),
-  ];
+  const customTools = [...D3_FORCE_TOOLS];
 
   const clearSearchError = () => {
     setError(null);

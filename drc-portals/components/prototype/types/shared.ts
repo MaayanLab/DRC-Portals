@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 
-import { Direction } from "../enums/search-bar";
+import { Direction } from "../enums/query-builder";
 
 export type NodeElementFactory = (name: string) => ReactElement;
 

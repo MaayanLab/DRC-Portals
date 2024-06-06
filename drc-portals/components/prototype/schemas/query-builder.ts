@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Direction } from "../enums/search-bar";
+import { Direction } from "../enums/query-builder";
 
 export const PropertyValueSchema = z.union([z.string(), z.number()]);
 

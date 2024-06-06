@@ -16,15 +16,15 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ChangeEvent, useEffect, useState } from "react";
 
-import { PROPERTY_OPERATORS } from "../../constants/search-bar";
-import { BasePropertyFilter } from "../../interfaces/search-bar";
-import { SearchBarOption } from "../../types/search-bar";
+import { PROPERTY_OPERATORS } from "../../constants/query-builder";
+import { BasePropertyFilter } from "../../interfaces/query-builder";
+import { SearchBarOption } from "../../types/query-builder";
 import {
   createPropertyFilter,
   getEntityProperties,
   getPropertyOperators,
   isRelationshipOption,
-} from "../../utils/search-bar";
+} from "../../utils/query-builder";
 
 interface SettingsPropertyFormProps {
   value: SearchBarOption;

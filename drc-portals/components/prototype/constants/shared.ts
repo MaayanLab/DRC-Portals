@@ -1,5 +1,7 @@
-import { IconButton, styled } from "@mui/material";
+import { Box, Divider, IconButton, Typography, styled } from "@mui/material";
 import { CSSProperties } from "react";
+
+import { EDGE_COLOR } from "./cy";
 import {
   ADMIN_LABELS,
   ANALYSIS_TYPE_LABEL,
@@ -33,6 +35,60 @@ import {
   SUBSTANCE_LABEL,
   TERM_LABELS,
 } from "./neo4j";
+
+export const NodeElement = styled(Box)(() => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "32px",
+  color: "#fff",
+  borderRadius: "16px",
+  marginTop: "3px",
+  marginBottom: "3px",
+  fontSize: "0.8125rem",
+}));
+
+export const RelationshipElement = styled(Box)(() => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "32px",
+  border: "none",
+  margin: "3px",
+  fontSize: "0.8125rem",
+}));
+
+export const AnonymousNodeElement = styled(Box)(() => ({
+  height: "1.9em",
+  width: "1.9em",
+  border: "1px solid #797979",
+  borderRadius: "50%",
+  marginTop: "3px",
+  marginBottom: "3px",
+}));
+
+export const EntityText = styled(Typography)(() => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  paddingLeft: "11px",
+  paddingRight: "11px",
+  whiteSpace: "nowrap",
+  fontSize: "0.8rem",
+}));
+
+export const DividerContainer = styled(Box)(() => ({
+  width: "16px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+}));
+
+export const EntityDivider = styled(Divider)(() => ({
+  width: "16px",
+  backgroundColor: "#000",
+  borderBottomWidth: "2px",
+  borderColor: EDGE_COLOR,
+}));
 
 export const TransparentIconButton = styled(IconButton)({
   "&.MuiIconButton-root:hover": { backgroundColor: "transparent" },

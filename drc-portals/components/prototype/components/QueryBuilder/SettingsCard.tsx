@@ -17,12 +17,12 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { PROPERTY_MAP } from "../../constants/neo4j";
-import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
-import { SearchBarOption } from "../../types/search-bar";
+import { DEFAULT_QUERY_SETTINGS } from "../../constants/query-builder";
+import { SearchBarOption } from "../../types/query-builder";
 import {
   createEntityElement,
   isRelationshipOption,
-} from "../../utils/search-bar";
+} from "../../utils/query-builder";
 
 import SettingsPropertyForm from "./SettingsPropertyForm";
 

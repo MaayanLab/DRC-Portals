@@ -9,6 +9,8 @@ import { Css, Position, Stylesheet } from "cytoscape";
 import { forwardRef } from "react";
 
 import { CytoscapeNodeData } from "../interfaces/cy";
+import { CytoscapeReference } from "../types/cy";
+import { unlockD3ForceNodes } from "../utils/cy";
 
 import { ENTITY_STYLES_MAP, NODE_CLASS_MAP } from "./shared";
 import {
@@ -954,3 +956,12 @@ export const SCHEMA_STYLESHEET: Stylesheet[] = [
 export const SCHEMA_LAYOUT = {
   name: "preset",
 };
+
+export const D3_FORCE_TOOLS = [
+  (cyRef: CytoscapeReference) =>
+    unlockD3ForceNodes(
+      "search-chart-toolbar-unlock-btn",
+      "Unlock All Nodes",
+      cyRef
+    ),
+];

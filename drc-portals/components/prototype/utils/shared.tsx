@@ -14,25 +14,23 @@ import {
   TERM_LABELS,
 } from "../constants/neo4j";
 import {
-  AnonymousNodeElement,
-  DividerContainer,
-  EntityDivider,
-  EntityText,
-  NodeElement,
-  RelationshipElement,
-} from "../constants/search-bar";
-import { Direction } from "../enums/search-bar";
-import {
   ADMIN_NODE_CLASS,
+  AnonymousNodeElement,
   BIOSAMPLE_RELATED_NODE_CLASS,
   CONTAINER_NODE_CLASS,
   CORE_NODE_CLASS,
+  DividerContainer,
   ENTITY_STYLES_MAP,
+  EntityDivider,
+  EntityText,
   FILE_RELATED_NODE_CLASS,
   NODE_DISPLAY_PROPERTY_MAP,
+  NodeElement,
+  RelationshipElement,
   SUBJECT_RELATED_NODE_CLASS,
   TERM_NODE_CLASS,
 } from "../constants/shared";
+import { Direction } from "../enums/query-builder";
 import { NodeResult } from "../interfaces/neo4j";
 import {
   GraphElementFactory,

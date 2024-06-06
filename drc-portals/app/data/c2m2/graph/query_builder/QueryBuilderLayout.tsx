@@ -1,5 +1,7 @@
 import { Grid } from "@mui/material";
 
+import GraphQueryBuilder from "@/components/prototype/components/GraphQueryBuilder";
+
 export default function QueryBuilderLayout() {
   return (
     <Grid
@@ -8,7 +10,9 @@ export default function QueryBuilderLayout() {
       sx={{ paddingTop: 2, paddingBottom: 2 }}
       spacing={2}
     >
-      <Grid item container xs={12} spacing={1}></Grid>
+      <Grid item container xs={12} spacing={1}>
+        <GraphQueryBuilder></GraphQueryBuilder>
+      </Grid>
     </Grid>
   );
 }

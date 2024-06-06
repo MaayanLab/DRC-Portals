@@ -1,5 +1,4 @@
 import {
-  BaseLayoutOptions,
   EdgeDataDefinition,
   EdgeDefinition,
   EventObject,

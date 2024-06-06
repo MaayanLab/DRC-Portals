@@ -1,10 +1,10 @@
 import { EventObjectEdge, EventObjectNode } from "cytoscape";
 
-import { Direction } from "../enums/search-bar";
+import { Direction } from "../enums/query-builder";
+import { NodeOption, RelationshipOption } from "../interfaces/query-builder";
 import { SchemaEdgeData, SchemaNodeData } from "../interfaces/schema";
-import { NodeOption, RelationshipOption } from "../interfaces/search-bar";
+import { SearchBarOption } from "../types/query-builder";
 import { SchemaData } from "../types/schema";
-import { SearchBarOption } from "../types/search-bar";
 
 export const isSchemaEdge = (
   option: SchemaNodeData | SchemaEdgeData

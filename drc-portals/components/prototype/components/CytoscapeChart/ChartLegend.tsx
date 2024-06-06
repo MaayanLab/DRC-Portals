@@ -10,7 +10,6 @@ import CircleIcon from "@mui/icons-material/Circle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { v4 } from "uuid";
 
-import { createArrowDividerElement } from "../../utils/shared";
 import {
   ADMIN_NODE_COLOR,
   BIOSAMPLE_RELATED_NODE_COLOR,
@@ -20,6 +19,7 @@ import {
   SUBJECT_RELATED_NODE_COLOR,
   TERM_NODE_COLOR,
 } from "../../constants/shared";
+import { createArrowDividerElement } from "../../utils/shared";
 
 export default function ChartLegend() {
   const cmpKey = v4();

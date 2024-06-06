@@ -8,18 +8,18 @@ import {
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-import { DEFAULT_QUERY_SETTINGS } from "../../constants/search-bar";
+import { DEFAULT_QUERY_SETTINGS } from "../../constants/query-builder";
 import {
   SearchBarState,
   SearchQuerySettings,
-} from "../../interfaces/search-bar";
+} from "../../interfaces/query-builder";
+import { SearchBarOption } from "../../types/query-builder";
 import {
   CustomPaper,
   CustomPopper,
   createSearchPathEl,
   getOptions,
-} from "../../utils/search-bar";
-import { SearchBarOption } from "../../types/search-bar";
+} from "../../utils/query-builder";
 
 import SearchSettingsDialog from "./SearchBarSettingsDialog";
 
@@ -31,8 +31,6 @@ interface SchemaAutocompleteProps {
   onSubmit: (state: SearchBarState) => void;
 }
 
-// TODO: This is basically a copy of the old SearchBar component from before the switch to text search. Should use this in the
-// "Advanced Search" page.
 export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
   const { state, error, loading, clearError, onSubmit } = cmpProps;
   const [value, setValue] = useState(state?.value || []);

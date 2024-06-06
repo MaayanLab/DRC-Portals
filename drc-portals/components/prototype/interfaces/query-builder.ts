@@ -1,5 +1,5 @@
-import { Direction } from "../enums/search-bar";
-import { PropertyValue, SearchBarOption } from "../types/search-bar";
+import { Direction } from "../enums/query-builder";
+import { PropertyValue, SearchBarOption } from "../types/query-builder";
 
 export interface BasePropertyFilter {
   name: string;
