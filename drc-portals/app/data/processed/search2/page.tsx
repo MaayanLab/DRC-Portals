@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import SearchPage from './SearchPage'
 import SearchTabs from "./SearchTab";
+import { safeAsync } from "@/utils/safe";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -16,7 +17,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+  if (!searchParams.q) redirect('/data')
+  const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     count: number,
     type_counts: {type: NodeType, entity_type: string | null, count: number}[],
     dcc_counts: {id: string, short_label: string, count: number}[],
@@ -65,16 +67,19 @@ export default async function Page(props: PageProps) {
       (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
-  ` : [undefined]
-  if (!results) redirect('/data')
-  else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
-  results.type_counts.sort((a, b) => b.count - a.count)
-  const s_type = searchParams.s?.type !== undefined ? searchParams.s?.type : results.type_counts[0].type
-  const s_entity_type = searchParams.s?.entity_type !== undefined ? searchParams.s?.entity_type : results.type_counts[0].entity_type
+  `)
+  if (!results && error) {
+    console.error(error)
+    redirect(`/data?error=${encodeURIComponent(`An unexpected error occurred, please try tweaking your query`)}`)
+  }
+  if (results?.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  results?.type_counts.sort((a, b) => b.count - a.count)
+  const s_type = searchParams.s?.type !== undefined ? searchParams.s?.type : results?.type_counts[0]?.type ?? ''
+  const s_entity_type = searchParams.s?.entity_type !== undefined ? searchParams.s?.entity_type : results?.type_counts[0]?.entity_type ?? ''
   return (
     <>
       <SearchTabs
-        type_counts={results.type_counts}
+        type_counts={results?.type_counts ?? []}
         defaultSType={s_type}
         defaultSEntityType={s_entity_type}
       />

@@ -14,6 +14,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
+import { safeAsync } from "@/utils/safe";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -67,7 +68,8 @@ export default async function Page(props: PageProps) {
       )
     `), ' or '),
   ], ' or ') : Prisma.empty
-  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+  if (!searchParams.q) redirect('/data')
+  const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,
     total_count: number,
@@ -128,9 +130,12 @@ export default async function Page(props: PageProps) {
       (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
-  ` : [undefined]
-  if (!results) redirect('/data')
-  else if (results.total_count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  `)
+  if (!results && error) {
+    console.error(error)
+    redirect(`/data?error=${encodeURIComponent(`An unexpected error occurred, please try tweaking your query`)}`)
+  }
+  if (results?.total_count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
       count={results?.filter_count}

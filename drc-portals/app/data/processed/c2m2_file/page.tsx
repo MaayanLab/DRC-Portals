@@ -5,6 +5,7 @@ import ListingPageLayout from "../ListingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode, Description, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from 'next'
 import { Typography } from "@mui/material";
+import { safeAsync } from "@/utils/safe";
 
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
@@ -21,7 +22,7 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const [results] = await prisma.$queryRaw<Array<{
+  const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     items: {
       id: string,
       data_type: string,
@@ -80,17 +81,18 @@ export default async function Page(props: PageProps) {
         (select count("c2m2_file_node".id)::int from "c2m2_file_node") as count
       `}
     ;
-  `
+  `)
+  if (error) console.error(error)
   return (
     <ListingPageLayout
-      count={results.count}
+      count={results?.count ?? 0}
     >
       <SearchablePagedTable
         label={`${type_to_string('c2m2_file', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results.count}
+        count={results?.count ?? 0}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
@@ -98,13 +100,13 @@ export default async function Page(props: PageProps) {
           <>Data Type</>,
           <>Assay Type</>,
         ]}
-        rows={results.items.map(item => [
+        rows={results?.items.map(item => [
           item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/${item.node.type}/${item.id}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
           <Typography variant={'body1'} color="secondary">{item.data_type}</Typography>,
           <Typography variant={'body1'} color="secondary">{item.assay_type}</Typography>,,
-        ])}
+        ]) ?? []}
       />
     </ListingPageLayout>
   )
