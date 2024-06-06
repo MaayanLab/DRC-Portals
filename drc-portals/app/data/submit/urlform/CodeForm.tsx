@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { DCCSelect } from '../form/DCCSelect';
-import { CodeAsset, DCC, DccAsset, FileAsset, User } from '@prisma/client';
+import { CodeAsset, DccAsset, FileAsset, Role } from '@prisma/client';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -164,7 +164,7 @@ type fullDCCAsset = {
     codeAsset: CodeAsset | null;
 } & DccAsset
 
-export function CodeForm(user: User & { dccs: DCC[] }) {
+export function CodeForm(user: { name?: string | null, email?: string | null, role: Role, dccs: string[] }) {
 
     const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<StatusType>({})
@@ -364,7 +364,7 @@ export function CodeForm(user: User & { dccs: DCC[] }) {
                                 sx={{ mx: 2 }}
                                 fullWidth
                             />
-                            <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
+                            <DCCSelect dccOptions={user.dccs.join(',')} />
                         </Stack>
                         <Stack direction='row' width={'100%'} spacing={2}>
                             <div>
