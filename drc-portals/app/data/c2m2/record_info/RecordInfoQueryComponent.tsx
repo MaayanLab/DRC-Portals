@@ -995,17 +995,27 @@ file_table AS (
     addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
     //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
-    addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, fileProj_table_label_base, categories);
-    addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, fileSub_table_label_base, categories);
-    addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, fileBios_table_label_base, categories);
-    addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, fileCol_table_label_base, categories);
-
+    
+    // Conditionally add categoreis based on the counts.
     // Define the actual count of records in table displayed here and use at two or more places
     const count_file_table_withlimit = results?.file_table_full.length ?? 0;
     const count_file_sub_table_withlimit = results?.file_sub_table_full.length ?? 0;
     const count_file_bios_table_withlimit = results?.file_bios_table_full.length ?? 0;
     const count_file_col_table_withlimit = results?.file_col_table_full.length ?? 0;
 
+    if (count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) {
+      addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, fileProj_table_label_base, categories);
+    }
+    if (count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) {
+      addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, fileSub_table_label_base, categories);
+    }
+    if(count_file_bios_table_withlimit > 0) {
+      addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, fileBios_table_label_base, categories);
+    }
+    if (count_file_col_table_withlimit > 0) {
+      addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, fileCol_table_label_base, categories);
+    }
+    
     const biosampleTableTitle = "Biosamples: " + results?.count_bios;
     const subjectTableTitle = "Subjects: " + results?.count_sub;
     const collectionTableTitle = "Collections: " + results?.count_col;
