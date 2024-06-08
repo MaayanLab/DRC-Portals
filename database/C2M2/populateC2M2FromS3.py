@@ -255,6 +255,9 @@ print(f"Going to ingest metadata from files{newline}");
 # 'filetype', 'filename', 'link', 'size', 'lastmodified', 'current', ... 'dcc_short_label'
 # Below, c2m2 holds one row.
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
+print(f"{newline}********* c2m2s dataframe, before checking if a single DCC is to be processed, is: **********");
+print(f"{c2m2s}"); 
+
 if(single_dcc == 1): # Mano
     c2m2s = c2m2s[c2m2s['dcc_short_label'] == dcc_short_label]; # This should select just one row of the c2m2s data.frame
 
@@ -530,6 +533,25 @@ print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: {t3
 # # Commit the changes 
 conn.commit()
 
+#------------------------------------------------------
+# Remove .0 from the size_in_bytes column of file table
+# Define the UPDATE query
+file_size_in_bytes_update_query1 = f"UPDATE {schema_name}.file  SET size_in_bytes = REGEXP_REPLACE(size_in_bytes, '\.0$', '');";
+file_size_in_bytes_update_query2 = f"UPDATE {schema_name}.file  SET uncompressed_size_in_bytes = REGEXP_REPLACE(uncompressed_size_in_bytes, '\.0$', '');";
+file_size_in_bytes_update_query = file_size_in_bytes_update_query1 + file_size_in_bytes_update_query2;
+# Execute the UPDATE query
+print(f"{newline}>>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table {schema_name}.file successful.{newline}");
+try:
+    cursor.execute(file_size_in_bytes_update_query)
+    print(f"Update successful.{newline}");
+except Exception as fsu_e:
+    print(f"Error executing the query{newline}{file_size_in_bytes_update_query}: {fsu_e}");
+finally:
+    # Commit the changes 
+    conn.commit();
+#------------------------------------------------------
+
+#cursor.close()
 conn.close()
 
 t4 = time.time();

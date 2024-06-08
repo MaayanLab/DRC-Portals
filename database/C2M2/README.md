@@ -47,6 +47,12 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 # The above run provides additional instructions at the end for more crosschecks 
 # between data in tables in the c2m2 schema and the tables in the DCC-name-specific schema.
 
+# If there is a need to to remove .0 from columns size_in_bytes and uncompressed_size_in_bytes 
+# of file tables of various schema: the script populateC2M2FromS3.py has been updated to address this.
+# However, to do it in psql, run the script rem_decimal_file_size_in_bytes_column.sql after editing suitably, using
+# on psql prompt: \i rem_decimal_file_size_in_bytes_column.sql
+# OR, directly specify the sql file name in psql command:
+# psql -h localhost -U drc -d drc -p [5432|5433] -a -f rem_decimal_file_size_in_bytes_column.sql
 
 # Other c2m2 related sql scripts
 psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -o log/log_c2m2_other_tables.log
