@@ -46,10 +46,10 @@ export default async function Page(props: PageProps) {
     searchParams.t.some(t => t.type === 'dcc')
       ? Prisma_join(
         searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma_join([
-          Prisma.sql`"results"."dcc_id" = ${t.entity_type}`,
+          Prisma.sql`"node"."dcc_id" = ${t.entity_type}`,
           Prisma_join(searchParams.t ? searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
             (
-              "results"."type" = ${t.type}::"NodeType"
+              "node"."type" = ${t.type}::"NodeType"
             )
             `) : [], ' or '),
         ], ' and ')),
@@ -58,13 +58,13 @@ export default async function Page(props: PageProps) {
       // otherwise, we filter by entity type independent of dcc
       : Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
-          "results"."type" = ${t.type}::"NodeType"
+          "node"."type" = ${t.type}::"NodeType"
         )
         `), ' or '),
     // entities not associated with a DCC should be independently filterable
     Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
       (
-        "results"."type" = 'entity'::"NodeType"
+        "node"."type" = 'entity'::"NodeType"
         ${t.entity_type ? Prisma.sql`
           and "entity_node"."type" = ${t.entity_type}
         ` : Prisma.empty}
@@ -80,24 +80,21 @@ export default async function Page(props: PageProps) {
     with results as (
       select
         "node".*,
+        "entity_node"."type" as "entity_type",
         ts_rank_cd("node"."searchable", q) as rank
-      from "node", websearch_to_tsquery('english', ${searchParams.q}) q
-      where q @@ "node"."searchable"
+      from websearch_to_tsquery('english', ${searchParams.q}) q, "node"
+      left join "entity_node" on "node"."id" = "entity_node"."id"
+      where ${Prisma_join([filterClause, Prisma.sql`q @@ "node"."searchable"`], ' and ')}
       order by rank desc, "node"."id"
-    ), all_items as (
-      select "results".*, "entity_node"."type" as "entity_type"
-      from "results"
-      left join "entity_node" on "results"."id" = "entity_node"."id"
-      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
       offset ${offset}
       limit 100
     ), items as (
       select
-        "all_items".id,
-        "all_items".type,
-        "all_items".entity_type,
-        "all_items".label,
-        "all_items".description,
+        "results".id,
+        "results".type,
+        "results".entity_type,
+        "results".label,
+        "results".description,
         (
           select jsonb_build_object(
             'short_label', "dccs".short_label,
@@ -107,11 +104,11 @@ export default async function Page(props: PageProps) {
           from "dccs"
           where "dccs".id = "dcc_id"
         ) as dcc
-      from all_items
+      from results
       limit ${limit}
     ), filter_count as (
       select count(*)::int as count
-      from "all_items"
+      from "results"
     )
     select 
       (select exists (select 1 from "results" limit 1)) as "exists",
@@ -127,19 +124,20 @@ export default async function Page(props: PageProps) {
   return (
     <ListingPageLayout
       count={results?.filter_count}
+      maxCount={100}
       filters={
         <>
           <Typography className="subtitle1">Program</Typography>
           <React.Suspense fallback={<></>}>
-          <ProgramFilters q={searchParams.q ??''} />
+            <ProgramFilters q={searchParams.q ??''} />
           </React.Suspense>
           <hr className="m-2" />
           <Typography className="subtitle1">Type</Typography>
           <React.Suspense fallback={<></>}>
-          <NodeTypeFilters q={searchParams.q ??''} />
+            <NodeTypeFilters q={searchParams.q ??''} />
           </React.Suspense>
           <React.Suspense fallback={<></>}>
-          <EntityTypeFilters q={searchParams.q ??''} />
+            <EntityTypeFilters q={searchParams.q ??''} />
           </React.Suspense>
         </>
       }
@@ -159,7 +157,7 @@ export default async function Page(props: PageProps) {
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.filter_count}
+        count={(results?.filter_count??0) + offset}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
