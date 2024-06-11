@@ -214,5 +214,6 @@ export async function getDccDataObj(
     EntityPages: await getDataObj(prisma, dccId, dccName, 'Entity Page Template'),
     PWBMetanodes: await getDataObj(prisma, dccId, dccName, 'PWB Metanodes'),
     ChatbotSpecs: await getDataObj(prisma, dccId, dccName, 'Chatbot Specs'),
+    AppsURL: await getDataObj(prisma, dccId, dccName, 'Apps URL')
   })
 }

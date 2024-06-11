@@ -3,11 +3,6 @@ import { Typography, Container, Link } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch';
 import prisma from '@/lib/prisma';
 
-type dccMatrix = {
-  dcc: string, img: string,
-  c2m2: boolean, xmt: boolean, kg: boolean, att: boolean,
-  etl: boolean, api: boolean, ent: boolean, pwb: boolean, chat: boolean
-}
 
 async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
   const res = is_code ? await prisma.dccAsset.findMany({
@@ -32,7 +27,7 @@ async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
 
 const columns = [
   'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 
-  'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs'
+  'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URL'
 ]
 
 export default async function DataMatrix() {
@@ -60,7 +55,8 @@ export default async function DataMatrix() {
     api: await getDccNumAssets(item.id, 'API', true),
     ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
     pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
-    chat: await getDccNumAssets(item.id, 'Chatbot Specs', true)
+    chat: await getDccNumAssets(item.id, 'Chatbot Specs', true),
+    apps: await getDccNumAssets(item.id, 'Apps URL', true),
   })))
   // sort by most to least assets
   const ordered_data = cfde_data.map( item => (
@@ -114,7 +110,7 @@ export default async function DataMatrix() {
             <TableCell sx={{ height: '60px', border: 0, backgroundColor: "#c8d2e9"}} align="center" colSpan={4}>
               <Typography variant="subtitle1" color="secondary.dark">Datasets and Metadata</Typography>
             </TableCell>
-            <TableCell sx={{ height: '60px', border:0, backgroundColor: "#dbe0f0" }} align="center" colSpan={5}>
+            <TableCell sx={{ height: '60px', border:0, backgroundColor: "#dbe0f0" }} align="center" colSpan={6}>
               <Typography variant="subtitle1" color="secondary.dark">Code</Typography>
             </TableCell>
           </TableRow>
@@ -123,7 +119,7 @@ export default async function DataMatrix() {
               <Typography variant="subtitle1" color="secondary.dark">DCC</Typography>
             </TableCell>
             {columns.map((item, idx) => {
-              const code_assets = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs']
+              const code_assets = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URL']
               const bgColor = (code_assets.includes(item)) ? '#dbe0f0' : '#c8d2e9'
               return (
                 <TableCell key={idx} align="center" 
@@ -195,6 +191,12 @@ export default async function DataMatrix() {
                   <TableCell sx={{ border:0 }} align="center"> {
                     item.data.chat ? (
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ChatbotSpecs')}>
+                        <LaunchIcon color='secondary' />
+                      </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
+                  } </TableCell>
+                  <TableCell sx={{ border:0 }} align="center"> {
+                    item.data.apps ? (
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#AppsURL')}>
                         <LaunchIcon color='secondary' />
                       </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
@@ -276,7 +278,13 @@ export default async function DataMatrix() {
                         <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Chatbot Specs</Button>
                       </Link>
                   }
-                  {(!item.data.chat && !item.data.pwb && !item.data.ent && !item.data.api && !item.data.etl) &&
+                  {  
+                    item.data.apps && 
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#AppsURL')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Apps URL</Button>
+                      </Link>
+                  }
+                  {(!item.data.chat && !item.data.pwb && !item.data.ent && !item.data.api && !item.data.etl && !item.data.apps) &&
                         <Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>
                     }
                 </Stack>
