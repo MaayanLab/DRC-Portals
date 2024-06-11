@@ -29,7 +29,8 @@ function AccordionHeader(
     API: 'API Specifications',
     EntityPages: 'Entity Pages',
     PWBMetanodes: 'PWB Metanodes',
-    ChatbotSpecs: 'Chatbot Specifications'
+    ChatbotSpecs: 'Chatbot Specifications',
+    AppsURL: 'Apps URL'
   }
   const label = label_map[props.label as keyof typeof label_map]
   if (props.assetInfo.current.length + props.assetInfo.archived.length < 1) {
