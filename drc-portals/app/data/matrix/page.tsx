@@ -27,7 +27,7 @@ async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
 
 const columns = [
   'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 
-  'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URL'
+  'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URLs'
 ]
 
 export default async function DataMatrix() {
@@ -83,8 +83,8 @@ export default async function DataMatrix() {
         Interoperability and code assets include links to extract-transform-load 
         (ETL) scripts, API specifications, entity pages, 
         CFDE <Link color="#3470e5" href="https://playbook-workflow-builder.cloud/" target="_blank">
-        Playbook Workflow Builder</Link> (PWB) metanode specifications, and chatbot 
-        specifications. 
+        Playbook Workflow Builder</Link> (PWB) metanode specifications, chatbot 
+        specifications and app URLs. 
         <br /> <br />
         For more information about any of the asset types, please refer to 
         the <Link href="/info/documentation" color="#3470e5">DOCUMENTATION</Link> section
@@ -119,7 +119,7 @@ export default async function DataMatrix() {
               <Typography variant="subtitle1" color="secondary.dark">DCC</Typography>
             </TableCell>
             {columns.map((item, idx) => {
-              const code_assets = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URL']
+              const code_assets = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URLs']
               const bgColor = (code_assets.includes(item)) ? '#dbe0f0' : '#c8d2e9'
               return (
                 <TableCell key={idx} align="center" 
