@@ -118,6 +118,12 @@ const nextConfig = {
         port: '',
         pathname: '/assets/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cfde-drc.s3.us-east-2.amazonaws.com',
+        port: '',
+        pathname: '/assets/**',
+      },
     ],
   },
   webpack(config) {
