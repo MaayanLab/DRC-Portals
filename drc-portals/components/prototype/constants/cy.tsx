@@ -254,6 +254,84 @@ const SCHEMA_FONT_SIZE = "10";
 const SCHEMA_NODE_DIAMETER = 50;
 const SCHEMA_NODE_RADIUS = SCHEMA_NODE_DIAMETER / 2;
 
+const ID_NAMESPACE_NODE_ID = "id-namespace-label";
+const DCC_NODE_ID = "dcc-label";
+const PROJECT_NODE_ID = "project-label";
+const COLLECTION_NODE_ID = "collection-label";
+const FILE_NODE_ID = "file-label";
+const ASSAY_TYPE_NODE_ID = "assay-type-label";
+const DATA_TYPE_NODE_ID = "data-type-label";
+const FILE_FORMAT_NODE_ID = "file-format-label";
+const ANALYSIS_TYPE_NODE_ID = "analysis-type-label";
+const SUBJECT_NODE_ID = "subject-label";
+const SUBJECT_SEX_NODE_ID = "subject-sex-label";
+const SUBJECT_ETHNICITY_NODE_ID = "subject-ethnicity-label";
+const SUBJECT_RACE_NODE_ID = "subject-race-label";
+const SUBJECT_GRANULARITY_NODE_ID = "subject-granularity-label";
+const BIOSAMPLE_NODE_ID = "biosample-label";
+const SAMPLE_PREP_METHOD_NODE_ID = "sample-prep-method-label";
+const SUBSTANCE_NODE_ID = "substance-label";
+const COMPOUND_NODE_ID = "compound-label";
+const PROTEIN_NODE_ID = "protein-label";
+const NCBI_TAXONOMY_NODE_ID = "ncbi-taxonomy-label";
+const GENE_NODE_ID = "gene-label";
+const PHENOTYPE_NODE_ID = "phenotype-label";
+const DISEASE_NODE_ID = "disease-label";
+const ANATOMY_NODE_ID = "anatomy-label";
+const ALL_TERM_NODES_NODE_ID = "all-term-nodes";
+
+const DCC_PRODUCED_PROJECT_EDGE_ID = "dcc-produced-project";
+const ID_NAMESPACE_CONTAINS_PROJECT_EDGE_ID = "id-namespace-contains-project";
+const ID_NAMESPACE_CONTAINS_COLLECTION_EDGE_ID =
+  "id-namespace-contains-collection";
+const ID_NAMESPACE_CONTAINS_FILE_EDGE_ID = "id-namespace-contains-file";
+const ID_NAMESPACE_CONTAINS_BIOSAMPLE_EDGE_ID =
+  "id-namespace-contains-biosample";
+const ID_NAMESPACE_CONTAINS_SUBJECT_EDGE_ID = "id-namespace-contains-subject";
+const PROJECT_IS_PARENT_OF_PROJECT_EDGE_ID = "project-is-parent-of-project";
+const PROJECT_CONTAINS_FILE_EDGE_ID = "project-contains-file";
+const PROJECT_CONTAINS_SUBJECT_EDGE_ID = "project-contains-subject";
+const PROJECT_CONTAINS_BIOSAMPLE_EDGE_ID = "project-contains-biosample";
+const COLLECTION_IS_SUPERSET_OF_COLLECTION_EDGE_ID =
+  "collection-is-superset-of-collection";
+const COLLECTION_CONTAINS_FILE_EDGE_ID = "collection-contains-file";
+const COLLECTION_CONTAINS_BIOSAMPLE_EDGE_ID = "collection-contains-biosample";
+const COLLECTION_CONTAINS_SUBJECT_EDGE_ID = "collection-contains-subject";
+const COLLECTION_CONTAINS_TERMS_EDGE_ID = "collection-contains-terms";
+const FILE_IS_FILE_FORMAT_EDGE_ID = "file-is-file-format";
+const FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID = "file-generated-by-assay-type";
+const FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID =
+  "file-generated-by-analysis-type";
+const FILE_IS_DATA_TYPE_EDGE_ID = "file-is-data-type";
+const FILE_DESCRIBES_SUBJECT_EDGE_ID = "file-describes-subject";
+const FILE_DESCRIBES_BIOSAMPLE_EDGE_ID = "file-describes-biosample";
+const SUBJECT_IS_GRANULARITY_EDGE_ID = "subject-is-granularity";
+const SUBJECT_IS_ETHNICITY_EDGE_ID = "subject-is-ethnicity";
+const SUBJECT_IS_RACE_EDGE_ID = "subject-is-race";
+const SUBJECT_IS_SEX_EDGE_ID = "subject-is-sex";
+const SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID =
+  "subject-associated-with-taxonomy";
+const SUBJECT_ASSOCIATED_WITH_COMPOUND_EDGE_ID =
+  "subject-associated-with-compound";
+const SUBJECT_TESTED_FOR_PHENOTYPE_EDGE_ID = "subject-tested-for-phenotype";
+const SUBJECT_TESTED_FOR_DISEASE_EDGE_ID = "subject-tested-for-disease";
+const BIOSAMPLE_TESTED_FOR_PHENOTYPE_EDGE_ID = "biosample-tested-for-phenotype";
+const BIOSAMPLE_TESTED_FOR_DISEASE_EDGE_ID = "biosample-tested-for-disease";
+const BIOSAMPLE_SAMPLED_FROM_ANATOMY_EDGE_ID = "biosample-sampled-from-anatomy";
+const BIOSAMPLE_PREPPED_VIA_SAMPLE_PREP_METHOD_EDGE_ID =
+  "biosample-prepped-via-sample-prep-method";
+const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_EDGE_ID =
+  "substance-associated-with-taxonomy";
+const BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID =
+  "biosample-associated-with-substance";
+const BIOSAMPLE_ASSOCIATED_WITH_GENE_EDGE_ID = "biosample-associated-with-gene";
+const BIOSAMPLE_SAMPLED_FROM_SUBJECT_EDGE_ID = "biosample-sampled-from-subject";
+const SUBSTANCE_ASSOCIATED_WITH_COMPOUND_EDGE_ID =
+  "substance-associated-with-compound";
+const PROTEIN_HAS_SOURCE_TAXONOMY_EDGE_ID = "protein-has-source-taxonomy";
+const GENE_HAS_SOURCE_TAXONOMY_EDGE_ID = "gene-has-source-taxonomy";
+const GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID = "gene-associated-with-phenotype";
+
 const FILE_POS = { x: 0, y: 0 };
 const ID_NAMESPACE_POS = { x: FILE_POS.x, y: -160 };
 const DCC_POS = { x: -450, y: 250 };
@@ -579,7 +657,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(ID_NAMESPACE_LABEL) || ""],
     position: ID_NAMESPACE_POS,
     data: {
-      id: "1",
+      id: ID_NAMESPACE_NODE_ID,
       label: ID_NAMESPACE_LABEL,
       neo4j: {
         labels: [ID_NAMESPACE_LABEL],
@@ -591,7 +669,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(DCC_LABEL) || ""],
     position: DCC_POS,
     data: {
-      id: "2",
+      id: DCC_NODE_ID,
       label: DCC_LABEL,
       neo4j: {
         labels: [DCC_LABEL],
@@ -603,7 +681,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(PROJECT_LABEL) || ""],
     position: PROJECT_POS,
     data: {
-      id: "3",
+      id: PROJECT_NODE_ID,
       label: PROJECT_LABEL,
       neo4j: {
         labels: [PROJECT_LABEL],
@@ -615,7 +693,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(COLLECTION_LABEL) || ""],
     position: COLLECTION_POS,
     data: {
-      id: "4",
+      id: COLLECTION_NODE_ID,
       label: COLLECTION_LABEL,
       neo4j: {
         labels: [COLLECTION_LABEL],
@@ -627,7 +705,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(ASSAY_TYPE_LABEL) || ""],
     position: ASSAY_TYPE_POS,
     data: {
-      id: "5",
+      id: ASSAY_TYPE_NODE_ID,
       label: ASSAY_TYPE_LABEL,
       neo4j: {
         labels: [ASSAY_TYPE_LABEL],
@@ -639,7 +717,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(DATA_TYPE_LABEL) || ""],
     position: DATA_TYPE_POS,
     data: {
-      id: "6",
+      id: DATA_TYPE_NODE_ID,
       label: DATA_TYPE_LABEL,
       neo4j: {
         labels: [DATA_TYPE_LABEL],
@@ -651,7 +729,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(FILE_FORMAT_LABEL) || ""],
     position: FILE_FORMAT_POS,
     data: {
-      id: "7",
+      id: FILE_FORMAT_NODE_ID,
       label: FILE_FORMAT_LABEL,
       neo4j: {
         labels: [FILE_FORMAT_LABEL],
@@ -663,7 +741,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(ANALYSIS_TYPE_LABEL) || ""],
     position: ANALYSIS_TYPE_POS,
     data: {
-      id: "8",
+      id: ANALYSIS_TYPE_NODE_ID,
       label: ANALYSIS_TYPE_LABEL,
       neo4j: {
         labels: [ANALYSIS_TYPE_LABEL],
@@ -675,7 +753,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(FILE_LABEL) || ""],
     position: FILE_POS,
     data: {
-      id: "9",
+      id: FILE_NODE_ID,
       label: FILE_LABEL,
       neo4j: {
         labels: [FILE_LABEL],
@@ -687,7 +765,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SUBJECT_LABEL) || ""],
     position: SUBJECT_POS,
     data: {
-      id: "10",
+      id: SUBJECT_NODE_ID,
       label: SUBJECT_LABEL,
       neo4j: {
         labels: [SUBJECT_LABEL],
@@ -699,7 +777,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SUBJECT_SEX_LABEL) || ""],
     position: SUBJECT_SEX_POS,
     data: {
-      id: "11",
+      id: SUBJECT_SEX_NODE_ID,
       label: SUBJECT_SEX_LABEL,
       neo4j: {
         labels: [SUBJECT_SEX_LABEL],
@@ -711,7 +789,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SUBJECT_ETHNICITY_LABEL) || ""],
     position: SUBJECT_ETHNICITY_POS,
     data: {
-      id: "12",
+      id: SUBJECT_ETHNICITY_NODE_ID,
       label: SUBJECT_ETHNICITY_LABEL,
       neo4j: {
         labels: [SUBJECT_ETHNICITY_LABEL],
@@ -723,7 +801,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SUBJECT_RACE_LABEL) || ""],
     position: SUBJECT_RACE_POS,
     data: {
-      id: "13",
+      id: SUBJECT_RACE_NODE_ID,
       label: SUBJECT_RACE_LABEL,
       neo4j: {
         labels: [SUBJECT_RACE_LABEL],
@@ -735,7 +813,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SUBJECT_GRANULARITY_LABEL) || ""],
     position: SUBJECT_GRANULARITY_POS,
     data: {
-      id: "14",
+      id: SUBJECT_GRANULARITY_NODE_ID,
       label: SUBJECT_GRANULARITY_LABEL,
       neo4j: {
         labels: [SUBJECT_GRANULARITY_LABEL],
@@ -747,7 +825,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(BIOSAMPLE_LABEL) || ""],
     position: BIOSAMPLE_POS,
     data: {
-      id: "15",
+      id: BIOSAMPLE_NODE_ID,
       label: BIOSAMPLE_LABEL,
       neo4j: {
         labels: [BIOSAMPLE_LABEL],
@@ -759,7 +837,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SAMPLE_PREP_METHOD_LABEL) || ""],
     position: SAMPLE_PREP_METHOD_POS,
     data: {
-      id: "18",
+      id: SAMPLE_PREP_METHOD_NODE_ID,
       label: SAMPLE_PREP_METHOD_LABEL,
       neo4j: {
         labels: [SAMPLE_PREP_METHOD_LABEL],
@@ -771,7 +849,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(SUBSTANCE_LABEL) || ""],
     position: SUBSTANCE_POS,
     data: {
-      id: "22",
+      id: SUBSTANCE_NODE_ID,
       label: SUBSTANCE_LABEL,
       neo4j: {
         labels: [SUBSTANCE_LABEL],
@@ -783,7 +861,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(COMPOUND_LABEL) || ""],
     position: COMPOUND_POS,
     data: {
-      id: "20",
+      id: COMPOUND_NODE_ID,
       label: COMPOUND_LABEL,
       neo4j: {
         labels: [COMPOUND_LABEL],
@@ -795,7 +873,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(PROTEIN_LABEL) || ""],
     position: PROTEIN_POS,
     data: {
-      id: "23",
+      id: PROTEIN_NODE_ID,
       label: PROTEIN_LABEL,
       neo4j: {
         labels: [PROTEIN_LABEL],
@@ -807,7 +885,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(NCBI_TAXONOMY_LABEL) || ""],
     position: NCBI_TAXONOMY_POS,
     data: {
-      id: "24",
+      id: NCBI_TAXONOMY_NODE_ID,
       label: NCBI_TAXONOMY_LABEL,
       neo4j: {
         labels: [NCBI_TAXONOMY_LABEL],
@@ -819,7 +897,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(GENE_LABEL) || ""],
     position: GENE_POS,
     data: {
-      id: "21",
+      id: GENE_NODE_ID,
       label: GENE_LABEL,
       neo4j: {
         labels: [GENE_LABEL],
@@ -831,7 +909,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(PHENOTYPE_LABEL) || ""],
     position: PHENOTYPE_POS,
     data: {
-      id: "17",
+      id: PHENOTYPE_NODE_ID,
       label: PHENOTYPE_LABEL,
       neo4j: {
         labels: [PHENOTYPE_LABEL],
@@ -843,7 +921,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(DISEASE_LABEL) || ""],
     position: DISEASE_POS,
     data: {
-      id: "19",
+      id: DISEASE_NODE_ID,
       label: DISEASE_LABEL,
       neo4j: {
         labels: [DISEASE_LABEL],
@@ -855,7 +933,7 @@ export const SCHEMA_NODES = [
     classes: [NODE_CLASS_MAP.get(ANATOMY_LABEL) || ""],
     position: ANATOMY_POS,
     data: {
-      id: "16",
+      id: ANATOMY_NODE_ID,
       label: ANATOMY_LABEL,
       neo4j: {
         labels: [ANATOMY_LABEL],
@@ -867,7 +945,7 @@ export const SCHEMA_NODES = [
     classes: ["all-terms-node", "dashed"],
     position: ALL_TERMS_NODE_POS,
     data: {
-      id: "25",
+      id: ALL_TERM_NODES_NODE_ID,
       label: "All Term Nodes",
     },
   },
@@ -882,396 +960,372 @@ export const INITIAL_NODE_POSITIONS: Map<string, Position> = new Map<
 
 export const SCHEMA_EDGES = [
   {
-    classes: ["file-related-relationship"],
+    classes: ["admin-relationship"],
     data: {
-      id: "100",
-      source: "9",
-      target: "7",
-      label: IS_FILE_FORMAT_TYPE,
+      id: DCC_PRODUCED_PROJECT_EDGE_ID,
+      source: DCC_NODE_ID,
+      target: PROJECT_NODE_ID,
+      label: PRODUCED_TYPE,
     },
   },
   {
-    classes: ["file-related-relationship"],
+    classes: ["admin-relationship"],
     data: {
-      id: "101",
-      source: "9",
-      target: "5",
-      label: GENERATED_BY_ASSAY_TYPE_TYPE,
-    },
-  },
-  {
-    classes: ["subject-related-relationship"],
-    data: {
-      id: "102",
-      source: "10",
-      target: "14",
-      label: IS_GRANULARITY_TYPE,
-    },
-  },
-  {
-    classes: ["subject-related-relationship"],
-    data: {
-      id: "103",
-      source: "10",
-      target: "12",
-      label: IS_ETHNICITY_TYPE,
-    },
-  },
-  {
-    classes: [
-      "substance-associated-with-taxonomy",
-      "term-relationship",
-      "no-arrows",
-    ],
-    data: {
-      id: "104",
-      source: "22",
-      target: "24",
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: [
-      "biosample-associated-with-substance",
-      "term-relationship",
-      "no-arrows",
-    ],
-    data: {
-      id: "149",
-      source: "15",
-      target: "22",
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: [
-      "biosample-associated-with-gene",
-      "term-relationship",
-      "no-arrows",
-    ],
-    data: {
-      id: "150",
-      source: "15",
-      target: "21",
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: ["term-relationship", "no-arrows"],
-    data: {
-      id: "105",
-      source: "22",
-      target: "20",
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: [
-      "subject-associated-with-taxonomy",
-      "term-relationship",
-      "no-arrows",
-    ],
-    data: {
-      id: "106",
-      source: "10",
-      target: "24",
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: [
-      "subject-associated-with-compound",
-      "term-relationship",
-      "no-arrows",
-    ],
-    data: {
-      id: "107",
-      source: "10",
-      target: "20",
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: ["id-namespace-contains-collection", "admin-relationship"],
-    data: {
-      id: "110",
-      source: "1",
-      target: "4",
+      id: ID_NAMESPACE_CONTAINS_PROJECT_EDGE_ID,
+      source: ID_NAMESPACE_NODE_ID,
+      target: PROJECT_NODE_ID,
       label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["collection-contains-file", "container-relationship"],
+    classes: ["admin-relationship"],
     data: {
-      id: "111",
-      source: "4",
-      target: "9",
+      id: ID_NAMESPACE_CONTAINS_COLLECTION_EDGE_ID,
+      source: ID_NAMESPACE_NODE_ID,
+      target: COLLECTION_NODE_ID,
       label: CONTAINS_TYPE,
     },
   },
   {
     classes: ["admin-relationship", "horizontal-text"],
     data: {
-      id: "112",
-      source: "1",
-      target: "9",
+      id: ID_NAMESPACE_CONTAINS_FILE_EDGE_ID,
+      source: ID_NAMESPACE_NODE_ID,
+      target: FILE_NODE_ID,
       label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["id-namespace-contains-biosample", "admin-relationship"],
-    data: {
-      id: "113",
-      source: "1",
-      target: "15",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["project-contains-subject", "container-relationship"],
-    data: {
-      id: "114",
-      source: "3",
-      target: "10",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["id-namespace-contains-project", "admin-relationship"],
-    data: {
-      id: "115",
-      source: "1",
-      target: "3",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["project-contains-biosample", "container-relationship"],
-    data: {
-      id: "117",
-      source: "3",
-      target: "15",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["project-contains-file", "container-relationship"],
-    data: {
-      id: "118",
-      source: "3",
-      target: "9",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["collection-contains-biosample", "container-relationship"],
-    data: {
-      id: "119",
-      source: "4",
-      target: "15",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["collection-contains-subject", "container-relationship"],
-    data: {
-      id: "120",
-      source: "4",
-      target: "10",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["id-namespace-contains-subject", "admin-relationship"],
-    data: {
-      id: "121",
-      source: "1",
-      target: "10",
-      label: CONTAINS_TYPE,
-    },
-  },
-  {
-    classes: ["subject-related-relationship"],
-    data: {
-      id: "124",
-      source: "10",
-      target: "13",
-      label: IS_RACE_TYPE,
-    },
-  },
-  {
-    classes: ["collection-is-superset-of-collection", "container-relationship"],
-    data: {
-      id: "125",
-      source: "4",
-      target: "4",
-      label: IS_SUPERSET_OF_TYPE,
-    },
-  },
-  {
-    classes: ["file-related-relationship"],
-    data: {
-      id: "126",
-      source: "9",
-      target: "8",
-      label: GENERATED_BY_ANALYSIS_TYPE_TYPE,
     },
   },
   {
     classes: ["admin-relationship"],
     data: {
-      id: "127",
-      source: "2",
-      target: "3",
-      label: PRODUCED_TYPE,
+      id: ID_NAMESPACE_CONTAINS_BIOSAMPLE_EDGE_ID,
+      source: ID_NAMESPACE_NODE_ID,
+      target: BIOSAMPLE_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["core-relationship", "file-describes-biosample"],
+    classes: ["admin-relationship"],
     data: {
-      id: "128",
-      source: "9",
-      target: "15",
-      label: DESCRIBES_TYPE,
+      id: ID_NAMESPACE_CONTAINS_SUBJECT_EDGE_ID,
+      source: ID_NAMESPACE_NODE_ID,
+      target: SUBJECT_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["core-relationship", "file-describes-subject"],
+    classes: ["container-relationship"],
     data: {
-      id: "129",
-      source: "9",
-      target: "10",
-      label: DESCRIBES_TYPE,
-    },
-  },
-  {
-    classes: [
-      "biosample-prepped-via-sample-prep-method",
-      "biosample-related-relationship",
-      "horizontal-text",
-    ],
-    data: {
-      id: "130",
-      source: "15",
-      target: "18",
-      label: PREPPED_VIA_TYPE,
-    },
-  },
-  {
-    classes: ["project-is-parent-of-project", "container-relationship"],
-    data: {
-      id: "131",
-      source: "3",
-      target: "3",
+      id: PROJECT_IS_PARENT_OF_PROJECT_EDGE_ID,
+      source: PROJECT_NODE_ID,
+      target: PROJECT_NODE_ID,
       label: IS_PARENT_OF_TYPE,
     },
   },
   {
-    classes: ["file-related-relationship"],
+    classes: ["container-relationship"],
     data: {
-      id: "132",
-      source: "9",
-      target: "6",
-      label: IS_DATA_TYPE_TYPE,
+      id: PROJECT_CONTAINS_SUBJECT_EDGE_ID,
+      source: PROJECT_NODE_ID,
+      target: SUBJECT_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["biosample-tested-for-phenotype", "term-relationship"],
+    classes: ["container-relationship"],
     data: {
-      id: "133",
-      source: "15",
-      target: "17",
-      label: TESTED_FOR_TYPE,
+      id: PROJECT_CONTAINS_BIOSAMPLE_EDGE_ID,
+      source: PROJECT_NODE_ID,
+      target: BIOSAMPLE_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["subject-tested-for-disease", "term-relationship"],
+    classes: ["container-relationship"],
     data: {
-      id: "134",
-      source: "10",
-      target: "19",
-      label: TESTED_FOR_TYPE,
+      id: PROJECT_CONTAINS_FILE_EDGE_ID,
+      source: PROJECT_NODE_ID,
+      target: FILE_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["biosample-tested-for-disease", "term-relationship"],
+    classes: ["container-relationship"],
     data: {
-      id: "135",
-      source: "15",
-      target: "19",
-      label: TESTED_FOR_TYPE,
+      id: COLLECTION_IS_SUPERSET_OF_COLLECTION_EDGE_ID,
+      source: COLLECTION_NODE_ID,
+      target: COLLECTION_NODE_ID,
+      label: IS_SUPERSET_OF_TYPE,
     },
   },
   {
-    classes: ["subject-tested-for-phenotype", "term-relationship"],
+    classes: ["container-relationship"],
     data: {
-      id: "136",
-      source: "10",
-      target: "17",
-      label: TESTED_FOR_TYPE,
+      id: COLLECTION_CONTAINS_FILE_EDGE_ID,
+      source: COLLECTION_NODE_ID,
+      target: FILE_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["term-relationship", "horizontal-text"],
+    classes: ["container-relationship"],
     data: {
-      id: "137",
-      source: "23",
-      target: "24",
-      label: HAS_SOURCE_TYPE,
+      id: COLLECTION_CONTAINS_BIOSAMPLE_EDGE_ID,
+      source: COLLECTION_NODE_ID,
+      target: BIOSAMPLE_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
-    classes: ["term-relationship", "horizontal-text"],
+    classes: ["container-relationship"],
     data: {
-      id: "138",
-      source: "21",
-      target: "24",
-      label: HAS_SOURCE_TYPE,
-    },
-  },
-  {
-    classes: ["subject-related-relationship"],
-    data: {
-      id: "139",
-      source: "10",
-      target: "11",
-      label: IS_SEX_TYPE,
-    },
-  },
-  {
-    classes: ["core-relationship"],
-    data: {
-      id: "146",
-      source: "15",
-      target: "10",
-      label: SAMPLED_FROM_TYPE,
-    },
-  },
-  {
-    classes: ["biosample-sampled-from-anatomy", "term-relationship"],
-    data: {
-      id: "147",
-      source: "15",
-      target: "16",
-      label: SAMPLED_FROM_TYPE,
-    },
-  },
-  {
-    classes: ["term-relationship", "no-arrows", "horizontal-text"],
-    data: {
-      id: "148",
-      source: "21",
-      target: "17",
-      label: ASSOCIATED_WITH_TYPE,
+      id: COLLECTION_CONTAINS_SUBJECT_EDGE_ID,
+      source: COLLECTION_NODE_ID,
+      target: SUBJECT_NODE_ID,
+      label: CONTAINS_TYPE,
     },
   },
   {
     classes: ["term-relationship", "dashed"],
     data: {
-      id: "151",
-      source: "4",
-      target: "25",
+      id: COLLECTION_CONTAINS_TERMS_EDGE_ID,
+      source: COLLECTION_NODE_ID,
+      target: ALL_TERM_NODES_NODE_ID,
       label: CONTAINS_TYPE,
+    },
+  },
+  {
+    classes: ["file-related-relationship"],
+    data: {
+      id: FILE_IS_FILE_FORMAT_EDGE_ID,
+      source: FILE_NODE_ID,
+      target: FILE_FORMAT_NODE_ID,
+      label: IS_FILE_FORMAT_TYPE,
+    },
+  },
+  {
+    classes: ["file-related-relationship"],
+    data: {
+      id: FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID,
+      source: FILE_NODE_ID,
+      target: ASSAY_TYPE_NODE_ID,
+      label: GENERATED_BY_ASSAY_TYPE_TYPE,
+    },
+  },
+  {
+    classes: ["file-related-relationship"],
+    data: {
+      id: FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID,
+      source: FILE_NODE_ID,
+      target: ANALYSIS_TYPE_NODE_ID,
+      label: GENERATED_BY_ANALYSIS_TYPE_TYPE,
+    },
+  },
+  {
+    classes: ["file-related-relationship"],
+    data: {
+      id: FILE_IS_DATA_TYPE_EDGE_ID,
+      source: FILE_NODE_ID,
+      target: DATA_TYPE_NODE_ID,
+      label: IS_DATA_TYPE_TYPE,
+    },
+  },
+  {
+    classes: ["core-relationship"],
+    data: {
+      id: FILE_DESCRIBES_BIOSAMPLE_EDGE_ID,
+      source: FILE_NODE_ID,
+      target: BIOSAMPLE_NODE_ID,
+      label: DESCRIBES_TYPE,
+    },
+  },
+  {
+    classes: ["core-relationship"],
+    data: {
+      id: FILE_DESCRIBES_SUBJECT_EDGE_ID,
+      source: FILE_NODE_ID,
+      target: SUBJECT_NODE_ID,
+      label: DESCRIBES_TYPE,
+    },
+  },
+  {
+    classes: ["subject-related-relationship"],
+    data: {
+      id: SUBJECT_IS_GRANULARITY_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: SUBJECT_GRANULARITY_NODE_ID,
+      label: IS_GRANULARITY_TYPE,
+    },
+  },
+  {
+    classes: ["subject-related-relationship"],
+    data: {
+      id: SUBJECT_IS_ETHNICITY_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: SUBJECT_ETHNICITY_NODE_ID,
+      label: IS_ETHNICITY_TYPE,
+    },
+  },
+  {
+    classes: ["subject-related-relationship"],
+    data: {
+      id: SUBJECT_IS_RACE_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: SUBJECT_RACE_NODE_ID,
+      label: IS_RACE_TYPE,
+    },
+  },
+  {
+    classes: ["subject-related-relationship"],
+    data: {
+      id: SUBJECT_IS_SEX_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: SUBJECT_SEX_NODE_ID,
+      label: IS_SEX_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: NCBI_TAXONOMY_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: SUBJECT_ASSOCIATED_WITH_COMPOUND_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: COMPOUND_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship"],
+    data: {
+      id: SUBJECT_TESTED_FOR_DISEASE_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: DISEASE_NODE_ID,
+      label: TESTED_FOR_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship"],
+    data: {
+      id: SUBJECT_TESTED_FOR_PHENOTYPE_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: PHENOTYPE_NODE_ID,
+      label: TESTED_FOR_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: SUBSTANCE_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: BIOSAMPLE_ASSOCIATED_WITH_GENE_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: GENE_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["biosample-related-relationship", "horizontal-text"],
+    data: {
+      id: BIOSAMPLE_PREPPED_VIA_SAMPLE_PREP_METHOD_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: SAMPLE_PREP_METHOD_NODE_ID,
+      label: PREPPED_VIA_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship"],
+    data: {
+      id: BIOSAMPLE_TESTED_FOR_PHENOTYPE_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: PHENOTYPE_NODE_ID,
+      label: TESTED_FOR_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship"],
+    data: {
+      id: BIOSAMPLE_TESTED_FOR_DISEASE_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: DISEASE_NODE_ID,
+      label: TESTED_FOR_TYPE,
+    },
+  },
+  {
+    classes: ["core-relationship"],
+    data: {
+      id: BIOSAMPLE_SAMPLED_FROM_SUBJECT_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: SUBJECT_NODE_ID,
+      label: SAMPLED_FROM_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship"],
+    data: {
+      id: BIOSAMPLE_SAMPLED_FROM_ANATOMY_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: ANATOMY_NODE_ID,
+      label: SAMPLED_FROM_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_EDGE_ID,
+      source: SUBSTANCE_NODE_ID,
+      target: NCBI_TAXONOMY_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: SUBSTANCE_ASSOCIATED_WITH_COMPOUND_EDGE_ID,
+      source: SUBSTANCE_NODE_ID,
+      target: COMPOUND_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "horizontal-text"],
+    data: {
+      id: PROTEIN_HAS_SOURCE_TAXONOMY_EDGE_ID,
+      source: PROTEIN_NODE_ID,
+      target: NCBI_TAXONOMY_NODE_ID,
+      label: HAS_SOURCE_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "horizontal-text"],
+    data: {
+      id: GENE_HAS_SOURCE_TAXONOMY_EDGE_ID,
+      source: GENE_NODE_ID,
+      target: NCBI_TAXONOMY_NODE_ID,
+      label: HAS_SOURCE_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows", "horizontal-text"],
+    data: {
+      id: GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID,
+      source: GENE_NODE_ID,
+      target: PHENOTYPE_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
     },
   },
 ];
@@ -1373,7 +1427,11 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.id-namespace-contains-project",
+    selector: `edge#${DCC_PRODUCED_PROJECT_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${ID_NAMESPACE_CONTAINS_PROJECT_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1397,7 +1455,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.id-namespace-contains-collection",
+    selector: `edge#${ID_NAMESPACE_CONTAINS_COLLECTION_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1422,39 +1480,11 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.id-namespace-contains-subject",
-    style: {
-      label: "",
-      "source-label": "data(label)",
-      "source-text-offset": 100,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_DEG}deg`,
-      "target-endpoint": `${ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS,
-        [
-          {
-            x: ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS.x,
-            y: ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS.y - SCHEMA_EDGE_SPACING,
-          },
-          {
-            x: ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS.x - SCHEMA_EDGE_SPACING,
-            y: ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS.y - SCHEMA_EDGE_SPACING,
-          },
-          {
-            x: ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS.x - SCHEMA_EDGE_SPACING,
-            y: ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS.y,
-          },
-        ],
-        ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS
-      ),
-      "segment-radii": [20, 20, 20],
-    },
+    selector: `edge#${ID_NAMESPACE_CONTAINS_FILE_EDGE_ID}`,
+    style: {},
   },
   {
-    selector: "edge.id-namespace-contains-biosample",
+    selector: `edge#${ID_NAMESPACE_CONTAINS_BIOSAMPLE_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1495,14 +1525,46 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.project-is-parent-of-project",
+    selector: `edge#${ID_NAMESPACE_CONTAINS_SUBJECT_EDGE_ID}`,
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 100,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_DEG}deg`,
+      "target-endpoint": `${ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS,
+        [
+          {
+            x: ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS.x,
+            y: ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS.y - SCHEMA_EDGE_SPACING,
+          },
+          {
+            x: ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS.x - SCHEMA_EDGE_SPACING,
+            y: ID_NAMESPACE_CONTAINS_SUBJECT_SOURCE_POS.y - SCHEMA_EDGE_SPACING,
+          },
+          {
+            x: ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS.x - SCHEMA_EDGE_SPACING,
+            y: ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS.y,
+          },
+        ],
+        ID_NAMESPACE_CONTAINS_SUBJECT_TARGET_POS
+      ),
+      "segment-radii": [20, 20, 20],
+    },
+  },
+  {
+    selector: `edge#${PROJECT_IS_PARENT_OF_PROJECT_EDGE_ID}`,
     style: {
       "loop-direction": "-45deg",
       "loop-sweep": "-45deg",
     },
   },
   {
-    selector: "edge.project-contains-file",
+    selector: `edge#${PROJECT_CONTAINS_FILE_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1527,7 +1589,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.project-contains-subject",
+    selector: `edge#${PROJECT_CONTAINS_SUBJECT_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1551,7 +1613,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.project-contains-biosample",
+    selector: `edge#${PROJECT_CONTAINS_BIOSAMPLE_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1589,14 +1651,14 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.collection-is-superset-of-collection",
+    selector: `edge#${COLLECTION_IS_SUPERSET_OF_COLLECTION_EDGE_ID}`,
     style: {
       "loop-direction": "45deg",
       "loop-sweep": "-45deg",
     },
   },
   {
-    selector: "edge.collection-contains-file",
+    selector: `edge#${COLLECTION_CONTAINS_FILE_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1620,7 +1682,32 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.collection-contains-subject",
+    selector: `edge#${COLLECTION_CONTAINS_BIOSAMPLE_EDGE_ID}`,
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 100,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${COLLECTION_CONTAINS_BIOSAMPLE_SOURCE_DEG}deg`,
+      "target-endpoint": `${COLLECTION_CONTAINS_BIOSAMPLE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        COLLECTION_CONTAINS_BIOSAMPLE_SOURCE_POS,
+        [
+          {
+            x: COLLECTION_CONTAINS_BIOSAMPLE_SOURCE_POS.x,
+            y: COLLECTION_CONTAINS_BIOSAMPLE_TARGET_POS.y,
+          },
+        ],
+        COLLECTION_CONTAINS_BIOSAMPLE_TARGET_POS,
+        [true]
+      ),
+      "segment-radii": 20,
+    },
+  },
+  {
+    selector: `edge#${COLLECTION_CONTAINS_SUBJECT_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1653,32 +1740,27 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.collection-contains-biosample",
-    style: {
-      label: "",
-      "source-label": "data(label)",
-      "source-text-offset": 100,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${COLLECTION_CONTAINS_BIOSAMPLE_SOURCE_DEG}deg`,
-      "target-endpoint": `${COLLECTION_CONTAINS_BIOSAMPLE_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        COLLECTION_CONTAINS_BIOSAMPLE_SOURCE_POS,
-        [
-          {
-            x: COLLECTION_CONTAINS_BIOSAMPLE_SOURCE_POS.x,
-            y: COLLECTION_CONTAINS_BIOSAMPLE_TARGET_POS.y,
-          },
-        ],
-        COLLECTION_CONTAINS_BIOSAMPLE_TARGET_POS,
-        [true]
-      ),
-      "segment-radii": 20,
-    },
+    selector: `edge#${COLLECTION_CONTAINS_TERMS_EDGE_ID}`,
+    style: {},
   },
   {
-    selector: "edge.file-describes-subject",
+    selector: `edge#${FILE_IS_FILE_FORMAT_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${FILE_IS_DATA_TYPE_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${FILE_DESCRIBES_SUBJECT_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1702,7 +1784,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.file-describes-biosample",
+    selector: `edge#${FILE_DESCRIBES_BIOSAMPLE_EDGE_ID}`,
     style: {
       label: "",
       "source-label": "data(label)",
@@ -1727,149 +1809,23 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.biosample-tested-for-phenotype",
-    style: {
-      label: "",
-      "target-label": "data(label)",
-      "target-text-offset": 75,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_DEG}deg`,
-      "target-endpoint": `${BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS,
-        [
-          {
-            x: SUBSTANCE_POS.x,
-            y: BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS.y,
-          },
-          {
-            x: SUBSTANCE_POS.x,
-            y: BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_POS.y,
-          },
-        ],
-        BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_POS,
-        [true, false]
-      ),
-      "segment-radii": 20,
-    },
-  },
-  {
-    selector: "edge.biosample-tested-for-disease",
-    style: {
-      label: "",
-      "target-label": "data(label)",
-      "target-text-offset": 75,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_DEG}deg`,
-      "target-endpoint": `${BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS,
-        [
-          { x: SUBSTANCE_POS.x, y: BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS.y },
-          { x: SUBSTANCE_POS.x, y: BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS.y },
-        ],
-        BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS,
-        [true, false]
-      ),
-      "segment-radii": 20,
-    },
-  },
-  {
-    selector: "edge.biosample-sampled-from-anatomy",
-    style: {
-      label: "",
-      "target-label": "data(label)",
-      "target-text-offset": 75,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_DEG}deg`,
-      "target-endpoint": `${BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS,
-        [
-          {
-            x: SUBSTANCE_POS.x,
-            y: BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS.y,
-          },
-          {
-            x: SUBSTANCE_POS.x,
-            y: BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS.y,
-          },
-        ],
-        BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS,
-        [true, false]
-      ),
-    },
-  },
-  {
-    selector: "edge.biosample-prepped-via-sample-prep-method",
+    selector: `edge#${SUBJECT_IS_GRANULARITY_EDGE_ID}`,
     style: {},
   },
   {
-    selector: "edge.subject-tested-for-phenotype",
-    style: {
-      label: "",
-      "target-label": "data(label)",
-      "target-text-offset": 75,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_DEG}deg`,
-      "target-endpoint": `${SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_POS,
-        [
-          {
-            x: -1 * SUBSTANCE_POS.x,
-            y: SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_POS.y,
-          },
-          {
-            x: -1 * SUBSTANCE_POS.x,
-            y: SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_POS.y,
-          },
-        ],
-        SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_POS,
-        [false, true]
-      ),
-      "segment-radii": 20,
-    },
+    selector: `edge#${SUBJECT_IS_ETHNICITY_EDGE_ID}`,
+    style: {},
   },
   {
-    selector: "edge.subject-tested-for-disease",
-    style: {
-      label: "",
-      "target-label": "data(label)",
-      "target-text-offset": 75,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${SUBJECT_TESTED_FOR_DISEASE_SOURCE_DEG}deg`,
-      "target-endpoint": `${SUBJECT_TESTED_FOR_DISEASE_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        SUBJECT_TESTED_FOR_DISEASE_SOURCE_POS,
-        [
-          {
-            x: -1 * SUBSTANCE_POS.x,
-            y: SUBJECT_TESTED_FOR_DISEASE_SOURCE_POS.y,
-          },
-          {
-            x: -1 * SUBSTANCE_POS.x,
-            y: SUBJECT_TESTED_FOR_DISEASE_TARGET_POS.y,
-          },
-        ],
-        SUBJECT_TESTED_FOR_DISEASE_TARGET_POS,
-        [false, true]
-      ),
-      "segment-radii": 20,
-    },
+    selector: `edge#${SUBJECT_IS_RACE_EDGE_ID}`,
+    style: {},
   },
   {
-    selector: "edge.subject-associated-with-taxonomy",
+    selector: `edge#${SUBJECT_IS_SEX_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID}`,
     style: {
       label: "",
       "target-label": "data(label)",
@@ -1898,7 +1854,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.subject-associated-with-compound",
+    selector: `edge#${SUBJECT_ASSOCIATED_WITH_COMPOUND_EDGE_ID}`,
     style: {
       label: "",
       "target-label": "data(label)",
@@ -1927,11 +1883,153 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.substance-associated-with-taxonomy",
+    selector: `edge#${SUBJECT_TESTED_FOR_PHENOTYPE_EDGE_ID}`,
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_POS,
+        [
+          {
+            x: -1 * SUBSTANCE_POS.x,
+            y: SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_POS.y,
+          },
+          {
+            x: -1 * SUBSTANCE_POS.x,
+            y: SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_POS.y,
+          },
+        ],
+        SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_POS,
+        [false, true]
+      ),
+      "segment-radii": 20,
+    },
+  },
+  {
+    selector: `edge#${SUBJECT_TESTED_FOR_DISEASE_EDGE_ID}`,
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${SUBJECT_TESTED_FOR_DISEASE_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_TESTED_FOR_DISEASE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        SUBJECT_TESTED_FOR_DISEASE_SOURCE_POS,
+        [
+          {
+            x: -1 * SUBSTANCE_POS.x,
+            y: SUBJECT_TESTED_FOR_DISEASE_SOURCE_POS.y,
+          },
+          {
+            x: -1 * SUBSTANCE_POS.x,
+            y: SUBJECT_TESTED_FOR_DISEASE_TARGET_POS.y,
+          },
+        ],
+        SUBJECT_TESTED_FOR_DISEASE_TARGET_POS,
+        [false, true]
+      ),
+      "segment-radii": 20,
+    },
+  },
+  {
+    selector: `edge#${BIOSAMPLE_TESTED_FOR_PHENOTYPE_EDGE_ID}`,
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_DEG}deg`,
+      "target-endpoint": `${BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS,
+        [
+          {
+            x: SUBSTANCE_POS.x,
+            y: BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS.y,
+          },
+          {
+            x: SUBSTANCE_POS.x,
+            y: BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_POS.y,
+          },
+        ],
+        BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_POS,
+        [true, false]
+      ),
+      "segment-radii": 20,
+    },
+  },
+  {
+    selector: `edge#${BIOSAMPLE_TESTED_FOR_DISEASE_EDGE_ID}`,
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_DEG}deg`,
+      "target-endpoint": `${BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS,
+        [
+          { x: SUBSTANCE_POS.x, y: BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS.y },
+          { x: SUBSTANCE_POS.x, y: BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS.y },
+        ],
+        BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS,
+        [true, false]
+      ),
+      "segment-radii": 20,
+    },
+  },
+  {
+    selector: `edge#${BIOSAMPLE_SAMPLED_FROM_ANATOMY_EDGE_ID}`,
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_DEG}deg`,
+      "target-endpoint": `${BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS,
+        [
+          {
+            x: SUBSTANCE_POS.x,
+            y: BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS.y,
+          },
+          {
+            x: SUBSTANCE_POS.x,
+            y: BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS.y,
+          },
+        ],
+        BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS,
+        [true, false]
+      ),
+    },
+  },
+  {
+    selector: `edge#${BIOSAMPLE_PREPPED_VIA_SAMPLE_PREP_METHOD_EDGE_ID}`,
     style: {},
   },
   {
-    selector: "edge.biosample-associated-with-substance",
+    selector: `edge#${SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID}`,
     style: {
       label: "",
       "target-label": "data(label)",
@@ -1956,7 +2054,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.biosample-associated-with-gene",
+    selector: `edge#${BIOSAMPLE_ASSOCIATED_WITH_GENE_EDGE_ID}`,
     style: {
       label: "",
       "target-label": "data(label)",
@@ -1982,6 +2080,26 @@ export const SCHEMA_STYLESHEET: any[] = [
         [true, false]
       ),
     },
+  },
+  {
+    selector: `edge#${BIOSAMPLE_SAMPLED_FROM_SUBJECT_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${SUBSTANCE_ASSOCIATED_WITH_COMPOUND_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${PROTEIN_HAS_SOURCE_TAXONOMY_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${GENE_HAS_SOURCE_TAXONOMY_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID}`,
+    style: {},
   },
   {
     selector: "node.path-element",
