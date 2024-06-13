@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import RadarIcon from "@mui/icons-material/Radar";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
   EventObject,
@@ -39,6 +40,86 @@ import {
   keyInFactoryMapFilter,
   truncateTextToFitWidth,
 } from "./shared";
+
+export const getRelativePos = (s: Position, t: Position, c: Position) => {
+  const numerator = (c.x - s.x) * (t.x - s.x) + (c.y - s.y) * (t.y - s.y);
+  const denominator = (t.x - s.x) ** 2 + (t.y - s.y) ** 2;
+
+  return numerator / denominator;
+};
+
+export const getSegmentIntersectionPoint = (
+  s: Position,
+  c: Position,
+  t: Position
+): Position => {
+  const m = (t.y - s.y) / (t.x - s.x);
+  const b = s.y - m * s.x;
+  const mp = -1 * (1 / m);
+  const bp = -1 * (mp * c.x) + c.y;
+  const x_intersect = (bp - b) / (m - mp);
+  const y_intersect = m * x_intersect + b;
+
+  return {
+    x: x_intersect,
+    y: y_intersect,
+  };
+};
+
+export const getSegmentWeight = (s: Position, c: Position, t: Position) => {
+  const intersection_point = getSegmentIntersectionPoint(s, c, t);
+  return getRelativePos(
+    { x: s.x, y: s.y },
+    { x: t.x, y: t.y },
+    { x: intersection_point.x, y: intersection_point.y }
+  );
+};
+
+export const getSegmentDistance = (s: Position, c: Position, t: Position) => {
+  const intersection_point = getSegmentIntersectionPoint(s, c, t);
+
+  return Math.sqrt(
+    (c.x - intersection_point.x) ** 2 + (c.y - intersection_point.y) ** 2
+  );
+};
+
+export const getSegmentPropsWithPoints = (
+  source: Position,
+  controlPoints: Position[],
+  target: Position,
+  invertDistances?: boolean[]
+) => {
+  if (invertDistances === undefined) {
+    invertDistances = Array(controlPoints.length).fill(false);
+  }
+
+  const weights: number[] = [];
+  const distances: number[] = [];
+
+  controlPoints.forEach((cp, i) => {
+    weights.push(getSegmentWeight(source, cp, target));
+    distances.push(
+      getSegmentDistance(source, cp, target) * (invertDistances[i] ? -1 : 1)
+    );
+  });
+
+  return {
+    "segment-weights": weights,
+    "segment-distances": distances,
+  };
+};
+
+export const getEdgePoint = (
+  origin: Position,
+  deg: number,
+  r: number
+): Position => {
+  const degreesToRads = (deg: number) => (deg * Math.PI) / 180.0;
+  return {
+    x: origin.x + r * Math.sin(degreesToRads(deg)),
+    y: origin.y - r * Math.cos(degreesToRads(deg)),
+  };
+};
 
 export const createCytoscapeNodeFromNeo4j = (
   node: NodeResult
@@ -240,9 +321,33 @@ export const hideElement = (event: EventObjectNode | EventObjectEdge) => {
   event.target.removeClass("highlight hovered").addClass("dimmed");
 };
 
+export const printNodePositions = (
+  key: string,
+  title: string,
+  ariaLabel: string,
+  cyRef: CytoscapeReference
+) => {
+  const fn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      cy.nodes().forEach((el) => {
+        console.log(el.data("label"), el.position());
+      });
+    }
+  };
+  return (
+    <Tooltip key={key} title={title} arrow>
+      <IconButton sx={{ borderRadius: 1 }} aria-label={ariaLabel} onClick={fn}>
+        <RadarIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
 export const resetChart = (
   key: string,
   title: string,
+  ariaLabel: string,
   positions: Map<string, Position>,
   cyRef: CytoscapeReference
 ) => {
@@ -262,11 +367,7 @@ export const resetChart = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton
-        sx={{ borderRadius: 1 }}
-        aria-label="reset-chart"
-        onClick={fn}
-      >
+      <IconButton sx={{ borderRadius: 1 }} aria-label={ariaLabel} onClick={fn}>
         <RestoreIcon />
       </IconButton>
     </Tooltip>

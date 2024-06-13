@@ -38,6 +38,7 @@ export default function GraphSchema() {
       resetChart(
         "schema-chart-toolbar-reset-btn",
         "Reset Chart",
+        "reset-chart",
         INITIAL_NODE_POSITIONS,
         cyRef
       ),
