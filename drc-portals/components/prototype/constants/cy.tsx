@@ -766,6 +766,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ID_NAMESPACE_LABEL) || ""],
     position: ID_NAMESPACE_POS,
+    locked: true,
     data: {
       id: ID_NAMESPACE_NODE_ID,
       label: ID_NAMESPACE_LABEL,
@@ -778,6 +779,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(DCC_LABEL) || ""],
     position: DCC_POS,
+    locked: true,
     data: {
       id: DCC_NODE_ID,
       label: DCC_LABEL,
@@ -790,6 +792,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(PROJECT_LABEL) || ""],
     position: PROJECT_POS,
+    locked: true,
     data: {
       id: PROJECT_NODE_ID,
       label: PROJECT_LABEL,
@@ -802,6 +805,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(COLLECTION_LABEL) || ""],
     position: COLLECTION_POS,
+    locked: true,
     data: {
       id: COLLECTION_NODE_ID,
       label: COLLECTION_LABEL,
@@ -814,6 +818,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ASSAY_TYPE_LABEL) || ""],
     position: ASSAY_TYPE_POS,
+    locked: true,
     data: {
       id: ASSAY_TYPE_NODE_ID,
       label: ASSAY_TYPE_LABEL,
@@ -826,6 +831,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(DATA_TYPE_LABEL) || ""],
     position: DATA_TYPE_POS,
+    locked: true,
     data: {
       id: DATA_TYPE_NODE_ID,
       label: DATA_TYPE_LABEL,
@@ -838,6 +844,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(FILE_FORMAT_LABEL) || ""],
     position: FILE_FORMAT_POS,
+    locked: true,
     data: {
       id: FILE_FORMAT_NODE_ID,
       label: FILE_FORMAT_LABEL,
@@ -850,6 +857,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ANALYSIS_TYPE_LABEL) || ""],
     position: ANALYSIS_TYPE_POS,
+    locked: true,
     data: {
       id: ANALYSIS_TYPE_NODE_ID,
       label: ANALYSIS_TYPE_LABEL,
@@ -862,6 +870,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(FILE_LABEL) || ""],
     position: FILE_POS,
+    locked: true,
     data: {
       id: FILE_NODE_ID,
       label: FILE_LABEL,
@@ -874,6 +883,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_LABEL) || ""],
     position: SUBJECT_POS,
+    locked: true,
     data: {
       id: SUBJECT_NODE_ID,
       label: SUBJECT_LABEL,
@@ -886,6 +896,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_SEX_LABEL) || ""],
     position: SUBJECT_SEX_POS,
+    locked: true,
     data: {
       id: SUBJECT_SEX_NODE_ID,
       label: SUBJECT_SEX_LABEL,
@@ -898,6 +909,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_ETHNICITY_LABEL) || ""],
     position: SUBJECT_ETHNICITY_POS,
+    locked: true,
     data: {
       id: SUBJECT_ETHNICITY_NODE_ID,
       label: SUBJECT_ETHNICITY_LABEL,
@@ -910,6 +922,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_RACE_LABEL) || ""],
     position: SUBJECT_RACE_POS,
+    locked: true,
     data: {
       id: SUBJECT_RACE_NODE_ID,
       label: SUBJECT_RACE_LABEL,
@@ -922,6 +935,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SUBJECT_GRANULARITY_LABEL) || ""],
     position: SUBJECT_GRANULARITY_POS,
+    locked: true,
     data: {
       id: SUBJECT_GRANULARITY_NODE_ID,
       label: SUBJECT_GRANULARITY_LABEL,
@@ -934,6 +948,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(BIOSAMPLE_LABEL) || ""],
     position: BIOSAMPLE_POS,
+    locked: true,
     data: {
       id: BIOSAMPLE_NODE_ID,
       label: BIOSAMPLE_LABEL,
@@ -946,6 +961,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SAMPLE_PREP_METHOD_LABEL) || ""],
     position: SAMPLE_PREP_METHOD_POS,
+    locked: true,
     data: {
       id: SAMPLE_PREP_METHOD_NODE_ID,
       label: SAMPLE_PREP_METHOD_LABEL,
@@ -958,6 +974,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(SUBSTANCE_LABEL) || ""],
     position: SUBSTANCE_POS,
+    locked: true,
     data: {
       id: SUBSTANCE_NODE_ID,
       label: SUBSTANCE_LABEL,
@@ -970,6 +987,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(COMPOUND_LABEL) || ""],
     position: COMPOUND_POS,
+    locked: true,
     data: {
       id: COMPOUND_NODE_ID,
       label: COMPOUND_LABEL,
@@ -982,6 +1000,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(PROTEIN_LABEL) || ""],
     position: PROTEIN_POS,
+    locked: true,
     data: {
       id: PROTEIN_NODE_ID,
       label: PROTEIN_LABEL,
@@ -994,6 +1013,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(NCBI_TAXONOMY_LABEL) || ""],
     position: NCBI_TAXONOMY_POS,
+    locked: true,
     data: {
       id: NCBI_TAXONOMY_NODE_ID,
       label: NCBI_TAXONOMY_LABEL,
@@ -1006,6 +1026,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(GENE_LABEL) || ""],
     position: GENE_POS,
+    locked: true,
     data: {
       id: GENE_NODE_ID,
       label: GENE_LABEL,
@@ -1018,6 +1039,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(PHENOTYPE_LABEL) || ""],
     position: PHENOTYPE_POS,
+    locked: true,
     data: {
       id: PHENOTYPE_NODE_ID,
       label: PHENOTYPE_LABEL,
@@ -1030,6 +1052,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(DISEASE_LABEL) || ""],
     position: DISEASE_POS,
+    locked: true,
     data: {
       id: DISEASE_NODE_ID,
       label: DISEASE_LABEL,
@@ -1042,6 +1065,7 @@ export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ANATOMY_LABEL) || ""],
     position: ANATOMY_POS,
+    locked: true,
     data: {
       id: ANATOMY_NODE_ID,
       label: ANATOMY_LABEL,
@@ -1054,6 +1078,7 @@ export const SCHEMA_NODES = [
   {
     classes: ["all-terms-node", "dashed"],
     position: ALL_TERMS_NODE_POS,
+    locked: true,
     data: {
       id: ALL_TERM_NODES_NODE_ID,
       label: "All Term Nodes",
