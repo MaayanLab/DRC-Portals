@@ -337,7 +337,7 @@ export const printNodePositions = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton sx={{ borderRadius: 1 }} aria-label={ariaLabel} onClick={fn}>
+      <IconButton aria-label={ariaLabel} onClick={fn}>
         <RadarIcon />
       </IconButton>
     </Tooltip>
@@ -367,7 +367,7 @@ export const resetChart = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton sx={{ borderRadius: 1 }} aria-label={ariaLabel} onClick={fn}>
+      <IconButton aria-label={ariaLabel} onClick={fn}>
         <RestoreIcon />
       </IconButton>
     </Tooltip>
@@ -397,11 +397,7 @@ export const unlockD3ForceNodes = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton
-        sx={{ borderRadius: 1 }}
-        aria-label="reset-chart"
-        onClick={fn}
-      >
+      <IconButton aria-label="reset-chart" onClick={fn}>
         <LockOpenIcon />
       </IconButton>
     </Tooltip>

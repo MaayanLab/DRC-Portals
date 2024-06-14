@@ -1,4 +1,5 @@
 import {
+  IconButton,
   Paper,
   Tooltip,
   TooltipProps,

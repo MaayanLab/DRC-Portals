@@ -1,9 +1,10 @@
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FitScreenIcon from "@mui/icons-material/FitScreen";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
-import { IconButton, Paper, Tooltip } from "@mui/material";
+import { IconButton, Menu, MenuItem, Paper, Tooltip } from "@mui/material";
 import Divider from "@mui/material/Divider";
-import { styled } from "@mui/system";
+import { MouseEvent, useState } from "react";
 import { v4 } from "uuid";
 
 import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
@@ -17,9 +18,15 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
   const cmpKey = `chart-toolbar-${v4()}`;
   const { cyRef, customTools } = cmpProps;
 
-  const ToolbarIconBtn = styled(IconButton)({
-    borderRadius: 1,
-  });
+  const [downloadMenuAnchorEl, setDownloadMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const downloadMenuOpen = Boolean(downloadMenuAnchorEl);
+  const handleDownloadBtnClick = (event: MouseEvent<HTMLButtonElement>) => {
+    setDownloadMenuAnchorEl(event.currentTarget);
+  };
+  const handleDownloadMenuClose = () => {
+    setDownloadMenuAnchorEl(null);
+  };
 
   // TODO: Note that the current implementation is tightly coupled to Cytoscape. An alternative implementation would have the toolbar
   // simply notify the parent element that one of the options was chosen, and then the parent can decide what to do then.
@@ -47,6 +54,24 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
     }
   };
 
+  const handleDownloadJSON = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      const data = {
+        nodes: cy.nodes().map((n) => n.data()),
+        edges: cy.edges().map((e) => e.data()),
+      };
+      const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+        JSON.stringify(data)
+      )}`;
+      const link = document.createElement("a");
+      link.href = jsonString;
+      link.download = "c2m2-graph-data.json";
+
+      link.click();
+    }
+  };
+
   return (
     <Paper
       sx={{
@@ -69,21 +94,47 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
               flexItem
             />,
           ]}
+      <Tooltip title="Download Data" arrow>
+        <IconButton
+          id={`${cmpKey}-download-data-btn`}
+          aria-controls={
+            downloadMenuOpen ? `${cmpKey}-download-data-menu` : undefined
+          }
+          aria-haspopup="true"
+          aria-expanded={downloadMenuOpen ? "true" : undefined}
+          aria-label="download-data"
+          onClick={handleDownloadBtnClick}
+        >
+          <FileDownloadIcon />
+        </IconButton>
+      </Tooltip>
+      <Menu
+        id={`${cmpKey}-download-data-menu`}
+        anchorEl={downloadMenuAnchorEl}
+        open={downloadMenuOpen}
+        onClose={handleDownloadMenuClose}
+        elevation={2}
+        MenuListProps={{
+          "aria-labelledby": `${cmpKey}-download-data-btn`,
+        }}
+      >
+        <MenuItem onClick={handleDownloadJSON}>JSON</MenuItem>
+      </Menu>
+      <Divider orientation="vertical" variant="middle" flexItem />
       <Tooltip title="Zoom In" arrow>
-        <ToolbarIconBtn aria-label="zoom-in" onClick={handleZoomIn}>
+        <IconButton aria-label="zoom-in" onClick={handleZoomIn}>
           <ZoomInIcon />
-        </ToolbarIconBtn>
+        </IconButton>
       </Tooltip>
       <Tooltip title="Zoom Out" arrow>
-        <ToolbarIconBtn aria-label="zoom-in" onClick={handleZoomOut}>
+        <IconButton aria-label="zoom-out" onClick={handleZoomOut}>
           <ZoomOutIcon />
-        </ToolbarIconBtn>
+        </IconButton>
       </Tooltip>
-      <Divider orientation="vertical" variant="middle" flexItem />
       <Tooltip title="Fit Graph" arrow>
-        <ToolbarIconBtn aria-label="zoom-in" onClick={handleFit}>
+        <IconButton aria-label="fit-graph" onClick={handleFit}>
           <FitScreenIcon />
-        </ToolbarIconBtn>
+        </IconButton>
       </Tooltip>
     </Paper>
   );
