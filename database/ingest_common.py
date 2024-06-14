@@ -95,8 +95,15 @@ dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/d
 publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
+
 dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/DccAssets.tsv', 'DccAssets.tsv')
+# Mano: 2024/06/06: created a temp file DccAssets.tsv on sc-cfdewebdev for trying ingest for new C2M2 submissions
+dcc_assets_path = ensure_file_factory('https://sc-cfdewebdev.sdsc.edu/tmp/06062024/DccAssets.tsv', 'DccAssets.tsv')
+
 file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/FileAssets.tsv', 'FileAssets.tsv')
+# Mano: 2024/06/06: created a temp file FileAssets.tsv on sc-cfdewebdev for trying ingest for new C2M2 submissions
+file_assets_path = ensure_file_factory('https://sc-cfdewebdev.sdsc.edu/tmp/06062024/FileAssets.tsv', 'FileAssets.tsv')
+
 code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/041624/CodeAssets.tsv', 'CodeAssets.tsv')
 dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
 partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/032724/partnerships.tsv', 'partnerships.tsv')
