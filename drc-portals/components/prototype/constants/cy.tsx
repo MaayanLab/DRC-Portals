@@ -333,26 +333,29 @@ const GENE_HAS_SOURCE_TAXONOMY_EDGE_ID = "gene-has-source-taxonomy";
 const GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID = "gene-associated-with-phenotype";
 
 const FILE_POS = { x: 0, y: 0 };
-const ID_NAMESPACE_POS = { x: FILE_POS.x, y: -160 };
+const ID_NAMESPACE_POS = { x: FILE_POS.x, y: -120 };
 const DCC_POS = { x: -450, y: 250 };
 const COLLECTION_POS = { x: 300, y: DCC_POS.y };
 const PROJECT_POS = { x: -1 * COLLECTION_POS.x, y: DCC_POS.y };
-const ANALYSIS_TYPE_POS = { x: 215, y: -60 };
+const ANALYSIS_TYPE_POS = { x: 215, y: -38 };
 const ASSAY_TYPE_POS = { x: -1 * ANALYSIS_TYPE_POS.x, y: ANALYSIS_TYPE_POS.y };
-const FILE_FORMAT_POS = { x: 135, y: -120 };
+const FILE_FORMAT_POS = { x: 150, y: -70 };
 const DATA_TYPE_POS = { x: -1 * FILE_FORMAT_POS.x, y: FILE_FORMAT_POS.y };
 const BIOSAMPLE_POS = { x: 230, y: 500 };
 const SUBJECT_POS = { x: -1 * BIOSAMPLE_POS.x, y: BIOSAMPLE_POS.y };
-const SUBJECT_ETHNICITY_POS = { x: 1.8 * SUBJECT_POS.x, y: 620 };
-const SUBJECT_SEX_POS = { x: 1.4 * SUBJECT_POS.x, y: SUBJECT_ETHNICITY_POS.y };
-const SUBJECT_RACE_POS = { x: SUBJECT_POS.x, y: SUBJECT_ETHNICITY_POS.y };
+const SUBJECT_ETHNICITY_POS = { x: SUBJECT_POS.x - 175, y: 580 };
+const SUBJECT_SEX_POS = {
+  x: SUBJECT_POS.x - 100,
+  y: SUBJECT_ETHNICITY_POS.y + 32,
+};
+const SUBJECT_RACE_POS = { x: SUBJECT_POS.x + 100, y: SUBJECT_SEX_POS.y };
 const SUBJECT_GRANULARITY_POS = {
-  x: 0.6 * SUBJECT_POS.x,
+  x: SUBJECT_POS.x + 175,
   y: SUBJECT_ETHNICITY_POS.y,
 };
 const SAMPLE_PREP_METHOD_POS = {
   x: COLLECTION_POS.x,
-  y: SUBJECT_ETHNICITY_POS.y,
+  y: SUBJECT_SEX_POS.y,
 };
 const COMPOUND_POS = { x: 0, y: TERM_NODE_Y_SPACING * 0.8 };
 const SUBSTANCE_POS = { x: COMPOUND_POS.x + 180, y: COMPOUND_POS.y };
@@ -520,6 +523,58 @@ const FILE_DESCRIBES_BIOSAMPLE_TARGET_POS = getEdgePoint(
   SCHEMA_NODE_RADIUS
 );
 
+const FILE_IS_DATA_TYPE_SOURCE_DEG = -10;
+const FILE_IS_DATA_TYPE_TARGET_DEG = 90;
+const FILE_IS_DATA_TYPE_SOURCE_POS = getEdgePoint(
+  FILE_POS,
+  FILE_IS_DATA_TYPE_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const FILE_IS_DATA_TYPE_TARGET_POS = getEdgePoint(
+  DATA_TYPE_POS,
+  FILE_IS_DATA_TYPE_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const FILE_GENERATED_BY_ASSAY_TYPE_SOURCE_DEG = -20;
+const FILE_GENERATED_BY_ASSAY_TYPE_TARGET_DEG = 90;
+const FILE_GENERATED_BY_ASSAY_TYPE_SOURCE_POS = getEdgePoint(
+  FILE_POS,
+  FILE_GENERATED_BY_ASSAY_TYPE_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const FILE_GENERATED_BY_ASSAY_TYPE_TARGET_POS = getEdgePoint(
+  ASSAY_TYPE_POS,
+  FILE_GENERATED_BY_ASSAY_TYPE_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const FILE_IS_FORMAT_SOURCE_DEG = 10;
+const FILE_IS_FORMAT_TARGET_DEG = -90;
+const FILE_IS_FORMAT_SOURCE_POS = getEdgePoint(
+  FILE_POS,
+  FILE_IS_FORMAT_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const FILE_IS_FORMAT_TARGET_POS = getEdgePoint(
+  FILE_FORMAT_POS,
+  FILE_IS_FORMAT_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const FILE_GENERATED_BY_ANALYSIS_TYPE_SOURCE_DEG = 20;
+const FILE_GENERATED_BY_ANALYSIS_TYPE_TARGET_DEG = -90;
+const FILE_GENERATED_BY_ANALYSIS_TYPE_SOURCE_POS = getEdgePoint(
+  FILE_POS,
+  FILE_GENERATED_BY_ANALYSIS_TYPE_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const FILE_GENERATED_BY_ANALYSIS_TYPE_TARGET_POS = getEdgePoint(
+  ANALYSIS_TYPE_POS,
+  FILE_GENERATED_BY_ANALYSIS_TYPE_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
 const BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_DEG = -90;
 const BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_DEG = 90;
 const BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS = getEdgePoint(
@@ -556,6 +611,58 @@ const BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS = getEdgePoint(
 const BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS = getEdgePoint(
   ANATOMY_POS,
   BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const SUBJECT_IS_ETHNICITY_SOURCE_DEG = -160;
+const SUBJECT_IS_ETHNICITY_TARGET_DEG = 90;
+const SUBJECT_IS_ETHNICITY_SOURCE_POS = getEdgePoint(
+  SUBJECT_POS,
+  SUBJECT_IS_ETHNICITY_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const SUBJECT_IS_ETHNICITY_TARGET_POS = getEdgePoint(
+  SUBJECT_ETHNICITY_POS,
+  SUBJECT_IS_ETHNICITY_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const SUBJECT_IS_SEX_SOURCE_DEG = -170;
+const SUBJECT_IS_SEX_TARGET_DEG = 90;
+const SUBJECT_IS_SEX_SOURCE_POS = getEdgePoint(
+  SUBJECT_POS,
+  SUBJECT_IS_SEX_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const SUBJECT_IS_SEX_TARGET_POS = getEdgePoint(
+  SUBJECT_SEX_POS,
+  SUBJECT_IS_SEX_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const SUBJECT_IS_RACE_SOURCE_DEG = 170;
+const SUBJECT_IS_RACE_TARGET_DEG = -90;
+const SUBJECT_IS_RACE_SOURCE_POS = getEdgePoint(
+  SUBJECT_POS,
+  SUBJECT_IS_RACE_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const SUBJECT_IS_RACE_TARGET_POS = getEdgePoint(
+  SUBJECT_RACE_POS,
+  SUBJECT_IS_RACE_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const SUBJECT_IS_GRANULARITY_SOURCE_DEG = 160;
+const SUBJECT_IS_GRANULARITY_TARGET_DEG = -90;
+const SUBJECT_IS_GRANULARITY_SOURCE_POS = getEdgePoint(
+  SUBJECT_POS,
+  SUBJECT_IS_GRANULARITY_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const SUBJECT_IS_GRANULARITY_TARGET_POS = getEdgePoint(
+  SUBJECT_GRANULARITY_POS,
+  SUBJECT_IS_GRANULARITY_TARGET_DEG,
   SCHEMA_NODE_RADIUS
 );
 
@@ -636,6 +743,9 @@ const BIOSAMPLE_ASSOCIATED_WITH_GENE_TARGET_POS = getEdgePoint(
   BIOSAMPLE_ASSOCIATED_WITH_GENE_TARGET_DEG,
   SCHEMA_NODE_RADIUS
 );
+
+const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_SOURCE_DEG = 225;
+const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_TARGET_DEG = 90;
 
 const getNodeProps = (label: string) => {
   return (PROPERTY_MAP.get(label) as string[]).reduce((o, prop) => {
@@ -1481,7 +1591,11 @@ export const SCHEMA_STYLESHEET: any[] = [
   },
   {
     selector: `edge#${ID_NAMESPACE_CONTAINS_FILE_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 10,
+    },
   },
   {
     selector: `edge#${ID_NAMESPACE_CONTAINS_BIOSAMPLE_EDGE_ID}`,
@@ -1741,23 +1855,107 @@ export const SCHEMA_STYLESHEET: any[] = [
   },
   {
     selector: `edge#${COLLECTION_CONTAINS_TERMS_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "data(label)",
+    },
   },
   {
     selector: `edge#${FILE_IS_FILE_FORMAT_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 100,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${FILE_IS_FORMAT_SOURCE_DEG}deg`,
+      "target-endpoint": `${FILE_IS_FORMAT_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        FILE_IS_FORMAT_SOURCE_POS,
+        [
+          {
+            x: FILE_IS_FORMAT_SOURCE_POS.x,
+            y: FILE_IS_FORMAT_TARGET_POS.y,
+          },
+        ],
+        FILE_IS_FORMAT_TARGET_POS,
+        [true]
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 100,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${FILE_GENERATED_BY_ASSAY_TYPE_SOURCE_DEG}deg`,
+      "target-endpoint": `${FILE_GENERATED_BY_ASSAY_TYPE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        FILE_GENERATED_BY_ASSAY_TYPE_SOURCE_POS,
+        [
+          {
+            x: FILE_GENERATED_BY_ASSAY_TYPE_SOURCE_POS.x,
+            y: FILE_GENERATED_BY_ASSAY_TYPE_TARGET_POS.y,
+          },
+        ],
+        FILE_GENERATED_BY_ASSAY_TYPE_TARGET_POS
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 100,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${FILE_GENERATED_BY_ANALYSIS_TYPE_SOURCE_DEG}deg`,
+      "target-endpoint": `${FILE_GENERATED_BY_ANALYSIS_TYPE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        FILE_GENERATED_BY_ANALYSIS_TYPE_SOURCE_POS,
+        [
+          {
+            x: FILE_GENERATED_BY_ANALYSIS_TYPE_SOURCE_POS.x,
+            y: FILE_GENERATED_BY_ANALYSIS_TYPE_TARGET_POS.y,
+          },
+        ],
+        FILE_GENERATED_BY_ANALYSIS_TYPE_TARGET_POS,
+        [true]
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${FILE_IS_DATA_TYPE_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "source-label": "data(label)",
+      "source-text-offset": 100,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${FILE_IS_DATA_TYPE_SOURCE_DEG}deg`,
+      "target-endpoint": `${FILE_IS_DATA_TYPE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        FILE_IS_DATA_TYPE_SOURCE_POS,
+        [
+          {
+            x: FILE_IS_DATA_TYPE_SOURCE_POS.x,
+            y: FILE_IS_DATA_TYPE_TARGET_POS.y,
+          },
+        ],
+        FILE_IS_DATA_TYPE_TARGET_POS
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${FILE_DESCRIBES_SUBJECT_EDGE_ID}`,
@@ -1810,19 +2008,101 @@ export const SCHEMA_STYLESHEET: any[] = [
   },
   {
     selector: `edge#${SUBJECT_IS_GRANULARITY_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${SUBJECT_IS_GRANULARITY_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_IS_GRANULARITY_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        SUBJECT_IS_GRANULARITY_SOURCE_POS,
+        [
+          {
+            x: SUBJECT_IS_GRANULARITY_SOURCE_POS.x,
+            y: SUBJECT_IS_GRANULARITY_TARGET_POS.y,
+          },
+        ],
+        SUBJECT_IS_GRANULARITY_TARGET_POS
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${SUBJECT_IS_ETHNICITY_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${SUBJECT_IS_ETHNICITY_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_IS_ETHNICITY_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        SUBJECT_IS_ETHNICITY_SOURCE_POS,
+        [
+          {
+            x: SUBJECT_IS_ETHNICITY_SOURCE_POS.x,
+            y: SUBJECT_IS_ETHNICITY_TARGET_POS.y,
+          },
+        ],
+        SUBJECT_IS_ETHNICITY_TARGET_POS,
+        [true]
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${SUBJECT_IS_RACE_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 35,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${SUBJECT_IS_RACE_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_IS_RACE_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        SUBJECT_IS_RACE_SOURCE_POS,
+        [
+          {
+            x: SUBJECT_IS_RACE_SOURCE_POS.x,
+            y: SUBJECT_IS_RACE_TARGET_POS.y,
+          },
+        ],
+        SUBJECT_IS_RACE_TARGET_POS
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${SUBJECT_IS_SEX_EDGE_ID}`,
-    style: {},
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 35,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${SUBJECT_IS_SEX_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_IS_SEX_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        SUBJECT_IS_SEX_SOURCE_POS,
+        [
+          {
+            x: SUBJECT_IS_SEX_SOURCE_POS.x,
+            y: SUBJECT_IS_SEX_TARGET_POS.y,
+          },
+        ],
+        SUBJECT_IS_SEX_TARGET_POS,
+        [true]
+      ),
+      "segment-radii": 20,
+    },
   },
   {
     selector: `edge#${SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID}`,
@@ -2026,7 +2306,10 @@ export const SCHEMA_STYLESHEET: any[] = [
   },
   {
     selector: `edge#${SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_EDGE_ID}`,
-    style: {},
+    style: {
+      "source-endpoint": `${SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_TARGET_DEG}deg`,
+    },
   },
   {
     selector: `edge#${BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID}`,
