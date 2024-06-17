@@ -15,8 +15,12 @@ import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
+import { CytoscapeReference } from "../types/cy";
 import { getAdvancedSearchValuesFromParams } from "../utils/advanced-search";
-import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
+import {
+  createCytoscapeElementsFromNeo4j,
+  downloadChartData,
+} from "../utils/cy";
 import {
   createSynonymSearchCypher,
   getValueFromSearchParams,
@@ -56,7 +60,15 @@ export default function GraphSearch() {
     },
   ];
 
-  const customTools = [...D3_FORCE_TOOLS];
+  const customTools = [
+    ...D3_FORCE_TOOLS,
+    (cyRef: CytoscapeReference) =>
+      downloadChartData(
+        "search-chart-toolbar-download-data",
+        "Download Data",
+        cyRef
+      ),
+  ];
 
   const clearSearchError = () => {
     setError(null);

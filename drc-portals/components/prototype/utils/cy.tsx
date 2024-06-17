@@ -2,10 +2,13 @@ import {
   Box,
   IconButton,
   ListItem,
+  Menu,
+  MenuItem,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import RadarIcon from "@mui/icons-material/Radar";
 import RestoreIcon from "@mui/icons-material/Restore";
@@ -16,7 +19,7 @@ import {
   Position,
 } from "cytoscape";
 import { Record } from "neo4j-driver";
-import { ReactNode } from "react";
+import { Fragment, MouseEvent, ReactNode, useState } from "react";
 
 import {
   FONT_SIZE,
@@ -401,5 +404,68 @@ export const unlockD3ForceNodes = (
         <LockOpenIcon />
       </IconButton>
     </Tooltip>
+  );
+};
+
+export const downloadChartData = (
+  key: string,
+  title: string,
+  cyRef: CytoscapeReference
+) => {
+  const [downloadMenuAnchorEl, setDownloadMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const downloadMenuOpen = Boolean(downloadMenuAnchorEl);
+  const handleDownloadBtnClick = (event: MouseEvent<HTMLButtonElement>) => {
+    setDownloadMenuAnchorEl(event.currentTarget);
+  };
+  const handleDownloadMenuClose = () => {
+    setDownloadMenuAnchorEl(null);
+  };
+
+  const handleDownloadJSON = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      const data = {
+        nodes: cy.nodes().map((n) => n.data()),
+        edges: cy.edges().map((e) => e.data()),
+      };
+      const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+        JSON.stringify(data)
+      )}`;
+      const link = document.createElement("a");
+      link.href = jsonString;
+      link.download = "c2m2-graph-data.json";
+
+      link.click();
+    }
+  };
+
+  return (
+    <Fragment key={key}>
+      <Tooltip title={title} arrow>
+        <IconButton
+          id={`${key}-btn`}
+          aria-controls={downloadMenuOpen ? `${key}-menu` : undefined}
+          aria-haspopup="true"
+          aria-expanded={downloadMenuOpen ? "true" : undefined}
+          aria-label="download-data"
+          onClick={handleDownloadBtnClick}
+        >
+          <FileDownloadIcon />
+        </IconButton>
+      </Tooltip>
+      <Menu
+        id={`${key}-menu`}
+        anchorEl={downloadMenuAnchorEl}
+        open={downloadMenuOpen}
+        onClose={handleDownloadMenuClose}
+        elevation={2}
+        MenuListProps={{
+          "aria-labelledby": `${key}-btn`,
+        }}
+      >
+        <MenuItem onClick={handleDownloadJSON}>JSON</MenuItem>
+      </Menu>
+    </Fragment>
   );
 };
