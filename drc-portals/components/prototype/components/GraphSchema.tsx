@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   SCHEMA_ELEMENTS,
   SCHEMA_LAYOUT,
-  INITIAL_NODE_POSITIONS,
   SCHEMA_STYLESHEET,
 } from "../constants/cy";
 import {
@@ -17,9 +16,7 @@ import {
   NodeCxtMenuItem,
   CytoscapeNodeData,
 } from "../interfaces/cy";
-import { CytoscapeReference } from "../types/cy";
 import { SchemaData } from "../types/schema";
-import { resetChart } from "../utils/cy";
 import { convertPathToSearchValue, isPathEligible } from "../utils/schema";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
@@ -143,6 +140,7 @@ export default function GraphSchema() {
           stylesheet={SCHEMA_STYLESHEET}
           legendPosition={{ top: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
+          tooltipContentProps={{ noWrap: false }}
           staticCxtMenuItems={staticCxtMenuItems}
           nodeCxtMenuItems={nodeCxtMenuItems}
           edgeCxtMenuItems={edgeCxtMenuItems}

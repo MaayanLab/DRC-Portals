@@ -6,8 +6,10 @@ import {
   Divider,
   Menu,
   MenuItem,
+  TypographyProps,
   styled,
 } from "@mui/material";
+import { Instance } from "@popperjs/core";
 import {
   ElementDefinition,
   EventObject,
@@ -17,10 +19,9 @@ import {
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
-
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import { v4 } from "uuid";
 
@@ -53,6 +54,8 @@ type CytoscapeChartProps = {
   stylesheet: string | Stylesheet | Stylesheet[];
   legendPosition?: PositionOffsets;
   toolbarPosition?: PositionOffsets;
+  tooltipBoxStyleProps?: CSSProperties;
+  tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
   staticCxtMenuItems?: CxtMenuItem[];
   nodeCxtMenuItems?: NodeCxtMenuItem[];
@@ -67,6 +70,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     stylesheet,
     legendPosition,
     toolbarPosition,
+    tooltipBoxStyleProps,
+    tooltipContentProps,
     customTools,
     staticCxtMenuItems,
     nodeCxtMenuItems,
@@ -85,6 +90,12 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   } | null>(null);
   const [contextMenuItems, setContextMenuItems] = useState<JSX.Element[]>([]);
   let nodeHoverTimerId: NodeJS.Timeout | null = null;
+
+  const positionRef = useRef<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const popperRef = useRef<Instance>(null);
 
   const WidgetContainer = styled(Box)({
     flexGrow: 1,
@@ -199,6 +210,14 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
     // handled here
     nodeHoverTimerId = setTimeout(() => {
+      positionRef.current = {
+        x: event.originalEvent.clientX,
+        y: event.originalEvent.clientY,
+      };
+
+      if (popperRef.current != null) {
+        popperRef.current.update();
+      }
       setHoveredNode(event.target.data());
     }, 200);
   };
@@ -349,7 +368,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     if (hoveredNode === null) {
       hideTooltip();
     } else {
-      showTooltip(createNodeTooltip(hoveredNode));
+      showTooltip(
+        createNodeTooltip(
+          hoveredNode,
+          tooltipBoxStyleProps,
+          tooltipContentProps
+        )
+      );
     }
   }, [hoveredNode]);
 
@@ -358,11 +383,23 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       <ClickAwayListener onClickAway={handleTooltipClickAway}>
         {/* TODO: Should this have a key prop? */}
         <ChartTooltip
-          followCursor
           title={tooltipTitle}
           open={tooltipOpen}
           placement="right-start"
           TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
+          PopperProps={{
+            popperRef,
+            anchorEl: {
+              getBoundingClientRect: () => {
+                return new DOMRect(
+                  positionRef.current.x,
+                  positionRef.current.y,
+                  0,
+                  0
+                );
+              },
+            },
+          }}
         >
           <ChartContainer variant="outlined">
             {/* TODO: Should this have a key prop? */}

@@ -1,4 +1,13 @@
-import { Box, Divider, IconButton, Typography, styled } from "@mui/material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  Link,
+  LinkProps,
+  Typography,
+  styled,
+} from "@mui/material";
+import LaunchIcon from "@mui/icons-material/Launch";
 import { CSSProperties } from "react";
 
 import { EDGE_COLOR } from "./cy";
@@ -93,6 +102,49 @@ export const EntityDivider = styled(Divider)(() => ({
 export const TransparentIconButton = styled(IconButton)({
   "&.MuiIconButton-root:hover": { backgroundColor: "transparent" },
 });
+
+export const StyledLink = styled(Link)(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  textDecoration: "none",
+  color: theme.palette.secondary.main,
+  "&:hover": {
+    textDecoration: "underline",
+  },
+}));
+
+export const ExternalLink = ({ children, ...props }: LinkProps) => (
+  <StyledLink {...props} target="_blank" rel="noopener">
+    <Box component="span" mr={0.5}>
+      {children}
+    </Box>
+    <LaunchIcon fontSize="small" />
+  </StyledLink>
+);
+
+// Links
+export const EDAM_LINK = (
+  <ExternalLink href="http://edamontology.org/">EDAM</ExternalLink>
+);
+export const NCBI_TAXONOMY_LINK = (
+  <ExternalLink href="https://www.ncbi.nlm.nih.gov/taxonomy">
+    NCBI Taxonomy
+  </ExternalLink>
+);
+export const OBI_LINK = (
+  <ExternalLink href="https://obi-ontology.org/">OBI</ExternalLink>
+);
+export const UBERON_LINK = (
+  <ExternalLink href="https://www.ebi.ac.uk/ols/ontologies/uberon">
+    UBERON
+  </ExternalLink>
+);
+export const HPO_LINK = (
+  <ExternalLink href="https://hpo.jax.org/">HPO</ExternalLink>
+);
+export const DO_LINK = (
+  <ExternalLink href="https://disease-ontology.org/">DO</ExternalLink>
+);
 
 // Entity class style names
 export const ADMIN_NODE_CLASS = "admin-node";

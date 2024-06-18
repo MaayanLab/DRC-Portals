@@ -1,13 +1,13 @@
 import {
-  IconButton,
   Paper,
   Tooltip,
   TooltipProps,
+  TypographyProps,
   styled,
   tooltipClasses,
 } from "@mui/material";
 import { Css, Position } from "cytoscape";
-import { forwardRef } from "react";
+import { CSSProperties, forwardRef } from "react";
 
 import { CytoscapeNodeData } from "../interfaces/cy";
 import { CytoscapeReference } from "../types/cy";
@@ -22,11 +22,17 @@ import {
   BIOSAMPLE_RELATED_NODE_COLOR,
   CONTAINER_NODE_COLOR,
   CORE_NODE_COLOR,
+  DO_LINK,
+  EDAM_LINK,
   ENTITY_STYLES_MAP,
   FILE_RELATED_NODE_COLOR,
+  HPO_LINK,
+  NCBI_TAXONOMY_LINK,
   NODE_CLASS_MAP,
+  OBI_LINK,
   SUBJECT_RELATED_NODE_COLOR,
   TERM_NODE_COLOR,
+  UBERON_LINK,
 } from "./shared";
 import {
   ANALYSIS_TYPE_LABEL,
@@ -90,6 +96,21 @@ export const ChartTooltip = styled(
     backgroundColor: "transparent",
   },
 }));
+
+export const DEFAULT_TOOLTIP_BOX_STYLE_PROPS: CSSProperties = {
+  width: "360px",
+  height: "auto",
+  padding: "7px 6px",
+  backgroundColor: "white",
+  border: "1px solid",
+  borderRadius: "4px",
+  color: "#000",
+};
+
+export const DEFAULT_TOOLTIP_CONTENT_PROPS: TypographyProps = {
+  variant: "body2",
+  noWrap: true,
+};
 
 // Default node properties
 export const NODE_FONT_FAMILY = "arial";
@@ -748,21 +769,6 @@ const BIOSAMPLE_ASSOCIATED_WITH_GENE_TARGET_POS = getEdgePoint(
 const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_SOURCE_DEG = 225;
 const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_TARGET_DEG = 90;
 
-const getNodeProps = (label: string) => {
-  return (PROPERTY_MAP.get(label) as string[]).reduce((o, prop) => {
-    let type: string;
-
-    // TODO: Add additional property types as they become available
-    if (STRING_PROPERTIES.has(prop)) {
-      type = "string";
-    } else {
-      type = "unknown";
-    }
-
-    return { ...o, [prop]: type };
-  }, {});
-};
-
 export const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ID_NAMESPACE_LABEL) || ""],
@@ -773,7 +779,10 @@ export const SCHEMA_NODES = [
       label: ID_NAMESPACE_LABEL,
       neo4j: {
         labels: [ID_NAMESPACE_LABEL],
-        properties: getNodeProps(ID_NAMESPACE_LABEL),
+        properties: {
+          description:
+            "A list of identifier namespaces registered by the DCC submitting a C2M2 instance.",
+        },
       },
     },
   },
@@ -786,7 +795,10 @@ export const SCHEMA_NODES = [
       label: DCC_LABEL,
       neo4j: {
         labels: [DCC_LABEL],
-        properties: getNodeProps(DCC_LABEL),
+        properties: {
+          description:
+            "A Common Fund program or data coordinating center (DCC, identified by the project relationship) that produced a C2M2 instance.",
+        },
       },
     },
   },
@@ -799,7 +811,10 @@ export const SCHEMA_NODES = [
       label: PROJECT_LABEL,
       neo4j: {
         labels: [PROJECT_LABEL],
-        properties: getNodeProps(PROJECT_LABEL),
+        properties: {
+          description:
+            "A node in the C2M2 project hierarchy subdividing all resources described by a DCC's C2M2 metadata.",
+        },
       },
     },
   },
@@ -812,7 +827,9 @@ export const SCHEMA_NODES = [
       label: COLLECTION_LABEL,
       neo4j: {
         labels: [COLLECTION_LABEL],
-        properties: getNodeProps(COLLECTION_LABEL),
+        properties: {
+          description: "A grouping of C2M2 files, biosamples and/or subjects.",
+        },
       },
     },
   },
@@ -825,7 +842,11 @@ export const SCHEMA_NODES = [
       label: ASSAY_TYPE_LABEL,
       neo4j: {
         labels: [ASSAY_TYPE_LABEL],
-        properties: getNodeProps(ASSAY_TYPE_LABEL),
+        properties: {
+          description:
+            "An OBI CV term describing the type of experiment that generated the results summarized by this file.",
+          ontology: OBI_LINK,
+        },
       },
     },
   },
@@ -838,7 +859,11 @@ export const SCHEMA_NODES = [
       label: DATA_TYPE_LABEL,
       neo4j: {
         labels: [DATA_TYPE_LABEL],
-        properties: getNodeProps(DATA_TYPE_LABEL),
+        properties: {
+          description:
+            "An EDAM CV term identifying the type of information stored in this file (e.g. RNA sequence reads).",
+          ontology: EDAM_LINK,
+        },
       },
     },
   },
@@ -851,7 +876,11 @@ export const SCHEMA_NODES = [
       label: FILE_FORMAT_LABEL,
       neo4j: {
         labels: [FILE_FORMAT_LABEL],
-        properties: getNodeProps(FILE_FORMAT_LABEL),
+        properties: {
+          description:
+            "An EDAM CV term identifying the digital format of this file (e.g. TSV or FASTQ).",
+          ontology: EDAM_LINK,
+        },
       },
     },
   },
@@ -864,7 +893,11 @@ export const SCHEMA_NODES = [
       label: ANALYSIS_TYPE_LABEL,
       neo4j: {
         labels: [ANALYSIS_TYPE_LABEL],
-        properties: getNodeProps(ANALYSIS_TYPE_LABEL),
+        properties: {
+          description:
+            "An OBI CV term describing the type of analytic operation that generated this file.",
+          ontology: OBI_LINK,
+        },
       },
     },
   },
@@ -877,7 +910,9 @@ export const SCHEMA_NODES = [
       label: FILE_LABEL,
       neo4j: {
         labels: [FILE_LABEL],
-        properties: getNodeProps(FILE_LABEL),
+        properties: {
+          description: "A stable digital asset.",
+        },
       },
     },
   },
@@ -890,7 +925,10 @@ export const SCHEMA_NODES = [
       label: SUBJECT_LABEL,
       neo4j: {
         labels: [SUBJECT_LABEL],
-        properties: getNodeProps(SUBJECT_LABEL),
+        properties: {
+          description:
+            "A biological entity from which a C2M2 biosample can be generated.",
+        },
       },
     },
   },
@@ -903,7 +941,9 @@ export const SCHEMA_NODES = [
       label: SUBJECT_SEX_LABEL,
       neo4j: {
         labels: [SUBJECT_SEX_LABEL],
-        properties: getNodeProps(SUBJECT_SEX_LABEL),
+        properties: {
+          description: "A CFDE CV term categorizing the sex of this subject",
+        },
       },
     },
   },
@@ -916,7 +956,10 @@ export const SCHEMA_NODES = [
       label: SUBJECT_ETHNICITY_LABEL,
       neo4j: {
         labels: [SUBJECT_ETHNICITY_LABEL],
-        properties: getNodeProps(SUBJECT_ETHNICITY_LABEL),
+        properties: {
+          description:
+            "A CFDE CV term categorizing the ethnicity of this subject",
+        },
       },
     },
   },
@@ -929,7 +972,9 @@ export const SCHEMA_NODES = [
       label: SUBJECT_RACE_LABEL,
       neo4j: {
         labels: [SUBJECT_RACE_LABEL],
-        properties: getNodeProps(SUBJECT_RACE_LABEL),
+        properties: {
+          description: "A CFDE CV term categorizing the race of this subject.",
+        },
       },
     },
   },
@@ -942,7 +987,10 @@ export const SCHEMA_NODES = [
       label: SUBJECT_GRANULARITY_LABEL,
       neo4j: {
         labels: [SUBJECT_GRANULARITY_LABEL],
-        properties: getNodeProps(SUBJECT_GRANULARITY_LABEL),
+        properties: {
+          description:
+            "A CFDE CV term categorizing this subject by multiplicity.",
+        },
       },
     },
   },
@@ -955,7 +1003,9 @@ export const SCHEMA_NODES = [
       label: BIOSAMPLE_LABEL,
       neo4j: {
         labels: [BIOSAMPLE_LABEL],
-        properties: getNodeProps(BIOSAMPLE_LABEL),
+        properties: {
+          description: "A tissue sample or other physical specimen.",
+        },
       },
     },
   },
@@ -968,7 +1018,10 @@ export const SCHEMA_NODES = [
       label: SAMPLE_PREP_METHOD_LABEL,
       neo4j: {
         labels: [SAMPLE_PREP_METHOD_LABEL],
-        properties: getNodeProps(SAMPLE_PREP_METHOD_LABEL),
+        properties: {
+          description: "The preparation method used to produce a biosample.",
+          ontology: OBI_LINK,
+        },
       },
     },
   },
@@ -981,7 +1034,10 @@ export const SCHEMA_NODES = [
       label: SUBSTANCE_LABEL,
       neo4j: {
         labels: [SUBSTANCE_LABEL],
-        properties: getNodeProps(SUBSTANCE_LABEL),
+        properties: {
+          description:
+            "A PubChem 'substance' term (specific formulation of chemical materials) directly referenced by a C2M2 submission.",
+        },
       },
     },
   },
@@ -994,7 +1050,10 @@ export const SCHEMA_NODES = [
       label: COMPOUND_LABEL,
       neo4j: {
         labels: [COMPOUND_LABEL],
-        properties: getNodeProps(COMPOUND_LABEL),
+        properties: {
+          description:
+            "A (i) GlyTouCan term or (ii) PubChem 'compound' term (normalized chemical structure) referenced by a C2M2 submission; (ii) will include all PubChem 'compound' terms associated with any PubChem 'substance' terms directly referenced in the submission, in addition to any 'compound' terms directly referenced.",
+        },
       },
     },
   },
@@ -1007,7 +1066,10 @@ export const SCHEMA_NODES = [
       label: PROTEIN_LABEL,
       neo4j: {
         labels: [PROTEIN_LABEL],
-        properties: getNodeProps(PROTEIN_LABEL),
+        properties: {
+          description:
+            "A UniProtKB protein directly referenced by a C2M2 submission.",
+        },
       },
     },
   },
@@ -1020,7 +1082,11 @@ export const SCHEMA_NODES = [
       label: NCBI_TAXONOMY_LABEL,
       neo4j: {
         labels: [NCBI_TAXONOMY_LABEL],
-        properties: getNodeProps(NCBI_TAXONOMY_LABEL),
+        properties: {
+          description:
+            "A NCBI Taxonomy Database ID identifying taxa used to describe C2M2 subjects.",
+          ontology: NCBI_TAXONOMY_LINK,
+        },
       },
     },
   },
@@ -1033,7 +1099,10 @@ export const SCHEMA_NODES = [
       label: GENE_LABEL,
       neo4j: {
         labels: [GENE_LABEL],
-        properties: getNodeProps(GENE_LABEL),
+        properties: {
+          description:
+            "An Ensembl gene directly referenced by a C2M2 submission.",
+        },
       },
     },
   },
@@ -1046,7 +1115,11 @@ export const SCHEMA_NODES = [
       label: PHENOTYPE_LABEL,
       neo4j: {
         labels: [PHENOTYPE_LABEL],
-        properties: getNodeProps(PHENOTYPE_LABEL),
+        properties: {
+          description:
+            "A Human Phenotype Ontology term used to describe phenotypes recorded in assocation with C2M2 subjects.",
+          ontology: HPO_LINK,
+        },
       },
     },
   },
@@ -1059,7 +1132,11 @@ export const SCHEMA_NODES = [
       label: DISEASE_LABEL,
       neo4j: {
         labels: [DISEASE_LABEL],
-        properties: getNodeProps(DISEASE_LABEL),
+        properties: {
+          description:
+            "A Disease Ontology term used to describe disease recorded in association with C2M2 subjects or biosamples.",
+          ontology: DO_LINK,
+        },
       },
     },
   },
@@ -1072,7 +1149,11 @@ export const SCHEMA_NODES = [
       label: ANATOMY_LABEL,
       neo4j: {
         labels: [ANATOMY_LABEL],
-        properties: getNodeProps(ANATOMY_LABEL),
+        properties: {
+          description:
+            "An UBERON CV term used to locate the origin of a C2M2 biosample within the physiology of its source or host organism.",
+          ontology: UBERON_LINK,
+        },
       },
     },
   },

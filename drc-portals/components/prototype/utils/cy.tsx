@@ -7,6 +7,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  TypographyProps,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
@@ -19,9 +20,17 @@ import {
   Position,
 } from "cytoscape";
 import { Record } from "neo4j-driver";
-import { Fragment, MouseEvent, ReactNode, useState } from "react";
+import {
+  CSSProperties,
+  Fragment,
+  MouseEvent,
+  ReactNode,
+  useState,
+} from "react";
 
 import {
+  DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
+  DEFAULT_TOOLTIP_CONTENT_PROPS,
   FONT_SIZE,
   MAX_NODE_LABEL_WIDTH,
   NODE_FONT_FAMILY,
@@ -230,7 +239,7 @@ export const createNodeLabels = (labels: string[]) => (
 
 export const createNodeProperties = (
   properties: { [key: string]: any },
-  textProps: any
+  textProps?: TypographyProps
 ) => (
   <Stack direction="column">
     {Object.entries(properties).map(([key, val], index) => (
@@ -259,7 +268,11 @@ export const createNodeProperties = (
   </Stack>
 );
 
-export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
+export const createNodeTooltip = (
+  node: CytoscapeNodeData,
+  boxStyleProps?: CSSProperties,
+  contentProps?: TypographyProps
+): ReactNode => {
   if (node.neo4j?.labels && node.neo4j?.properties) {
     const tooltipBorderColor =
       node.neo4j.labels.length === 1
@@ -269,20 +282,15 @@ export const createNodeTooltip = (node: CytoscapeNodeData): ReactNode => {
     return (
       <Box
         sx={{
-          width: "360px",
-          height: "auto",
-          padding: "7px 6px",
-          backgroundColor: "white",
-          border: "1px solid",
+          ...DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
           borderColor: tooltipBorderColor,
-          borderRadius: "4px",
-          color: "#000",
+          ...boxStyleProps,
         }}
       >
         {createNodeLabels(node.neo4j.labels)}
         {createNodeProperties(node.neo4j.properties, {
-          variant: "body2",
-          noWrap: true,
+          ...DEFAULT_TOOLTIP_CONTENT_PROPS,
+          ...contentProps,
         })}
       </Box>
     );
