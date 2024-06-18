@@ -1,10 +1,9 @@
 import prisma from "@/lib/prisma";
-import { pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import { type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import KGNode from '@/public/img/icons/KGNode.png'
 import KGEdge from '@/public/img/icons/KGEdge.png'
-import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
@@ -15,6 +14,10 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { safeAsync } from "@/utils/safe";
+import ProgramFilters from "./ProgramFilters";
+import NodeTypeFilters from "./NodeTypeFilters";
+import EntityTypeFilters from "./EntityTypeFilters";
+import React from "react";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -38,15 +41,16 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
+  const entity_type_filter = searchParams.t?.some(t => t.entity_type !== null) ?? false
   const filterClause = searchParams.t ? Prisma_join([
     // when DCC is available, we'll filter by entities per-dcc
     searchParams.t.some(t => t.type === 'dcc')
       ? Prisma_join(
         searchParams.t.filter(t => t.type === 'dcc').map(t => Prisma_join([
-          Prisma.sql`"results"."dcc_id" = ${t.entity_type}`,
+          Prisma.sql`"node"."dcc_id" = ${t.entity_type}`,
           Prisma_join(searchParams.t ? searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
             (
-              "results"."type" = ${t.type}::"NodeType"
+              "node"."type" = ${t.type}::"NodeType"
             )
             `) : [], ' or '),
         ], ' and ')),
@@ -55,15 +59,15 @@ export default async function Page(props: PageProps) {
       // otherwise, we filter by entity type independent of dcc
       : Prisma_join(searchParams.t.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
-          "results"."type" = ${t.type}::"NodeType"
+          "node"."type" = ${t.type}::"NodeType"
         )
         `), ' or '),
     // entities not associated with a DCC should be independently filterable
     Prisma_join(searchParams.t.filter(t => t.entity_type !== null).map(t => Prisma.sql`
       (
-        "results"."type" = 'entity'::"NodeType"
+        "node"."type" = 'entity'::"NodeType"
         ${t.entity_type ? Prisma.sql`
-          and "results"."entity_type" = ${t.entity_type}
+          and "entity_node"."type" = ${t.entity_type}
         ` : Prisma.empty}
       )
     `), ' or '),
@@ -72,87 +76,82 @@ export default async function Page(props: PageProps) {
   const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,
-    total_count: number,
-    type_counts: {type: NodeType, entity_type: string | null, count: number}[],
-    dcc_counts: {id: string, short_label: string, count: number}[],
+    exists: boolean,
   }>>`
     with results as (
       select
         "node".*,
-        "entity_node"."type" as "entity_type",
+        ${entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.empty}
         row_number() over (
-          partition by "node"."type", "node"."dcc_id"
-          order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q}))
+          partition by
+            "node"."type",
+            ${entity_type_filter ? Prisma.sql`"entity_node"."type",` : Prisma.empty}
+            "node"."dcc_id"
+          order by ts_rank_cd("node"."searchable", q)
         ) as "rank"
-      from "node"
-      left join "entity_node" on "entity_node"."id" = "node"."id"
-      where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
-    ), items as (
-      select id, type, entity_type, label, description, (
-        select jsonb_build_object(
-          'short_label', "dccs".short_label,
-          'icon', "dccs".icon,
-          'label', "dccs".label
-        )
-        from "dccs"
-        where "dccs".id = "dcc_id"
-      ) as dcc
-      from "results"
-      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
-      order by "results"."rank"
+      from websearch_to_tsquery('english', ${searchParams.q}) q, "node"
+      ${entity_type_filter ? Prisma.sql`left join "entity_node" on "node"."id" = "entity_node"."id"` : Prisma.empty}
+      where ${Prisma_join([Prisma.sql`q @@ "node"."searchable"`, filterClause], ' and ')}
+      order by
+        rank asc,
+        "node"."type",
+        ${entity_type_filter ? Prisma.sql`"entity_node"."type",` : Prisma.empty}
+        "node"."dcc_id",
+        "node"."id"
       offset ${offset}
+      limit 100
+    ), items as (
+      select
+        "results".id,
+        "results".type,
+        ${!entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.sql`"results".entity_type,`}
+        "results".label,
+        "results".description,
+        (
+          select jsonb_build_object(
+            'short_label', "dccs".short_label,
+            'icon', "dccs".icon,
+            'label', "dccs".label
+          )
+          from "dccs"
+          where "dccs".id = "dcc_id"
+        ) as dcc
+      from results
+      ${!entity_type_filter ? Prisma.sql`left join "entity_node" on "results"."id" = "entity_node"."id"` : Prisma.empty}
       limit ${limit}
     ), filter_count as (
       select count(*)::int as count
       from "results"
-      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
-    ), total_count as (
-      select count(*)::int as count
-      from "results"
-    ), type_counts as (
-      select "type", "entity_type", count(*)::int as count
-      from "results"
-      group by "type", "entity_type"
-      order by count(*) desc
-    ), dcc_id_counts as (
-      select "dcc_id", count(*)::int as count
-      from "results"
-      group by "dcc_id"
-    ), dcc_counts as (
-      select "dccs".id, "dccs".short_label, "dcc_id_counts".count as count
-      from "dcc_id_counts"
-      inner join "dccs" on "dccs".id = "dcc_id"
     )
     select 
+      (select exists (select 1 from "results" limit 1)) as "exists",
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
-      (select count from total_count) as total_count,
-      (select count from filter_count) as filter_count,
-      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
-      (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
+      (select count from filter_count) as filter_count
     ;
   `)
   if (!results && error) {
     console.error(error)
     redirect(`/data?error=${encodeURIComponent(`An unexpected error occurred, please try tweaking your query`)}`)
   }
-  if (results?.total_count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
+  if (results?.exists === false) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
   return (
     <ListingPageLayout
       count={results?.filter_count}
+      maxCount={100}
       filters={
         <>
           <Typography className="subtitle1">Program</Typography>
-          {results?.dcc_counts.map((dcc_count) =>
-            <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
-          )}
+          <React.Suspense fallback={<></>}>
+            <ProgramFilters q={searchParams.q ??''} />
+          </React.Suspense>
           <hr className="m-2" />
           <Typography className="subtitle1">Type</Typography>
-          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
-          )}
-          {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
-          )}
+          <React.Suspense fallback={<></>}>
+            <NodeTypeFilters q={searchParams.q ??''} />
+          </React.Suspense>
+          <React.Suspense fallback={<></>}>
+            <EntityTypeFilters q={searchParams.q ??''} />
+          </React.Suspense>
         </>
       }
       footer={
@@ -171,7 +170,7 @@ export default async function Page(props: PageProps) {
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.filter_count}
+        count={(results?.filter_count??0) + offset}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
