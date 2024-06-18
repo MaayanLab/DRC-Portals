@@ -32,17 +32,6 @@ export default function GraphSchema() {
     CytoscapeNodeData | undefined
   >(undefined);
   const pathRef = useRef(path);
-  const customTools = [
-    // Reset Chart button
-    (cyRef: CytoscapeReference) =>
-      resetChart(
-        "schema-chart-toolbar-reset-btn",
-        "Reset Chart",
-        "reset-chart",
-        INITIAL_NODE_POSITIONS,
-        cyRef
-      ),
-  ];
 
   useEffect(() => {
     pathRef.current = path;
@@ -154,7 +143,6 @@ export default function GraphSchema() {
           stylesheet={SCHEMA_STYLESHEET}
           legendPosition={{ top: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
-          customTools={customTools}
           staticCxtMenuItems={staticCxtMenuItems}
           nodeCxtMenuItems={nodeCxtMenuItems}
           edgeCxtMenuItems={edgeCxtMenuItems}
