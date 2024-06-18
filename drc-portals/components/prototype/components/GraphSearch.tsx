@@ -1,7 +1,7 @@
 "use client";
 
 import { Grid } from "@mui/material";
-import { ElementDefinition, EventObjectNode } from "cytoscape";
+import { ElementDefinition, EventObject, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,7 +11,11 @@ import {
   DEFAULT_STYLESHEET,
 } from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
-import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
+import {
+  NodeCxtMenuItem,
+  CytoscapeNodeData,
+  CxtMenuItem,
+} from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
@@ -20,6 +24,7 @@ import { getAdvancedSearchValuesFromParams } from "../utils/advanced-search";
 import {
   createCytoscapeElementsFromNeo4j,
   downloadChartData,
+  downloadCyAsJson,
 } from "../utils/cy";
 import {
   createSynonymSearchCypher,
@@ -52,6 +57,15 @@ export default function GraphSearch() {
     "An error occured during your search. Please try again later.";
   const neo4jService: Neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
+
+  const staticCxtMenuItems: CxtMenuItem[] = [
+    {
+      fn: (event: EventObject) =>
+        downloadCyAsJson(event.cy.elements(":selected")),
+      title: "Download Selection",
+      showFn: (event: EventObject) => event.cy.elements(":selected").length > 0,
+    },
+  ];
 
   const nodeCxtMenuItems: NodeCxtMenuItem[] = [
     {
@@ -186,6 +200,7 @@ export default function GraphSearch() {
           stylesheet={DEFAULT_STYLESHEET}
           toolbarPosition={{ top: 10, right: 10 }}
           customTools={customTools}
+          staticCxtMenuItems={staticCxtMenuItems}
           nodeCxtMenuItems={nodeCxtMenuItems}
         ></CytoscapeChart>
       </Grid>

@@ -417,36 +417,29 @@ export const unlockD3ForceNodes = (
   );
 };
 
-export const getCyDataForDownload = (cyRef: CytoscapeReference) => {
-  const cy = cyRef.current;
-  if (cy !== undefined) {
-    return {
-      nodes: cy.nodes().map((n) => {
-        return {
-          neo4j_id: n.data("id"),
-          ...n.data("neo4j"),
-        };
-      }),
-      edges: cy.edges().map((e) => {
-        return {
-          neo4j_id: e.data("id"),
-          source: e.data("source"),
-          target: e.data("target"),
-          ...e.data("neo4j"),
-        };
-      }),
-    };
-  }
-  return undefined;
+export const getCyDataForDownload = (cy: cytoscape.Collection) => {
+  return {
+    nodes: cy.nodes().map((n) => {
+      return {
+        neo4j_id: n.data("id"),
+        ...n.data("neo4j"),
+      };
+    }),
+    edges: cy.edges().map((e) => {
+      return {
+        neo4j_id: e.data("id"),
+        source: e.data("source"),
+        target: e.data("target"),
+        ...e.data("neo4j"),
+      };
+    }),
+  };
 };
 
-export const downloadCyAsJson = (cyRef: CytoscapeReference) => {
-  const data = getCyDataForDownload(cyRef);
-
-  if (data !== undefined) {
-    const jsonString = JSON.stringify(data);
-    downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
-  }
+export const downloadCyAsJson = (cy: cytoscape.Collection) => {
+  const data = getCyDataForDownload(cy);
+  const jsonString = JSON.stringify(data);
+  downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
 };
 
 export const downloadChartData = (
@@ -454,7 +447,12 @@ export const downloadChartData = (
   title: string,
   cyRef: CytoscapeReference
 ) => {
-  const fn = () => downloadCyAsJson(cyRef);
+  const fn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      downloadCyAsJson(cy.elements());
+    }
+  };
 
   return (
     <Fragment key={key}>
