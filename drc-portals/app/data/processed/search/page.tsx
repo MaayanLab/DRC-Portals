@@ -82,18 +82,29 @@ export default async function Page(props: PageProps) {
       select
         "node".*,
         ${entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.empty}
-        ts_rank_cd("node"."searchable", q) as rank
+        row_number() over (
+          partition by
+            "node"."type",
+            ${entity_type_filter ? Prisma.sql`"entity_node"."type",` : Prisma.empty}
+            "node"."dcc_id"
+          order by ts_rank_cd("node"."searchable", q)
+        ) as "rank"
       from websearch_to_tsquery('english', ${searchParams.q}) q, "node"
       ${entity_type_filter ? Prisma.sql`left join "entity_node" on "node"."id" = "entity_node"."id"` : Prisma.empty}
       where ${Prisma_join([Prisma.sql`q @@ "node"."searchable"`, filterClause], ' and ')}
-      order by rank desc, "node"."id"
+      order by
+        rank asc,
+        "node"."type",
+        ${entity_type_filter ? Prisma.sql`"entity_node"."type",` : Prisma.empty}
+        "node"."dcc_id",
+        "node"."id"
       offset ${offset}
       limit 100
     ), items as (
       select
         "results".id,
         "results".type,
-        ${!entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.empty}
+        ${!entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.sql`"results".entity_type,`}
         "results".label,
         "results".description,
         (
