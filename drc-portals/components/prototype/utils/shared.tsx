@@ -238,3 +238,15 @@ export const getContrastText = (rgb: { r: number; g: number; b: number }) => {
   const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   return L > 0.179 ? "#000" : "#fff";
 };
+
+export const downloadBlob = (data: string, type: string, filename: string) => {
+  const blob = new Blob([data], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(url);
+};

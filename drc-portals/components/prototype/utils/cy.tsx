@@ -49,6 +49,7 @@ import { NodeElementFactory } from "../types/shared";
 
 import {
   ENTITY_TO_FACTORY_MAP,
+  downloadBlob,
   getNodeDisplayProperty,
   keyInFactoryMapFilter,
   truncateTextToFitWidth,
@@ -416,102 +417,52 @@ export const unlockD3ForceNodes = (
   );
 };
 
+export const getCyDataForDownload = (cyRef: CytoscapeReference) => {
+  const cy = cyRef.current;
+  if (cy !== undefined) {
+    return {
+      nodes: cy.nodes().map((n) => {
+        return {
+          neo4j_id: n.data("id"),
+          ...n.data("neo4j"),
+        };
+      }),
+      edges: cy.edges().map((e) => {
+        return {
+          neo4j_id: e.data("id"),
+          source: e.data("source"),
+          target: e.data("target"),
+          ...e.data("neo4j"),
+        };
+      }),
+    };
+  }
+  return undefined;
+};
+
+export const downloadCyAsJson = (cyRef: CytoscapeReference) => {
+  const data = getCyDataForDownload(cyRef);
+
+  if (data !== undefined) {
+    const jsonString = JSON.stringify(data);
+    downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
+  }
+};
+
 export const downloadChartData = (
   key: string,
   title: string,
   cyRef: CytoscapeReference
 ) => {
-  const [downloadMenuAnchorEl, setDownloadMenuAnchorEl] =
-    useState<null | HTMLElement>(null);
-  const downloadMenuOpen = Boolean(downloadMenuAnchorEl);
-  const handleDownloadBtnClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setDownloadMenuAnchorEl(event.currentTarget);
-  };
-  const handleDownloadMenuClose = () => {
-    setDownloadMenuAnchorEl(null);
-  };
-
-  const downloadBlob = (data: string, type: string, filename: string) => {
-    const blob = new Blob([data], { type });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
-
-  const getDataForDownload = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      return {
-        nodes: cy.nodes().map((n) => {
-          return {
-            id: n.data("id"),
-            ...n.data("neo4j"),
-          };
-        }),
-        edges: cy.edges().map((e) => {
-          return {
-            id: e.data("id"),
-            source: e.data("source"),
-            target: e.data("target"),
-            ...e.data("neo4j"),
-          };
-        }),
-      };
-    }
-    return undefined;
-  };
-
-  const handleDownloadJSON = () => {
-    const data = getDataForDownload();
-
-    if (data !== undefined) {
-      const jsonString = JSON.stringify(data);
-      downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
-    }
-  };
-
-  const handleDownloadCSV = () => {
-    const data = getDataForDownload();
-
-    if (data !== undefined) {
-      const parser = new Parser();
-      const csvString = parser.parse(data);
-      downloadBlob(csvString, "application/csv", "c2m2-graph-data.csv");
-    }
-  };
+  const fn = () => downloadCyAsJson(cyRef);
 
   return (
     <Fragment key={key}>
       <Tooltip title={title} arrow>
-        <IconButton
-          id={`${key}-btn`}
-          aria-controls={downloadMenuOpen ? `${key}-menu` : undefined}
-          aria-haspopup="true"
-          aria-expanded={downloadMenuOpen ? "true" : undefined}
-          aria-label="download-data"
-          onClick={handleDownloadBtnClick}
-        >
+        <IconButton aria-label="download-data" onClick={fn}>
           <FileDownloadIcon />
         </IconButton>
       </Tooltip>
-      <Menu
-        id={`${key}-menu`}
-        anchorEl={downloadMenuAnchorEl}
-        open={downloadMenuOpen}
-        onClose={handleDownloadMenuClose}
-        elevation={2}
-        MenuListProps={{
-          "aria-labelledby": `${key}-btn`,
-        }}
-      >
-        <MenuItem onClick={handleDownloadJSON}>JSON</MenuItem>
-        <MenuItem onClick={handleDownloadCSV}>CSV</MenuItem>
-      </Menu>
     </Fragment>
   );
 };
