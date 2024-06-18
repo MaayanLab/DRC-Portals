@@ -19,6 +19,7 @@ import {
   EventObjectNode,
   Position,
 } from "cytoscape";
+import { Parser } from "@json2csv/plainjs";
 import { Record } from "neo4j-driver";
 import {
   CSSProperties,
@@ -430,21 +431,57 @@ export const downloadChartData = (
     setDownloadMenuAnchorEl(null);
   };
 
-  const handleDownloadJSON = () => {
+  const downloadBlob = (data: string, type: string, filename: string) => {
+    const blob = new Blob([data], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  const getDataForDownload = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
-      const data = {
-        nodes: cy.nodes().map((n) => n.data()),
-        edges: cy.edges().map((e) => e.data()),
+      return {
+        nodes: cy.nodes().map((n) => {
+          return {
+            id: n.data("id"),
+            ...n.data("neo4j"),
+          };
+        }),
+        edges: cy.edges().map((e) => {
+          return {
+            id: e.data("id"),
+            source: e.data("source"),
+            target: e.data("target"),
+            ...e.data("neo4j"),
+          };
+        }),
       };
-      const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-        JSON.stringify(data)
-      )}`;
-      const link = document.createElement("a");
-      link.href = jsonString;
-      link.download = "c2m2-graph-data.json";
+    }
+    return undefined;
+  };
 
-      link.click();
+  const handleDownloadJSON = () => {
+    const data = getDataForDownload();
+
+    if (data !== undefined) {
+      const jsonString = JSON.stringify(data);
+      downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
+    }
+  };
+
+  const handleDownloadCSV = () => {
+    const data = getDataForDownload();
+
+    if (data !== undefined) {
+      const parser = new Parser();
+      const csvString = parser.parse(data);
+      downloadBlob(csvString, "application/csv", "c2m2-graph-data.csv");
     }
   };
 
@@ -473,6 +510,7 @@ export const downloadChartData = (
         }}
       >
         <MenuItem onClick={handleDownloadJSON}>JSON</MenuItem>
+        <MenuItem onClick={handleDownloadCSV}>CSV</MenuItem>
       </Menu>
     </Fragment>
   );

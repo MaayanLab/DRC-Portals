@@ -25,6 +25,7 @@
     "@citation-js/plugin-ris": "^0.7.4",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@json2csv/node": "^7.0.6",
     "@mdi/js": "^7.3.67",
     "@mdi/react": "^1.6.1",
     "@mdx-js/loader": "^3.0.1",
