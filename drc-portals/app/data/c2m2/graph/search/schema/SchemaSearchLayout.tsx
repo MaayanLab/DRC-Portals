@@ -1,8 +1,8 @@
 import { Grid } from "@mui/material";
 
-import GraphSearch from "@/components/prototype/components/GraphSearch";
+import GraphSchemaSearch from "@/components/prototype/components/GraphSchemaSearch";
 
-export default function GraphSearchLayout() {
+export default function SchemaSearchLayout() {
   return (
     <Grid
       container
@@ -11,7 +11,7 @@ export default function GraphSearchLayout() {
       spacing={2}
     >
       <Grid item container xs={12} spacing={1}>
-        <GraphSearch></GraphSearch>
+        <GraphSchemaSearch></GraphSchemaSearch>
       </Grid>
     </Grid>
   );

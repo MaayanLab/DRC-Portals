@@ -1,8 +1,8 @@
 import { Grid } from "@mui/material";
 
-import GraphQueryBuilder from "@/components/prototype/components/GraphQueryBuilder";
+import GraphSearch from "@/components/prototype/components/GraphSearch";
 
-export default function QueryBuilderLayout() {
+export default function SearchLayout() {
   return (
     <Grid
       container
@@ -11,7 +11,7 @@ export default function QueryBuilderLayout() {
       spacing={2}
     >
       <Grid item container xs={12} spacing={1}>
-        <GraphQueryBuilder></GraphQueryBuilder>
+        <GraphSearch></GraphSearch>
       </Grid>
     </Grid>
   );

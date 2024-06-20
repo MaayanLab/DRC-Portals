@@ -21,9 +21,9 @@ import { createCypher, getStateFromQuery } from "../utils/query-builder";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
-import SchemaAutocomplete from "./QueryBuilder/SchemaAutocomplete";
+import SchemaAutocomplete from "./SchemaSearch/SchemaAutocomplete";
 
-export default function GraphQueryBuilder() {
+export default function GraphSchemaSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [query, setQuery] = useState(searchParams.get("q"));

@@ -20,8 +20,8 @@ export default function SearchBarEndAdornment(
   const router = useRouter();
   const { showClearBtn, onSearch, onAdvancedSearch, onClear } = cmpProps;
 
-  const onGraphQueryBuilder = () => {
-    router.push("/data/c2m2/graph/query_builder");
+  const onSchemaMode = () => {
+    router.push("/data/c2m2/graph/search/schema");
   };
 
   return (
@@ -51,11 +51,8 @@ export default function SearchBarEndAdornment(
           <TuneIcon />
         </TransparentIconButton>
       </Tooltip>
-      <Tooltip title="Graph Query Builder" arrow>
-        <TransparentIconButton
-          aria-label="graph-query-builder"
-          onClick={onGraphQueryBuilder}
-        >
+      <Tooltip title="Schema Mode" arrow>
+        <TransparentIconButton aria-label="schema-mode" onClick={onSchemaMode}>
           <HubIcon />
         </TransparentIconButton>
       </Tooltip>

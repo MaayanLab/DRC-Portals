@@ -112,7 +112,7 @@ export default function GraphSearch() {
       advancedSearchParams = new URLSearchParams(`q=${term || ""}`);
     }
     router.push(
-      `/data/c2m2/graph/advanced_search?${advancedSearchParams.toString()}`
+      `/data/c2m2/graph/search/advanced?${advancedSearchParams.toString()}`
     );
   };
 
