@@ -51,7 +51,11 @@ async function getCreatorAff(
     if (creator) { 
       // if DRC or Admin upload, mark as DRC even if user is DCC-affiliated
       if (creator.role == "ADMIN" || creator.role == "DRC_APPROVER") {
-        return "DRC"
+        if (dccName == 'LINCS') {
+          return dccName
+        } else {
+          return "DRC"
+        }
       // all other roles (aka just UPLOADER), mark as DCC
       } else {
         return dccName
@@ -67,7 +71,11 @@ async function getCreatorAff(
       return dccName
     // in all other cases with no creator, mark as DRC upload
     } else {
+      if (dccName == 'LINCS') {
+        return dccName
+      } else {
       return "DRC"
+      }
     }
   }
 }
