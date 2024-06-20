@@ -278,9 +278,14 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
         ],
         
       },
-      orderBy: {
-        start_date: { sort: 'asc', nulls: 'last' }
-      }
+      orderBy: [
+        {
+          end_date: { sort: 'asc', nulls: 'last' }
+        },
+        {
+          start_date: { sort: 'asc', nulls: 'last' }
+        }
+      ] 
     }): []
 
     const recurring = (status && (status.length === 0 || status.indexOf('recurring') > -1)) ?  await prisma.outreach.findMany({
