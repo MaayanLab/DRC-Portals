@@ -16,7 +16,6 @@ export default async function kvCache<T extends Prisma.InputJsonValue | null | u
       data: z.any(),
     }).parse(entry.value)
     if (expires && expires > Date.now()) {
-      console.log('cache hit')
       return data
     }
   }
