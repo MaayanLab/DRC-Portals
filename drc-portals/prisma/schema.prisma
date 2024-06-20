@@ -125,6 +125,7 @@ model DCCPartnerships {
   partnership_id String
   dcc            DCC          @relation(fields: [dcc_id], references: [id])
   dcc_id         String
+  lead           Boolean?     @default(false)
 
   @@id([partnership_id, dcc_id])
   @@map("dcc_partnerships")
