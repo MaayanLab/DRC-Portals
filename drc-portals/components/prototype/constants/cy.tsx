@@ -1,4 +1,5 @@
 import {
+  Box,
   Paper,
   Tooltip,
   TooltipProps,
@@ -82,6 +83,13 @@ import {
 export const ChartContainer = styled(Paper)({
   width: "100%",
   height: "100%",
+});
+
+export const WidgetContainer = styled(Box)({
+  flexGrow: 1,
+  position: "absolute",
+  zIndex: 1,
+  padding: "inherit",
 });
 
 // See the MUI docs for a detailed example: https://mui.com/material-ui/react-tooltip/#customization

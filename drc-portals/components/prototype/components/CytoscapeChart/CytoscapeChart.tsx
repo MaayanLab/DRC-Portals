@@ -1,12 +1,10 @@
 "use client";
 
 import {
-  Box,
   ClickAwayListener,
   Divider,
   Menu,
   TypographyProps,
-  styled,
 } from "@mui/material";
 import { Instance } from "@popperjs/core";
 import {
@@ -24,7 +22,11 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import { v4 } from "uuid";
 
-import { ChartContainer, ChartTooltip } from "../../constants/cy";
+import {
+  ChartContainer,
+  ChartTooltip,
+  WidgetContainer,
+} from "../../constants/cy";
 import {
   CxtMenuItem,
   EdgeCxtMenuItem,
@@ -96,13 +98,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     y: 0,
   });
   const popperRef = useRef<Instance>(null);
-
-  const WidgetContainer = styled(Box)({
-    flexGrow: 1,
-    position: "absolute",
-    zIndex: 1,
-    padding: "inherit",
-  });
 
   const handleContextMenuClose = () => {
     setContextMenu(null);
