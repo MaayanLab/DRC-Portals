@@ -67,11 +67,9 @@ import {
   PREPPED_VIA_TYPE,
   PRODUCED_TYPE,
   PROJECT_LABEL,
-  PROPERTY_MAP,
   PROTEIN_LABEL,
   SAMPLED_FROM_TYPE,
   SAMPLE_PREP_METHOD_LABEL,
-  STRING_PROPERTIES,
   SUBJECT_ETHNICITY_LABEL,
   SUBJECT_GRANULARITY_LABEL,
   SUBJECT_LABEL,
@@ -89,11 +87,46 @@ export const ChartContainer = styled(Paper)({
 // See the MUI docs for a detailed example: https://mui.com/material-ui/react-tooltip/#customization
 export const ChartTooltip = styled(
   forwardRef<HTMLDivElement, TooltipProps>(({ className, ...props }, ref) => (
-    <Tooltip ref={ref} {...props} classes={{ popper: className }} />
+    <Tooltip
+      ref={ref}
+      {...props}
+      classes={{ popper: className }}
+      slotProps={{
+        popper: {
+          modifiers: [
+            {
+              name: "offset",
+              options: {
+                offset: [0, 10],
+              },
+            },
+          ],
+          sx: {
+            [`&.${tooltipClasses.popper}[data-popper-placement*="bottom"] .${tooltipClasses.tooltip}`]:
+              {
+                marginTop: "0px",
+              },
+            [`&.${tooltipClasses.popper}[data-popper-placement*="top"] .${tooltipClasses.tooltip}`]:
+              {
+                marginBottom: "0px",
+              },
+            [`&.${tooltipClasses.popper}[data-popper-placement*="right"] .${tooltipClasses.tooltip}`]:
+              {
+                marginLeft: "0px",
+              },
+            [`&.${tooltipClasses.popper}[data-popper-placement*="left"] .${tooltipClasses.tooltip}`]:
+              {
+                marginRight: "0px",
+              },
+          },
+        },
+      }}
+    />
   ))
 )(() => ({
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: "transparent",
+    padding: 0,
   },
 }));
 
