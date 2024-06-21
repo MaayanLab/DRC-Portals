@@ -3,7 +3,10 @@
 import {
   ClickAwayListener,
   Divider,
-  Menu,
+  Grow,
+  MenuList,
+  Paper,
+  Popper,
   TypographyProps,
 } from "@mui/material";
 import { Instance } from "@popperjs/core";
@@ -86,21 +89,24 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   );
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipTitle, setTooltipTitle] = useState<ReactNode>(null);
-  const [contextMenu, setContextMenu] = useState<{
-    mouseX: number;
-    mouseY: number;
-  } | null>(null);
-  const [contextMenuItems, setContextMenuItems] = useState<JSX.Element[]>([]);
-  let nodeHoverTimerId: NodeJS.Timeout | null = null;
-
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
+  const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
+  const contextMenuPosRef = useRef<{
+    x: number;
+    y: number;
+  }>({
+    x: 0,
+    y: 0,
+  });
   const positionRef = useRef<{ x: number; y: number }>({
     x: 0,
     y: 0,
   });
   const popperRef = useRef<Instance>(null);
+  let nodeHoverTimerId: NodeJS.Timeout | null = null;
 
   const handleContextMenuClose = () => {
-    setContextMenu(null);
+    setContextMenuOpen(false);
   };
 
   const contextMenuItemSelectWrapper = (fn: Function, ...args: any[]) => {
@@ -178,17 +184,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     menuItems.push(...staticMenuItems);
 
     setContextMenuItems(menuItems);
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.originalEvent.clientX + 2,
-            mouseY: event.originalEvent.clientY - 6,
-          }
-        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-          // Other native context menus might behave different.
-          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-          null
-    );
+    setContextMenuOpen(true);
   };
 
   const hideTooltip = () => {
@@ -197,8 +193,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const showTooltip = (title: ReactNode) => {
-    setTooltipOpen(true);
-    setTooltipTitle(title);
+    // Don't show the tooltip if the context menu is open
+    if (!contextMenuOpen) {
+      setTooltipOpen(true);
+      setTooltipTitle(title);
+    }
   };
 
   const handleHoverNode = (event: EventObjectNode) => {
@@ -308,6 +307,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     // Note that everything preceding the if-block will trigger on *any* cxtTap event, allowing us to set some shared behavior
     hideTooltip();
     cxtTapHandleSelectState(event);
+    contextMenuPosRef.current = {
+      x: event.originalEvent.clientX,
+      y: event.originalEvent.clientY,
+    };
 
     if (event.target === cyRef.current) {
       handleContextMenu(event, []);
@@ -399,20 +402,37 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
               layout={layout}
               stylesheet={stylesheet}
             />
-            <Menu
-              open={contextMenu !== null && contextMenuItems.length > 0}
-              onClose={handleContextMenuClose}
-              anchorReference="anchorPosition"
-              anchorPosition={
-                contextMenu !== null
-                  ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                  : undefined
-              }
-            >
-              {contextMenuItems}
-            </Menu>
           </ChartContainer>
         </ChartTooltip>
+      </ClickAwayListener>
+      <ClickAwayListener onClickAway={handleContextMenuClose}>
+        <Popper
+          open={contextMenuOpen && contextMenuItems.length > 0}
+          placement="right-start"
+          transition
+          anchorEl={{
+            getBoundingClientRect: () => {
+              return new DOMRect(
+                contextMenuPosRef.current.x,
+                contextMenuPosRef.current.y,
+                0,
+                0
+              );
+            },
+          }}
+        >
+          {({ TransitionProps }) => (
+            <Grow
+              {...TransitionProps}
+              style={{ transformOrigin: "0 0 0" }}
+              timeout="auto"
+            >
+              <Paper>
+                <MenuList>{contextMenuItems}</MenuList>
+              </Paper>
+            </Grow>
+          )}
+        </Popper>
       </ClickAwayListener>
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
