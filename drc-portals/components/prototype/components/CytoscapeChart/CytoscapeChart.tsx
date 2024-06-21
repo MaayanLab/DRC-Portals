@@ -5,7 +5,6 @@ import {
   ClickAwayListener,
   Divider,
   Menu,
-  MenuItem,
   TypographyProps,
   styled,
 } from "@mui/material";
@@ -35,6 +34,7 @@ import {
 import { PositionOffsets } from "../../interfaces/shared";
 import { CustomToolbarFnFactory } from "../../types/cy";
 import {
+  createChartCxtMenuItem,
   createNodeTooltip,
   hideElement,
   highlightNeighbors,
@@ -119,27 +119,21 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const getSharedMenuItems = (event: EventObjectNode | EventObjectEdge) => {
     const items = [];
 
-    items.push(
-      <Divider key={`${cmpKey}-shared-ctx-menu-divider`} variant="middle" />
-    );
-
     if (event.target.hasClass("dimmed")) {
       items.push(
-        <MenuItem
-          key={`${cmpKey}-shared-ctx-menu-0`}
-          onClick={contextMenuItemSelectWrapper(showElement, event)}
-        >
-          Show
-        </MenuItem>
+        createChartCxtMenuItem(
+          `${cmpKey}-shared-ctx-menu-0`,
+          contextMenuItemSelectWrapper(showElement, event),
+          "Show"
+        )
       );
     } else {
       items.push(
-        <MenuItem
-          key={`${cmpKey}-shared-ctx-menu-1`}
-          onClick={contextMenuItemSelectWrapper(hideElement, event)}
-        >
-          Hide
-        </MenuItem>
+        createChartCxtMenuItem(
+          `${cmpKey}-shared-ctx-menu-1`,
+          contextMenuItemSelectWrapper(hideElement, event),
+          "Hide"
+        )
       );
     }
 
@@ -147,27 +141,32 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const getStaticMenuItems = (event: EventObject) => {
-    const items = [
-      <MenuItem
-        key={`${cmpKey}-static-ctx-menu-0`}
-        onClick={contextMenuItemSelectWrapper(resetHighlights, event)}
-      >
-        Reset Highlights
-      </MenuItem>,
-    ];
+    const items = [];
+
+    if (
+      event.cy.elements(".highlight").length > 0 ||
+      event.cy.elements(".dimmed").length > 0
+    ) {
+      items.push(
+        createChartCxtMenuItem(
+          `${cmpKey}-static-ctx-menu-0`,
+          contextMenuItemSelectWrapper(resetHighlights, event),
+          "Reset Highlights"
+        )
+      );
+    }
 
     if (staticCxtMenuItems !== undefined) {
       items.push(
         ...staticCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val, idx) => (
-            <MenuItem
-              key={`${cmpKey}-custom-static-ctx-menu-${idx}`}
-              onClick={contextMenuItemSelectWrapper(val.fn, event)}
-            >
-              {val.title}
-            </MenuItem>
-          ))
+          .map((val, idx) =>
+            createChartCxtMenuItem(
+              `${cmpKey}-custom-static-ctx-menu-${idx}`,
+              contextMenuItemSelectWrapper(val.fn, event),
+              val.title
+            )
+          )
       );
     }
 
@@ -175,8 +174,15 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const handleContextMenu = (event: EventObject, menuItems: JSX.Element[]) => {
-    event.originalEvent.preventDefault();
-    setContextMenuItems([...getStaticMenuItems(event), ...menuItems]);
+    const staticMenuItems = getStaticMenuItems(event);
+    if (menuItems.length > 0 && staticMenuItems.length > 0) {
+      menuItems.push(
+        <Divider key={`${cmpKey}-ctx-menu-divider`} variant="middle" />
+      );
+    }
+    menuItems.push(...staticMenuItems);
+
+    setContextMenuItems(menuItems);
     setContextMenu(
       contextMenu === null
         ? {
@@ -198,10 +204,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const showTooltip = (title: ReactNode) => {
     setTooltipOpen(true);
     setTooltipTitle(title);
-  };
-
-  const handleTooltipClickAway = () => {
-    setTooltipOpen(false);
   };
 
   const handleHoverNode = (event: EventObjectNode) => {
@@ -262,13 +264,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const handleCxtTapNode = (event: EventObjectNode) => {
     const items = [
-      <Divider key={`${cmpKey}-node-ctx-menu-divider`} variant="middle" />,
-      <MenuItem
-        key={`${cmpKey}-node-ctx-menu-0`}
-        onClick={contextMenuItemSelectWrapper(highlightNeighbors, event)}
-      >
-        Highlight Neighbors
-      </MenuItem>,
+      createChartCxtMenuItem(
+        `${cmpKey}-node-ctx-menu-0`,
+        contextMenuItemSelectWrapper(highlightNeighbors, event),
+        "Highlight Neighbors"
+      ),
       ...getSharedMenuItems(event),
     ];
 
@@ -276,19 +276,17 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       items.push(
         ...nodeCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val, idx) => (
-            <MenuItem
-              key={`${cmpKey}-custom-node-ctx-menu-${idx}`}
-              onClick={contextMenuItemSelectWrapper(val.fn, event)}
-            >
-              {val.title}
-            </MenuItem>
-          ))
+          .map((val, idx) =>
+            createChartCxtMenuItem(
+              `${cmpKey}-custom-node-ctx-menu-${idx}`,
+              contextMenuItemSelectWrapper(val.fn, event),
+              val.title
+            )
+          )
       );
     }
 
     handleContextMenu(event, items);
-    cxtTapHandleSelectState(event);
   };
 
   const handleCxtTapEdge = (event: EventObjectEdge) => {
@@ -298,28 +296,26 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       items.push(
         ...edgeCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val, idx) => (
-            <MenuItem
-              key={`${cmpKey}-custom-edge-ctx-menu-${idx}`}
-              onClick={contextMenuItemSelectWrapper(val.fn, event)}
-            >
-              {val.title}
-            </MenuItem>
-          ))
+          .map((val, idx) =>
+            createChartCxtMenuItem(
+              `${cmpKey}-custom-edge-ctx-menu-${idx}`,
+              contextMenuItemSelectWrapper(val.fn, event),
+              val.title
+            )
+          )
       );
     }
 
     handleContextMenu(event, items);
-    cxtTapHandleSelectState(event);
   };
 
   const handleCxtTapCanvas = (event: EventObject) => {
     // Note that everything preceding the if-block will trigger on *any* cxtTap event, allowing us to set some shared behavior
     hideTooltip();
+    cxtTapHandleSelectState(event);
 
     if (event.target === cyRef.current) {
       handleContextMenu(event, []);
-      cxtTapHandleSelectState(event);
     }
   };
 
@@ -380,8 +376,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   return (
     <>
-      <ClickAwayListener onClickAway={handleTooltipClickAway}>
-        {/* TODO: Should this have a key prop? */}
+      <ClickAwayListener onClickAway={hideTooltip}>
         <ChartTooltip
           title={tooltipTitle}
           open={tooltipOpen}
@@ -402,7 +397,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           }}
         >
           <ChartContainer variant="outlined">
-            {/* TODO: Should this have a key prop? */}
             <CytoscapeComponent
               className="cy"
               cy={(cy) => (cyRef.current = cy)}

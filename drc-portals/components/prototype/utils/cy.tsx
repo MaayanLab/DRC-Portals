@@ -301,6 +301,18 @@ export const createNodeTooltip = (
   }
 };
 
+export const createChartCxtMenuItem = (
+  key: string,
+  fn: (...args: any[]) => void,
+  content: ReactNode
+) => {
+  return (
+    <MenuItem key={key} onClick={fn}>
+      {content}
+    </MenuItem>
+  );
+};
+
 export const highlightNeighbors = (event: EventObjectNode) => {
   const highlightIds = new Set([
     event.target.id(),
