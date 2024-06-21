@@ -2,7 +2,7 @@
 import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams } from "@/app/data/processed/utils";
-import FilterSet from "@/app/data/c2m2/FilterSet"
+import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
 import { Button } from "@mui/material";
@@ -14,16 +14,20 @@ import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFile
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 import { FancyTab } from '@/components/misc/FancyTabs';
+import DCCFilterComponent from './DCCFilterComponent';
+import DataTypeFilterComponent from './DataTypeFilterComponent';
+import CompoundFilterComponent from './CompoundFilterComponent';
+import ProteinFilterComponent from './ProteinFilterComponent';
+import GeneFilterComponent from './GeneFilterComponent';
+import AnatomyFilterComponent from './AnatomyFilterComponent';
+import TaxonomyFilterComponent from './TaxonomyFilterComponent';
+import DiseaseFilterComponent from './DiseaseFilterComponent';
+import React from "react";
 
-const allres_filtered_maxrow_limit = 100000;
+const allres_filtered_maxrow_limit = 200000;
 
 type PageProps = { searchParams: Record<string, string>, tab?: boolean }
-type FilterObject = {
-    id: string;
-    name: string;
-    count: number; 
-  };
-  
+
 
 export async function SearchQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
@@ -32,11 +36,9 @@ export async function SearchQueryComponent(props: PageProps) {
 
     const filterConditionStr = generateFilterQueryString(searchParams, "allres");
     const filterClause = !filterConditionStr.isEmpty() ? SQL.template`WHERE ${filterConditionStr}` : SQL.empty();
-    const cascading: boolean = true;
-    const cascading_tablename = cascading ? SQL.raw('allres_filtered') : SQL.raw('allres');
-
-    // Your SQL query goes here
-
+    
+    // this is for filters count limit, passed to various filters for lazy loading
+    const maxCount = 1000; 
     try {
         // To measure time taken by different parts
         const t0: number = performance.now();
@@ -101,22 +103,16 @@ export async function SearchQueryComponent(props: PageProps) {
             all_count: number, // this refers to total rows in (filtercause applied on allres but without applying allres_filtered_maxrow_limit)
             // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
             // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
-            dcc_filters: { dcc_name: string, dcc_short_label: string, count: number, }[],
-            taxonomy_filters: { taxonomy_name: string, count: number, }[],
-            disease_filters: { disease_name: string, count: number, }[],
-            anatomy_filters: { anatomy_name: string, count: number, }[],
-            project_filters: { project_name: string, count: number, }[],
-            gene_filters: { gene_name: string, count: number, }[],
-            protein_filters: { protein_name: string, count: number, }[],
-            compound_filters: { compound_name: string, count: number, }[],
-            data_type_filters: { data_type_name: string, count: number, }[],
+            
           }>>(SQL.template`
         WITH allres_full AS (
           SELECT DISTINCT c2m2.ffl_biosample_collection.*,
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
             FROM c2m2.ffl_biosample_collection
             WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
-            /*ORDER BY rank DESC , dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name */        
+            /*ORDER BY rank DESC , dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name */ 
+            ${filterClause}
+            LIMIT ${allres_filtered_maxrow_limit}     
         ),
         allres AS (
           SELECT 
@@ -172,8 +168,8 @@ export async function SearchQueryComponent(props: PageProps) {
           '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
           '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
           FROM allres
-          ${filterClause}
-          LIMIT ${allres_filtered_maxrow_limit}
+          /*${filterClause}*/
+          /*LIMIT ${allres_filtered_maxrow_limit}*/
         ),
         allres_limited AS (
           SELECT *
@@ -184,70 +180,13 @@ export async function SearchQueryComponent(props: PageProps) {
         total_count as (
           select count(*)::int as count
           from allres_filtered
-        ),
-        dcc_name_count AS (
-          SELECT dcc_name, dcc_short_label, COUNT(*) AS count 
-          FROM ${cascading_tablename}
-          GROUP BY dcc_name, dcc_short_label ORDER BY dcc_short_label, dcc_name
-        ),
-        taxonomy_name_count AS (
-          SELECT taxonomy_name, COUNT(*) AS count
-          /* SELECT CASE WHEN taxonomy_name IS NULL THEN 'Unspecified' ELSE taxonomy_name END AS taxonomy_name, COUNT(*) AS count */
-          FROM ${cascading_tablename}
-          GROUP BY taxonomy_name ORDER BY taxonomy_name
-        ),
-        disease_name_count AS (
-          SELECT disease_name, COUNT(*) AS count
-          /* SELECT CASE WHEN disease_name IS NULL THEN 'Unspecified' ELSE disease_name END AS disease_name, COUNT(*) AS count */
-          FROM ${cascading_tablename}
-          GROUP BY disease_name ORDER BY disease_name
-        ),
-        anatomy_name_count AS (
-          SELECT anatomy_name, COUNT(*) AS count
-          /* SELECT CASE WHEN anatomy_name IS NULL THEN 'Unspecified' ELSE anatomy_name END AS anatomy_name, COUNT(*) AS count */
-          FROM ${cascading_tablename} 
-          GROUP BY anatomy_name ORDER BY anatomy_name
-        ),
-        project_name_count AS (
-          SELECT project_name, COUNT(*) AS count 
-          FROM ${cascading_tablename}
-          GROUP BY project_name ORDER BY project_name
-        ),
-        gene_name_count AS (
-          SELECT gene_name, COUNT(*) AS count 
-          FROM ${cascading_tablename}
-          GROUP BY gene_name ORDER BY gene_name
-        ),
-        protein_name_count AS (
-          SELECT protein_name, COUNT(*) AS count 
-          FROM ${cascading_tablename}
-          GROUP BY protein_name ORDER BY protein_name
-        ),
-        compound_name_count AS (
-          SELECT compound_name, COUNT(*) AS count 
-          FROM ${cascading_tablename}
-          GROUP BY compound_name ORDER BY compound_name
-        ),
-        data_type_name_count AS (
-          SELECT data_type_name, COUNT(*) AS count 
-          FROM ${cascading_tablename}
-          GROUP BY data_type_name ORDER BY data_type_name
         )
         
         SELECT
         (SELECT COALESCE(jsonb_agg(allres_filtered.*), '[]'::jsonb) AS records_full FROM allres_filtered ), 
         (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited ), 
         (SELECT count FROM total_count) as count,
-        (SELECT filtered_count FROM allres_filtered_count) as all_count,
-        (SELECT COALESCE(jsonb_agg(dcc_name_count.*), '[]'::jsonb) FROM dcc_name_count) AS dcc_filters,
-          (SELECT COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) FROM taxonomy_name_count) AS taxonomy_filters,
-          (SELECT COALESCE(jsonb_agg(disease_name_count.*), '[]'::jsonb) FROM disease_name_count) AS disease_filters,
-          (SELECT COALESCE(jsonb_agg(anatomy_name_count.*), '[]'::jsonb) FROM anatomy_name_count) AS anatomy_filters,
-          (SELECT COALESCE(jsonb_agg(project_name_count.*), '[]'::jsonb) FROM project_name_count) AS project_filters,
-          (SELECT COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) FROM gene_name_count) AS gene_filters,
-          (SELECT COALESCE(jsonb_agg(protein_name_count.*), '[]'::jsonb) FROM protein_name_count) AS protein_filters,
-          (SELECT COALESCE(jsonb_agg(compound_name_count.*), '[]'::jsonb) FROM compound_name_count) AS compound_filters,
-          (SELECT COALESCE(jsonb_agg(data_type_name_count.*), '[]'::jsonb) FROM data_type_name_count) AS data_type_filters
+        (SELECT filtered_count FROM allres_filtered_count) as all_count
           
           `.toPrismaSql()) : [undefined];
         
@@ -255,10 +194,7 @@ export async function SearchQueryComponent(props: PageProps) {
         
           if (!results) redirect('/data')
           //  console.log(results)
-          // console.log(results.records[0]); console.log(results.records[1]); console.log(results.records[2]);
-          // console.log(results.records.map(res => res.count))
-          // console.log(results.dcc_filters)
-          // console.log(results.taxonomy_filters)
+          
 
           // Create download filename for this recordInfo based on md5sum
           // Stringify q and t from searchParams pertaining to this record
@@ -270,71 +206,9 @@ export async function SearchQueryComponent(props: PageProps) {
           const SearchHashFileName = generateMD5Hash(concatenatedString);
           const qString_clean = sanitizeFilename(qString, '__');
           
-          const t2: number = performance.now();
-        
-          const total_matches = results?.records.map((res) => res.count).reduce((a, b) => Number(a) + Number(b), 0); // need to sum
-          //else if (results.count === 0) redirect(`/data?error=${encodeURIComponent(`No results for '${searchParams.q ?? ''}'`)}`)
-          const DccFilters: FilterObject[] = results?.dcc_filters.map((dccFilter) => ({
-            id: dccFilter.dcc_short_label,
-            name: dccFilter.dcc_name, // Use dcc_abbreviation as the name
-            count: dccFilter.count,
-          }));
-          const TaxonomyFilters: FilterObject[] = results?.taxonomy_filters.map((taxFilter) => ({
-            id: taxFilter.taxonomy_name, // Use taxonomy_name as id
-            name: taxFilter.taxonomy_name,
-            count: taxFilter.count,
-          }));
-          const DiseaseFilters: FilterObject[] = results?.disease_filters.map((disFilter) => ({
-            id: disFilter.disease_name, // Use disease_name as id
-            name: disFilter.disease_name,
-            count: disFilter.count,
-          }));
-          const AnatomyFilters: FilterObject[] = results?.anatomy_filters.map((anaFilter) => ({
-            id: anaFilter.anatomy_name, // Use anatomy_name as id
-            name: anaFilter.anatomy_name,
-            count: anaFilter.count,
-          }));
-          const ProjectFilters: FilterObject[] = results?.project_filters.map((projFilter) => ({
-            id: projFilter.project_name, // Use anatomy_name as id
-            name: projFilter.project_name,
-            count: projFilter.count,
-          }));
-          const GeneFilters: FilterObject[] = results?.gene_filters.map((geneFilter) => ({
-            id: geneFilter.gene_name, // Use gene_name as id
-            name: geneFilter.gene_name,
-            count: geneFilter.count,
-          }));
-          const ProteinFilters: FilterObject[] = results?.protein_filters.map((proteinFilter) => ({
-            id: proteinFilter.protein_name, // Use protein_name as id
-            name: proteinFilter.protein_name,
-            count: proteinFilter.count,
-          }));
-          const CompoundFilters: FilterObject[] = results?.compound_filters.map((compoundFilter) => ({
-            id: compoundFilter.compound_name, // Use compound_name as id
-            name: compoundFilter.compound_name,
-            count: compoundFilter.count,
-          }));
-          const DataTypeFilters: FilterObject[] = results?.data_type_filters.map((data_typeFilter) => ({
-            id: data_typeFilter.data_type_name, // Use gene_name as id
-            name: data_typeFilter.data_type_name,
-            count: data_typeFilter.count,
-          }));
-        
-          const t3: number = performance.now();
           console.log("Total count of results (after filterclause but before allres_filtered_maxrow_limit): ", results?.all_count);
           console.log("Elapsed time for DB queries: ", t1 - t0, " milliseconds");
-          console.log("Elapsed time for creating data for filters: ", t3 - t2, " milliseconds");
-        
-          // console.log("Length of DCC Filters")
-          // console.log(DccFilters.length);
-          // console.log(searchParams.q);
-          // const selectedFilters = getFilterVals(searchParams.t, searchParams.q);
-        
-          // console.log(selectedFilters)
-        
-          //const file_icon_path = "/img/icons/searching-magnifying-glass.png";
-          const file_icon_path = "/img/icons/file-magnifiying-glass.png";
-        
+          
           // const t4: number = performance.now();
           // THese are passed to the component C2M2MainSearchTable
           const tableCols = [
@@ -424,67 +298,39 @@ export async function SearchQueryComponent(props: PageProps) {
             searchText={searchParams.q}
               filters={
                 <>
-                  {DiseaseFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Disease</Typography> */}
-                      <FilterSet key={`ID:$disease`} id={`disease`} filterList={DiseaseFilters} filter_title="Disease" example_query="e.g. cancer" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-                  {TaxonomyFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Taxonomy</Typography> */}
-                      <FilterSet key={`ID:$taxonomy`} id={`taxonomy`} filterList={TaxonomyFilters} filter_title="Species" example_query="e.g. homo sapiens" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-                  {AnatomyFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Anatomy</Typography> */}
-                      <FilterSet key={`ID:$anatomy`} id={`anatomy`} filterList={AnatomyFilters} filter_title="Anatomy" example_query="e.g. brain" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-        
-                  {/* Conditionally render FilterSet for GeneFilters */}
-                  {GeneFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Gene</Typography> */}
-                      <FilterSet key={`ID:$gene`} id={`gene`} filterList={GeneFilters} filter_title="Gene" example_query="e.g. HK1" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-                  {ProteinFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Protein</Typography> */}
-                      <FilterSet key={`ID:$protein`} id={`protein`} filterList={ProteinFilters} filter_title="Protein" example_query="e.g. A0N4X2" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-                  {CompoundFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Compound</Typography> */}
-                      <FilterSet key={`ID:$compound`} id={`compound`} filterList={CompoundFilters} filter_title="Compound" example_query="e.g. Dexamethasone" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-                  {DataTypeFilters.length > 1 && (
-                    <>
-                      {/* <Typography className="subtitle1">Anatomy</Typography> */}
-                      <FilterSet key={`ID:$data_type`} id={`data_type`} filterList={DataTypeFilters} filter_title="Data type" example_query="e.g. DNA sequence" />
-                      <hr className="m-2" />
-                    </>
-                  )}
-                  {/* <Typography variant="h5">Core filters</Typography> */}
-                  {/* <hr className="m-2" /> */}
-                  {/* <Typography className="subtitle1">CF Program/DCC</Typography> */}
-                  <FilterSet key={`ID:$dcc`} id={`dcc`} filterList={DccFilters} filter_title="Common Fund Program" example_query="e.g. 4DN" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <DiseaseFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
                   <hr className="m-2" />
-                  {/* <Typography className="subtitle1">Project</Typography> */}
-                  {/* <FilterSet key={`ID:$project`} id={`project`} filterList={ProjectFilters} filter_title="Project" /> */}
-                  {/* results?.project_filters.map((res) =>
-                    <SearchFilter key={`ID:${res.project_name}`} id={`anatomy:${res.project_name}`} count={res.count} label={`${res.project_name}`} />
-              ) */}
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <TaxonomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <AnatomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <GeneFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <ProteinFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <CompoundFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <DataTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount}/>
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <DCCFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  
                 </>
               }
               footer={

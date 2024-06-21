@@ -14,7 +14,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { styled, lighten, darken } from '@mui/system';
 import Chip from '@mui/material/Chip';
 
-type FilterObject = {
+export type FilterObject = {
   id: string;
   name: string;
   count: number;
@@ -41,12 +41,13 @@ function getFirstLetter(opt: FilterObject): string {
   return opt.name[0].toUpperCase();
 }
 
-export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
+export default function FilterSet({ id, filterList, filter_title, example_query, maxCount }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string, maxCount: number }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
   const [filterIndex, setFilterIndex] = useState<string[]>([]);
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
+  
 
   const options = filterList.map((option) => {
     //  console.log(option);
@@ -193,7 +194,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
           .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
         }
         groupBy={(option) => getFirstLetter(option)}
-        getOptionLabel={(option) => `${option.name} (${option.count})`}
+        getOptionLabel={(option) => `${option.name} (${option.count >= maxCount ? `${maxCount}+` : option.count})`}
         value={selectedFiltersForAutocomplete}
         onChange={(event, newValue) => {
           setSelectedFilters(newValue as FilterObject[]);
