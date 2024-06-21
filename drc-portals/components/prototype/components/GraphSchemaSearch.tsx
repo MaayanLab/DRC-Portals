@@ -16,12 +16,16 @@ import { SubGraph } from "../interfaces/neo4j";
 import { SearchBarState } from "../interfaces/query-builder";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
-import { createCytoscapeElementsFromNeo4j } from "../utils/cy";
+import {
+  createCytoscapeElementsFromNeo4j,
+  downloadChartData,
+} from "../utils/cy";
 import { createCypher, getStateFromQuery } from "../utils/query-builder";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
 import SchemaAutocomplete from "./SchemaSearch/SchemaAutocomplete";
+import { CytoscapeReference } from "../types/cy";
 
 export default function GraphSchemaSearch() {
   const searchParams = useSearchParams();
@@ -48,7 +52,15 @@ export default function GraphSchemaSearch() {
     },
   ];
 
-  const customTools = [...D3_FORCE_TOOLS];
+  const customTools = [
+    ...D3_FORCE_TOOLS,
+    (cyRef: CytoscapeReference) =>
+      downloadChartData(
+        "search-chart-toolbar-download-data",
+        "Download Data",
+        cyRef
+      ),
+  ];
 
   const updateQuery = (state: string) => {
     const query = btoa(state);
@@ -144,6 +156,7 @@ export default function GraphSchemaSearch() {
           layout={D3_FORCE_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}
           toolbarPosition={{ top: 10, right: 10 }}
+          customTools={customTools}
           nodeCxtMenuItems={nodeCxtMenuItems}
         ></CytoscapeChart>
       </Grid>
