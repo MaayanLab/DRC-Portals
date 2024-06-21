@@ -15,7 +15,7 @@ async function getDccAsset(object_id: string) {
         {drcapproved: true},
       ],
       fileAsset: {
-        sha256checksum: object_id,
+        sha256checksum: Buffer.from(object_id, 'hex').toString('base64'),
       },
     },
     select: {

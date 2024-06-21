@@ -10,7 +10,7 @@ async function getDccAssetUrl(object_id: string, access_id: string) {
         {drcapproved: true},
       ],
       fileAsset: {
-        sha256checksum: object_id,
+        sha256checksum: Buffer.from(object_id, 'hex').toString('base64'),
       },
     },
     select: {
