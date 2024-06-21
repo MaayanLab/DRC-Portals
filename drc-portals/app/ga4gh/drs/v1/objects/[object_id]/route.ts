@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { safeAsync } from "@/utils/safe"
 
 const base_drs = process.env.PUBLIC_URL?.replace(/^https?/g, 'drs')
 if (!base_drs) throw new Error('Missing env.PUBLIC_URL')
@@ -7,7 +8,7 @@ if (!base_drs) throw new Error('Missing env.PUBLIC_URL')
 // TODO: bundles
 
 async function getDccAsset(object_id: string) {
-  const object = await prisma.dccAsset.findFirst({
+  const object = await safeAsync(() => prisma.dccAsset.findFirst({
     where: {
       OR: [
         {dccapproved: true},
@@ -28,19 +29,19 @@ async function getDccAsset(object_id: string) {
       created: true,
       lastmodified: true,
     },
-  })
-  if (!object?.fileAsset) return null
+  }))
+  if (!object?.data?.fileAsset) return null
   return Response.json({
     "id": object_id,
-    "name": object.fileAsset.filename,
+    "name": object.data.fileAsset.filename,
     "self_uri": `${base_drs}/${object_id}`,
     // TODO: worry about overflow (?)
-    "size": Number(object.fileAsset.size),
+    "size": Number(object.data.fileAsset.size),
     // TODO
-    "created_time": object.created.toISOString(),
-    "updated_time": object.lastmodified.toISOString(),
-    "checksums": object.fileAsset.sha256checksum ? [
-      {"type": "sha-256", "checksum": Buffer.from(object.fileAsset.sha256checksum, 'base64').toString('hex')},
+    "created_time": object.data.created.toISOString(),
+    "updated_time": object.data.lastmodified.toISOString(),
+    "checksums": object.data.fileAsset.sha256checksum ? [
+      {"type": "sha-256", "checksum": Buffer.from(object.data.fileAsset.sha256checksum, 'base64').toString('hex')},
     ] : [],
     // TODO
     // "mime_type":
@@ -51,7 +52,7 @@ async function getDccAsset(object_id: string) {
 }
 
 async function getDccAssetNode(object_id: string) {
-  const object = await prisma.dCCAssetNode.findUnique({
+  const object = await safeAsync(() => prisma.dCCAssetNode.findUnique({
     where: {
       id: object_id,
     },
@@ -70,19 +71,19 @@ async function getDccAssetNode(object_id: string) {
         },
       },
     },
-  })
-  if (!object?.dcc_asset.fileAsset) return null
+  }))
+  if (!object?.data?.dcc_asset.fileAsset) return null
   return Response.json({
     "id": object_id,
-    "name": object.dcc_asset.fileAsset.filename,
+    "name": object.data.dcc_asset.fileAsset.filename,
     "self_uri": `${base_drs}/${object_id}`,
     // TODO: worry about overflow (?)
-    "size": Number(object.dcc_asset.fileAsset.size),
+    "size": Number(object.data.dcc_asset.fileAsset.size),
     // TODO
-    "created_time": object.dcc_asset.created.toISOString(),
-    "updated_time": object.dcc_asset.lastmodified.toISOString(),
-    "checksums": object.dcc_asset.fileAsset.sha256checksum ? [
-      {"type": "sha-256", "checksum": Buffer.from(object.dcc_asset.fileAsset.sha256checksum, 'base64').toString('hex')},
+    "created_time": object.data.dcc_asset.created.toISOString(),
+    "updated_time": object.data.dcc_asset.lastmodified.toISOString(),
+    "checksums": object.data.dcc_asset.fileAsset.sha256checksum ? [
+      {"type": "sha-256", "checksum": Buffer.from(object.data.dcc_asset.fileAsset.sha256checksum, 'base64').toString('hex')},
     ] : [],
     // TODO
     // "mime_type":
@@ -93,7 +94,7 @@ async function getDccAssetNode(object_id: string) {
 }
 
 async function getC2M2File(object_id: string) {
-  const object = await prisma.c2M2FileNode.findUnique({
+  const object = await safeAsync(() => prisma.c2M2FileNode.findUnique({
     where: {
       id: object_id,
     },
@@ -111,11 +112,11 @@ async function getC2M2File(object_id: string) {
         },
       },
     },
-  })
-  if (!object?.node.label || !object.access_url) return null
-  if (object.access_url.startsWith('drs://')) {
+  }))
+  if (!object?.data?.node.label || !object.data?.access_url) return null
+  if (object.data.access_url.startsWith('drs://')) {
     // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
-    const upstreamDRS = object.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, 'https://$1/ga4gh/drs/v1/objects/$2')
+    const upstreamDRS = object.data.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, 'https://$1/ga4gh/drs/v1/objects/$2')
     const req = await fetch(upstreamDRS)
     if (req.ok) return Response.json(await req.json(), { status: req.status })
     else if (req.status === 404) return null
@@ -123,18 +124,18 @@ async function getC2M2File(object_id: string) {
   }
   return Response.json({
     "id": object_id,
-    "name": object.node.label,
+    "name": object.data.node.label,
     "self_uri": `${base_drs}/${object_id}`,
     // TODO: worry about overflow (?)
-    "size": Number(object.size_in_bytes),
-    "created_time": object.creation_time ? object.creation_time.toISOString() : undefined,
+    "size": Number(object.data.size_in_bytes),
+    "created_time": object.data.creation_time ? object.data.creation_time.toISOString() : undefined,
     // TODO
     // "updated_time": object.dcc_asset.lastmodified.toISOString(),
     "checksums": [
-      object.sha256 ? {"type": "sha-256", "checksum": object.sha256} : null,
-      object.md5 ? {"type": "md5", "checksum": object.md5} : null,
+      object.data.sha256 ? {"type": "sha-256", "checksum": object.data.sha256} : null,
+      object.data.md5 ? {"type": "md5", "checksum": object.data.md5} : null,
     ].filter(c => c !== null),
-    "mime_type": object.mime_type,
+    "mime_type": object.data.mime_type,
     "access_methods": [
       {'type': 'https', 'access_id': 'c2m2_file'},
     ],

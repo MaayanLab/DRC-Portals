@@ -1,8 +1,9 @@
 import prisma from "@/lib/prisma"
+import { safeAsync } from "@/utils/safe"
 
 async function getDccAssetUrl(object_id: string, access_id: string) {
   if (access_id !== 'asset') return null
-  const object = await prisma.dccAsset.findFirst({
+  const object = await safeAsync(() => prisma.dccAsset.findFirst({
     where: {
       OR: [
         {dccapproved: true},
@@ -15,14 +16,14 @@ async function getDccAssetUrl(object_id: string, access_id: string) {
     select: {
       link: true,
     },
-  })
-  if (!object?.link) return null
-  return { url: object.link }
+  }))
+  if (!object?.data?.link) return null
+  return { url: object.data.link }
 }
 
 async function getDccAssetNodeUrl(object_id: string, access_id: string) {
   if (access_id !== 'asset_node') return null
-  const object = await prisma.dCCAssetNode.findUnique({
+  const object = await safeAsync(() => prisma.dCCAssetNode.findUnique({
     where: {
       id: object_id,
     },
@@ -37,31 +38,31 @@ async function getDccAssetNodeUrl(object_id: string, access_id: string) {
         },
       },
     },
-  })
-  if (!object?.dcc_asset.fileAsset?.link) return null
-  return { url: object.dcc_asset.fileAsset.link }
+  }))
+  if (!object?.data?.dcc_asset.fileAsset?.link) return null
+  return { url: object.data.dcc_asset.fileAsset.link }
 }
 
 async function getC2M2FileUrl(object_id: string, access_id: string) {
   if (access_id !== 'c2m2_file') return null
-  const object = await prisma.c2M2FileNode.findUnique({
+  const object = await safeAsync(() => prisma.c2M2FileNode.findUnique({
     where: {
       id: object_id,
     },
     select: {
       access_url: true,
     },
-  })
-  if (!object?.access_url) return null
-  if (object.access_url.startsWith('drs://')) {
+  }))
+  if (!object?.data?.access_url) return null
+  if (object.data.access_url.startsWith('drs://')) {
     // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
-    const upstreamDRS = object.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
+    const upstreamDRS = object.data.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
     const req = await fetch(upstreamDRS)
     if (req.ok) return Response.json(await req.json(), { status: req.status })
     else if (req.status === 404) return null
     else return req
   }
-  return { url: object.access_url }
+  return { url: object.data.access_url }
 }
 
 export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
