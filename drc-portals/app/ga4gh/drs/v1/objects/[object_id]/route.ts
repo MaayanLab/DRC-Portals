@@ -7,6 +7,50 @@ if (!base_drs) throw new Error('Missing env.PUBLIC_URL')
 // TODO: bundles
 
 async function getDccAsset(object_id: string) {
+  const object = await prisma.dccAsset.findFirst({
+    where: {
+      OR: [
+        {dccapproved: true},
+        {drcapproved: true},
+      ],
+      fileAsset: {
+        sha256checksum: object_id,
+      },
+    },
+    select: {
+      fileAsset: {
+        select: {
+          filename: true,
+          size: true,
+          sha256checksum: true,
+        },
+      },
+      created: true,
+      lastmodified: true,
+    },
+  })
+  if (!object?.fileAsset) return null
+  return Response.json({
+    "id": object_id,
+    "name": object.fileAsset.filename,
+    "self_uri": `${base_drs}/${object_id}`,
+    // TODO: worry about overflow (?)
+    "size": Number(object.fileAsset.size),
+    // TODO
+    "created_time": object.created.toISOString(),
+    "updated_time": object.lastmodified.toISOString(),
+    "checksums": object.fileAsset.sha256checksum ? [
+      {"type": "sha-256", "checksum": Buffer.from(object.fileAsset.sha256checksum, 'base64').toString('hex')},
+    ] : [],
+    // TODO
+    // "mime_type":
+    "access_methods": [
+      {'type': 'https', 'access_id': 'asset'},
+    ],
+  })
+}
+
+async function getDccAssetNode(object_id: string) {
   const object = await prisma.dCCAssetNode.findUnique({
     where: {
       id: object_id,
@@ -21,6 +65,7 @@ async function getDccAsset(object_id: string) {
               sha256checksum: true,
             },
           },
+          created: true,
           lastmodified: true,
         },
       },
@@ -34,7 +79,7 @@ async function getDccAsset(object_id: string) {
     // TODO: worry about overflow (?)
     "size": Number(object.dcc_asset.fileAsset.size),
     // TODO
-    "created_time": object.dcc_asset.lastmodified.toISOString(),
+    "created_time": object.dcc_asset.created.toISOString(),
     "updated_time": object.dcc_asset.lastmodified.toISOString(),
     "checksums": object.dcc_asset.fileAsset.sha256checksum ? [
       {"type": "sha-256", "checksum": Buffer.from(object.dcc_asset.fileAsset.sha256checksum, 'base64').toString('hex')},
@@ -42,7 +87,7 @@ async function getDccAsset(object_id: string) {
     // TODO
     // "mime_type":
     "access_methods": [
-      {'type': 'https', 'access_id': 'primary'},
+      {'type': 'https', 'access_id': 'asset_node'},
     ],
   })
 }
@@ -91,7 +136,7 @@ async function getC2M2File(object_id: string) {
     ].filter(c => c !== null),
     "mime_type": object.mime_type,
     "access_methods": [
-      {'type': 'https', 'access_id': 'primary'},
+      {'type': 'https', 'access_id': 'c2m2_file'},
     ],
   })
 }
@@ -99,6 +144,8 @@ async function getC2M2File(object_id: string) {
 export async function GET(request: Request, { params }: { params: { object_id: string } }) {
   let object
   object = await getDccAsset(params.object_id)
+  if (object !== null) return object
+  object = await getDccAssetNode(params.object_id)
   if (object !== null) return object
   object = await getC2M2File(params.object_id)
   if (object !== null) return object

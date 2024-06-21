@@ -1,7 +1,27 @@
 import prisma from "@/lib/prisma"
 
 async function getDccAssetUrl(object_id: string, access_id: string) {
-  if (access_id !== 'primary') return null
+  if (access_id !== 'asset') return null
+  const object = await prisma.dccAsset.findFirst({
+    where: {
+      OR: [
+        {dccapproved: true},
+        {drcapproved: true},
+      ],
+      fileAsset: {
+        sha256checksum: object_id,
+      },
+    },
+    select: {
+      link: true,
+    },
+  })
+  if (!object?.link) return null
+  return { url: object.link }
+}
+
+async function getDccAssetNodeUrl(object_id: string, access_id: string) {
+  if (access_id !== 'asset_node') return null
   const object = await prisma.dCCAssetNode.findUnique({
     where: {
       id: object_id,
@@ -23,6 +43,7 @@ async function getDccAssetUrl(object_id: string, access_id: string) {
 }
 
 async function getC2M2FileUrl(object_id: string, access_id: string) {
+  if (access_id !== 'c2m2_file') return null
   const object = await prisma.c2M2FileNode.findUnique({
     where: {
       id: object_id,
@@ -46,6 +67,8 @@ async function getC2M2FileUrl(object_id: string, access_id: string) {
 export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
   let access_url
   access_url = await getDccAssetUrl(params.object_id, params.access_id)
+  if (access_url) return Response.json(access_url)
+  access_url = await getDccAssetNodeUrl(params.object_id, params.access_id)
   if (access_url) return Response.json(access_url)
   access_url = await getC2M2FileUrl(params.object_id, params.access_id)
   if (access_url) return Response.json(access_url)
