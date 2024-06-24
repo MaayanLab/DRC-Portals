@@ -94,7 +94,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     x: 0,
     y: 0,
   });
-  const positionRef = useRef<{ x: number; y: number }>({
+  const tooltipPositionRef = useRef<{ x: number; y: number }>({
     x: 0,
     y: 0,
   });
@@ -202,7 +202,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
     // handled here
     nodeHoverTimerId = setTimeout(() => {
-      positionRef.current = {
+      tooltipPositionRef.current = {
         x: event.originalEvent.clientX,
         y: event.originalEvent.clientY,
       };
@@ -374,7 +374,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         <ChartTooltip
           title={tooltipTitle}
           open={tooltipOpen}
-          position={positionRef.current}
+          position={tooltipPositionRef.current}
           popperRef={popperRef}
         >
           <ChartContainer variant="outlined">
