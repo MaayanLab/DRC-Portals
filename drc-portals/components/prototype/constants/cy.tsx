@@ -1,14 +1,6 @@
-import {
-  Box,
-  Paper,
-  Tooltip,
-  TooltipProps,
-  TypographyProps,
-  styled,
-  tooltipClasses,
-} from "@mui/material";
+import { Box, Paper, TypographyProps, styled } from "@mui/material";
 import { Css, Position } from "cytoscape";
-import { CSSProperties, forwardRef } from "react";
+import { CSSProperties } from "react";
 
 import { CytoscapeNodeData } from "../interfaces/cy";
 import { CytoscapeReference } from "../types/cy";
@@ -91,52 +83,6 @@ export const WidgetContainer = styled(Box)({
   zIndex: 1,
   padding: "inherit",
 });
-
-// See the MUI docs for a detailed example: https://mui.com/material-ui/react-tooltip/#customization
-export const ChartTooltip = styled(
-  forwardRef<HTMLDivElement, TooltipProps>(({ className, ...props }, ref) => (
-    <Tooltip
-      ref={ref}
-      {...props}
-      classes={{ popper: className }}
-      slotProps={{
-        popper: {
-          modifiers: [
-            {
-              name: "offset",
-              options: {
-                offset: [0, 10],
-              },
-            },
-          ],
-          sx: {
-            [`&.${tooltipClasses.popper}[data-popper-placement*="bottom"] .${tooltipClasses.tooltip}`]:
-              {
-                marginTop: "0px",
-              },
-            [`&.${tooltipClasses.popper}[data-popper-placement*="top"] .${tooltipClasses.tooltip}`]:
-              {
-                marginBottom: "0px",
-              },
-            [`&.${tooltipClasses.popper}[data-popper-placement*="right"] .${tooltipClasses.tooltip}`]:
-              {
-                marginLeft: "0px",
-              },
-            [`&.${tooltipClasses.popper}[data-popper-placement*="left"] .${tooltipClasses.tooltip}`]:
-              {
-                marginRight: "0px",
-              },
-          },
-        },
-      }}
-    />
-  ))
-)(() => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "transparent",
-    padding: 0,
-  },
-}));
 
 export const DEFAULT_TOOLTIP_BOX_STYLE_PROPS: CSSProperties = {
   width: "360px",

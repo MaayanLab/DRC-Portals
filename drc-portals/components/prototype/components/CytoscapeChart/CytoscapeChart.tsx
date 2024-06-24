@@ -3,10 +3,8 @@
 import {
   ClickAwayListener,
   Divider,
-  Grow,
   MenuList,
   Paper,
-  Popper,
   TypographyProps,
 } from "@mui/material";
 import { Instance } from "@popperjs/core";
@@ -25,11 +23,7 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import { v4 } from "uuid";
 
-import {
-  ChartContainer,
-  ChartTooltip,
-  WidgetContainer,
-} from "../../constants/cy";
+import { ChartContainer, WidgetContainer } from "../../constants/cy";
 import {
   CxtMenuItem,
   EdgeCxtMenuItem,
@@ -50,6 +44,7 @@ import {
 import { ChartCxtMenu } from "./ChartCxtMenu";
 import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
+import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
 
 cytoscape.use(d3Force);
@@ -379,21 +374,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         <ChartTooltip
           title={tooltipTitle}
           open={tooltipOpen}
-          placement="right-start"
-          TransitionProps={{ exit: false }} // Immediately close the tooltip, don't transition
-          PopperProps={{
-            popperRef,
-            anchorEl: {
-              getBoundingClientRect: () => {
-                return new DOMRect(
-                  positionRef.current.x,
-                  positionRef.current.y,
-                  0,
-                  0
-                );
-              },
-            },
-          }}
+          position={positionRef.current}
+          popperRef={popperRef}
         >
           <ChartContainer variant="outlined">
             <CytoscapeComponent
