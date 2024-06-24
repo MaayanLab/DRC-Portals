@@ -35,7 +35,7 @@ const Summary = ({section}: {section: AgendaType}) => (
 		<Typography variant="body1">
 			<b>{section.label}</b>
 		</Typography>
-		{section.presenters.map(({presenter, affiliation})=>(
+		{(section.presenters || []).map(({presenter, affiliation})=>(
 			<>
 				<Typography variant="body1">
 					{presenter}
@@ -129,7 +129,7 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 										<b>{section.label}</b>
 										</Typography>
 										<div className="flex flex-col space-y-2">
-										{section.presenters.map(({presenter, affiliation})=>(
+										{(section || []).presenters.map(({presenter, affiliation})=>(
 											<div className="flex flex-col">
 												<Typography variant="body1">
 													{presenter}
