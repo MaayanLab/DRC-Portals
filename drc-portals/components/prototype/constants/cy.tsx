@@ -2554,6 +2554,11 @@ export const SCHEMA_LAYOUT = {
   name: "preset",
 };
 
+export const BASIC_SEARCH_ERROR_MSG =
+  "An error occured during your search. Please try again later.";
+export const SEARCH_QUERY_ERROR_MSG =
+  "There was an error in your search query.";
+
 export const D3_FORCE_TOOLS = [
   (cyRef: CytoscapeReference) =>
     unlockD3ForceNodes(

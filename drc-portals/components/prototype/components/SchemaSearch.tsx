@@ -1,75 +1,51 @@
 "use client";
 
 import { Grid } from "@mui/material";
-import { ElementDefinition, EventObjectNode } from "cytoscape";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
+  BASIC_SEARCH_ERROR_MSG,
   D3_FORCE_LAYOUT,
-  D3_FORCE_TOOLS,
   DEFAULT_STYLESHEET,
+  SEARCH_QUERY_ERROR_MSG,
 } from "../constants/cy";
 import { SchemaAutocompleteContainer } from "../constants/query-builder";
-import { NodeCxtMenuItem, CytoscapeNodeData } from "../interfaces/cy";
-import { SubGraph } from "../interfaces/neo4j";
 import { SearchBarState } from "../interfaces/query-builder";
-import { getDriver } from "../neo4j";
-import Neo4jService from "../services/neo4j";
-import {
-  createCytoscapeElementsFromNeo4j,
-  downloadChartData,
-} from "../utils/cy";
 import { createCypher, getStateFromQuery } from "../utils/query-builder";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
 import SchemaAutocomplete from "./SchemaSearch/SchemaAutocomplete";
-import { CytoscapeReference } from "../types/cy";
+import useGraphSearchBehavior from "../hooks/graph-search";
 
-export default function GraphSchemaSearch() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
+export default function SchemaSearch() {
+  const {
+    searchParams,
+    router,
+    loading,
+    error,
+    elements,
+    entityDetails,
+    setLoading,
+    setError,
+    setEntityDetails,
+    staticCxtMenuItems,
+    nodeCxtMenuItems,
+    customTools,
+    clearSearchError,
+    clearLongRequestTimer,
+    setInitialNetworkData,
+  } = useGraphSearchBehavior();
+
   const [query, setQuery] = useState(searchParams.get("q"));
   const [state, setState] = useState(
     query === null ? undefined : getStateFromQuery(query)
   );
-  const [loading, setLoading] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [elements, setElements] = useState<ElementDefinition[]>([]);
-  const [entityDetails, setEntityDetails] = useState<
-    CytoscapeNodeData | undefined
-  >(undefined);
-  const BASIC_SEARCH_ERROR_MSG =
-    "An error occured during your search. Please try again later.";
-  const SEARCH_QUERY_ERROR_MSG = "There was an error in your search query.";
-  const neo4jService: Neo4jService = new Neo4jService(getDriver());
-
-  const nodeCxtMenuItems: NodeCxtMenuItem[] = [
-    {
-      fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
-      title: "Show Details",
-    },
-  ];
-
-  const customTools = [
-    ...D3_FORCE_TOOLS,
-    (cyRef: CytoscapeReference) =>
-      downloadChartData(
-        "search-chart-toolbar-download-data",
-        "Download Data",
-        cyRef
-      ),
-  ];
 
   const updateQuery = (state: string) => {
     const query = btoa(state);
     router.push(`?q=${query}`);
     setQuery(query);
-  };
-
-  const clearSearchError = () => {
-    setSearchError(null);
   };
 
   const handleSubmit = (state: SearchBarState) => {
@@ -88,7 +64,7 @@ export default function GraphSchemaSearch() {
           cypher = createCypher(state);
         } catch {
           // If we couldn't parse the state object into cypher, abort
-          setSearchError(BASIC_SEARCH_ERROR_MSG);
+          setError(BASIC_SEARCH_ERROR_MSG);
           setLoading(false);
           return;
         }
@@ -99,33 +75,17 @@ export default function GraphSchemaSearch() {
 
         // Finally, try querying Neo4j with the cypher we created
         setInitialNetworkData(cypher)
-          .catch(() => setSearchError(BASIC_SEARCH_ERROR_MSG))
-          .finally(() => setLoading(false));
+          .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
+          .finally(() => {
+            setLoading(false);
+            clearLongRequestTimer();
+          });
       } else {
-        setSearchError(SEARCH_QUERY_ERROR_MSG);
+        setError(SEARCH_QUERY_ERROR_MSG);
       }
     }
   }, [query]);
 
-  const clearNetwork = () => {
-    setElements([]);
-  };
-
-  const setInitialNetworkData = async (value: string) => {
-    clearNetwork();
-    const longRequestTimer = setTimeout(() => {
-      setSearchError("Your search is taking longer than expected...");
-    }, 10000);
-    const records = await neo4jService.executeRead<SubGraph>(value);
-    clearTimeout(longRequestTimer);
-    const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
-    if (cytoscapeElements.length === 0) {
-      setSearchError("We couldn't find any results for your search");
-    } else {
-      clearSearchError();
-      setElements(cytoscapeElements);
-    }
-  };
   return (
     <Grid
       container
@@ -145,7 +105,7 @@ export default function GraphSchemaSearch() {
         <SchemaAutocompleteContainer>
           <SchemaAutocomplete
             state={state}
-            error={searchError}
+            error={error}
             loading={loading}
             clearError={clearSearchError}
             onSubmit={handleSubmit}
@@ -158,6 +118,7 @@ export default function GraphSchemaSearch() {
           toolbarPosition={{ top: 10, right: 10 }}
           customTools={customTools}
           nodeCxtMenuItems={nodeCxtMenuItems}
+          staticCxtMenuItems={staticCxtMenuItems}
         ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (
