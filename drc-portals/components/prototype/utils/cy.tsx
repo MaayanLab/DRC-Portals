@@ -17,6 +17,7 @@ import {
   EventObject,
   EventObjectEdge,
   EventObjectNode,
+  NodeSingular,
   Position,
 } from "cytoscape";
 import { Parser } from "@json2csv/plainjs";
@@ -399,6 +400,12 @@ export const resetChart = (
   );
 };
 
+export const unlockD3ForceNode = (node: NodeSingular) => {
+  const scratch = node.scratch();
+  delete scratch["d3-force"].fx;
+  delete scratch["d3-force"].fy;
+};
+
 export const unlockD3ForceNodes = (
   key: string,
   title: string,
@@ -413,16 +420,12 @@ export const unlockD3ForceNodes = (
   const fn = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
-      cy.nodes().forEach((node) => {
-        const scratch = node.scratch();
-        delete scratch["d3-force"].fx;
-        delete scratch["d3-force"].fy;
-      });
+      cy.nodes().forEach(unlockD3ForceNode);
     }
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label="reset-chart" onClick={fn}>
+      <IconButton aria-label="unlock-nodes" onClick={fn}>
         <LockOpenIcon />
       </IconButton>
     </Tooltip>

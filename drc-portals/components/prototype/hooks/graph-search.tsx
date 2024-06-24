@@ -17,6 +17,7 @@ import {
   createCytoscapeElementsFromNeo4j,
   downloadChartData,
   downloadCyAsJson,
+  unlockD3ForceNode,
 } from "../utils/cy";
 import { SubGraph } from "../interfaces/neo4j";
 
@@ -45,6 +46,20 @@ export default function useGraphSearchBehavior() {
     {
       fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
       title: "Show Details",
+    },
+    {
+      fn: (event: EventObjectNode) => unlockD3ForceNode(event.target),
+      title: "Unlock",
+      showFn: (event: EventObjectNode) => {
+        const node = event.target;
+        const scratch = node.scratch();
+
+        if (scratch["d3-force"] !== undefined) {
+          return scratch["d3-force"].fx || scratch["d3-force"].fy;
+        } else {
+          return false;
+        }
+      },
     },
   ];
 
