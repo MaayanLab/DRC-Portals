@@ -47,6 +47,7 @@ import {
   showElement,
 } from "../../utils/cy";
 
+import { ChartCxtMenu } from "./ChartCxtMenu";
 import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
 import "./CytoscapeChart.css";
@@ -406,33 +407,14 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         </ChartTooltip>
       </ClickAwayListener>
       <ClickAwayListener onClickAway={handleContextMenuClose}>
-        <Popper
+        <ChartCxtMenu
           open={contextMenuOpen && contextMenuItems.length > 0}
-          placement="right-start"
-          transition
-          anchorEl={{
-            getBoundingClientRect: () => {
-              return new DOMRect(
-                contextMenuPosRef.current.x,
-                contextMenuPosRef.current.y,
-                0,
-                0
-              );
-            },
-          }}
+          position={contextMenuPosRef.current}
         >
-          {({ TransitionProps }) => (
-            <Grow
-              {...TransitionProps}
-              style={{ transformOrigin: "0 0 0" }}
-              timeout="auto"
-            >
-              <Paper>
-                <MenuList>{contextMenuItems}</MenuList>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
+          <Paper>
+            <MenuList>{contextMenuItems}</MenuList>
+          </Paper>
+        </ChartCxtMenu>
       </ClickAwayListener>
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
