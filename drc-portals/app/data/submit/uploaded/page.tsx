@@ -143,6 +143,19 @@ export default async function UserFiles() {
         </Typography>
     }
 
+    const fairAssessments = await Promise.all(userFiles.map(async (userFile) => {
+        const assetAssessments = await prisma.fairAssessment.findMany({
+            where:{
+                link: userFile.link
+            }, 
+            orderBy: {
+                timestamp: 'desc',
+              },
+              take: 1,
+        })
+       return (assetAssessments.length > 0) ?  assetAssessments[0] : null
+    }
+    ))
 
     return (
         <>
@@ -154,7 +167,7 @@ export default async function UserFiles() {
                     <Container className="justify-content-center">
                         <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
-                        <PaginatedTable userFiles={userFiles} role={user.role} />
+                        <PaginatedTable userFiles={userFiles} role={user.role} fairAssessments={fairAssessments}/>
                     </Container>
                 </Grid>
             </Grid>

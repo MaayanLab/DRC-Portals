@@ -11,7 +11,7 @@ import { Box, TableFooter, TablePagination, TableSortLabel } from '@mui/material
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
-import type { DccAsset, FileAsset, CodeAsset } from '@prisma/client'
+import type { DccAsset, FileAsset, CodeAsset, FairAssessment } from '@prisma/client'
 import { visuallyHidden } from '@mui/utils';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
@@ -160,6 +160,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         <TableHead>
             <TableRow>
                 <TableCell></TableCell>
+                <TableCell></TableCell>
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
@@ -259,7 +260,7 @@ function filterSearch(item: ({
 
 }
 
-export function PaginatedTable({ userFiles, role }: {
+export function PaginatedTable({ userFiles, role, fairAssessments }: {
     userFiles: ({
         dcc: {
             label: string;
@@ -268,9 +269,9 @@ export function PaginatedTable({ userFiles, role }: {
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
         assetType: string | null;
-    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY"
+    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY", 
+    fairAssessments: (FairAssessment | null)[]
 }) {
-
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
@@ -351,8 +352,9 @@ export function PaginatedTable({ userFiles, role }: {
             if (userFile.dccapproved) {
                 approvedSymboldcc = <ApprovedSymbol />
             }
+            let fairAssessment = fairAssessments.find((assessment) => assessment?.link === userFile.link)
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment} />
             )
         })
     } else if (role === 'DCC_APPROVER') {
@@ -363,7 +365,8 @@ export function PaginatedTable({ userFiles, role }: {
             if (userFile.drcapproved) {
                 approvedSymbol = <ApprovedSymbol />
             }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role}/>)
+            let fairAssessment = fairAssessments.find((assessment) => assessment?.link === userFile.link)
+            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>)
         })
     } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
@@ -379,8 +382,9 @@ export function PaginatedTable({ userFiles, role }: {
             if (userFile.current) {
                 currentSymbol =  <ApprovedSymbol />
             }
+            let fairAssessment = fairAssessments.find((assessment) => assessment?.link === userFile.link)
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role}/>
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>
             )
         })
     }

@@ -450,3 +450,15 @@ model KVStore {
   value Json
   @@map("kvstore")
 }
+
+model FairAssessment {
+  id    String  @id @default(uuid())
+  dcc_id  String
+  type    String
+  link        String
+  rubric      Json
+  timestamp   DateTime  @default(now())
+
+  @@unique([link, timestamp])
+  @@map("fair_assessments")
+}
