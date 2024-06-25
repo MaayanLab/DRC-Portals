@@ -38,6 +38,7 @@ import {
   hideElement,
   highlightNeighbors,
   resetHighlights,
+  selectAll,
   selectNeighbors,
   showElement,
 } from "../../utils/cy";
@@ -139,7 +140,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const getStaticMenuItems = (event: EventObject) => {
-    const items = [];
+    const items = [
+      createChartCxtMenuItem(
+        `${cmpKey}-static-ctx-menu-0`,
+        contextMenuItemSelectWrapper(selectAll, event),
+        "Select All"
+      ),
+    ];
 
     if (
       event.cy.elements(".highlight").length > 0 ||
@@ -147,7 +154,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     ) {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-static-ctx-menu-0`,
+          `${cmpKey}-static-ctx-menu-1`,
           contextMenuItemSelectWrapper(resetHighlights, event),
           "Reset Highlights"
         )

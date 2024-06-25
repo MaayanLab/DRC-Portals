@@ -318,6 +318,10 @@ export const selectNeighbors = (event: EventObjectNode) => {
   event.target.neighborhood().select();
 };
 
+export const selectAll = (event: EventObject) => {
+  event.cy.elements().select();
+};
+
 export const resetHighlights = (event: EventObject) => {
   event.cy.batch(() => {
     event.cy.elements().removeClass("dimmed").removeClass("highlight");
