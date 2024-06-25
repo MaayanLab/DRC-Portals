@@ -110,6 +110,7 @@ export const EDGE_COLOR = "#797979";
 export const EDGE_WIDTH = 1;
 
 // Other Properties
+export const CFDE_DARK_BLUE = "#336699";
 export const FONT_SIZE = "4px";
 export const MAX_NODE_LINES = 3;
 export const MAX_NODE_LABEL_WIDTH = 24;
@@ -155,7 +156,7 @@ export const DEFAULT_STYLESHEET: any[] = [
   {
     selector: "node:selected",
     style: {
-      "border-color": "#336699",
+      "border-color": CFDE_DARK_BLUE,
       "border-width": NODE_BORDER_WIDTH,
     },
   },
@@ -190,8 +191,8 @@ export const DEFAULT_STYLESHEET: any[] = [
   {
     selector: "edge:selected",
     style: {
-      "target-arrow-color": "#336699",
-      "line-color": "#336699",
+      "target-arrow-color": CFDE_DARK_BLUE,
+      "line-color": CFDE_DARK_BLUE,
     },
   },
   {
