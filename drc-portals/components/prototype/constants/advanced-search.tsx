@@ -60,7 +60,9 @@ export const Tab = styled(BaseTab)(({ theme }) => ({
   border: "none",
   borderRadius: "7px",
   display: "flex",
-  justifyContent: "center",
+  alignContent: "center",
+  alignItems: "center",
+  justifyContent: "space-between",
   [`&:hover`]: {
     backgroundColor: theme.palette.secondary.main,
   },
@@ -70,7 +72,7 @@ export const Tab = styled(BaseTab)(({ theme }) => ({
   },
   [`&.${tabClasses.selected}`]: {
     backgroundColor: "#fff",
-    color: `${theme.palette.secondary.dark}`,
+    color: `${theme.palette.secondary.main}`,
   },
   [`&.${buttonClasses.disabled}`]: {
     opacity: "0.5",
@@ -88,8 +90,8 @@ export const TabsList = styled(BaseTabsList)(({ theme }) => ({
   borderRadius: "12px",
   marginBottom: "16px",
   display: "inline-flex",
+  alignContent: "center",
   alignItems: "center",
-  justifyContent: "center",
-  alignContent: "space-between",
-  boxShadow: "0px 4px 30px grey",
+  justifyContent: "space-between",
+  boxShadow: "0px 4px 15px grey",
 }));
