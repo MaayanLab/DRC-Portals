@@ -188,6 +188,13 @@ export const DEFAULT_STYLESHEET: any[] = [
     },
   },
   {
+    selector: "edge:selected",
+    style: {
+      "target-arrow-color": "#336699",
+      "line-color": "#336699",
+    },
+  },
+  {
     selector: ".minus-90-loop-edge",
     style: {
       "loop-direction": "-90deg",
