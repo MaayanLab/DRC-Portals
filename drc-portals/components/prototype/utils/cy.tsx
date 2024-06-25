@@ -2,7 +2,6 @@ import {
   Box,
   IconButton,
   ListItem,
-  Menu,
   MenuItem,
   Stack,
   Tooltip,
@@ -20,15 +19,8 @@ import {
   NodeSingular,
   Position,
 } from "cytoscape";
-import { Parser } from "@json2csv/plainjs";
 import { Record } from "neo4j-driver";
-import {
-  CSSProperties,
-  Fragment,
-  MouseEvent,
-  ReactNode,
-  useState,
-} from "react";
+import { CSSProperties, Fragment, ReactNode } from "react";
 
 import {
   DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
@@ -49,10 +41,10 @@ import { CytoscapeReference } from "../types/cy";
 import { NodeElementFactory } from "../types/shared";
 
 import {
-  ENTITY_TO_FACTORY_MAP,
+  LABEL_TO_FACTORY_MAP,
   downloadBlob,
   getNodeDisplayProperty,
-  keyInFactoryMapFilter,
+  labelInFactoryMapFilter,
   truncateTextToFitWidth,
 } from "./shared";
 
@@ -233,9 +225,9 @@ export const truncateLabelToFitNode = (label: string) => {
 export const createNodeLabels = (labels: string[]) => (
   <Stack direction="row" sx={{ margin: "6px 0px", padding: "3px 7px" }}>
     {labels
-      .filter(keyInFactoryMapFilter)
+      .filter(labelInFactoryMapFilter)
       .map((label) =>
-        (ENTITY_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
+        (LABEL_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
       )}
   </Stack>
 );

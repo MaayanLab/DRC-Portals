@@ -1,5 +1,6 @@
+import { Box } from "@mui/material";
 import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
-import { CSSProperties, Fragment } from "react";
+import { CSSProperties } from "react";
 import { v4 } from "uuid";
 
 import { EDGE_COLOR } from "../constants/cy";
@@ -22,25 +23,25 @@ import {
   DividerContainer,
   ENTITY_STYLES_MAP,
   EntityDivider,
-  EntityText,
   FILE_RELATED_NODE_CLASS,
   NODE_DISPLAY_PROPERTY_MAP,
   NodeElement,
+  NodeText,
   RelationshipElement,
+  RelationshipText,
   SUBJECT_RELATED_NODE_CLASS,
   TERM_NODE_CLASS,
 } from "../constants/shared";
 import { Direction } from "../enums/query-builder";
 import { NodeResult } from "../interfaces/neo4j";
 import {
-  GraphElementFactory,
   NodeElementFactory,
   RelationshipElementFactory,
 } from "../types/shared";
 
 const createNodeElement = (label: string, style?: CSSProperties) => (
   <NodeElement key={v4()} style={style}>
-    <EntityText>{label}</EntityText>
+    <NodeText>{label}</NodeText>
   </NodeElement>
 );
 
@@ -52,41 +53,68 @@ export const getNodeDisplayProperty = (
   return node.properties[displayProp] || label;
 };
 
-export const createAdminNodeElement = (label: string) => {
-  return createNodeElement(label, ENTITY_STYLES_MAP.get(ADMIN_NODE_CLASS));
+export const createAdminNodeElement = (
+  label: string,
+  style?: CSSProperties
+) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(ADMIN_NODE_CLASS),
+    ...style,
+  });
 };
 
-export const createContainerNodeElement = (label: string) => {
-  return createNodeElement(label, ENTITY_STYLES_MAP.get(CONTAINER_NODE_CLASS));
+export const createContainerNodeElement = (
+  label: string,
+  style?: CSSProperties
+) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(CONTAINER_NODE_CLASS),
+    ...style,
+  });
 };
 
-export const createTermNodeElement = (label: string) => {
-  return createNodeElement(label, ENTITY_STYLES_MAP.get(TERM_NODE_CLASS));
+export const createTermNodeElement = (label: string, style?: CSSProperties) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(TERM_NODE_CLASS),
+    ...style,
+  });
 };
 
-export const createCoreNodeElement = (label: string) => {
-  return createNodeElement(label, ENTITY_STYLES_MAP.get(CORE_NODE_CLASS));
+export const createCoreNodeElement = (label: string, style?: CSSProperties) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(CORE_NODE_CLASS),
+    ...style,
+  });
 };
 
-export const createFileRelatedNodeElement = (label: string) => {
-  return createNodeElement(
-    label,
-    ENTITY_STYLES_MAP.get(FILE_RELATED_NODE_CLASS)
-  );
+export const createFileRelatedNodeElement = (
+  label: string,
+  style?: CSSProperties
+) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(FILE_RELATED_NODE_CLASS),
+    ...style,
+  });
 };
 
-export const createSubjectRelatedNodeElement = (label: string) => {
-  return createNodeElement(
-    label,
-    ENTITY_STYLES_MAP.get(SUBJECT_RELATED_NODE_CLASS)
-  );
+export const createSubjectRelatedNodeElement = (
+  label: string,
+  style?: CSSProperties
+) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(SUBJECT_RELATED_NODE_CLASS),
+    ...style,
+  });
 };
 
-export const createBiosampleRelatedNodeElement = (label: string) => {
-  return createNodeElement(
-    label,
-    ENTITY_STYLES_MAP.get(BIOSAMPLE_RELATED_NODE_CLASS)
-  );
+export const createBiosampleRelatedNodeElement = (
+  label: string,
+  style?: CSSProperties
+) => {
+  return createNodeElement(label, {
+    ...ENTITY_STYLES_MAP.get(BIOSAMPLE_RELATED_NODE_CLASS),
+    ...style,
+  });
 };
 
 export const createLineDividerElement = () => (
@@ -108,28 +136,27 @@ export const createArrowDividerElement = (flip: boolean) => (
 
 export const createRelationshipElement = (
   type: string,
-  direction: Direction
+  direction: Direction,
+  style?: CSSProperties
 ) => (
-  <Fragment key={v4()}>
+  <Box key={v4()} sx={{ display: "flex" }}>
     {direction === Direction.OUTGOING || direction === Direction.UNDIRECTED
       ? createLineDividerElement()
       : createArrowDividerElement(false)}
-    <RelationshipElement key={v4()}>
-      <EntityText>{type}</EntityText>
+    <RelationshipElement key={v4()} style={style}>
+      <RelationshipText>{type}</RelationshipText>
     </RelationshipElement>
     {direction === Direction.INCOMING || direction === Direction.UNDIRECTED
       ? createLineDividerElement()
       : createArrowDividerElement(true)}
-  </Fragment>
+  </Box>
 );
 
 export const createAnonymousNodeElement = () => (
   <AnonymousNodeElement key={v4()}></AnonymousNodeElement>
 );
 
-// Note there is a very small chance for a problem here: a node label can never conflict with a relationship type. This is unlikely to ever
-// happen, but it's probably worth being aware of.
-export const ENTITY_TO_FACTORY_MAP: ReadonlyMap<string, GraphElementFactory> =
+export const LABEL_TO_FACTORY_MAP: ReadonlyMap<string, NodeElementFactory> =
   new Map([
     ...ADMIN_LABELS.map((label): [string, NodeElementFactory] => [
       label,
@@ -159,17 +186,39 @@ export const ENTITY_TO_FACTORY_MAP: ReadonlyMap<string, GraphElementFactory> =
       label,
       createBiosampleRelatedNodeElement,
     ]),
-    ...Array.from(RELATIONSHIP_TYPES).map(
-      (label): [string, RelationshipElementFactory] => [
-        label,
-        createRelationshipElement,
-      ]
-    ),
   ]);
 
-export const keyInFactoryMapFilter = (name: string) => {
-  if (!ENTITY_TO_FACTORY_MAP.has(name)) {
-    console.warn(`Name "${name}" not found in factory map!`);
+export const TYPE_TO_FACTORY_MAP: ReadonlyMap<
+  string,
+  RelationshipElementFactory
+> = new Map([
+  ...Array.from(RELATIONSHIP_TYPES).map(
+    (type): [string, RelationshipElementFactory] => [
+      type,
+      createRelationshipElement,
+    ]
+  ),
+]);
+
+export const labelInFactoryMapFilter = (label: string) => {
+  if (!LABEL_TO_FACTORY_MAP.has(label)) {
+    console.warn(`Label "${label}" not found in node factory map!`);
+    return false;
+  }
+  return true;
+};
+
+export const typeInFactoryMapFilter = (type: string) => {
+  if (!TYPE_TO_FACTORY_MAP.has(type)) {
+    console.warn(`Type "${type}" not found in relationship factory map!`);
+    return false;
+  }
+  return true;
+};
+
+export const factoryExistsFilter = (name: string) => {
+  if (!LABEL_TO_FACTORY_MAP.has(name) && !TYPE_TO_FACTORY_MAP.has(name)) {
+    console.warn(`Name "${name}" not found in any factory map!`);
     return false;
   }
   return true;

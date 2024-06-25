@@ -1,5 +1,5 @@
 import { Paper, Popper, Stack } from "@mui/material";
-import { ReactElement } from "react";
+import { CSSProperties, ReactElement } from "react";
 
 import {
   INCOMING_CONNECTIONS,
@@ -29,10 +29,13 @@ import {
 } from "../types/shared";
 
 import {
-  ENTITY_TO_FACTORY_MAP,
+  LABEL_TO_FACTORY_MAP,
+  TYPE_TO_FACTORY_MAP,
   createAnonymousNodeElement,
   createLineDividerElement,
-  keyInFactoryMapFilter,
+  factoryExistsFilter,
+  labelInFactoryMapFilter,
+  typeInFactoryMapFilter,
 } from "./shared";
 
 export const CustomPaper = (props: any) => (
@@ -204,34 +207,42 @@ export const createCypher = (state: SearchBarState) => {
   return queryStmts.join("\n");
 };
 
-export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
+export const getAllNodeOptions = () => {
+  return Array.from(NODE_LABELS)
+    .filter(labelInFactoryMapFilter)
+    .map((label) => {
+      return {
+        name: label,
+        filters: [],
+      };
+    });
+};
+
+export const getAllRelationshipOptions = () => {
+  return Array.from(RELATIONSHIP_TYPES)
+    .filter(typeInFactoryMapFilter)
+    .flatMap((type) => {
+      return [
+        {
+          name: type,
+          direction: Direction.OUTGOING,
+          filters: [],
+        },
+        {
+          name: type,
+          direction: Direction.INCOMING,
+          filters: [],
+        },
+      ];
+    });
+};
+
+export const getOptions = (value?: SearchBarOption[]): SearchBarOption[] => {
   let nodes: NodeOption[];
   let relationships: RelationshipOption[];
-  if (value.length === 0) {
-    nodes = Array.from(NODE_LABELS)
-      .filter(keyInFactoryMapFilter)
-      .map((label) => {
-        return {
-          name: label,
-          filters: [],
-        };
-      });
-    relationships = Array.from(RELATIONSHIP_TYPES)
-      .filter(keyInFactoryMapFilter)
-      .flatMap((type) => {
-        return [
-          {
-            name: type,
-            direction: Direction.OUTGOING,
-            filters: [],
-          },
-          {
-            name: type,
-            direction: Direction.INCOMING,
-            filters: [],
-          },
-        ];
-      });
+  if (value === undefined || value.length === 0) {
+    nodes = getAllNodeOptions();
+    relationships = getAllRelationshipOptions();
   } else {
     // We can safely rule out a possible undefined value because of the above `if` block
     const last = value.at(-1) as SearchBarOption;
@@ -369,14 +380,19 @@ export const getOptions = (value: SearchBarOption[]): SearchBarOption[] => {
   ];
 };
 
-export const createEntityElement = (entity: SearchBarOption) => {
+export const createEntityElement = (
+  entity: SearchBarOption,
+  style?: CSSProperties
+) => {
   if (isRelationshipOption(entity)) {
-    return (
-      ENTITY_TO_FACTORY_MAP.get(entity.name) as RelationshipElementFactory
-    )(entity.name, entity.direction);
+    return (TYPE_TO_FACTORY_MAP.get(entity.name) as RelationshipElementFactory)(
+      entity.name,
+      entity.direction
+    );
   } else {
-    return (ENTITY_TO_FACTORY_MAP.get(entity.name) as NodeElementFactory)(
-      entity.name
+    return (LABEL_TO_FACTORY_MAP.get(entity.name) as NodeElementFactory)(
+      entity.name,
+      style
     );
   }
 };
@@ -399,7 +415,7 @@ export const createNodeSegment = (
 export const createSearchPathEl = (path: SearchBarOption[]) => {
   const newPath: ReactElement[] = [];
   path
-    .filter((entity) => keyInFactoryMapFilter(entity.name))
+    .filter((entity) => factoryExistsFilter(entity.name))
     .forEach((entity, index) => {
       // We know for sure the name is in the map from the filter above, but we need the explicit type coercion to ignore errors
       const entityElement = createEntityElement(entity);

@@ -45,26 +45,26 @@ import {
   TERM_LABELS,
 } from "./neo4j";
 
-export const NodeElement = styled(Box)(() => ({
+export const GraphElement = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   height: "32px",
-  color: "#fff",
-  borderRadius: "16px",
   marginTop: "3px",
   marginBottom: "3px",
   fontSize: "0.8125rem",
 }));
 
-export const RelationshipElement = styled(Box)(() => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "32px",
-  border: "none",
-  margin: "3px",
-  fontSize: "0.8125rem",
+export const NodeElement = styled(GraphElement)(() => ({
+  color: "#fff",
+  borderRadius: "16px",
+}));
+
+export const RelationshipElement = styled(GraphElement)(() => ({
+  backgroundColor: EDGE_COLOR,
+  borderColor: EDGE_COLOR,
+  borderRadius: 3,
+  borderWidth: "thin",
 }));
 
 export const AnonymousNodeElement = styled(Box)(() => ({
@@ -79,10 +79,19 @@ export const AnonymousNodeElement = styled(Box)(() => ({
 export const EntityText = styled(Typography)(() => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
-  paddingLeft: "11px",
-  paddingRight: "11px",
   whiteSpace: "nowrap",
   fontSize: "0.8rem",
+}));
+
+export const NodeText = styled(EntityText)(() => ({
+  paddingLeft: "11px",
+  paddingRight: "11px",
+}));
+
+export const RelationshipText = styled(EntityText)(() => ({
+  paddingLeft: "3px",
+  paddingRight: "3px",
+  color: "#FFF",
 }));
 
 export const DividerContainer = styled(Box)(() => ({
