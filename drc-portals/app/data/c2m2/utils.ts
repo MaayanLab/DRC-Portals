@@ -2,8 +2,8 @@ import React, { ReactNode } from 'react';
 import { Metadata } from "next";
 import CryptoJS from 'crypto-js';
 import SQL from '@/lib/prisma/raw';
-import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { z } from 'zod';
+
 
 export interface MetadataItem {
     label: string;
@@ -29,6 +29,20 @@ export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function generateHashedJSONFilename(prefix: string, searchParams: any): string {
+    // Create download filename for this recordInfo based on md5sum
+    // Stringify q and t from searchParams pertaining to this record
+    const qString = JSON.stringify(searchParams.q);
+    const tString = JSON.stringify(searchParams.t);
+
+    // Concatenate qString and tString into a single string
+    const concatenatedString = `${qString}${tString}`;
+    const recordInfoHashFileName = generateMD5Hash(concatenatedString);
+    const qString_clean = sanitizeFilename(qString, '__');
+    const hashedFileName = prefix + "_" + qString_clean + "_" + recordInfoHashFileName + ".json"
+
+    return hashedFileName;
+}
 export function isURL(str: string): boolean {
     const http_pattern = /^http/i;
     const drs_pattern = /^drs:\/\//i;
@@ -454,6 +468,7 @@ export function getNameFromFileProjTable(iconKey: string): string {
 
 
 
+
 export function addCategoryColumns(
     columns: Record<string, ReactNode | string | bigint>,
     getNameFunction: (key: string) => string,
@@ -472,10 +487,10 @@ export function addCategoryColumns(
     for (const [key, value] of Object.entries(columns)) {
         if (value !== undefined) { // Check if value is not undefined
             const stringValue = typeof value === 'bigint' ? value.toString() : value;
-            const metadataItem: MetadataItem = { 
+            /* const metadataItem: MetadataItem = { 
                 label: getNameFunction(key), 
                 value: stringValue 
-              };
+              }; */
             category.metadata.push({ label: getNameFunction(key), value: stringValue });
         }
     }

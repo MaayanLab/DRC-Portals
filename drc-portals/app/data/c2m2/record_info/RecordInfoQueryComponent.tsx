@@ -6,13 +6,15 @@ import Link from "next/link";
 import ExpandableTable from "../ExpandableTable";
 import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
-import { ColorLensOutlined } from "@mui/icons-material";
+import BiosamplesTableComponent  from "./BiosamplesTableComponent";
+import React from "react";
 
 const file_count_limit = 200000;
 const file_count_limit_proj = file_count_limit; // 500000;
 const file_count_limit_sub = file_count_limit; // 500000;
 const file_count_limit_bios = file_count_limit; // 500000;
 const file_count_limit_col = file_count_limit; // 500000;
+const maxTblCount = 200000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -112,26 +114,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         count_sub: number,
         count_col: number,
       }[],
-      count_bios: number,
       count_sub: number,
       count_col: number,
-      biosamples_table: {
-        biosample_id_namespace: string,
-        biosample_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        biosample_persistent_id: string,
-        biosample_creation_time: string,
-        sample_prep_method_name: string,
-        anatomy_name: string,
-        disease_name: string,
-        disease_association_type_name: string,
-        subject_id_namespace: string,
-        subject_local_id: string,
-        biosample_age_at_sampling: string,
-        gene_name: string,
-        substance_name: string
-      }[],
       collections_table: {
         collection_id_namespace: string,
         collection_local_id: string,
@@ -273,26 +257,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         assay_type_name: string,
         analysis_type_name: string
       }[],
-
       // based on full table
-
-      biosamples_table_full: {
-        biosample_id_namespace: string,
-        biosample_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        biosample_persistent_id: string,
-        biosample_creation_time: string,
-        sample_prep_method_name: string,
-        anatomy_name: string,
-        disease_name: string,
-        disease_association_type_name: string,
-        subject_id_namespace: string,
-        subject_local_id: string,
-        biosample_age_at_sampling: string,
-        gene_name: string,
-        substance_name: string
-      }[],
       collections_table_full: {
         collection_id_namespace: string,
         collection_local_id: string,
@@ -470,7 +435,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       c2m2.compound.description AS compound_description,
       c2m2.ncbi_taxonomy.description AS taxonomy_description,
       COUNT(*)::INT AS count,
-      COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
       COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
       COUNT(DISTINCT collection_local_id)::INT AS count_col
     FROM allres_full 
@@ -490,38 +454,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
     ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
       protein_name, compound_name, data_type_name /*rank DESC*/
-  ),
-  biosamples_table as (
-    SELECT DISTINCT
-      allres_full.biosample_id_namespace,
-      allres_full.biosample_local_id,
-      allres_full.project_id_namespace,
-      allres_full.project_local_id,
-      allres_full.biosample_persistent_id,
-      allres_full.biosample_creation_time,
-      allres_full.sample_prep_method_name,
-      allres_full.anatomy_name,
-      allres_full.disease_name,
-      allres_full.disease_association_type_name,
-      allres_full.subject_id_namespace,
-      allres_full.subject_local_id,
-      allres_full.biosample_age_at_sampling,
-      allres_full.gene_name,
-      allres_full.substance_name
-
-    FROM allres_full
-
-  ), biosamples_table_limited as (
-    SELECT * 
-    FROM biosamples_table
-    OFFSET ${bioSamplTblOffset}
-    LIMIT ${limit}
-
-  ),
-  count_bios AS (
-    select count(*)::int as count
-      from biosamples_table
-  ),
+  ), 
   subjects_table AS (
     SELECT DISTINCT
       allres_full.subject_id_namespace,
@@ -755,8 +688,6 @@ file_table AS (
 
   SELECT
   (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
-  (SELECT count FROM count_bios) as count_bios,
-  (SELECT COALESCE(jsonb_agg(biosamples_table_limited.*), '[]'::jsonb) FROM biosamples_table_limited) AS biosamples_table,
   (SELECT count FROM count_sub) as count_sub,
   (SELECT COALESCE(jsonb_agg(subjects_table_limited.*), '[]'::jsonb) FROM subjects_table_limited) AS subjects_table,
   (SELECT count FROM count_col) as count_col,
@@ -770,7 +701,6 @@ file_table AS (
   (SELECT count FROM count_file_col) as count_file_col,
   (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table,
   /* full tables based on biosamples_table, subjects_table, etc*/
-  (SELECT COALESCE(jsonb_agg(biosamples_table.*), '[]'::jsonb) FROM biosamples_table) AS biosamples_table_full,
   (SELECT COALESCE(jsonb_agg(subjects_table.*), '[]'::jsonb) FROM subjects_table) AS subjects_table_full,
   (SELECT COALESCE(jsonb_agg(collections_table.*), '[]'::jsonb) FROM collections_table) AS collections_table_full,
   (SELECT COALESCE(jsonb_agg(file_table.*), '[]'::jsonb) FROM file_table) AS file_table_full,
@@ -794,18 +724,7 @@ file_table AS (
 
     // First remove the empty columns and sort columns such that most varying appears first
 
-    const biosample_table_columnsToIgnore: string[] = ['anatomy_name', 'disease_name', 'project_local_id', 'project_id_namespace', 'subject_local_id', 'subject_id_namespace', 'biosample_id_namespace'];
-    const { prunedData: biosamplePrunedData, columnNames: bioSampleColNames, dynamicColumns: dynamicBiosampleColumns,
-      staticColumns: staticBiosampleColumns } = pruneAndRetrieveColumnNames(results?.biosamples_table ?? [],
-        results?.biosamples_table_full ?? [], biosample_table_columnsToIgnore);
-    // Add 'id' column with 'row-<index>' format
-    const biosamplePrunedDataWithId = biosamplePrunedData.map((row, index) => ({ ...row, id: index }));
-    const biosamples_table_full_withId = results?.biosamples_table_full
-      ? results.biosamples_table_full.map((row, index) => ({ ...row, id: index }))
-      : []; // STOPPED HERE 
-
-
-
+    
     const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
     const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns,
       staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
@@ -975,7 +894,7 @@ file_table AS (
             </Link>
           : resultsRec?.data_type_name || ''
       },
-      { label: 'Biosamples', value: results ? resultsRec?.count_bios?.toLocaleString() : undefined },
+      
       { label: 'Subjects', value: results ? resultsRec?.count_sub?.toLocaleString() : undefined },
       { label: 'Collections', value: results ? resultsRec?.count_col?.toLocaleString() : undefined },
       { label: fileProj_table_label_base, value: results ? results.count_file?.toLocaleString() : undefined },
@@ -990,7 +909,7 @@ file_table AS (
     // console.log("Static columns in  biosample");
     // console.log(staticBiosampleColumns);
 
-    addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+    //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
@@ -1053,19 +972,10 @@ file_table AS (
         metadata={metadata}
         categories={categories}
       >
-
-        <ExpandableTable
-          data={biosamplePrunedDataWithId}
-          full_data={biosamples_table_full_withId}
-          downloadFileName= {"BiosamplesTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} //{recordInfoHashFileName + "_BiosamplesTable.json"}
-          tableTitle={biosampleTableTitle}
-          searchParams={searchParams}
-          count={results?.count_bios ?? 0} // Provide count directly as a prop
-          colNames={dynamicBiosampleColumns}
-          dynamicColumns={dynamicBiosampleColumns}
-          tablePrefix="bioSamplTbl"
-        //getNameFromTable={getNameFromBiosampleTable}
-        />
+        <React.Suspense fallback={<>Loading..</>}>
+          <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  bioSamplTblOffset={bioSamplTblOffset}/>
+        </React.Suspense>
+        
 
         <ExpandableTable
           data={subjectPrunedDataWithId}
