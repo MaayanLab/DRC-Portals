@@ -173,7 +173,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
         const category = categories[0];
 
-        console.log(category);
+        
 
         return (
             <Grid container spacing={2} direction="column">

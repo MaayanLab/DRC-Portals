@@ -7,6 +7,7 @@ import ExpandableTable from "../ExpandableTable";
 import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent  from "./BiosamplesTableComponent";
+import SubjectsTableComponent from "./SubjectstableComponent";
 import React from "react";
 
 const file_count_limit = 200000;
@@ -111,10 +112,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
         count: number, // this is based on across all-columns of ffl_biosample 
         count_bios: number,
-        count_sub: number,
         count_col: number,
       }[],
-      count_sub: number,
       count_col: number,
       collections_table: {
         collection_id_namespace: string,
@@ -125,16 +124,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         name: string,
         description: string,
         has_time_series_data: string
-      }[],
-      subjects_table: {
-        subject_id_namespace: string,
-        subject_local_id: string,
-        subject_race_name: string,
-        subject_granularity_name: string,
-        subject_sex_name: string,
-        subject_ethnicity_name: string,
-        subject_role_name: string,
-        subject_age_at_enrollment: string
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
       count_file: number,
@@ -267,16 +256,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         name: string,
         description: string,
         has_time_series_data: string
-      }[],
-      subjects_table_full: {
-        subject_id_namespace: string,
-        subject_local_id: string,
-        subject_race_name: string,
-        subject_granularity_name: string,
-        subject_sex_name: string,
-        subject_ethnicity_name: string,
-        subject_role_name: string,
-        subject_age_at_enrollment: string
       }[],
       file_table_full: {
         id_namespace: string,
@@ -434,8 +413,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       c2m2.protein.description AS protein_description,
       c2m2.compound.description AS compound_description,
       c2m2.ncbi_taxonomy.description AS taxonomy_description,
-      COUNT(*)::INT AS count,
-      COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+      COUNT(*)::INT AS count, 
       COUNT(DISTINCT collection_local_id)::INT AS count_col
     FROM allres_full 
     LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
@@ -455,29 +433,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
       protein_name, compound_name, data_type_name /*rank DESC*/
   ), 
-  subjects_table AS (
-    SELECT DISTINCT
-      allres_full.subject_id_namespace,
-      allres_full.subject_local_id,
-      allres_full.subject_race_name,
-      allres_full.subject_granularity_name,
-      allres_full.subject_sex_name,
-      allres_full.subject_ethnicity_name,
-      allres_full.subject_role_name,
-      allres_full.subject_age_at_enrollment
-    FROM allres_full
-  ),
-  subjects_table_limited as (
-    SELECT * 
-    FROM subjects_table
-    OFFSET ${subTblOffset}
-    LIMIT ${limit}
-
-  ),
-  count_sub AS (
-    select count(*)::int as count
-      from subjects_table
-  ),
   collections_table AS (
     SELECT DISTINCT
       allres_full.collection_id_namespace,
@@ -688,8 +643,6 @@ file_table AS (
 
   SELECT
   (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
-  (SELECT count FROM count_sub) as count_sub,
-  (SELECT COALESCE(jsonb_agg(subjects_table_limited.*), '[]'::jsonb) FROM subjects_table_limited) AS subjects_table,
   (SELECT count FROM count_col) as count_col,
   (SELECT COALESCE(jsonb_agg(collections_table_limited.*), '[]'::jsonb) FROM collections_table_limited) AS collections_table,
   (SELECT count FROM count_file) as count_file,
@@ -700,8 +653,7 @@ file_table AS (
   (SELECT COALESCE(jsonb_agg(file_bios_table_limited.*), '[]'::jsonb) FROM file_bios_table_limited) AS file_bios_table,
   (SELECT count FROM count_file_col) as count_file_col,
   (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table,
-  /* full tables based on biosamples_table, subjects_table, etc*/
-  (SELECT COALESCE(jsonb_agg(subjects_table.*), '[]'::jsonb) FROM subjects_table) AS subjects_table_full,
+  /* full tables  etc*/
   (SELECT COALESCE(jsonb_agg(collections_table.*), '[]'::jsonb) FROM collections_table) AS collections_table_full,
   (SELECT COALESCE(jsonb_agg(file_table.*), '[]'::jsonb) FROM file_table) AS file_table_full,
   (SELECT COALESCE(jsonb_agg(file_sub_table.*), '[]'::jsonb) FROM file_sub_table) AS file_sub_table_full,
@@ -725,16 +677,7 @@ file_table AS (
     // First remove the empty columns and sort columns such that most varying appears first
 
     
-    const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
-    const { prunedData: subjectPrunedData, columnNames: subjectColNames, dynamicColumns: dynamicSubjectColumns,
-      staticColumns: staticSubjectColumns } = pruneAndRetrieveColumnNames(results?.subjects_table ?? [],
-        results?.subjects_table_full ?? [], subject_table_columnsToIgnore);
-    // Add 'id' column with 'row-<index>' format
-    const subjectPrunedDataWithId = subjectPrunedData.map((row, index) => ({ ...row, id: index }));
-    const subjects_table_full_withId = results?.subjects_table_full
-      ? results.subjects_table_full.map((row, index) => ({ ...row, id: index }))
-      : [];
-
+    
 
     const collections_table_columnsToIgnore: string[] = ['collection_id_namespace']; // don't include 'persistent_id' here
     const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
@@ -895,7 +838,7 @@ file_table AS (
           : resultsRec?.data_type_name || ''
       },
       
-      { label: 'Subjects', value: results ? resultsRec?.count_sub?.toLocaleString() : undefined },
+      ,
       { label: 'Collections', value: results ? resultsRec?.count_col?.toLocaleString() : undefined },
       { label: fileProj_table_label_base, value: results ? results.count_file?.toLocaleString() : undefined },
       { label: fileSub_table_label_base, value: results ? results.count_file_sub?.toLocaleString() : undefined },
@@ -911,7 +854,7 @@ file_table AS (
 
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
-    addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
+    //addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
     addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
     //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
     
@@ -935,8 +878,7 @@ file_table AS (
       addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, fileCol_table_label_base, categories);
     }
     
-    const biosampleTableTitle = "Biosamples: " + results?.count_bios;
-    const subjectTableTitle = "Subjects: " + results?.count_sub;
+    
     const collectionTableTitle = "Collections: " + results?.count_col;
     ////const fileProjTableTitle = fileProj_table_label_base + ": " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
     ////const fileSubTableTitle = fileSub_table_label_base + ": " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
@@ -972,23 +914,15 @@ file_table AS (
         metadata={metadata}
         categories={categories}
       >
-        <React.Suspense fallback={<>Loading..</>}>
-          <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  bioSamplTblOffset={bioSamplTblOffset}/>
-        </React.Suspense>
-        
+      <React.Suspense fallback={<>Loading..</>}>
+        <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  bioSamplTblOffset={bioSamplTblOffset}/>
+      </React.Suspense>
 
-        <ExpandableTable
-          data={subjectPrunedDataWithId}
-          full_data={subjects_table_full_withId}
-          downloadFileName= {"SubjectsTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_SubjectsTable.json"}
-          tableTitle={subjectTableTitle}
-          searchParams={searchParams}
-          count={results?.count_sub ?? 0} // Provide count directly as a prop
-          colNames={dynamicSubjectColumns}
-          dynamicColumns={dynamicSubjectColumns}
-          tablePrefix="subTbl"
-        //getNameFromTable={getNameFromSubjectTable}
-        />
+      <React.Suspense fallback={<>Loading..</>}>
+        <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  subTblOffset={subTblOffset}/>
+      </React.Suspense>  
+
+        
 
         <ExpandableTable
           data={collectionPrunedDataWithId}
