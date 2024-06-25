@@ -6,19 +6,11 @@ import {
   createEntityElement,
   getAllNodeOptions,
   getAllRelationshipOptions,
-} from "../utils/query-builder";
+} from "../../utils/query-builder";
 
 export default function AdvancedSchemaSearch() {
   return (
-    <Grid
-      container
-      item
-      spacing={1}
-      xs={12}
-      sx={{
-        height: "640px",
-      }}
-    >
+    <Grid container sx={{ height: "640px" }}>
       <Grid item lg={3} sx={{ height: "inherit" }}>
         <Paper
           sx={{
