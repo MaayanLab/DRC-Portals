@@ -32,19 +32,21 @@ type AgendaType = {
 
 const Summary = ({section}: {section: AgendaType}) => (
 	<Stack>
-		<Typography variant="body1">
-			<b>{section.label}</b>
-		</Typography>
+		<div className="flex flex-col space-y-2">
+			<Typography variant="body1">
+				<b>{section.label}</b>
+			</Typography>
 		{(section.presenters || []).map(({presenter, affiliation})=>(
-			<>
+			<div className="flex flex-col">
 				<Typography variant="body1">
 					{presenter}
 				</Typography>
 				<Typography variant="body1">
 					<i>{affiliation}</i>
 				</Typography>
-			</>
+			</div>
 		))}
+		</div>
 		{section.summary &&
 		<Accordion elevation={0} sx={{background: 'inherit'}}>
 			<AccordionSummary
