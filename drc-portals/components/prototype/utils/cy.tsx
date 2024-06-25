@@ -307,21 +307,15 @@ export const createChartCxtMenuItem = (
 };
 
 export const highlightNeighbors = (event: EventObjectNode) => {
-  const highlightIds = new Set([
-    event.target.id(),
-    ...event.target.neighborhood().map((neighbor) => neighbor.id()),
-  ]);
-
   event.cy.batch(() => {
-    event.cy
-      .filter((ele) => highlightIds.has(ele.id()))
-      .removeClass("dimmed")
-      .addClass("highlight");
-  });
-
-  event.cy.batch(() => {
+    event.target.removeClass("dimmed").addClass("highlight");
+    event.target.neighborhood().removeClass("dimmed").addClass("highlight");
     event.cy.elements().not(".highlight").addClass("dimmed");
   });
+};
+
+export const selectNeighbors = (event: EventObjectNode) => {
+  event.target.neighborhood().select();
 };
 
 export const resetHighlights = (event: EventObject) => {

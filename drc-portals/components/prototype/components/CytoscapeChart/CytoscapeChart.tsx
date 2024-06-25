@@ -38,6 +38,7 @@ import {
   hideElement,
   highlightNeighbors,
   resetHighlights,
+  selectNeighbors,
   showElement,
 } from "../../utils/cy";
 
@@ -258,6 +259,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         `${cmpKey}-node-ctx-menu-0`,
         contextMenuItemSelectWrapper(highlightNeighbors, event),
         "Highlight Neighbors"
+      ),
+      createChartCxtMenuItem(
+        `${cmpKey}-node-ctx-menu-1`,
+        contextMenuItemSelectWrapper(selectNeighbors, event),
+        "Select Neighbors"
       ),
       ...getSharedMenuItems(event),
     ];
