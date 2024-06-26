@@ -38,8 +38,8 @@ import {
   XS_COLUMNS,
 } from "../../constants/advanced-search";
 import {
-  createAdvancedSearchParams,
-  getAdvancedSearchValuesFromParams,
+  createAdvancedSynonymSearchParams,
+  getAdvancedSynonymSearchValuesFromParams,
 } from "../../utils/advanced-search";
 
 import AdvancedSearchFormRow from "./AdvancedSearchFormRow";
@@ -151,7 +151,7 @@ export default function AdvancedSynonymSearch() {
   };
 
   const handleSubmit = () => {
-    const advancedQuery = createAdvancedSearchParams(
+    const advancedQuery = createAdvancedSynonymSearchParams(
       anyValue,
       phraseValue,
       allValue,
@@ -179,7 +179,7 @@ export default function AdvancedSynonymSearch() {
       subjectGenders,
       subjectRaces,
       dccNames,
-    } = getAdvancedSearchValuesFromParams(searchParams);
+    } = getAdvancedSynonymSearchValuesFromParams(searchParams);
     const phraseQueryRegex = /(["'])(?:(?=(\\?))\2.)*?\1/;
     const allQueryRegex = /\B\+\w+/g;
     const noneQueryRegex = /\B\-\w+/g;

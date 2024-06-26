@@ -9,7 +9,7 @@ import {
   DEFAULT_STYLESHEET,
 } from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
-import { getAdvancedSearchValuesFromParams } from "../utils/advanced-search";
+import { getAdvancedSynonymSearchValuesFromParams } from "../utils/advanced-search";
 import {
   createSynonymSearchCypher,
   getValueFromSearchParams,
@@ -45,7 +45,7 @@ export default function SynonymSearch() {
     subjectGenders,
     subjectRaces,
     dccNames,
-  } = getAdvancedSearchValuesFromParams(searchParams);
+  } = getAdvancedSynonymSearchValuesFromParams(searchParams);
   const [value, setValue] = useState<string | null>(null);
 
   const handleSubmit = (term: string) => {
