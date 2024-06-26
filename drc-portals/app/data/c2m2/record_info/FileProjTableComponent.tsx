@@ -111,6 +111,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
             FROM allres_full
         ),
             /* create file_table_keycol */
+            /* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
+             /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
             file_table_keycol AS (
             SELECT DISTINCT 
                 f.id_namespace,
@@ -205,6 +207,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
 
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
+    
   
     const downloadFilename = generateHashedJSONFilename("FilesProjTable_", searchParams);
     const categories: Category[] = [];
@@ -213,44 +216,44 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
     
     const category = categories[0];
 
-        return (
-            <Grid container spacing={2} direction="column">
-                {category && (
-                    <Grid item xs={12}>
-                        <Card variant="outlined" sx={{ mb: 2 }}>
-                            <CardContent id={`card-content-${category.title}`}>
-                                <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: "+ countFile}
-                                </Typography>
-                                {category.metadata.map((item, i) => (
-                                    item && item.value ? (
-                                        <Typography key={i} variant="body2">
-                                            <strong>{item.label}: </strong>
-                                            {renderMetadataValue(item)}
-                                        </Typography>
-                                    ) : null
-                                ))}
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                )}
+    return (
+        <Grid container spacing={2} direction="column">
+            {category && (
                 <Grid item xs={12}>
-                {(count_file_table_withlimit > 0 ) && (
-                <ExpandableTable
-                    data={fileProjPrunedDataWithId}
-                    full_data={filesProj_table_full_withId}
-                    downloadFileName= {downloadFilename} // {recordInfoHashFileName + "_FilesProjTable.json"}
-                    drsBundle
-                    tableTitle={fileProjTableTitle}
-                    searchParams={searchParams}
-                    //count={results?.count_file ?? 0} // Provide count directly as a prop
-                    //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
-                    count={count_file_table_withlimit} // Provide count directly as a prop
-                    colNames={newFileProjColumns}
-                    dynamicColumns={newFileProjColumns}
-                    tablePrefix="fileProjTbl"
-                //getNameFromTable={getNameFromFileProjTable}
-                />
+                    <Card variant="outlined" sx={{ mb: 2 }}>
+                        <CardContent id={`card-content-${category.title}`}>
+                            <Typography variant="h5" component="div">
+                                {category.title + " (Uniform Columns) Count: "+ countFile}
+                            </Typography>
+                            {category.metadata.map((item, i) => (
+                                item && item.value ? (
+                                    <Typography key={i} variant="body2">
+                                        <strong>{item.label}: </strong>
+                                        {renderMetadataValue(item)}
+                                    </Typography>
+                                ) : null
+                            ))}
+                        </CardContent>
+                    </Card>
+                </Grid>
+            )}
+            <Grid item xs={12}>
+            {(count_file_table_withlimit > 0 ) && (
+            <ExpandableTable
+                data={fileProjPrunedDataWithId}
+                full_data={filesProj_table_full_withId}
+                downloadFileName= {downloadFilename} // {recordInfoHashFileName + "_FilesProjTable.json"}
+                drsBundle
+                tableTitle={fileProjTableTitle}
+                searchParams={searchParams}
+                //count={results?.count_file ?? 0} // Provide count directly as a prop
+                //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
+                count={count_file_table_withlimit} // Provide count directly as a prop
+                colNames={newFileProjColumns}
+                dynamicColumns={newFileProjColumns}
+                tablePrefix="fileProjTbl"
+            //getNameFromTable={getNameFromFileProjTable}
+            />
         )}
                 </Grid>
             </Grid>
