@@ -17,7 +17,7 @@ interface FormRowProps {
   instructions: JSX.Element;
 }
 
-export default function AdvancedSearchFormRow(cmpProps: FormRowProps) {
+export default function TextSearchFormRow(cmpProps: FormRowProps) {
   const { children, description, instructions } = cmpProps;
 
   return (

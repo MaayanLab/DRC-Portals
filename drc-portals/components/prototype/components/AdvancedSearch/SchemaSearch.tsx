@@ -6,7 +6,7 @@ import { Box, Button, Grid } from "@mui/material";
 import SchemaDnDPanel from "./SchemaDnDPanel";
 import SchemaSearchFormRow from "./SchemaSearchFormRow";
 
-export default function AdvancedSchemaSearch() {
+export default function SchemaSearch() {
   return (
     <Grid container sx={{ height: "640px" }}>
       <Grid item xs={3} sx={{ height: "inherit" }}>

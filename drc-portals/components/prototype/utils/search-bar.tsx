@@ -94,7 +94,7 @@ export const createSynonymSearchCypher = (
   `;
 };
 
-export const getValueFromSearchParams = (searchParams: URLSearchParams) => {
+export const getSearchBarValue = (searchParams: URLSearchParams) => {
   const query = searchParams.get("q");
   const anyQuery = searchParams.get("as_q");
   const phraseQuery = searchParams.get("as_epq");

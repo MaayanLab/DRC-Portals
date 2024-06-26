@@ -6,8 +6,8 @@ import TextFieldsIcon from "@mui/icons-material/TextFields";
 
 import { Tab, TabPanel, TabsList } from "../constants/advanced-search";
 
-import AdvancedSchemaSearch from "./AdvancedSearch/AdvancedSchemaSearch";
-import AdvancedSynonymSearch from "./AdvancedSearch/AdvancedSynonymSearch";
+import SchemaSearch from "./AdvancedSearch/SchemaSearch";
+import TextSearch from "./AdvancedSearch/TextSearch";
 
 export default function AdvancedSearch() {
   return (
@@ -21,10 +21,10 @@ export default function AdvancedSearch() {
         </Tab>
       </TabsList>
       <TabPanel value={0}>
-        <AdvancedSynonymSearch></AdvancedSynonymSearch>
+        <TextSearch></TextSearch>
       </TabPanel>
       <TabPanel value={1}>
-        <AdvancedSchemaSearch></AdvancedSchemaSearch>
+        <SchemaSearch></SchemaSearch>
       </TabPanel>
     </Tabs>
   );

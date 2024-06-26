@@ -9,10 +9,10 @@ import {
   DEFAULT_STYLESHEET,
 } from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
-import { getAdvancedSynonymSearchValuesFromParams } from "../utils/advanced-search";
+import { getTextSearchValues } from "../utils/advanced-search";
 import {
   createSynonymSearchCypher,
-  getValueFromSearchParams,
+  getSearchBarValue,
 } from "../utils/search-bar";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
@@ -20,7 +20,7 @@ import GraphEntityDetails from "./GraphEntityDetails";
 import SearchBar from "./SearchBar/SearchBar";
 import useGraphSearchBehavior from "../hooks/graph-search";
 
-export default function SynonymSearch() {
+export default function GraphSearch() {
   const {
     searchParams,
     router,
@@ -45,7 +45,7 @@ export default function SynonymSearch() {
     subjectGenders,
     subjectRaces,
     dccNames,
-  } = getAdvancedSynonymSearchValuesFromParams(searchParams);
+  } = getTextSearchValues(searchParams);
   const [value, setValue] = useState<string | null>(null);
 
   const handleSubmit = (term: string) => {
@@ -71,7 +71,7 @@ export default function SynonymSearch() {
 
   useEffect(() => {
     if (searchParams.size > 0) {
-      setValue(getValueFromSearchParams(searchParams));
+      setValue(getSearchBarValue(searchParams));
     }
   }, []);
 

@@ -1,5 +1,5 @@
-import SearchLayout from "./SearchLayout";
+import GraphSearchLayout from "./GraphSearchLayout";
 
 export default async function Page() {
-  return <SearchLayout />;
+  return <GraphSearchLayout />;
 }

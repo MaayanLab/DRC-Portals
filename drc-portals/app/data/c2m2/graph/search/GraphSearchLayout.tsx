@@ -1,8 +1,8 @@
 import { Grid } from "@mui/material";
 
-import SynonymSearch from "@/components/prototype/components/SynonymSearch";
+import GraphSearch from "@/components/prototype/components/GraphSearch";
 
-export default function SearchLayout() {
+export default function GraphSearchLayout() {
   return (
     <Grid
       container
@@ -11,7 +11,7 @@ export default function SearchLayout() {
       spacing={2}
     >
       <Grid item container xs={12} spacing={1}>
-        <SynonymSearch></SynonymSearch>
+        <GraphSearch></GraphSearch>
       </Grid>
     </Grid>
   );

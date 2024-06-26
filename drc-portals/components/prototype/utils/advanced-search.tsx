@@ -1,6 +1,6 @@
 import { AdvancedSearchValues } from "../interfaces/advanced-search";
 
-export const createAdvancedSynonymSearchParams = (
+export const createTextSearchParams = (
   q?: string | null,
   epq?: string | null,
   aq?: string | null,
@@ -29,7 +29,7 @@ export const createAdvancedSynonymSearchParams = (
   return new URLSearchParams(query);
 };
 
-export const getAdvancedSynonymSearchValuesFromParams = (
+export const getTextSearchValues = (
   params: URLSearchParams
 ): AdvancedSearchValues => {
   const query = params.get("q") || "";

@@ -38,13 +38,13 @@ import {
   XS_COLUMNS,
 } from "../../constants/advanced-search";
 import {
-  createAdvancedSynonymSearchParams,
-  getAdvancedSynonymSearchValuesFromParams,
+  createTextSearchParams,
+  getTextSearchValues,
 } from "../../utils/advanced-search";
 
-import AdvancedSearchFormRow from "./AdvancedSearchFormRow";
+import TextSearchFormRow from "./TextSearchFormRow";
 
-export default function AdvancedSynonymSearch() {
+export default function TextSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [anyValue, setAnyValue] = useState("");
@@ -151,7 +151,7 @@ export default function AdvancedSynonymSearch() {
   };
 
   const handleSubmit = () => {
-    const advancedQuery = createAdvancedSynonymSearchParams(
+    const advancedQuery = createTextSearchParams(
       anyValue,
       phraseValue,
       allValue,
@@ -179,7 +179,7 @@ export default function AdvancedSynonymSearch() {
       subjectGenders,
       subjectRaces,
       dccNames,
-    } = getAdvancedSynonymSearchValuesFromParams(searchParams);
+    } = getTextSearchValues(searchParams);
     const phraseQueryRegex = /(["'])(?:(?=(\\?))\2.)*?\1/;
     const allQueryRegex = /\B\+\w+/g;
     const noneQueryRegex = /\B\-\w+/g;
@@ -261,7 +261,7 @@ export default function AdvancedSynonymSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <AdvancedSearchFormRow
+        <TextSearchFormRow
           description={<>any of these words:</>}
           instructions={
             <>
@@ -276,7 +276,7 @@ export default function AdvancedSynonymSearch() {
             color="secondary"
             onChange={onAnyChange}
           />
-        </AdvancedSearchFormRow>
+        </TextSearchFormRow>
       </Grid>
       <Grid
         container
@@ -284,7 +284,7 @@ export default function AdvancedSynonymSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <AdvancedSearchFormRow
+        <TextSearchFormRow
           description={<>this exact word or phrase:</>}
           instructions={
             <>
@@ -299,7 +299,7 @@ export default function AdvancedSynonymSearch() {
             color="secondary"
             onChange={onPhraseChange}
           />
-        </AdvancedSearchFormRow>
+        </TextSearchFormRow>
       </Grid>
       <Grid
         container
@@ -307,7 +307,7 @@ export default function AdvancedSynonymSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <AdvancedSearchFormRow
+        <TextSearchFormRow
           description={<>all of these words:</>}
           instructions={
             <>
@@ -323,7 +323,7 @@ export default function AdvancedSynonymSearch() {
             color="secondary"
             onChange={onAllChange}
           />
-        </AdvancedSearchFormRow>
+        </TextSearchFormRow>
       </Grid>
       <Grid
         container
@@ -331,7 +331,7 @@ export default function AdvancedSynonymSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <AdvancedSearchFormRow
+        <TextSearchFormRow
           description={<>none of these words:</>}
           instructions={
             <>
@@ -347,7 +347,7 @@ export default function AdvancedSynonymSearch() {
             color="secondary"
             onChange={onNoneChange}
           />
-        </AdvancedSearchFormRow>
+        </TextSearchFormRow>
       </Grid>
       {/* Divider Row */}
       <Grid
@@ -396,7 +396,7 @@ export default function AdvancedSynonymSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <AdvancedSearchFormRow
+        <TextSearchFormRow
           description={<>connected core entities:</>}
           instructions={<>Find specific core entities.</>}
         >
@@ -432,7 +432,7 @@ export default function AdvancedSynonymSearch() {
               label="Biosample"
             />
           </FormGroup>
-        </AdvancedSearchFormRow>
+        </TextSearchFormRow>
       </Grid>
       {searchSubject ? (
         <>
@@ -442,7 +442,7 @@ export default function AdvancedSynonymSearch() {
             columnSpacing={COLUMN_SPACING}
             columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
           >
-            <AdvancedSearchFormRow
+            <TextSearchFormRow
               description={<>subject gender:</>}
               instructions={<>Find subjects with this specific gender.</>}
             >
@@ -497,7 +497,7 @@ export default function AdvancedSynonymSearch() {
                   ))}
                 </Select>
               </FormControl>
-            </AdvancedSearchFormRow>
+            </TextSearchFormRow>
           </Grid>
           <Grid
             container
@@ -505,7 +505,7 @@ export default function AdvancedSynonymSearch() {
             columnSpacing={COLUMN_SPACING}
             columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
           >
-            <AdvancedSearchFormRow
+            <TextSearchFormRow
               description={<>subject race:</>}
               instructions={<>Find subjects with this specific race.</>}
             >
@@ -555,7 +555,7 @@ export default function AdvancedSynonymSearch() {
                   ))}
                 </Select>
               </FormControl>
-            </AdvancedSearchFormRow>
+            </TextSearchFormRow>
           </Grid>
         </>
       ) : null}
@@ -565,7 +565,7 @@ export default function AdvancedSynonymSearch() {
         columnSpacing={COLUMN_SPACING}
         columns={{ xs: XS_COLUMNS, sm: SM_COLUMNS, md: MD_COLUMNS }}
       >
-        <AdvancedSearchFormRow
+        <TextSearchFormRow
           description={<>connected DCC:</>}
           instructions={<>Find results connected to specific DCCs.</>}
         >
@@ -608,7 +608,7 @@ export default function AdvancedSynonymSearch() {
               ))}
             </Select>
           </FormControl>
-        </AdvancedSearchFormRow>
+        </TextSearchFormRow>
       </Grid>
       {/* Search Button Row */}
       <Grid
