@@ -130,23 +130,25 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
 
         return (
             <Grid container spacing={2} direction="column">
-                <Grid item xs={12}>
-                    <Card variant="outlined" sx={{ mb: 2 }}>
-                        <CardContent id={`card-content-${category.title}`}>
-                            <Typography variant="h5" component="div">
-                                {category.title + " (Uniform Columns)"}
-                            </Typography>
-                            {category.metadata.map((item, i) => (
-                                item && item.value ? (
-                                    <Typography key={i} variant="body2">
-                                        <strong>{item.label}: </strong>
-                                        {renderMetadataValue(item)}
-                                    </Typography>
-                                ) : null
-                            ))}
-                        </CardContent>
-                    </Card>
-                </Grid>
+                {category && (
+                    <Grid item xs={12}>
+                        <Card variant="outlined" sx={{ mb: 2 }}>
+                            <CardContent id={`card-content-${category.title}`}>
+                                <Typography variant="h5" component="div">
+                                    {category.title + " (Uniform Columns) Count: " + countSub}
+                                </Typography>
+                                {category.metadata.map((item, i) => (
+                                    item && item.value ? (
+                                        <Typography key={i} variant="body2">
+                                            <strong>{item.label}: </strong>
+                                            {renderMetadataValue(item)}
+                                        </Typography>
+                                    ) : null
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                )}
                 <Grid item xs={12}>
                     <ExpandableTable
                         data={subjectPrunedDataWithId}

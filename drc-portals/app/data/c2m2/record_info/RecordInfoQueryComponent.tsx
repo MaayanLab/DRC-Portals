@@ -8,6 +8,7 @@ import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchPara
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent  from "./BiosamplesTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
+import CollectionsTableComponent from "./CollectionsTableComponent";
 import React from "react";
 
 const file_count_limit = 200000;
@@ -111,19 +112,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         taxonomy_description: string,
 
         count: number, // this is based on across all-columns of ffl_biosample 
-        count_bios: number,
-        count_col: number,
-      }[],
-      count_col: number,
-      collections_table: {
-        collection_id_namespace: string,
-        collection_local_id: string,
-        persistent_id: string,
-        creation_time: string,
-        abbreviation: string,
-        name: string,
-        description: string,
-        has_time_series_data: string
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
       count_file: number,
@@ -247,16 +235,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         analysis_type_name: string
       }[],
       // based on full table
-      collections_table_full: {
-        collection_id_namespace: string,
-        collection_local_id: string,
-        persistent_id: string,
-        creation_time: string,
-        abbreviation: string,
-        name: string,
-        description: string,
-        has_time_series_data: string
-      }[],
       file_table_full: {
         id_namespace: string,
         local_id: string,
@@ -413,8 +391,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       c2m2.protein.description AS protein_description,
       c2m2.compound.description AS compound_description,
       c2m2.ncbi_taxonomy.description AS taxonomy_description,
-      COUNT(*)::INT AS count, 
-      COUNT(DISTINCT collection_local_id)::INT AS count_col
+      COUNT(*)::INT AS count
     FROM allres_full 
     LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
       allres_full.project_local_id = c2m2.project.local_id) 
@@ -433,29 +410,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
       protein_name, compound_name, data_type_name /*rank DESC*/
   ), 
-  collections_table AS (
-    SELECT DISTINCT
-      allres_full.collection_id_namespace,
-      allres_full.collection_local_id,
-      c2m2.collection.persistent_id as persistent_id,
-      c2m2.collection.creation_time as creation_time,
-      allres_full.collection_abbreviation as abbreviation,
-      allres_full.collection_name as name,
-      c2m2.collection.description as description,
-      allres_full.collection_has_time_series_data as has_time_series_data
-    FROM allres_full
-    LEFT JOIN c2m2.collection ON (c2m2.collection.local_id = allres_full.collection_local_id)
-  ),
-  collections_table_limited as (
-    SELECT * 
-    FROM collections_table
-    OFFSET ${colTblOffset}
-    LIMIT ${limit}
-  ),
-  count_col AS (
-    select count(*)::int as count
-      from collections_table
-  ),
 unique_info AS ( /* has extra fields, but OK in case needed later*/
     SELECT DISTINCT 
         allres_full.dcc_name,
@@ -643,8 +597,6 @@ file_table AS (
 
   SELECT
   (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
-  (SELECT count FROM count_col) as count_col,
-  (SELECT COALESCE(jsonb_agg(collections_table_limited.*), '[]'::jsonb) FROM collections_table_limited) AS collections_table,
   (SELECT count FROM count_file) as count_file,
   (SELECT COALESCE(jsonb_agg(file_table_limited.*), '[]'::jsonb) FROM file_table_limited) AS file_table,
   (SELECT count FROM count_file_sub) as count_file_sub,
@@ -654,7 +606,6 @@ file_table AS (
   (SELECT count FROM count_file_col) as count_file_col,
   (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table,
   /* full tables  etc*/
-  (SELECT COALESCE(jsonb_agg(collections_table.*), '[]'::jsonb) FROM collections_table) AS collections_table_full,
   (SELECT COALESCE(jsonb_agg(file_table.*), '[]'::jsonb) FROM file_table) AS file_table_full,
   (SELECT COALESCE(jsonb_agg(file_sub_table.*), '[]'::jsonb) FROM file_sub_table) AS file_sub_table_full,
   (SELECT COALESCE(jsonb_agg(file_bios_table.*), '[]'::jsonb) FROM file_bios_table) AS file_bios_table_full,
@@ -679,15 +630,7 @@ file_table AS (
     
     
 
-    const collections_table_columnsToIgnore: string[] = ['collection_id_namespace']; // don't include 'persistent_id' here
-    const { prunedData: collectionPrunedData, columnNames: collectionColNames, dynamicColumns: dynamicCollectionColumns,
-      staticColumns: staticCollectionColumns } = pruneAndRetrieveColumnNames(results?.collections_table ?? [],
-        results?.collections_table_full ?? [], collections_table_columnsToIgnore);
-    // Add 'id' column with 'row-<index>' format
-    const collectionPrunedDataWithId = collectionPrunedData.map((row, index) => ({ ...row, id: index }));
-    const collections_table_full_withId = results?.collections_table_full
-      ? results.collections_table_full.map((row, index) => ({ ...row, id: index }))
-      : [];
+    
 
     const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
 
@@ -839,7 +782,7 @@ file_table AS (
       },
       
       ,
-      { label: 'Collections', value: results ? resultsRec?.count_col?.toLocaleString() : undefined },
+      
       { label: fileProj_table_label_base, value: results ? results.count_file?.toLocaleString() : undefined },
       { label: fileSub_table_label_base, value: results ? results.count_file_sub?.toLocaleString() : undefined },
       { label: fileBios_table_label_base, value: results ? results.count_file_bios?.toLocaleString() : undefined },
@@ -855,7 +798,7 @@ file_table AS (
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     //addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
     //addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
-    addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
+   // addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
     //addCategoryColumns(staticFileProjColumns, getNameFromFileProjTable, "Files related to Project", categories);
     
     // Conditionally add categoreis based on the counts.
@@ -879,7 +822,7 @@ file_table AS (
     }
     
     
-    const collectionTableTitle = "Collections: " + results?.count_col;
+    
     ////const fileProjTableTitle = fileProj_table_label_base + ": " + results?.count_file + " (" + count_file_table_withlimit + " listed)";
     ////const fileSubTableTitle = fileSub_table_label_base + ": " + results?.count_file_sub + " (" + count_file_sub_table_withlimit + " listed)";
     ////const fileBiosTableTitle = fileBios_table_label_base + ": " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
@@ -922,20 +865,9 @@ file_table AS (
         <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  subTblOffset={subTblOffset}/>
       </React.Suspense>  
 
-        
-
-        <ExpandableTable
-          data={collectionPrunedDataWithId}
-          full_data={collections_table_full_withId}
-          downloadFileName= {"CollectionsTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_CollectionsTable.json"}
-          tableTitle={collectionTableTitle}
-          searchParams={searchParams}
-          count={results?.count_col ?? 0} // Provide count directly as a prop
-          colNames={dynamicCollectionColumns}
-          dynamicColumns={dynamicCollectionColumns}
-          tablePrefix="colTbl"
-        //getNameFromTable={getNameFromCollectionTable}
-        />
+      <React.Suspense fallback={<>Loading..</>}>
+        <CollectionsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  colTblOffset={colTblOffset}/>
+      </React.Suspense>
 
         {(count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) && (
           <ExpandableTable

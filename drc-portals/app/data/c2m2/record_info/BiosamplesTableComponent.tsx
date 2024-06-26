@@ -173,27 +173,29 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
         const category = categories[0];
 
-        
+        console.log("Biosample Category = " + category);
 
         return (
             <Grid container spacing={2} direction="column">
-                <Grid item xs={12}>
-                    <Card variant="outlined" sx={{ mb: 2 }}>
-                        <CardContent id={`card-content-${category.title}`}>
-                            <Typography variant="h5" component="div">
-                                {category.title+" (Uniform Columns)"}
-                            </Typography>
-                            {category.metadata.map((item, i) => (
-                                item && item.value ? (
-                                    <Typography key={i} variant="body2">
-                                        <strong>{item.label}: </strong>
-                                        {renderMetadataValue(item)}
-                                    </Typography>
-                                ) : null
-                            ))}
-                        </CardContent>
-                    </Card>
-                </Grid>
+                {category && (
+                    <Grid item xs={12}>
+                        <Card variant="outlined" sx={{ mb: 2 }}>
+                            <CardContent id={`card-content-${category.title}`}>
+                                <Typography variant="h5" component="div">
+                                    {category.title + " (Uniform Columns) Count: "+ countBios}
+                                </Typography>
+                                {category.metadata.map((item, i) => (
+                                    item && item.value ? (
+                                        <Typography key={i} variant="body2">
+                                            <strong>{item.label}: </strong>
+                                            {renderMetadataValue(item)}
+                                        </Typography>
+                                    ) : null
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                )}
                 <Grid item xs={12}>
                     <ExpandableTable
                         data={biosamplePrunedDataWithId}
