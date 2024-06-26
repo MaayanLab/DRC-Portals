@@ -4,33 +4,18 @@ import { CSSProperties } from "react";
 import { v4 } from "uuid";
 
 import { EDGE_COLOR } from "../constants/cy";
+import { NODE_LABELS, RELATIONSHIP_TYPES } from "../constants/neo4j";
 import {
-  ADMIN_LABELS,
-  BIOSAMPLE_RELATED_LABELS,
-  CONTAINER_LABELS,
-  CORE_LABELS,
-  FILE_RELATED_LABELS,
-  RELATIONSHIP_TYPES,
-  SUBJECT_RELATED_LABELS,
-  TERM_LABELS,
-} from "../constants/neo4j";
-import {
-  ADMIN_NODE_CLASS,
   AnonymousNodeElement,
-  BIOSAMPLE_RELATED_NODE_CLASS,
-  CONTAINER_NODE_CLASS,
-  CORE_NODE_CLASS,
   DividerContainer,
   ENTITY_STYLES_MAP,
   EntityDivider,
-  FILE_RELATED_NODE_CLASS,
+  NODE_CLASS_MAP,
   NODE_DISPLAY_PROPERTY_MAP,
   NodeElement,
   NodeText,
   RelationshipElement,
   RelationshipText,
-  SUBJECT_RELATED_NODE_CLASS,
-  TERM_NODE_CLASS,
 } from "../constants/shared";
 import { Direction } from "../enums/query-builder";
 import { NodeResult } from "../interfaces/neo4j";
@@ -39,11 +24,18 @@ import {
   RelationshipElementFactory,
 } from "../types/shared";
 
-const createNodeElement = (label: string, style?: CSSProperties) => (
-  <NodeElement key={v4()} style={style}>
-    <NodeText>{label}</NodeText>
-  </NodeElement>
-);
+const createNodeElement = (label: string, customStyle?: CSSProperties) => {
+  const nodeLabelClass = NODE_CLASS_MAP.get(label);
+  const labelStyles =
+    nodeLabelClass === undefined
+      ? undefined
+      : ENTITY_STYLES_MAP.get(nodeLabelClass);
+  return (
+    <NodeElement key={v4()} style={{ ...labelStyles, ...customStyle }}>
+      <NodeText>{label}</NodeText>
+    </NodeElement>
+  );
+};
 
 export const getNodeDisplayProperty = (
   label: string,
@@ -51,70 +43,6 @@ export const getNodeDisplayProperty = (
 ): string => {
   const displayProp = NODE_DISPLAY_PROPERTY_MAP.get(label) || "name";
   return node.properties[displayProp] || label;
-};
-
-export const createAdminNodeElement = (
-  label: string,
-  style?: CSSProperties
-) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(ADMIN_NODE_CLASS),
-    ...style,
-  });
-};
-
-export const createContainerNodeElement = (
-  label: string,
-  style?: CSSProperties
-) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(CONTAINER_NODE_CLASS),
-    ...style,
-  });
-};
-
-export const createTermNodeElement = (label: string, style?: CSSProperties) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(TERM_NODE_CLASS),
-    ...style,
-  });
-};
-
-export const createCoreNodeElement = (label: string, style?: CSSProperties) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(CORE_NODE_CLASS),
-    ...style,
-  });
-};
-
-export const createFileRelatedNodeElement = (
-  label: string,
-  style?: CSSProperties
-) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(FILE_RELATED_NODE_CLASS),
-    ...style,
-  });
-};
-
-export const createSubjectRelatedNodeElement = (
-  label: string,
-  style?: CSSProperties
-) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(SUBJECT_RELATED_NODE_CLASS),
-    ...style,
-  });
-};
-
-export const createBiosampleRelatedNodeElement = (
-  label: string,
-  style?: CSSProperties
-) => {
-  return createNodeElement(label, {
-    ...ENTITY_STYLES_MAP.get(BIOSAMPLE_RELATED_NODE_CLASS),
-    ...style,
-  });
 };
 
 export const createLineDividerElement = () => (
@@ -136,6 +64,15 @@ export const createArrowDividerElement = (flip: boolean) => (
 
 export const createRelationshipElement = (
   type: string,
+  style?: CSSProperties
+) => (
+  <RelationshipElement key={v4()} style={style}>
+    <RelationshipText>{type}</RelationshipText>
+  </RelationshipElement>
+);
+
+export const createDirectedRelationshipElement = (
+  type: string,
   direction: Direction,
   style?: CSSProperties
 ) => (
@@ -143,9 +80,7 @@ export const createRelationshipElement = (
     {direction === Direction.OUTGOING || direction === Direction.UNDIRECTED
       ? createLineDividerElement()
       : createArrowDividerElement(false)}
-    <RelationshipElement key={v4()} style={style}>
-      <RelationshipText>{type}</RelationshipText>
-    </RelationshipElement>
+    {createRelationshipElement(type, style)}
     {direction === Direction.INCOMING || direction === Direction.UNDIRECTED
       ? createLineDividerElement()
       : createArrowDividerElement(true)}
@@ -158,33 +93,9 @@ export const createAnonymousNodeElement = () => (
 
 export const LABEL_TO_FACTORY_MAP: ReadonlyMap<string, NodeElementFactory> =
   new Map([
-    ...ADMIN_LABELS.map((label): [string, NodeElementFactory] => [
+    ...Array.from(NODE_LABELS).map((label): [string, NodeElementFactory] => [
       label,
-      createAdminNodeElement,
-    ]),
-    ...CONTAINER_LABELS.map((label): [string, NodeElementFactory] => [
-      label,
-      createContainerNodeElement,
-    ]),
-    ...CORE_LABELS.map((label): [string, NodeElementFactory] => [
-      label,
-      createCoreNodeElement,
-    ]),
-    ...TERM_LABELS.map((label): [string, NodeElementFactory] => [
-      label,
-      createTermNodeElement,
-    ]),
-    ...FILE_RELATED_LABELS.map((label): [string, NodeElementFactory] => [
-      label,
-      createFileRelatedNodeElement,
-    ]),
-    ...SUBJECT_RELATED_LABELS.map((label): [string, NodeElementFactory] => [
-      label,
-      createSubjectRelatedNodeElement,
-    ]),
-    ...BIOSAMPLE_RELATED_LABELS.map((label): [string, NodeElementFactory] => [
-      label,
-      createBiosampleRelatedNodeElement,
+      createNodeElement,
     ]),
   ]);
 
@@ -195,7 +106,7 @@ export const TYPE_TO_FACTORY_MAP: ReadonlyMap<
   ...Array.from(RELATIONSHIP_TYPES).map(
     (type): [string, RelationshipElementFactory] => [
       type,
-      createRelationshipElement,
+      createDirectedRelationshipElement,
     ]
   ),
 ]);
