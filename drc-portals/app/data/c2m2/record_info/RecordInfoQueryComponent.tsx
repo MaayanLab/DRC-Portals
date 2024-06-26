@@ -9,6 +9,7 @@ import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent  from "./BiosamplesTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
 import CollectionsTableComponent from "./CollectionsTableComponent";
+import FilesProjTableComponent from "./FileProjTableComponent";
 import React from "react";
 
 const file_count_limit = 200000;
@@ -634,7 +635,7 @@ file_table AS (
 
     const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
 
-    const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
+   /*  const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
     const { prunedData: fileProjPrunedData, columnNames: fileProjColNames, dynamicColumns: dynamicFileProjColumns,
       staticColumns: staticFileProjColumns } = pruneAndRetrieveColumnNames(results?.file_table ?? [],
         results?.file_table_full ?? [], filesProj_table_columnsToIgnore);
@@ -649,7 +650,7 @@ file_table AS (
 
     const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
     const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
-
+ */
     const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
     const { prunedData: fileSubPrunedData, columnNames: fileSubColNames, dynamicColumns: dynamicFileSubColumns,
       staticColumns: staticFileSubColumns } = pruneAndRetrieveColumnNames(results?.file_sub_table ?? [],
@@ -783,7 +784,6 @@ file_table AS (
       
       ,
       
-      { label: fileProj_table_label_base, value: results ? results.count_file?.toLocaleString() : undefined },
       { label: fileSub_table_label_base, value: results ? results.count_file_sub?.toLocaleString() : undefined },
       { label: fileBios_table_label_base, value: results ? results.count_file_bios?.toLocaleString() : undefined },
       { label: fileCol_table_label_base, value: results ? results.count_file_col?.toLocaleString() : undefined },
@@ -803,14 +803,14 @@ file_table AS (
     
     // Conditionally add categoreis based on the counts.
     // Define the actual count of records in table displayed here and use at two or more places
-    const count_file_table_withlimit = results?.file_table_full.length ?? 0;
+    //const count_file_table_withlimit = results?.file_table_full.length ?? 0;
     const count_file_sub_table_withlimit = results?.file_sub_table_full.length ?? 0;
     const count_file_bios_table_withlimit = results?.file_bios_table_full.length ?? 0;
     const count_file_col_table_withlimit = results?.file_col_table_full.length ?? 0;
 
-    if (count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) {
+    /* if (count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) {
       addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, fileProj_table_label_base, categories);
-    }
+    } */
     if (count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) {
       addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, fileSub_table_label_base, categories);
     }
@@ -829,7 +829,7 @@ file_table AS (
     ////const fileColTableTitle = fileCol_table_label_base + ": " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
 
     // get_partial_list_string(count_file_table_withlimit, results?.count_file, file_count_limit_proj)
-    const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(results?.count_file ?? 0, count_file_table_withlimit, file_count_limit_proj);
+    //const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(results?.count_file ?? 0, count_file_table_withlimit, file_count_limit_proj);
     const fileSubTableTitle = fileSub_table_label_base + ": " + get_partial_list_string(results?.count_file_sub ?? 0, count_file_sub_table_withlimit, file_count_limit_sub);
     const fileBiosTableTitle = fileBios_table_label_base + ": " + get_partial_list_string(results?.count_file_bios ?? 0, count_file_bios_table_withlimit, file_count_limit_bios);
     const fileColTableTitle = fileCol_table_label_base + ": " + get_partial_list_string(results?.count_file_col ?? 0, count_file_col_table_withlimit, file_count_limit_col);
@@ -869,23 +869,11 @@ file_table AS (
         <CollectionsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  colTblOffset={colTblOffset}/>
       </React.Suspense>
 
-        {(count_file_table_withlimit > 0 && results?.count_file_bios == 0 && results?.count_file_sub == 0) && (
-          <ExpandableTable
-            data={fileProjPrunedDataWithId}
-            full_data={filesProj_table_full_withId}
-            downloadFileName= {"FilesProjTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesProjTable.json"}
-            drsBundle
-            tableTitle={fileProjTableTitle}
-            searchParams={searchParams}
-            //count={results?.count_file ?? 0} // Provide count directly as a prop
-            //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
-            count={count_file_table_withlimit} // Provide count directly as a prop
-            colNames={newFileProjColumns}
-            dynamicColumns={newFileProjColumns}
-            tablePrefix="fileProjTbl"
-          //getNameFromTable={getNameFromFileProjTable}
-          />
-        )}
+      <React.Suspense fallback={<>Loading..</>}>
+        <FilesProjTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  fileProjTblOffset={fileProjTblOffset} file_count_limit_proj={file_count_limit_proj}/>
+      </React.Suspense>
+
+       
 
         {/* (results?.count_file_bios > 0) ? "" : */}
         {(count_file_sub_table_withlimit > 0 && results?.count_file_bios == 0) && (
