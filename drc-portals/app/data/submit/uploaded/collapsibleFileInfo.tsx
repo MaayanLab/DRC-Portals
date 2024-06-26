@@ -196,12 +196,10 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
 
     React.useEffect(() => {
         if (fairAssessment){
-            console.log(fairAssessment)
             const rubric = fairAssessment.rubric
             const jsonString = JSON.stringify(rubric)
             if (jsonString) {
                 const rubricObject = JSON.parse(jsonString)
-                console.log(rubricObject)
                 const mockScores = Object.assign({}, Object.values(rubricObject)); 
                 const mockMetrics = Object.assign({}, Object.keys(rubricObject)); 
                 // const mockScores=  {0: 0.62, 1: 0.75, 2: 0.75, 3: 0.75, 4: 0.5, 5: 0.81, 6: 0.5625, 7: 0.8, 8: 0, 9: 0.67}
@@ -221,19 +219,16 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
                 key={userFile.lastmodified.toString()}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-                <TableCell><CollapsibleArrow open={open} setOpen={setOpen} /></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center' id={userFile.link} style={{width: "50px"}}></div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toLocaleString()}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center" style={{
-                    whiteSpace: "normal",
-                    wordBreak: "break-word"
-                }}>{userFile.creator}</TableCell>
-                {userFile.fileAsset ? <TableCell sx={{ fontSize: 14 }} align="center">{userFile.fileAsset.filetype}</TableCell> : <TableCell sx={{ fontSize: 14 }} align="center">{userFile.codeAsset?.type}</TableCell>}
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.short_label ?? userFile.dcc_id}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><DeleteDialogButton userFile={userFile}  userRole={role}/></div></TableCell>
+                <TableCell style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><CollapsibleArrow open={open} setOpen={setOpen} /></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center' id={userFile.link} style={{width: "50px"}}></div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}>{userFile.lastmodified.toLocaleString()}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center" style={{whiteSpace: "normal", wordBreak: "break-word"}}>{userFile.creator}</TableCell>
+                {userFile.fileAsset ? <TableCell sx={{ fontSize: 14 }} align="center" style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}>{userFile.fileAsset.filetype}</TableCell> : <TableCell sx={{ fontSize: 14 }} align="center" style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}>{userFile.codeAsset?.type}</TableCell>}
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box", whiteSpace: "normal", wordBreak: "break-word"}}>{userFile.dcc?.short_label ?? userFile.dcc_id}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="right"  style={{width: 100,maxWidth: 100,overflow: "hidden",borderStyle: "border-box"}}> <div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{currentSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'><DeleteDialogButton userFile={userFile}  userRole={role}/></div></TableCell>
                 
             </TableRow>
             <TableRow>

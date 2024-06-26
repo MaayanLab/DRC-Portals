@@ -217,16 +217,65 @@ def c2m2_fair(directory):
     # directory = tempfile.mkdtemp()
     # with zipfile.ZipFile(file, 'r') as z:
     #     z.extractall(directory)
-    CFDE = create_offline_client(
-        *(
-        deep_find(directory, 'C2M2_datapackage.json')
-        | deep_find(directory, 'datapackage.json')
-        ),
-        cachedir=directory,
-    )
-    result = assess(CFDE, rubric='amanda2022', full=False)
-    rubric = {}
-    for index, row in result.iterrows():
-        rubric[row["name"]] = row["value"]
-    rubric["Accessible via DRS"] = 1
-    return rubric
+    try: 
+        CFDE = create_offline_client(
+            *(
+            deep_find(directory, 'C2M2_datapackage.json')
+            | deep_find(directory, 'datapackage.json')
+            ),
+            cachedir=directory,
+        )
+        result = assess(CFDE, rubric='amanda2022', full=False)
+        rubric = {}
+        for index, row in result.iterrows():
+            rubric[row["name"]] = row["value"]
+        rubric["Accessible via DRS"] = 1
+        return rubric
+    except: 
+        return {'Persistent identifier': 0.0,
+                'files with data type': 0.0,
+                'files with file format': 0.0,
+                'files with assay type': 0.0,
+                'files with anatomy': 0.0,
+                'files with biosample': 0.0,
+                'files with subject': 0.0,
+                'biosamples with species': 0.0,
+                'biosamples with subject': 0.0,
+                'biosamples with file': 0.0,
+                'biosamples with anatomy': 0.0,
+                'subjects with taxonomy': 0.0,
+                'subjects with granularity': 0.0,
+                'subjects with taxonomic role': 0.0,
+                'subjects with biosample': 0.0,
+                'subjects with file': 0.0,
+                'files in collections': 0.0,
+                'subjects in collections': 0.0,
+                'biosamples in collections': 0.0,
+                'projects with anatomy': 0.0,
+                'projects with files': 0.0,
+                'projects with data types': 0.0,
+                'projects with subjects': 0.0,
+                'biosamples with substance': 0.0,
+                'collections with gene': 0.0,
+                'collections with substance': 0.0,
+                'subjects with substance': 0.0,
+                'biosamples with gene': 0.0,
+                'phenotypes with gene': 0,
+                'proteins with gene': 0,
+                'collections with protein': 0.0,
+                'subjects with phenotype': 0.0,
+                'genes with phenotype': 0.0,
+                'diseases with phenotype': 0.0,
+                'collections with phenotype': 0.0,
+                'Accessible via DRS': 1.0}
+    
+
+def check_ontology_in_term(term):
+    my_file = open("./ingest/fair_assessment/ontologies.txt", "r") 
+    data = my_file.read() 
+    all_ontologies = data.split("\n") 
+    my_file.close() 
+    for ontology in all_ontologies:
+        if ontology + ':' in term: 
+            return True
+    return False

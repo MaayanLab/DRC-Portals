@@ -1,5 +1,8 @@
 
-import Tippy, { tippy } from '@tippyjs/react'
+import tippy from 'tippy.js'
+var d3 = require('d3')
+import 'tippy.js/dist/tippy.css'; // optional for styling
+
 
 export function generateInsignia(elId: string, scores: any, metrics: any) {
   var el = document.getElementById(elId)
@@ -7,7 +10,7 @@ export function generateInsignia(elId: string, scores: any, metrics: any) {
     for (var i = 0; i < el.children.length; i++) el.removeChild(el.children[i])
     build_svg(el,
       { scores },
-      { tooltips: function (rubric: any, metric: any, score: any) { return `${(score * 100).toFixed(0)}%<br />${metrics[metric]}` } }
+      { tooltips: function (rubric: any, metric: any, score: any) { return `${(score * 100).toFixed(0)}% ${metrics[metric]}` } }
     )
   }
 }
@@ -37,8 +40,12 @@ function create_sq(svg: any, props: any) {
       .attr('data-tippy-delay', '0')
       .attr('data-tippy-size', 'large')
       .attr('data-tippy-placement', 'right')
+      .attr('data-tippy-theme', 'light')
       .attr('data-container', 'body')
       .attr('title', props.tooltip)
+      .attr('data-tippy-content', props.tooltip)
+      .attr('cursor', 'pointer')
+
   }
 
   if (props.link !== undefined) {
@@ -79,7 +86,7 @@ function build_svg(container: any, scores: any, settings: any) {
   // Color is linarly chosen between Red (0) and Blue (1).
 
   // D3 Dependency
-  var d3 = require('d3')
+
 
   // Default settings
   if (scores === undefined)
@@ -162,7 +169,6 @@ function build_svg(container: any, scores: any, settings: any) {
   }
 
   if (tooltips !== undefined) {
-    // var tippy = require('tippy')
     tippy('.insignia-tooltip')
   }
 }

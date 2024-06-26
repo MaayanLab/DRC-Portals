@@ -402,7 +402,7 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
                     onInput={(e) => setQueryString((e.target as HTMLFormElement).value)}
                 />
             </Search>
-            <Table sx={{ minWidth: 650}} aria-label="uploaded files">
+            <Table sx={{ maxWidth: '100%'}} aria-label="uploaded files">
                 <EnhancedTableHead
                     order={order}
                     orderBy={orderBy}
@@ -415,7 +415,7 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
                     <TableRow>
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={8}
+                            colSpan={10}
                             count={copyUserFiles.length}
                             rowsPerPage={rowsPerPage}
                             page={page}
