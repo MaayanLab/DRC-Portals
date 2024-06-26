@@ -105,7 +105,7 @@ export const createWhereClause = (predicates: string[]) => {
 };
 
 export const createCypher = (state: SearchBarState) => {
-  const { value, settings } = state;
+  const { value } = state;
   let cypherTraversal = "";
   const isSingleNode = value.length === 1 && !isRelationshipOption(value[0]);
   const wherePredicates: string[] = [];
@@ -189,8 +189,8 @@ export const createCypher = (state: SearchBarState) => {
     `MATCH path=${cypherTraversal}`,
     whereClause,
     "WITH path",
-    `SKIP ${settings?.skip || 0}`,
-    `LIMIT ${settings?.limit || 10}`,
+    // `SKIP ${settings?.skip || 0}`,
+    // `LIMIT ${settings?.limit || 10}`,
     "UNWIND nodes(path) AS n"
   );
 
