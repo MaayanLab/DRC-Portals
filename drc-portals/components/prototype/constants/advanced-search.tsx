@@ -68,6 +68,14 @@ export const HELPER_TOOLTIP_SLOT_PROPS = {
   },
 };
 
+export const SCHEMA_SEARCH_TEXT_FIELD_SX_PROPS = {
+  margin: 1,
+  backgroundColor: "#fff",
+  marginLeft: 0,
+  width: "84px",
+  minWidth: "84px",
+};
+
 export const Tab = styled(BaseTab)(({ theme }) => ({
   color: "#fff",
   cursor: "pointer",
