@@ -20,12 +20,6 @@ export interface RelationshipOption extends BaseSearchBarOption {
   direction: Direction;
 }
 
-export interface SearchQuerySettings {
-  limit?: number;
-  skip?: number;
-}
-
 export interface SearchBarState {
   value: SearchBarOption[];
-  settings?: SearchQuerySettings;
 }

@@ -1,18 +1,8 @@
-import SettingsIcon from "@mui/icons-material/Settings";
-import {
-  Autocomplete,
-  CircularProgress,
-  IconButton,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-import { DEFAULT_QUERY_SETTINGS } from "../../constants/query-builder";
-import {
-  SearchBarState,
-  SearchQuerySettings,
-} from "../../interfaces/query-builder";
+import { SearchBarState } from "../../interfaces/query-builder";
 import { SearchBarOption } from "../../types/query-builder";
 import {
   CustomPaper,
@@ -20,8 +10,6 @@ import {
   createSearchPathEl,
   getOptions,
 } from "../../utils/query-builder";
-
-import SearchSettingsDialog from "./SearchBarSettingsDialog";
 
 interface SchemaAutocompleteProps {
   state: SearchBarState | undefined;
@@ -35,10 +23,6 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
   const { state, error, loading, clearError, onSubmit } = cmpProps;
   const [value, setValue] = useState(state?.value || []);
   const [options, setOptions] = useState(getOptions(value));
-  const [settings, setSettings] = useState(
-    state?.settings || DEFAULT_QUERY_SETTINGS
-  );
-  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
 
   useEffect(() => {
     setOptions(getOptions(value.filter(stringFilter) as SearchBarOption[]));
@@ -47,19 +31,12 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
   useEffect(() => {
     if (state !== undefined) {
       setValue(state.value);
-
-      if (state.settings !== undefined) {
-        setSettings(state?.settings);
-      }
     }
   }, [state]);
 
-  const submitSearch = (
-    value: SearchBarOption[],
-    settings: SearchQuerySettings
-  ) => {
+  const submitSearch = (value: SearchBarOption[]) => {
     if (value.length > 0) {
-      onSubmit({ value, settings });
+      onSubmit({ value });
     }
   };
 
@@ -72,7 +49,7 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
 
   const handleInputKeydown = (e: KeyboardEvent) => {
     if (e.code === "Enter") {
-      submitSearch(value, settings);
+      submitSearch(value);
     }
   };
 
@@ -118,7 +95,7 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
     <TextField
       {...params}
       color="secondary"
-      label="Search Graph"
+      label="Path"
       helperText={error}
       error={error !== null}
       InputProps={{
@@ -126,20 +103,6 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
         sx: {
           backgroundColor: "#FFF",
         },
-        startAdornment: (
-          <>
-            {value.length ? (
-              <IconButton
-                aria-label="search settings"
-                onClick={handleClickSettingsDialogBtn}
-                sx={{ marginRight: "8px" }}
-              >
-                <SettingsIcon />
-              </IconButton>
-            ) : null}
-            {params.InputProps.startAdornment}
-          </>
-        ),
         endAdornment: loading ? (
           <CircularProgress color="inherit" size={20} />
         ) : (
@@ -154,57 +117,30 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
     />
   );
 
-  const handleClickSettingsDialogBtn = () => {
-    setSearchDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setSearchDialogOpen(false);
-  };
-
-  const handleDialogSubmit = (
-    value: SearchBarOption[],
-    settings: SearchQuerySettings
-  ) => {
-    setSearchDialogOpen(false);
-    setValue(value);
-    setSettings(settings);
-    submitSearch(value, settings);
-  };
-
   return (
-    <>
-      <Autocomplete
-        multiple
-        freeSolo
-        forcePopupIcon={!loading}
-        disableClearable={loading}
-        disableCloseOnSelect
-        loading={loading}
-        options={options}
-        value={value}
-        isOptionEqualToValue={(option, value) => false} // This combined with `freeSolo` allows an option to be chosen more than once
-        getOptionLabel={getOptionLabel}
-        onChange={handleOnChange}
-        renderOption={handleRenderOption}
-        renderTags={handleRenderTags}
-        renderInput={handleRenderInput}
-        PaperComponent={CustomPaper}
-        PopperComponent={CustomPopper}
-        sx={{
-          borderRadius: "4px",
-          width: "auto",
-          minWidth: "340px",
-          backgroundColor: "transparent",
-        }}
-      />
-      <SearchSettingsDialog
-        value={value}
-        settings={settings}
-        open={searchDialogOpen}
-        onClose={handleDialogClose}
-        onSubmit={handleDialogSubmit}
-      />
-    </>
+    <Autocomplete
+      multiple
+      freeSolo
+      forcePopupIcon={!loading}
+      disableClearable={loading}
+      disableCloseOnSelect
+      loading={loading}
+      options={options}
+      value={value}
+      isOptionEqualToValue={(option, value) => false} // This combined with `freeSolo` allows an option to be chosen more than once
+      getOptionLabel={getOptionLabel}
+      onChange={handleOnChange}
+      renderOption={handleRenderOption}
+      renderTags={handleRenderTags}
+      renderInput={handleRenderInput}
+      PaperComponent={CustomPaper}
+      PopperComponent={CustomPopper}
+      sx={{
+        borderRadius: "4px",
+        width: "auto",
+        minWidth: "340px",
+        backgroundColor: "transparent",
+      }}
+    />
   );
 }
