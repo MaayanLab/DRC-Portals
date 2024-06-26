@@ -2,7 +2,8 @@ import { Box, TextField } from "@mui/material";
 
 import useGraphSearchBehavior from "../../hooks/graph-search";
 import { SCHEMA_SEARCH_TEXT_FIELD_SX_PROPS } from "../../constants/advanced-search";
-import SchemaAutocomplete from "../SchemaSearch/SchemaAutocomplete";
+
+import SchemaAutocomplete from "./SchemaAutocomplete";
 
 export default function SchemaSearchFormRow() {
   const { error, loading, clearSearchError } = useGraphSearchBehavior();
