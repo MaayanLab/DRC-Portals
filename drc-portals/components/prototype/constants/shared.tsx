@@ -10,7 +10,6 @@ import {
 import LaunchIcon from "@mui/icons-material/Launch";
 import { CSSProperties } from "react";
 
-import { EDGE_COLOR } from "./cy";
 import {
   ADMIN_LABELS,
   ANALYSIS_TYPE_LABEL,
@@ -45,6 +44,7 @@ import {
   TERM_LABELS,
 } from "./neo4j";
 
+export const EDGE_COLOR = "#797979";
 export const CFDE_DARK_BLUE = "#336699";
 
 export const GraphElement = styled(Box)(() => ({

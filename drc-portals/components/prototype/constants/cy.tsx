@@ -107,7 +107,6 @@ export const NODE_BORDER_WIDTH = 2;
 
 // Default edge properties
 export const ARROW_SCALE = 0.5;
-export const EDGE_COLOR = "#797979";
 export const EDGE_WIDTH = 1;
 
 // Other Properties

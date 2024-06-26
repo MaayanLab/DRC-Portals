@@ -3,7 +3,7 @@ import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
 import { CSSProperties } from "react";
 import { v4 } from "uuid";
 
-import { EDGE_COLOR } from "../constants/cy";
+import { EDGE_COLOR } from "../constants/shared";
 import { NODE_LABELS, RELATIONSHIP_TYPES } from "../constants/neo4j";
 import {
   AnonymousNodeElement,
