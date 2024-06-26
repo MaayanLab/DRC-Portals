@@ -90,20 +90,20 @@ def ensure_file_factory(url, path):
 
 #%%
 # Fetch data for ingest
-dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/041124/DCC.tsv', 'DCC.tsv')
-dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_dcc_publication.tsv', 'dcc_publications.tsv')
-publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', 'publications.tsv')
-dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
-outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
-dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/DccAssets.tsv', 'DccAssets.tsv')
-file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/FileAssets.tsv', 'FileAssets.tsv')
-code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/041624/CodeAssets.tsv', 'CodeAssets.tsv')
-dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/partnership_files/current_dcc_partnerships.tsv', 'dcc_partnerships.tsv')
-partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/partnership_files/current_partnerships.tsv', 'partnerships.tsv')
-partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_partnership_publication.tsv', 'partnership_publications.tsv')
-tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/tool_files/current_tool.tsv', 'tools.tsv')
-dcc_usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/usecase_files/current_dcc_usecase.tsv', 'dcc_usecase.tsv')
-usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/usecase_files/current_usecase.tsv', 'usecase.tsv')
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv', 'DCC.tsv')
+dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_publications.tsv', 'dcc_publications.tsv')
+publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_publications.tsv', 'publications.tsv')
+dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
+outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_outreach.tsv', 'outreach.tsv')
+dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv', 'DccAssets.tsv')
+file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_file_assets.tsv', 'FileAssets.tsv')
+code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_code_assets.tsv', 'CodeAssets.tsv')
+dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_partnerships.tsv', 'dcc_partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_partnerships.tsv', 'partnerships.tsv')
+partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_partnership_publications.tsv', 'partnership_publications.tsv')
+tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_tools.tsv', 'tools.tsv')
+dcc_usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_usecase.tsv', 'dcc_usecase.tsv')
+usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_usecase.tsv', 'usecase.tsv')
 
 #%%
 def current_dcc_assets():
