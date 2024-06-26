@@ -13,6 +13,7 @@ import {
 import {
   ADMIN_NODE_COLOR,
   BIOSAMPLE_RELATED_NODE_COLOR,
+  CFDE_DARK_BLUE,
   CONTAINER_NODE_COLOR,
   CORE_NODE_COLOR,
   DO_LINK,
@@ -110,7 +111,6 @@ export const EDGE_COLOR = "#797979";
 export const EDGE_WIDTH = 1;
 
 // Other Properties
-export const CFDE_DARK_BLUE = "#336699";
 export const FONT_SIZE = "4px";
 export const MAX_NODE_LINES = 3;
 export const MAX_NODE_LABEL_WIDTH = 24;

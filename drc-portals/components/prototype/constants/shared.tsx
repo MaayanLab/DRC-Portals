@@ -45,6 +45,8 @@ import {
   TERM_LABELS,
 } from "./neo4j";
 
+export const CFDE_DARK_BLUE = "#336699";
+
 export const GraphElement = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",

@@ -24,7 +24,10 @@ import {
   RelationshipElementFactory,
 } from "../types/shared";
 
-const createNodeElement = (label: string, customStyle?: CSSProperties) => {
+export const createNodeElement = (
+  label: string,
+  customStyle?: CSSProperties
+) => {
   const nodeLabelClass = NODE_CLASS_MAP.get(label);
   const labelStyles =
     nodeLabelClass === undefined

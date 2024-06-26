@@ -49,6 +49,25 @@ export const SUBJECT_RACES: ReadonlyMap<string, string> = new Map([
   ["6", "Native Hawaiian or Other Pacific Islander"],
 ]);
 
+export const NODE_HELPER_TEXT =
+  "Nodes represent distinct entities in the C2M2 graph model.";
+
+export const RELATIONSHIP_HELPER_TEXT =
+  "Relationships define a connection between nodes in the C2M2 graph model.";
+
+export const HELPER_TOOLTIP_SLOT_PROPS = {
+  popper: {
+    modifiers: [
+      {
+        name: "offset",
+        options: {
+          offset: [0, -7],
+        },
+      },
+    ],
+  },
+};
+
 export const Tab = styled(BaseTab)(({ theme }) => ({
   color: "#fff",
   cursor: "pointer",
