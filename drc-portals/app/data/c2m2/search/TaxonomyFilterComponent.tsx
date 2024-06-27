@@ -7,30 +7,16 @@ export default async function TaxonomyFilterComponent({ q, filterClause, maxCoun
   try {
     const query = SQL.template`
       WITH taxres_full AS (
-        SELECT DISTINCT c2m2.ffl_biosample_collection.*,
-          ts_rank_cd(searchable, websearch_to_tsquery('english', ${q})) as "rank"
+        SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name 
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${filterClause}
+        ORDER BY taxonomy_name
         LIMIT ${maxCount}
-      ),
-      taxres AS (
-        SELECT 
-          taxres_full.rank AS rank,
-          COALESCE(taxres_full.project_local_id, 'Unspecified') AS project_local_id,
-          COALESCE(taxres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name
-        FROM taxres_full 
-        LEFT JOIN c2m2.project ON (taxres_full.project_id_namespace = c2m2.project.id_namespace AND 
-          taxres_full.project_local_id = c2m2.project.local_id)
-        GROUP BY 
-          taxres_full.rank,
-          taxres_full.project_local_id,
-          taxres_full.ncbi_taxonomy_name
-        ORDER BY rank DESC,  taxonomy_name
       ),
       taxonomy_name_count AS (
         SELECT taxonomy_name, COUNT(*) AS count 
-        FROM taxres
+        FROM taxres_full
         GROUP BY taxonomy_name ORDER BY taxonomy_name
       )
       SELECT
