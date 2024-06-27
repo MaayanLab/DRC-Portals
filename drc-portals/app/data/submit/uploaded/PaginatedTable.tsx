@@ -260,7 +260,7 @@ function filterSearch(item: ({
 
 }
 
-export function PaginatedTable({ userFiles, role, fairAssessments }: {
+export function PaginatedTable({ userFiles, role }: {
     userFiles: ({
         dcc: {
             label: string;
@@ -268,9 +268,9 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
         } | null;
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
+        fairAssessments: FairAssessment[];
         assetType: string | null;
     } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY", 
-    fairAssessments: (FairAssessment | null)[]
 }) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -284,6 +284,7 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
         } | null;
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
+        fairAssessments: FairAssessment[];
         assetType: string | null;
     } & DccAsset)[]>([])
 
@@ -352,7 +353,14 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
             if (userFile.dccapproved) {
                 approvedSymboldcc = <ApprovedSymbol />
             }
-            let fairAssessment = fairAssessments.find((assessment) => assessment?.link === userFile.link)
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments.sort((a, b) => {
+                    if (a.timestamp > b.timestamp) {return 1} 
+                    else if (a.timestamp > b.timestamp) {return -1}
+                    else {return 0} 
+                 })[0]
+            }
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment} />
             )
@@ -365,8 +373,14 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
             if (userFile.drcapproved) {
                 approvedSymbol = <ApprovedSymbol />
             }
-            let fairAssessment = fairAssessments.find((assessment) => assessment?.link === userFile.link)
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>)
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments.sort((a, b) => {
+                    if (a.timestamp > b.timestamp) {return 1} 
+                    else if (a.timestamp > b.timestamp) {return -1}
+                    else {return 0} 
+                 })[0]
+            }            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>)
         })
     } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
@@ -382,7 +396,14 @@ export function PaginatedTable({ userFiles, role, fairAssessments }: {
             if (userFile.current) {
                 currentSymbol =  <ApprovedSymbol />
             }
-            let fairAssessment = fairAssessments.find((assessment) => assessment?.link === userFile.link)
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments.sort((a, b) => {
+                    if (a.timestamp > b.timestamp) {return 1} 
+                    else if (a.timestamp > b.timestamp) {return -1}
+                    else {return 0} 
+                 })[0]
+            }
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>
             )

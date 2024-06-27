@@ -188,7 +188,7 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
         codeAsset: CodeAsset | null;
         assetType: string | null;
     } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element, role: string, 
-    fairAssessment: FairAssessment | null | undefined
+    fairAssessment: FairAssessment | undefined
 }) {
     const [open, setOpen] = React.useState(false);
     const fileInfo = userFile.fileAsset ? { ...userFile.fileAsset } : { ...userFile.codeAsset } as FileAsset | CodeAsset

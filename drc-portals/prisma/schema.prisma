@@ -32,33 +32,34 @@ model DCC {
   usecases         DCCUseCase[]
   nodes            Node[]
   kg_assertions    KGAssertion[]
+  fairAssessments  FairAssessment[]
 
   @@map("dccs")
 }
 
 model Publication {
-  id            String                    @id @default(uuid())
-  title         String
-  year          String?
-  page          String?
-  volume        String?
-  issue         String?
-  journal       String?
-  pmid          String?
-  pmcid         String?
-  doi           String?
-  authors       String
-  tool_id       String?
-  landmark      Boolean                   @default(false)
-  featured      Boolean                   @default(false)
-  carousel      Boolean                   @default(false)
-  carousel_title  String?
-  carousel_link String?
+  id                   String                    @id @default(uuid())
+  title                String
+  year                 String?
+  page                 String?
+  volume               String?
+  issue                String?
+  journal              String?
+  pmid                 String?
+  pmcid                String?
+  doi                  String?
+  authors              String
+  tool_id              String?
+  landmark             Boolean                   @default(false)
+  featured             Boolean                   @default(false)
+  carousel             Boolean                   @default(false)
+  carousel_title       String?
+  carousel_link        String?
   carousel_description String?
-  image         String?
-  dccs          DCCPublication[]
-  partnertships PartnershipPublications[]
-  tool          Tool?                     @relation(fields: [tool_id], references: [id])
+  image                String?
+  dccs                 DCCPublication[]
+  partnertships        PartnershipPublications[]
+  tool                 Tool?                     @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
 }
@@ -152,7 +153,7 @@ model UseCase {
   link              String?
   image             String?
   tutorial          String?
-  featured          Boolean?      @default(false)
+  featured          Boolean?     @default(false)
   featured_image    String?
   creator_dcc_id    String?
   creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
@@ -172,15 +173,15 @@ model DCCUseCase {
 }
 
 model Tool {
-  id           String        @id @default(uuid())
-  label        String
-  short_description  String?
-  description  String?
-  url          String
-  icon         String?
-  image        String?
-  featured     Boolean?     @default(false)
-  publications Publication[]
+  id                String        @id @default(uuid())
+  label             String
+  short_description String?
+  description       String?
+  url               String
+  icon              String?
+  image             String?
+  featured          Boolean?      @default(false)
+  publications      Publication[]
 
   @@map("tools")
 }
@@ -202,6 +203,7 @@ model DccAsset {
   deleted          Boolean             @default(false)
   fileAsset        FileAsset?
   codeAsset        CodeAsset?
+  fairAssessments  FairAssessment[]
 
   @@id([dcc_id, link, lastmodified])
   @@unique([dcc_id, link, lastmodified])
@@ -421,7 +423,7 @@ model User {
   sessions      Session[]
   dcc           String?
   role          Role       @default(USER)
-  dccs          DCC[]      
+  dccs          DCC[]
   dccAsset      DccAsset[]
 }
 
@@ -446,18 +448,21 @@ model VerificationToken {
 
 // A generic key-value store
 model KVStore {
-  key String @id
+  key   String @id
   value Json
+
   @@map("kvstore")
 }
 
 model FairAssessment {
-  id    String  @id @default(uuid())
-  dcc_id  String
-  type    String
-  link        String
-  rubric      Json
-  timestamp   DateTime  @default(now())
+  id        String   @id @default(uuid())
+  dcc_id    String
+  DCC       DCC      @relation(fields: [dcc_id], references: [id], onDelete: Cascade)
+  type      String
+  link      String
+  dccAsset  DccAsset @relation(fields: [link], references: [link], onDelete: Cascade)
+  rubric    Json
+  timestamp DateTime @default(now())
 
   @@unique([link, timestamp])
   @@map("fair_assessments")
