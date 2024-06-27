@@ -3,24 +3,22 @@ import SQL from '@/lib/prisma/raw';
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet";
 import React from 'react';
 
-export default async function TaxonomyFilterComponent({ q, filterClause, maxCount }: { q: string, filterClause: SQL , maxCount: number}) {
+export default async function TaxonomyFilterComponent({ q, filterClause, maxCount }: { q: string, filterClause: SQL, maxCount: number }) {
   try {
     const query = SQL.template`
       WITH taxres_full AS (
-        SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name 
+        SELECT COALESCE(c2m2.ffl_biosample_collection.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name 
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${filterClause}
-        ORDER BY taxonomy_name
-        LIMIT ${maxCount}
+        /*LIMIT ${maxCount}*/
       ),
       taxonomy_name_count AS (
         SELECT taxonomy_name, COUNT(*) AS count 
         FROM taxres_full
-        GROUP BY taxonomy_name ORDER BY taxonomy_name
+        GROUP BY taxonomy_name
       )
-      SELECT
-        COALESCE(jsonb_agg(taxonomy_name_count.*), '[]'::jsonb) AS taxonomy_filters
+      SELECT COALESCE(jsonb_agg(taxonomy_name_count ORDER BY taxonomy_name_count.taxonomy_name), '[]'::jsonb) AS taxonomy_filters
       FROM taxonomy_name_count;
     `.toPrismaSql();
 
@@ -28,27 +26,26 @@ export default async function TaxonomyFilterComponent({ q, filterClause, maxCoun
     const result = await prisma.$queryRaw<{ taxonomy_filters: { taxonomy_name: string, count: number }[] }[]>(query);
     const t1: number = performance.now();
     console.log("Elapsed time for TaxonomyFilterComponent queries: ", t1 - t0, " milliseconds");
-    
+
     if (result.length === 0 || !result[0].taxonomy_filters) {
-      return; // do not do anything
+      return null; // return null if no results found
     }
+
     const TaxonomyFilters: FilterObject[] = result[0].taxonomy_filters.map((taxonomyFilter) => ({
-        id: taxonomyFilter.taxonomy_name, // Use taxonomy_name as id
-        name: taxonomyFilter.taxonomy_name,
-        count: taxonomyFilter.count,
+      id: taxonomyFilter.taxonomy_name, // Use taxonomy_name as id
+      name: taxonomyFilter.taxonomy_name,
+      count: taxonomyFilter.count,
     }));
-    
-    
+
     return ( 
-                                                       
-    <FilterSet
+      <FilterSet
         key={`ID:$taxonomy`}
         id={`taxonomy`}
         filterList={TaxonomyFilters}
         filter_title="Species"
         example_query="e.g. Mus musculus"
         maxCount={maxCount}
-    />
+      />
     );
   } catch (error) {
     console.error("Error fetching Taxonomy filters:", error);

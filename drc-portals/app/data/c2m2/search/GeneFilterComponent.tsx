@@ -7,34 +7,18 @@ export default async function GeneFilterComponent({ q, filterClause, maxCount }:
   try {
     const query = SQL.template`
       WITH generes_full AS (
-        SELECT DISTINCT c2m2.ffl_biosample_collection.*,
-          ts_rank_cd(searchable, websearch_to_tsquery('english', ${q})) as "rank"
+        SELECT COALESCE(c2m2.ffl_biosample_collection.gene_name, 'Unspecified') AS gene_name
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${filterClause}
-        LIMIT ${maxCount}
-      ),
-      generes AS (
-        SELECT 
-          generes_full.rank AS rank,
-          COALESCE(generes_full.project_local_id, 'Unspecified') AS project_local_id,
-          COALESCE(generes_full.gene_name, 'Unspecified') AS gene_name
-        FROM generes_full 
-        LEFT JOIN c2m2.project ON (generes_full.project_id_namespace = c2m2.project.id_namespace AND 
-          generes_full.project_local_id = c2m2.project.local_id)
-        GROUP BY 
-          generes_full.rank,
-          generes_full.project_local_id,
-          generes_full.gene_name
-        ORDER BY rank DESC,  gene_name
+        /*LIMIT ${maxCount}*/
       ),
       gene_name_count AS (
         SELECT gene_name, COUNT(*) AS count 
-        FROM generes
-        GROUP BY gene_name ORDER BY gene_name
+        FROM generes_full
+        GROUP BY gene_name
       )
-      SELECT
-        COALESCE(jsonb_agg(gene_name_count.*), '[]'::jsonb) AS gene_filters
+      SELECT COALESCE(jsonb_agg(gene_name_count ORDER BY gene_name_count.gene_name), '[]'::jsonb) AS gene_filters
       FROM gene_name_count;
     `.toPrismaSql();
 
@@ -42,28 +26,26 @@ export default async function GeneFilterComponent({ q, filterClause, maxCount }:
     const result = await prisma.$queryRaw<{ gene_filters: { gene_name: string, count: number }[] }[]>(query);
     const t1: number = performance.now();
     console.log("Elapsed time for GeneFilterComponent queries: ", t1 - t0, " milliseconds");
-    
 
     if (result.length === 0 || !result[0].gene_filters) {
-      return; // do not do anything
+      return null; // return null if no results found
     }
+
     const GeneFilters: FilterObject[] = result[0].gene_filters.map((geneFilter) => ({
-        id: geneFilter.gene_name, // Use gene_name as id
-        name: geneFilter.gene_name,
-        count: geneFilter.count,
+      id: geneFilter.gene_name, // Use gene_name as id
+      name: geneFilter.gene_name,
+      count: geneFilter.count,
     }));
-    
 
     return ( 
-                                                       
-    <FilterSet
+      <FilterSet
         key={`ID:$gene`}
         id={`gene`}
         filterList={GeneFilters}
         filter_title="Gene"
         example_query="e.g. RPE"
         maxCount={maxCount}
-    />
+      />
     );
   } catch (error) {
     console.error("Error fetching Gene filters:", error);
