@@ -40,6 +40,7 @@
     "bootstrap": "^5.3.2",
     "citation-js": "^0.7.12",
     "classnames": "^2.3.2",
+    "fairshakeinsignia": "^1.0.3",
     "fs": "^0.0.1-security",
     "html-entities": "^2.5.2",
     "js-cookie": "^3.0.5",
@@ -68,6 +69,7 @@
     "remark-gfm": "^4.0.0",
     "string-similarity-js": "^2.1.4",
     "swr": "^2.2.4",
+    "tippy.js": "^6.3.7",
     "use-debounce": "^10.0.0",
     "zod": "^3.22.4"
   },

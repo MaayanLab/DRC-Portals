@@ -1,12 +1,10 @@
+from statistics import mean
 import pandas as pd
 import requests
 from tqdm import tqdm
 from datetime import datetime
-import urllib.request
 import re
 from urllib.parse import urlsplit
-import zipfile
-import tempfile
 from deriva_datapackage import create_offline_client
 from c2m2_assessment.__main__ import assess
 import os
@@ -15,7 +13,7 @@ import math
 import h5py
 from bs4 import BeautifulSoup
 import json
-
+from urllib.parse import urlsplit
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -221,6 +219,45 @@ def apps_urls_fair(apps_url):
     return rubric
 
 
+def chatbot_specs_fair(chatbot_specs_url): 
+    fairshake_persistent_url = 0 
+    fairshake_aiplugin_compatible = [0] * 6
+    fairshake_valid_openapi_link = 0
+    fairshake_contact = 0
+    fairshake_ogp = [0] * 4
+    response = requests.get(chatbot_specs_url)
+    if response.ok:
+        chatbot_specs = response.json()
+        # check if ai-plugin compatible
+        required_plugin_fields = ['schema_version', 'name_for_human', 'name_for_model', 'description_for_model', 'description_for_human', 'api']
+        for index, field in enumerate(required_plugin_fields): 
+            if field in chatbot_specs: 
+                fairshake_aiplugin_compatible[index] = 1
+        if 'api' in chatbot_specs and chatbot_specs['api']['type'] == 'openapi':
+            openapi_json_response = requests.get(chatbot_specs['api']['url'])
+            fairshake_valid_openapi_link = 1 if openapi_json_response.ok else 0
+        fairshake_contact = 1 if 'contact_email' in chatbot_specs else 0
+    split_url = urlsplit(chatbot_specs_url)
+    webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
+    if webpage_response.ok:
+        html = webpage_response.text
+        soup = BeautifulSoup(html)
+        ogp_title = soup.find('meta', property="og:title")
+        ogp_type = soup.find('meta', property="og:type")
+        ogp_image = soup.find('meta', property="og:image")
+        ogp_url = soup.find('meta', property="og:url")
+        ogp_req_metadata = [ogp_title, ogp_type, ogp_image, ogp_url ]
+        for index, ogp_req in enumerate(ogp_req_metadata): 
+            if ogp_req:
+                fairshake_ogp[index] = 1
+    rubric = {"Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
+              "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_valid_openapi_link, 
+              "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
+            "Chatbot specs contain contact information": fairshake_contact,
+            "Persistent URL": fairshake_persistent_url}
+    return rubric
+
+
 def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
     with open(code_assets_path, 'r') as fr1:
         code_assets_data=pd.read_csv(fr1,sep='\t', header=0)
@@ -243,6 +280,9 @@ def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
         if row['type'] == 'Apps URL':
             rubric = apps_urls_fair(row['link'])
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'Chatbot Specifications':
+            rubric = chatbot_specs_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
     fr1.close()
     fr2.close()
