@@ -48,7 +48,7 @@ const Summary = ({section}: {section: AgendaType}) => (
 		))}
 		</div>
 		{section.summary &&
-		<Accordion elevation={0} sx={{background: 'inherit'}}>
+		<Accordion elevation={0} sx={{background: 'inherit', borderTop: 'none'}}>
 			<AccordionSummary
 					expandIcon={<ExpandMoreIcon />}
 					aria-controls={`${section.label}-content`}
@@ -127,21 +127,7 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 							<Grid container>
 								<Grid item xs={12} sm={7}>
 									<Stack>
-										<Typography variant="body1">
-										<b>{section.label}</b>
-										</Typography>
-										<div className="flex flex-col space-y-2">
-										{(section || []).presenters.map(({presenter, affiliation})=>(
-											<div className="flex flex-col">
-												<Typography variant="body1">
-													{presenter}
-												</Typography>
-												<Typography variant="body1">
-													<i>{affiliation}</i>
-												</Typography>
-											</div>
-										))}
-										</div>
+										<Summary section={section}/>
 										{section.video_link && <Link href={section.video_link} target="_blank" rel="noopener noreferrer">
 											<Button  color="secondary" endIcon={<Icon path={mdiYoutube} size={1} />} sx={{marginLeft: -2}}>
 												WATCH VIDEO ON YOUTUBE
