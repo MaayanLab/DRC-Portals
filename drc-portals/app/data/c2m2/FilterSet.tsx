@@ -194,7 +194,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
           .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
         }
         groupBy={(option) => getFirstLetter(option)}
-        getOptionLabel={(option) => `${option.name} (${option.count >= maxCount ? `${maxCount}+` : option.count})`}
+        getOptionLabel={(option) => `${option.name} `} //(${option.count >= maxCount ? `${maxCount}+` : option.count}) put this back for count
         value={selectedFiltersForAutocomplete}
         onChange={(event, newValue) => {
           setSelectedFilters(newValue as FilterObject[]);
