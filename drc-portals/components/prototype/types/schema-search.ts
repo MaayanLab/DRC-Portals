@@ -1,4 +1,4 @@
-import { NodeOption, RelationshipOption } from "../interfaces/query-builder";
+import { NodeOption, RelationshipOption } from "../interfaces/schema-search";
 
 export type PropertyValue = string | number;
 

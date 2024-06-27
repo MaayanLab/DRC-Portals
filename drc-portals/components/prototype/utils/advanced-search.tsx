@@ -70,3 +70,44 @@ export const getTextSearchValues = (
     dccNames,
   };
 };
+
+export const getSearchBarValue = (searchParams: URLSearchParams) => {
+  const query = searchParams.get("q");
+  const anyQuery = searchParams.get("as_q");
+  const phraseQuery = searchParams.get("as_epq");
+  const allQuery = searchParams.get("as_aq");
+  const noneQuery = searchParams.get("as_eq");
+  let newValue = [];
+
+  if (query !== null && query.length > 0) {
+    newValue.push(query);
+  }
+
+  if (anyQuery !== null && anyQuery.length > 0) {
+    newValue.push(anyQuery);
+  }
+
+  if (phraseQuery !== null && phraseQuery.length > 0) {
+    newValue.push(`"${phraseQuery}"`);
+  }
+
+  if (allQuery !== null && allQuery.length > 0) {
+    newValue.push(
+      allQuery
+        .split(" ")
+        .map((s) => `+${s}`)
+        .join(" ")
+    );
+  }
+
+  if (noneQuery !== null && noneQuery.length > 0) {
+    newValue.push(
+      noneQuery
+        .split(" ")
+        .map((s) => `-${s}`)
+        .join(" ")
+    );
+  }
+
+  return newValue.join(" ");
+};

@@ -9,16 +9,16 @@ import {
   DEFAULT_STYLESHEET,
 } from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
-import { getTextSearchValues } from "../utils/advanced-search";
+import useGraphSearchBehavior from "../hooks/graph-search";
 import {
-  createSynonymSearchCypher,
   getSearchBarValue,
-} from "../utils/search-bar";
+  getTextSearchValues,
+} from "../utils/advanced-search";
+import { createSynonymSearchCypher } from "../utils/neo4j";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
 import SearchBar from "./SearchBar/SearchBar";
-import useGraphSearchBehavior from "../hooks/graph-search";
 
 export default function GraphSearch() {
   const {

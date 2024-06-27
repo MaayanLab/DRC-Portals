@@ -1,6 +1,6 @@
 import { CSSProperties, ReactElement } from "react";
 
-import { Direction } from "../enums/query-builder";
+import { Direction } from "../enums/schema-search";
 
 export type NodeElementFactory = (
   name: string,

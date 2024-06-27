@@ -2,14 +2,14 @@ import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-import { SearchBarState } from "../../interfaces/query-builder";
-import { SearchBarOption } from "../../types/query-builder";
+import { SearchBarState } from "../../interfaces/schema-search";
+import { SearchBarOption } from "../../types/schema-search";
 import {
   CustomPaper,
   CustomPopper,
   createSearchPathEl,
   getOptions,
-} from "../../utils/query-builder";
+} from "../../utils/schema-search";
 
 interface SchemaAutocompleteProps {
   state: SearchBarState | undefined;

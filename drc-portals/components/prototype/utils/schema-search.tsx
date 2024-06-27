@@ -13,16 +13,16 @@ import {
 import {
   OPERATOR_FUNCTIONS,
   PROPERTY_OPERATORS,
-} from "../constants/query-builder";
-import { Direction } from "../enums/query-builder";
+} from "../constants/schema-search";
+import { Direction } from "../enums/schema-search";
 import {
   BasePropertyFilter,
   NodeOption,
   RelationshipOption,
   SearchBarState,
-} from "../interfaces/query-builder";
-import { SearchBarStateSchema } from "../schemas/query-builder";
-import { PredicateFn, SearchBarOption } from "../types/query-builder";
+} from "../interfaces/schema-search";
+import { SearchBarStateSchema } from "../schemas/schema-search";
+import { PredicateFn, SearchBarOption } from "../types/schema-search";
 import {
   NodeElementFactory,
   RelationshipElementFactory,

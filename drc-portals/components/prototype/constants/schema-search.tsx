@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 
-import { SearchQuerySettings } from "../interfaces/query-builder";
-import { PredicateFn } from "../types/query-builder";
+import { SearchQuerySettings } from "../interfaces/schema-search";
+import { PredicateFn } from "../types/schema-search";
 
 import { STRING_PROPERTIES } from "./neo4j";
 

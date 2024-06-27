@@ -15,9 +15,9 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import SearchIcon from "@mui/icons-material/Search";
 import { ChangeEvent, useEffect, useState } from "react";
 
-import { DEFAULT_QUERY_SETTINGS } from "../../constants/query-builder";
-import { SearchQuerySettings } from "../../interfaces/query-builder";
-import { SearchBarOption } from "../../types/query-builder";
+import { DEFAULT_QUERY_SETTINGS } from "../../constants/schema-search";
+import { SearchQuerySettings } from "../../interfaces/schema-search";
+import { SearchBarOption } from "../../types/schema-search";
 
 import SettingsCard from "./SettingsCard";
 
