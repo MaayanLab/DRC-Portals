@@ -3,3 +3,6 @@ psycopg2
 python-dotenv
 requests
 tqdm
+h5py
+numpy
+requests

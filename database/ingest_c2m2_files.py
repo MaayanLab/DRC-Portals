@@ -1,5 +1,6 @@
 #%%
 from datetime import datetime
+import json
 import re
 import csv
 import zipfile
@@ -32,9 +33,8 @@ with c2m2_file_helper.writer() as c2m2_file:
           c2m2_path.parent.mkdir(parents=True, exist_ok=True)
           if not c2m2_path.exists():
             import urllib.request
-            urllib.request.urlretrieve(c2m2['link'], c2m2_path)
+            urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path)
           c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
-          print(c2m2_extract_path)
           if not c2m2_extract_path.exists():
             with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
               c2m2_zip.extractall(c2m2_extract_path)
@@ -58,7 +58,7 @@ with c2m2_file_helper.writer() as c2m2_file:
                 dcc_id=c2m2['dcc_id'],
                 type='C2M2',
                 link=c2m2['link'],
-                rubric=fair_assessment_results,
+                rubric=json.dumps(fair_assessment_results),
                 timestamp=datetime.now()
               ))
           # ingest files for this datapackage

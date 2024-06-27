@@ -11,6 +11,9 @@ from deriva_datapackage import create_offline_client
 from c2m2_assessment.__main__ import assess
 import os
 import glob
+import math
+import h5py
+
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -165,23 +168,32 @@ def api_fair(row):
         fairshake_openapi = 1
     if row['smartAPISpec'] == True: 
         fairshake_smartapi = 1
-    try:
-        api_response = requests.get(row['link'])
-        if api_response.ok():
-            api_info = api_response.json()
-            #this is unfinished
-    except: 
-        return {"Documented with OpenAPI": fairshake_openapi,
+        smartapi_link = row['link'].replace('/ui/', '/api/metadata/') if 'smart-api.info' in row['link'] else row['smartAPIURL'].replace('/ui/', '/api/metadata/')
+        try:
+            api_response = requests.get(smartapi_link).json()
+            metadata = api_response['info']
+            if 'contact' in metadata and 'email' in metadata['contact']:
+                fairshake_contact = 1 if metadata['contact']['email'] != '' else 0
+            if 'license' in metadata and 'name' in metadata['license']:
+                fairshake_license = 1 if metadata['license']['name'] != '' else 0
+                return {"Documented with OpenAPI": fairshake_openapi,
                 "Usage License specified": fairshake_license,  
                 "Contact information available": fairshake_contact,
                 "Published in Smart API": fairshake_smartapi,
                 "Persistent URL": fairshake_persistent_url}
+        except: 
+            return {"Documented with OpenAPI": fairshake_openapi,
+                    "Usage License specified": fairshake_license,  
+                    "Contact information available": fairshake_contact,
+                    "Published in Smart API": fairshake_smartapi,
+                    "Persistent URL": fairshake_persistent_url}
     rubric = {"Documented with OpenAPI": fairshake_openapi,
                 "Usage License specified": fairshake_license,  
                 "Contact information available": fairshake_contact,
                 "Published in Smart API": fairshake_smartapi,
                 "Persistent URL": fairshake_persistent_url}
     return rubric
+
 
 def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
     with open(code_assets_path, 'r') as fr1:
@@ -200,9 +212,9 @@ def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
         if row ['type'] == 'PWB Metanodes':
             rubric = PWB_metanode_fair(row['name'], row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        # if row['type'] == 'API':
-        #     rubric = api_fair(row)
-        #     fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'API':
+            rubric = api_fair(row)
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
     fr1.close()
     fr2.close()
     fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
@@ -228,7 +240,10 @@ def c2m2_fair(directory):
         result = assess(CFDE, rubric='amanda2022', full=False)
         rubric = {}
         for index, row in result.iterrows():
-            rubric[row["name"]] = row["value"]
+            if math.isnan(row['value']):
+                rubric[row["name"]] = None
+            else:
+                rubric[row["name"]] = row["value"]
         rubric["Accessible via DRS"] = 1
         return rubric
     except: 
@@ -271,11 +286,40 @@ def c2m2_fair(directory):
     
 
 def check_ontology_in_term(term):
-    my_file = open("./ingest/fair_assessment/ontologies.txt", "r") 
+    my_file = open("./ontology/ontologies.txt", "r") 
     data = my_file.read() 
-    all_ontologies = data.split("\n") 
+    all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
     for ontology in all_ontologies:
-        if ontology + ':' in term: 
+        if str(ontology.lower() + ':') in term.lower(): 
             return True
     return False
+
+def check_standard_ontology(ontology):
+    my_file = open("./ontology/ontologies.txt", "r") 
+    data = my_file.read() 
+    all_ontologies = data.split("\n")[:-1] 
+    my_file.close() 
+    if ontology in all_ontologies: 
+        return True
+    return False
+
+def check_ontology_in_columns(columns):
+    for col in columns:
+        if check_standard_ontology(col):
+            return True
+    else: 
+        return False 
+
+def traverse_datasets(hdf_file):
+    def h5py_dataset_iterator(g, prefix=''):
+        for key in g.keys():
+            item = g[key]
+            path = f'{prefix}/{key}'
+            if isinstance(item, h5py.Dataset): # test for dataset
+                yield (path, item)
+            elif isinstance(item, h5py.Group): # test for group (go down)
+                yield from h5py_dataset_iterator(item, path)
+
+    for path, _ in h5py_dataset_iterator(hdf_file):
+        yield path
