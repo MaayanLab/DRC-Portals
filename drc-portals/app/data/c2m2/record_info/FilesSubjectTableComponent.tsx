@@ -79,7 +79,7 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function FilesSubjectTableComponent({ searchParams, filterClause, fileSubTblOffset, limit, file_count_limit_sub }: { searchParams: any, filterClause: SQL, fileSubTblOffset: number, limit: number, file_count_limit_sub: number }): Promise<JSX.Element> {
-    console.log("In FilesProjTableComponent");
+    console.log("In FilesSubTableComponent");
     console.log("q = " + searchParams.q);
 
     try {
@@ -176,7 +176,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         console.log("Elapsed time for FilesSubjectTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
-            return <div>Error: No files in subject table results found</div>;
+            return <></>;
         }
 
         // Assuming you want to process the first result in the array
@@ -213,11 +213,13 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         const newFileSubColumns = priorityFileCols.concat(dynamicFileSubColumns.filter(item => !priorityFileCols.includes(item)));
         const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, priorityFileCols);
 
+        
+        const fileSub_table_label_base = "Files that describe subject";
+        const count_file_sub_table_withlimit = filesSubTableFull.length ?? 0;
+
         const downloadFilename = generateHashedJSONFilename("FilesSubjectTable_", searchParams);
         const categories: Category[] = [];
 
-        const fileSub_table_label_base = "Files that describe subject";
-        const count_file_sub_table_withlimit = filesSubTableFull.length ?? 0;
 
         addCategoryColumns(reorderedFileSubStaticCols, getNameFromFileProjTable, fileSub_table_label_base, categories);
 

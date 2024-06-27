@@ -11,6 +11,8 @@ import SubjectsTableComponent from "./SubjectstableComponent";
 import CollectionsTableComponent from "./CollectionsTableComponent";
 import FilesProjTableComponent from "./FileProjTableComponent";
 import FilesSubjectTableComponent from "./FilesSubjectTableComponent";
+import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
+import FilesCollectionTableComponent from "./FilesCollectionComponent";
 import React from "react";
 
 const file_count_limit = 200000;
@@ -116,304 +118,68 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         count: number, // this is based on across all-columns of ffl_biosample 
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
-      count_file_bios: number,
-      file_bios_table: {
-        file_id_namespace: string,
-        file_local_id: string,
-        biosample_id_namespace: string,
-        biosample_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        persistent_id: string,
-        access_url: string,
-        creation_time: string,
-        size_in_bytes: bigint,
-        uncompressed_size_in_bytes: bigint,
-        sha256: string,
-        md5: string,
-        filename: string,
-        file_format: string,
-        compression_format: string,
-        data_type: string,
-        assay_type: string,
-        analysis_type: string,
-        mime_type: string,
-        bundle_collection_id_namespace: string,
-        bundle_collection_local_id: string,
-        dbgap_study_id: string,
-        data_type_name: string,
-        assay_type_name: string,
-        analysis_type_name: string
-      }[],
-      count_file_col: number,
-      file_col_table: {
-        file_id_namespace: string,
-        file_local_id: string,
-        collection_id_namespace: string,
-        collection_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        persistent_id: string,
-        access_url: string,
-        creation_time: string,
-        size_in_bytes: bigint,
-        uncompressed_size_in_bytes: bigint,
-        sha256: string,
-        md5: string,
-        filename: string,
-        file_format: string,
-        compression_format: string,
-        data_type: string,
-        assay_type: string,
-        analysis_type: string,
-        mime_type: string,
-        bundle_collection_id_namespace: string,
-        bundle_collection_local_id: string,
-        dbgap_study_id: string,
-        data_type_name: string,
-        assay_type_name: string,
-        analysis_type_name: string
-      }[],
-      // based on full table
-      file_bios_table_full: {
-        file_id_namespace: string,
-        file_local_id: string,
-        biosample_id_namespace: string,
-        biosample_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        persistent_id: string,
-        access_url: string,
-        creation_time: string,
-        size_in_bytes: bigint,
-        uncompressed_size_in_bytes: bigint,
-        sha256: string,
-        md5: string,
-        filename: string,
-        file_format: string,
-        compression_format: string,
-        data_type: string,
-        assay_type: string,
-        analysis_type: string,
-        mime_type: string,
-        bundle_collection_id_namespace: string,
-        bundle_collection_local_id: string,
-        dbgap_study_id: string,
-        data_type_name: string,
-        assay_type_name: string,
-        analysis_type_name: string
-      }[],
-      file_col_table_full: {
-        file_id_namespace: string,
-        file_local_id: string,
-        collection_id_namespace: string,
-        collection_local_id: string,
-        project_id_namespace: string,
-        project_local_id: string,
-        persistent_id: string,
-        access_url: string,
-        creation_time: string,
-        size_in_bytes: bigint,
-        uncompressed_size_in_bytes: bigint,
-        sha256: string,
-        md5: string,
-        filename: string,
-        file_format: string,
-        compression_format: string,
-        data_type: string,
-        assay_type: string,
-        analysis_type: string,
-        mime_type: string,
-        bundle_collection_id_namespace: string,
-        bundle_collection_local_id: string,
-        dbgap_study_id: string,
-        data_type_name: string,
-        assay_type_name: string,
-        analysis_type_name: string
-      }[],
-
     }>>(SQL.template`
-  WITH allres_full AS (
-    SELECT DISTINCT c2m2.ffl_biosample_collection.*,
-        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
-      FROM c2m2.ffl_biosample_collection
-      WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${filterClause}
-      ORDER BY rank DESC
-  ),
-  allres AS (
-    SELECT DISTINCT
-      allres_full.dcc_name AS dcc_name,
-      allres_full.dcc_abbreviation AS dcc_abbreviation,
-      SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-      COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-      SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-      COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-      REPLACE(allres_full.disease, ':', '_') AS disease,
-      COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-      REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-      COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-      allres_full.gene AS gene,
-      COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
-      allres_full.protein AS protein,
-      COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
-      allres_full.substance_compound AS compound,
-      COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
-      REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-      /* allres_full.project_name AS project_name, */
-      COALESCE(allres_full.project_name, 
-        concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-      c2m2.project.persistent_id AS project_persistent_id,
-      allres_full.project_local_id AS project_local_id,
-      c2m2.project.description AS project_description,
-      c2m2.anatomy.description AS anatomy_description,
-      c2m2.disease.description AS disease_description,
-      c2m2.gene.description AS gene_description,
-      c2m2.protein.description AS protein_description,
-      c2m2.compound.description AS compound_description,
-      c2m2.ncbi_taxonomy.description AS taxonomy_description,
-      COUNT(*)::INT AS count
-    FROM allres_full 
-    LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
-      allres_full.project_local_id = c2m2.project.local_id) 
-    LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
-    LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
-    LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
-    LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
-    LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
-    LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
-    GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-      anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-      data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-      allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
-      protein_description, compound_description, taxonomy_description
-    /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
-    ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-      protein_name, compound_name, data_type_name /*rank DESC*/
-  ), 
-unique_info AS ( /* has extra fields, but OK in case needed later*/
-    SELECT DISTINCT 
-        allres_full.dcc_name,
-        allres_full.dcc_abbreviation,
-        allres_full.project_local_id, 
-        allres_full.project_id_namespace,
-        allres_full.ncbi_taxonomy_name as taxonomy_name,
-        allres_full.subject_role_taxonomy_taxonomy_id as taxonomy_id,
-        allres_full.disease_name,
-        allres_full.disease,
-        allres_full.anatomy_name,
-        allres_full.anatomy,
-        allres_full.gene, 
-        allres_full.gene_name,
-        allres_full.protein, 
-        allres_full.protein_name,
-        allres_full.substance_compound as compound, 
-        allres_full.compound_name,
-        allres_full.data_type_id AS data_type, 
-        allres_full.data_type_name
-    FROM allres_full
-),
-bios_info AS (
-  SELECT DISTINCT 
-    allres_full.biosample_id_namespace,
-    allres_full.biosample_local_id
-  FROM allres_full
-), /* 2024/03/07 */
-col_info AS (
-  SELECT DISTINCT 
-    allres_full.collection_id_namespace,
-    allres_full.collection_local_id
-  FROM allres_full
-), 
-file_table_keycol AS (
-  SELECT DISTINCT 
-      f.id_namespace,
-      f.local_id,
-      f.project_id_namespace,
-      f.project_local_id
-  FROM c2m2.file AS f
-  INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
-                          AND f.project_id_namespace = ui.project_id_namespace
-                          AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) /* 2024/03/07 match data type */
-  ),
-  file_bios_table_keycol AS (
-    SELECT DISTINCT fdb.*,
-    f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
-    f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-    f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
-    dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
-  FROM c2m2.file_describes_biosample fdb
-    INNER JOIN file_table_keycol ftk ON 
-    (ftk.local_id = fdb.file_local_id AND ftk.id_namespace = fdb.file_id_namespace)
-    INNER JOIN bios_info ON 
-    (bios_info.biosample_local_id = fdb.biosample_local_id AND bios_info.biosample_id_namespace = fdb.biosample_id_namespace) /* 2024/03/07 match biosample */
-    INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
-    INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
-      AND f.project_id_namespace = ui.project_id_namespace
-      AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
-    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-    ), /* Mano */
-  file_bios_table AS (
-    SELECT * from file_bios_table_keycol
-    limit ${file_count_limit_bios}    
-  ),
-  file_bios_table_limited as (
-    SELECT * 
-    FROM file_bios_table
-    OFFSET ${fileBiosTblOffset}
-    LIMIT ${limit}
-  ), /* Mano */
-  count_file_bios AS (
-    select count(*)::int as count
-      from file_bios_table_keycol
-  ), /* Mano */
-
-  file_col_table_keycol AS (
-    SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
-    f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
-    f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-    f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
-    dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
-  FROM c2m2.file_describes_in_collection fdc
-    INNER JOIN file_table_keycol ftk ON 
-    (ftk.local_id = fdc.file_local_id AND ftk.id_namespace = fdc.file_id_namespace)
-    INNER JOIN col_info ON 
-    (col_info.collection_local_id = fdc.collection_local_id AND col_info.collection_id_namespace = fdc.collection_id_namespace) /* 2024/03/07 match collection */
-    INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
-    INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
-      AND f.project_id_namespace = ui.project_id_namespace
-      AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
-    LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-    LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-    LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-    ), /* Mano */
-  file_col_table AS (
-    SELECT * from file_col_table_keycol
-    limit ${file_count_limit_col}    
-  ),
-  file_col_table_limited as (
-    SELECT * 
-    FROM file_col_table
-    OFFSET ${fileColTblOffset}
-    LIMIT ${limit}
-  ), /* Mano */
-  count_file_col AS (
-    select count(*)::int as count
-      from file_col_table_keycol
-  ) /* Mano */
-
-  SELECT
-  (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres), 
-  (SELECT count FROM count_file_bios) as count_file_bios,
-  (SELECT COALESCE(jsonb_agg(file_bios_table_limited.*), '[]'::jsonb) FROM file_bios_table_limited) AS file_bios_table,
-  (SELECT count FROM count_file_col) as count_file_col,
-  (SELECT COALESCE(jsonb_agg(file_col_table_limited.*), '[]'::jsonb) FROM file_col_table_limited) AS file_col_table,
-  /* full tables  etc*/
-  (SELECT COALESCE(jsonb_agg(file_bios_table.*), '[]'::jsonb) FROM file_bios_table) AS file_bios_table_full,
-  (SELECT COALESCE(jsonb_agg(file_col_table.*), '[]'::jsonb) FROM file_col_table) AS file_col_table_full
-  ;
-`.toPrismaSql()) : [undefined];
+          WITH allres_full AS (
+            SELECT DISTINCT c2m2.ffl_biosample_collection.*,
+                ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
+              FROM c2m2.ffl_biosample_collection
+              WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${filterClause}
+              ORDER BY rank DESC
+          ),
+          allres AS (
+            SELECT DISTINCT
+              allres_full.dcc_name AS dcc_name,
+              allres_full.dcc_abbreviation AS dcc_abbreviation,
+              SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+              COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+              SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+              COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+              REPLACE(allres_full.disease, ':', '_') AS disease,
+              COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+              REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+              COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+              allres_full.gene AS gene,
+              COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+              allres_full.protein AS protein,
+              COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+              allres_full.substance_compound AS compound,
+              COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+              REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+              /* allres_full.project_name AS project_name, */
+              COALESCE(allres_full.project_name, 
+                concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+              c2m2.project.persistent_id AS project_persistent_id,
+              allres_full.project_local_id AS project_local_id,
+              c2m2.project.description AS project_description,
+              c2m2.anatomy.description AS anatomy_description,
+              c2m2.disease.description AS disease_description,
+              c2m2.gene.description AS gene_description,
+              c2m2.protein.description AS protein_description,
+              c2m2.compound.description AS compound_description,
+              c2m2.ncbi_taxonomy.description AS taxonomy_description,
+              COUNT(*)::INT AS count
+            FROM allres_full 
+            LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+              allres_full.project_local_id = c2m2.project.local_id) 
+            LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
+            LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
+            LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
+            LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
+            LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
+            LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
+            GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
+              anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
+              data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+              allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
+              protein_description, compound_description, taxonomy_description
+            /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
+            ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+              protein_name, compound_name, data_type_name /*rank DESC*/
+          ) 
+          SELECT
+            (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
+          ;
+      `.toPrismaSql()) : [undefined];
 
     const t1: number = performance.now();
 
@@ -427,41 +193,6 @@ file_table_keycol AS (
     const recordInfoHashFileName = generateMD5Hash(concatenatedString);
     const qString_clean = sanitizeFilename(qString, '__');
 
-    // First remove the empty columns and sort columns such that most varying appears first
-
-    const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
-
-    
-    const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
-    const { prunedData: fileBiosPrunedData, columnNames: fileBiosColNames, dynamicColumns: dynamicFileBiosColumns,
-      staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(results?.file_bios_table ?? [],
-        results?.file_bios_table_full ?? [], filesBios_table_columnsToIgnore);
-    // Add 'id' column with 'row-<index>' format
-    const fileBiosPrunedDataWithId = fileBiosPrunedData.map((row, index) => ({ ...row, id: index }));
-    const fileBios_table_full_withId = results?.file_bios_table_full
-      ? results.file_bios_table_full.map((row, index) => ({ ...row, id: index }))
-      : [];
-
-
-    const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
-    const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
-
-    const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-    const { prunedData: fileColPrunedData, columnNames: fileColColNames, dynamicColumns: dynamicFileColColumns,
-      staticColumns: staticFileColColumns } = pruneAndRetrieveColumnNames(results?.file_col_table ?? [],
-        results?.file_col_table_full ?? [], filesCol_table_columnsToIgnore);
-    // Add 'id' column with 'row-<index>' format
-    const fileColPrunedDataWithId = fileColPrunedData.map((row, index) => ({ ...row, id: index }));
-    const fileCol_table_full_withId = results?.file_col_table_full
-      ? results.file_col_table_full.map((row, index) => ({ ...row, id: index }))
-      : [];
-
-    // Mano: modify dataToSend so that size_in_bytes and compressed_size_in_bytes don't have .0 at the end
-    // data = data.map(row => ({...row, size_in_bytes: (row.size_in_bytes !=== null) ? row.size_in_bytes.replace(/\.0$/, '') : null   }));
-
-    const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
-    const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
-
     const t2: number = performance.now();
 
     
@@ -470,8 +201,7 @@ file_table_keycol AS (
     const resultsRec = results?.records[0];
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
 
-    const fileBios_table_label_base = "Files that describe biosample";
-    const fileCol_table_label_base = "Files that describe OR are in collection";
+    
 
     const metadata: (MetadataItem | null)[] = [
       { label: 'Project ID', value: projectLocalId },
@@ -541,43 +271,14 @@ file_table_keycol AS (
           : resultsRec?.data_type_name || ''
       },
       
-      ,
-      
-      { label: fileBios_table_label_base, value: results ? results.count_file_bios?.toLocaleString() : undefined },
-      { label: fileCol_table_label_base, value: results ? results.count_file_col?.toLocaleString() : undefined },
     ];
     
     const t3: number = performance.now();
 
-    const categories: Category[] = [];
-    
-    // Conditionally add categoreis based on the counts.
-    // Define the actual count of records in table displayed here and use at two or more places
-    const count_file_bios_table_withlimit = results?.file_bios_table_full.length ?? 0;
-    const count_file_col_table_withlimit = results?.file_col_table_full.length ?? 0;
-
-    if(count_file_bios_table_withlimit > 0) {
-      addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, fileBios_table_label_base, categories);
-    }
-    if (count_file_col_table_withlimit > 0) {
-      addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, fileCol_table_label_base, categories);
-    }
-    
-     ////const fileBiosTableTitle = fileBios_table_label_base + ": " + results?.count_file_bios + " (" + count_file_bios_table_withlimit + " listed)";
-    ////const fileColTableTitle = fileCol_table_label_base + ": " + results?.count_file_col + " (" + count_file_col_table_withlimit + " listed)";
-
-     const fileBiosTableTitle = fileBios_table_label_base + ": " + get_partial_list_string(results?.count_file_bios ?? 0, count_file_bios_table_withlimit, file_count_limit_bios);
-    const fileColTableTitle = fileCol_table_label_base + ": " + get_partial_list_string(results?.count_file_col ?? 0, count_file_col_table_withlimit, file_count_limit_col);
-
-    const t4: number = performance.now();
-
     console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
     console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
     console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
-    console.log("Elapsed time for displaying cards and displaying counts: ", t4 - t3, "milliseconds");
-    //console.log("newFileColColumns: ", newFileColColumns);
-    //console.log(" One row of file col table: ", results?.file_col_table[0]);
-
+    const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
     return (
       <LandingPageLayout
         icon={{
@@ -608,49 +309,17 @@ file_table_keycol AS (
         <FilesProjTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  fileProjTblOffset={fileProjTblOffset} file_count_limit_proj={file_count_limit_proj}/>
       </React.Suspense>
 
-       
       <React.Suspense fallback={<>Loading..</>}>
         <FilesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  fileSubTblOffset={fileSubTblOffset} file_count_limit_sub={file_count_limit_sub}/>
       </React.Suspense>
 
+      <React.Suspense fallback={<>Loading..</>}>
+        <FilesBiosampleTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  fileBiosTblOffset={fileBiosTblOffset} file_count_limit_bios={file_count_limit_bios}/>
+      </React.Suspense>
       
-
-        {count_file_bios_table_withlimit > 0 && (
-          <ExpandableTable
-            data={fileBiosPrunedDataWithId}
-            full_data={fileBios_table_full_withId}
-            downloadFileName= {"FilesBiosTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesBiosTable.json"}
-            drsBundle
-            tableTitle={fileBiosTableTitle}
-            searchParams={searchParams}
-            //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
-            //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
-            count={count_file_bios_table_withlimit} // Provide count directly as a prop
-            colNames={newFileBiosColumns}
-            dynamicColumns={newFileBiosColumns}
-            tablePrefix="fileBiosTbl"
-          //getNameFromTable={getNameFromFileProjTable}
-          />
-        )}
-
-        {count_file_col_table_withlimit > 0 && (
-          <ExpandableTable
-            data={fileColPrunedDataWithId}
-            full_data={fileCol_table_full_withId}
-            downloadFileName= {"FilesCollTable_" + qString_clean + "_" + recordInfoHashFileName + ".json"} // {recordInfoHashFileName + "_FilesCollTable.json"}
-            drsBundle
-            tableTitle={fileColTableTitle}
-            searchParams={searchParams}
-            //count={results?.count_file_col ?? 0} // Provide count directly as a prop
-            //count={results?.file_col_table_full.length ?? 0} // Provide count directly as a prop
-            count={count_file_col_table_withlimit} // Provide count directly as a prop
-            colNames={newFileColColumns}
-            dynamicColumns={newFileColColumns}
-            tablePrefix="fileColTbl"
-          //getNameFromTable={getNameFromFileProjTable}
-          />
-        )}
-
+      <React.Suspense fallback={<>Loading..</>}>
+        <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit}  fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col}/>
+      </React.Suspense>
       </LandingPageLayout>
     )
   } catch (error) {
