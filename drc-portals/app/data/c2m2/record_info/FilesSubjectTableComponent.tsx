@@ -191,8 +191,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
             return <></>;
         }
         
-        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
-
+        
         const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
         const { 
             prunedData: fileSubPrunedData, 
@@ -209,7 +208,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         const fileSub_table_full_withId = filesSubTableFull
             ? filesSubTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
-
+        
+        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
         const newFileSubColumns = priorityFileCols.concat(dynamicFileSubColumns.filter(item => !priorityFileCols.includes(item)));
         const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, priorityFileCols);
 
@@ -227,9 +227,9 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         const fileSubTableTitle = fileSub_table_label_base + ": " + get_partial_list_string(countFileSub, count_file_sub_table_withlimit, file_count_limit_sub);
    
         return (
-            <Grid container spacing={2} direction="column">
+            <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
                 {category && (
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sx={{ maxWidth: '100%' }}>
                         <Card variant="outlined" sx={{ mb: 2 }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
@@ -247,7 +247,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                         </Card>
                     </Grid>
                 )}
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ maxWidth: '100%' }}>
                 {(count_file_sub_table_withlimit > 0 ) && (
                 <ExpandableTable
                     data={fileSubPrunedDataWithId}
@@ -256,13 +256,10 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                     drsBundle
                     tableTitle={fileSubTableTitle}
                     searchParams={searchParams}
-                    //count={results?.count_file_sub ?? 0} // Provide count directly as a prop
-                    //count={results?.file_sub_table_full.length ?? 0} // Provide count directly as a prop
                     count={count_file_sub_table_withlimit} // Provide count directly as a prop
                     colNames={newFileSubColumns}
                     dynamicColumns={newFileSubColumns}
                     tablePrefix="fileSubTbl"
-                //getNameFromTable={getNameFromFileProjTable}
                 />
                 )}
                 </Grid>

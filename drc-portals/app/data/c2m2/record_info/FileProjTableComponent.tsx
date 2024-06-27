@@ -32,7 +32,7 @@ interface FileProjTableResult {
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
-      }[];
+    }[];
     file_table: {
         id_namespace: string,
         local_id: string,
@@ -217,51 +217,49 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
     const category = categories[0];
 
     return (
-        <Grid container spacing={2} direction="column">
-            {category && (
-                <Grid item xs={12}>
-                    <Card variant="outlined" sx={{ mb: 2 }}>
-                        <CardContent id={`card-content-${category.title}`}>
-                            <Typography variant="h5" component="div">
-                                {category.title + " (Uniform Columns) Count: "+ countFile}
+        <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
+        {category && (
+        <Grid item xs={12} sx={{ maxWidth: '100%' }}>
+            <Card variant="outlined" sx={{ mb: 2 }}>
+                <CardContent id={`card-content-${category.title}`}>
+                    <Typography variant="h5" component="div">
+                        {category.title + " (Uniform Columns) Count: " + countFile}
+                    </Typography>
+                    {category.metadata.map((item, i) => (
+                        item && item.value ? (
+                            <Typography key={i} variant="body2">
+                                <strong>{item.label}: </strong>
+                                {renderMetadataValue(item)}
                             </Typography>
-                            {category.metadata.map((item, i) => (
-                                item && item.value ? (
-                                    <Typography key={i} variant="body2">
-                                        <strong>{item.label}: </strong>
-                                        {renderMetadataValue(item)}
-                                    </Typography>
-                                ) : null
-                            ))}
-                        </CardContent>
-                    </Card>
-                </Grid>
-            )}
-            <Grid item xs={12}>
-            {(count_file_table_withlimit > 0 ) && (
-            <ExpandableTable
-                data={fileProjPrunedDataWithId}
-                full_data={filesProj_table_full_withId}
-                downloadFileName= {downloadFilename} // {recordInfoHashFileName + "_FilesProjTable.json"}
-                drsBundle
-                tableTitle={fileProjTableTitle}
-                searchParams={searchParams}
-                //count={results?.count_file ?? 0} // Provide count directly as a prop
-                //count={results?.file_table_full.length ?? 0} // Provide count directly as a prop
-                count={count_file_table_withlimit} // Provide count directly as a prop
-                colNames={newFileProjColumns}
-                dynamicColumns={newFileProjColumns}
-                tablePrefix="fileProjTbl"
-            //getNameFromTable={getNameFromFileProjTable}
-            />
+                        ) : null
+                    ))}
+                </CardContent>
+            </Card>
+        </Grid>
         )}
-                </Grid>
-            </Grid>
-        );
+        <Grid item xs={12} sx={{ maxWidth: '100%' }}>
+            {(count_file_table_withlimit > 0) && (
+                <ExpandableTable
+                    data={fileProjPrunedDataWithId}
+                    full_data={filesProj_table_full_withId}
+                    downloadFileName={downloadFilename}
+                    drsBundle
+                    tableTitle={fileProjTableTitle}
+                    searchParams={searchParams}
+                    count={count_file_table_withlimit}
+                    colNames={newFileProjColumns}
+                    dynamicColumns={newFileProjColumns}
+                    tablePrefix="fileProjTbl"
+                    
+                />
+            )}
+        </Grid>
+    </Grid>
+
+    );
 
     } catch (error) {
         console.error("Error fetching FilesProj table:", error);
         return <div>Error fetching FilesProj table: {(error as Error).message}</div>;
     }
 }
-

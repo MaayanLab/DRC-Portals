@@ -85,6 +85,7 @@ interface SearchablePagedTableProps {
     onRowSelect: (selectedRows: RowType[], selectAll: boolean) => void; // Adjust the onRowSelect type
 }
 
+
 const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
 
@@ -109,7 +110,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     };
 
     return (
-        <Grid container justifyContent={'space-between'}>
+        <Grid container justifyContent={'space-between'} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
             {props.label &&
                 <Grid item xs={12} sx={{ marginBottom: 5 }}>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
@@ -119,7 +120,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                     </Stack>
                 </Grid>
             }
-            <Grid item xs={12}>
+            <Grid item xs={12} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
                 {props.rows.length === 0 ? (
                     <>No results</>
                 ) : (
@@ -130,8 +131,8 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             </Box>
                         }
                         <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
-                        <TableContainer component={Paper} elevation={0} style={{ maxHeight: 700, overflow: 'auto' }}>
-                            <Table stickyHeader aria-label="simple table">
+                        <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 700, overflow: 'auto', width: '100%' }}>
+                            <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'fixed', width: '100%' }}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell padding="checkbox">
@@ -145,11 +146,14 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                             <TableCell
                                                 key={i}
                                                 align="center"
-                                                style={{
+                                                sx={{
                                                     padding: '8px',
                                                     textAlign: 'left',
                                                     backgroundColor: '#F0F8FF',
                                                     fontWeight: 'bold',
+                                                    whiteSpace: 'nowrap', // Prevent text from wrapping
+                                                    overflow: 'hidden', // Prevent overflow
+                                                    textOverflow: 'ellipsis', // Show ellipsis for overflow text
                                                 }}
                                             >
                                                 <Typography variant='h6' color="secondary">{column}</Typography>
@@ -171,11 +175,14 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                                 .map(([key, value], j) => (
                                                     <TableCell
                                                         key={j}
-                                                        style={{
+                                                        sx={{
                                                             padding: '8px',
-                                                            maxWidth: 300,
+                                                            maxWidth: 150, // Set a maximum width
                                                             overflowWrap: 'break-word',
                                                             textAlign: 'left',
+                                                            whiteSpace: 'nowrap', // Prevent text from wrapping
+                                                            overflow: 'hidden', // Prevent overflow
+                                                            textOverflow: 'ellipsis', // Show ellipsis for overflow text
                                                         }}
                                                         align="left"
                                                     >
@@ -193,5 +200,6 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
         </Grid>
     );
 };
+
 
 export default SearchablePagedTable;

@@ -185,8 +185,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
         if (filesBiosTable.length === 0 || filesBiosTableFull.length === 0) {
             return <></>;
         }
-        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
-
+        
     
         const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
         const { 
@@ -205,7 +204,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
             ? filesBiosTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
 
-
+        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
         const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
         const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
 
@@ -220,9 +219,9 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
         const fileBiosTableTitle = fileBios_table_label_base + ": " + get_partial_list_string(countFileBios, count_file_bios_table_withlimit, file_count_limit_bios);
     
         return (
-            <Grid container spacing={2} direction="column">
+            <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
                 {category && (
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sx={{ maxWidth: '100%' }}>
                         <Card variant="outlined" sx={{ mb: 2 }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
@@ -240,7 +239,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                         </Card>
                     </Grid>
                 )}
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ maxWidth: '100%' }}>
                 {(count_file_bios_table_withlimit > 0 ) && (
                     <ExpandableTable
                         data={fileBiosPrunedDataWithId}
