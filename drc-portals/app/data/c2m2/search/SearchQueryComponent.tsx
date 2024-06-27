@@ -106,7 +106,7 @@ export async function SearchQueryComponent(props: PageProps) {
             
           }>>(SQL.template`
         WITH allres_full AS (
-          SELECT DISTINCT c2m2.ffl_biosample_collection.*,
+          SELECT  c2m2.ffl_biosample_collection.*,
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
             FROM c2m2.ffl_biosample_collection
             WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
@@ -159,7 +159,7 @@ export async function SearchQueryComponent(props: PageProps) {
           ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
             protein_name, compound_name, data_type_name
         ),
-        allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres ${filterClause}),
+        allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres /*${filterClause}*/),
         allres_filtered AS (
           SELECT allres.*, 
           concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 

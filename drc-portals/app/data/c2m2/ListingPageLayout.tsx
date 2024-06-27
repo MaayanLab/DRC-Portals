@@ -24,7 +24,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
               <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
                 <Typography variant="h5">Results found: </Typography>
                 {/*<Typography variant="h5">{(props.all_count ?? 0).toLocaleString()} {props.all_count > props.all_count_limit ? `(${(props.count ?? 0).toLocaleString()} listed)` : ''} </Typography>*/}
-                <Typography variant="h5">{`${partial_list_string}`} </Typography>
+                <Typography variant="h5">&ge; {`${partial_list_string}`} </Typography>
               </div>
               <div><Typography variant="subtitle1">Filter</Typography></div>
               <div className="flex flex-col text-cyan-700 text-lg">

@@ -183,17 +183,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     const t1: number = performance.now();
 
-    // Create download filename for this recordInfo based on md5sum
-    // Stringify q and t from searchParams pertaining to this record
-    const qString = JSON.stringify(searchParams.q);
-    const tString = JSON.stringify(searchParams.t);
-
-    // Concatenate qString and tString into a single string
-    const concatenatedString = `${qString}${tString}`;
-    const recordInfoHashFileName = generateMD5Hash(concatenatedString);
-    const qString_clean = sanitizeFilename(qString, '__');
-
-    const t2: number = performance.now();
+    console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+    
 
     
     // The following items are present in metadata
@@ -273,11 +264,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       
     ];
     
-    const t3: number = performance.now();
 
-    console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
-    console.log("Elapsed time for creating PrunedData: ", t2 - t1, "milliseconds");
-    console.log("Elapsed time for displaying basic information (before cards and tables): ", t3 - t2, "milliseconds");
     const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
     return (
       <LandingPageLayout
