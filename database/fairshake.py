@@ -13,6 +13,8 @@ import os
 import glob
 import math
 import h5py
+from bs4 import BeautifulSoup
+import json
 
 
 def deep_find(root, file):
@@ -194,6 +196,30 @@ def api_fair(row):
                 "Persistent URL": fairshake_persistent_url}
     return rubric
 
+def apps_urls_fair(apps_url):    
+    fairshake_license = 0
+    fairshake_description = 0
+    fairshake_persistent_url = 0 
+    response = requests.get(apps_url)
+    if response.ok:
+        html = response.text
+        soup = BeautifulSoup(html)
+        schema_json = soup.find('script', type='application/ld+json')
+        if schema_json:
+            data = json.loads(schema_json.text)
+            objects = data['@graph']
+            webpageObjects = [object_dict for object_dict in objects if '@type' in object_dict if object_dict['@type'] == 'WebPage']
+            if len(webpageObjects) > 0:
+                for webpageObject in webpageObjects:
+                    if 'license' in webpageObject:
+                        fairshake_license = 1
+                    if 'description' in webpageObject: 
+                        fairshake_description = 1
+    rubric = {"Resource discovery through web search": fairshake_description,
+            "Digital resource license": fairshake_license,
+            "Persistent URL": fairshake_persistent_url}
+    return rubric
+
 
 def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
     with open(code_assets_path, 'r') as fr1:
@@ -214,6 +240,9 @@ def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
         if row['type'] == 'API':
             rubric = api_fair(row)
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'Apps URL':
+            rubric = apps_urls_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
     fr1.close()
     fr2.close()

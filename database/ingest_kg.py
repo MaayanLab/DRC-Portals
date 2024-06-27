@@ -11,7 +11,7 @@ from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_des
 from ontology.obo import OBOOntology
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
-from fairshake import check_ontology_in_columns
+from fairshake import check_ontology_in_columns, check_standard_ontology
 RO = memo(lambda: OBOOntology(fetch_cache('https://raw.githubusercontent.com/oborel/obo-relations/master/ro.obo', 'ro.obo')))
 #%%
 dcc_assets = current_dcc_assets()
@@ -113,11 +113,20 @@ with fair_assessments_helper.writer() as fair_assessment:
                   columns = next(fr).strip().split(',')
                   columns[0] = 'id'
                   #fair assessment: check if there is a community ontology acronym as a column header
-                  fairshake_node_standard.append(1 if check_ontology_in_columns(columns) else 0)
+                  ontology_columns = [col for col in columns if check_standard_ontology(col)]
+                  rows_ontology_check = []
+                  # fairshake_node_standard.append(1 if check_ontology_in_columns(columns) else 0)
                   assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
                   for assertion_node in tqdm(assertion_node_reader, desc=f"Processing {assertion_node_file.name}..."):
                     # TODO: capture other metdata
                     assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
+                    # check if at least one of standard ontology rows contains non-empty value
+                    row_valid_ontology = 0
+                    for col in ontology_columns:
+                      if assertion_node[col] != '':
+                        row_valid_ontology = 1
+                    rows_ontology_check.append(1 if row_valid_ontology == 1 else 0)
+                  fairshake_node_standard.append(mean(rows_ontology_check) if len(ontology_columns) > 0 else 0)
               # register all of the edges
               for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
                 file_predicate_standard_scores = []
@@ -170,8 +179,8 @@ with fair_assessments_helper.writer() as fair_assessment:
                       file_predicate_standard_scores.append(0)
                 fairshake_predicate_standard.append(mean(file_predicate_standard_scores))
 
-              fair_assessment_results={"Subjects/Objects reference a community standardized id": mean(fairshake_node_standard),
-              "Predicates reference a community standardized id": mean(file_predicate_standard_scores), 
+              fair_assessment_results={"Subjects/Objects reference a community standardized id": mean(fairshake_node_standard) if len(fairshake_node_standard) > 0 else 0,
+              "Predicates reference a community standardized id": mean(fairshake_predicate_standard) if len(fairshake_predicate_standard) > 0 else 0 , 
               "Accessible via DRS": fairshake_drs,
               "Persistent URL": fairshake_persistent
               }
