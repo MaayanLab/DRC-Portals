@@ -35,8 +35,8 @@ interface FileSubTableResult {
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
-      }[];
-      file_sub_table_full: {
+    }[];
+    file_sub_table_full: {
         file_id_namespace: string,
         file_local_id: string,
         subject_id_namespace: string,
@@ -63,8 +63,8 @@ interface FileSubTableResult {
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
-      }[];
-      count_file_sub: number;
+    }[];
+    count_file_sub: number;
 }
 
 const renderMetadataValue = (item: MetadataItem) => {
@@ -182,25 +182,25 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         // Assuming you want to process the first result in the array
         const firstResult = results[0];
         const countFileSub = firstResult.count_file_sub ?? 0;
-        
-        
+
+
         const filesSubTable = firstResult.file_sub_table ?? [];
         const filesSubTableFull = firstResult.file_sub_table_full ?? [];
 
         if (filesSubTable.length === 0 || filesSubTableFull.length === 0) {
             return <></>;
         }
-        
-        
+
+
         const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
-        const { 
-            prunedData: fileSubPrunedData, 
-            columnNames: fileSubColNames, 
+        const {
+            prunedData: fileSubPrunedData,
+            columnNames: fileSubColNames,
             dynamicColumns: dynamicFileSubColumns,
-            staticColumns: staticFileSubColumns 
+            staticColumns: staticFileSubColumns
         } = pruneAndRetrieveColumnNames(
             filesSubTable ?? [],
-            filesSubTableFull?? [], 
+            filesSubTableFull ?? [],
             filesSub_table_columnsToIgnore
         );
         // Add 'id' column with 'row-<index>' format
@@ -208,12 +208,18 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         const fileSub_table_full_withId = filesSubTableFull
             ? filesSubTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
-        
-        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
-        const newFileSubColumns = priorityFileCols.concat(dynamicFileSubColumns.filter(item => !priorityFileCols.includes(item)));
-        const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, priorityFileCols);
 
-        
+        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+
+        const newFileSubColumns = priorityFileCols.filter(item => dynamicFileSubColumns.includes(item));
+        const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileSubColumns.includes(item)); // priority columns that are static, don't change with 
+
+        const remainingDynamicCols = dynamicFileSubColumns.filter(item => !newFileSubColumns.includes(item));
+        const finalNewFileSubColumns = newFileSubColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
+
+        const reorderedFileSubStaticCols = reorderStaticCols(staticFileSubColumns, staticPriorityFileCols);
+
+
         const fileSub_table_label_base = "Files that describe subject";
         const count_file_sub_table_withlimit = filesSubTableFull.length ?? 0;
 
@@ -225,7 +231,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
 
         const category = categories[0];
         const fileSubTableTitle = fileSub_table_label_base + ": " + get_partial_list_string(countFileSub, count_file_sub_table_withlimit, file_count_limit_sub);
-   
+
         return (
             <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
                 {category && (
@@ -233,7 +239,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                         <Card variant="outlined" sx={{ mb: 2 }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: "+ countFileSub}
+                                    {category.title + " (Uniform Columns) Count: " + countFileSub}
                                 </Typography>
                                 {category.metadata.map((item, i) => (
                                     item && item.value ? (
@@ -248,26 +254,26 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                     </Grid>
                 )}
                 <Grid item xs={12} sx={{ maxWidth: '100%' }}>
-                {(count_file_sub_table_withlimit > 0 ) && (
-                <ExpandableTable
-                    data={fileSubPrunedDataWithId}
-                    full_data={fileSub_table_full_withId}
-                    downloadFileName= {downloadFilename} // {recordInfoHashFileName + "_FilesSubTable.json"}
-                    drsBundle
-                    tableTitle={fileSubTableTitle}
-                    searchParams={searchParams}
-                    count={count_file_sub_table_withlimit} // Provide count directly as a prop
-                    colNames={newFileSubColumns}
-                    dynamicColumns={newFileSubColumns}
-                    tablePrefix="fileSubTbl"
-                />
-                )}
+                    {(count_file_sub_table_withlimit > 0) && (
+                        <ExpandableTable
+                            data={fileSubPrunedDataWithId}
+                            full_data={fileSub_table_full_withId}
+                            downloadFileName={downloadFilename} // {recordInfoHashFileName + "_FilesSubTable.json"}
+                            drsBundle
+                            tableTitle={fileSubTableTitle}
+                            searchParams={searchParams}
+                            count={count_file_sub_table_withlimit} // Provide count directly as a prop
+                            colNames={finalNewFileSubColumns}
+                            dynamicColumns={finalNewFileSubColumns}
+                            tablePrefix="fileSubTbl"
+                        />
+                    )}
                 </Grid>
             </Grid>
         );
-   
-    
-        
+
+
+
 
     } catch (error) {
         console.error("Error fetching FilesSub table:", error);

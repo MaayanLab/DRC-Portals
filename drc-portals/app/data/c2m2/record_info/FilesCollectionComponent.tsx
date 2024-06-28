@@ -205,8 +205,13 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
 
         const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
 
-        const newFileColColumns = priorityFileCols.concat(dynamicFileColColumns.filter(item => !priorityFileCols.includes(item)));
-        const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, priorityFileCols);
+        const newFileColColumns = priorityFileCols.filter(item => dynamicFileColColumns.includes(item)); 
+        const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileColColumns.includes(item)); // priority columns that are static, don't change with 
+
+        const remainingDynamicCols = dynamicFileColColumns.filter(item => !newFileColColumns.includes(item)); 
+        const finalNewFileColColumns = newFileColColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
+        
+        const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, staticPriorityFileCols);
     
         const fileCol_table_label_base = "Files that describe OR are in collection";
         const downloadFilename = generateHashedJSONFilename("FilesCollectionTable_", searchParams);
@@ -251,8 +256,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                         tableTitle={fileColTableTitle}
                         searchParams={searchParams}
                         count={count_file_col_table_withlimit}
-                        colNames={newFileColColumns}
-                        dynamicColumns={newFileColColumns}
+                        colNames={finalNewFileColColumns}
+                        dynamicColumns={finalNewFileColColumns}
                         tablePrefix="fileColTbl"
                     />
                 )}

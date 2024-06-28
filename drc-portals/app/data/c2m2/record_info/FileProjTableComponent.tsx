@@ -185,7 +185,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(countFile ?? 0, count_file_table_withlimit, file_count_limit_proj);
     
 
-        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
+        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+
 
         const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
         const { 
@@ -205,9 +206,13 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
       ? filesProjTableFull.map((row, index) => ({ ...row, id: index }))
       : [];
 
-    const newFileProjColumns = priorityFileCols.concat(dynamicFileProjColumns.filter(item => !priorityFileCols.includes(item)));
-    const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, priorityFileCols);
-    
+    const newFileProjColumns = priorityFileCols.filter(item => dynamicFileProjColumns.includes(item)); 
+    const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileProjColumns.includes(item)); // priority columns that are static, don't change with 
+
+    const remainingDynamicCols = dynamicFileProjColumns.filter(item => !newFileProjColumns.includes(item)); 
+    const finalNewFileProjColumns = newFileProjColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
+
+    const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, staticPriorityFileCols);
   
     const downloadFilename = generateHashedJSONFilename("FilesProjTable_", searchParams);
     const categories: Category[] = [];
@@ -247,8 +252,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                     tableTitle={fileProjTableTitle}
                     searchParams={searchParams}
                     count={count_file_table_withlimit}
-                    colNames={newFileProjColumns}
-                    dynamicColumns={newFileProjColumns}
+                    colNames={finalNewFileProjColumns}
+                    dynamicColumns={finalNewFileProjColumns}
                     tablePrefix="fileProjTbl"
                     
                 />

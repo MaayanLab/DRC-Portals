@@ -34,8 +34,8 @@ interface FileBiosTableResult {
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
-      }[];
-      file_bios_table: {
+    }[];
+    file_bios_table: {
         file_id_namespace: string,
         file_local_id: string,
         biosample_id_namespace: string,
@@ -62,8 +62,8 @@ interface FileBiosTableResult {
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
-      }[];
-      count_file_bios: number;
+    }[];
+    count_file_bios: number;
 }
 
 const renderMetadataValue = (item: MetadataItem) => {
@@ -185,16 +185,16 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
         if (filesBiosTable.length === 0 || filesBiosTableFull.length === 0) {
             return <></>;
         }
-        
-    
+
+
         const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
-        const { 
-            prunedData: fileBiosPrunedData, 
-            columnNames: fileBiosColNames, 
+        const {
+            prunedData: fileBiosPrunedData,
+            columnNames: fileBiosColNames,
             dynamicColumns: dynamicFileBiosColumns,
             staticColumns: staticFileBiosColumns } = pruneAndRetrieveColumnNames(
                 filesBiosTable ?? [],
-                filesBiosTableFull ?? [], 
+                filesBiosTableFull ?? [],
                 filesBios_table_columnsToIgnore
             );
 
@@ -204,12 +204,24 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
             ? filesBiosTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
 
-        const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
-        const newFileBiosColumns = priorityFileCols.concat(dynamicFileBiosColumns.filter(item => !priorityFileCols.includes(item)));
-        const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, priorityFileCols);
+        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+
+        const newFileBiosColumns = priorityFileCols.filter(item => dynamicFileBiosColumns.includes(item)); 
+        const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileBiosColumns.includes(item)); // priority columns that are static, don't change with 
+
+        const remainingDynamicCols = dynamicFileBiosColumns.filter(item => !newFileBiosColumns.includes(item)); 
+        const finalNewFileBiosColumns = newFileBiosColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
+
+        const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, staticPriorityFileCols);
+
+        // console.log("STATIC FILE BIOS COLS", staticFileBiosColumns);
+        // console.log("DYNAMIC FILE BIOS COLS", dynamicFileBiosColumns);
+        // console.log("NEW FILE BIOS COLS", finalNewFileBiosColumns);
+        // console.log("STATIC PRIORITY FILE COLS", staticPriorityFileCols);
+
 
         const fileBios_table_label_base = "Files that describe biosample";
-    
+
         const count_file_bios_table_withlimit = filesBiosTableFull.length ?? 0;
 
         const downloadFilename = generateHashedJSONFilename("FilesBiosampleTable_", searchParams);
@@ -217,7 +229,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
         addCategoryColumns(reorderedFileBiosStaticCols, getNameFromFileProjTable, fileBios_table_label_base, categories);
         const category = categories[0];
         const fileBiosTableTitle = fileBios_table_label_base + ": " + get_partial_list_string(countFileBios, count_file_bios_table_withlimit, file_count_limit_bios);
-    
+
         return (
             <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
                 {category && (
@@ -225,7 +237,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                         <Card variant="outlined" sx={{ mb: 2 }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: "+ countFileBios}
+                                    {category.title + " (Uniform Columns) Count: " + countFileBios}
                                 </Typography>
                                 {category.metadata.map((item, i) => (
                                     item && item.value ? (
@@ -240,27 +252,27 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                     </Grid>
                 )}
                 <Grid item xs={12} sx={{ maxWidth: '100%' }}>
-                {(count_file_bios_table_withlimit > 0 ) && (
-                    <ExpandableTable
-                        data={fileBiosPrunedDataWithId}
-                        full_data={fileBios_table_full_withId}
-                        downloadFileName= {downloadFilename} // {recordInfoHashFileName + "_FilesBiosTable.json"}
-                        drsBundle
-                        tableTitle={fileBiosTableTitle}
-                        searchParams={searchParams}
-                        //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
-                        //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
-                        count={count_file_bios_table_withlimit} // Provide count directly as a prop
-                        colNames={newFileBiosColumns}
-                        dynamicColumns={newFileBiosColumns}
-                        tablePrefix="fileBiosTbl"
-                    //getNameFromTable={getNameFromFileProjTable}
-                  />
-                )}
+                    {(count_file_bios_table_withlimit > 0) && (
+                        <ExpandableTable
+                            data={fileBiosPrunedDataWithId}
+                            full_data={fileBios_table_full_withId}
+                            downloadFileName={downloadFilename} // {recordInfoHashFileName + "_FilesBiosTable.json"}
+                            drsBundle
+                            tableTitle={fileBiosTableTitle}
+                            searchParams={searchParams}
+                            //count={results?.count_file_bios ?? 0} // Provide count directly as a prop
+                            //count={results?.file_bios_table_full.length ?? 0} // Provide count directly as a prop
+                            count={count_file_bios_table_withlimit} // Provide count directly as a prop
+                            colNames={finalNewFileBiosColumns}
+                            dynamicColumns={finalNewFileBiosColumns}
+                            tablePrefix="fileBiosTbl"
+                        //getNameFromTable={getNameFromFileProjTable}
+                        />
+                    )}
                 </Grid>
             </Grid>
         );
-   
+
 
     } catch (error) {
         console.error("Error fetching FilesBios table:", error);
