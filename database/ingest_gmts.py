@@ -18,6 +18,9 @@ dcc_assets = current_dcc_assets()
 gmts = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt')))]
 gmts_path = ingest_path / 'gmts'
 
+other_xmts = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt') == False))]
+other_xmts_path = ingest_path / 'other_xmts'
+
 gene__gene_set_helper = TableHelper('_GeneEntityToGeneSetNode', ('A', 'B',), pk_columns=('A', 'B',))
 gene__gene_set_library_helper = TableHelper('_GeneEntityToGeneSetLibraryNode', ('A', 'B'), pk_columns=('A', 'B',))
 gene_set_helper = TableHelper('gene_set_node', ('id', 'gene_set_library_id',), pk_columns=('id',))
@@ -142,3 +145,44 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                     timestamp=fair_timestamp
                     ))
                       
+with fair_assessments_helper.writer() as fair_assessment:
+  for _, other_xmt in tqdm(other_xmts.iterrows(), total=other_xmts.shape[0], desc='Processing Other XMTs...'):
+    other_xmt_path = other_xmts_path/other_xmt['dcc_short_label']/other_xmt['filename']
+    other_xmt_path.parent.mkdir(parents=True, exist_ok=True)
+    if not other_xmt_path.exists():
+      import urllib.request
+      urllib.request.urlretrieve(other_xmt['link'], other_xmt_path)
+
+    # initialize fairshake variables
+    fairshake_drs = 1
+    fairshake_persistent = 0
+    fairshake_ontological_count = 0
+    fairshake_standard_elements = []
+    
+    with other_xmt_path.open('r') as fr:
+      for line in tqdm(fr, desc=f"Processing {other_xmt['dcc_short_label']}/{other_xmt['filename']}..."):
+        line_split = list(map(str.strip, line.split('\t')))
+        if len(line_split) < 3: continue
+        x_set_label, x_set_description, *x_set_elements = line_split
+        term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
+        if term_ontological:
+          fairshake_ontological_count +=1
+        standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ' ')) else 0 for raw_gene in x_set_elements]
+        sum_standard_elements = sum(standard_elements)  
+        fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
+
+      fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/len(fairshake_standard_elements),
+              "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+              "Accessible via DRS": fairshake_drs,
+              "Persistent URL": fairshake_persistent
+              }
+      fair_timestamp = datetime.now()
+      fair_assessment.writerow(dict( #add fair assessment to database
+      id=str(uuid5(uuid0, '\t'.join((other_xmt['link'], str(fair_timestamp))))), 
+      dcc_id=other_xmt['dcc_id'],
+      type='XMT',
+      link=other_xmt['link'],
+      rubric=json.dumps(fair_assessment_results),
+      timestamp=fair_timestamp
+      ))
+          

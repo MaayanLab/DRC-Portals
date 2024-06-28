@@ -51,6 +51,7 @@ def get_repo_license(github_url):
     
 
 def assess_metanode(metanode_name):
+    """Run FAIR Assessment for a given PWB metanode given its name using the PWB components API endpoint."""
     fairshake_description = 0
     fairshake_cite_methods = 0
     fairshake_contact_info = 0
@@ -77,6 +78,7 @@ def assess_metanode(metanode_name):
 
 
 def format_PWB_results(result):
+    """Convert list of scores to dictionary with PWB FAIR asssessment results."""
     return { "Metanode has a clear description": result[0],
             "Metanode cites its methods": result[1],
             "Metanode has contact information": result[2],
@@ -84,6 +86,7 @@ def format_PWB_results(result):
             "Persistent URL": result[4]}
     
 def PWB_metanode_fair(row_name, row_url): 
+    """Run FAIR Assessment for a given PWB metanode asset given its name and url."""
     result = assess_metanode(row_name)
     if result != None:
         return format_PWB_results(result)
@@ -104,7 +107,7 @@ def PWB_metanode_fair(row_name, row_url):
                 return format_PWB_results(mean_results)
             else:
                 return format_PWB_results([0,0,0,0,0])
-        elif base_url == 'playbook-workflow-builder.cloud': #if url was a playboom url
+        elif base_url == 'playbook-workflow-builder.cloud': #if url was a playbook url
             component_path = urlsplit(row_url).path
             if '/components/' in component_path: 
                 metanode_name = component_path.split('/components/')[1]
@@ -117,6 +120,7 @@ def PWB_metanode_fair(row_name, row_url):
             return format_PWB_results([0,0,0,0,0])
 
 def entity_page_fair(entityPageExample, link):
+    """Run FAIR Assessment for a given Entity page template asset given its template and example"""
     fairshake_templated = 0
     fairshake_return_404 = 0
     fairshake_head_request_support = 0
@@ -143,6 +147,7 @@ def entity_page_fair(entityPageExample, link):
 
 
 def etl_fair(link):
+    """Run FAIR Assessment for a given ETL asset"""
     fairshake_public = 0
     fairshake_license = 0
     fairshake_persistent_url = 0
@@ -159,6 +164,7 @@ def etl_fair(link):
 
 
 def api_fair(row):
+    """Run FAIR Assessment for a given API asset given its row from code assets table"""
     fairshake_openapi = 0
     fairshake_license = 0
     fairshake_contact = 0
@@ -194,7 +200,8 @@ def api_fair(row):
                 "Persistent URL": fairshake_persistent_url}
     return rubric
 
-def apps_urls_fair(apps_url):    
+def apps_urls_fair(apps_url): 
+    """Run FAIR Assessment for a given Apps URL asset given its URL"""   
     fairshake_license = 0
     fairshake_description = 0
     fairshake_persistent_url = 0 
@@ -219,7 +226,8 @@ def apps_urls_fair(apps_url):
     return rubric
 
 
-def chatbot_specs_fair(chatbot_specs_url): 
+def chatbot_specs_fair(chatbot_specs_url):
+    """Run FAIR Assessment for a given chatbot specification asset given its URL""" 
     fairshake_persistent_url = 0 
     fairshake_aiplugin_compatible = [0] * 6
     fairshake_valid_openapi_link = 0
@@ -259,6 +267,7 @@ def chatbot_specs_fair(chatbot_specs_url):
 
 
 def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
+    """Run FAIR Assessment for all code assets"""
     with open(code_assets_path, 'r') as fr1:
         code_assets_data=pd.read_csv(fr1,sep='\t', header=0)
     with open(dcc_assets_path, 'r') as fr2:
@@ -292,6 +301,7 @@ def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
 
 
 def c2m2_fair(directory):
+    """Run FAIR Assessment for a C2M2 file asset given its filepath"""
     # file = './LINCS_C2M2_2023-09-18_datapackage.zip'
     # basename, ext = os.path.splitext(file)
     # assert ext == '.zip', 'Expected .zip file'
@@ -355,6 +365,7 @@ def c2m2_fair(directory):
     
 
 def check_ontology_in_term(term):
+    """Return boolean defining if a term contains an ontological reference eg RO:922340"""
     my_file = open("./ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
@@ -365,6 +376,7 @@ def check_ontology_in_term(term):
     return False
 
 def check_standard_ontology(ontology):
+    """Return boolean defining if an given ontology is considered community standard"""
     my_file = open("./ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
@@ -374,6 +386,7 @@ def check_standard_ontology(ontology):
     return False
 
 def check_ontology_in_columns(columns):
+    """Return boolean defining a list contains a community standard ontology"""
     for col in columns:
         if check_standard_ontology(col):
             return True
@@ -381,6 +394,7 @@ def check_ontology_in_columns(columns):
         return False 
 
 def traverse_datasets(hdf_file):
+    """Get all the paths contained within a h5 file"""
     def h5py_dataset_iterator(g, prefix=''):
         for key in g.keys():
             item = g[key]
