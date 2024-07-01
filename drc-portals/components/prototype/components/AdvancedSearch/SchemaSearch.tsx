@@ -4,7 +4,6 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { Box, Button, Grid } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { v4 } from "uuid";
 
 import { SchemaSearchPath } from "../../interfaces/schema-search";
 import { getSchemaSearchValue } from "../../utils/advanced-search";
@@ -68,7 +67,7 @@ export default function SchemaSearch() {
       <Grid item xs={9} spacing={2} sx={{ height: "inherit" }}>
         {value.map((path, index) => (
           <SchemaSearchFormRow
-            key={v4()}
+            key={`schema-search-form-row-${index}`}
             value={path}
             onChange={updatePath(index)}
             onDelete={deletePath(index)}
