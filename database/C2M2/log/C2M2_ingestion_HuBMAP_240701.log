@@ -690,7 +690,7 @@ description VARCHAR DEFAULT '',
 PRIMARY KEY(id)
 );
 ================== Defined all tables ======================
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 1.9755730628967285 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 2.0686488151550293 seconds.
 
 Names of all tables:
 ['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
@@ -740,7 +740,7 @@ A slice of df:
 [1 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.08957886695861816 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1284630298614502 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection.tsv ---------
 table_name:collection
@@ -773,7 +773,7 @@ sql_count_df:    count
 0   1327
 count:1327
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.10013270378112793 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.13169312477111816 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject.tsv ---------
 table_name:subject
@@ -806,7 +806,7 @@ sql_count_df:    count
 0    206
 count:206
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.07125020027160645 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09253573417663574 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/file_format.tsv ---------
 table_name:file_format
@@ -834,14 +834,14 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06115841865539551 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07881832122802734 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject_substance.tsv ---------
 table_name:subject_substance
 HuBMAP: subject_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.025228500366210938 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033034563064575195 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/biosample_in_collection.tsv ---------
 table_name:biosample_in_collection
@@ -874,14 +874,14 @@ sql_count_df:    count
 0   1327
 count:1327
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09818553924560547 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10901761054992676 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_disease.tsv ---------
 table_name:collection_disease
 HuBMAP: collection_disease: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026199817657470703 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03424668312072754 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/file_describes_collection.tsv ---------
 table_name:file_describes_collection
@@ -914,21 +914,21 @@ sql_count_df:    count
 0   1625
 count:1625
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09500241279602051 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1167292594909668 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/ncbi_taxonomy.tsv ---------
 table_name:ncbi_taxonomy
 HuBMAP: ncbi_taxonomy: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/ncbi_taxonomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02695298194885254 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.034188270568847656 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_substance.tsv ---------
 table_name:collection_substance
 HuBMAP: collection_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02523636817932129 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03481268882751465 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject_in_collection.tsv ---------
 table_name:subject_in_collection
@@ -961,21 +961,21 @@ sql_count_df:    count
 0   1327
 count:1327
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.08658409118652344 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10932755470275879 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject_race.tsv ---------
 table_name:subject_race
 HuBMAP: subject_race: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_race.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026718616485595703 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03410673141479492 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_compound.tsv ---------
 table_name:collection_compound
 HuBMAP: collection_compound: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026104211807250977 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033601999282836914 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/biosample_from_subject.tsv ---------
 table_name:biosample_from_subject
@@ -1008,28 +1008,28 @@ sql_count_df:    count
 0    644
 count:644
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.07602596282958984 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09496712684631348 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/substance.tsv ---------
 table_name:substance
 HuBMAP: substance: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026200056076049805 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033019304275512695 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/file_describes_subject.tsv ---------
 table_name:file_describes_subject
 HuBMAP: file_describes_subject: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_describes_subject.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026401996612548828 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033754825592041016 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_in_collection.tsv ---------
 table_name:collection_in_collection
 HuBMAP: collection_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.025762557983398438 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03316664695739746 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/id_namespace.tsv ---------
 table_name:id_namespace
@@ -1048,14 +1048,14 @@ A slice of df:
 [1 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06199383735656738 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07946538925170898 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/biosample_substance.tsv ---------
 table_name:biosample_substance
 HuBMAP: biosample_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.024967670440673828 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03337287902832031 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/project.tsv ---------
 table_name:project
@@ -1088,14 +1088,14 @@ sql_count_df:    count
 0     13
 count:13
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.07349705696105957 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09460186958312988 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/phenotype_gene.tsv ---------
 table_name:phenotype_gene
 HuBMAP: phenotype_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/phenotype_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026052474975585938 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03286933898925781 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/file_in_collection.tsv ---------
 table_name:file_in_collection
@@ -1128,14 +1128,14 @@ sql_count_df:      count
 0  9465531
 count:9465531
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 310.80527925491333 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 331.99068546295166 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/file_describes_biosample.tsv ---------
 table_name:file_describes_biosample
 HuBMAP: file_describes_biosample: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_describes_biosample.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.266096830368042 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.2580833435058594 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/file.tsv ---------
 table_name:file
@@ -1168,35 +1168,35 @@ sql_count_df:      count
 0  9465531
 count:9465531
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 636.7198371887207 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 679.1629912853241 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_anatomy.tsv ---------
 table_name:collection_anatomy
 HuBMAP: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_anatomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 1.3232266902923584 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 1.8212950229644775 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/phenotype.tsv ---------
 table_name:phenotype
 HuBMAP: phenotype: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4788517951965332 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8050053119659424 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/protein_gene.tsv ---------
 table_name:protein_gene
 HuBMAP: protein_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/protein_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.48110079765319824 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7782328128814697 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/data_type.tsv ---------
 table_name:data_type
 HuBMAP: data_type: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/data_type.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47561049461364746 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7380247116088867 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/anatomy.tsv ---------
 table_name:anatomy
@@ -1224,21 +1224,21 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.513089656829834 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8379952907562256 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/biosample_disease.tsv ---------
 table_name:biosample_disease
 HuBMAP: biosample_disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4731016159057617 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.800119161605835 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/sample_prep_method.tsv ---------
 table_name:sample_prep_method
 HuBMAP: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/sample_prep_method.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4724586009979248 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8117611408233643 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/biosample.tsv ---------
 table_name:biosample
@@ -1271,42 +1271,42 @@ sql_count_df:    count
 0    644
 count:644
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.5393891334533691 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8390545845031738 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_phenotype.tsv ---------
 table_name:collection_phenotype
 HuBMAP: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4776887893676758 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8090732097625732 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/disease.tsv ---------
 table_name:disease
 HuBMAP: disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4779338836669922 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7944517135620117 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/compound.tsv ---------
 table_name:compound
 HuBMAP: compound: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47965526580810547 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7320270538330078 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_taxonomy.tsv ---------
 table_name:collection_taxonomy
 HuBMAP: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_taxonomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47704434394836426 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7193384170532227 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject_disease.tsv ---------
 table_name:subject_disease
 HuBMAP: subject_disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47511768341064453 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7483441829681396 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/assay_type.tsv ---------
 table_name:assay_type
@@ -1334,21 +1334,21 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.5134925842285156 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8284485340118408 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/phenotype_disease.tsv ---------
 table_name:phenotype_disease
 HuBMAP: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/phenotype_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47238945960998535 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8044028282165527 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/protein.tsv ---------
 table_name:protein
 HuBMAP: protein: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47326231002807617 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7697694301605225 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/project_in_project.tsv ---------
 table_name:project_in_project
@@ -1381,56 +1381,56 @@ sql_count_df:    count
 0     12
 count:12
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.5165009498596191 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8126132488250732 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_gene.tsv ---------
 table_name:collection_gene
 HuBMAP: collection_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4783046245574951 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7992641925811768 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject_role_taxonomy.tsv ---------
 table_name:subject_role_taxonomy
 HuBMAP: subject_role_taxonomy: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_role_taxonomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.48294901847839355 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7207443714141846 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/subject_phenotype.tsv ---------
 table_name:subject_phenotype
 HuBMAP: subject_phenotype: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4735898971557617 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7588343620300293 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/gene.tsv ---------
 table_name:gene
 HuBMAP: gene: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4746365547180176 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7455556392669678 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/analysis_type.tsv ---------
 table_name:analysis_type
 HuBMAP: analysis_type: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/analysis_type.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4794020652770996 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6910660266876221 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/biosample_gene.tsv ---------
 table_name:biosample_gene
 HuBMAP: biosample_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.47716712951660156 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6889238357543945 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_protein.tsv ---------
 table_name:collection_protein
 HuBMAP: collection_protein: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.4718468189239502 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6616549491882324 seconds.
 
 --------- ingest/c2m2s/HuBMAP/submission/submission/collection_defined_by_project.tsv ---------
 table_name:collection_defined_by_project
@@ -1444,7 +1444,7 @@ Wrote the count query
 *** Entering collection_defined_by_project to database ***
 df: #rows = 1327, #cols: 4
 
-Processing C2M2 Files...: 100%|██████████| 1/1 [16:47<00:00, 1007.87s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [16:47<00:00, 1007.87s/it]
+Processing C2M2 Files...: 100%|██████████| 1/1 [18:01<00:00, 1081.07s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [18:01<00:00, 1081.07s/it]
 A slice of df:
           collection_id_namespace  ...                        project_local_id
 0  tag:hubmapconsortium.org,2023:  ...  University of California San Diego TMC
@@ -1464,9 +1464,9 @@ sql_count_df:    count
 0   1327
 count:1327
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.536590576171875 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.748098611831665 seconds.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 1007.893691778183 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 1081.091257572174 seconds.
 
  ----------- Adding foreign key constraint for table file ----------
 ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
@@ -1671,13 +1671,13 @@ ALTER TABLE hubmap.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gene_2
 ALTER TABLE hubmap.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES hubmap.gene (id);
  ----------- Adding foreign key constraint for table sample_prep_method ----------
  ----------- Adding foreign key constraint for table id_namespace ----------
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 28.89033794403076 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 33.598745822906494 seconds.
 
 
 >>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table hubmap.file successful.
 
 Update successful.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 1801.7891356945038 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 2025.0128753185272 seconds.
 
 ********** C2M2 metadata ingestion completed: schema_name: hubmap.

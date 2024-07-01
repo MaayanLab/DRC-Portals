@@ -96,10 +96,10 @@ publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/datab
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
 
-dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/DccAssets.tsv', 'DccAssets.tsv')
 # Mano: 2024/06/29: Modified what was at (by Erol)
-#dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv', 'DccAssets.tsv')
-dcc_assets_path = ensure_file_factory('https://sc-cfdewebdev.sdsc.edu/tmp/06282024/DccAssets_modified_Mano.tsv', 'DccAssets.tsv')
+dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv', 'DccAssets.tsv')
+# The above file is fixed, so using it
+#dcc_assets_path = ensure_file_factory('https://sc-cfdewebdev.sdsc.edu/tmp/06282024/DccAssets_modified_Mano.tsv', 'DccAssets.tsv')
 
 file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_file_assets.tsv', 'FileAssets.tsv')
 

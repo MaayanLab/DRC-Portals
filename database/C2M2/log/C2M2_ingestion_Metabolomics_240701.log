@@ -690,7 +690,7 @@ description VARCHAR DEFAULT '',
 PRIMARY KEY(id)
 );
 ================== Defined all tables ======================
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.14274144172668457 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.1516118049621582 seconds.
 
 Names of all tables:
 ['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
@@ -742,7 +742,7 @@ A slice of df:
 [3 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.08251571655273438 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10730671882629395 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/anatomy.tsv ---------
 table_name:anatomy
@@ -770,7 +770,7 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.0624237060546875 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07301855087280273 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/assay_type.tsv ---------
 table_name:assay_type
@@ -792,14 +792,14 @@ A slice of df:
 [4 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.05967521667480469 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07008528709411621 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_disease.tsv ---------
 table_name:biosample_disease
 Metabolomics: biosample_disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.024666309356689453 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03289604187011719 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_from_subject.tsv ---------
 table_name:biosample_from_subject
@@ -832,28 +832,28 @@ sql_count_df:     count
 0  287165
 count:287165
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 4.869527101516724 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 5.088907241821289 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_gene.tsv ---------
 table_name:biosample_gene
 Metabolomics: biosample_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.036623239517211914 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.048920631408691406 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_in_collection.tsv ---------
 table_name:biosample_in_collection
 Metabolomics: biosample_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.028048992156982422 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.034163713455200195 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_substance.tsv ---------
 table_name:biosample_substance
 Metabolomics: biosample_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026363849639892578 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0313875675201416 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample.tsv ---------
 table_name:biosample
@@ -886,91 +886,91 @@ sql_count_df:     count
 0  287165
 count:287165
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 7.484038591384888 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 7.895636558532715 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_anatomy.tsv ---------
 table_name:collection_anatomy
 Metabolomics: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_anatomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.04743647575378418 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06993913650512695 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_compound.tsv ---------
 table_name:collection_compound
 Metabolomics: collection_compound: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0277402400970459 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.035356998443603516 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_defined_by_project.tsv ---------
 table_name:collection_defined_by_project
 Metabolomics: collection_defined_by_project: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_defined_by_project.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.027533531188964844 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03538656234741211 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_disease.tsv ---------
 table_name:collection_disease
 Metabolomics: collection_disease: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02705979347229004 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03334808349609375 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_gene.tsv ---------
 table_name:collection_gene
 Metabolomics: collection_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026152610778808594 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03459906578063965 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_in_collection.tsv ---------
 table_name:collection_in_collection
 Metabolomics: collection_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02703404426574707 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03398323059082031 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_phenotype.tsv ---------
 table_name:collection_phenotype
 Metabolomics: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026861190795898438 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03315401077270508 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_protein.tsv ---------
 table_name:collection_protein
 Metabolomics: collection_protein: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02681279182434082 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03459310531616211 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_substance.tsv ---------
 table_name:collection_substance
 Metabolomics: collection_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026363134384155273 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03251314163208008 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_taxonomy.tsv ---------
 table_name:collection_taxonomy
 Metabolomics: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_taxonomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026833057403564453 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03384089469909668 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection.tsv ---------
 table_name:collection
 Metabolomics: collection: Read from file: df: #rows = 0, #cols: 8
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.027418851852416992 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03304147720336914 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/compound.tsv ---------
 table_name:compound
 Metabolomics: compound: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0267484188079834 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0321502685546875 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/data_type.tsv ---------
 table_name:data_type
@@ -990,7 +990,7 @@ A slice of df:
 [2 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.061254262924194336 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07248759269714355 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/dcc.tsv ---------
 table_name:dcc
@@ -1009,7 +1009,7 @@ A slice of df:
 [1 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.05927467346191406 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07353472709655762 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/disease.tsv ---------
 table_name:disease
@@ -1037,28 +1037,28 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06383347511291504 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07692694664001465 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_biosample.tsv ---------
 table_name:file_describes_biosample
 Metabolomics: file_describes_biosample: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_biosample.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02681422233581543 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03346729278564453 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_collection.tsv ---------
 table_name:file_describes_collection
 Metabolomics: file_describes_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.027205228805541992 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03206372261047363 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_subject.tsv ---------
 table_name:file_describes_subject
 Metabolomics: file_describes_subject: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_subject.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02662062644958496 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03313469886779785 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_format.tsv ---------
 table_name:file_format
@@ -1085,14 +1085,14 @@ A slice of df:
 [9 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06216859817504883 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07216668128967285 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_in_collection.tsv ---------
 table_name:file_in_collection
 Metabolomics: file_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02633523941040039 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.032408714294433594 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file.tsv ---------
 table_name:file
@@ -1125,7 +1125,7 @@ sql_count_df:    count
 0   4354
 count:4354
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.2836003303527832 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.31090211868286133 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/gene.tsv ---------
 table_name:gene
@@ -1153,7 +1153,7 @@ A slice of df:
 [10 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.1861250400543213 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.20790767669677734 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/id_namespace.tsv ---------
 table_name:id_namespace
@@ -1172,7 +1172,7 @@ A slice of df:
 [1 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.0634298324584961 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07736396789550781 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/ncbi_taxonomy.tsv ---------
 table_name:ncbi_taxonomy
@@ -1200,14 +1200,14 @@ A slice of df:
 [10 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06753110885620117 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07753396034240723 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_disease.tsv ---------
 table_name:phenotype_disease
 Metabolomics: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.027597904205322266 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03296518325805664 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_gene.tsv ---------
 table_name:phenotype_gene
@@ -1233,7 +1233,7 @@ A slice of df:
 9  HP:0000047  ENSG00000108384
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.2390727996826172 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.25896310806274414 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype.tsv ---------
 table_name:phenotype
@@ -1261,7 +1261,7 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06507611274719238 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0986945629119873 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/project_in_project.tsv ---------
 table_name:project_in_project
@@ -1294,7 +1294,7 @@ sql_count_df:    count
 0   1742
 count:1742
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09158110618591309 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11722970008850098 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/project.tsv ---------
 table_name:project
@@ -1327,29 +1327,29 @@ sql_count_df:    count
 0   1743
 count:1743
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.1450212001800537 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.18799591064453125 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein_gene.tsv ---------
 table_name:protein_gene
 Metabolomics: protein_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02904653549194336 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03854656219482422 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein.tsv ---------
 table_name:protein
 Metabolomics: protein: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein.tsv: 1
-Processing C2M2 Files...: 100%|██████████| 1/1 [00:17<00:00, 17.38s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:17<00:00, 17.38s/it]
->>>>>>>> Time taken to ingest the metadata from this file: 0.02613520622253418 seconds.
+Processing C2M2 Files...: 100%|██████████| 1/1 [00:18<00:00, 18.87s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:18<00:00, 18.87s/it]
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03630828857421875 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/sample_prep_method.tsv ---------
 table_name:sample_prep_method
 Metabolomics: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/sample_prep_method.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026889801025390625 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03875136375427246 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_disease.tsv ---------
 table_name:subject_disease
@@ -1382,14 +1382,14 @@ sql_count_df:    count
 0   1292
 count:1292
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.08187055587768555 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11033201217651367 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_in_collection.tsv ---------
 table_name:subject_in_collection
 Metabolomics: subject_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02655792236328125 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03674936294555664 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_phenotype.tsv ---------
 table_name:subject_phenotype
@@ -1422,14 +1422,14 @@ sql_count_df:    count
 0    322
 count:322
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06974983215332031 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08205175399780273 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_race.tsv ---------
 table_name:subject_race
 Metabolomics: subject_race: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_race.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02634429931640625 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03329133987426758 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_role_taxonomy.tsv ---------
 table_name:subject_role_taxonomy
@@ -1462,14 +1462,14 @@ sql_count_df:    count
 0   2691
 count:2691
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.10421419143676758 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11384963989257812 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_substance.tsv ---------
 table_name:subject_substance
 Metabolomics: subject_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02708745002746582 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033937692642211914 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject.tsv ---------
 table_name:subject
@@ -1502,16 +1502,16 @@ sql_count_df:    count
 0   2810
 count:2810
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.13395142555236816 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.14748597145080566 seconds.
 
 --------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/substance.tsv ---------
 table_name:substance
 Metabolomics: substance: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.027492046356201172 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03513336181640625 seconds.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 17.394710302352905 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 18.895140171051025 seconds.
 
  ----------- Adding foreign key constraint for table file ----------
 ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
@@ -1716,13 +1716,13 @@ ALTER TABLE metabolomics.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_
 ALTER TABLE metabolomics.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES metabolomics.gene (id);
  ----------- Adding foreign key constraint for table sample_prep_method ----------
  ----------- Adding foreign key constraint for table id_namespace ----------
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 1.2335131168365479 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 0.874920129776001 seconds.
 
 
 >>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table metabolomics.file successful.
 
 Update successful.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 18.97080969810486 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 20.125781774520874 seconds.
 
 ********** C2M2 metadata ingestion completed: schema_name: metabolomics.
