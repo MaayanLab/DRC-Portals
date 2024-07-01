@@ -1,8 +1,7 @@
-import { Autocomplete, CircularProgress, TextField } from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-import { SearchBarState } from "../../interfaces/schema-search";
 import { SearchBarOption } from "../../types/schema-search";
 import {
   CustomPaper,
@@ -12,33 +11,20 @@ import {
 } from "../../utils/schema-search";
 
 interface SchemaAutocompleteProps {
-  state: SearchBarState | undefined;
-  error: string | null;
-  loading: boolean;
-  clearError: () => void;
-  onSubmit: (state: SearchBarState) => void;
+  value?: SearchBarOption[];
+  onChange: (value: SearchBarOption[]) => void;
+  // TODO: Could have a prop here for custom options, specifically could be useful for listing elements which exist in all current paths,
+  // which are also a valid connection to the last element of this path
 }
 
 export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
-  const { state, error, loading, clearError, onSubmit } = cmpProps;
-  const [value, setValue] = useState(state?.value || []);
+  const { onChange } = cmpProps;
+  const [value, setValue] = useState(cmpProps?.value || []);
   const [options, setOptions] = useState(getOptions(value));
 
   useEffect(() => {
     setOptions(getOptions(value.filter(stringFilter) as SearchBarOption[]));
   }, [value]);
-
-  useEffect(() => {
-    if (state !== undefined) {
-      setValue(state.value);
-    }
-  }, [state]);
-
-  const submitSearch = (value: SearchBarOption[]) => {
-    if (value.length > 0) {
-      onSubmit({ value });
-    }
-  };
 
   const stringFilter = (v: SearchBarOption | string) => typeof v !== "string";
 
@@ -47,23 +33,18 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
     return typeof option === "string" ? option : option.name;
   };
 
-  const handleInputKeydown = (e: KeyboardEvent) => {
-    if (e.code === "Enter") {
-      submitSearch(value);
-    }
-  };
-
   // TODO: Seems like adding anonymous nodes/relationships to the search bar value actually solves a lot of problems down the line...should
   // strongly consider updating the implementation to do this.
   const handleOnChange = (
     event: SyntheticEvent,
     newValue: (SearchBarOption | string)[]
   ) => {
-    clearError();
-
     // value can be a string due to the `freeSolo` option below. We don't want user input to be part of the current value, so we filter it
-    // out. This effectively clears it if the user submits the search or chooses an option from the dropdown.
-    setValue(newValue.filter(stringFilter) as SearchBarOption[]);
+    // out. This effectively clears it if the user chooses an option from the dropdown.
+    const filteredValue = newValue.filter(stringFilter) as SearchBarOption[];
+    setValue(filteredValue);
+    // TODO: Put this in the `value` effect above?
+    onChange([...filteredValue]);
   };
 
   const handleRenderOption = (
@@ -96,24 +77,16 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       {...params}
       color="secondary"
       label="Path"
-      helperText={error}
-      error={error !== null}
       InputProps={{
         ...params.InputProps,
         sx: {
           backgroundColor: "#FFF",
         },
-        endAdornment: loading ? (
-          <CircularProgress color="inherit" size={20} />
-        ) : (
-          params.InputProps.endAdornment
-        ),
       }}
       FormHelperTextProps={{
         ...params.FormHelperTextProps,
         style: { backgroundColor: "transparent" },
       }}
-      onKeyDown={handleInputKeydown}
     />
   );
 
@@ -121,10 +94,7 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
     <Autocomplete
       multiple
       freeSolo
-      forcePopupIcon={!loading}
-      disableClearable={loading}
       disableCloseOnSelect
-      loading={loading}
       options={options}
       value={value}
       isOptionEqualToValue={(option, value) => false} // This combined with `freeSolo` allows an option to be chosen more than once

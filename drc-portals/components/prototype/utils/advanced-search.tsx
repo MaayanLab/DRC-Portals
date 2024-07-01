@@ -111,3 +111,20 @@ export const getSearchBarValue = (searchParams: URLSearchParams) => {
 
   return newValue.join(" ");
 };
+
+export const getSchemaSearchValue = (params: URLSearchParams) => {
+  const schemaQuery = params.get("schema_q");
+
+  if (schemaQuery === null) {
+    return null;
+  }
+
+  try {
+    const value = JSON.parse(atob(schemaQuery));
+    // TODO: Add parse step here
+    return value;
+  } catch (e) {
+    // If for any reason (decoding, parsing, etc.) we couldn't get the state, return null instead
+    return null;
+  }
+};

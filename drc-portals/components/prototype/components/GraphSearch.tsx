@@ -10,11 +10,16 @@ import {
 } from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
 import useGraphSearchBehavior from "../hooks/graph-search";
+import { SchemaSearchPath } from "../interfaces/schema-search";
 import {
+  getSchemaSearchValue,
   getSearchBarValue,
   getTextSearchValues,
 } from "../utils/advanced-search";
-import { createSynonymSearchCypher } from "../utils/neo4j";
+import {
+  createSchemaSearchCypher,
+  createSynonymSearchCypher,
+} from "../utils/neo4j";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
@@ -46,19 +51,22 @@ export default function GraphSearch() {
     subjectRaces,
     dccNames,
   } = getTextSearchValues(searchParams);
-  const [value, setValue] = useState<string | null>(null);
+  const [searchBarValue, setSearchBarValue] = useState<string | null>(null);
+  const [schemaValue, setSchemaValue] = useState<SchemaSearchPath[] | null>(
+    null
+  );
 
   const handleSubmit = (term: string) => {
     const searchParams = new URLSearchParams(`q=${term}`);
     router.push(`?${searchParams.toString()}`);
-    setValue(term);
+    setSearchBarValue(term);
   };
 
   const handleAdvancedSearch = (term: string | null) => {
     let advancedSearchParams;
 
     // If the advanced params are set in the url, ignore the search bar value
-    if (searchParams.has("as_q")) {
+    if (searchParams.has("as_q") || searchParams.has("schema_q")) {
       advancedSearchParams = searchParams;
     } else {
       // Otherwise use the search bar value as the initial advanced search query
@@ -71,16 +79,17 @@ export default function GraphSearch() {
 
   useEffect(() => {
     if (searchParams.size > 0) {
-      setValue(getSearchBarValue(searchParams));
+      setSearchBarValue(getSearchBarValue(searchParams));
+      setSchemaValue(getSchemaSearchValue(searchParams));
     }
   }, []);
 
   useEffect(() => {
-    if (value !== null && value.length > 0) {
+    if (searchBarValue !== null && searchBarValue.length > 0) {
       setLoading(true);
       setInitialNetworkData(
         createSynonymSearchCypher(
-          value,
+          searchBarValue,
           searchFile,
           searchSubject,
           searchBiosample,
@@ -95,7 +104,23 @@ export default function GraphSearch() {
           clearLongRequestTimer();
         });
     }
-  }, [value]);
+  }, [searchBarValue]);
+
+  useEffect(() => {
+    if (
+      !searchParams.has("q") &&
+      !searchParams.has("as_q") &&
+      schemaValue !== null
+    ) {
+      setLoading(true);
+      setInitialNetworkData(createSchemaSearchCypher(schemaValue))
+        .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
+        .finally(() => {
+          setLoading(false);
+          clearLongRequestTimer();
+        });
+    }
+  }, [schemaValue]);
 
   return (
     <Grid
@@ -115,7 +140,7 @@ export default function GraphSearch() {
       >
         <SearchBarContainer>
           <SearchBar
-            value={value}
+            value={searchBarValue}
             error={error}
             loading={loading}
             clearError={clearSearchError}

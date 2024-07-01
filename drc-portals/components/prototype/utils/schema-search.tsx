@@ -4,16 +4,11 @@ import { CSSProperties, ReactElement } from "react";
 import {
   INCOMING_CONNECTIONS,
   NODE_LABELS,
-  NODE_REPR_OBJECT_STR,
   OUTGOING_CONNECTIONS,
   PROPERTY_MAP,
   RELATIONSHIP_TYPES,
-  REL_REPR_OBJECT_STR,
 } from "../constants/neo4j";
-import {
-  OPERATOR_FUNCTIONS,
-  PROPERTY_OPERATORS,
-} from "../constants/schema-search";
+import { PROPERTY_OPERATORS } from "../constants/schema-search";
 import { Direction } from "../enums/schema-search";
 import {
   BasePropertyFilter,
@@ -22,7 +17,7 @@ import {
   SearchBarState,
 } from "../interfaces/schema-search";
 import { SearchBarStateSchema } from "../schemas/schema-search";
-import { PredicateFn, SearchBarOption } from "../types/schema-search";
+import { SearchBarOption } from "../types/schema-search";
 import {
   NodeElementFactory,
   RelationshipElementFactory,
@@ -61,150 +56,6 @@ export const isRelationshipOption = (
   option: NodeOption | RelationshipOption
 ): option is RelationshipOption => {
   return (option as RelationshipOption).direction !== undefined;
-};
-
-export const createPredicate = (
-  variable: string,
-  filter: BasePropertyFilter
-) => {
-  const predicate = OPERATOR_FUNCTIONS.has(filter.operator)
-    ? (OPERATOR_FUNCTIONS.get(filter.operator) as PredicateFn)(
-        variable,
-        filter.name,
-        filter.value
-      )
-    : undefined;
-
-  if (predicate === undefined) {
-    console.warn(
-      `No predicates exist for operator ${filter.operator} on property ${filter.name}!`
-    );
-  }
-  return predicate;
-};
-
-export const createWhereClause = (predicates: string[]) => {
-  if (predicates.length === 0) {
-    return "// No WHERE clause in this query!";
-  }
-
-  let clause = "WHERE ";
-  predicates.forEach((predicate, index) => {
-    // If it's the first filter in a list of one, or it's the last filter, don't add a boolean operator
-    if (
-      (index === 0 && predicates.length === 1) ||
-      index === predicates.length - 1
-    ) {
-      clause += `${predicate}`;
-    } else {
-      clause += `${predicate} AND `; // TODO: Could extend this to allow multiple types of boolean operators, it's a bit of a big feature though
-    }
-  });
-
-  return clause;
-};
-
-export const createCypher = (state: SearchBarState) => {
-  const { value } = state;
-  let cypherTraversal = "";
-  const isSingleNode = value.length === 1 && !isRelationshipOption(value[0]);
-  const wherePredicates: string[] = [];
-  const nodeLimits: [string, number][] = [];
-
-  value.forEach((entity, index) => {
-    const entityIsRelationship = isRelationshipOption(entity);
-    const variable = entityIsRelationship ? `r${index}` : `n${index}`;
-    const prevIsRelationship =
-      index > 0 ? isRelationshipOption(value[index - 1]) : false;
-
-    if (!entityIsRelationship && entity.limit !== undefined) {
-      nodeLimits.push([variable, entity.limit]);
-    }
-
-    // If the first element of the path is a relationship, prepend it with an anonymous node
-    if (index === 0 && entityIsRelationship) {
-      cypherTraversal += `(aN${index})`;
-    }
-
-    // If the current and previous element are both Relationships, then we need to add an anonymous node between them
-    if (entityIsRelationship && prevIsRelationship) {
-      cypherTraversal += `(aN${index})`;
-    }
-
-    // If the current and previous element are both Nodes, then we need to add an anonymous relationship between them
-    if (index !== 0 && !entityIsRelationship && !prevIsRelationship) {
-      cypherTraversal += `-[aR${index}]-`;
-    }
-
-    if (entityIsRelationship) {
-      if (entity.direction === Direction.OUTGOING) {
-        cypherTraversal += `-[${variable}:${entity.name}]->`;
-      } else if (entity.direction === Direction.INCOMING) {
-        cypherTraversal += `<-[${variable}:${entity.name}]-`;
-      } else {
-        cypherTraversal += `-[${variable}]-`;
-      }
-    } else {
-      cypherTraversal += `(${variable}:${entity.name})`;
-    }
-
-    if (entity.filters.length > 0) {
-      entity.filters.forEach((filter) => {
-        const predicate = createPredicate(variable, filter);
-        if (predicate !== undefined) {
-          wherePredicates.push(predicate);
-        }
-      });
-    }
-
-    // We've reached the last element in the original path
-    if (index === value.length - 1) {
-      // If the last element is a relationship, tack on an anonymous node
-      if (entityIsRelationship) {
-        cypherTraversal += `(end)`;
-      }
-    }
-  });
-
-  const whereClause = createWhereClause(wherePredicates);
-  const queryStmts = [];
-  const prevVars: string[] = [];
-
-  nodeLimits.forEach(([nodeVar, limit], idx) => {
-    queryStmts.push(
-      "CALL {",
-      prevVars.length > 0
-        ? `\tWITH ${prevVars.join(", ")}`
-        : "\t// No previous vars to include!",
-      `\tMATCH ${cypherTraversal}`,
-      `\t${whereClause}`,
-      `\tRETURN DISTINCT ${nodeVar}`,
-      `\tLIMIT ${limit}`,
-      "}"
-    );
-    prevVars.push(nodeVar);
-  });
-
-  queryStmts.push(
-    `MATCH path=${cypherTraversal}`,
-    whereClause,
-    "WITH path",
-    // `SKIP ${settings?.skip || 0}`,
-    // `LIMIT ${settings?.limit || 10}`,
-    "UNWIND nodes(path) AS n"
-  );
-
-  if (isSingleNode) {
-    queryStmts.push(
-      `RETURN collect(DISTINCT ${NODE_REPR_OBJECT_STR}) AS nodes, [] as relationships`
-    );
-  } else {
-    queryStmts.push(
-      "UNWIND relationships(path) AS r",
-      `RETURN collect(DISTINCT ${NODE_REPR_OBJECT_STR}) AS nodes, collect(DISTINCT ${REL_REPR_OBJECT_STR}) AS relationships`
-    );
-  }
-  return queryStmts.join("\n");
 };
 
 export const getAllNodeOptions = () => {

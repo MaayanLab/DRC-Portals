@@ -9,6 +9,7 @@ export interface BasePropertyFilter {
 
 export interface BaseSearchBarOption {
   name: string;
+  key?: string;
   filters: BasePropertyFilter[];
 }
 
@@ -22,4 +23,10 @@ export interface RelationshipOption extends BaseSearchBarOption {
 
 export interface SearchBarState {
   value: SearchBarOption[];
+}
+
+export interface SchemaSearchPath {
+  elements: SearchBarOption[];
+  skip: number;
+  limit: number;
 }

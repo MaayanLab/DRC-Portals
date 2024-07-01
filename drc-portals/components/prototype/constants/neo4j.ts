@@ -526,17 +526,3 @@ export const PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map([
     ],
   ],
 ]);
-
-export const NODE_REPR_OBJECT_STR = `{
-  identity: id(n),
-  labels: labels(n),
-  properties: properties(n)
-}`;
-
-export const REL_REPR_OBJECT_STR = `{
-  identity: id(r),
-  type: type(r),
-  properties: properties(r),
-  start: id(startNode(r)),
-  end: id(endNode(r))
-}`;
