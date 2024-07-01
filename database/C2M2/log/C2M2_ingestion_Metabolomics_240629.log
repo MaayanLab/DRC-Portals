@@ -1,0 +1,1728 @@
+------------ dcc_short_labels:['4DN', 'ERCC', 'GTEx', 'GlyGen', 'HMP', 'HuBMAP', 'IDG', 'KidsFirst', 'LINCS', 'Metabolomics', 'MoTrPAC', 'SPARC']
+********** DCC name (dcc_short_label) specified as an argument: Metabolomics; will use schema_name: metabolomics, so, will ingest only from that DCC.
+DROP SCHEMA IF EXISTS metabolomics CASCADE;
+Creating metabolomics
+=================== table_name: file ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: size_in_bytes: information read ----
+---- Column name: uncompressed_size_in_bytes: information read ----
+---- Column name: sha256: information read ----
+---- Column name: md5: information read ----
+---- Column name: filename: information read ----
+---- Column name: file_format: information read ----
+---- Column name: compression_format: information read ----
+---- Column name: data_type: information read ----
+---- Column name: assay_type: information read ----
+---- Column name: analysis_type: information read ----
+---- Column name: mime_type: information read ----
+---- Column name: bundle_collection_id_namespace: information read ----
+---- Column name: bundle_collection_local_id: information read ----
+---- Column name: dbgap_study_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.file (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+size_in_bytes VARCHAR DEFAULT '', 
+uncompressed_size_in_bytes VARCHAR DEFAULT '', 
+sha256 VARCHAR DEFAULT '', 
+md5 VARCHAR DEFAULT '', 
+filename VARCHAR NOT NULL, 
+file_format VARCHAR DEFAULT '', 
+compression_format VARCHAR DEFAULT '', 
+data_type VARCHAR DEFAULT '', 
+assay_type VARCHAR DEFAULT '', 
+analysis_type VARCHAR DEFAULT '', 
+mime_type VARCHAR DEFAULT '', 
+bundle_collection_id_namespace VARCHAR DEFAULT '', 
+bundle_collection_local_id VARCHAR DEFAULT '', 
+dbgap_study_id VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: biosample ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: sample_prep_method: information read ----
+---- Column name: anatomy: information read ----
+create_table_query:
+CREATE TABLE metabolomics.biosample (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+sample_prep_method VARCHAR DEFAULT '', 
+anatomy VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: subject ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: granularity: information read ----
+---- Column name: sex: information read ----
+---- Column name: ethnicity: information read ----
+---- Column name: age_at_enrollment: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+granularity VARCHAR NOT NULL, 
+sex VARCHAR DEFAULT '', 
+ethnicity VARCHAR DEFAULT '', 
+age_at_enrollment VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: dcc ===========================
+---- Column name: id: information read ----
+---- Column name: dcc_name: information read ----
+---- Column name: dcc_abbreviation: information read ----
+---- Column name: dcc_description: information read ----
+---- Column name: contact_email: information read ----
+---- Column name: contact_name: information read ----
+---- Column name: dcc_url: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.dcc (
+id VARCHAR NOT NULL, 
+dcc_name VARCHAR NOT NULL, 
+dcc_abbreviation VARCHAR NOT NULL, 
+dcc_description VARCHAR DEFAULT '', 
+contact_email VARCHAR NOT NULL, 
+contact_name VARCHAR NOT NULL, 
+dcc_url VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: project ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+create_table_query:
+CREATE TABLE metabolomics.project (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: project_in_project ===========================
+---- Column name: parent_project_id_namespace: information read ----
+---- Column name: parent_project_local_id: information read ----
+---- Column name: child_project_id_namespace: information read ----
+---- Column name: child_project_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.project_in_project (
+parent_project_id_namespace VARCHAR NOT NULL, 
+parent_project_local_id VARCHAR NOT NULL, 
+child_project_id_namespace VARCHAR NOT NULL, 
+child_project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id)
+);
+=================== table_name: collection ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: has_time_series_data: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+has_time_series_data VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: collection_in_collection ===========================
+---- Column name: superset_collection_id_namespace: information read ----
+---- Column name: superset_collection_local_id: information read ----
+---- Column name: subset_collection_id_namespace: information read ----
+---- Column name: subset_collection_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_in_collection (
+superset_collection_id_namespace VARCHAR NOT NULL, 
+superset_collection_local_id VARCHAR NOT NULL, 
+subset_collection_id_namespace VARCHAR NOT NULL, 
+subset_collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(superset_collection_id_namespace, superset_collection_local_id, subset_collection_id_namespace, subset_collection_local_id)
+);
+=================== table_name: file_describes_collection ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.file_describes_collection (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: collection_defined_by_project ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_defined_by_project (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, project_id_namespace, project_local_id)
+);
+=================== table_name: file_in_collection ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.file_in_collection (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: biosample_in_collection ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.biosample_in_collection (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: subject_in_collection ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject_in_collection (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: file_describes_biosample ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.file_describes_biosample (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id)
+);
+=================== table_name: file_describes_subject ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.file_describes_subject (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, subject_id_namespace, subject_local_id)
+);
+=================== table_name: biosample_from_subject ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: age_at_sampling: information read ----
+create_table_query:
+CREATE TABLE metabolomics.biosample_from_subject (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+age_at_sampling VARCHAR DEFAULT '',
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, subject_id_namespace, subject_local_id)
+);
+=================== table_name: biosample_disease ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE metabolomics.biosample_disease (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, association_type, disease)
+);
+=================== table_name: subject_disease ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject_disease (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, association_type, disease)
+);
+=================== table_name: collection_disease ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_disease (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, disease)
+);
+=================== table_name: collection_phenotype ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: phenotype: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_phenotype (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+phenotype VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, phenotype)
+);
+=================== table_name: collection_gene ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_gene (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, gene)
+);
+=================== table_name: collection_compound ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: compound: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_compound (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+compound VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, compound)
+);
+=================== table_name: collection_substance ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_substance (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, substance)
+);
+=================== table_name: collection_taxonomy ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: taxon: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_taxonomy (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+taxon VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, taxon)
+);
+=================== table_name: collection_anatomy ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: anatomy: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_anatomy (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+anatomy VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, anatomy)
+);
+=================== table_name: collection_protein ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: protein: information read ----
+create_table_query:
+CREATE TABLE metabolomics.collection_protein (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+protein VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, protein)
+);
+=================== table_name: subject_phenotype ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: phenotype: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject_phenotype (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+phenotype VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, association_type, phenotype)
+);
+=================== table_name: biosample_substance ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE metabolomics.biosample_substance (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, substance)
+);
+=================== table_name: subject_substance ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject_substance (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, substance)
+);
+=================== table_name: biosample_gene ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE metabolomics.biosample_gene (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, gene)
+);
+=================== table_name: phenotype_gene ===========================
+---- Column name: phenotype: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE metabolomics.phenotype_gene (
+phenotype VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(phenotype, gene)
+);
+=================== table_name: phenotype_disease ===========================
+---- Column name: phenotype: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE metabolomics.phenotype_disease (
+phenotype VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(phenotype, disease)
+);
+=================== table_name: subject_race ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: race: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject_race (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+race VARCHAR DEFAULT '',
+PRIMARY KEY(subject_id_namespace, subject_local_id, race)
+);
+=================== table_name: subject_role_taxonomy ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: role_id: information read ----
+---- Column name: taxonomy_id: information read ----
+create_table_query:
+CREATE TABLE metabolomics.subject_role_taxonomy (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+role_id VARCHAR NOT NULL, 
+taxonomy_id VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, role_id, taxonomy_id)
+);
+=================== table_name: assay_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.assay_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: analysis_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.analysis_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: ncbi_taxonomy ===========================
+---- Column name: id: information read ----
+---- Column name: clade: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.ncbi_taxonomy (
+id VARCHAR NOT NULL, 
+clade VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: anatomy ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.anatomy (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: file_format ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.file_format (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: data_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.data_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: disease ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.disease (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: phenotype ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.phenotype (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: compound ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.compound (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: substance ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: compound: information read ----
+create_table_query:
+CREATE TABLE metabolomics.substance (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+compound VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: gene ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: organism: information read ----
+create_table_query:
+CREATE TABLE metabolomics.gene (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+organism VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: protein ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: organism: information read ----
+create_table_query:
+CREATE TABLE metabolomics.protein (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+organism VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: protein_gene ===========================
+---- Column name: protein: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE metabolomics.protein_gene (
+protein VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(protein, gene)
+);
+=================== table_name: sample_prep_method ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE metabolomics.sample_prep_method (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: id_namespace ===========================
+---- Column name: id: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+create_table_query:
+CREATE TABLE metabolomics.id_namespace (
+id VARCHAR NOT NULL, 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+================== Defined all tables ======================
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.14274144172668457 seconds.
+
+Names of all tables:
+['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
+
+Going to ingest metadata from files
+
+
+********* c2m2s dataframe, before checking if a single DCC is to be processed, is: **********
+    filetype  ... dcc_short_label
+30      C2M2  ...             4DN
+31      C2M2  ...    Metabolomics
+32      C2M2  ...          GlyGen
+33      C2M2  ...          HuBMAP
+34      C2M2  ...       KidsFirst
+35      C2M2  ...           SPARC
+74      C2M2  ...            ERCC
+81      C2M2  ...         MoTrPAC
+93      C2M2  ...            GTEx
+107     C2M2  ...             HMP
+123     C2M2  ...             IDG
+146     C2M2  ...           LINCS
+
+[12 rows x 14 columns]
+
+********* c2m2s dataframe is: **********
+   filetype  ... dcc_short_label
+31     C2M2  ...    Metabolomics
+
+[1 rows x 14 columns]
+Processing C2M2 Files...:   0%|          | 0/1 [00:00<?, ?it/s]
+================================== DCC short label: Metabolomics =============================================
+Unpack zip file: c2m2_extract_path: ingest/c2m2s/Metabolomics/MW_submission_packet_20240605
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/analysis_type.tsv ---------
+table_name:analysis_type
+Metabolomics: analysis_type: Read from file: df: #rows = 3, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/analysis_type.tsv: 4
+df: #rows = 3, #cols: 4
+pKeys: ['id']
+*** Entering analysis_type to database ***
+df: #rows = 3, #cols: 4
+
+A slice of df:
+            id  ... synonyms
+0  OBI:0000726  ...       []
+1  OBI:0200085  ...       []
+2  OBI:0200199  ...       []
+
+[3 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08251571655273438 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/anatomy.tsv ---------
+table_name:anatomy
+Metabolomics: anatomy: Read from file: df: #rows = 110, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/anatomy.tsv: 111
+df: #rows = 110, #cols: 4
+pKeys: ['id']
+*** Entering anatomy to database ***
+df: #rows = 110, #cols: 4
+
+A slice of df:
+               id  ...                                           synonyms
+0  UBERON:0000006  ...           ["pancreatic insula","pancreatic islet"]
+1  UBERON:0000033  ...                                  ["head (volume)"]
+2  UBERON:0000038  ...  ["liquor follicularis","liquor folliculi","ova...
+3  UBERON:0000044  ...  ["UBERON:0026602","dorsal root ganglion","gang...
+4  UBERON:0000160  ...                                          ["bowel"]
+5  UBERON:0000173  ...                                                 []
+6  UBERON:0000178  ...            ["portion of blood","vertebrate blood"]
+7  UBERON:0000310  ...         ["mammary part of chest","mammary region"]
+8  UBERON:0000358  ...                                                 []
+9  UBERON:0000403  ...                                                 []
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0624237060546875 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/assay_type.tsv ---------
+table_name:assay_type
+Metabolomics: assay_type: Read from file: df: #rows = 4, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/assay_type.tsv: 5
+df: #rows = 4, #cols: 4
+pKeys: ['id']
+*** Entering assay_type to database ***
+df: #rows = 4, #cols: 4
+
+A slice of df:
+            id  ...                                     synonyms
+0  OBI:0000470  ...                                           []
+1  OBI:0000623  ...  ["Nuclear magnetic resonance spectroscopy"]
+2  OBI:0003097  ...                                    ["LC-MS"]
+3  OBI:0003110  ...                                    ["GC-MS"]
+
+[4 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.05967521667480469 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_disease.tsv ---------
+table_name:biosample_disease
+Metabolomics: biosample_disease: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.024666309356689453 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_from_subject.tsv ---------
+table_name:biosample_from_subject
+Metabolomics: biosample_from_subject: Read from file: df: #rows = 287165, #cols: 5
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_from_subject.tsv: 287166
+df: #rows = 287165, #cols: 5
+pKeys: ['biosample_id_namespace', 'biosample_local_id', 'subject_id_namespace', 'subject_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample_from_subject to database ***
+df: #rows = 287165, #cols: 5
+
+A slice of df:
+                   biosample_id_namespace  ... age_at_sampling
+0  https://www.metabolomicsworkbench.org/  ...             NaN
+1  https://www.metabolomicsworkbench.org/  ...             NaN
+2  https://www.metabolomicsworkbench.org/  ...             NaN
+3  https://www.metabolomicsworkbench.org/  ...             NaN
+4  https://www.metabolomicsworkbench.org/  ...             NaN
+5  https://www.metabolomicsworkbench.org/  ...             NaN
+6  https://www.metabolomicsworkbench.org/  ...             NaN
+7  https://www.metabolomicsworkbench.org/  ...             NaN
+8  https://www.metabolomicsworkbench.org/  ...             NaN
+9  https://www.metabolomicsworkbench.org/  ...             NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:     count
+0  287165
+count:287165
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 4.869527101516724 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_gene.tsv ---------
+table_name:biosample_gene
+Metabolomics: biosample_gene: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.036623239517211914 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_in_collection.tsv ---------
+table_name:biosample_in_collection
+Metabolomics: biosample_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.028048992156982422 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_substance.tsv ---------
+table_name:biosample_substance
+Metabolomics: biosample_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.026363849639892578 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample.tsv ---------
+table_name:biosample
+Metabolomics: biosample: Read from file: df: #rows = 287165, #cols: 8
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/biosample.tsv: 287166
+df: #rows = 287165, #cols: 8
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample to database ***
+df: #rows = 287165, #cols: 8
+
+A slice of df:
+                             id_namespace  ...                                      persistent_id
+0  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+1  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+2  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+3  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+4  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+5  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+6  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+7  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+8  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+9  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/data/DRC...
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:     count
+0  287165
+count:287165
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 7.484038591384888 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_anatomy.tsv ---------
+table_name:collection_anatomy
+Metabolomics: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_anatomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.04743647575378418 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_compound.tsv ---------
+table_name:collection_compound
+Metabolomics: collection_compound: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_compound.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0277402400970459 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_defined_by_project.tsv ---------
+table_name:collection_defined_by_project
+Metabolomics: collection_defined_by_project: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_defined_by_project.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.027533531188964844 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_disease.tsv ---------
+table_name:collection_disease
+Metabolomics: collection_disease: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02705979347229004 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_gene.tsv ---------
+table_name:collection_gene
+Metabolomics: collection_gene: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.026152610778808594 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_in_collection.tsv ---------
+table_name:collection_in_collection
+Metabolomics: collection_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02703404426574707 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_phenotype.tsv ---------
+table_name:collection_phenotype
+Metabolomics: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.026861190795898438 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_protein.tsv ---------
+table_name:collection_protein
+Metabolomics: collection_protein: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_protein.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02681279182434082 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_substance.tsv ---------
+table_name:collection_substance
+Metabolomics: collection_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.026363134384155273 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_taxonomy.tsv ---------
+table_name:collection_taxonomy
+Metabolomics: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection_taxonomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.026833057403564453 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection.tsv ---------
+table_name:collection
+Metabolomics: collection: Read from file: df: #rows = 0, #cols: 8
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.027418851852416992 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/compound.tsv ---------
+table_name:compound
+Metabolomics: compound: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/compound.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0267484188079834 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/data_type.tsv ---------
+table_name:data_type
+Metabolomics: data_type: Read from file: df: #rows = 2, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/data_type.tsv: 3
+df: #rows = 2, #cols: 4
+pKeys: ['id']
+*** Entering data_type to database ***
+df: #rows = 2, #cols: 4
+
+A slice of df:
+          id  ...         synonyms
+0  data:2536  ...               []
+1  data:3488  ...  ["NMR spectra"]
+
+[2 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.061254262924194336 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/dcc.tsv ---------
+table_name:dcc
+Metabolomics: dcc: Read from file: df: #rows = 1, #cols: 9
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/dcc.tsv: 2
+df: #rows = 1, #cols: 9
+pKeys: ['id']
+*** Entering dcc to database ***
+df: #rows = 1, #cols: 9
+
+A slice of df:
+                               id  ...     contact_email
+0  cfde_registry_dcc:metabolomics  ...  mmaurya@ucsd.edu
+
+[1 rows x 5 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.05927467346191406 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/disease.tsv ---------
+table_name:disease
+Metabolomics: disease: Read from file: df: #rows = 128, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/disease.tsv: 129
+df: #rows = 128, #cols: 4
+pKeys: ['id']
+*** Entering disease to database ***
+df: #rows = 128, #cols: 4
+
+A slice of df:
+             id  ...                                           synonyms
+0  DOID:0014667  ...                              ["metabolic disease"]
+1  DOID:0040085  ...                                                 []
+2  DOID:0050117  ...  ["DOID:10115","DOID:11078","DOID:1304","DOID:1...
+3  DOID:0050476  ...  ["3-methylglutaconicaciduria type 2","3-methyl...
+4  DOID:0050589  ...                                                 []
+5  DOID:0050700  ...                               ["Cardiomyopathies"]
+6  DOID:0050741  ...                                     ["alcoholism"]
+7  DOID:0050753  ...                                                 []
+8  DOID:0050830  ...                                                 []
+9  DOID:0050847  ...                                                 []
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06383347511291504 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_biosample.tsv ---------
+table_name:file_describes_biosample
+Metabolomics: file_describes_biosample: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_biosample.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02681422233581543 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_collection.tsv ---------
+table_name:file_describes_collection
+Metabolomics: file_describes_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.027205228805541992 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_subject.tsv ---------
+table_name:file_describes_subject
+Metabolomics: file_describes_subject: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_describes_subject.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02662062644958496 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_format.tsv ---------
+table_name:file_format
+Metabolomics: file_format: Read from file: df: #rows = 9, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_format.tsv: 10
+df: #rows = 9, #cols: 4
+pKeys: ['id']
+*** Entering file_format to database ***
+df: #rows = 9, #cols: 4
+
+A slice of df:
+            id  ...                         synonyms
+0  format:2330  ...      ["Plain text format","txt"]
+1  format:2333  ...                               []
+2  format:3506  ...  ["Microsoft Word format","doc"]
+3  format:3508  ...                               []
+4  format:3620  ...                               []
+5  format:3752  ...       ["Comma-separated values"]
+6  format:3981  ...                ["Tarball","TAR"]
+7  format:3987  ...                          ["ZIP"]
+8  format:3989  ...                      ["GNU Zip"]
+
+[9 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06216859817504883 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_in_collection.tsv ---------
+table_name:file_in_collection
+Metabolomics: file_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02633523941040039 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file.tsv ---------
+table_name:file
+Metabolomics: file: Read from file: df: #rows = 4354, #cols: 20
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/file.tsv: 4355
+df: #rows = 4354, #cols: 20
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file to database ***
+df: #rows = 4354, #cols: 20
+
+A slice of df:
+                             id_namespace  ...                                      persistent_id
+0  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+1  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+2  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+3  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+4  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+5  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+6  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+7  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+8  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+9  https://www.metabolomicsworkbench.org/  ...  https://www.metabolomicsworkbench.org/studydow...
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   4354
+count:4354
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.2836003303527832 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/gene.tsv ---------
+table_name:gene
+Metabolomics: gene: Read from file: df: #rows = 5631, #cols: 5
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/gene.tsv: 5632
+df: #rows = 5631, #cols: 5
+pKeys: ['id']
+*** Entering gene to database ***
+df: #rows = 5631, #cols: 5
+
+A slice of df:
+                id  ...       organism
+0  ENSG00000000419  ...  NCBI:txid9606
+1  ENSG00000000971  ...  NCBI:txid9606
+2  ENSG00000001084  ...  NCBI:txid9606
+3  ENSG00000001497  ...  NCBI:txid9606
+4  ENSG00000001626  ...  NCBI:txid9606
+5  ENSG00000001631  ...  NCBI:txid9606
+6  ENSG00000002016  ...  NCBI:txid9606
+7  ENSG00000002330  ...  NCBI:txid9606
+8  ENSG00000002586  ...  NCBI:txid9606
+9  ENSG00000002587  ...  NCBI:txid9606
+
+[10 rows x 5 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1861250400543213 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/id_namespace.tsv ---------
+table_name:id_namespace
+Metabolomics: id_namespace: Read from file: df: #rows = 1, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/id_namespace.tsv: 2
+df: #rows = 1, #cols: 4
+pKeys: ['id']
+*** Entering id_namespace to database ***
+df: #rows = 1, #cols: 4
+
+A slice of df:
+                                       id  ...                                        description
+0  https://www.metabolomicsworkbench.org/  ...  The Metabolomics Workbench is the NIH Common F...
+
+[1 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0634298324584961 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/ncbi_taxonomy.tsv ---------
+table_name:ncbi_taxonomy
+Metabolomics: ncbi_taxonomy: Read from file: df: #rows = 154, #cols: 5
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/ncbi_taxonomy.tsv: 155
+df: #rows = 154, #cols: 5
+pKeys: ['id']
+*** Entering ncbi_taxonomy to database ***
+df: #rows = 154, #cols: 5
+
+A slice of df:
+                 id  ...                                           synonyms
+0    NCBI:txid10009  ...                                   ["red squirrel"]
+1    NCBI:txid10029  ...  ["Chinese hamsters", "Cricetulus aureus", "Cri...
+2    NCBI:txid10036  ...  ["Syrian hamster", "Cricetus auratus", "Golden...
+3  NCBI:txid1006131  ...                                                 []
+4    NCBI:txid10090  ...                                          ["mouse"]
+5    NCBI:txid10116  ...                         ["rats", "Mus norvegicus"]
+6    NCBI:txid10149  ...  ["carpincho", "Hydrochaeris hydrochaeris", "Hy...
+7  NCBI:txid1093657  ...                                                 []
+8   NCBI:txid110662  ...             ["Parasynechococcus africanus CC9605"]
+9     NCBI:txid1129  ...                                      ["Anacystis"]
+
+[10 rows x 5 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06753110885620117 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_disease.tsv ---------
+table_name:phenotype_disease
+Metabolomics: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.027597904205322266 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_gene.tsv ---------
+table_name:phenotype_gene
+Metabolomics: phenotype_gene: Read from file: df: #rows = 18850, #cols: 2
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype_gene.tsv: 18851
+df: #rows = 18850, #cols: 2
+pKeys: ['phenotype', 'gene']
+*** Entering phenotype_gene to database ***
+df: #rows = 18850, #cols: 2
+
+A slice of df:
+    phenotype             gene
+0  HP:0000047  ENSG00000166797
+1  HP:0000047  ENSG00000112234
+2  HP:0000047  ENSG00000090776
+3  HP:0000047  ENSG00000105221
+4  HP:0000047  ENSG00000111846
+5  HP:0000047  ENSG00000169057
+6  HP:0000047  ENSG00000285222
+7  HP:0000047  ENSG00000183196
+8  HP:0000047  ENSG00000140262
+9  HP:0000047  ENSG00000108384
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.2390727996826172 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype.tsv ---------
+table_name:phenotype
+Metabolomics: phenotype: Read from file: df: #rows = 67, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/phenotype.tsv: 68
+df: #rows = 67, #cols: 4
+pKeys: ['id']
+*** Entering phenotype to database ***
+df: #rows = 67, #cols: 4
+
+A slice of df:
+           id  ...                                           synonyms
+0  HP:0000047  ...                                     ["Hypospadia"]
+1  HP:0000670  ...  ["HP:0006295","HP:0006306","Caries","Cariosity...
+2  HP:0000716  ...                      ["Depression","Depressivity"]
+3  HP:0000717  ...                                         ["Autism"]
+4  HP:0000726  ...  ["HP:0002274","HP:0007122","HP:0007150","HP:00...
+5  HP:0000739  ...  ["Anxiety","Anxiousness","Excessive, persisten...
+6  HP:0000822  ...  ["HP:0004949","HP:0005126","Arterial hypertens...
+7  HP:0000939  ...                                     ["HP:0002774"]
+8  HP:0000964  ...                            ["HP:0001481","Eczema"]
+9  HP:0001047  ...  ["HP:0007533","HP:0007564","Atopic dermatitis,...
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06507611274719238 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/project_in_project.tsv ---------
+table_name:project_in_project
+Metabolomics: project_in_project: Read from file: df: #rows = 1742, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/project_in_project.tsv: 1743
+df: #rows = 1742, #cols: 4
+pKeys: ['parent_project_id_namespace', 'parent_project_local_id', 'child_project_id_namespace', 'child_project_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering project_in_project to database ***
+df: #rows = 1742, #cols: 4
+
+A slice of df:
+              parent_project_id_namespace  ... child_project_local_id
+0  https://www.metabolomicsworkbench.org/  ...               PR000001
+1  https://www.metabolomicsworkbench.org/  ...               PR000002
+2  https://www.metabolomicsworkbench.org/  ...               PR000003
+3  https://www.metabolomicsworkbench.org/  ...               PR000004
+4  https://www.metabolomicsworkbench.org/  ...               PR000005
+5  https://www.metabolomicsworkbench.org/  ...               PR000006
+6  https://www.metabolomicsworkbench.org/  ...               PR000008
+7  https://www.metabolomicsworkbench.org/  ...               PR000009
+8  https://www.metabolomicsworkbench.org/  ...               PR000010
+9  https://www.metabolomicsworkbench.org/  ...               PR000011
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1742
+count:1742
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09158110618591309 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/project.tsv ---------
+table_name:project
+Metabolomics: project: Read from file: df: #rows = 1743, #cols: 7
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/project.tsv: 1744
+df: #rows = 1743, #cols: 7
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering project to database ***
+df: #rows = 1743, #cols: 7
+
+A slice of df:
+                             id_namespace  local_id  ... creation_time  abbreviation
+0  https://www.metabolomicsworkbench.org/  PPR00001  ...           NaN   AllProjects
+1  https://www.metabolomicsworkbench.org/  PR000001  ...           NaN           NaN
+2  https://www.metabolomicsworkbench.org/  PR000002  ...           NaN           NaN
+3  https://www.metabolomicsworkbench.org/  PR000003  ...           NaN           NaN
+4  https://www.metabolomicsworkbench.org/  PR000004  ...           NaN           NaN
+5  https://www.metabolomicsworkbench.org/  PR000005  ...           NaN           NaN
+6  https://www.metabolomicsworkbench.org/  PR000006  ...           NaN           NaN
+7  https://www.metabolomicsworkbench.org/  PR000008  ...           NaN           NaN
+8  https://www.metabolomicsworkbench.org/  PR000009  ...           NaN           NaN
+9  https://www.metabolomicsworkbench.org/  PR000010  ...           NaN           NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1743
+count:1743
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1450212001800537 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein_gene.tsv ---------
+table_name:protein_gene
+Metabolomics: protein_gene: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02904653549194336 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein.tsv ---------
+table_name:protein
+Metabolomics: protein: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/protein.tsv: 1
+Processing C2M2 Files...: 100%|██████████| 1/1 [00:17<00:00, 17.38s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:17<00:00, 17.38s/it]
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02613520622253418 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/sample_prep_method.tsv ---------
+table_name:sample_prep_method
+Metabolomics: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/sample_prep_method.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.026889801025390625 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_disease.tsv ---------
+table_name:subject_disease
+Metabolomics: subject_disease: Read from file: df: #rows = 1292, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_disease.tsv: 1293
+df: #rows = 1292, #cols: 4
+pKeys: ['subject_id_namespace', 'subject_local_id', 'association_type', 'disease']
+Going to write the count query
+Wrote the count query
+*** Entering subject_disease to database ***
+df: #rows = 1292, #cols: 4
+
+A slice of df:
+                     subject_id_namespace  ...     disease
+0  https://www.metabolomicsworkbench.org/  ...    DOID:104
+1  https://www.metabolomicsworkbench.org/  ...    DOID:162
+2  https://www.metabolomicsworkbench.org/  ...   DOID:8398
+3  https://www.metabolomicsworkbench.org/  ...   DOID:8398
+4  https://www.metabolomicsworkbench.org/  ...    DOID:162
+5  https://www.metabolomicsworkbench.org/  ...  DOID:10652
+6  https://www.metabolomicsworkbench.org/  ...  DOID:10652
+7  https://www.metabolomicsworkbench.org/  ...   DOID:9351
+8  https://www.metabolomicsworkbench.org/  ...    DOID:557
+9  https://www.metabolomicsworkbench.org/  ...    DOID:162
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1292
+count:1292
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08187055587768555 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_in_collection.tsv ---------
+table_name:subject_in_collection
+Metabolomics: subject_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02655792236328125 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_phenotype.tsv ---------
+table_name:subject_phenotype
+Metabolomics: subject_phenotype: Read from file: df: #rows = 322, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_phenotype.tsv: 323
+df: #rows = 322, #cols: 4
+pKeys: ['subject_id_namespace', 'subject_local_id', 'association_type', 'phenotype']
+Going to write the count query
+Wrote the count query
+*** Entering subject_phenotype to database ***
+df: #rows = 322, #cols: 4
+
+A slice of df:
+                     subject_id_namespace  ...   phenotype
+0  https://www.metabolomicsworkbench.org/  ...  HP:0002758
+1  https://www.metabolomicsworkbench.org/  ...  HP:0002758
+2  https://www.metabolomicsworkbench.org/  ...  HP:0001596
+3  https://www.metabolomicsworkbench.org/  ...  HP:0001513
+4  https://www.metabolomicsworkbench.org/  ...  HP:0004387
+5  https://www.metabolomicsworkbench.org/  ...  HP:0004387
+6  https://www.metabolomicsworkbench.org/  ...  HP:0000822
+7  https://www.metabolomicsworkbench.org/  ...  HP:0001943
+8  https://www.metabolomicsworkbench.org/  ...  HP:0003560
+9  https://www.metabolomicsworkbench.org/  ...  HP:0003765
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0    322
+count:322
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06974983215332031 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_race.tsv ---------
+table_name:subject_race
+Metabolomics: subject_race: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_race.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02634429931640625 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_role_taxonomy.tsv ---------
+table_name:subject_role_taxonomy
+Metabolomics: subject_role_taxonomy: Read from file: df: #rows = 2691, #cols: 4
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_role_taxonomy.tsv: 2692
+df: #rows = 2691, #cols: 4
+pKeys: ['subject_id_namespace', 'subject_local_id', 'role_id', 'taxonomy_id']
+Going to write the count query
+Wrote the count query
+*** Entering subject_role_taxonomy to database ***
+df: #rows = 2691, #cols: 4
+
+A slice of df:
+                     subject_id_namespace  ...     taxonomy_id
+0  https://www.metabolomicsworkbench.org/  ...   NCBI:txid3702
+1  https://www.metabolomicsworkbench.org/  ...   NCBI:txid9606
+2  https://www.metabolomicsworkbench.org/  ...  NCBI:txid10090
+3  https://www.metabolomicsworkbench.org/  ...   NCBI:txid9606
+4  https://www.metabolomicsworkbench.org/  ...  NCBI:txid10090
+5  https://www.metabolomicsworkbench.org/  ...  NCBI:txid29760
+6  https://www.metabolomicsworkbench.org/  ...  NCBI:txid39947
+7  https://www.metabolomicsworkbench.org/  ...   NCBI:txid9606
+8  https://www.metabolomicsworkbench.org/  ...   NCBI:txid9606
+9  https://www.metabolomicsworkbench.org/  ...   NCBI:txid9606
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   2691
+count:2691
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10421419143676758 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_substance.tsv ---------
+table_name:subject_substance
+Metabolomics: subject_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.02708745002746582 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject.tsv ---------
+table_name:subject
+Metabolomics: subject: Read from file: df: #rows = 2810, #cols: 10
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/subject.tsv: 2811
+df: #rows = 2810, #cols: 10
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering subject to database ***
+df: #rows = 2810, #cols: 10
+
+A slice of df:
+                             id_namespace  ... persistent_id
+0  https://www.metabolomicsworkbench.org/  ...           NaN
+1  https://www.metabolomicsworkbench.org/  ...           NaN
+2  https://www.metabolomicsworkbench.org/  ...           NaN
+3  https://www.metabolomicsworkbench.org/  ...           NaN
+4  https://www.metabolomicsworkbench.org/  ...           NaN
+5  https://www.metabolomicsworkbench.org/  ...           NaN
+6  https://www.metabolomicsworkbench.org/  ...           NaN
+7  https://www.metabolomicsworkbench.org/  ...           NaN
+8  https://www.metabolomicsworkbench.org/  ...           NaN
+9  https://www.metabolomicsworkbench.org/  ...           NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   2810
+count:2810
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.13395142555236816 seconds.
+
+--------- ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/substance.tsv ---------
+table_name:substance
+Metabolomics: substance: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/Metabolomics/MW_submission_packet_20240605/MW_submission_packet_20240605/substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.027492046356201172 seconds.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 17.394710302352905 seconds.
+
+ ----------- Adding foreign key constraint for table file ----------
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES metabolomics.id_namespace (id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_project_2;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_file_format_3;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_file_format_3 FOREIGN KEY (file_format) REFERENCES metabolomics.file_format (id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_file_format_4;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_file_format_4 FOREIGN KEY (compression_format) REFERENCES metabolomics.file_format (id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_data_type_5;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_data_type_5 FOREIGN KEY (data_type) REFERENCES metabolomics.data_type (id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_assay_type_6;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_assay_type_6 FOREIGN KEY (assay_type) REFERENCES metabolomics.assay_type (id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_analysis_type_7;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_analysis_type_7 FOREIGN KEY (analysis_type) REFERENCES metabolomics.analysis_type (id);
+ALTER TABLE metabolomics.file DROP CONSTRAINT IF EXISTS fk_file_collection_8;
+ALTER TABLE metabolomics.file ADD CONSTRAINT  fk_file_collection_8 FOREIGN KEY (bundle_collection_id_namespace, bundle_collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample ----------
+ALTER TABLE metabolomics.biosample DROP CONSTRAINT IF EXISTS fk_biosample_id_namespace_1;
+ALTER TABLE metabolomics.biosample ADD CONSTRAINT  fk_biosample_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES metabolomics.id_namespace (id);
+ALTER TABLE metabolomics.biosample DROP CONSTRAINT IF EXISTS fk_biosample_project_2;
+ALTER TABLE metabolomics.biosample ADD CONSTRAINT  fk_biosample_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ALTER TABLE metabolomics.biosample DROP CONSTRAINT IF EXISTS fk_biosample_sample_prep_method_3;
+ALTER TABLE metabolomics.biosample ADD CONSTRAINT  fk_biosample_sample_prep_method_3 FOREIGN KEY (sample_prep_method) REFERENCES metabolomics.sample_prep_method (id);
+ALTER TABLE metabolomics.biosample DROP CONSTRAINT IF EXISTS fk_biosample_anatomy_4;
+ALTER TABLE metabolomics.biosample ADD CONSTRAINT  fk_biosample_anatomy_4 FOREIGN KEY (anatomy) REFERENCES metabolomics.anatomy (id);
+ ----------- Adding foreign key constraint for table subject ----------
+ALTER TABLE metabolomics.subject DROP CONSTRAINT IF EXISTS fk_subject_id_namespace_1;
+ALTER TABLE metabolomics.subject ADD CONSTRAINT  fk_subject_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES metabolomics.id_namespace (id);
+ALTER TABLE metabolomics.subject DROP CONSTRAINT IF EXISTS fk_subject_project_2;
+ALTER TABLE metabolomics.subject ADD CONSTRAINT  fk_subject_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table dcc ----------
+ALTER TABLE metabolomics.dcc DROP CONSTRAINT IF EXISTS fk_dcc_project_1;
+ALTER TABLE metabolomics.dcc ADD CONSTRAINT  fk_dcc_project_1 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table project ----------
+ALTER TABLE metabolomics.project DROP CONSTRAINT IF EXISTS fk_project_id_namespace_1;
+ALTER TABLE metabolomics.project ADD CONSTRAINT  fk_project_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES metabolomics.id_namespace (id);
+ ----------- Adding foreign key constraint for table project_in_project ----------
+ALTER TABLE metabolomics.project_in_project DROP CONSTRAINT IF EXISTS fk_project_in_project_project_1;
+ALTER TABLE metabolomics.project_in_project ADD CONSTRAINT  fk_project_in_project_project_1 FOREIGN KEY (parent_project_id_namespace, parent_project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ALTER TABLE metabolomics.project_in_project DROP CONSTRAINT IF EXISTS fk_project_in_project_project_2;
+ALTER TABLE metabolomics.project_in_project ADD CONSTRAINT  fk_project_in_project_project_2 FOREIGN KEY (child_project_id_namespace, child_project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table collection ----------
+ALTER TABLE metabolomics.collection DROP CONSTRAINT IF EXISTS fk_collection_id_namespace_1;
+ALTER TABLE metabolomics.collection ADD CONSTRAINT  fk_collection_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES metabolomics.id_namespace (id);
+ ----------- Adding foreign key constraint for table collection_in_collection ----------
+ALTER TABLE metabolomics.collection_in_collection DROP CONSTRAINT IF EXISTS fk_collection_in_collection_collection_1;
+ALTER TABLE metabolomics.collection_in_collection ADD CONSTRAINT  fk_collection_in_collection_collection_1 FOREIGN KEY (superset_collection_id_namespace, superset_collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_in_collection DROP CONSTRAINT IF EXISTS fk_collection_in_collection_collection_2;
+ALTER TABLE metabolomics.collection_in_collection ADD CONSTRAINT  fk_collection_in_collection_collection_2 FOREIGN KEY (subset_collection_id_namespace, subset_collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_collection ----------
+ALTER TABLE metabolomics.file_describes_collection DROP CONSTRAINT IF EXISTS fk_file_describes_collection_file_1;
+ALTER TABLE metabolomics.file_describes_collection ADD CONSTRAINT  fk_file_describes_collection_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES metabolomics.file (id_namespace, local_id);
+ALTER TABLE metabolomics.file_describes_collection DROP CONSTRAINT IF EXISTS fk_file_describes_collection_collection_2;
+ALTER TABLE metabolomics.file_describes_collection ADD CONSTRAINT  fk_file_describes_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table collection_defined_by_project ----------
+ALTER TABLE metabolomics.collection_defined_by_project DROP CONSTRAINT IF EXISTS fk_collection_defined_by_project_collection_1;
+ALTER TABLE metabolomics.collection_defined_by_project ADD CONSTRAINT  fk_collection_defined_by_project_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_defined_by_project DROP CONSTRAINT IF EXISTS fk_collection_defined_by_project_project_2;
+ALTER TABLE metabolomics.collection_defined_by_project ADD CONSTRAINT  fk_collection_defined_by_project_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES metabolomics.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_in_collection ----------
+ALTER TABLE metabolomics.file_in_collection DROP CONSTRAINT IF EXISTS fk_file_in_collection_file_1;
+ALTER TABLE metabolomics.file_in_collection ADD CONSTRAINT  fk_file_in_collection_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES metabolomics.file (id_namespace, local_id);
+ALTER TABLE metabolomics.file_in_collection DROP CONSTRAINT IF EXISTS fk_file_in_collection_collection_2;
+ALTER TABLE metabolomics.file_in_collection ADD CONSTRAINT  fk_file_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_in_collection ----------
+ALTER TABLE metabolomics.biosample_in_collection DROP CONSTRAINT IF EXISTS fk_biosample_in_collection_biosample_1;
+ALTER TABLE metabolomics.biosample_in_collection ADD CONSTRAINT  fk_biosample_in_collection_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES metabolomics.biosample (id_namespace, local_id);
+ALTER TABLE metabolomics.biosample_in_collection DROP CONSTRAINT IF EXISTS fk_biosample_in_collection_collection_2;
+ALTER TABLE metabolomics.biosample_in_collection ADD CONSTRAINT  fk_biosample_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table subject_in_collection ----------
+ALTER TABLE metabolomics.subject_in_collection DROP CONSTRAINT IF EXISTS fk_subject_in_collection_subject_1;
+ALTER TABLE metabolomics.subject_in_collection ADD CONSTRAINT  fk_subject_in_collection_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ALTER TABLE metabolomics.subject_in_collection DROP CONSTRAINT IF EXISTS fk_subject_in_collection_collection_2;
+ALTER TABLE metabolomics.subject_in_collection ADD CONSTRAINT  fk_subject_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_biosample ----------
+ALTER TABLE metabolomics.file_describes_biosample DROP CONSTRAINT IF EXISTS fk_file_describes_biosample_file_1;
+ALTER TABLE metabolomics.file_describes_biosample ADD CONSTRAINT  fk_file_describes_biosample_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES metabolomics.file (id_namespace, local_id);
+ALTER TABLE metabolomics.file_describes_biosample DROP CONSTRAINT IF EXISTS fk_file_describes_biosample_biosample_2;
+ALTER TABLE metabolomics.file_describes_biosample ADD CONSTRAINT  fk_file_describes_biosample_biosample_2 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES metabolomics.biosample (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_subject ----------
+ALTER TABLE metabolomics.file_describes_subject DROP CONSTRAINT IF EXISTS fk_file_describes_subject_file_1;
+ALTER TABLE metabolomics.file_describes_subject ADD CONSTRAINT  fk_file_describes_subject_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES metabolomics.file (id_namespace, local_id);
+ALTER TABLE metabolomics.file_describes_subject DROP CONSTRAINT IF EXISTS fk_file_describes_subject_subject_2;
+ALTER TABLE metabolomics.file_describes_subject ADD CONSTRAINT  fk_file_describes_subject_subject_2 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_from_subject ----------
+ALTER TABLE metabolomics.biosample_from_subject DROP CONSTRAINT IF EXISTS fk_biosample_from_subject_biosample_1;
+ALTER TABLE metabolomics.biosample_from_subject ADD CONSTRAINT  fk_biosample_from_subject_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES metabolomics.biosample (id_namespace, local_id);
+ALTER TABLE metabolomics.biosample_from_subject DROP CONSTRAINT IF EXISTS fk_biosample_from_subject_subject_2;
+ALTER TABLE metabolomics.biosample_from_subject ADD CONSTRAINT  fk_biosample_from_subject_subject_2 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_disease ----------
+ALTER TABLE metabolomics.biosample_disease DROP CONSTRAINT IF EXISTS fk_biosample_disease_biosample_1;
+ALTER TABLE metabolomics.biosample_disease ADD CONSTRAINT  fk_biosample_disease_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES metabolomics.biosample (id_namespace, local_id);
+ALTER TABLE metabolomics.biosample_disease DROP CONSTRAINT IF EXISTS fk_biosample_disease_disease_2;
+ALTER TABLE metabolomics.biosample_disease ADD CONSTRAINT  fk_biosample_disease_disease_2 FOREIGN KEY (disease) REFERENCES metabolomics.disease (id);
+ ----------- Adding foreign key constraint for table subject_disease ----------
+ALTER TABLE metabolomics.subject_disease DROP CONSTRAINT IF EXISTS fk_subject_disease_subject_1;
+ALTER TABLE metabolomics.subject_disease ADD CONSTRAINT  fk_subject_disease_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ALTER TABLE metabolomics.subject_disease DROP CONSTRAINT IF EXISTS fk_subject_disease_disease_2;
+ALTER TABLE metabolomics.subject_disease ADD CONSTRAINT  fk_subject_disease_disease_2 FOREIGN KEY (disease) REFERENCES metabolomics.disease (id);
+ ----------- Adding foreign key constraint for table collection_disease ----------
+ALTER TABLE metabolomics.collection_disease DROP CONSTRAINT IF EXISTS fk_collection_disease_collection_1;
+ALTER TABLE metabolomics.collection_disease ADD CONSTRAINT  fk_collection_disease_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_disease DROP CONSTRAINT IF EXISTS fk_collection_disease_disease_2;
+ALTER TABLE metabolomics.collection_disease ADD CONSTRAINT  fk_collection_disease_disease_2 FOREIGN KEY (disease) REFERENCES metabolomics.disease (id);
+ ----------- Adding foreign key constraint for table collection_phenotype ----------
+ALTER TABLE metabolomics.collection_phenotype DROP CONSTRAINT IF EXISTS fk_collection_phenotype_collection_1;
+ALTER TABLE metabolomics.collection_phenotype ADD CONSTRAINT  fk_collection_phenotype_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_phenotype DROP CONSTRAINT IF EXISTS fk_collection_phenotype_phenotype_2;
+ALTER TABLE metabolomics.collection_phenotype ADD CONSTRAINT  fk_collection_phenotype_phenotype_2 FOREIGN KEY (phenotype) REFERENCES metabolomics.phenotype (id);
+ ----------- Adding foreign key constraint for table collection_gene ----------
+ALTER TABLE metabolomics.collection_gene DROP CONSTRAINT IF EXISTS fk_collection_gene_collection_1;
+ALTER TABLE metabolomics.collection_gene ADD CONSTRAINT  fk_collection_gene_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_gene DROP CONSTRAINT IF EXISTS fk_collection_gene_gene_2;
+ALTER TABLE metabolomics.collection_gene ADD CONSTRAINT  fk_collection_gene_gene_2 FOREIGN KEY (gene) REFERENCES metabolomics.gene (id);
+ ----------- Adding foreign key constraint for table collection_compound ----------
+ALTER TABLE metabolomics.collection_compound DROP CONSTRAINT IF EXISTS fk_collection_compound_collection_1;
+ALTER TABLE metabolomics.collection_compound ADD CONSTRAINT  fk_collection_compound_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_compound DROP CONSTRAINT IF EXISTS fk_collection_compound_compound_2;
+ALTER TABLE metabolomics.collection_compound ADD CONSTRAINT  fk_collection_compound_compound_2 FOREIGN KEY (compound) REFERENCES metabolomics.compound (id);
+ ----------- Adding foreign key constraint for table collection_substance ----------
+ALTER TABLE metabolomics.collection_substance DROP CONSTRAINT IF EXISTS fk_collection_substance_collection_1;
+ALTER TABLE metabolomics.collection_substance ADD CONSTRAINT  fk_collection_substance_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_substance DROP CONSTRAINT IF EXISTS fk_collection_substance_substance_2;
+ALTER TABLE metabolomics.collection_substance ADD CONSTRAINT  fk_collection_substance_substance_2 FOREIGN KEY (substance) REFERENCES metabolomics.substance (id);
+ ----------- Adding foreign key constraint for table collection_taxonomy ----------
+ALTER TABLE metabolomics.collection_taxonomy DROP CONSTRAINT IF EXISTS fk_collection_taxonomy_collection_1;
+ALTER TABLE metabolomics.collection_taxonomy ADD CONSTRAINT  fk_collection_taxonomy_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_taxonomy DROP CONSTRAINT IF EXISTS fk_collection_taxonomy_ncbi_taxonomy_2;
+ALTER TABLE metabolomics.collection_taxonomy ADD CONSTRAINT  fk_collection_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxon) REFERENCES metabolomics.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table collection_anatomy ----------
+ALTER TABLE metabolomics.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_collection_1;
+ALTER TABLE metabolomics.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_anatomy_2;
+ALTER TABLE metabolomics.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_anatomy_2 FOREIGN KEY (anatomy) REFERENCES metabolomics.anatomy (id);
+ ----------- Adding foreign key constraint for table collection_protein ----------
+ALTER TABLE metabolomics.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_collection_1;
+ALTER TABLE metabolomics.collection_protein ADD CONSTRAINT  fk_collection_protein_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES metabolomics.collection (id_namespace, local_id);
+ALTER TABLE metabolomics.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_protein_2;
+ALTER TABLE metabolomics.collection_protein ADD CONSTRAINT  fk_collection_protein_protein_2 FOREIGN KEY (protein) REFERENCES metabolomics.protein (id);
+ ----------- Adding foreign key constraint for table subject_phenotype ----------
+ALTER TABLE metabolomics.subject_phenotype DROP CONSTRAINT IF EXISTS fk_subject_phenotype_subject_1;
+ALTER TABLE metabolomics.subject_phenotype ADD CONSTRAINT  fk_subject_phenotype_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ALTER TABLE metabolomics.subject_phenotype DROP CONSTRAINT IF EXISTS fk_subject_phenotype_phenotype_2;
+ALTER TABLE metabolomics.subject_phenotype ADD CONSTRAINT  fk_subject_phenotype_phenotype_2 FOREIGN KEY (phenotype) REFERENCES metabolomics.phenotype (id);
+ ----------- Adding foreign key constraint for table biosample_substance ----------
+ALTER TABLE metabolomics.biosample_substance DROP CONSTRAINT IF EXISTS fk_biosample_substance_biosample_1;
+ALTER TABLE metabolomics.biosample_substance ADD CONSTRAINT  fk_biosample_substance_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES metabolomics.biosample (id_namespace, local_id);
+ALTER TABLE metabolomics.biosample_substance DROP CONSTRAINT IF EXISTS fk_biosample_substance_substance_2;
+ALTER TABLE metabolomics.biosample_substance ADD CONSTRAINT  fk_biosample_substance_substance_2 FOREIGN KEY (substance) REFERENCES metabolomics.substance (id);
+ ----------- Adding foreign key constraint for table subject_substance ----------
+ALTER TABLE metabolomics.subject_substance DROP CONSTRAINT IF EXISTS fk_subject_substance_subject_1;
+ALTER TABLE metabolomics.subject_substance ADD CONSTRAINT  fk_subject_substance_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ALTER TABLE metabolomics.subject_substance DROP CONSTRAINT IF EXISTS fk_subject_substance_substance_2;
+ALTER TABLE metabolomics.subject_substance ADD CONSTRAINT  fk_subject_substance_substance_2 FOREIGN KEY (substance) REFERENCES metabolomics.substance (id);
+ ----------- Adding foreign key constraint for table biosample_gene ----------
+ALTER TABLE metabolomics.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_biosample_1;
+ALTER TABLE metabolomics.biosample_gene ADD CONSTRAINT  fk_biosample_gene_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES metabolomics.biosample (id_namespace, local_id);
+ALTER TABLE metabolomics.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_gene_2;
+ALTER TABLE metabolomics.biosample_gene ADD CONSTRAINT  fk_biosample_gene_gene_2 FOREIGN KEY (gene) REFERENCES metabolomics.gene (id);
+ ----------- Adding foreign key constraint for table phenotype_gene ----------
+ALTER TABLE metabolomics.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_phenotype_1;
+ALTER TABLE metabolomics.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_phenotype_1 FOREIGN KEY (phenotype) REFERENCES metabolomics.phenotype (id);
+ALTER TABLE metabolomics.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_gene_2;
+ALTER TABLE metabolomics.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_gene_2 FOREIGN KEY (gene) REFERENCES metabolomics.gene (id);
+ ----------- Adding foreign key constraint for table phenotype_disease ----------
+ALTER TABLE metabolomics.phenotype_disease DROP CONSTRAINT IF EXISTS fk_phenotype_disease_phenotype_1;
+ALTER TABLE metabolomics.phenotype_disease ADD CONSTRAINT  fk_phenotype_disease_phenotype_1 FOREIGN KEY (phenotype) REFERENCES metabolomics.phenotype (id);
+ALTER TABLE metabolomics.phenotype_disease DROP CONSTRAINT IF EXISTS fk_phenotype_disease_disease_2;
+ALTER TABLE metabolomics.phenotype_disease ADD CONSTRAINT  fk_phenotype_disease_disease_2 FOREIGN KEY (disease) REFERENCES metabolomics.disease (id);
+ ----------- Adding foreign key constraint for table subject_race ----------
+ALTER TABLE metabolomics.subject_race DROP CONSTRAINT IF EXISTS fk_subject_race_subject_1;
+ALTER TABLE metabolomics.subject_race ADD CONSTRAINT  fk_subject_race_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table subject_role_taxonomy ----------
+ALTER TABLE metabolomics.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_subject_1;
+ALTER TABLE metabolomics.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES metabolomics.subject (id_namespace, local_id);
+ALTER TABLE metabolomics.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_ncbi_taxonomy_2;
+ALTER TABLE metabolomics.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxonomy_id) REFERENCES metabolomics.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table assay_type ----------
+ ----------- Adding foreign key constraint for table analysis_type ----------
+ ----------- Adding foreign key constraint for table ncbi_taxonomy ----------
+ ----------- Adding foreign key constraint for table anatomy ----------
+ ----------- Adding foreign key constraint for table file_format ----------
+ ----------- Adding foreign key constraint for table data_type ----------
+ ----------- Adding foreign key constraint for table disease ----------
+ ----------- Adding foreign key constraint for table phenotype ----------
+ ----------- Adding foreign key constraint for table compound ----------
+ ----------- Adding foreign key constraint for table substance ----------
+ALTER TABLE metabolomics.substance DROP CONSTRAINT IF EXISTS fk_substance_compound_1;
+ALTER TABLE metabolomics.substance ADD CONSTRAINT  fk_substance_compound_1 FOREIGN KEY (compound) REFERENCES metabolomics.compound (id);
+ ----------- Adding foreign key constraint for table gene ----------
+ALTER TABLE metabolomics.gene DROP CONSTRAINT IF EXISTS fk_gene_ncbi_taxonomy_1;
+ALTER TABLE metabolomics.gene ADD CONSTRAINT  fk_gene_ncbi_taxonomy_1 FOREIGN KEY (organism) REFERENCES metabolomics.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table protein ----------
+ALTER TABLE metabolomics.protein DROP CONSTRAINT IF EXISTS fk_protein_ncbi_taxonomy_1;
+ALTER TABLE metabolomics.protein ADD CONSTRAINT  fk_protein_ncbi_taxonomy_1 FOREIGN KEY (organism) REFERENCES metabolomics.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table protein_gene ----------
+ALTER TABLE metabolomics.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_protein_1;
+ALTER TABLE metabolomics.protein_gene ADD CONSTRAINT  fk_protein_gene_protein_1 FOREIGN KEY (protein) REFERENCES metabolomics.protein (id);
+ALTER TABLE metabolomics.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gene_2;
+ALTER TABLE metabolomics.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES metabolomics.gene (id);
+ ----------- Adding foreign key constraint for table sample_prep_method ----------
+ ----------- Adding foreign key constraint for table id_namespace ----------
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 1.2335131168365479 seconds.
+
+
+>>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table metabolomics.file successful.
+
+Update successful.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 18.97080969810486 seconds.
+
+********** C2M2 metadata ingestion completed: schema_name: metabolomics.

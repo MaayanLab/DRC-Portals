@@ -45,6 +45,8 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd}
 DCC1=Metabolomics
 DCC2=4DN
 python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${DCC1} ${DCC2}
+# Example: For June 2024
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} 4DN GlyGen HuBMAP KidsFirst Metabolomics SPARC
 # The above run provides additional instructions at the end for more crosschecks 
 # between data in tables in the c2m2 schema and the tables in the DCC-name-specific schema.
 
