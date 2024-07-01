@@ -53,8 +53,9 @@ with c2m2_file_helper.writer() as c2m2_file:
             id=c2m2_datapackage_id,
             dcc_asset_link=c2m2['link'],
           ))
+          fair_timestamp = datetime.now()
           fair_assessment.writerow(dict( #add fair assessment to database
-                id=c2m2_datapackage_id, 
+                id=str(uuid5(uuid0, '\t'.join((c2m2['link'], str(fair_timestamp))))), 
                 dcc_id=c2m2['dcc_id'],
                 type='C2M2',
                 link=c2m2['link'],

@@ -1,4 +1,5 @@
 from statistics import mean
+import numpy as np
 import pandas as pd
 import requests
 from tqdm import tqdm
@@ -14,6 +15,7 @@ import h5py
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlsplit
+from ingest_common import current_code_assets
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -127,23 +129,31 @@ def entity_page_fair(entityPageExample, link):
     fairshake_persistent_url = 0
     example_url = entityPageExample
     template_url = link
-    x = requests.head(example_url)
-    if x.ok:
-        fairshake_head_request_support = 1
-    example_term = find_between_r(template_url, '%7B', '%7D' ) 
-    missing_element_url = template_url.replace(example_term, '')
-    if not(requests.head(missing_element_url).ok):
-        fairshake_return_404 = 1
-    check_url_templated = re.search("^.*%7B.*%7D.*$", template_url)
-    if not(check_url_templated):
-        check_url_templated = re.search("^.*{.*}.*$", template_url)
-    if check_url_templated: 
-        fairshake_templated = 1
-    rubric = {"Entity page url can be templated": fairshake_templated,
-            "Entity page properly returns 404 on missing element": fairshake_return_404,
-            "Entity page supports HEAD requests": fairshake_head_request_support,
-            "Persistent URL": fairshake_persistent_url}
-    return rubric
+    try:
+        if type(example_url) == 'string':
+                x = requests.head(example_url)
+                if x.ok:
+                    fairshake_head_request_support = 1
+        example_term = find_between_r(template_url, '%7B', '%7D' ) 
+        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', '')
+        if requests.head(missing_element_url).status_code == 404:
+            fairshake_return_404 = 1
+        check_url_templated = re.search("^.*%7B.*%7D.*$", template_url)
+        if not(check_url_templated):
+            check_url_templated = re.search("^.*{.*}.*$", template_url)
+        if check_url_templated: 
+            fairshake_templated = 1
+        rubric = {"Entity page url can be templated": fairshake_templated,
+                "Entity page properly returns 404 on missing element": fairshake_return_404,
+                "Entity page supports HEAD requests": fairshake_head_request_support,
+                "Persistent URL": fairshake_persistent_url}
+        return rubric
+    except: 
+        rubric = {"Entity page url can be templated": fairshake_templated,
+        "Entity page properly returns 404 on missing element": fairshake_return_404,
+        "Entity page supports HEAD requests": fairshake_head_request_support,
+        "Persistent URL": fairshake_persistent_url}
+        return rubric
 
 
 def etl_fair(link):
@@ -208,7 +218,7 @@ def apps_urls_fair(apps_url):
     response = requests.get(apps_url)
     if response.ok:
         html = response.text
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, features="html.parser")
         schema_json = soup.find('script', type='application/ld+json')
         if schema_json:
             data = json.loads(schema_json.text)
@@ -249,7 +259,7 @@ def chatbot_specs_fair(chatbot_specs_url):
     webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
     if webpage_response.ok:
         html = webpage_response.text
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, features="html.parser")
         ogp_title = soup.find('meta', property="og:title")
         ogp_type = soup.find('meta', property="og:type")
         ogp_image = soup.find('meta', property="og:image")
@@ -266,15 +276,11 @@ def chatbot_specs_fair(chatbot_specs_url):
     return rubric
 
 
-def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
-    """Run FAIR Assessment for all code assets"""
-    with open(code_assets_path, 'r') as fr1:
-        code_assets_data=pd.read_csv(fr1,sep='\t', header=0)
-    with open(dcc_assets_path, 'r') as fr2:
-        dcc_assets_data=pd.read_csv(fr2,sep='\t', header=0)
-    merged_code_assets_df = pd.merge(code_assets_data, dcc_assets_data, on="link") 
+def code_assets_fair_assessment():
+    """Run FAIR Assessment for all current code assets"""
+    current_code_asset_df = current_code_assets()
     fairshake_df_data = []
-    for index, row in tqdm(merged_code_assets_df.iterrows(), total=merged_code_assets_df.shape[0]):
+    for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0]):
         if row['type'] == 'ETL': 
             rubric= etl_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
@@ -293,8 +299,6 @@ def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
         if row['type'] == 'Chatbot Specifications':
             rubric = chatbot_specs_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-    fr1.close()
-    fr2.close()
     fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
     return fairshake_df
 
@@ -302,12 +306,6 @@ def code_assets_fair_assessment(code_assets_path, dcc_assets_path):
 
 def c2m2_fair(directory):
     """Run FAIR Assessment for a C2M2 file asset given its filepath"""
-    # file = './LINCS_C2M2_2023-09-18_datapackage.zip'
-    # basename, ext = os.path.splitext(file)
-    # assert ext == '.zip', 'Expected .zip file'
-    # directory = tempfile.mkdtemp()
-    # with zipfile.ZipFile(file, 'r') as z:
-    #     z.extractall(directory)
     try: 
         CFDE = create_offline_client(
             *(
