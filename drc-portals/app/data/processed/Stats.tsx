@@ -49,7 +49,7 @@ export default async function Stats() {
       {results.data.map(({ label, count }) => (
         <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
           <div  className="flex flex-col">
-            <Typography variant="h2" color="secondary">{(+count).toLocaleString()}</Typography>
+            <Typography variant="h2" color="secondary">{BigInt(count).toLocaleString()}</Typography>
             <Typography variant="subtitle1" color="secondary">{label.toUpperCase()}</Typography>
           </div>
         </Grid>
