@@ -1,7 +1,8 @@
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
-import { Divider, Tooltip } from "@mui/material";
+import { Divider, Link, Tooltip } from "@mui/material";
+import { useSearchParams } from "next/navigation";
 
 import { TransparentIconButton } from "../../constants/shared";
 
@@ -9,13 +10,14 @@ interface SearchBarEndAdornmentProps {
   showClearBtn: boolean;
   onClear: () => void;
   onSearch: () => void;
-  onAdvancedSearch: () => void;
 }
 
 export default function SearchBarEndAdornment(
   cmpProps: SearchBarEndAdornmentProps
 ) {
-  const { showClearBtn, onSearch, onAdvancedSearch, onClear } = cmpProps;
+  const searchParams = useSearchParams();
+  const { showClearBtn, onSearch, onClear } = cmpProps;
+  const advancedSearchURL = `/data/c2m2/graph/search/advanced?${searchParams.toString()}`;
 
   return (
     <div
@@ -37,12 +39,11 @@ export default function SearchBarEndAdornment(
         </>
       ) : null}
       <Tooltip title="Advanced Search" arrow>
-        <TransparentIconButton
-          aria-label="advanced-search"
-          onClick={onAdvancedSearch}
-        >
-          <TuneIcon />
-        </TransparentIconButton>
+        <Link href={advancedSearchURL}>
+          <TransparentIconButton aria-label="advanced-search">
+            <TuneIcon />
+          </TransparentIconButton>
+        </Link>
       </Tooltip>
       <Tooltip title="Search" arrow>
         <TransparentIconButton aria-label="search" onClick={onSearch}>

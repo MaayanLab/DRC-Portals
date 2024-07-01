@@ -62,21 +62,6 @@ export default function GraphSearch() {
     setSearchBarValue(term);
   };
 
-  const handleAdvancedSearch = (term: string | null) => {
-    let advancedSearchParams;
-
-    // If the advanced params are set in the url, ignore the search bar value
-    if (searchParams.has("as_q") || searchParams.has("schema_q")) {
-      advancedSearchParams = searchParams;
-    } else {
-      // Otherwise use the search bar value as the initial advanced search query
-      advancedSearchParams = new URLSearchParams(`q=${term || ""}`);
-    }
-    router.push(
-      `/data/c2m2/graph/search/advanced?${advancedSearchParams.toString()}`
-    );
-  };
-
   useEffect(() => {
     if (searchParams.size > 0) {
       setSearchBarValue(getSearchBarValue(searchParams));
@@ -145,7 +130,6 @@ export default function GraphSearch() {
             loading={loading}
             clearError={clearSearchError}
             onSubmit={handleSubmit}
-            onAdvancedSearch={handleAdvancedSearch}
           ></SearchBar>
         </SearchBarContainer>
         <CytoscapeChart

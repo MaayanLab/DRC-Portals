@@ -11,7 +11,6 @@ interface SearchBarProps {
   loading: boolean;
   clearError: () => void;
   onSubmit: (term: string) => void;
-  onAdvancedSearch: (term: string | null) => void;
 }
 
 /**
@@ -21,17 +20,13 @@ interface SearchBarProps {
  */
 
 export default function SearchBar(cmpProps: SearchBarProps) {
-  const { error, loading, clearError, onSubmit, onAdvancedSearch } = cmpProps;
+  const { error, loading, clearError, onSubmit } = cmpProps;
   const [value, setValue] = useState<string | null>(cmpProps.value);
 
   const submit = () => {
     if (value !== null && value.length > 0) {
       onSubmit(value);
     }
-  };
-
-  const advancedSearch = () => {
-    onAdvancedSearch(value);
   };
 
   const handleInputKeydown = (e: KeyboardEvent) => {
@@ -67,7 +62,6 @@ export default function SearchBar(cmpProps: SearchBarProps) {
       showClearBtn={value !== null && value.length > 0}
       onClear={() => setValue("")}
       onSearch={submit}
-      onAdvancedSearch={advancedSearch}
       onKeyDown={handleInputKeydown}
     />
   );
