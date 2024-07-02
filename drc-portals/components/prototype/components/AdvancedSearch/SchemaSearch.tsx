@@ -20,15 +20,6 @@ export default function SchemaSearch() {
   );
 
   const handleSubmit = () => {
-    // Before submitting, make sure every element without a key is given a unique key
-    value.forEach((path) =>
-      path.elements.forEach((element) => {
-        if (element.key === undefined) {
-          element.key = v4();
-        }
-      })
-    );
-
     const query = btoa(JSON.stringify(value));
     router.push(`/data/c2m2/graph/search?schema_q=${query}`);
   };

@@ -267,6 +267,20 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
   const nodeKeys = new Set<string>();
   const relationshipKeys = new Set<string>();
   const callBlocks: string[] = [];
+
+  // Make sure every element has a key before proceeding, this ensures every entity in the query will have a variable name
+  paths.forEach((path, pathIndex) => {
+    let nodeCount = 0;
+    let edgeCount = 0;
+    path.elements.forEach((element) => {
+      if (element.key === undefined) {
+        element.key = `p${pathIndex + 1}${
+          isRelationshipOption(element) ? `r${++edgeCount}` : `n${++nodeCount}`
+        }`;
+      }
+    });
+  });
+
   const allSubsequentPathMatches =
     paths.length > 1
       ? paths.slice(1).reduce((matches: string[], path) => {
