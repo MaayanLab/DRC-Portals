@@ -19,7 +19,7 @@ export default function SchemaDnDPanel() {
   return (
     <Paper
       sx={{
-        background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)",
+        background: "#fff",
         height: "100%",
         width: "100%",
         padding: "12px 24px",
@@ -53,7 +53,7 @@ export default function SchemaDnDPanel() {
         style={{ borderColor: CFDE_DARK_BLUE }}
       >
         <Typography variant="h5" color="secondary">
-          Edges
+          Relationships
         </Typography>
         <Tooltip
           title={RELATIONSHIP_HELPER_TEXT}
