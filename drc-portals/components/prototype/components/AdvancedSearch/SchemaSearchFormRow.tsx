@@ -57,7 +57,12 @@ export default function SchemaSearchFormRow(
         name="limit"
         type="number"
         sx={SCHEMA_SEARCH_TEXT_FIELD_SX_PROPS}
-        InputProps={{ inputProps: { min: 1, max: 1000 } }}
+        InputProps={{
+          sx: {
+            backgroundColor: "#fff",
+          },
+          inputProps: { min: 1, max: 1000 },
+        }}
         onChange={onLimitChange}
       ></TextField>
       <TextField
@@ -67,7 +72,12 @@ export default function SchemaSearchFormRow(
         name="skip"
         type="number"
         sx={SCHEMA_SEARCH_TEXT_FIELD_SX_PROPS}
-        InputProps={{ inputProps: { min: 1 } }}
+        InputProps={{
+          sx: {
+            backgroundColor: "#fff",
+          },
+          inputProps: { min: 1 },
+        }}
         onChange={onSkipChange}
       ></TextField>
       <Box sx={{ alignContent: "center" }}>
