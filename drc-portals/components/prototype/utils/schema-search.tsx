@@ -263,7 +263,7 @@ export const createNodeSegment = (
   return segment;
 };
 
-export const createSearchPathEl = (path: SearchBarOption[]) => {
+export const getSearchPathElements = (path: SearchBarOption[]) => {
   const newPath: ReactElement[] = [];
   path
     .filter((entity) => factoryExistsFilter(entity.name))
@@ -301,7 +301,7 @@ export const createSearchPathEl = (path: SearchBarOption[]) => {
       }
     });
 
-  return <Stack direction="row">{newPath.map((element) => element)}</Stack>;
+  return newPath;
 };
 
 export const getEntityProperties = (value: SearchBarOption) =>

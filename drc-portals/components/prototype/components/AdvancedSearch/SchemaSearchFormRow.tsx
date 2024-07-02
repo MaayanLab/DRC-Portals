@@ -43,8 +43,8 @@ export default function SchemaSearchFormRow(
   };
 
   return (
-    <Box display={{ display: "flex", width: "100%" }}>
-      <Box sx={{ flexGrow: 1, margin: 1 }}>
+    <Box display={{ display: "flex", alignItems: "center", width: "100%" }}>
+      <Box sx={{ flexGrow: 1, margin: 1, maxWidth: "630px" }}>
         <SchemaAutocomplete
           value={value.elements}
           onChange={onAutocompleteChange}

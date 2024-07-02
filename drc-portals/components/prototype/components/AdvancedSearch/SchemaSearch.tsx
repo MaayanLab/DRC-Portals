@@ -56,7 +56,12 @@ export default function SchemaSearch() {
       <Grid item xs={3} sx={{ height: "inherit" }}>
         <SchemaDnDPanel></SchemaDnDPanel>
       </Grid>
-      <Grid item xs={9} spacing={2} sx={{ height: "inherit" }}>
+      <Grid
+        item
+        xs={9}
+        spacing={2}
+        sx={{ height: "inherit", overflowY: "auto" }}
+      >
         {value.map((path, index) => (
           <SchemaSearchFormRow
             key={`schema-search-form-row-${index}`}

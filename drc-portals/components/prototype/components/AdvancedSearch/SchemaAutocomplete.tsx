@@ -6,7 +6,7 @@ import { SearchBarOption } from "../../types/schema-search";
 import {
   CustomPaper,
   CustomPopper,
-  createSearchPathEl,
+  getSearchPathElements,
   getOptions,
 } from "../../utils/schema-search";
 
@@ -64,13 +64,13 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       }
       key={v4()}
     >
-      {createSearchPathEl(value.concat(option))}
+      {getSearchPathElements(value.concat(option))}
     </li>
   );
 
   // TODO: If any element in the value list has filters set, add an asterisk to it
   const handleRenderTags = (value: SearchBarOption[]) =>
-    createSearchPathEl(value);
+    getSearchPathElements(value);
 
   const handleRenderInput = (params: any) => (
     <TextField
@@ -79,13 +79,7 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       label="Path"
       InputProps={{
         ...params.InputProps,
-        sx: {
-          backgroundColor: "#FFF",
-        },
-      }}
-      FormHelperTextProps={{
-        ...params.FormHelperTextProps,
-        style: { backgroundColor: "transparent" },
+        sx: { backgroundColor: "#FFF" },
       }}
     />
   );
@@ -107,7 +101,6 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       PopperComponent={CustomPopper}
       sx={{
         borderRadius: "4px",
-        width: "auto",
         minWidth: "340px",
         backgroundColor: "transparent",
       }}
