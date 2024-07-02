@@ -1,23 +1,6 @@
-import { styled } from "@mui/material";
-
-import { SearchQuerySettings } from "../interfaces/schema-search";
 import { PredicateFn } from "../types/schema-search";
 
 import { STRING_PROPERTIES } from "./neo4j";
-
-export const SchemaAutocompleteContainer = styled("div")({
-  flexGrow: 1,
-  position: "absolute",
-  top: 10,
-  left: 10,
-  zIndex: 1,
-  padding: "inherit",
-});
-
-export const DEFAULT_QUERY_SETTINGS: SearchQuerySettings = {
-  skip: 0,
-  limit: 10,
-};
 
 const STRING_EQUALS = "EQUALS";
 const STRING_CONTAINS = "CONTAINS";

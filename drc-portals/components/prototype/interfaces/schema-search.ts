@@ -21,10 +21,6 @@ export interface RelationshipOption extends BaseSearchBarOption {
   direction: Direction;
 }
 
-export interface SearchBarState {
-  value: SearchBarOption[];
-}
-
 export interface SchemaSearchPath {
   elements: SearchBarOption[];
   skip: number;

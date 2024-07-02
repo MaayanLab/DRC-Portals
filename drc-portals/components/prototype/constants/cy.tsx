@@ -1162,13 +1162,6 @@ export const SCHEMA_NODES = [
   },
 ];
 
-export const INITIAL_NODE_POSITIONS: Map<string, Position> = new Map<
-  string,
-  Position
->(
-  SCHEMA_NODES.map((el) => [el.data.id, { x: el.position.x, y: el.position.y }])
-);
-
 export const SCHEMA_EDGES = [
   {
     classes: ["admin-relationship"],
@@ -2509,8 +2502,6 @@ export const SCHEMA_LAYOUT = {
 
 export const BASIC_SEARCH_ERROR_MSG =
   "An error occured during your search. Please try again later.";
-export const SEARCH_QUERY_ERROR_MSG =
-  "There was an error in your search query.";
 
 export const D3_FORCE_TOOLS = [
   (cyRef: CytoscapeReference) =>

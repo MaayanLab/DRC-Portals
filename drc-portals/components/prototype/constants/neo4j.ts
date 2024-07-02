@@ -134,12 +134,6 @@ export const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set([
   TESTED_FOR_TYPE,
 ]);
 
-// Set of all labels and types
-export const ALL_LABELS_AND_TYPES: readonly string[] = [
-  ...Array.from(NODE_LABELS),
-  ...Array.from(RELATIONSHIP_TYPES),
-];
-
 export const OUTGOING_CONNECTIONS: ReadonlyMap<
   string,
   ReadonlyMap<string, string[]>

@@ -189,7 +189,6 @@ export const hexToRgb = (hex: string) => {
 };
 
 export const getContrastText = (rgb: { r: number; g: number; b: number }) => {
-  console.log("getContrastText");
   const { r, g, b } = rgb;
   const uicolors = [r / 255, g / 255, b / 255];
   const c = uicolors.map((col) => {
