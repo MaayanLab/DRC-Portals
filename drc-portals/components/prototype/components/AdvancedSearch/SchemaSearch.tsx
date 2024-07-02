@@ -4,10 +4,10 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { Box, Button, Grid } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { v4 } from "uuid";
 
 import { SchemaSearchPath } from "../../interfaces/schema-search";
 import { getSchemaSearchValue } from "../../utils/advanced-search";
-import { isRelationshipOption } from "../../utils/schema-search";
 
 import SchemaDnDPanel from "./SchemaDnDPanel";
 import SchemaSearchFormRow from "./SchemaSearchFormRow";
@@ -20,29 +20,21 @@ export default function SchemaSearch() {
   );
 
   const handleSubmit = () => {
+    // Before submitting, make sure every element without a key is given a unique key
+    value.forEach((path) =>
+      path.elements.forEach((element) => {
+        if (element.key === undefined) {
+          element.key = v4();
+        }
+      })
+    );
+
     const query = btoa(JSON.stringify(value));
     router.push(`/data/c2m2/graph/search?schema_q=${query}`);
   };
 
   const updatePath = (index: number) => (newValue: SchemaSearchPath) => {
     const updatedValue = [...value];
-
-    let nodeCount = 0;
-    let edgeCount = 0;
-    newValue.elements.forEach((element) => {
-      if (isRelationshipOption(element)) {
-        edgeCount += 1;
-      } else {
-        nodeCount += 1;
-      }
-
-      if (element.key === undefined) {
-        element.key = `p${index}${
-          isRelationshipOption(element) ? "r" : "n"
-        }${edgeCount}`;
-      }
-    });
-
     updatedValue[index] = newValue;
     setValue(updatedValue);
   };
