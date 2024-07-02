@@ -30,12 +30,8 @@ export const SearchBarOptionSchema = z.union([
   RelationshipOptionSchema,
 ]);
 
-export const SearchQuerySettingsSchema = z.object({
+export const SchemaSearchPathSchema = z.object({
+  elements: z.array(SearchBarOptionSchema),
   limit: z.number().optional(),
   skip: z.number().optional(),
-});
-
-export const SearchBarStateSchema = z.object({
-  value: z.array(SearchBarOptionSchema),
-  settings: SearchQuerySettingsSchema.optional(),
 });

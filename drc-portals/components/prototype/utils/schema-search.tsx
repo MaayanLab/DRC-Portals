@@ -1,4 +1,4 @@
-import { Paper, Popper, Stack } from "@mui/material";
+import { Paper, Popper } from "@mui/material";
 import { CSSProperties, ReactElement } from "react";
 
 import {
@@ -14,9 +14,7 @@ import {
   BasePropertyFilter,
   NodeOption,
   RelationshipOption,
-  SearchBarState,
 } from "../interfaces/schema-search";
-import { SearchBarStateSchema } from "../schemas/schema-search";
 import { SearchBarOption } from "../types/schema-search";
 import {
   NodeElementFactory,
@@ -40,17 +38,6 @@ export const CustomPaper = (props: any) => (
 export const CustomPopper = (props: any) => (
   <Popper {...props} placement="bottom-start" />
 );
-
-export const getStateFromQuery = (q: string): SearchBarState | undefined => {
-  try {
-    const state = JSON.parse(atob(q));
-    SearchBarStateSchema.parse(state);
-    return state;
-  } catch (e) {
-    // If for any reason (decoding, parsing, etc.) we couldn't get the state, return undefined instead
-    return undefined;
-  }
-};
 
 export const isRelationshipOption = (
   option: NodeOption | RelationshipOption

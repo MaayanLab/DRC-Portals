@@ -1,4 +1,5 @@
 import { AdvancedSearchValues } from "../interfaces/advanced-search";
+import { SchemaSearchPathSchema } from "../schemas/schema-search";
 
 export const createTextSearchParams = (
   q?: string | null,
@@ -121,7 +122,14 @@ export const getSchemaSearchValue = (params: URLSearchParams) => {
 
   try {
     const value = JSON.parse(atob(schemaQuery));
-    // TODO: Add parse step here
+
+    if (!Array.isArray(value)) {
+      throw TypeError("Decoded schema search value was not an array.");
+    }
+
+    // If this succeeds without throwing, then we certainly have a valid schema search value
+    value.forEach((path) => SchemaSearchPathSchema.parse(path));
+
     return value;
   } catch (e) {
     // If for any reason (decoding, parsing, etc.) we couldn't get the state, return null instead
