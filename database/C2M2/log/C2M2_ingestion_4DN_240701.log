@@ -690,7 +690,7 @@ description VARCHAR DEFAULT '',
 PRIMARY KEY(id)
 );
 ================== Defined all tables ======================
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.13456225395202637 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.14420127868652344 seconds.
 
 Names of all tables:
 ['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
@@ -740,7 +740,7 @@ A slice of df:
 [1 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.08746862411499023 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10286736488342285 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/id_namespace.tsv ---------
 table_name:id_namespace
@@ -759,14 +759,14 @@ A slice of df:
 [1 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.05718636512756348 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0732722282409668 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/disease.tsv ---------
 table_name:disease
 4DN: disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02602076530456543 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.030735492706298828 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/data_type.tsv ---------
 table_name:data_type
@@ -789,14 +789,14 @@ A slice of df:
 [5 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.05889272689819336 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07083654403686523 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_disease.tsv ---------
 table_name:collection_disease
 4DN: collection_disease: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02504897117614746 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.030791759490966797 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_in_collection.tsv ---------
 table_name:file_in_collection
@@ -829,7 +829,7 @@ sql_count_df:    count
 0  46073
 count:46073
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.8360941410064697 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.9388399124145508 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_role_taxonomy.tsv ---------
 table_name:subject_role_taxonomy
@@ -862,7 +862,7 @@ sql_count_df:    count
 0    303
 count:303
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06545901298522949 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08383512496948242 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_in_collection.tsv ---------
 table_name:biosample_in_collection
@@ -895,70 +895,70 @@ sql_count_df:    count
 0   5285
 count:5285
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.14664316177368164 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.16762495040893555 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_phenotype.tsv ---------
 table_name:subject_phenotype
 4DN: subject_phenotype: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026604652404785156 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033861398696899414 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/phenotype_disease.tsv ---------
 table_name:phenotype_disease
 4DN: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/phenotype_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.025271892547607422 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03366351127624512 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_compound.tsv ---------
 table_name:collection_compound
 4DN: collection_compound: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.027659893035888672 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.032263755798339844 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/protein_gene.tsv ---------
 table_name:protein_gene
 4DN: protein_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/protein_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.025871992111206055 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03183865547180176 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/phenotype_gene.tsv ---------
 table_name:phenotype_gene
 4DN: phenotype_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/phenotype_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026133060455322266 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03252410888671875 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/phenotype.tsv ---------
 table_name:phenotype
 4DN: phenotype: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026175498962402344 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03167915344238281 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_disease.tsv ---------
 table_name:subject_disease
 4DN: subject_disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02943277359008789 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033591270446777344 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_phenotype.tsv ---------
 table_name:collection_phenotype
 4DN: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.02781963348388672 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03224015235900879 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/protein.tsv ---------
 table_name:protein
 4DN: protein: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0258176326751709 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.032500505447387695 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/ncbi_taxonomy.tsv ---------
 table_name:ncbi_taxonomy
@@ -983,28 +983,28 @@ A slice of df:
 [7 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.05796408653259277 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07380127906799316 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_protein.tsv ---------
 table_name:collection_protein
 4DN: collection_protein: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026541471481323242 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03131890296936035 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/analysis_type.tsv ---------
 table_name:analysis_type
 4DN: analysis_type: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/analysis_type.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.026571035385131836 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0318605899810791 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_describes_biosample.tsv ---------
 table_name:file_describes_biosample
 4DN: file_describes_biosample: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_describes_biosample.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.025135040283203125 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03251194953918457 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file.tsv ---------
 table_name:file
@@ -1037,14 +1037,14 @@ sql_count_df:    count
 0  45649
 count:45649
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 2.327167510986328 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 2.489717483520508 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_gene.tsv ---------
 table_name:collection_gene
 4DN: collection_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.03681325912475586 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.045490264892578125 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_from_subject.tsv ---------
 table_name:biosample_from_subject
@@ -1077,21 +1077,21 @@ sql_count_df:    count
 0   3096
 count:3096
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.12067747116088867 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.14197397232055664 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_describes_collection.tsv ---------
 table_name:file_describes_collection
 4DN: file_describes_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_describes_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030831336975097656 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.04054141044616699 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_race.tsv ---------
 table_name:subject_race
 4DN: subject_race: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_race.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.029575347900390625 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0373225212097168 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_in_collection.tsv ---------
 table_name:collection_in_collection
@@ -1124,7 +1124,7 @@ sql_count_df:    count
 0   5285
 count:5285
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.14515113830566406 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.17395901679992676 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_defined_by_project.tsv ---------
 table_name:collection_defined_by_project
@@ -1157,21 +1157,21 @@ sql_count_df:    count
 0   7558
 count:7558
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.17516303062438965 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.2107524871826172 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_substance.tsv ---------
 table_name:collection_substance
 4DN: collection_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0309293270111084 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03978276252746582 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_substance.tsv ---------
 table_name:biosample_substance
 4DN: biosample_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030759811401367188 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.037523746490478516 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/project.tsv ---------
 table_name:project
@@ -1204,7 +1204,7 @@ sql_count_df:    count
 0     43
 count:43
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06637835502624512 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1002047061920166 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/anatomy.tsv ---------
 table_name:anatomy
@@ -1232,14 +1232,14 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06300830841064453 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10207080841064453 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/sample_prep_method.tsv ---------
 table_name:sample_prep_method
 4DN: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/sample_prep_method.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030260086059570312 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0383601188659668 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/assay_type.tsv ---------
 table_name:assay_type
@@ -1267,28 +1267,28 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06368398666381836 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0778951644897461 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_disease.tsv ---------
 table_name:biosample_disease
 4DN: biosample_disease: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030230998992919922 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.037542104721069336 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_anatomy.tsv ---------
 table_name:collection_anatomy
 4DN: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_anatomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030220508575439453 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.037203311920166016 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/gene.tsv ---------
 table_name:gene
 4DN: gene: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030892610549926758 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03706812858581543 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample.tsv ---------
 table_name:biosample
@@ -1321,14 +1321,14 @@ sql_count_df:    count
 0   3096
 count:3096
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.14465904235839844 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1674976348876953 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_describes_subject.tsv ---------
 table_name:file_describes_subject
 4DN: file_describes_subject: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_describes_subject.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.03376960754394531 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.040911197662353516 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject.tsv ---------
 table_name:subject
@@ -1361,7 +1361,7 @@ sql_count_df:    count
 0    303
 count:303
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.07719540596008301 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09390139579772949 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/file_format.tsv ---------
 table_name:file_format
@@ -1373,7 +1373,7 @@ pKeys: ['id']
 *** Entering file_format to database ***
 df: #rows = 15, #cols: 4
 
-Processing C2M2 Files...: 100%|██████████| 1/1 [00:07<00:00,  7.92s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:07<00:00,  7.92s/it]
+Processing C2M2 Files...: 100%|██████████| 1/1 [00:09<00:00,  9.14s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:09<00:00,  9.14s/it]
 A slice of df:
             id  ...                                  synonyms
 0  format:1930  ...                           ["FASTAQ","fq"]
@@ -1390,21 +1390,21 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06261372566223145 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08260464668273926 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_gene.tsv ---------
 table_name:biosample_gene
 4DN: biosample_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/biosample_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.029496192932128906 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03799009323120117 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_substance.tsv ---------
 table_name:subject_substance
 4DN: subject_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.030934810638427734 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03786873817443848 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection.tsv ---------
 table_name:collection
@@ -1437,14 +1437,14 @@ sql_count_df:    count
 0   7558
 count:7558
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.2597029209136963 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.2953221797943115 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/compound.tsv ---------
 table_name:compound
 4DN: compound: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.03233170509338379 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03950619697570801 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/subject_in_collection.tsv ---------
 table_name:subject_in_collection
@@ -1477,7 +1477,7 @@ sql_count_df:    count
 0   2273
 count:2273
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.10280609130859375 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.12290167808532715 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/project_in_project.tsv ---------
 table_name:project_in_project
@@ -1510,23 +1510,23 @@ sql_count_df:    count
 0     42
 count:42
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.06619524955749512 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11476874351501465 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_taxonomy.tsv ---------
 table_name:collection_taxonomy
 4DN: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/collection_taxonomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.03224325180053711 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.04189276695251465 seconds.
 
 --------- ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/substance.tsv ---------
 table_name:substance
 4DN: substance: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/4DN/240605_c2m2_4dn_submission/240605_c2m2_4dn_submission/substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.03646969795227051 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.04077315330505371 seconds.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 7.935065031051636 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 9.159217596054077 seconds.
 
  ----------- Adding foreign key constraint for table file ----------
 ALTER TABLE _4dn.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
@@ -1731,13 +1731,13 @@ ALTER TABLE _4dn.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gene_2;
 ALTER TABLE _4dn.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES _4dn.gene (id);
  ----------- Adding foreign key constraint for table sample_prep_method ----------
  ----------- Adding foreign key constraint for table id_namespace ----------
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 0.462125301361084 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 0.4947335720062256 seconds.
 
 
 >>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table _4dn.file successful.
 
 Update successful.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 10.358332633972168 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 11.603763103485107 seconds.
 
 ********** C2M2 metadata ingestion completed: schema_name: _4dn.

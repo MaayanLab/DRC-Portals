@@ -1,0 +1,26 @@
+DROP TABLE
+SELECT 4277
+DO
+ count 
+-------
+  4277
+(1 row)
+
+DROP TABLE
+SELECT 10082060
+DO
+ count  
+--------
+ 161080
+(1 row)
+
+  count  
+---------
+ 9922605
+(1 row)
+
+  count   
+----------
+ 10082060
+(1 row)
+

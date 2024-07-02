@@ -690,7 +690,7 @@ description VARCHAR DEFAULT '',
 PRIMARY KEY(id)
 );
 ================== Defined all tables ======================
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.16670536994934082 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.17937970161437988 seconds.
 
 Names of all tables:
 ['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
@@ -728,7 +728,7 @@ table_name:collection
 KidsFirst: collection: Read from file: df: #rows = 0, #cols: 8
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.03646707534790039 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.043480873107910156 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/anatomy.tsv ---------
 table_name:anatomy
@@ -756,14 +756,14 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.07310009002685547 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0849454402923584 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_in_collection.tsv ---------
 table_name:file_in_collection
 KidsFirst: file_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.025656938552856445 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033562660217285156 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file.tsv ---------
 table_name:file
@@ -796,14 +796,14 @@ sql_count_df:     count
 0  288210
 count:288210
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 15.009829759597778 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 15.789650201797485 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/gene.tsv ---------
 table_name:gene
 KidsFirst: gene: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.09214448928833008 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11189913749694824 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_role_taxonomy.tsv ---------
 table_name:subject_role_taxonomy
@@ -834,7 +834,7 @@ sql_count_df:    count
 0  28550
 count:28550
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.45140933990478516 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.47973084449768066 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_format.tsv ---------
 table_name:file_format
@@ -862,7 +862,7 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09114909172058105 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10463881492614746 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/project.tsv ---------
 table_name:project
@@ -893,14 +893,14 @@ sql_count_df:    count
 0     40
 count:40
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.0925140380859375 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11092495918273926 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_disease.tsv ---------
 table_name:phenotype_disease
 KidsFirst: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05260014533996582 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0654296875 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/ncbi_taxonomy.tsv ---------
 table_name:ncbi_taxonomy
@@ -917,21 +917,21 @@ A slice of df:
 0  NCBI:txid9606  species  Homo sapiens          NaN       []
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.08711409568786621 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10824775695800781 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype.tsv ---------
 table_name:phenotype
 KidsFirst: phenotype: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05162668228149414 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0659947395324707 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/substance.tsv ---------
 table_name:substance
 KidsFirst: substance: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05362868309020996 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06525468826293945 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/project_in_project.tsv ---------
 table_name:project_in_project
@@ -964,7 +964,7 @@ sql_count_df:    count
 0     39
 count:39
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09913134574890137 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10874247550964355 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject.tsv ---------
 table_name:subject
@@ -997,14 +997,14 @@ sql_count_df:    count
 0  28550
 count:28550
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.75553297996521 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7864789962768555 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/analysis_type.tsv ---------
 table_name:analysis_type
 KidsFirst: analysis_type: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/analysis_type.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05323600769042969 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06471872329711914 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample.tsv ---------
 table_name:biosample
@@ -1037,28 +1037,28 @@ sql_count_df:    count
 0  37065
 count:37065
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.8205397129058838 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8460259437561035 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein_gene.tsv ---------
 table_name:protein_gene
 KidsFirst: protein_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.051923274993896484 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06519198417663574 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_race.tsv ---------
 table_name:subject_race
 KidsFirst: subject_race: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_race.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05393695831298828 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06524920463562012 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_phenotype.tsv ---------
 table_name:collection_phenotype
 KidsFirst: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.051970720291137695 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06697392463684082 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/assay_type.tsv ---------
 table_name:assay_type
@@ -1079,14 +1079,14 @@ A slice of df:
 [3 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09972023963928223 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10715341567993164 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_anatomy.tsv ---------
 table_name:collection_anatomy
 KidsFirst: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_anatomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05202317237854004 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06476187705993652 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/dcc.tsv ---------
 table_name:dcc
@@ -1105,35 +1105,35 @@ A slice of df:
 [1 rows x 5 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.10135698318481445 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10807538032531738 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_gene.tsv ---------
 table_name:collection_gene
 KidsFirst: collection_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05217790603637695 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06549239158630371 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_compound.tsv ---------
 table_name:collection_compound
 KidsFirst: collection_compound: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05580568313598633 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06597709655761719 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_gene.tsv ---------
 table_name:biosample_gene
 KidsFirst: biosample_gene: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05630636215209961 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06536269187927246 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_in_collection.tsv ---------
 table_name:biosample_in_collection
 KidsFirst: biosample_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0537261962890625 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06526017189025879 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_from_subject.tsv ---------
 table_name:biosample_from_subject
@@ -1166,35 +1166,35 @@ sql_count_df:    count
 0  37065
 count:37065
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.6748456954956055 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7132477760314941 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_protein.tsv ---------
 table_name:collection_protein
 KidsFirst: collection_protein: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05433225631713867 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06626343727111816 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/sample_prep_method.tsv ---------
 table_name:sample_prep_method
 KidsFirst: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/sample_prep_method.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0556483268737793 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06582880020141602 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_phenotype.tsv ---------
 table_name:subject_phenotype
 KidsFirst: subject_phenotype: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_phenotype.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05308842658996582 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06559538841247559 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_substance.tsv ---------
 table_name:collection_substance
 KidsFirst: collection_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05412888526916504 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06589078903198242 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/data_type.tsv ---------
 table_name:data_type
@@ -1220,7 +1220,7 @@ A slice of df:
 [8 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.10153365135192871 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10779571533203125 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_subject.tsv ---------
 table_name:file_describes_subject
@@ -1251,14 +1251,14 @@ sql_count_df:     count
 0  338490
 count:338490
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 4.7497947216033936 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 5.020538330078125 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_taxonomy.tsv ---------
 table_name:collection_taxonomy
 KidsFirst: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_taxonomy.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.06488800048828125 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08376383781433105 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/disease.tsv ---------
 table_name:disease
@@ -1286,21 +1286,21 @@ A slice of df:
 [10 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.09568595886230469 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10872673988342285 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_disease.tsv ---------
 table_name:collection_disease
 KidsFirst: collection_disease: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_disease.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0491185188293457 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06599044799804688 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_in_collection.tsv ---------
 table_name:collection_in_collection
 KidsFirst: collection_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05172109603881836 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06550049781799316 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_biosample.tsv ---------
 table_name:file_describes_biosample
@@ -1331,21 +1331,21 @@ sql_count_df:     count
 0  404951
 count:404951
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 6.701074123382568 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 7.185033321380615 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/compound.tsv ---------
 table_name:compound
 KidsFirst: compound: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/compound.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.06705451011657715 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09084844589233398 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_gene.tsv ---------
 table_name:phenotype_gene
 KidsFirst: phenotype_gene: Read from file: df: #rows = 0, #cols: 2
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_gene.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0513763427734375 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06804013252258301 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_disease.tsv ---------
 table_name:subject_disease
@@ -1359,7 +1359,7 @@ Wrote the count query
 *** Entering subject_disease to database ***
 df: #rows = 35901, #cols: 4
 
-Processing C2M2 Files...: 100%|██████████| 1/1 [00:36<00:00, 36.76s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:36<00:00, 36.76s/it]
+Processing C2M2 Files...: 100%|██████████| 1/1 [00:39<00:00, 39.17s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:39<00:00, 39.17s/it]
 A slice of df:
   subject_id_namespace  ...       disease
 0           kidsfirst:  ...      DOID:162
@@ -1379,7 +1379,7 @@ sql_count_df:    count
 0  35901
 count:35901
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.6000895500183105 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6273524761199951 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_disease.tsv ---------
 table_name:biosample_disease
@@ -1412,14 +1412,14 @@ sql_count_df:    count
 0  50449
 count:50449
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.7534089088439941 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8185310363769531 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_substance.tsv ---------
 table_name:subject_substance
 KidsFirst: subject_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.053285837173461914 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06728672981262207 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/id_namespace.tsv ---------
 table_name:id_namespace
@@ -1438,44 +1438,44 @@ A slice of df:
 [1 rows x 4 columns]
 Data inserted successfully!
 >>> All good.
->>>>>>>> Time taken to ingest the metadata from this file: 0.0866384506225586 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11017441749572754 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_substance.tsv ---------
 table_name:biosample_substance
 KidsFirst: biosample_substance: Read from file: df: #rows = 0, #cols: 3
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_substance.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05055999755859375 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0659019947052002 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein.tsv ---------
 table_name:protein
 KidsFirst: protein: Read from file: df: #rows = 0, #cols: 5
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.0518496036529541 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06693172454833984 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_defined_by_project.tsv ---------
 table_name:collection_defined_by_project
 KidsFirst: collection_defined_by_project: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_defined_by_project.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05109095573425293 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06629133224487305 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_in_collection.tsv ---------
 table_name:subject_in_collection
 KidsFirst: subject_in_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_in_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05255746841430664 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06780457496643066 seconds.
 
 --------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_collection.tsv ---------
 table_name:file_describes_collection
 KidsFirst: file_describes_collection: Read from file: df: #rows = 0, #cols: 4
 
 #Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_collection.tsv: 1
->>>>>>>> Time taken to ingest the metadata from this file: 0.05330228805541992 seconds.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06689214706420898 seconds.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 36.775988817214966 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 39.188568115234375 seconds.
 
  ----------- Adding foreign key constraint for table file ----------
 ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
@@ -1680,13 +1680,13 @@ ALTER TABLE kidsfirst.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gen
 ALTER TABLE kidsfirst.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES kidsfirst.gene (id);
  ----------- Adding foreign key constraint for table sample_prep_method ----------
  ----------- Adding foreign key constraint for table id_namespace ----------
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 4.4859936237335205 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 4.552574396133423 seconds.
 
 
 >>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table kidsfirst.file successful.
 
 Update successful.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 52.74965214729309 seconds.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 55.722634077072144 seconds.
 
 ********** C2M2 metadata ingestion completed: schema_name: kidsfirst.
