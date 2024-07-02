@@ -61,7 +61,7 @@ interface FileProjTableResult {
     }[];
 
     count_file: number;
-    
+
 }
 
 const renderMetadataValue = (item: MetadataItem) => {
@@ -163,14 +163,14 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         console.log("Elapsed time for FilesProjTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
-            return <div>Error: No files in project table results found</div>;
+            return <div></div>;
         }
 
         // Assuming you want to process the first result in the array
         const firstResult = results[0];
         const countFile = firstResult.count_file ?? 0;
-        
-        
+
+
         const filesProjTable = firstResult.file_table ?? [];
         const filesProjTableFull = firstResult.file_table_full ?? [];
 
@@ -183,85 +183,85 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
 
 
         const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(countFile ?? 0, count_file_table_withlimit, file_count_limit_proj);
-    
+
 
         const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
 
         const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
-        const { 
-        prunedData: fileProjPrunedData, 
-        columnNames: fileProjColNames, 
-        dynamicColumns: dynamicFileProjColumns,
-        staticColumns: staticFileProjColumns 
+        const {
+            prunedData: fileProjPrunedData,
+            columnNames: fileProjColNames,
+            dynamicColumns: dynamicFileProjColumns,
+            staticColumns: staticFileProjColumns
         } = pruneAndRetrieveColumnNames(
-        filesProjTable?? [],
-        filesProjTableFull ?? [], 
-        filesProj_table_columnsToIgnore
-    );
-    // Add 'id' column with 'row-<index>' format
-    const fileProjPrunedDataWithId = fileProjPrunedData.map((row, index) => ({ ...row, id: index }));
-    //console.log("fileProjPrundedDataWithId = "+fileProjPrunedDataWithId);
-    const filesProj_table_full_withId = filesProjTableFull
-      ? filesProjTableFull.map((row, index) => ({ ...row, id: index }))
-      : [];
+            filesProjTable ?? [],
+            filesProjTableFull ?? [],
+            filesProj_table_columnsToIgnore
+        );
+        // Add 'id' column with 'row-<index>' format
+        const fileProjPrunedDataWithId = fileProjPrunedData.map((row, index) => ({ ...row, id: index }));
+        //console.log("fileProjPrundedDataWithId = "+fileProjPrunedDataWithId);
+        const filesProj_table_full_withId = filesProjTableFull
+            ? filesProjTableFull.map((row, index) => ({ ...row, id: index }))
+            : [];
 
-    const newFileProjColumns = priorityFileCols.filter(item => dynamicFileProjColumns.includes(item)); 
-    const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileProjColumns.includes(item)); // priority columns that are static, don't change with 
+        const newFileProjColumns = priorityFileCols.filter(item => dynamicFileProjColumns.includes(item));
+        const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileProjColumns.includes(item)); // priority columns that are static, don't change with 
 
-    const remainingDynamicCols = dynamicFileProjColumns.filter(item => !newFileProjColumns.includes(item)); 
-    const finalNewFileProjColumns = newFileProjColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
+        const remainingDynamicCols = dynamicFileProjColumns.filter(item => !newFileProjColumns.includes(item));
+        const finalNewFileProjColumns = newFileProjColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
 
-    const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, staticPriorityFileCols);
-  
-    const downloadFilename = generateHashedJSONFilename("FilesProjTable_", searchParams);
-    const categories: Category[] = [];
-        
-    addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, fileProj_table_label_base, categories);
-    
-    const category = categories[0];
+        const reorderedFileProjStaticCols = reorderStaticCols(staticFileProjColumns, staticPriorityFileCols);
 
-    return (
-        <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
-        {category && (
-        <Grid item xs={12} sx={{ maxWidth: '100%' }}>
-            <Card variant="outlined" sx={{ mb: 2 }}>
-                <CardContent id={`card-content-${category.title}`}>
-                    <Typography variant="h5" component="div">
-                        {category.title + " (Uniform Columns) Count: " + countFile}
-                    </Typography>
-                    {category.metadata.map((item, i) => (
-                        item && item.value ? (
-                            <Typography key={i} variant="body2">
-                                <strong>{item.label}: </strong>
-                                {renderMetadataValue(item)}
-                            </Typography>
-                        ) : null
-                    ))}
-                </CardContent>
-            </Card>
-        </Grid>
-        )}
-        <Grid item xs={12} sx={{ maxWidth: '100%' }}>
-            {(count_file_table_withlimit > 0) && (
-                <ExpandableTable
-                    data={fileProjPrunedDataWithId}
-                    full_data={filesProj_table_full_withId}
-                    downloadFileName={downloadFilename}
-                    drsBundle
-                    tableTitle={fileProjTableTitle}
-                    searchParams={searchParams}
-                    count={count_file_table_withlimit}
-                    colNames={finalNewFileProjColumns}
-                    dynamicColumns={finalNewFileProjColumns}
-                    tablePrefix="fileProjTbl"
-                    
-                />
-            )}
-        </Grid>
-    </Grid>
+        const downloadFilename = generateHashedJSONFilename("FilesProjTable_", searchParams);
+        const categories: Category[] = [];
 
-    );
+        addCategoryColumns(reorderedFileProjStaticCols, getNameFromFileProjTable, fileProj_table_label_base, categories);
+
+        const category = categories[0];
+
+        return (
+            <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
+                {category && (
+                    <Grid item xs={12} sx={{ maxWidth: '100%' }}>
+                        <Card variant="outlined" sx={{ mb: 2 }}>
+                            <CardContent id={`card-content-${category.title}`}>
+                                <Typography variant="h5" component="div">
+                                    {category.title + " (Uniform Columns) Count: " + countFile}
+                                </Typography>
+                                {category.metadata.map((item, i) => (
+                                    item && item.value ? (
+                                        <Typography key={i} variant="body2">
+                                            <strong>{item.label}: </strong>
+                                            {renderMetadataValue(item)}
+                                        </Typography>
+                                    ) : null
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                )}
+                <Grid item xs={12} sx={{ maxWidth: '100%' }}>
+                    {(count_file_table_withlimit > 0) && (
+                        <ExpandableTable
+                            data={fileProjPrunedDataWithId}
+                            full_data={filesProj_table_full_withId}
+                            downloadFileName={downloadFilename}
+                            drsBundle
+                            tableTitle={fileProjTableTitle}
+                            searchParams={searchParams}
+                            count={count_file_table_withlimit}
+                            colNames={finalNewFileProjColumns}
+                            dynamicColumns={finalNewFileProjColumns}
+                            tablePrefix="fileProjTbl"
+
+                        />
+                    )}
+                </Grid>
+            </Grid>
+
+        );
 
     } catch (error) {
         console.error("Error fetching FilesProj table:", error);
