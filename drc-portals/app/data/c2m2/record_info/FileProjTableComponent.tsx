@@ -175,7 +175,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const filesProjTableFull = firstResult.file_table_full ?? [];
 
         if (filesProjTable.length === 0 || filesProjTableFull.length === 0) {
-            return <div>No files in project data found.</div>;
+            return <div></div>;
         }
 
         const fileProj_table_label_base = "Project associated files with specified data type";

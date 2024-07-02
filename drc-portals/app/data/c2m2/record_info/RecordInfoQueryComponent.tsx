@@ -265,7 +265,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     ];
 
 
-    const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
+    // const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
     return (
       <LandingPageLayout
         icon={{
@@ -278,7 +278,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         subtitle={""}
         description={format_description(resultsRec?.project_description ?? "")}
         metadata={metadata}
-        categories={categories}
+      //categories={categories}
       >
         <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
