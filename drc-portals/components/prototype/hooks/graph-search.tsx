@@ -4,7 +4,6 @@ import { ElementDefinition, EventObject, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import { D3_FORCE_TOOLS } from "../constants/cy";
 import {
   NodeCxtMenuItem,
   CytoscapeNodeData,
@@ -14,6 +13,7 @@ import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
 import { CytoscapeReference } from "../types/cy";
 import {
+  D3_FORCE_TOOLS,
   createCytoscapeElementsFromNeo4j,
   downloadChartData,
   downloadCyAsJson,

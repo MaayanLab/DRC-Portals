@@ -3,12 +3,6 @@ import { Css, Position } from "cytoscape";
 import { CSSProperties } from "react";
 
 import { CytoscapeNodeData } from "../interfaces/cy";
-import { CytoscapeReference } from "../types/cy";
-import {
-  getEdgePoint,
-  getSegmentPropsWithPoints,
-  unlockD3ForceNodes,
-} from "../utils/cy";
 
 import {
   ADMIN_NODE_COLOR,
@@ -72,6 +66,82 @@ import {
   SUBSTANCE_LABEL,
   TESTED_FOR_TYPE,
 } from "./neo4j";
+
+const getRelativePos = (s: Position, t: Position, c: Position) => {
+  const numerator = (c.x - s.x) * (t.x - s.x) + (c.y - s.y) * (t.y - s.y);
+  const denominator = (t.x - s.x) ** 2 + (t.y - s.y) ** 2;
+
+  return numerator / denominator;
+};
+
+const getSegmentIntersectionPoint = (
+  s: Position,
+  c: Position,
+  t: Position
+): Position => {
+  const m = (t.y - s.y) / (t.x - s.x);
+  const b = s.y - m * s.x;
+  const mp = -1 * (1 / m);
+  const bp = -1 * (mp * c.x) + c.y;
+  const x_intersect = (bp - b) / (m - mp);
+  const y_intersect = m * x_intersect + b;
+
+  return {
+    x: x_intersect,
+    y: y_intersect,
+  };
+};
+
+const getSegmentWeight = (s: Position, c: Position, t: Position) => {
+  const intersection_point = getSegmentIntersectionPoint(s, c, t);
+  return getRelativePos(
+    { x: s.x, y: s.y },
+    { x: t.x, y: t.y },
+    { x: intersection_point.x, y: intersection_point.y }
+  );
+};
+
+const getSegmentDistance = (s: Position, c: Position, t: Position) => {
+  const intersection_point = getSegmentIntersectionPoint(s, c, t);
+
+  return Math.sqrt(
+    (c.x - intersection_point.x) ** 2 + (c.y - intersection_point.y) ** 2
+  );
+};
+
+const getSegmentPropsWithPoints = (
+  source: Position,
+  controlPoints: Position[],
+  target: Position,
+  invertDistances?: boolean[]
+) => {
+  if (invertDistances === undefined) {
+    invertDistances = Array(controlPoints.length).fill(false);
+  }
+
+  const weights: number[] = [];
+  const distances: number[] = [];
+
+  controlPoints.forEach((cp, i) => {
+    weights.push(getSegmentWeight(source, cp, target));
+    distances.push(
+      getSegmentDistance(source, cp, target) * (invertDistances[i] ? -1 : 1)
+    );
+  });
+
+  return {
+    "segment-weights": weights,
+    "segment-distances": distances,
+  };
+};
+
+const getEdgePoint = (origin: Position, deg: number, r: number): Position => {
+  const degreesToRads = (deg: number) => (deg * Math.PI) / 180.0;
+  return {
+    x: origin.x + r * Math.sin(degreesToRads(deg)),
+    y: origin.y - r * Math.cos(degreesToRads(deg)),
+  };
+};
 
 export const ChartContainer = styled(Paper)({
   width: "100%",
@@ -2502,12 +2572,3 @@ export const SCHEMA_LAYOUT = {
 
 export const BASIC_SEARCH_ERROR_MSG =
   "An error occured during your search. Please try again later.";
-
-export const D3_FORCE_TOOLS = [
-  (cyRef: CytoscapeReference) =>
-    unlockD3ForceNodes(
-      "search-chart-toolbar-unlock-btn",
-      "Unlock All Nodes",
-      cyRef
-    ),
-];
