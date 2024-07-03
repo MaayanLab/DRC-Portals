@@ -91,9 +91,9 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                       term_ontological = check_ontology_in_term(gene_set_label.replace('_', ' '))
                       if term_ontological:
                         fairshake_ontological_count +=1
-                      standard_genes = [1 if len(gene_lookup.get(raw_gene, [])) > 0 else 0 for raw_gene in gene_set_genes]
-                      sum_standard_genes = sum(standard_genes)  
-                      fairshake_standard_elements.append(sum_standard_genes/len(gene_set_genes))
+                      # standard_genes = [1 if len(gene_lookup.get(raw_gene, [])) > 0 else 0 for raw_gene in gene_set_genes]
+                      # sum_standard_genes = sum(standard_genes)  
+                      # fairshake_standard_elements.append(sum_standard_genes/len(gene_set_genes))
 
                       gene_set_genes = {gene_id for raw_gene in gene_set_genes if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
                       #
@@ -131,7 +131,8 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                         ))
                       
                     fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/len(fairshake_standard_elements),
-                            "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+                            # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+                            "XMT Elements are normalized to a standard": None, 
                             "Accessible via DRS": fairshake_drs,
                             "Persistent URL": fairshake_persistent
                             }
@@ -172,7 +173,8 @@ with fair_assessments_helper.writer() as fair_assessment:
         fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
 
       fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/len(fairshake_standard_elements),
-              "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+              # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+              "XMT Elements are normalized to a standard": None, 
               "Accessible via DRS": fairshake_drs,
               "Persistent URL": fairshake_persistent
               }

@@ -173,8 +173,8 @@ with fair_assessments_helper.writer() as fair_assessment:
                           ))
                     # check if OBO relations ontology term is accurate for each assertion: 
                     if 'RO' in columns: 
-                      ontology_lookup = RO().get(assertion['relation'])
-                      file_predicate_standard_scores.append(0 if ontology_lookup is None  & ontology_lookup['name'] != assertion['relation'].replace('_', ' ') else 1)
+                      ontology_lookup = RO().get(assertion['RO'])
+                      file_predicate_standard_scores.append(0 if ontology_lookup is None or ontology_lookup['name'] != assertion['RO'].replace('_', ' ') else 1)
                     else: 
                       file_predicate_standard_scores.append(0)
                 fairshake_predicate_standard.append(mean(file_predicate_standard_scores))

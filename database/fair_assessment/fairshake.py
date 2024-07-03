@@ -428,16 +428,17 @@ def xmt_fair(xmt_path, row):
         term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
         if term_ontological:
           fairshake_ontological_count +=1
-        standard_elements = []
-        if row['filename'].endswith('.gmt'):
-            standard_elements = [1 if len(gene_lookup.get(raw_gene, [])) > 0 else 0 for raw_gene in x_set_elements]
-        else:
-            standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ':')) else 0 for raw_gene in x_set_elements]
-        sum_standard_elements = sum(standard_elements)  
-        fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
+        # standard_elements = []
+        # if row['filename'].endswith('.gmt'):
+        #     standard_elements = [1 if len(gene_lookup.get(raw_gene, [])) > 0 else 0 for raw_gene in x_set_elements]
+        # else:
+        #     standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ':')) else 0 for raw_gene in x_set_elements]
+        # sum_standard_elements = sum(standard_elements)  
+        # fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
 
     fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/len(fairshake_standard_elements),
-                            "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+                            # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+                            "XMT Elements are normalized to a standard": None, 
                             "Accessible via DRS": fairshake_drs,
                             "Persistent URL": fairshake_persistent
                             }
@@ -507,8 +508,8 @@ def kg_assertions_fair(assertions_extract_path):
             assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
             for assertion in tqdm(assertion_edge_reader, desc=f"Processing {assertion_edge_file.name}..."):
                 if 'RO' in columns: 
-                    ontology_lookup = RO().get(assertion['relation'])
-                    file_predicate_standard_scores.append(0 if ontology_lookup is None  & ontology_lookup['name'] != assertion['relation'].replace('_', ' ') else 1)
+                    ontology_lookup = RO().get(assertion['RO'])
+                    file_predicate_standard_scores.append(0 if ontology_lookup is None or ontology_lookup['name'] != assertion['RO'].replace('_', ' ') else 1)
                 else: 
                     file_predicate_standard_scores.append(0)
         fairshake_predicate_standard.append(mean(file_predicate_standard_scores))
