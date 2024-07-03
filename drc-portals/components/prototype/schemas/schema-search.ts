@@ -31,6 +31,7 @@ export const SearchBarOptionSchema = z.union([
 ]);
 
 export const SchemaSearchPathSchema = z.object({
+  id: z.string(),
   elements: z.array(SearchBarOptionSchema),
   limit: z.number().optional(),
   skip: z.number().optional(),

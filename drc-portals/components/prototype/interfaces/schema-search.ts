@@ -22,6 +22,7 @@ export interface RelationshipOption extends BaseSearchBarOption {
 }
 
 export interface SchemaSearchPath {
+  id: string;
   elements: SearchBarOption[];
   skip: number;
   limit: number;

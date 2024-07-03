@@ -38,7 +38,7 @@ export default function SchemaSearch() {
 
   const handleAddPath = () => {
     const updatedValue = [...value];
-    updatedValue.push({ elements: [], skip: 0, limit: 10 });
+    updatedValue.push({ id: v4(), elements: [], skip: 0, limit: 10 });
     setValue(updatedValue);
   };
 
@@ -55,7 +55,7 @@ export default function SchemaSearch() {
       >
         {value.map((path, index) => (
           <SchemaSearchFormRow
-            key={`schema-search-form-row-${index}`}
+            key={`schema-search-form-row-${path.id}`}
             value={path}
             onChange={updatePath(index)}
             onDelete={deletePath(index)}
