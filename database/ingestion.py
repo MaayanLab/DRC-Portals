@@ -1,6 +1,6 @@
 from tqdm import tqdm
 from df2pg import OnConflictSpec, copy_from_records
-from fairshake import code_assets_fair_assessment
+from fair_assessment.fairshake import code_assets_fair_assessment
 from ingest_common import (
   TableHelper,
   connection,

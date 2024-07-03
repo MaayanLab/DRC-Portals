@@ -1,3 +1,4 @@
+import csv
 from statistics import mean
 import numpy as np
 import pandas as pd
@@ -16,6 +17,9 @@ from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlsplit
 from ingest_common import current_code_assets
+from fair_assessment.ontology.obo import OBOOntology
+from c2m2_assessment.util.fetch_cache import fetch_cache
+from c2m2_assessment.util.memo import memo
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -302,69 +306,12 @@ def code_assets_fair_assessment():
     fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
     return fairshake_df
 
-
-
-def c2m2_fair(directory):
-    """Run FAIR Assessment for a C2M2 file asset given its filepath"""
-    try: 
-        CFDE = create_offline_client(
-            *(
-            deep_find(directory, 'C2M2_datapackage.json')
-            | deep_find(directory, 'datapackage.json')
-            ),
-            cachedir=directory,
-        )
-        result = assess(CFDE, rubric='amanda2022', full=False)
-        rubric = {}
-        for index, row in result.iterrows():
-            if math.isnan(row['value']):
-                rubric[row["name"]] = None
-            else:
-                rubric[row["name"]] = row["value"]
-        rubric["Accessible via DRS"] = 1
-        return rubric
-    except: 
-        return {'Persistent identifier': 0.0,
-                'files with data type': 0.0,
-                'files with file format': 0.0,
-                'files with assay type': 0.0,
-                'files with anatomy': 0.0,
-                'files with biosample': 0.0,
-                'files with subject': 0.0,
-                'biosamples with species': 0.0,
-                'biosamples with subject': 0.0,
-                'biosamples with file': 0.0,
-                'biosamples with anatomy': 0.0,
-                'subjects with taxonomy': 0.0,
-                'subjects with granularity': 0.0,
-                'subjects with taxonomic role': 0.0,
-                'subjects with biosample': 0.0,
-                'subjects with file': 0.0,
-                'files in collections': 0.0,
-                'subjects in collections': 0.0,
-                'biosamples in collections': 0.0,
-                'projects with anatomy': 0.0,
-                'projects with files': 0.0,
-                'projects with data types': 0.0,
-                'projects with subjects': 0.0,
-                'biosamples with substance': 0.0,
-                'collections with gene': 0.0,
-                'collections with substance': 0.0,
-                'subjects with substance': 0.0,
-                'biosamples with gene': 0.0,
-                'phenotypes with gene': 0,
-                'proteins with gene': 0,
-                'collections with protein': 0.0,
-                'subjects with phenotype': 0.0,
-                'genes with phenotype': 0.0,
-                'diseases with phenotype': 0.0,
-                'collections with phenotype': 0.0,
-                'Accessible via DRS': 1.0}
     
 
 def check_ontology_in_term(term):
     """Return boolean defining if a term contains an ontological reference eg RO:922340"""
-    my_file = open("./ontology/ontologies.txt", "r") 
+    my_file = open("../database/fair_assessment/ontology/ontologies.txt", "r") 
+    "database/fair_assessment/ontology/ontologies.txt"
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -375,7 +322,7 @@ def check_ontology_in_term(term):
 
 def check_standard_ontology(ontology):
     """Return boolean defining if an given ontology is considered community standard"""
-    my_file = open("./ontology/ontologies.txt", "r") 
+    my_file = open("../database/fair_assessment/ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -404,3 +351,164 @@ def traverse_datasets(hdf_file):
 
     for path, _ in h5py_dataset_iterator(hdf_file):
         yield path
+
+def c2m2_fair(directory):
+    """Run FAIR Assessment for a C2M2 file asset given its filepath"""
+    try: 
+        CFDE = create_offline_client(
+            *(
+            deep_find(directory, 'C2M2_datapackage.json')
+            | deep_find(directory, 'datapackage.json')
+            ),
+            cachedir=directory,
+        )
+        result = assess(CFDE, rubric='amanda2022', full=False)
+        rubric = {}
+        for index, row in result.iterrows():
+            if math.isnan(row['value']):
+                rubric[row["name"]] = None
+            else:
+                rubric[row["name"]] = row["value"]
+        rubric["Accessible via DRS"] = 1
+        rubric['Machine readable metadata'] = 1
+        return rubric
+    except: 
+        return {'Machine readable metadata': 0.0,
+                'Persistent identifier': None,
+                'files with data type': None,
+                'files with file format': None,
+                'files with assay type': None,
+                'files with anatomy': None,
+                'files with biosample': None,
+                'files with subject': None,
+                'biosamples with species': None,
+                'biosamples with subject': None,
+                'biosamples with file': None,
+                'biosamples with anatomy': None,
+                'subjects with taxonomy': None,
+                'subjects with granularity': None,
+                'subjects with taxonomic role': None,
+                'subjects with biosample': None,
+                'subjects with file': None,
+                'files in collections': None,
+                'subjects in collections': None,
+                'biosamples in collections': None,
+                'projects with anatomy': None,
+                'projects with files': None,
+                'projects with data types': None,
+                'projects with subjects': None,
+                'biosamples with substance': None,
+                'collections with gene': None,
+                'collections with substance': None,
+                'subjects with substance': None,
+                'biosamples with gene': None,
+                'phenotypes with gene': None,
+                'proteins with gene': None,
+                'collections with protein': None,
+                'subjects with phenotype': None,
+                'genes with phenotype': None,
+                'diseases with phenotype': None,
+                'collections with phenotype': None,
+                'Accessible via DRS': 1.0}
+    
+
+def xmt_fair(xmt_path, row):
+    # initialize fairshake variables
+    fairshake_drs = 1
+    fairshake_persistent = 0
+    fairshake_ontological_count = 0
+    fairshake_standard_elements = []
+    with xmt_path.open('r') as fr:
+      for line in tqdm(fr, desc=f"Processing {row['dcc_short_label']}/{row['filename']}..."):
+        line_split = list(map(str.strip, line.split('\t')))
+        if len(line_split) < 3: continue
+        x_set_label, x_set_description, *x_set_elements = line_split
+        term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
+        if term_ontological:
+          fairshake_ontological_count +=1
+        standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ' ')) else 0 for raw_gene in x_set_elements]
+        sum_standard_elements = sum(standard_elements)  
+        fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
+
+    fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/len(fairshake_standard_elements),
+                            "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
+                            "Accessible via DRS": fairshake_drs,
+                            "Persistent URL": fairshake_persistent
+                            }
+    return fair_assessment_results
+          
+
+def attribute_tables_fair(attr_table_path, row):
+    # initialize fairshake variables
+    fairshake_drs = 1
+    fairshake_persistent = 0
+    fairshake_row_ontological = 0
+    fairshake_col_ontological = 0
+    if row['filename'].endswith('.h5'):
+        with h5py.File(attr_table_path, 'r') as f:
+            for dset in traverse_datasets(f):
+                if dset == '/col/id': 
+                    col_values = np.array(f[dset])
+                    col_reference_ontological = np.array([check_ontology_in_term(xi.decode()) for xi in col_values])
+                    fairshake_col_ontological = np.mean(col_reference_ontological).tolist()
+                if dset == '/row/id': 
+                    row_values = np.array(f[dset])
+                    row_reference_ontological = np.array([check_ontology_in_term(xi.decode()) for xi in row_values])
+                    fairshake_row_ontological = np.mean(row_reference_ontological).tolist()
+            fair_assessment_results={"Columns reference a community standardized id": fairshake_col_ontological,
+                                    "Rows reference a community standardized id":fairshake_row_ontological, 
+                                    "Accessible via DRS": fairshake_drs,
+                                    "Persistent URL": fairshake_persistent
+                                    }
+    else:
+        fair_assessment_results={"Columns reference a community standardized id": fairshake_col_ontological,
+        "Rows reference a community standardized id":fairshake_row_ontological, 
+        "Accessible via DRS": fairshake_drs,
+        "Persistent URL": fairshake_persistent
+        }
+    return fair_assessment_results
+
+
+def kg_assertions_fair(assertions_extract_path):
+    # initialize fairshake metric variables
+    fairshake_drs = 1
+    fairshake_persistent = 0
+    fairshake_node_standard = []
+    fairshake_predicate_standard = []
+    RO = memo(lambda: OBOOntology(fetch_cache('https://raw.githubusercontent.com/oborel/obo-relations/master/ro.obo', 'ro.obo')))
+
+    for assertion_node_file in assertions_extract_path.glob('*.nodes.csv'):
+        with assertion_node_file.open('r') as fr:
+            columns = next(fr).strip().split(',')
+            columns[0] = 'id'
+            #fair assessment: check if there is a community ontology acronym as a column header
+            ontology_columns = [col for col in columns if check_standard_ontology(col)]
+            rows_ontology_check = []
+            # fairshake_node_standard.append(1 if check_ontology_in_columns(columns) else 0)
+            assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
+            for assertion_node in tqdm(assertion_node_reader, desc=f"Processing {assertion_node_file.name}..."):
+            # check if at least one of standard ontology rows contains non-empty value
+                row_valid_ontology = 0
+                for col in ontology_columns:
+                    if assertion_node[col] != '':
+                        row_valid_ontology = 1
+                rows_ontology_check.append(1 if row_valid_ontology == 1 else 0)
+            fairshake_node_standard.append(mean(rows_ontology_check) if len(ontology_columns) > 0 else 0)
+    for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
+        file_predicate_standard_scores = []
+        with assertion_edge_file.open('r') as fr:
+            columns = next(fr).strip().split(',')
+            assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
+            for assertion in tqdm(assertion_edge_reader, desc=f"Processing {assertion_edge_file.name}..."):
+                if 'RO' in columns: 
+                    ontology_lookup = RO().get(assertion['relation'])
+                    file_predicate_standard_scores.append(0 if ontology_lookup is None  & ontology_lookup['name'] != assertion['relation'].replace('_', ' ') else 1)
+                else: 
+                    file_predicate_standard_scores.append(0)
+        fairshake_predicate_standard.append(mean(file_predicate_standard_scores))
+    fair_assessment_results={"Subjects/Objects reference a community standardized id": mean(fairshake_node_standard) if len(fairshake_node_standard) > 0 else 0,
+                                "Predicates reference a community standardized id": mean(fairshake_predicate_standard) if len(fairshake_predicate_standard) > 0 else 0 , 
+                                "Accessible via DRS": fairshake_drs,
+                                "Persistent URL": fairshake_persistent
+                                }
+    return fair_assessment_results

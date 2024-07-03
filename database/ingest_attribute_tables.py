@@ -4,7 +4,7 @@ import json
 from tqdm.auto import tqdm
 import numpy as np
 import h5py
-from fairshake import traverse_datasets, check_ontology_in_term
+from fair_assessment.fairshake import traverse_datasets, check_ontology_in_term
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 
 

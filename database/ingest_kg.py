@@ -8,10 +8,10 @@ from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
-from ontology.obo import OBOOntology
+from fair_assessment.ontology.obo import OBOOntology
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
-from fairshake import check_ontology_in_columns, check_standard_ontology
+from fair_assessment.fairshake import check_ontology_in_columns, check_standard_ontology
 RO = memo(lambda: OBOOntology(fetch_cache('https://raw.githubusercontent.com/oborel/obo-relations/master/ro.obo', 'ro.obo')))
 #%%
 dcc_assets = current_dcc_assets()

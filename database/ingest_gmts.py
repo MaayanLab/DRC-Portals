@@ -3,7 +3,7 @@ from datetime import datetime
 import json
 from tqdm.auto import tqdm
 
-from fairshake import check_ontology_in_term
+from fair_assessment.fairshake import check_ontology_in_term
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 from statistics import mean 

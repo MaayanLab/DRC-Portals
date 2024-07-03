@@ -6,7 +6,7 @@ import csv
 import zipfile
 import pandas as pd
 from tqdm.auto import tqdm
-from fairshake import c2m2_fair
+from fair_assessment.fairshake import c2m2_fair
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 
 #%%
