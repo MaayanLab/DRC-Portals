@@ -625,6 +625,11 @@ export default function TextSearch() {
         ></Grid>
         <Grid
           item
+          md={RIGHT_COLUMN_MD_WIDTH}
+          display={{ xs: "none", sm: "none", md: "block" }}
+        ></Grid>
+        <Grid
+          item
           xs={MIDDLE_COLUMN_XS_WIDTH}
           sm={MIDDLE_COLUMN_SM_WIDTH}
           md={MIDDLE_COLUMN_MD_WIDTH}
@@ -636,11 +641,6 @@ export default function TextSearch() {
             Advanced Search
           </Button>
         </Grid>
-        <Grid
-          item
-          md={RIGHT_COLUMN_MD_WIDTH}
-          display={{ xs: "none", sm: "none", md: "block" }}
-        ></Grid>
       </Grid>
     </Grid>
   );
