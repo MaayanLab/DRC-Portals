@@ -20,6 +20,8 @@ from ingest_common import current_code_assets
 from fair_assessment.ontology.obo import OBOOntology
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
+from ingest_entity_common import gene_lookup
+
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -426,7 +428,11 @@ def xmt_fair(xmt_path, row):
         term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
         if term_ontological:
           fairshake_ontological_count +=1
-        standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ' ')) else 0 for raw_gene in x_set_elements]
+        standard_elements = []
+        if row['filename'].endswith('.gmt'):
+            standard_elements = [1 if len(gene_lookup.get(raw_gene, [])) > 0 else 0 for raw_gene in x_set_elements]
+        else:
+            standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ':')) else 0 for raw_gene in x_set_elements]
         sum_standard_elements = sum(standard_elements)  
         fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
 
