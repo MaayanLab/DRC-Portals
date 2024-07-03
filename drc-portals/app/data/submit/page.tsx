@@ -1,7 +1,7 @@
 import React from 'react'
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import {Typography, Link, Button } from '@mui/material';
+import { Typography, Link, Button } from '@mui/material';
 import { StyledAccordionComponent } from './StyledAccordion';
 import dynamic from 'next/dynamic';
 
@@ -16,6 +16,7 @@ const AssetManagement = dynamic(() => import('./docs/assetManagement.mdx'))
 const AdminUserDocs = dynamic(() => import('./docs/adminUserDocs.mdx'))
 const AssetApprovalStatus = dynamic(() => import('./docs/assetApprovalStatus.mdx'))
 const AssetCurrentStatus = dynamic(() => import('./docs/assetCurrentStatus.mdx'))
+const FairAssessmentDocs = dynamic(() => import('./docs/fairAssessmentDocs.mdx'))
 
 function CustomH1({ children }: { children?: any }) {
     return <h3 style={{ color: 'black', fontSize: '16px', borderBottom: 'solid', fontWeight: 600, marginTop: 15 }}>{children}</h3>
@@ -45,8 +46,8 @@ const MyImage = (props: any) => (
 )
 
 
-function CustomEm({ children }: { children?: any }){
-    return <em className="caption" style={{ fontSize: 14, fontStyle: 'normal', textAlign:'center', display:'block'}}>{children}</em>
+function CustomEm({ children }: { children?: any }) {
+    return <em className="caption" style={{ fontSize: 14, fontStyle: 'normal', textAlign: 'center', display: 'block' }}>{children}</em>
 }
 
 const components = {
@@ -71,8 +72,8 @@ export default function Documentation() {
                     We are collecting file and code assets from Common Fund programs to make them
                     Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
                     To submit assets, you must be logged in and registered. Registration involves being assigned a
-                    role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>. 
-                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024). 
+                    role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024).
                 </Typography>
             </Grid>
             <Grid item xs={12} container justifyContent={'center'}>
@@ -143,16 +144,23 @@ export default function Documentation() {
                 }
                 />
 
+                <StyledAccordionComponent heading="Fair Assessment Documentation" content={
+                    <Box sx={{ p: 1, m: 1 }}>
+                        <FairAssessmentDocs components={components} />
+                    </Box>
+                }
+                />
+
                 <StyledAccordionComponent heading="Instructional Video" content={
                     <>
-                        <Box sx={{ padding: 3, display: {xs: 'none', sm: 'block', md: 'block', lg: 'block', xl: 'block'} }}>
+                        <Box sx={{ padding: 3, display: { xs: 'none', sm: 'block', md: 'block', lg: 'block', xl: 'block' } }}>
                             <center>
-                                <YoutubeVideo size={'large'}/>
+                                <YoutubeVideo size={'large'} />
                             </center>
                         </Box>
-                        <Box sx={{ padding: 3, display: {xs: 'block', sm: 'none', md: 'none', lg: 'none', xl: 'none'} }}>
+                        <Box sx={{ padding: 3, display: { xs: 'block', sm: 'none', md: 'none', lg: 'none', xl: 'none' } }}>
                             <center>
-                                <YoutubeVideo size={'small'}/>
+                                <YoutubeVideo size={'small'} />
                             </center>
                         </Box>
                     </>
