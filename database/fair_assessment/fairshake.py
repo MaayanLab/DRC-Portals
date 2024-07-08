@@ -77,9 +77,12 @@ def assess_metanode(metanode_name):
         if '@' in metadata['author']: 
             fairshake_contact_info = 1
         # if metanode_info['type'] == 'process':
-        if 'story' in metanode_info:
-            if r'\ref{' in metanode_info['story']['abstract']:
-                fairshake_cite_methods = 1
+        if metanode_info['kind'] == 'process':
+            if 'story' in metanode_info:
+                if r'\ref{' in metanode_info['story']['abstract']:
+                    fairshake_cite_methods = 1
+        else:
+            fairshake_cite_methods = None
         return  [fairshake_description, fairshake_cite_methods, fairshake_contact_info, fairshake_license, fairshake_persistent_url]
     else:
         return None

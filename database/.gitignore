@@ -2,3 +2,5 @@ data
 ingest
 __pycache__
 fair
+.cached
+fairshake.ipynb
