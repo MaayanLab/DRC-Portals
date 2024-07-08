@@ -11,14 +11,8 @@ import React from "react";
 export default async function UsersTable() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/admin")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/admin")
 
-    if (!(user.role === 'ADMIN')) {
+    if (session.user.role !== 'ADMIN') {
         return (
             <Grid container spacing={2} sx={{ mt: 2 }}>
                 <Grid md={2} xs={12}>

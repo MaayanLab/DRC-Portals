@@ -4,6 +4,7 @@ import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Metadata, ResolvingMetadata } from "next";
+import { safeAsync } from "@/utils/safe";
 
 type PageProps = { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -20,7 +21,7 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const [results] = await prisma.$queryRaw<Array<{
+  const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     items: {
       id: string,
       type: string,
@@ -64,25 +65,26 @@ export default async function Page(props: PageProps) {
         (select count("entity_node".id)::int from "entity_node" where "entity_node"."type" = ${decodeURIComponent(props.params.entity_type)}) as count
       `}
     ;
-  `
+  `)
+  if (error) console.error(error)
   return (
     <ListingPageLayout
-      count={results.count}
+      count={results?.count ?? 0}
     >
       <SearchablePagedTable
         label={`${type_to_string('entity', decodeURIComponent(props.params.entity_type))} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results.count}
+        count={results?.count ?? 0}
         columns={[
           <>Label</>,
           <>Description</>,
         ]}
-        rows={results.items.map(item => [
+        rows={results?.items.map(item => [
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={decodeURIComponent(props.params.entity_type)} search={searchParams.q ?? ''} />,
           format_description(item.node.description),
-        ])}
+        ]) ?? []}
       />
     </ListingPageLayout>
   )

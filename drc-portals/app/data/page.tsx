@@ -22,6 +22,7 @@ import SearchField from "./processed/SearchField"
 import { BlurBig } from "@/components/styled/Blur"
 import Stats, { StatsFallback } from "./processed/Stats"
 import { ResponsivePaper } from "../info/styled"
+import { ErrorBoundary } from "next/dist/client/components/error-boundary"
 
 const search_cards = [
   {
@@ -126,8 +127,8 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                   className="flex"
             >
               <Container maxWidth="lg" className="m-auto">
-              <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
-                <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
+                <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
+                  <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
                 </Grid>
               </Container>
             </Paper>

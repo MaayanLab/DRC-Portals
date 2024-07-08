@@ -14,7 +14,6 @@ export const DRCDrawer = ({path, nav, session}: {path: "/info"| "/data", nav: Ar
 	const [open, setOpen] = useState(false)
 	const theme = useTheme();
   	const matches = useMediaQuery(theme.breakpoints.up('sm'));
-	console.log(open, "open")
 	return (
 		<>
 			<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
