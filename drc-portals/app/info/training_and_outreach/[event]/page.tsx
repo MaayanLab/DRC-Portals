@@ -4,6 +4,7 @@ import { mdiHelpRhombusOutline } from '@mdi/js';
 
 import March2024F2F from "./March2024F2F";
 import CFDEWebinarSeries from "./CFDEWebinarSeries";
+import FOG from './FOG.mdx'
 export default async function OutreachEvent ({params}: {
 	params: {
 		event: string
@@ -13,6 +14,8 @@ export default async function OutreachEvent ({params}: {
 		return <March2024F2F />
 	} else if (params.event === "cfde-webinar-series") {
 		return <CFDEWebinarSeries />
+	} else if (params.event === "festival-of-genomics") {
+		return <FOG />
 	}
 	else {
 		return (
