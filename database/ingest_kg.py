@@ -84,7 +84,7 @@ with kg_assertion_helper.writer() as kg_assertion:
             file_path.parent.mkdir(parents=True, exist_ok=True)
             if not file_path.exists():
               import urllib.request
-              urllib.request.urlretrieve(file['link'], file_path)
+              urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
             # extract the KG Assertion bundle
             assertions_extract_path = file_path.parent / file_path.stem
             if not assertions_extract_path.exists():
