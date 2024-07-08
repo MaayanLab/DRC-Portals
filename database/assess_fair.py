@@ -15,7 +15,7 @@ import pandas as pd
 
 
 uuid0 = UUID('00000000-0000-0000-0000-000000000000')
-ingest_path = pathlib.Path('fair')
+ingest_path = pathlib.Path('ingest')
 fair_assessments_helper = TableHelper('fair_assessments', ('id', 'dcc_id', 'type', 'link', 'rubric', 'timestamp'), pk_columns=("link", "timestamp"))
 
 def assess_dcc_asset(row):

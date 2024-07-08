@@ -1,3 +1,6 @@
+'''**
+ * Credit to Daniel J. B Clarke-- https://gist.github.com/u8sand/44d39f35c779192f4a34bf5279356ae3
+'''
 '''
 This snippet can be used for quickly copying a pandas dataframe
  into postgres via unix pipe. I expect this to be faster than other

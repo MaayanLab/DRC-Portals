@@ -27,6 +27,7 @@ from c2m2_assessment.util.memo import memo
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
+  * Credit to Daniel J. B. Clarke, Amanda Charbonneau - https://github.com/MaayanLab/appyter-catalog/blob/main/appyters/CFDE-C2M2-FAIR-Assessment/C2M2Assessment.ipynb
   '''
   return set(glob.glob(os.path.join(root, '**', file), recursive=True))
 
@@ -318,7 +319,9 @@ def check_ontology_in_columns(columns):
         return False 
 
 def traverse_datasets(hdf_file):
-    """Get all the paths contained within a h5 file"""
+    """Get all the paths contained within a h5 file
+    Code gotten from https://stackoverflow.com/questions/51548551/reading-nested-h5-group-into-numpy-array 
+    """
     def h5py_dataset_iterator(g, prefix=''):
         for key in g.keys():
             item = g[key]
