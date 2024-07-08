@@ -9,7 +9,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&statement_timeout=2000&connect_timeout=30
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30
       - PUBLIC_URL=https://cfde.cloud
       - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
@@ -111,6 +111,7 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+    shm_size: 1Gb
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
@@ -124,6 +125,7 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+    shm_size: 1Gb
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
