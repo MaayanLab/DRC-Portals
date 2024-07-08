@@ -25,16 +25,16 @@ entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 kg_relation_helper = TableHelper('kg_relation_node', ('id',), pk_columns=('id',))
 kg_assertion_helper = TableHelper('kg_assertion', ('id', 'dcc_id', 'relation_id', 'source_id', 'target_id', 'SAB', 'evidence',), pk_columns=('id',))
 gene_helper = TableHelper('gene_entity', ('id', 'entrez', 'ensembl',), pk_columns=('id',))
-node_helper = TableHelper('node', ('id', 'type', 'label', 'description', 'dcc_id',), pk_columns=('id',))
+node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'dcc_id', 'pagerank'), pk_columns=('id',), add_columns=('pagerank',))
 
 with kg_assertion_helper.writer() as kg_assertion:
   kg_assertions = set()
   with gene_helper.writer() as gene:
-    genes = set()
+    genes = {}
     with entity_helper.writer() as entity:
-      entities = set()
+      entities = {}
       with kg_relation_helper.writer() as kg_relation:
-        kg_relations = set()
+        kg_relations = {}
         with node_helper.writer() as node:
           def ensure_entity(entity_type, entity_label, entity_description=None):
             if entity_type == 'Gene':
@@ -42,7 +42,14 @@ with kg_assertion_helper.writer() as kg_assertion:
                 gene_id = str(uuid5(uuid0, gene_ensembl))
                 def ensure():
                   if gene_id not in genes:
-                    genes.add(gene_id)
+                    genes[gene_id] = dict(
+                      id=gene_id,
+                      type='entity',
+                      entity_type='gene',
+                      label=gene_labels[gene_ensembl],
+                      description=gene_descriptions[gene_ensembl],
+                      pagerank=0,
+                    )
                     gene.writerow(dict(
                       id=gene_id,
                       entrez=gene_entrez[gene_ensembl],
@@ -52,12 +59,8 @@ with kg_assertion_helper.writer() as kg_assertion:
                       id=gene_id,
                       type='gene',
                     ))
-                    node.writerow(dict(
-                      id=gene_id,
-                      type='entity',
-                      label=gene_labels[gene_ensembl],
-                      description=gene_descriptions[gene_ensembl],
-                    ))
+                  else:
+                    genes[gene_id]['pagerank'] += 1
                   return gene_id
                 yield ensure
             elif entity_type:
@@ -65,17 +68,20 @@ with kg_assertion_helper.writer() as kg_assertion:
               entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
               def ensure():
                 if entity_id not in entities:
-                  entities.add(entity_id)
+                  entities[entity_id] = dict(
+                    id=entity_id,
+                    type='entity',
+                    entity_type=entity_type,
+                    label=entity_label,
+                    description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
+                    pagerank=0,
+                  )
                   entity.writerow(dict(
                     id=entity_id,
                     type=entity_type,
                   ))
-                  node.writerow(dict(
-                    id=entity_id,
-                    type='entity',
-                    label=entity_label,
-                    description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
-                  ))
+                else:
+                  entities[entity_id]['pagerank'] += 1
                 return entity_id
               yield ensure
           for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
@@ -110,16 +116,18 @@ with kg_assertion_helper.writer() as kg_assertion:
                     for ensure_target_id in assertion_nodes.get(assertion['target'], []):
                       relation_id = str(uuid5(uuid0, '\t'.join((assertion['relation'],))))
                       if relation_id not in kg_relations:
-                        kg_relations.add(relation_id)
-                        kg_relation.writerow(dict(
-                          id=relation_id,
-                        ))
-                        node.writerow(dict(
+                        kg_relations[relation_id] = dict(
                           id=relation_id,
                           type='kg_relation',
                           label=assertion['relation'],
                           description="A relationship in the knowledge graph",
+                          pagerank=1,
+                        )
+                        kg_relation.writerow(dict(
+                          id=relation_id,
                         ))
+                      else:
+                        kg_relations[relation_id]['pagerank'] += 1
                       if assertion['evidence_class'] == 'nan':
                         assertion['evidence_class'] = None
                       if assertion['evidence_class']:
@@ -143,3 +151,6 @@ with kg_assertion_helper.writer() as kg_assertion:
                           evidence=assertion['evidence_class'],
                           dcc_id=file['dcc_id'],
                         ))
+          node.writerows(kg_relations.values())
+          node.writerows(entities.values())
+          node.writerows(genes.values())

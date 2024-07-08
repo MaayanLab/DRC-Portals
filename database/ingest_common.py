@@ -15,10 +15,11 @@ def quote(col): return f'"{col}"'
 
 #%%
 class TableHelper:
-  def __init__(self, tablename, columns, pk_columns):
+  def __init__(self, tablename, columns, pk_columns, add_columns=tuple()):
     self.tablename = tablename
     self.pk_columns = pk_columns
     self.columns = columns
+    self.add_columns = add_columns
   @contextlib.contextmanager
   def writer(self):
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -39,13 +40,17 @@ class TableHelper:
             null='',
             sep='\t',
           )
+        update_set = ','.join([
+          *[f"{quote(col)} = excluded.{quote(col)}" for col in self.columns if col not in self.pk_columns and col not in self.add_columns],
+          *[f"{quote(col)} = {quote(self.tablename)}.{quote(col)} + excluded.{quote(col)}" for col in self.add_columns],
+        ])
+        do_update_set = f"do update set {update_set}" if update_set else "do nothing"
         cur.execute(f'''
             insert into {quote(self.tablename)} ({', '.join(map(quote, self.columns))})
               select {', '.join(map(quote, self.columns))}
               from {quote(self.tablename+'_tmp')}
               on conflict ({', '.join(map(quote, self.pk_columns))})
-                do update
-                set {','.join(f"{col} = excluded.{col}" for col in map(quote, self.columns) if col not in self.pk_columns)};
+              {do_update_set};
         ''')
         cur.execute(f"drop table {quote(self.tablename+'_tmp')};")
         connection.commit()

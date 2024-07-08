@@ -4,12 +4,13 @@
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [uuidOssp(map: "uuid-ossp"), pg_trgm, btree_gin]
 }
 
 model DCC {
@@ -255,9 +256,11 @@ model Node {
   dcc_id      String?
   id          String                   @id @db.Uuid
   type        NodeType
+  entity_type String?
   label       String
   description String
   searchable  Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
+  pagerank    Float                    @default(0)
 
   dcc              DCC?                @relation(fields: [dcc_id], references: [id])
   entity           EntityNode?
@@ -268,7 +271,10 @@ model Node {
   dcc_asset        DCCAssetNode?
 
   @@index([type])
+  @@index([entity_type])
+  @@index([dcc_id], map: "node_dcc_idx", type: BTree)
   @@index([label(ops: raw("gin_trgm_ops"))], map: "node_label_trgm", type: Gin)
+  @@index([pagerank(sort: Desc)], map: "node_pagerank", type: BTree)
   @@index([searchable], map: "node_searchable_fts", type: Gin)
   @@map("node")
 }
@@ -282,6 +288,7 @@ model EntityNode {
   targetAssertions KGAssertion[] @relation("target")
   gene             GeneEntity?
 
+  @@index([type])
   @@map("entity_node")
 }
 

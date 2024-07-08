@@ -34,7 +34,6 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const entity_type_filter = searchParams.t?.some(t => t.entity_type !== null) ?? false
   const filterClause = searchParams.t ? Prisma_join([
     // when DCC is available, we'll filter by entities per-dcc
     searchParams.t.some(t => t.type === 'dcc')
@@ -60,7 +59,7 @@ export default async function Page(props: PageProps) {
       (
         "node"."type" = 'entity'::"NodeType"
         ${t.entity_type ? Prisma.sql`
-          and "entity_node"."type" = ${t.entity_type}
+          and "node"."entity_type" = ${t.entity_type}
         ` : Prisma.empty}
       )
     `), ' or '),
@@ -72,32 +71,17 @@ export default async function Page(props: PageProps) {
     exists: boolean,
   }>>`
     with results as (
-      select
-        "node".*,
-        ${entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.empty}
-        row_number() over (
-          partition by
-            "node"."type",
-            ${entity_type_filter ? Prisma.sql`"entity_node"."type",` : Prisma.empty}
-            "node"."dcc_id"
-          order by ts_rank_cd("node"."searchable", q)
-        ) as "rank"
+      select *
       from websearch_to_tsquery('english', ${searchParams.q}) q, "node"
-      ${entity_type_filter ? Prisma.sql`left join "entity_node" on "node"."id" = "entity_node"."id"` : Prisma.empty}
       where ${Prisma_join([Prisma.sql`q @@ "node"."searchable"`, filterClause], ' and ')}
-      order by
-        rank asc,
-        "node"."type",
-        ${entity_type_filter ? Prisma.sql`"entity_node"."type",` : Prisma.empty}
-        "node"."dcc_id",
-        "node"."id"
+      order by "node"."pagerank" desc
       offset ${offset}
       limit 100
     ), items as (
       select
         "results".id,
         "results".type,
-        ${!entity_type_filter ? Prisma.sql`"entity_node"."type" as entity_type,` : Prisma.sql`"results".entity_type,`}
+        "results".entity_type,
         "results".label,
         "results".description,
         (
@@ -110,7 +94,6 @@ export default async function Page(props: PageProps) {
           where "dccs".id = "dcc_id"
         ) as dcc
       from results
-      ${!entity_type_filter ? Prisma.sql`left join "entity_node" on "results"."id" = "entity_node"."id"` : Prisma.empty}
       limit ${limit}
     ), filter_count as (
       select count(*)::int as count
