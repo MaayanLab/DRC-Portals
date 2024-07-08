@@ -4,10 +4,11 @@ import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import { Metadata, ResolvingMetadata } from 'next'
 import { cache } from "react";
+import { notFound } from "next/navigation";
 
 type PageProps = { params: { id: string } }
 
-const getItem = cache((id: string) => prisma.dCCAssetNode.findUniqueOrThrow({
+const getItem = cache((id: string) => prisma.dCCAssetNode.findUnique({
   where: { id },
   select: {
     dcc_asset: {
@@ -41,6 +42,7 @@ const getItem = cache((id: string) => prisma.dCCAssetNode.findUniqueOrThrow({
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('dcc_asset', null)
   const item = await getItem(props.params.id)
+  if (!item) return {}
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
@@ -56,6 +58,7 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
 
 export default async function Page(props: { params: { id: string } }) {
   const item = await getItem(props.params.id)
+  if (!item) return notFound()
   return (
     <LandingPageLayout
       icon={item.node.dcc?.icon ? { href: `/info/dcc/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}

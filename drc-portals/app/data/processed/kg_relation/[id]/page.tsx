@@ -5,10 +5,11 @@ import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from "next";
 import { cache } from "react";
+import { notFound } from "next/navigation";
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((id: string) => prisma.kGRelationNode.findUniqueOrThrow({
+const getItem = cache((id: string) => prisma.kGRelationNode.findUnique({
   where: { id },
   select: {
     node: {
@@ -23,6 +24,7 @@ const getItem = cache((id: string) => prisma.kGRelationNode.findUniqueOrThrow({
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('kg_relation', null)
   const item = await getItem(props.params.id)
+  if (!item) return {}
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
@@ -40,6 +42,7 @@ export default async function Page(props: { params: { id: string }, searchParams
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const item = await getItem(props.params.id)
+  if (!item) return notFound()
   const [results] = await prisma.$queryRaw<Array<{
     assertions: {
       id: string,
@@ -107,6 +110,7 @@ export default async function Page(props: { params: { id: string }, searchParams
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
   `
+  if (!results) return notFound()
   return (
     <LandingPageLayout
       title={human_readable(item.node.label)}

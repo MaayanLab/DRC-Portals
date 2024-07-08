@@ -4,13 +4,14 @@ import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, Ta
 import Image from "next/image"
 import Link from "next/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
+import { safeAsync } from "@/utils/safe"
 
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   // const searchParams = useSanitizedSearchParams(props)
   if (props.params.entity_type !== 'gene') return null
   // const offset = (searchParams.p - 1)*searchParams.r
   // const limit = searchParams.r
-  const item = await prisma.geneEntity.findUniqueOrThrow({
+  const { data: item, error } = await safeAsync(() => prisma.geneEntity.findUnique({
     where: { id: props.params.id },
     select: {
       _count: {
@@ -78,8 +79,9 @@ export default async function Page(props: { params: { entity_type: string, id: s
         }
       },
     },
-  })
-  if (item._count.gene_sets === 0) return null
+  }))
+  if (error) console.error(error)
+  if (!item?._count.gene_sets) return null
   return (
     <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
       <Grid item xs={12} sx={{marginBottom: 5}}>
