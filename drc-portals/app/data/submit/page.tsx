@@ -18,7 +18,7 @@ const AssetApprovalStatus = dynamic(() => import('./docs/assetApprovalStatus.mdx
 const AssetCurrentStatus = dynamic(() => import('./docs/assetCurrentStatus.mdx'))
 const FairAssessmentDocs = dynamic(() => import('./docs/fairAssessmentDocs.mdx'))
 
-function CustomH1({ children }: { children?: any }) {
+function CustomH3({ children }: { children?: any }) {
     return <h3 style={{ color: 'black', fontSize: '16px', borderBottom: 'solid', fontWeight: 600, marginTop: 15 }}>{children}</h3>
 }
 
@@ -50,8 +50,13 @@ function CustomEm({ children }: { children?: any }) {
     return <em className="caption" style={{ fontSize: 14, fontStyle: 'normal', textAlign: 'center', display: 'block' }}>{children}</em>
 }
 
+function CustomH4({ children }: { children?: any }) {
+    return <h3 style={{ color: 'black', fontSize: '16px', fontWeight: 600,  marginTop: 10}} className=' prose min-w-full list-disc list-inside [&_p]:inline'>{children}</h3>
+}
+
 const components = {
-    h3: CustomH1,
+    h3: CustomH3,
+    h4: CustomH4,
     p: CustomParagraph,
     li: CustomList,
     ol: CustomNumberedList,

@@ -1,0 +1,56 @@
+### For All Assets: 
+
+#### Persistent URL 
+
+This metric checks whether a URL has been provided to a document that defines a data management plan for how the persistent identifier will be maintained. 
+To improve this metric score, the digital object should be linked with a permanent URL (preferably a DOI) and should provide instructions for how the URL will be maintained.
+
+### For All File Assets: 
+#### Accessible via DRS
+
+This metric checks whether the file asset is accessible via a data repository service (DRS). 
+By default, all submitted file assets to the CFDE Workbench are available via DRS and receive a score of 1 for this metric. The DRS of a file asset is based on their sha256 checksum values: [drs://cfde.cloud/sha256sum](drs://cfde.cloud/{sha256sum}).  For example, the DRS of the MW_submission_packet_20240605.zip file asset is drs://cfde.cloud/5578a58fe27b45aa0ff6fcad3f72f65a88de17cc221aa771f000dcb6c0cd010b which can be accessed here by a DRS compatible client by
+https://cfde.cloud/ga4gh/drs/v1/objects/5578a58fe27b45aa0ff6fcad3f72f65a88de17cc221aa771f000dcb6c0cd010b. 
+
+
+### DCC Provides FAIR C2M2 
+#### Classic C2M2 Assessment
+- Persistent identifier: Globally unique, persistent, and valid identifiers (preferably DOIs) are present for the dataset
+- Files with data type: What ratio of files are associated with a data type
+- Files with file format: What ratio of files are associated with a file format
+- Files with assay type: What ratio of files are associated with an assay type
+- Files with anatomy: What ratio of files are associated with an anatomy term
+- Files with biosample: What ratio of files are associated with a biosample
+- Files with subject: What ratio of files are associated with a subject
+- Biosamples with species: What ratio of biosamples are associated with a species
+- Biosamples with subject: What ratio of biosamples are associated with a subject
+- Biosamples with file: What ratio of biosamples are associated with a file
+- Biosamples with anatomy: What ratio of biosamples are associated with an anatomy term
+- Subjects with taxonomy: What ratio of subjects are assigned a species
+- Subjects with granularity: What ratio of subjects are assigned a granularity
+- Subjects with taxonomic role: What ratio of subjects are assigned a taxonomic role
+- Subjects with biosample: What ratio of subjects are associated with a biosample,
+- Subjects with file: What ratio of subjects are associated with a file
+- Files in collections: What ratio of files are in at least one collection
+- Subjects in collections: What ratio of subjects are in at least one collection
+- Biosamples in collections: What ratio of biosamples are in at least one collection
+- Projects with anatomy: What ratio of projects are assigned an anatomy term
+- Projects with files: What ratio of projects are associated with at least one file
+- Projects with data types: What ratio of projects are assigned a data type
+- Projects with subjects: What ratio of projects are associated with at least one subject
+- Biosamples with substance: What ratio of biosamples are associated with a substance
+- Collections with gene: What ratio of collections are assigned a gene
+- Collections with substance: What ratio of collections are assigned a substance
+- Subjects with substance: What ratio of subjects are associated with a substance
+- Biosamples with gene: What ratio of biosamples are associated with at least one gene
+- Phenotypes with gene: What ratio of phenotypes are associated with a gene
+- Proteins with gene: What ratio of proteins are associated with a gene
+- Collections with protein: What ratio of collections are associated with at least one gene
+- Subjects with phenotype: What ratio of subjects are associated with a phenotype
+- Genes with phenotype: What ratio of genes are associated with a phenotype
+- Diseases with phenotype: What ratio of diseases are associated with a phenotype
+- Collections with phenotype: What ratio of collections are associated with a phenotype
+
+#### Machine readable metadata
+This metric checks whether the C2M2 file is able to be read by the deriva_datapackage Python package, which is required to run the FAIR Assessment. To improve this score, ensure that the CSV Dialect for each resource as specified in data_package.json or C2M2_datapackage.json file correctly captures its file contents.  
+
