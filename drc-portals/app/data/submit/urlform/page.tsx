@@ -11,17 +11,8 @@ import Nav from '../Nav';
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
   if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id
-    },
-    include: {
-      dccs: true
-    }
-  })
-  if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/urlform")
 
-  if (user.role === 'USER') {
+  if (session.user.role === 'USER') {
     return (
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid md={2} xs={12}>
@@ -33,7 +24,7 @@ export default async function UploadForm() {
       </Grid>
     )
   }
-  if (!user.email) return (
+  if (!session.user.email) return (
     <Grid container spacing={2} sx={{ mt: 2 }}>
       <Grid md={2} xs={12}>
         <Nav />
@@ -48,7 +39,7 @@ export default async function UploadForm() {
     </Grid>
   );
 
-  if (user.dccs.length === 0) return (
+  if (session.user.dccs.length === 0) return (
     <Grid container spacing={2} sx={{ mt: 2 }}>
       <Grid md={2} xs={12}>
         <Nav />
@@ -65,7 +56,7 @@ export default async function UploadForm() {
           <Nav />
         </Grid>
         <Grid md={10} xs={12}>
-          <CodeForm {...user}>
+          <CodeForm {...session.user}>
           </CodeForm>
         </Grid>
       </Grid>

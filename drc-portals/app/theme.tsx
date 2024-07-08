@@ -261,6 +261,15 @@ export const cfde_theme = createTheme({
                 }
             ],
         },
+        MuiAccordion: {
+            styleOverrides: {
+                root: {
+                    "&:before": {
+                       display: "none"
+                    }
+              },
+            },   
+        }
     }
 })
 

@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 import { Grid, Typography } from "@mui/material";
+import { safeAsync } from '@/utils/safe'
+import kvCache from "@/lib/prisma/kvcache";
 
 export function StatsFallback() {
   return (
@@ -21,9 +23,8 @@ export function StatsFallback() {
     </>
   )
 }
-
 export default async function Stats() {
-  const counts = await prisma.$queryRaw<Array<{
+  const results = await safeAsync(() => kvCache('stats', () => prisma.$queryRaw<Array<{
     label: string,
     count: number,
   }>>`
@@ -41,13 +42,14 @@ export default async function Stats() {
     select label, count
     from labeled_count
     order by count desc;
-  `
+  `, process.env.NODE_ENV === 'development' ? 60*1000 : 24*60*60*1000))
+  if ('error' in results) return <StatsFallback />
   return (
     <>
-      {counts.map(({ label, count }) => (
+      {results.data.map(({ label, count }) => (
         <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
           <div  className="flex flex-col">
-            <Typography variant="h2" color="secondary">{count.toLocaleString()}</Typography>
+            <Typography variant="h2" color="secondary">{BigInt(count).toLocaleString()}</Typography>
             <Typography variant="subtitle1" color="secondary">{label.toUpperCase()}</Typography>
           </div>
         </Grid>
