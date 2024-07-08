@@ -1,4 +1,6 @@
 import csv
+import pathlib
+import zipfile
 from statistics import mean
 import numpy as np
 import pandas as pd
@@ -16,11 +18,11 @@ import h5py
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlsplit
-from ingest_common import current_code_assets
-from fair_assessment.ontology.obo import OBOOntology
+from ingest_common import current_code_assets, current_dcc_assets
+from ontology.obo import OBOOntology
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
-from ingest_entity_common import gene_lookup
+# from ingest_entity_common import gene_lookup
 
 
 def deep_find(root, file):
@@ -284,39 +286,11 @@ def chatbot_specs_fair(chatbot_specs_url):
             "Persistent URL": fairshake_persistent_url}
     return rubric
 
-
-def code_assets_fair_assessment():
-    """Run FAIR Assessment for all current code assets"""
-    current_code_asset_df = current_code_assets()
-    fairshake_df_data = []
-    for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0]):
-        if row['type'] == 'ETL': 
-            rubric= etl_fair(row['link'])
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'Entity Page Template': 
-            rubric = entity_page_fair(row['entityPageExample'], row['link'])
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row ['type'] == 'PWB Metanodes':
-            rubric = PWB_metanode_fair(row['name'], row['link'])
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'API':
-            rubric = api_fair(row)
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'Apps URL':
-            rubric = apps_urls_fair(row['link'])
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'Chatbot Specifications':
-            rubric = chatbot_specs_fair(row['link'])
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-    fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
-    return fairshake_df
-
     
 
 def check_ontology_in_term(term):
     """Return boolean defining if a term contains an ontological reference eg RO:922340"""
-    my_file = open("../database/fair_assessment/ontology/ontologies.txt", "r") 
-    "database/fair_assessment/ontology/ontologies.txt"
+    my_file = open("../database/ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -327,7 +301,7 @@ def check_ontology_in_term(term):
 
 def check_standard_ontology(ontology):
     """Return boolean defining if an given ontology is considered community standard"""
-    my_file = open("../database/fair_assessment/ontology/ontologies.txt", "r") 
+    my_file = open("../database/ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -423,8 +397,10 @@ def xmt_fair(xmt_path, row):
     fairshake_persistent = 0
     fairshake_ontological_count = 0
     fairshake_standard_elements = []
+    gene_set_count = 0
     with xmt_path.open('r') as fr:
       for line in tqdm(fr, desc=f"Processing {row['dcc_short_label']}/{row['filename']}..."):
+        gene_set_count += 1
         line_split = list(map(str.strip, line.split('\t')))
         if len(line_split) < 3: continue
         x_set_label, x_set_description, *x_set_elements = line_split
@@ -439,7 +415,7 @@ def xmt_fair(xmt_path, row):
         # sum_standard_elements = sum(standard_elements)  
         # fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
 
-    fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/len(fairshake_standard_elements),
+    fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/gene_set_count if gene_set_count > 0 else None,
                             # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
                             "XMT Elements are normalized to a standard": None, 
                             "Accessible via DRS": fairshake_drs,
@@ -522,3 +498,88 @@ def kg_assertions_fair(assertions_extract_path):
                                 "Persistent URL": fairshake_persistent
                                 }
     return fair_assessment_results
+
+
+def code_assets_fair_assessment():
+    """Run FAIR Assessment for all current code assets"""
+    current_code_asset_df = current_code_assets()
+    fairshake_df_data = []
+    for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0]):
+        if row['type'] == 'ETL': 
+            rubric= etl_fair(row['link'])
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'Entity Page Template': 
+            rubric = entity_page_fair(row['entityPageExample'], row['link'])
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row ['type'] == 'PWB Metanodes':
+            rubric = PWB_metanode_fair(row['name'], row['link'])
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'API':
+            rubric = api_fair(row)
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'Apps URL':
+            rubric = apps_urls_fair(row['link'])
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        if row['type'] == 'Chatbot Specifications':
+            rubric = chatbot_specs_fair(row['link'])
+            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+    fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
+    return fairshake_df
+
+def file_assets_fair_assessment():
+    """Run FAIR Assessment for all current file assets"""
+    ingest_path = pathlib.Path('fair')
+    current_file_asset_df = current_dcc_assets()
+    fairshake_df_data = []
+    for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0]):
+        asset_type = row['filetype']
+        row['dcc_short_label'] = row['link'].split('/')[3]
+        if asset_type == 'XMT': 
+            xmts_path = ingest_path / 'xmts'
+            xmt_path = xmts_path/row['dcc_short_label']/row['filename']
+            xmt_path.parent.mkdir(parents=True, exist_ok=True)
+            if not xmt_path.exists():
+                import urllib.request
+                urllib.request.urlretrieve(row['link'], xmt_path)
+            rubric = xmt_fair(xmt_path, row)
+            fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
+        if asset_type == 'Attribute Table': 
+            attr_tables_path = ingest_path / 'attribute_tables'
+            attr_table_path = attr_tables_path/row['dcc_short_label']/row['filename']
+            attr_table_path.parent.mkdir(parents=True, exist_ok=True)
+            if not attr_table_path.exists():
+                import urllib.request
+                urllib.request.urlretrieve(row['link'].replace(' ', '%20'), attr_table_path)
+            rubric = attribute_tables_fair(attr_table_path, row)
+            fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
+        if asset_type == 'C2M2': 
+            c2m2s_path = ingest_path / 'c2m2s'
+            c2m2_path = c2m2s_path/row['dcc_short_label']/row['filename']
+            c2m2_path.parent.mkdir(parents=True, exist_ok=True)
+            if not c2m2_path.exists():
+                import urllib.request
+                urllib.request.urlretrieve(row['link'].replace(' ', '%20'), c2m2_path)
+            c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
+            if not c2m2_extract_path.exists():
+                with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
+                    c2m2_zip.extractall(c2m2_extract_path)
+            # run fair assessment here: 
+            rubric = c2m2_fair(str(c2m2_extract_path))
+            fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
+        if asset_type == 'KG Assertions': 
+            assertions_path = ingest_path / 'assertions'
+            # assemble the full file path for the DCC's asset
+            file_path = assertions_path/row['dcc_short_label']/row['filename']
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            if not file_path.exists():
+                import urllib.request
+                urllib.request.urlretrieve(row['link'].replace(' ', '%20'), file_path)
+            # extract the KG Assertion bundle
+            assertions_extract_path = file_path.parent / file_path.stem
+            if not assertions_extract_path.exists():
+                with zipfile.ZipFile(file_path, 'r') as assertions_zip:
+                    assertions_zip.extractall(assertions_extract_path)
+            rubric = kg_assertions_fair(assertions_extract_path) 
+            fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
+    fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
+    return fairshake_df

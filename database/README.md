@@ -35,13 +35,7 @@ pyhon ingestion.py
 
 Update the DCCAssets.tsv, FileAssets.tsv and CodeAssets.tsv file paths in the ingest_commmon.py script to contain all the currently uploaded assets. Running these files should perform the fair assessments:
 ```bash
-# FAIR assessment of current code assets
-python ingestion.py
-
-# FAIR assessment of current file assets
-python ingest_gmts.py # also runs FAIR assessment for other XMT file types
-python ingest_c2m2_files.py
-python ingest_kg.py
-python ingest_attribute_tables.py
+# FAIR assessment of current code and file assets
+python assess_fair.py
 
 ```
