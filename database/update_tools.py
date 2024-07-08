@@ -37,7 +37,7 @@ bucket = 'cfde-drc'
 
 
 filename = sys.argv[1]
-publication_df = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', sep="\t", index_col=0)
+publication_df = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_publications.tsv', sep="\t", index_col=0)
 publication_mapper = {}
 for i, row in publication_df.iterrows():
 	doi = row['doi']
@@ -59,22 +59,22 @@ for i, row in df.iterrows():
 	df.at[i, "id"] = uid
 df = df.set_index("id")
 
-publication_file = "publication_files/%s_publication.tsv"%now
-tool_file = "tool_files/%s_tool.tsv"%now
+publication_file = "publication_files/%s_publications.tsv"%now
+tool_file = "tool_files/%s_tools.tsv"%now
 publication_df.to_csv(publication_file, sep="\t", header=True, quoting=csv.QUOTE_NONE, index_label="id")
 df = df[[i for i in df.columns if i != 'doi']]
 df.to_csv(tool_file, sep="\t", header=True)
 
 print("Uploading to s3")
 
-filename = publication_file.replace('publication_files', 'database/publication_files')
+filename = publication_file.replace('publication_files', 'database/files')
 print(filename)
 upload_file(publication_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(publication_file, bucket, filename)
 
-filename = tool_file.replace('tool_files', 'database/tool_files')
+filename = tool_file.replace('tool_files', 'database/files')
 print(filename)
 upload_file(tool_file, bucket, filename)
 filename = filename.replace(now, "current")

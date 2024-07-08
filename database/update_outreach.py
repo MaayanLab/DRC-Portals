@@ -38,12 +38,12 @@ def upload_file(file_name, bucket, object_name=None):
 bucket = 'cfde-drc'
 
 filename = sys.argv[1]
-dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=0)
+dccs = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv', sep="\t", index_col=0, header=0)
 # map dcc names to their respective ids
 dcc_mapper = {}
-for i, v in dccs.iloc[:,1].items():
-    dcc_mapper[v] = i
-print(dcc_mapper)
+for k,v in dccs.iterrows():
+	dcc_mapper[v["short_label"]] = k
+print(dcc_mapper.keys())
 now = str(date.today()).replace("-", "")
 df = pd.read_csv(filename, sep="\t")
 outreach_columns = [i for i in df.columns if not i == 'dcc']
@@ -118,14 +118,14 @@ dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=True, index=None)
 
 print("Uploading to s3")
 
-filename = outreach_file.replace('outreach_files', 'database/outreach_files')
+filename = outreach_file.replace('outreach_files', 'database/files')
 print(filename)
 upload_file(outreach_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(outreach_file, bucket, filename)
 
-filename = dcc_outreach_file.replace('outreach_files', 'database/outreach_files')
+filename = dcc_outreach_file.replace('outreach_files', 'database/files')
 print(filename)
 upload_file(dcc_outreach_file, bucket, filename)
 filename = filename.replace(now, "current")
