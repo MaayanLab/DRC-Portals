@@ -48,8 +48,8 @@ export default function FormPagination({ p, r, count, tablePrefix }: FormPaginat
     <Stack direction={"row"} justifyContent={"space-between"} justifyItems={"center"} alignContent={"center"} alignItems="center" flexWrap={"wrap"} gap={2}>
       <Box justifySelf={"center"}>
         <Pagination
-          siblingCount={0}
-          boundaryCount={1}
+          siblingCount={1}
+          boundaryCount={2}
           page={currentPage}
           count={pageCount}
           onChange={(evt, value) => updatePageParam(value.toString())}
