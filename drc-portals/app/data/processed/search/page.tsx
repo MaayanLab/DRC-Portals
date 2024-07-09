@@ -18,6 +18,7 @@ import ProgramFilters from "./ProgramFilters";
 import NodeTypeFilters from "./NodeTypeFilters";
 import EntityTypeFilters from "./EntityTypeFilters";
 import React from "react";
+import { Prisma_join } from "@/utils/prisma";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -27,14 +28,6 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
     title: `${parentMetadata.title?.absolute} | Search ${props.searchParams.q ?? ''}`,
     keywords: parentMetadata.keywords,
   }
-}
-
-/**
- * Like Prisma.join -- but filters out Prisma.empty, and supports empty/singular lists
- */
-function Prisma_join<T>(L: T[], sep: string) {
-  L = L.filter(el => el !== Prisma.empty)
-  return L.length === 0 ? Prisma.empty : L.length === 1 ? L[0] : Prisma.join(L, sep)
 }
 
 export default async function Page(props: PageProps) {
