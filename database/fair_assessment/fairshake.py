@@ -1,6 +1,5 @@
 import csv
 import pathlib
-import zipfile
 from statistics import mean
 import numpy as np
 import pandas as pd
@@ -18,12 +17,12 @@ import h5py
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlsplit
-from ingest_common import current_code_assets, current_dcc_assets
-from ontology.obo import OBOOntology
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
-# from ingest_entity_common import gene_lookup
-
+from ontology.obo import OBOOntology
+import sys, pathlib; sys.path.insert(0, str(pathlib.Path("../../ingest_common.py").parent.parent))
+from ingest_common import current_code_assets, current_dcc_assets
+import zipfile
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -291,7 +290,7 @@ def chatbot_specs_fair(chatbot_specs_url):
 
 def check_ontology_in_term(term):
     """Return boolean defining if a term contains an ontological reference eg RO:922340"""
-    my_file = open("../database/ontology/ontologies.txt", "r") 
+    my_file = open("./ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -302,7 +301,7 @@ def check_ontology_in_term(term):
 
 def check_standard_ontology(ontology):
     """Return boolean defining if an given ontology is considered community standard"""
-    my_file = open("../database/ontology/ontologies.txt", "r") 
+    my_file = open("./ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -531,7 +530,7 @@ def code_assets_fair_assessment():
 
 def file_assets_fair_assessment():
     """Run FAIR Assessment for all current file assets"""
-    ingest_path = pathlib.Path('ingest')
+    ingest_path = pathlib.Path('../ingest')
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0]):
@@ -547,14 +546,15 @@ def file_assets_fair_assessment():
             rubric = xmt_fair(xmt_path, row)
             fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
         if asset_type == 'Attribute Table': 
-            attr_tables_path = ingest_path / 'attribute_tables'
-            attr_table_path = attr_tables_path/row['dcc_short_label']/row['filename']
-            attr_table_path.parent.mkdir(parents=True, exist_ok=True)
-            if not attr_table_path.exists():
-                import urllib.request
-                urllib.request.urlretrieve(row['link'].replace(' ', '%20'), attr_table_path)
-            rubric = attribute_tables_fair(attr_table_path, row)
-            fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
+            if '.h5' in row['link']:
+                attr_tables_path = ingest_path / 'attribute_tables'
+                attr_table_path = attr_tables_path/row['dcc_short_label']/row['filename']
+                attr_table_path.parent.mkdir(parents=True, exist_ok=True)
+                if not attr_table_path.exists():
+                    import urllib.request
+                    urllib.request.urlretrieve(row['link'].replace(' ', '%20'), attr_table_path)
+                rubric = attribute_tables_fair(attr_table_path, row)
+                fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
         if asset_type == 'C2M2': 
             c2m2s_path = ingest_path / 'c2m2s'
             c2m2_path = c2m2s_path/row['dcc_short_label']/row['filename']

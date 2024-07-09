@@ -56,6 +56,10 @@ load_dotenv('../drc-portals/.env')
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL == None:
+  load_dotenv('../../drc-portals/.env') # for fair assessment 
+  load_dotenv()
+  DATABASE_URL = os.getenv("DATABASE_URL")
 result = urlparse(DATABASE_URL)
 username = result.username
 password = result.password
