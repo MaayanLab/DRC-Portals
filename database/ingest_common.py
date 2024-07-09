@@ -27,6 +27,7 @@ class TableHelper:
         yield csv.DictWriter(fw, self.columns, delimiter='\t', escapechar='\\', doublequote=False)
       print(f"inserting {self.tablename}...")
       with connection.cursor() as cur:
+        cur.execute('set statement_timeout = 0')
         cur.execute(f'''
           create table {quote(self.tablename+'_tmp')}
           as table {quote(self.tablename)}
