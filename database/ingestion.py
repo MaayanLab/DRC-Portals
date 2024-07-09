@@ -1,8 +1,4 @@
-from tqdm import tqdm
-from df2pg import OnConflictSpec, copy_from_records
-from fairshake import code_assets_fair_assessment
 from ingest_common import (
-  TableHelper,
   connection,
   dcc_path,
   publications_path,
@@ -18,9 +14,7 @@ from ingest_common import (
   tools_path,
   dcc_usecase_path,
   usecase_path,
-  uuid0, uuid5
 )
-import json
 
 cur = connection.cursor()
 cur.execute('''
@@ -468,14 +462,6 @@ cur.execute('''
   ''')
 cur.execute('drop table code_assets_tmp;')
 connection.commit()
-
-# # perform fair assessment of code assets
-# fair_assessment_df = code_assets_fair_assessment()
-# copy_from_records(connection, 'fair_assessments', ['id', 'dcc_id', 'type', 'link', 'rubric', 'timestamp'], (
-#   dict(id=str(uuid5(uuid0, '\t'.join((row['link'], str(row['timestamp']))))), dcc_id=row['dcc_id'], type=row['type'], link=row['link'], rubric=json.dumps(row['rubric']), timestamp=row['timestamp'])
-#     for index, row in tqdm(fair_assessment_df.iterrows(), total=fair_assessment_df.shape[0])
-# ), on=OnConflictSpec(conflict=("link", "timestamp"), update=('rubric')))
-
 
 cur.close()
 connection.close()

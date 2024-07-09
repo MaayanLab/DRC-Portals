@@ -1,7 +1,6 @@
 /**
  * Credit to Daniel J.B Clarke -- https://github.com/MaayanLab/FAIRshakeInsignia/blob/master/src/index.js 
  */
-
 import tippy from 'tippy.js'
 var d3 = require('d3')
 import 'tippy.js/dist/tippy.css'; // optional for styling

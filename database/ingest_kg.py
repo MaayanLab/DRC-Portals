@@ -1,13 +1,12 @@
 #%%
 import csv
-from datetime import datetime
 import json
-from statistics import mean
 import zipfile
 from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
+
 #%%
 dcc_assets = current_dcc_assets()
 
@@ -80,20 +79,17 @@ with kg_assertion_helper.writer() as kg_assertion:
                 return entity_id
               yield ensure
           for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
-
             # assemble the full file path for the DCC's asset
             file_path = assertions_path/file['dcc_short_label']/file['filename']
             file_path.parent.mkdir(parents=True, exist_ok=True)
             if not file_path.exists():
               import urllib.request
-              urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
+              urllib.request.urlretrieve(file['link'], file_path)
             # extract the KG Assertion bundle
             assertions_extract_path = file_path.parent / file_path.stem
             if not assertions_extract_path.exists():
               with zipfile.ZipFile(file_path, 'r') as assertions_zip:
                 assertions_zip.extractall(assertions_extract_path)
-
-
             # capture all the nodes
             assertion_nodes = {}
             for assertion_node_file in assertions_extract_path.glob('*.nodes.csv'):
@@ -106,7 +102,6 @@ with kg_assertion_helper.writer() as kg_assertion:
                   assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
             # register all of the edges
             for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
-              file_predicate_standard_scores = []
               with assertion_edge_file.open('r') as fr:
                 columns = next(fr).strip().split(',')
                 assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
@@ -148,4 +143,3 @@ with kg_assertion_helper.writer() as kg_assertion:
                           evidence=assertion['evidence_class'],
                           dcc_id=file['dcc_id'],
                         ))
-

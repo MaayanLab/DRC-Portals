@@ -1,12 +1,8 @@
 #%%
-from datetime import datetime
-import json
 from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
-
-
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -16,9 +12,6 @@ dcc_assets = current_dcc_assets()
 
 gmts = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt')))]
 gmts_path = ingest_path / 'gmts'
-
-other_xmts = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt') == False))]
-other_xmts_path = ingest_path / 'other_xmts'
 
 gene__gene_set_helper = TableHelper('_GeneEntityToGeneSetNode', ('A', 'B',), pk_columns=('A', 'B',))
 gene__gene_set_library_helper = TableHelper('_GeneEntityToGeneSetLibraryNode', ('A', 'B'), pk_columns=('A', 'B',))
@@ -77,8 +70,6 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                       label=gene_set_label.replace('_', ' '),
                       description=gene_set_description or f"A gene set from {gmt_path.stem.replace('_',' ')} provided by {gmt['dcc_short_label']}",
                     ))
-
-
                     gene_set_genes = {gene_id for raw_gene in gene_set_genes if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
                     #
                     for gene_set_gene in gene_set_genes:
@@ -113,4 +104,3 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                         A=gene_id,
                         B=gene_set_id,
                       ))
-                    

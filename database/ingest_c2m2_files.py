@@ -1,11 +1,10 @@
 #%%
-from datetime import datetime
-import json
 import re
 import csv
 import zipfile
 import pandas as pd
 from tqdm.auto import tqdm
+
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 
 #%%
@@ -21,7 +20,6 @@ c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link
 c2m2_file_helper = TableHelper('c2m2_file_node', ('id', 'c2m2_datapackage_id', 'creation_time', 'persistent_id', 'access_url', 'size_in_bytes', 'file_format', 'data_type', 'assay_type', 'mime_type', 'md5', 'sha256'), pk_columns=('id',))
 node_helper = TableHelper('node', ('id', 'type', 'label', 'description', 'dcc_id',), pk_columns=('id',))
 
-
 with c2m2_file_helper.writer() as c2m2_file:
   with node_helper.writer() as node:
     with c2m2_datapackage_helper.writer() as c2m2_datapackage:
@@ -30,7 +28,7 @@ with c2m2_file_helper.writer() as c2m2_file:
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
           import urllib.request
-          urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path)
+          urllib.request.urlretrieve(c2m2['link'], c2m2_path)
         c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
         if not c2m2_extract_path.exists():
           with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
@@ -108,4 +106,3 @@ with c2m2_file_helper.writer() as c2m2_file:
               label=file['filename'],
               description=description,
             ))
-

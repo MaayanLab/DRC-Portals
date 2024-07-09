@@ -8,4 +8,4 @@ numpy
 requests
 SQLAlchemy==1.4.17
 c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment
-deriva_datapackage @ git+https://github.com/nih-cfde/deriva-datapackage.git
+beautifulsoup4
