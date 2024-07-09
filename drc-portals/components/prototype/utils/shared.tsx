@@ -26,6 +26,7 @@ import {
 
 export const createNodeElement = (
   label: string,
+  text?: string,
   customStyle?: CSSProperties
 ) => {
   const nodeLabelClass = NODE_CLASS_MAP.get(label);
@@ -35,7 +36,7 @@ export const createNodeElement = (
       : ENTITY_STYLES_MAP.get(nodeLabelClass);
   return (
     <NodeElement key={v4()} style={{ ...labelStyles, ...customStyle }}>
-      <NodeText>{label}</NodeText>
+      <NodeText>{text || label}</NodeText>
     </NodeElement>
   );
 };
@@ -77,13 +78,14 @@ export const createRelationshipElement = (
 export const createDirectedRelationshipElement = (
   type: string,
   direction: Direction,
+  text?: string,
   style?: CSSProperties
 ) => (
   <Box key={v4()} sx={{ display: "flex" }}>
     {direction === Direction.OUTGOING || direction === Direction.UNDIRECTED
       ? createLineDividerElement()
       : createArrowDividerElement(false)}
-    {createRelationshipElement(type, style)}
+    {createRelationshipElement(text || type, style)}
     {direction === Direction.INCOMING || direction === Direction.UNDIRECTED
       ? createLineDividerElement()
       : createArrowDividerElement(true)}

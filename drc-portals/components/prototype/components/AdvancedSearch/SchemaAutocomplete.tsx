@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, Box, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
@@ -13,14 +13,19 @@ import {
 interface SchemaAutocompleteProps {
   value?: SearchBarOption[];
   onChange: (value: SearchBarOption[]) => void;
+  onElementSelected: (element: SearchBarOption, index: number) => void;
   // TODO: Could have a prop here for custom options, specifically could be useful for listing elements which exist in all current paths,
   // which are also a valid connection to the last element of this path
 }
 
 export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
-  const { onChange } = cmpProps;
+  const { onChange, onElementSelected } = cmpProps;
   const [value, setValue] = useState(cmpProps?.value || []);
   const [options, setOptions] = useState(getOptions(value));
+
+  useEffect(() => {
+    setValue(cmpProps?.value || []);
+  }, [cmpProps.value]);
 
   useEffect(() => {
     setOptions(getOptions(value.filter(stringFilter) as SearchBarOption[]));
@@ -70,7 +75,11 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
 
   // TODO: If any element in the value list has filters set, add an asterisk to it
   const handleRenderTags = (value: SearchBarOption[]) =>
-    getSearchPathElements(value);
+    getSearchPathElements(value).map((element, index) => (
+      <Box key={v4()} onClick={() => onElementSelected(value[index], index)}>
+        {element}
+      </Box>
+    ));
 
   const handleRenderInput = (params: any) => (
     <TextField

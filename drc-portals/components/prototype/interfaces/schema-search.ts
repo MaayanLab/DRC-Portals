@@ -27,3 +27,9 @@ export interface SchemaSearchPath {
   skip: number;
   limit: number;
 }
+
+export interface SelectedPathElement {
+  element: SearchBarOption;
+  pathIdx: number;
+  elementIdx: number;
+}

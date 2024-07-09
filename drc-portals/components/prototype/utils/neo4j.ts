@@ -273,7 +273,7 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     let nodeCount = 0;
     let edgeCount = 0;
     path.elements.forEach((element) => {
-      if (element.key === undefined) {
+      if (element.key === undefined || element.key.length === 0) {
         element.key = `p${pathIndex + 1}${
           isRelationshipOption(element) ? `r${++edgeCount}` : `n${++nodeCount}`
         }`;

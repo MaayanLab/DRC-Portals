@@ -225,11 +225,13 @@ export const createEntityElement = (
   if (isRelationshipOption(entity)) {
     return (TYPE_TO_FACTORY_MAP.get(entity.name) as RelationshipElementFactory)(
       entity.name,
-      entity.direction
+      entity.direction,
+      entity.key
     );
   } else {
     return (LABEL_TO_FACTORY_MAP.get(entity.name) as NodeElementFactory)(
       entity.name,
+      entity.key,
       style
     );
   }
