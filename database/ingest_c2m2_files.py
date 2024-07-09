@@ -106,4 +106,3 @@ with c2m2_file_helper.writer() as c2m2_file:
               label=file['filename'],
               description=description,
             ))
-            
