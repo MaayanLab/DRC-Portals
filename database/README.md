@@ -35,5 +35,5 @@ rm -r ingest
 python ingestion.py
 ```
 
-### To populate C2M2 related tables, go to the subfolder C2M2 (database/C2M2) and follow through the README.md file there.
+# To populate C2M2 related tables, go to the subfolder C2M2 (database/C2M2) and follow through the README.md file there.
 
