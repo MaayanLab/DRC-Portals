@@ -140,18 +140,26 @@ export default async function Page(props: PageProps) {
       maxCount={100}
       filters={
         <>
-          <Typography className="subtitle1">Program</Typography>
-          <React.Suspense fallback={<></>}>
-            <ProgramFilters q={searchParams.q ??''} />
-          </React.Suspense>
-          <hr className="m-2" />
-          <Typography className="subtitle1">Type</Typography>
-          <React.Suspense fallback={<></>}>
-            <NodeTypeFilters q={searchParams.q ??''} />
-          </React.Suspense>
-          <React.Suspense fallback={<></>}>
-            <EntityTypeFilters q={searchParams.q ??''} />
-          </React.Suspense>
+          <span className="has-[.not-empty:empty]:hidden">
+            <Typography className="subtitle1">Program</Typography>
+            <span className="not-empty flex flex-col">
+              <React.Suspense fallback={null}>
+                <ProgramFilters q={searchParams.q ??''} />
+              </React.Suspense>
+            </span>
+            <hr className="m-2" />
+          </span>
+          <span className="has-[.not-empty:empty]:hidden">
+            <Typography className="subtitle1">Type</Typography>
+            <span className="not-empty flex flex-col">
+              <React.Suspense fallback={null}>
+                <NodeTypeFilters q={searchParams.q ??''} />
+              </React.Suspense>
+              <React.Suspense fallback={null}>
+                <EntityTypeFilters q={searchParams.q ??''} />
+              </React.Suspense>
+            </span>
+          </span>
         </>
       }
       footer={
