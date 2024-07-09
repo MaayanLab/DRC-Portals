@@ -90,6 +90,11 @@ export default async function Page(props: PageProps) {
         } : {},
         skip: offset,
         take: limit,
+        orderBy: {
+          node: {
+            pagerank: 'desc',
+          }
+        },
       }
     },
   })

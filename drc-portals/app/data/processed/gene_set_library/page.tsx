@@ -51,6 +51,11 @@ export default async function Page(props: PageProps) {
           },
         },
       },
+      orderBy: {
+        node: {
+          pagerank: 'desc',
+        },
+      },
       skip: offset,
       take: limit,
     }),

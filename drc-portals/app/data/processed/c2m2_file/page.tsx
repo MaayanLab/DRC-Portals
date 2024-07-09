@@ -41,14 +41,26 @@ export default async function Page(props: PageProps) {
     count: number,
   }>>`
     with items as (
+      select *
+      from
+        ${searchParams.q ? Prisma.sql`websearch_to_tsquery('english', ${searchParams.q}) q,` : Prisma.empty}
+        "node"
+      where "node"."type" = 'c2m2_file'
+      ${searchParams.q ? Prisma.sql`
+      and q @@ "node"."searchable"
+      ` : Prisma.empty}
+      order by "node"."pagerank" desc
+      offset ${offset}
+      limit 100
+    ), paginated_items as (
       select
-        "c2m2_file_node"."id",
+        "items"."id",
         "c2m2_file_node"."data_type",
         "c2m2_file_node"."assay_type",
         jsonb_build_object(
-          'type', node."type",
-          'label', node."label",
-          'description', node."description",
+          'type', items."type",
+          'label', items."label",
+          'description', items."description",
           'dcc', (
             select jsonb_build_object(
               'short_label', short_label,
@@ -56,21 +68,11 @@ export default async function Page(props: PageProps) {
               'icon', icon
             )
             from "dccs"
-            where "node"."dcc_id" = "dccs"."id"
+            where "items"."dcc_id" = "dccs"."id"
           )
         ) as node
-      from "c2m2_file_node"
-      inner join "node" on "node"."id" = "c2m2_file_node"."id"
-      ${searchParams.q ? Prisma.sql`
-        where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
-      ` : Prisma.sql`
-        order by "c2m2_file_node"."id"
-      `}
-    ), paginated_items as (
-      select *
       from items
-      offset ${offset}
+      inner join "c2m2_file_node" on items."id" = "c2m2_file_node"."id"
       limit ${limit}
     )
     select
@@ -86,13 +88,14 @@ export default async function Page(props: PageProps) {
   return (
     <ListingPageLayout
       count={results?.count ?? 0}
+      maxCount={100}
     >
       <SearchablePagedTable
         label={`${type_to_string('c2m2_file', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.count ?? 0}
+        count={(results?.count??0)+offset}
         columns={[
           <>&nbsp;</>,
           <>Label</>,

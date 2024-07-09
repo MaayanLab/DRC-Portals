@@ -34,27 +34,28 @@ export default async function Page(props: PageProps) {
     count: number,
   }>>`
     with items as (
+      select *
+      from
+        ${searchParams.q ? Prisma.sql`websearch_to_tsquery('english', ${searchParams.q}) q,` : Prisma.empty}
+        "node"
+      where "node"."type" = 'entity' and "node"."entity_type" = ${decodeURIComponent(props.params.entity_type)}
+      ${searchParams.q ? Prisma.sql`
+      and q @@ "node"."searchable"
+      ` : Prisma.empty}
+      order by "node"."pagerank" desc
+      offset ${offset}
+      limit 100
+    ), paginated_items as (
       select
         "entity_node"."id",
         "entity_node"."type",
         jsonb_build_object(
-          'type', node."type",
-          'label', node."label",
-          'description', node."description"
+          'type', items."type",
+          'label', items."label",
+          'description', items."description"
         ) as node
-      from "entity_node"
-      inner join "node" on "node"."id" = "entity_node"."id"
-      where "entity_node"."type" = ${decodeURIComponent(props.params.entity_type)}
-      ${searchParams.q ? Prisma.sql`
-        and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
-      ` : Prisma.sql`
-        order by "entity_node"."id"
-      `}
-    ), paginated_items as (
-      select *
       from items
-      offset ${offset}
+      inner join "entity_node" on "items"."id" = "entity_node"."id"
       limit ${limit}
     )
     select

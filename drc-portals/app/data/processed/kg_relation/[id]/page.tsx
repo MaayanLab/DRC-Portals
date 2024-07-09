@@ -63,9 +63,10 @@ export default async function Page(props: { params: { id: string }, searchParams
       select *
       from kg_assertion_f
     ${searchParams.q ? Prisma.sql`
+        , websearch_to_tsquery('english', ${searchParams.q}) q
       where
-      "kg_assertion_f"."source_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
-      or "kg_assertion_f"."target_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
+      "kg_assertion_f"."source_id" in (select id from "node" where "node"."type" = 'entity' and q @@ "node"."searchable")
+      or "kg_assertion_f"."target_id" in (select id from "node" where "node"."type" = 'entity' and q @@ "node"."searchable")
     ` : Prisma.empty}
     ), kg_assertion_fsp as (
       select
@@ -73,23 +74,21 @@ export default async function Page(props: { params: { id: string }, searchParams
         kg_assertion_fs."evidence",
         (
           select jsonb_build_object(
-            'id', "entity_node"."id",
-            'type', "entity_node".type,
+            'id', "node"."id",
+            'type', "node".entity_type,
             'label', "node".label
           )
-          from "entity_node"
-          inner join "node" on "node"."id" = "entity_node"."id"
-          where "entity_node".id = "kg_assertion_fs"."source_id"
+          from "node"
+          where "node"."id" = "kg_assertion_fs"."source_id"
         ) as source,
         (
           select jsonb_build_object(
-            'id', "entity_node"."id",
-            'type', "entity_node".type,
+            'id', "node"."id",
+            'type', "node".entity_type,
             'label', "node".label
           )
-          from "entity_node"
-          inner join "node" on "node"."id" = "entity_node"."id"
-          where "entity_node".id = "kg_assertion_fs"."target_id"
+          from "node"
+          where "node".id = "kg_assertion_fs"."target_id"
         ) as target,
         (
           select jsonb_build_object(
