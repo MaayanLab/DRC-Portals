@@ -45,7 +45,7 @@ def assess_dcc_asset(row):
                 xmt_path.parent.mkdir(parents=True, exist_ok=True)
                 if not xmt_path.exists():
                     import urllib.request
-                    urllib.request.urlretrieve(row['link'], xmt_path)
+                    urllib.request.urlretrieve(row['link'].replace(' ', '%20'), xmt_path)
                 rubric = xmt_fair(xmt_path, row)
             if asset_type == 'Attribute Table': 
                 attr_tables_path = ingest_path / 'attribute_tables'
