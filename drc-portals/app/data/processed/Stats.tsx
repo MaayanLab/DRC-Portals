@@ -24,25 +24,17 @@ export function StatsFallback() {
   )
 }
 export default async function Stats() {
-  const results = await safeAsync(() => kvCache('stats', () => prisma.$queryRaw<Array<{
-    label: string,
-    count: number,
-  }>>`
-    with labeled_count as (
-      select 'Genes' as label, (select count(*) from gene_entity) as count
-      union
-      select 'Gene sets' as label, (select count(*) from gene_set_node) as count
-      union
-      select 'Compounds' as label, (select count(*) from entity_node where type = 'Compound') as count
-      union
-      select 'Files' as label, (select count(*) from c2m2_file_node) as count
-      union
-      select 'Assertions' as label, (select count(*) from kg_assertion) as count
-    )
-    select label, count
-    from labeled_count
-    order by count desc;
-  `, process.env.NODE_ENV === 'development' ? 60*1000 : 24*60*60*1000))
+  const results = await safeAsync(() => kvCache('stats', async () => {
+    const stats = await Promise.all([
+      prisma.geneEntity.count().then(count => ({ label: 'Genes', count })),
+      prisma.geneSetNode.count().then(count => ({ label: 'Gene sets', count })),
+      prisma.entityNode.count({ where: { type: 'Compound' } }).then(count => ({ label: 'Compounds', count })),
+      prisma.c2M2FileNode.count().then(count => ({ label: 'Files', count })),
+      prisma.kGAssertion.count().then(count => ({ label: 'Assertions', count })),
+    ])
+    stats.sort((a, b) => b.count - a.count)
+    return stats
+  }, process.env.NODE_ENV === 'development' ? 60*1000 : 24*60*60*1000))
   if ('error' in results) return <StatsFallback />
   return (
     <>
