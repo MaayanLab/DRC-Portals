@@ -7,9 +7,9 @@ const TagComponent = ({
     t,
     onReset,
 }: {
-    q: string;
-    t: { type: string; entity_type: string | null; }[] | undefined;
-    onReset: () => void;
+    q?: string;
+    t?: { type: string; entity_type: string | null; }[] | undefined;
+    onReset?: () => void;
 }) => {
     const handleDelete = (tagToDelete: { type: string; entity_type: string | null }) => {
         let baseUrl = window.location.origin + window.location.pathname;
@@ -47,28 +47,27 @@ const TagComponent = ({
         if (!q) return null;
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="subtitle1" style={{ marginRight: '8px', fontWeight: 700 }}>
-                    Query
-                </Typography>
-                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    <Chip
-                        key="q"
-                        label={q}
-                        variant="outlined"
-                        style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
-                    />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="subtitle1" style={{ marginRight: '8px', fontWeight: 700 }}>
+                        Query
+                    </Typography>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        <Chip
+                            key="q"
+                            label={q}
+                            variant="outlined"
+                            style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div>
-                <Button onClick={handleReset} variant="outlined" color="secondary">
+                <div>
+                    <Button onClick={handleReset} variant="outlined" color="secondary">
                         Reset filters
                     </Button>
-            </div>
+                </div>
             </div>
         );
     };
-
 
     const renderTagsByType = () => {
         if (!t) return null;
@@ -82,7 +81,7 @@ const TagComponent = ({
             tagGroups[tag.type].push(tag);
         });
 
-        const typeDisplayNames = {
+        const typeDisplayNames: Record<string, string> = {
             'dcc': 'Common Fund Program',
             'taxonomy': 'Species',
             'anatomy': 'Anatomy',
@@ -91,7 +90,6 @@ const TagComponent = ({
             'data_type': 'Data Type'
             // Add more mappings as needed
         };
-
 
         // Render tags grouped by type
         return Object.keys(tagGroups).map((type, index) => (
@@ -110,7 +108,6 @@ const TagComponent = ({
                     ))}
                 </div>
             </div>
-
         ));
     };
 

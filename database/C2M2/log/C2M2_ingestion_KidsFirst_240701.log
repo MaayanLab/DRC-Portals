@@ -1,0 +1,1692 @@
+------------ dcc_short_labels:['4DN', 'ERCC', 'GTEx', 'GlyGen', 'HMP', 'HuBMAP', 'IDG', 'KidsFirst', 'LINCS', 'Metabolomics', 'MoTrPAC', 'SPARC']
+********** DCC name (dcc_short_label) specified as an argument: KidsFirst; will use schema_name: kidsfirst, so, will ingest only from that DCC.
+DROP SCHEMA IF EXISTS kidsfirst CASCADE;
+Creating kidsfirst
+=================== table_name: file ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: size_in_bytes: information read ----
+---- Column name: uncompressed_size_in_bytes: information read ----
+---- Column name: sha256: information read ----
+---- Column name: md5: information read ----
+---- Column name: filename: information read ----
+---- Column name: file_format: information read ----
+---- Column name: compression_format: information read ----
+---- Column name: data_type: information read ----
+---- Column name: assay_type: information read ----
+---- Column name: analysis_type: information read ----
+---- Column name: mime_type: information read ----
+---- Column name: bundle_collection_id_namespace: information read ----
+---- Column name: bundle_collection_local_id: information read ----
+---- Column name: dbgap_study_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.file (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+size_in_bytes VARCHAR DEFAULT '', 
+uncompressed_size_in_bytes VARCHAR DEFAULT '', 
+sha256 VARCHAR DEFAULT '', 
+md5 VARCHAR DEFAULT '', 
+filename VARCHAR NOT NULL, 
+file_format VARCHAR DEFAULT '', 
+compression_format VARCHAR DEFAULT '', 
+data_type VARCHAR DEFAULT '', 
+assay_type VARCHAR DEFAULT '', 
+analysis_type VARCHAR DEFAULT '', 
+mime_type VARCHAR DEFAULT '', 
+bundle_collection_id_namespace VARCHAR DEFAULT '', 
+bundle_collection_local_id VARCHAR DEFAULT '', 
+dbgap_study_id VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: biosample ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: sample_prep_method: information read ----
+---- Column name: anatomy: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.biosample (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+sample_prep_method VARCHAR DEFAULT '', 
+anatomy VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: subject ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: granularity: information read ----
+---- Column name: sex: information read ----
+---- Column name: ethnicity: information read ----
+---- Column name: age_at_enrollment: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+granularity VARCHAR NOT NULL, 
+sex VARCHAR DEFAULT '', 
+ethnicity VARCHAR DEFAULT '', 
+age_at_enrollment VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: dcc ===========================
+---- Column name: id: information read ----
+---- Column name: dcc_name: information read ----
+---- Column name: dcc_abbreviation: information read ----
+---- Column name: dcc_description: information read ----
+---- Column name: contact_email: information read ----
+---- Column name: contact_name: information read ----
+---- Column name: dcc_url: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.dcc (
+id VARCHAR NOT NULL, 
+dcc_name VARCHAR NOT NULL, 
+dcc_abbreviation VARCHAR NOT NULL, 
+dcc_description VARCHAR DEFAULT '', 
+contact_email VARCHAR NOT NULL, 
+contact_name VARCHAR NOT NULL, 
+dcc_url VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: project ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.project (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: project_in_project ===========================
+---- Column name: parent_project_id_namespace: information read ----
+---- Column name: parent_project_local_id: information read ----
+---- Column name: child_project_id_namespace: information read ----
+---- Column name: child_project_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.project_in_project (
+parent_project_id_namespace VARCHAR NOT NULL, 
+parent_project_local_id VARCHAR NOT NULL, 
+child_project_id_namespace VARCHAR NOT NULL, 
+child_project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id)
+);
+=================== table_name: collection ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: has_time_series_data: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+has_time_series_data VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: collection_in_collection ===========================
+---- Column name: superset_collection_id_namespace: information read ----
+---- Column name: superset_collection_local_id: information read ----
+---- Column name: subset_collection_id_namespace: information read ----
+---- Column name: subset_collection_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_in_collection (
+superset_collection_id_namespace VARCHAR NOT NULL, 
+superset_collection_local_id VARCHAR NOT NULL, 
+subset_collection_id_namespace VARCHAR NOT NULL, 
+subset_collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(superset_collection_id_namespace, superset_collection_local_id, subset_collection_id_namespace, subset_collection_local_id)
+);
+=================== table_name: file_describes_collection ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.file_describes_collection (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: collection_defined_by_project ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_defined_by_project (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, project_id_namespace, project_local_id)
+);
+=================== table_name: file_in_collection ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.file_in_collection (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: biosample_in_collection ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.biosample_in_collection (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: subject_in_collection ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject_in_collection (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: file_describes_biosample ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.file_describes_biosample (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id)
+);
+=================== table_name: file_describes_subject ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.file_describes_subject (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, subject_id_namespace, subject_local_id)
+);
+=================== table_name: biosample_from_subject ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: age_at_sampling: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.biosample_from_subject (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+age_at_sampling VARCHAR DEFAULT '',
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, subject_id_namespace, subject_local_id)
+);
+=================== table_name: biosample_disease ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.biosample_disease (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, association_type, disease)
+);
+=================== table_name: subject_disease ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject_disease (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, association_type, disease)
+);
+=================== table_name: collection_disease ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_disease (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, disease)
+);
+=================== table_name: collection_phenotype ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: phenotype: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_phenotype (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+phenotype VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, phenotype)
+);
+=================== table_name: collection_gene ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_gene (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, gene)
+);
+=================== table_name: collection_compound ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: compound: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_compound (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+compound VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, compound)
+);
+=================== table_name: collection_substance ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_substance (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, substance)
+);
+=================== table_name: collection_taxonomy ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: taxon: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_taxonomy (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+taxon VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, taxon)
+);
+=================== table_name: collection_anatomy ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: anatomy: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_anatomy (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+anatomy VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, anatomy)
+);
+=================== table_name: collection_protein ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: protein: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.collection_protein (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+protein VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, protein)
+);
+=================== table_name: subject_phenotype ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: phenotype: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject_phenotype (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+phenotype VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, association_type, phenotype)
+);
+=================== table_name: biosample_substance ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.biosample_substance (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, substance)
+);
+=================== table_name: subject_substance ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject_substance (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, substance)
+);
+=================== table_name: biosample_gene ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.biosample_gene (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, gene)
+);
+=================== table_name: phenotype_gene ===========================
+---- Column name: phenotype: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.phenotype_gene (
+phenotype VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(phenotype, gene)
+);
+=================== table_name: phenotype_disease ===========================
+---- Column name: phenotype: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.phenotype_disease (
+phenotype VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(phenotype, disease)
+);
+=================== table_name: subject_race ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: race: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject_race (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+race VARCHAR DEFAULT '',
+PRIMARY KEY(subject_id_namespace, subject_local_id, race)
+);
+=================== table_name: subject_role_taxonomy ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: role_id: information read ----
+---- Column name: taxonomy_id: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.subject_role_taxonomy (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+role_id VARCHAR NOT NULL, 
+taxonomy_id VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, role_id, taxonomy_id)
+);
+=================== table_name: assay_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.assay_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: analysis_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.analysis_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: ncbi_taxonomy ===========================
+---- Column name: id: information read ----
+---- Column name: clade: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.ncbi_taxonomy (
+id VARCHAR NOT NULL, 
+clade VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: anatomy ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.anatomy (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: file_format ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.file_format (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: data_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.data_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: disease ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.disease (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: phenotype ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.phenotype (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: compound ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.compound (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: substance ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: compound: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.substance (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+compound VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: gene ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: organism: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.gene (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+organism VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: protein ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: organism: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.protein (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+organism VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: protein_gene ===========================
+---- Column name: protein: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.protein_gene (
+protein VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(protein, gene)
+);
+=================== table_name: sample_prep_method ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.sample_prep_method (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: id_namespace ===========================
+---- Column name: id: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+create_table_query:
+CREATE TABLE kidsfirst.id_namespace (
+id VARCHAR NOT NULL, 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+================== Defined all tables ======================
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 0.17937970161437988 seconds.
+
+Names of all tables:
+['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
+
+Going to ingest metadata from files
+
+
+********* c2m2s dataframe, before checking if a single DCC is to be processed, is: **********
+    filetype  ... dcc_short_label
+30      C2M2  ...             4DN
+31      C2M2  ...    Metabolomics
+32      C2M2  ...          GlyGen
+33      C2M2  ...          HuBMAP
+34      C2M2  ...       KidsFirst
+35      C2M2  ...           SPARC
+74      C2M2  ...            ERCC
+81      C2M2  ...         MoTrPAC
+93      C2M2  ...            GTEx
+107     C2M2  ...             HMP
+123     C2M2  ...             IDG
+146     C2M2  ...           LINCS
+
+[12 rows x 14 columns]
+
+********* c2m2s dataframe is: **********
+   filetype  ... dcc_short_label
+34     C2M2  ...       KidsFirst
+
+[1 rows x 14 columns]
+Processing C2M2 Files...:   0%|          | 0/1 [00:00<?, ?it/s]
+================================== DCC short label: KidsFirst =============================================
+Unpack zip file: c2m2_extract_path: ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection.tsv ---------
+table_name:collection
+KidsFirst: collection: Read from file: df: #rows = 0, #cols: 8
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.043480873107910156 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/anatomy.tsv ---------
+table_name:anatomy
+KidsFirst: anatomy: Read from file: df: #rows = 18, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/anatomy.tsv: 19
+df: #rows = 18, #cols: 4
+pKeys: ['id']
+*** Entering anatomy to database ***
+df: #rows = 18, #cols: 4
+
+A slice of df:
+               id  ...                                     synonyms
+0  UBERON:0000178  ...      ["portion of blood","vertebrate blood"]
+1  UBERON:0000479  ...       ["portion of tissue","tissue portion"]
+2  UBERON:0000955  ...                                           []
+3  UBERON:0000988  ...          ["pons of Varolius","pons Varolii"]
+4  UBERON:0001003  ...  ["epidermis","skin","vertebrate epidermis"]
+5  UBERON:0001017  ...          ["CNS","systema nervosum centrale"]
+6  UBERON:0001037  ...                                     ["hair"]
+7  UBERON:0001836  ...                 ["salivary gland secretion"]
+8  UBERON:0002048  ...                                    ["pulmo"]
+9  UBERON:0002363  ...   ["dura mater of neuraxis","pachymeninges"]
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0849454402923584 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_in_collection.tsv ---------
+table_name:file_in_collection
+KidsFirst: file_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033562660217285156 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file.tsv ---------
+table_name:file
+KidsFirst: file: Read from file: df: #rows = 288210, #cols: 20
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file.tsv: 288211
+df: #rows = 288210, #cols: 20
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file to database ***
+df: #rows = 288210, #cols: 20
+
+A slice of df:
+  id_namespace  ...                                      persistent_id
+0   kidsfirst:  ...  drs://data.kidsfirstdrc.org/e0f8bb06-a2d5-40ad...
+1   kidsfirst:  ...                                                NaN
+2   kidsfirst:  ...  drs://data.kidsfirstdrc.org/6e5ae75a-268b-47fb...
+3   kidsfirst:  ...  drs://data.kidsfirstdrc.org/ff168eff-387d-460b...
+4   kidsfirst:  ...                                                NaN
+5   kidsfirst:  ...                                                NaN
+6   kidsfirst:  ...  drs://data.kidsfirstdrc.org/d5c43836-bc0d-4acd...
+7   kidsfirst:  ...                                                NaN
+8   kidsfirst:  ...                                                NaN
+9   kidsfirst:  ...                                                NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:     count
+0  288210
+count:288210
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 15.789650201797485 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/gene.tsv ---------
+table_name:gene
+KidsFirst: gene: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11189913749694824 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_role_taxonomy.tsv ---------
+table_name:subject_role_taxonomy
+KidsFirst: subject_role_taxonomy: Read from file: df: #rows = 28550, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_role_taxonomy.tsv: 28551
+df: #rows = 28550, #cols: 4
+pKeys: ['subject_id_namespace', 'subject_local_id', 'role_id', 'taxonomy_id']
+Going to write the count query
+Wrote the count query
+*** Entering subject_role_taxonomy to database ***
+df: #rows = 28550, #cols: 4
+
+A slice of df:
+  subject_id_namespace subject_local_id              role_id    taxonomy_id
+0           kidsfirst:      PT_0001K4K1  cfde_subject_role:0  NCBI:txid9606
+1           kidsfirst:      PT_004FDKPF  cfde_subject_role:0  NCBI:txid9606
+2           kidsfirst:      PT_004KEANN  cfde_subject_role:0  NCBI:txid9606
+3           kidsfirst:      PT_0059H2XT  cfde_subject_role:0  NCBI:txid9606
+4           kidsfirst:      PT_005B7CZ4  cfde_subject_role:0  NCBI:txid9606
+5           kidsfirst:      PT_005X8BR9  cfde_subject_role:0  NCBI:txid9606
+6           kidsfirst:      PT_00606X3B  cfde_subject_role:0  NCBI:txid9606
+7           kidsfirst:      PT_0068CEXW  cfde_subject_role:0  NCBI:txid9606
+8           kidsfirst:      PT_006SP660  cfde_subject_role:0  NCBI:txid9606
+9           kidsfirst:      PT_007GHV3X  cfde_subject_role:0  NCBI:txid9606
+Data inserted successfully!
+sql_count_df:    count
+0  28550
+count:28550
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.47973084449768066 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_format.tsv ---------
+table_name:file_format
+KidsFirst: file_format: Read from file: df: #rows = 12, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_format.tsv: 13
+df: #rows = 12, #cols: 4
+pKeys: ['id']
+*** Entering file_format to database ***
+df: #rows = 12, #cols: 4
+
+A slice of df:
+            id  ...                                  synonyms
+0  format:1930  ...                           ["FASTAQ","fq"]
+1  format:2331  ...             ["Hypertext Markup Language"]
+2  format:2572  ...                                        []
+3  format:3008  ...                                        []
+4  format:3016  ...                                        []
+5  format:3327  ...                                        []
+6  format:3462  ...                                        []
+7  format:3475  ...  ["Tab-delimited","Tab-separated values"]
+8  format:3508  ...                                        []
+9  format:3578  ...                                        []
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10463881492614746 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/project.tsv ---------
+table_name:project
+KidsFirst: project: Read from file: df: #rows = 40, #cols: 7
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/project.tsv: 41
+df: #rows = 40, #cols: 7
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering project to database ***
+df: #rows = 40, #cols: 7
+
+A slice of df:
+  id_namespace     local_id  persistent_id  creation_time abbreviation
+0   kidsfirst:          drc            NaN            NaN        KFDRC
+1   kidsfirst:  SD_ZXJFFMEF            NaN            NaN  SD_ZXJFFMEF
+2   kidsfirst:  SD_ZFGDG5YS            NaN            NaN  SD_ZFGDG5YS
+3   kidsfirst:  SD_Z6MWD3H0            NaN            NaN  SD_Z6MWD3H0
+4   kidsfirst:  SD_Z0D9N23X            NaN            NaN  SD_Z0D9N23X
+5   kidsfirst:  SD_YNSSAPHE            NaN            NaN  SD_YNSSAPHE
+6   kidsfirst:  SD_YGVA0E1C            NaN            NaN  SD_YGVA0E1C
+7   kidsfirst:  SD_W6FWTD8A            NaN            NaN  SD_W6FWTD8A
+8   kidsfirst:  SD_W0V965XZ            NaN            NaN  SD_W0V965XZ
+9   kidsfirst:  SD_VTTSHWV4            NaN            NaN  SD_VTTSHWV4
+Data inserted successfully!
+sql_count_df:    count
+0     40
+count:40
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11092495918273926 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_disease.tsv ---------
+table_name:phenotype_disease
+KidsFirst: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0654296875 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/ncbi_taxonomy.tsv ---------
+table_name:ncbi_taxonomy
+KidsFirst: ncbi_taxonomy: Read from file: df: #rows = 1, #cols: 5
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/ncbi_taxonomy.tsv: 2
+df: #rows = 1, #cols: 5
+pKeys: ['id']
+*** Entering ncbi_taxonomy to database ***
+df: #rows = 1, #cols: 5
+
+A slice of df:
+              id    clade          name  description synonyms
+0  NCBI:txid9606  species  Homo sapiens          NaN       []
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10824775695800781 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype.tsv ---------
+table_name:phenotype
+KidsFirst: phenotype: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0659947395324707 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/substance.tsv ---------
+table_name:substance
+KidsFirst: substance: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06525468826293945 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/project_in_project.tsv ---------
+table_name:project_in_project
+KidsFirst: project_in_project: Read from file: df: #rows = 39, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/project_in_project.tsv: 40
+df: #rows = 39, #cols: 4
+pKeys: ['parent_project_id_namespace', 'parent_project_local_id', 'child_project_id_namespace', 'child_project_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering project_in_project to database ***
+df: #rows = 39, #cols: 4
+
+A slice of df:
+  parent_project_id_namespace  ... child_project_local_id
+0                  kidsfirst:  ...            SD_ZXJFFMEF
+1                  kidsfirst:  ...            SD_ZFGDG5YS
+2                  kidsfirst:  ...            SD_Z6MWD3H0
+3                  kidsfirst:  ...            SD_Z0D9N23X
+4                  kidsfirst:  ...            SD_YNSSAPHE
+5                  kidsfirst:  ...            SD_YGVA0E1C
+6                  kidsfirst:  ...            SD_W6FWTD8A
+7                  kidsfirst:  ...            SD_W0V965XZ
+8                  kidsfirst:  ...            SD_VTTSHWV4
+9                  kidsfirst:  ...            SD_RM8AFW0R
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0     39
+count:39
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10874247550964355 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject.tsv ---------
+table_name:subject
+KidsFirst: subject: Read from file: df: #rows = 28550, #cols: 10
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject.tsv: 28551
+df: #rows = 28550, #cols: 10
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering subject to database ***
+df: #rows = 28550, #cols: 10
+
+A slice of df:
+  id_namespace     local_id  ... project_local_id persistent_id
+0   kidsfirst:  PT_0001K4K1  ...      SD_Z6MWD3H0           NaN
+1   kidsfirst:  PT_004FDKPF  ...      SD_46SK55A3           NaN
+2   kidsfirst:  PT_004KEANN  ...      SD_AQ9KVN5P           NaN
+3   kidsfirst:  PT_0059H2XT  ...      SD_DZTB5HRR           NaN
+4   kidsfirst:  PT_005B7CZ4  ...      SD_PREASA7S           NaN
+5   kidsfirst:  PT_005X8BR9  ...      SD_Z6MWD3H0           NaN
+6   kidsfirst:  PT_00606X3B  ...      SD_DZTB5HRR           NaN
+7   kidsfirst:  PT_0068CEXW  ...      SD_VTTSHWV4           NaN
+8   kidsfirst:  PT_006SP660  ...      SD_54G4WG4R           NaN
+9   kidsfirst:  PT_007GHV3X  ...      SD_15A2MQQ9           NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0  28550
+count:28550
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7864789962768555 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/analysis_type.tsv ---------
+table_name:analysis_type
+KidsFirst: analysis_type: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/analysis_type.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06471872329711914 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample.tsv ---------
+table_name:biosample
+KidsFirst: biosample: Read from file: df: #rows = 37065, #cols: 8
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample.tsv: 37066
+df: #rows = 37065, #cols: 8
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample to database ***
+df: #rows = 37065, #cols: 8
+
+A slice of df:
+  id_namespace     local_id  ... project_local_id persistent_id
+0   kidsfirst:  BS_002W6DYW  ...      SD_Q2F7XA29           NaN
+1   kidsfirst:  BS_003293HH  ...      SD_JWS3V24D           NaN
+2   kidsfirst:  BS_003TNG75  ...      SD_AQ9KVN5P           NaN
+3   kidsfirst:  BS_004ND16X  ...      SD_VTTSHWV4           NaN
+4   kidsfirst:  BS_005FNP7J  ...      SD_YGVA0E1C           NaN
+5   kidsfirst:  BS_005J6HQQ  ...      SD_NMVV8A1Y           NaN
+6   kidsfirst:  BS_006HP8CE  ...      SD_YNSSAPHE           NaN
+7   kidsfirst:  BS_00747N6Y  ...      SD_JWS3V24D           NaN
+8   kidsfirst:  BS_007JTNB8  ...      SD_BHJXBDQK           NaN
+9   kidsfirst:  BS_008JZQQT  ...      SD_B8X3C1MX           NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0  37065
+count:37065
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8460259437561035 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein_gene.tsv ---------
+table_name:protein_gene
+KidsFirst: protein_gene: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06519198417663574 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_race.tsv ---------
+table_name:subject_race
+KidsFirst: subject_race: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_race.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06524920463562012 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_phenotype.tsv ---------
+table_name:collection_phenotype
+KidsFirst: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06697392463684082 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/assay_type.tsv ---------
+table_name:assay_type
+KidsFirst: assay_type: Read from file: df: #rows = 3, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/assay_type.tsv: 4
+df: #rows = 3, #cols: 4
+pKeys: ['id']
+*** Entering assay_type to database ***
+df: #rows = 3, #cols: 4
+
+A slice of df:
+            id  ... synonyms
+0  OBI:0001177  ...       []
+1  OBI:0002117  ...  ["WGS"]
+2  OBI:0002118  ...  ["WES"]
+
+[3 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10715341567993164 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_anatomy.tsv ---------
+table_name:collection_anatomy
+KidsFirst: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_anatomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06476187705993652 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/dcc.tsv ---------
+table_name:dcc
+KidsFirst: dcc: Read from file: df: #rows = 1, #cols: 9
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/dcc.tsv: 2
+df: #rows = 1, #cols: 9
+pKeys: ['id']
+*** Entering dcc to database ***
+df: #rows = 1, #cols: 9
+
+A slice of df:
+                            id  ...             contact_email
+0  cfde_registry_dcc:kidsfirst  ...  support@kidsfirstdrc.org
+
+[1 rows x 5 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10807538032531738 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_gene.tsv ---------
+table_name:collection_gene
+KidsFirst: collection_gene: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06549239158630371 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_compound.tsv ---------
+table_name:collection_compound
+KidsFirst: collection_compound: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_compound.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06597709655761719 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_gene.tsv ---------
+table_name:biosample_gene
+KidsFirst: biosample_gene: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06536269187927246 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_in_collection.tsv ---------
+table_name:biosample_in_collection
+KidsFirst: biosample_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06526017189025879 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_from_subject.tsv ---------
+table_name:biosample_from_subject
+KidsFirst: biosample_from_subject: Read from file: df: #rows = 37065, #cols: 5
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_from_subject.tsv: 37066
+df: #rows = 37065, #cols: 5
+pKeys: ['biosample_id_namespace', 'biosample_local_id', 'subject_id_namespace', 'subject_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample_from_subject to database ***
+df: #rows = 37065, #cols: 5
+
+A slice of df:
+  biosample_id_namespace biosample_local_id  ... subject_local_id age_at_sampling
+0             kidsfirst:        BS_002W6DYW  ...      PT_GXMWD7AP             NaN
+1             kidsfirst:        BS_003293HH  ...      PT_5SCGPJSY             NaN
+2             kidsfirst:        BS_003TNG75  ...      PT_GB30TJ9P             NaN
+3             kidsfirst:        BS_004ND16X  ...      PT_R1JJ4TZ5             NaN
+4             kidsfirst:        BS_005FNP7J  ...      PT_B31DYVKP             NaN
+5             kidsfirst:        BS_005J6HQQ  ...      PT_VW44AQA8             NaN
+6             kidsfirst:        BS_006HP8CE  ...      PT_RDCCES07             NaN
+7             kidsfirst:        BS_00747N6Y  ...      PT_WM3WDZHD             NaN
+8             kidsfirst:        BS_007JTNB8  ...      PT_1MW98VR1            5.13
+9             kidsfirst:        BS_008JZQQT  ...      PT_GRE9TDA2             NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0  37065
+count:37065
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7132477760314941 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_protein.tsv ---------
+table_name:collection_protein
+KidsFirst: collection_protein: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_protein.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06626343727111816 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/sample_prep_method.tsv ---------
+table_name:sample_prep_method
+KidsFirst: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/sample_prep_method.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06582880020141602 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_phenotype.tsv ---------
+table_name:subject_phenotype
+KidsFirst: subject_phenotype: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06559538841247559 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_substance.tsv ---------
+table_name:collection_substance
+KidsFirst: collection_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06589078903198242 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/data_type.tsv ---------
+table_name:data_type
+KidsFirst: data_type: Read from file: df: #rows = 8, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/data_type.tsv: 9
+df: #rows = 8, #cols: 4
+pKeys: ['id']
+*** Entering data_type to database ***
+df: #rows = 8, #cols: 4
+
+A slice of df:
+          id  ...                                           synonyms
+0  data:0006  ...                 ["Data record","Data set","Datum"]
+1  data:1916  ...                                                 []
+2  data:2603  ...  ["Non-coding RNA quantification data","Transcr...
+3  data:3112  ...  ["Normalised microarray data","Gene expression...
+4  data:3210  ...                                                 []
+5  data:3494  ...                                  ["DNA sequences"]
+6  data:3498  ...                       ["Gene sequence variations"]
+7  data:3914  ...  ["Quality control metrics","QC metrics","QC re...
+
+[8 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10779571533203125 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_subject.tsv ---------
+table_name:file_describes_subject
+KidsFirst: file_describes_subject: Read from file: df: #rows = 338490, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_subject.tsv: 338491
+df: #rows = 338490, #cols: 4
+pKeys: ['file_id_namespace', 'file_local_id', 'subject_id_namespace', 'subject_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file_describes_subject to database ***
+df: #rows = 338490, #cols: 4
+
+A slice of df:
+  file_id_namespace file_local_id subject_id_namespace subject_local_id
+0        kidsfirst:   GF_0003WJQG           kidsfirst:      PT_X7DXSNZ6
+1        kidsfirst:   GF_00065FWM           kidsfirst:      PT_4347ZBEX
+2        kidsfirst:   GF_000HXXN3           kidsfirst:      PT_RG8C4JW7
+3        kidsfirst:   GF_000TDT79           kidsfirst:      PT_8N9AXZN8
+4        kidsfirst:   GF_000VDK42           kidsfirst:      PT_PR4YBBH3
+5        kidsfirst:   GF_0010PQSQ           kidsfirst:      PT_G0P3TS2D
+6        kidsfirst:   GF_001CSF26           kidsfirst:      PT_3W4P4R21
+7        kidsfirst:   GF_001JWT9N           kidsfirst:      PT_G16VK7FR
+8        kidsfirst:   GF_0023JGW9           kidsfirst:      PT_MTE126WM
+9        kidsfirst:   GF_0023NT7Z           kidsfirst:      PT_3AM9NH23
+Data inserted successfully!
+sql_count_df:     count
+0  338490
+count:338490
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 5.020538330078125 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_taxonomy.tsv ---------
+table_name:collection_taxonomy
+KidsFirst: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_taxonomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.08376383781433105 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/disease.tsv ---------
+table_name:disease
+KidsFirst: disease: Read from file: df: #rows = 28, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/disease.tsv: 29
+df: #rows = 28, #cols: 4
+pKeys: ['id']
+*** Entering disease to database ***
+df: #rows = 28, #cols: 4
+
+A slice of df:
+             id  ...                                           synonyms
+0  DOID:0050545  ...                   ["heterotaxia","situs ambiguus"]
+1  DOID:0050567  ...                                                 []
+2  DOID:0050668  ...                                           ["ARBD"]
+3  DOID:0050834  ...                             ["CHARGE association"]
+4  DOID:0060250  ...                                                 []
+5  DOID:0080074  ...                                                 []
+6  DOID:0080145  ...  ["DOID:7933","childhood precursor T-lymphoblas...
+7  DOID:0080171  ...  ["esophageal atresia and/or tracheoesophageal ...
+8  DOID:0080173  ...                   ["exstrophy-epispadias complex"]
+9  DOID:0080600  ...  ["2019 Novel Coronavirus (2019-nCoV)","2019-nC...
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10872673988342285 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_disease.tsv ---------
+table_name:collection_disease
+KidsFirst: collection_disease: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06599044799804688 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_in_collection.tsv ---------
+table_name:collection_in_collection
+KidsFirst: collection_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06550049781799316 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_biosample.tsv ---------
+table_name:file_describes_biosample
+KidsFirst: file_describes_biosample: Read from file: df: #rows = 404951, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_biosample.tsv: 404952
+df: #rows = 404951, #cols: 4
+pKeys: ['file_id_namespace', 'file_local_id', 'biosample_id_namespace', 'biosample_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file_describes_biosample to database ***
+df: #rows = 404951, #cols: 4
+
+A slice of df:
+  file_id_namespace file_local_id biosample_id_namespace biosample_local_id
+0        kidsfirst:   GF_ACG5S1T6             kidsfirst:        BS_002W6DYW
+1        kidsfirst:   GF_G1RZDA27             kidsfirst:        BS_002W6DYW
+2        kidsfirst:   GF_QQXTF4SK             kidsfirst:        BS_002W6DYW
+3        kidsfirst:   GF_TB6G822H             kidsfirst:        BS_002W6DYW
+4        kidsfirst:   GF_9VJAGRFA             kidsfirst:        BS_003293HH
+5        kidsfirst:   GF_AH4QVKHC             kidsfirst:        BS_003293HH
+6        kidsfirst:   GF_E3WB2K85             kidsfirst:        BS_003293HH
+7        kidsfirst:   GF_HQMM45X2             kidsfirst:        BS_003293HH
+8        kidsfirst:   GF_NHBS3J60             kidsfirst:        BS_003293HH
+9        kidsfirst:   GF_STVTVGG1             kidsfirst:        BS_003293HH
+Data inserted successfully!
+sql_count_df:     count
+0  404951
+count:404951
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 7.185033321380615 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/compound.tsv ---------
+table_name:compound
+KidsFirst: compound: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/compound.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09084844589233398 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_gene.tsv ---------
+table_name:phenotype_gene
+KidsFirst: phenotype_gene: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/phenotype_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06804013252258301 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_disease.tsv ---------
+table_name:subject_disease
+KidsFirst: subject_disease: Read from file: df: #rows = 35901, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_disease.tsv: 35902
+df: #rows = 35901, #cols: 4
+pKeys: ['subject_id_namespace', 'subject_local_id', 'association_type', 'disease']
+Going to write the count query
+Wrote the count query
+*** Entering subject_disease to database ***
+df: #rows = 35901, #cols: 4
+
+Processing C2M2 Files...: 100%|██████████| 1/1 [00:39<00:00, 39.17s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [00:39<00:00, 39.17s/it]
+A slice of df:
+  subject_id_namespace  ...       disease
+0           kidsfirst:  ...      DOID:162
+1           kidsfirst:  ...    DOID:14250
+2           kidsfirst:  ...     DOID:3827
+3           kidsfirst:  ...  DOID:0080145
+4           kidsfirst:  ...      DOID:162
+5           kidsfirst:  ...     DOID:5656
+6           kidsfirst:  ...     DOID:1682
+7           kidsfirst:  ...      DOID:162
+8           kidsfirst:  ...    DOID:14250
+9           kidsfirst:  ...     DOID:5656
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0  35901
+count:35901
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6273524761199951 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_disease.tsv ---------
+table_name:biosample_disease
+KidsFirst: biosample_disease: Read from file: df: #rows = 50449, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_disease.tsv: 50450
+df: #rows = 50449, #cols: 4
+pKeys: ['biosample_id_namespace', 'biosample_local_id', 'association_type', 'disease']
+Going to write the count query
+Wrote the count query
+*** Entering biosample_disease to database ***
+df: #rows = 50449, #cols: 4
+
+A slice of df:
+  biosample_id_namespace  ...       disease
+0             kidsfirst:  ...      DOID:331
+1             kidsfirst:  ...      DOID:162
+2             kidsfirst:  ...  DOID:0080145
+3             kidsfirst:  ...      DOID:162
+4             kidsfirst:  ...      DOID:255
+5             kidsfirst:  ...     DOID:3369
+6             kidsfirst:  ...      DOID:162
+7             kidsfirst:  ...       DOID:18
+8             kidsfirst:  ...      DOID:769
+9             kidsfirst:  ...      DOID:162
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0  50449
+count:50449
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8185310363769531 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_substance.tsv ---------
+table_name:subject_substance
+KidsFirst: subject_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06728672981262207 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/id_namespace.tsv ---------
+table_name:id_namespace
+KidsFirst: id_namespace: Read from file: df: #rows = 1, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/id_namespace.tsv: 2
+df: #rows = 1, #cols: 4
+pKeys: ['id']
+*** Entering id_namespace to database ***
+df: #rows = 1, #cols: 4
+
+A slice of df:
+           id  ...                                        description
+0  kidsfirst:  ...  A large-scale data resource to help researcher...
+
+[1 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.11017441749572754 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_substance.tsv ---------
+table_name:biosample_substance
+KidsFirst: biosample_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/biosample_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.0659019947052002 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein.tsv ---------
+table_name:protein
+KidsFirst: protein: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/protein.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06693172454833984 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_defined_by_project.tsv ---------
+table_name:collection_defined_by_project
+KidsFirst: collection_defined_by_project: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/collection_defined_by_project.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06629133224487305 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_in_collection.tsv ---------
+table_name:subject_in_collection
+KidsFirst: subject_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/subject_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06780457496643066 seconds.
+
+--------- ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_collection.tsv ---------
+table_name:file_describes_collection
+KidsFirst: file_describes_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/KidsFirst/fy2024q3-cfde-c2m2-kids-first/frictionless_validation/file_describes_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.06689214706420898 seconds.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 39.188568115234375 seconds.
+
+ ----------- Adding foreign key constraint for table file ----------
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES kidsfirst.id_namespace (id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_project_2;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_file_format_3;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_file_format_3 FOREIGN KEY (file_format) REFERENCES kidsfirst.file_format (id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_file_format_4;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_file_format_4 FOREIGN KEY (compression_format) REFERENCES kidsfirst.file_format (id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_data_type_5;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_data_type_5 FOREIGN KEY (data_type) REFERENCES kidsfirst.data_type (id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_assay_type_6;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_assay_type_6 FOREIGN KEY (assay_type) REFERENCES kidsfirst.assay_type (id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_analysis_type_7;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_analysis_type_7 FOREIGN KEY (analysis_type) REFERENCES kidsfirst.analysis_type (id);
+ALTER TABLE kidsfirst.file DROP CONSTRAINT IF EXISTS fk_file_collection_8;
+ALTER TABLE kidsfirst.file ADD CONSTRAINT  fk_file_collection_8 FOREIGN KEY (bundle_collection_id_namespace, bundle_collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample ----------
+ALTER TABLE kidsfirst.biosample DROP CONSTRAINT IF EXISTS fk_biosample_id_namespace_1;
+ALTER TABLE kidsfirst.biosample ADD CONSTRAINT  fk_biosample_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES kidsfirst.id_namespace (id);
+ALTER TABLE kidsfirst.biosample DROP CONSTRAINT IF EXISTS fk_biosample_project_2;
+ALTER TABLE kidsfirst.biosample ADD CONSTRAINT  fk_biosample_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ALTER TABLE kidsfirst.biosample DROP CONSTRAINT IF EXISTS fk_biosample_sample_prep_method_3;
+ALTER TABLE kidsfirst.biosample ADD CONSTRAINT  fk_biosample_sample_prep_method_3 FOREIGN KEY (sample_prep_method) REFERENCES kidsfirst.sample_prep_method (id);
+ALTER TABLE kidsfirst.biosample DROP CONSTRAINT IF EXISTS fk_biosample_anatomy_4;
+ALTER TABLE kidsfirst.biosample ADD CONSTRAINT  fk_biosample_anatomy_4 FOREIGN KEY (anatomy) REFERENCES kidsfirst.anatomy (id);
+ ----------- Adding foreign key constraint for table subject ----------
+ALTER TABLE kidsfirst.subject DROP CONSTRAINT IF EXISTS fk_subject_id_namespace_1;
+ALTER TABLE kidsfirst.subject ADD CONSTRAINT  fk_subject_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES kidsfirst.id_namespace (id);
+ALTER TABLE kidsfirst.subject DROP CONSTRAINT IF EXISTS fk_subject_project_2;
+ALTER TABLE kidsfirst.subject ADD CONSTRAINT  fk_subject_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table dcc ----------
+ALTER TABLE kidsfirst.dcc DROP CONSTRAINT IF EXISTS fk_dcc_project_1;
+ALTER TABLE kidsfirst.dcc ADD CONSTRAINT  fk_dcc_project_1 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table project ----------
+ALTER TABLE kidsfirst.project DROP CONSTRAINT IF EXISTS fk_project_id_namespace_1;
+ALTER TABLE kidsfirst.project ADD CONSTRAINT  fk_project_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES kidsfirst.id_namespace (id);
+ ----------- Adding foreign key constraint for table project_in_project ----------
+ALTER TABLE kidsfirst.project_in_project DROP CONSTRAINT IF EXISTS fk_project_in_project_project_1;
+ALTER TABLE kidsfirst.project_in_project ADD CONSTRAINT  fk_project_in_project_project_1 FOREIGN KEY (parent_project_id_namespace, parent_project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ALTER TABLE kidsfirst.project_in_project DROP CONSTRAINT IF EXISTS fk_project_in_project_project_2;
+ALTER TABLE kidsfirst.project_in_project ADD CONSTRAINT  fk_project_in_project_project_2 FOREIGN KEY (child_project_id_namespace, child_project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table collection ----------
+ALTER TABLE kidsfirst.collection DROP CONSTRAINT IF EXISTS fk_collection_id_namespace_1;
+ALTER TABLE kidsfirst.collection ADD CONSTRAINT  fk_collection_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES kidsfirst.id_namespace (id);
+ ----------- Adding foreign key constraint for table collection_in_collection ----------
+ALTER TABLE kidsfirst.collection_in_collection DROP CONSTRAINT IF EXISTS fk_collection_in_collection_collection_1;
+ALTER TABLE kidsfirst.collection_in_collection ADD CONSTRAINT  fk_collection_in_collection_collection_1 FOREIGN KEY (superset_collection_id_namespace, superset_collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_in_collection DROP CONSTRAINT IF EXISTS fk_collection_in_collection_collection_2;
+ALTER TABLE kidsfirst.collection_in_collection ADD CONSTRAINT  fk_collection_in_collection_collection_2 FOREIGN KEY (subset_collection_id_namespace, subset_collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_collection ----------
+ALTER TABLE kidsfirst.file_describes_collection DROP CONSTRAINT IF EXISTS fk_file_describes_collection_file_1;
+ALTER TABLE kidsfirst.file_describes_collection ADD CONSTRAINT  fk_file_describes_collection_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES kidsfirst.file (id_namespace, local_id);
+ALTER TABLE kidsfirst.file_describes_collection DROP CONSTRAINT IF EXISTS fk_file_describes_collection_collection_2;
+ALTER TABLE kidsfirst.file_describes_collection ADD CONSTRAINT  fk_file_describes_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table collection_defined_by_project ----------
+ALTER TABLE kidsfirst.collection_defined_by_project DROP CONSTRAINT IF EXISTS fk_collection_defined_by_project_collection_1;
+ALTER TABLE kidsfirst.collection_defined_by_project ADD CONSTRAINT  fk_collection_defined_by_project_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_defined_by_project DROP CONSTRAINT IF EXISTS fk_collection_defined_by_project_project_2;
+ALTER TABLE kidsfirst.collection_defined_by_project ADD CONSTRAINT  fk_collection_defined_by_project_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES kidsfirst.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_in_collection ----------
+ALTER TABLE kidsfirst.file_in_collection DROP CONSTRAINT IF EXISTS fk_file_in_collection_file_1;
+ALTER TABLE kidsfirst.file_in_collection ADD CONSTRAINT  fk_file_in_collection_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES kidsfirst.file (id_namespace, local_id);
+ALTER TABLE kidsfirst.file_in_collection DROP CONSTRAINT IF EXISTS fk_file_in_collection_collection_2;
+ALTER TABLE kidsfirst.file_in_collection ADD CONSTRAINT  fk_file_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_in_collection ----------
+ALTER TABLE kidsfirst.biosample_in_collection DROP CONSTRAINT IF EXISTS fk_biosample_in_collection_biosample_1;
+ALTER TABLE kidsfirst.biosample_in_collection ADD CONSTRAINT  fk_biosample_in_collection_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES kidsfirst.biosample (id_namespace, local_id);
+ALTER TABLE kidsfirst.biosample_in_collection DROP CONSTRAINT IF EXISTS fk_biosample_in_collection_collection_2;
+ALTER TABLE kidsfirst.biosample_in_collection ADD CONSTRAINT  fk_biosample_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table subject_in_collection ----------
+ALTER TABLE kidsfirst.subject_in_collection DROP CONSTRAINT IF EXISTS fk_subject_in_collection_subject_1;
+ALTER TABLE kidsfirst.subject_in_collection ADD CONSTRAINT  fk_subject_in_collection_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ALTER TABLE kidsfirst.subject_in_collection DROP CONSTRAINT IF EXISTS fk_subject_in_collection_collection_2;
+ALTER TABLE kidsfirst.subject_in_collection ADD CONSTRAINT  fk_subject_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_biosample ----------
+ALTER TABLE kidsfirst.file_describes_biosample DROP CONSTRAINT IF EXISTS fk_file_describes_biosample_file_1;
+ALTER TABLE kidsfirst.file_describes_biosample ADD CONSTRAINT  fk_file_describes_biosample_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES kidsfirst.file (id_namespace, local_id);
+ALTER TABLE kidsfirst.file_describes_biosample DROP CONSTRAINT IF EXISTS fk_file_describes_biosample_biosample_2;
+ALTER TABLE kidsfirst.file_describes_biosample ADD CONSTRAINT  fk_file_describes_biosample_biosample_2 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES kidsfirst.biosample (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_subject ----------
+ALTER TABLE kidsfirst.file_describes_subject DROP CONSTRAINT IF EXISTS fk_file_describes_subject_file_1;
+ALTER TABLE kidsfirst.file_describes_subject ADD CONSTRAINT  fk_file_describes_subject_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES kidsfirst.file (id_namespace, local_id);
+ALTER TABLE kidsfirst.file_describes_subject DROP CONSTRAINT IF EXISTS fk_file_describes_subject_subject_2;
+ALTER TABLE kidsfirst.file_describes_subject ADD CONSTRAINT  fk_file_describes_subject_subject_2 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_from_subject ----------
+ALTER TABLE kidsfirst.biosample_from_subject DROP CONSTRAINT IF EXISTS fk_biosample_from_subject_biosample_1;
+ALTER TABLE kidsfirst.biosample_from_subject ADD CONSTRAINT  fk_biosample_from_subject_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES kidsfirst.biosample (id_namespace, local_id);
+ALTER TABLE kidsfirst.biosample_from_subject DROP CONSTRAINT IF EXISTS fk_biosample_from_subject_subject_2;
+ALTER TABLE kidsfirst.biosample_from_subject ADD CONSTRAINT  fk_biosample_from_subject_subject_2 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_disease ----------
+ALTER TABLE kidsfirst.biosample_disease DROP CONSTRAINT IF EXISTS fk_biosample_disease_biosample_1;
+ALTER TABLE kidsfirst.biosample_disease ADD CONSTRAINT  fk_biosample_disease_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES kidsfirst.biosample (id_namespace, local_id);
+ALTER TABLE kidsfirst.biosample_disease DROP CONSTRAINT IF EXISTS fk_biosample_disease_disease_2;
+ALTER TABLE kidsfirst.biosample_disease ADD CONSTRAINT  fk_biosample_disease_disease_2 FOREIGN KEY (disease) REFERENCES kidsfirst.disease (id);
+ ----------- Adding foreign key constraint for table subject_disease ----------
+ALTER TABLE kidsfirst.subject_disease DROP CONSTRAINT IF EXISTS fk_subject_disease_subject_1;
+ALTER TABLE kidsfirst.subject_disease ADD CONSTRAINT  fk_subject_disease_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ALTER TABLE kidsfirst.subject_disease DROP CONSTRAINT IF EXISTS fk_subject_disease_disease_2;
+ALTER TABLE kidsfirst.subject_disease ADD CONSTRAINT  fk_subject_disease_disease_2 FOREIGN KEY (disease) REFERENCES kidsfirst.disease (id);
+ ----------- Adding foreign key constraint for table collection_disease ----------
+ALTER TABLE kidsfirst.collection_disease DROP CONSTRAINT IF EXISTS fk_collection_disease_collection_1;
+ALTER TABLE kidsfirst.collection_disease ADD CONSTRAINT  fk_collection_disease_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_disease DROP CONSTRAINT IF EXISTS fk_collection_disease_disease_2;
+ALTER TABLE kidsfirst.collection_disease ADD CONSTRAINT  fk_collection_disease_disease_2 FOREIGN KEY (disease) REFERENCES kidsfirst.disease (id);
+ ----------- Adding foreign key constraint for table collection_phenotype ----------
+ALTER TABLE kidsfirst.collection_phenotype DROP CONSTRAINT IF EXISTS fk_collection_phenotype_collection_1;
+ALTER TABLE kidsfirst.collection_phenotype ADD CONSTRAINT  fk_collection_phenotype_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_phenotype DROP CONSTRAINT IF EXISTS fk_collection_phenotype_phenotype_2;
+ALTER TABLE kidsfirst.collection_phenotype ADD CONSTRAINT  fk_collection_phenotype_phenotype_2 FOREIGN KEY (phenotype) REFERENCES kidsfirst.phenotype (id);
+ ----------- Adding foreign key constraint for table collection_gene ----------
+ALTER TABLE kidsfirst.collection_gene DROP CONSTRAINT IF EXISTS fk_collection_gene_collection_1;
+ALTER TABLE kidsfirst.collection_gene ADD CONSTRAINT  fk_collection_gene_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_gene DROP CONSTRAINT IF EXISTS fk_collection_gene_gene_2;
+ALTER TABLE kidsfirst.collection_gene ADD CONSTRAINT  fk_collection_gene_gene_2 FOREIGN KEY (gene) REFERENCES kidsfirst.gene (id);
+ ----------- Adding foreign key constraint for table collection_compound ----------
+ALTER TABLE kidsfirst.collection_compound DROP CONSTRAINT IF EXISTS fk_collection_compound_collection_1;
+ALTER TABLE kidsfirst.collection_compound ADD CONSTRAINT  fk_collection_compound_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_compound DROP CONSTRAINT IF EXISTS fk_collection_compound_compound_2;
+ALTER TABLE kidsfirst.collection_compound ADD CONSTRAINT  fk_collection_compound_compound_2 FOREIGN KEY (compound) REFERENCES kidsfirst.compound (id);
+ ----------- Adding foreign key constraint for table collection_substance ----------
+ALTER TABLE kidsfirst.collection_substance DROP CONSTRAINT IF EXISTS fk_collection_substance_collection_1;
+ALTER TABLE kidsfirst.collection_substance ADD CONSTRAINT  fk_collection_substance_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_substance DROP CONSTRAINT IF EXISTS fk_collection_substance_substance_2;
+ALTER TABLE kidsfirst.collection_substance ADD CONSTRAINT  fk_collection_substance_substance_2 FOREIGN KEY (substance) REFERENCES kidsfirst.substance (id);
+ ----------- Adding foreign key constraint for table collection_taxonomy ----------
+ALTER TABLE kidsfirst.collection_taxonomy DROP CONSTRAINT IF EXISTS fk_collection_taxonomy_collection_1;
+ALTER TABLE kidsfirst.collection_taxonomy ADD CONSTRAINT  fk_collection_taxonomy_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_taxonomy DROP CONSTRAINT IF EXISTS fk_collection_taxonomy_ncbi_taxonomy_2;
+ALTER TABLE kidsfirst.collection_taxonomy ADD CONSTRAINT  fk_collection_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxon) REFERENCES kidsfirst.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table collection_anatomy ----------
+ALTER TABLE kidsfirst.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_collection_1;
+ALTER TABLE kidsfirst.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_anatomy_2;
+ALTER TABLE kidsfirst.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_anatomy_2 FOREIGN KEY (anatomy) REFERENCES kidsfirst.anatomy (id);
+ ----------- Adding foreign key constraint for table collection_protein ----------
+ALTER TABLE kidsfirst.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_collection_1;
+ALTER TABLE kidsfirst.collection_protein ADD CONSTRAINT  fk_collection_protein_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES kidsfirst.collection (id_namespace, local_id);
+ALTER TABLE kidsfirst.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_protein_2;
+ALTER TABLE kidsfirst.collection_protein ADD CONSTRAINT  fk_collection_protein_protein_2 FOREIGN KEY (protein) REFERENCES kidsfirst.protein (id);
+ ----------- Adding foreign key constraint for table subject_phenotype ----------
+ALTER TABLE kidsfirst.subject_phenotype DROP CONSTRAINT IF EXISTS fk_subject_phenotype_subject_1;
+ALTER TABLE kidsfirst.subject_phenotype ADD CONSTRAINT  fk_subject_phenotype_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ALTER TABLE kidsfirst.subject_phenotype DROP CONSTRAINT IF EXISTS fk_subject_phenotype_phenotype_2;
+ALTER TABLE kidsfirst.subject_phenotype ADD CONSTRAINT  fk_subject_phenotype_phenotype_2 FOREIGN KEY (phenotype) REFERENCES kidsfirst.phenotype (id);
+ ----------- Adding foreign key constraint for table biosample_substance ----------
+ALTER TABLE kidsfirst.biosample_substance DROP CONSTRAINT IF EXISTS fk_biosample_substance_biosample_1;
+ALTER TABLE kidsfirst.biosample_substance ADD CONSTRAINT  fk_biosample_substance_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES kidsfirst.biosample (id_namespace, local_id);
+ALTER TABLE kidsfirst.biosample_substance DROP CONSTRAINT IF EXISTS fk_biosample_substance_substance_2;
+ALTER TABLE kidsfirst.biosample_substance ADD CONSTRAINT  fk_biosample_substance_substance_2 FOREIGN KEY (substance) REFERENCES kidsfirst.substance (id);
+ ----------- Adding foreign key constraint for table subject_substance ----------
+ALTER TABLE kidsfirst.subject_substance DROP CONSTRAINT IF EXISTS fk_subject_substance_subject_1;
+ALTER TABLE kidsfirst.subject_substance ADD CONSTRAINT  fk_subject_substance_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ALTER TABLE kidsfirst.subject_substance DROP CONSTRAINT IF EXISTS fk_subject_substance_substance_2;
+ALTER TABLE kidsfirst.subject_substance ADD CONSTRAINT  fk_subject_substance_substance_2 FOREIGN KEY (substance) REFERENCES kidsfirst.substance (id);
+ ----------- Adding foreign key constraint for table biosample_gene ----------
+ALTER TABLE kidsfirst.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_biosample_1;
+ALTER TABLE kidsfirst.biosample_gene ADD CONSTRAINT  fk_biosample_gene_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES kidsfirst.biosample (id_namespace, local_id);
+ALTER TABLE kidsfirst.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_gene_2;
+ALTER TABLE kidsfirst.biosample_gene ADD CONSTRAINT  fk_biosample_gene_gene_2 FOREIGN KEY (gene) REFERENCES kidsfirst.gene (id);
+ ----------- Adding foreign key constraint for table phenotype_gene ----------
+ALTER TABLE kidsfirst.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_phenotype_1;
+ALTER TABLE kidsfirst.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_phenotype_1 FOREIGN KEY (phenotype) REFERENCES kidsfirst.phenotype (id);
+ALTER TABLE kidsfirst.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_gene_2;
+ALTER TABLE kidsfirst.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_gene_2 FOREIGN KEY (gene) REFERENCES kidsfirst.gene (id);
+ ----------- Adding foreign key constraint for table phenotype_disease ----------
+ALTER TABLE kidsfirst.phenotype_disease DROP CONSTRAINT IF EXISTS fk_phenotype_disease_phenotype_1;
+ALTER TABLE kidsfirst.phenotype_disease ADD CONSTRAINT  fk_phenotype_disease_phenotype_1 FOREIGN KEY (phenotype) REFERENCES kidsfirst.phenotype (id);
+ALTER TABLE kidsfirst.phenotype_disease DROP CONSTRAINT IF EXISTS fk_phenotype_disease_disease_2;
+ALTER TABLE kidsfirst.phenotype_disease ADD CONSTRAINT  fk_phenotype_disease_disease_2 FOREIGN KEY (disease) REFERENCES kidsfirst.disease (id);
+ ----------- Adding foreign key constraint for table subject_race ----------
+ALTER TABLE kidsfirst.subject_race DROP CONSTRAINT IF EXISTS fk_subject_race_subject_1;
+ALTER TABLE kidsfirst.subject_race ADD CONSTRAINT  fk_subject_race_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table subject_role_taxonomy ----------
+ALTER TABLE kidsfirst.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_subject_1;
+ALTER TABLE kidsfirst.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES kidsfirst.subject (id_namespace, local_id);
+ALTER TABLE kidsfirst.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_ncbi_taxonomy_2;
+ALTER TABLE kidsfirst.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxonomy_id) REFERENCES kidsfirst.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table assay_type ----------
+ ----------- Adding foreign key constraint for table analysis_type ----------
+ ----------- Adding foreign key constraint for table ncbi_taxonomy ----------
+ ----------- Adding foreign key constraint for table anatomy ----------
+ ----------- Adding foreign key constraint for table file_format ----------
+ ----------- Adding foreign key constraint for table data_type ----------
+ ----------- Adding foreign key constraint for table disease ----------
+ ----------- Adding foreign key constraint for table phenotype ----------
+ ----------- Adding foreign key constraint for table compound ----------
+ ----------- Adding foreign key constraint for table substance ----------
+ALTER TABLE kidsfirst.substance DROP CONSTRAINT IF EXISTS fk_substance_compound_1;
+ALTER TABLE kidsfirst.substance ADD CONSTRAINT  fk_substance_compound_1 FOREIGN KEY (compound) REFERENCES kidsfirst.compound (id);
+ ----------- Adding foreign key constraint for table gene ----------
+ALTER TABLE kidsfirst.gene DROP CONSTRAINT IF EXISTS fk_gene_ncbi_taxonomy_1;
+ALTER TABLE kidsfirst.gene ADD CONSTRAINT  fk_gene_ncbi_taxonomy_1 FOREIGN KEY (organism) REFERENCES kidsfirst.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table protein ----------
+ALTER TABLE kidsfirst.protein DROP CONSTRAINT IF EXISTS fk_protein_ncbi_taxonomy_1;
+ALTER TABLE kidsfirst.protein ADD CONSTRAINT  fk_protein_ncbi_taxonomy_1 FOREIGN KEY (organism) REFERENCES kidsfirst.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table protein_gene ----------
+ALTER TABLE kidsfirst.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_protein_1;
+ALTER TABLE kidsfirst.protein_gene ADD CONSTRAINT  fk_protein_gene_protein_1 FOREIGN KEY (protein) REFERENCES kidsfirst.protein (id);
+ALTER TABLE kidsfirst.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gene_2;
+ALTER TABLE kidsfirst.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES kidsfirst.gene (id);
+ ----------- Adding foreign key constraint for table sample_prep_method ----------
+ ----------- Adding foreign key constraint for table id_namespace ----------
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 4.552574396133423 seconds.
+
+
+>>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table kidsfirst.file successful.
+
+Update successful.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 55.722634077072144 seconds.
+
+********** C2M2 metadata ingestion completed: schema_name: kidsfirst.

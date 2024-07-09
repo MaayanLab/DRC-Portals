@@ -1,24 +1,51 @@
-import React from "react"
-import Link from "next/link"
-import Image from "next/image"
+import React, { ReactElement } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import CardActions from '@mui/material/CardActions'
-import Container from '@mui/material/Container'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Container from '@mui/material/Container';
+import Stack from '@mui/material/Stack';
+import { Box, Typography } from '@mui/material';
 import Icon from '@mdi/react';
 import Fab from '@mui/material/Fab';
-import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
-import CFPrograms from "@/components/misc/CFPrograms"
-import SearchField from "./processed/SearchField"
-import { BlurBig } from "@/components/styled/Blur"
-import Stats, { StatsFallback } from "./processed/Stats"
+import CFPrograms from "@/components/misc/CFPrograms";
+import SearchField from "./processed/SearchField";
+import { BlurBig } from "@/components/styled/Blur";
+import Stats, { StatsFallback } from "./processed/Stats";
+import Tooltip from '@mui/material/Tooltip';
+
+// Define the CustomTooltipProps interface
+interface CustomTooltipProps {
+  title: string;
+  imgSrc: string;
+  imgAlt: string;
+  text: string;
+  children: ReactElement;
+}
+
+// CustomTooltip component using the CustomTooltipProps interface
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ imgSrc, imgAlt, text, children }) => {
+  return (
+    <Tooltip
+      title={
+        <Box display="flex" flexDirection="column" alignItems="center" width="100%">
+          <img src={imgSrc} alt={imgAlt} style={{ width: '100%', display: 'block', marginBottom: '5px' }} />
+          <Typography>{text}</Typography>
+        </Box>
+      }
+      arrow
+    >
+      {children}
+    </Tooltip>
+  );
+};
 
 const search_cards = [
   {
@@ -35,7 +62,7 @@ const search_cards = [
     "img": "/img/processed_data.png",
     "link": "/data/matrix"
   }
-]
+];
 
 const tool_cards = [
   {
@@ -50,7 +77,7 @@ const tool_cards = [
     "icon": mdiLaptop,
     "link": "https://playbook-workflow-builder.cloud/playbooks"
   }
-]
+];
 
 export default async function Home({ searchParams }: { searchParams: { error?: string } }) {
   return (
@@ -58,42 +85,66 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
         <Grid item xs={12}>
           <Paper sx={{
-                        boxShadow: "none", 
-                        width: "100vw", 
-                        minHeight: 560,
-                        marginLeft: "calc((-100vw + 100%) / 2)", 
-                        marginRight: "calc((-100vw + 100%) / 2)",
-                        position: "relative",
-                        overflow: "hidden"
-                      }}
-                className="flex"
+            boxShadow: "none",
+            width: "100vw",
+            minHeight: 560,
+            marginLeft: "calc((-100vw + 100%) / 2)",
+            marginRight: "calc((-100vw + 100%) / 2)",
+            position: "relative",
+            overflow: "hidden"
+          }}
+            className="flex"
           >
-          <BlurBig sx={{position: "absolute", left: "-20%"}} className="pointer-events-none" />
-          <BlurBig sx={{position: "absolute", right: "-15%"}} className="pointer-events-none" />
-          <Container maxWidth="lg" className="m-auto">
-            <Grid container spacing={2} alignItems={"center"}>
-              <Grid item xs={12}>
-                <form action="/data/processed/search" method="GET">
-                  <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
-                    <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
-                    <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography>
-                    <SearchField q="" error={searchParams.error} width={'544px'}/>
-                    <Typography variant="stats_sub">
-                      Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
-                        {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
-                          <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
-                        ))}
-                      </Stack>
-                    </Typography>
-                    <div className="flex align-center space-x-10">
-                      <Link href="/data/processed/search/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
-                      <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
-                    </div>
-                  </Stack>
-                </form>
+            <BlurBig sx={{ position: "absolute", left: "-20%" }} className="pointer-events-none" />
+            <BlurBig sx={{ position: "absolute", right: "-15%" }} className="pointer-events-none" />
+            <Container maxWidth="lg" className="m-auto">
+              <Grid container spacing={2} alignItems={"center"}>
+                <Grid item xs={12}>
+                  <form action="/data/processed/search" method="GET">
+                    <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
+                      <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
+                      {/* <Typography color="secondary" className="text-center" sx={{fontSize: 20}} variant="body1">Search Common Fund Programs' Metadata and Processed Datasets.</Typography> */}
+
+                      <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">
+                        Search Common Fund Programs'&nbsp;
+                        <CustomTooltip
+                          title="C2M2 model information"
+                          imgSrc="/img/C2M2_NEO4J_level0.jpg"
+                          imgAlt="Crosscut Metadata (C2M2)"
+                          text="The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. Click to find more about C2M2.">
+                          <Link href="/info/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
+                            Metadata
+                          </Link>
+                        </CustomTooltip>
+                        &nbsp;and&nbsp; 
+                        <CustomTooltip
+                          title="Processed data information"
+                          imgSrc="/img/Processed_Data_Matrix_Tooltip.JPG"
+                          imgAlt="Processed Datasets"
+                          text="Processed data includes C2M2 metadata data packages, gene and other entity set libraries (XMTs), knowledge graph (KG) assertions, and attribute tables. Click to find more about processed datasets.">
+                          <Link href="/data/matrix" key="Processed" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
+                            Processed Datasets
+                          </Link>
+                        </CustomTooltip>.
+                      </Typography>
+
+                      <SearchField q="" error={searchParams.error} width={'544px'} />
+                      <Typography variant="stats_sub">
+                        Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
+                          {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                            <Link key={example} href={`/data/processed/search?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                          ))}
+                        </Stack>
+                      </Typography>
+                      <div className="flex align-center space-x-10">
+                        <Link href="/data/processed/search/help"><Button sx={{ textTransform: 'uppercase' }} color="secondary">Learn More</Button></Link>
+                        <Button sx={{ textTransform: 'uppercase' }} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1} />} type="submit">Search</Button>
+                      </div>
+                    </Stack>
+                  </form>
+                </Grid>
               </Grid>
-            </Grid>
-          </Container>
+            </Container>
           </Paper>
         </Grid>
         <Grid item xs={12} sx={{ my: 8 }}>
@@ -244,5 +295,5 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
         </Grid>
       </Grid>
     </main>
-  )
+  );
 }

@@ -1,0 +1,1683 @@
+------------ dcc_short_labels:['4DN', 'ERCC', 'GTEx', 'GlyGen', 'HMP', 'HuBMAP', 'IDG', 'KidsFirst', 'LINCS', 'Metabolomics', 'MoTrPAC', 'SPARC']
+********** DCC name (dcc_short_label) specified as an argument: HuBMAP; will use schema_name: hubmap, so, will ingest only from that DCC.
+DROP SCHEMA IF EXISTS hubmap CASCADE;
+Creating hubmap
+=================== table_name: file ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: size_in_bytes: information read ----
+---- Column name: uncompressed_size_in_bytes: information read ----
+---- Column name: sha256: information read ----
+---- Column name: md5: information read ----
+---- Column name: filename: information read ----
+---- Column name: file_format: information read ----
+---- Column name: compression_format: information read ----
+---- Column name: data_type: information read ----
+---- Column name: assay_type: information read ----
+---- Column name: analysis_type: information read ----
+---- Column name: mime_type: information read ----
+---- Column name: bundle_collection_id_namespace: information read ----
+---- Column name: bundle_collection_local_id: information read ----
+---- Column name: dbgap_study_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.file (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+size_in_bytes VARCHAR DEFAULT '', 
+uncompressed_size_in_bytes VARCHAR DEFAULT '', 
+sha256 VARCHAR DEFAULT '', 
+md5 VARCHAR DEFAULT '', 
+filename VARCHAR NOT NULL, 
+file_format VARCHAR DEFAULT '', 
+compression_format VARCHAR DEFAULT '', 
+data_type VARCHAR DEFAULT '', 
+assay_type VARCHAR DEFAULT '', 
+analysis_type VARCHAR DEFAULT '', 
+mime_type VARCHAR DEFAULT '', 
+bundle_collection_id_namespace VARCHAR DEFAULT '', 
+bundle_collection_local_id VARCHAR DEFAULT '', 
+dbgap_study_id VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: biosample ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: sample_prep_method: information read ----
+---- Column name: anatomy: information read ----
+create_table_query:
+CREATE TABLE hubmap.biosample (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+sample_prep_method VARCHAR DEFAULT '', 
+anatomy VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: subject ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: granularity: information read ----
+---- Column name: sex: information read ----
+---- Column name: ethnicity: information read ----
+---- Column name: age_at_enrollment: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+granularity VARCHAR NOT NULL, 
+sex VARCHAR DEFAULT '', 
+ethnicity VARCHAR DEFAULT '', 
+age_at_enrollment VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: dcc ===========================
+---- Column name: id: information read ----
+---- Column name: dcc_name: information read ----
+---- Column name: dcc_abbreviation: information read ----
+---- Column name: dcc_description: information read ----
+---- Column name: contact_email: information read ----
+---- Column name: contact_name: information read ----
+---- Column name: dcc_url: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.dcc (
+id VARCHAR NOT NULL, 
+dcc_name VARCHAR NOT NULL, 
+dcc_abbreviation VARCHAR NOT NULL, 
+dcc_description VARCHAR DEFAULT '', 
+contact_email VARCHAR NOT NULL, 
+contact_name VARCHAR NOT NULL, 
+dcc_url VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: project ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+create_table_query:
+CREATE TABLE hubmap.project (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: project_in_project ===========================
+---- Column name: parent_project_id_namespace: information read ----
+---- Column name: parent_project_local_id: information read ----
+---- Column name: child_project_id_namespace: information read ----
+---- Column name: child_project_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.project_in_project (
+parent_project_id_namespace VARCHAR NOT NULL, 
+parent_project_local_id VARCHAR NOT NULL, 
+child_project_id_namespace VARCHAR NOT NULL, 
+child_project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id)
+);
+=================== table_name: collection ===========================
+---- Column name: id_namespace: information read ----
+---- Column name: local_id: information read ----
+---- Column name: persistent_id: information read ----
+---- Column name: creation_time: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: has_time_series_data: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection (
+id_namespace VARCHAR NOT NULL, 
+local_id VARCHAR NOT NULL, 
+persistent_id VARCHAR DEFAULT '', 
+creation_time VARCHAR DEFAULT '', 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+has_time_series_data VARCHAR DEFAULT '',
+PRIMARY KEY(id_namespace, local_id)
+);
+=================== table_name: collection_in_collection ===========================
+---- Column name: superset_collection_id_namespace: information read ----
+---- Column name: superset_collection_local_id: information read ----
+---- Column name: subset_collection_id_namespace: information read ----
+---- Column name: subset_collection_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_in_collection (
+superset_collection_id_namespace VARCHAR NOT NULL, 
+superset_collection_local_id VARCHAR NOT NULL, 
+subset_collection_id_namespace VARCHAR NOT NULL, 
+subset_collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(superset_collection_id_namespace, superset_collection_local_id, subset_collection_id_namespace, subset_collection_local_id)
+);
+=================== table_name: file_describes_collection ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.file_describes_collection (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: collection_defined_by_project ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: project_id_namespace: information read ----
+---- Column name: project_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_defined_by_project (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+project_id_namespace VARCHAR NOT NULL, 
+project_local_id VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, project_id_namespace, project_local_id)
+);
+=================== table_name: file_in_collection ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.file_in_collection (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: biosample_in_collection ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.biosample_in_collection (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: subject_in_collection ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject_in_collection (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id)
+);
+=================== table_name: file_describes_biosample ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.file_describes_biosample (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id)
+);
+=================== table_name: file_describes_subject ===========================
+---- Column name: file_id_namespace: information read ----
+---- Column name: file_local_id: information read ----
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.file_describes_subject (
+file_id_namespace VARCHAR NOT NULL, 
+file_local_id VARCHAR NOT NULL, 
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL,
+PRIMARY KEY(file_id_namespace, file_local_id, subject_id_namespace, subject_local_id)
+);
+=================== table_name: biosample_from_subject ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: age_at_sampling: information read ----
+create_table_query:
+CREATE TABLE hubmap.biosample_from_subject (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+age_at_sampling VARCHAR DEFAULT '',
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, subject_id_namespace, subject_local_id)
+);
+=================== table_name: biosample_disease ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE hubmap.biosample_disease (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, association_type, disease)
+);
+=================== table_name: subject_disease ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject_disease (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, association_type, disease)
+);
+=================== table_name: collection_disease ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_disease (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, disease)
+);
+=================== table_name: collection_phenotype ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: phenotype: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_phenotype (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+phenotype VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, phenotype)
+);
+=================== table_name: collection_gene ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_gene (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, gene)
+);
+=================== table_name: collection_compound ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: compound: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_compound (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+compound VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, compound)
+);
+=================== table_name: collection_substance ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_substance (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, substance)
+);
+=================== table_name: collection_taxonomy ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: taxon: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_taxonomy (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+taxon VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, taxon)
+);
+=================== table_name: collection_anatomy ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: anatomy: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_anatomy (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+anatomy VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, anatomy)
+);
+=================== table_name: collection_protein ===========================
+---- Column name: collection_id_namespace: information read ----
+---- Column name: collection_local_id: information read ----
+---- Column name: protein: information read ----
+create_table_query:
+CREATE TABLE hubmap.collection_protein (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+protein VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, protein)
+);
+=================== table_name: subject_phenotype ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: association_type: information read ----
+---- Column name: phenotype: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject_phenotype (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+association_type VARCHAR NOT NULL, 
+phenotype VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, association_type, phenotype)
+);
+=================== table_name: biosample_substance ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE hubmap.biosample_substance (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, substance)
+);
+=================== table_name: subject_substance ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: substance: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject_substance (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+substance VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, substance)
+);
+=================== table_name: biosample_gene ===========================
+---- Column name: biosample_id_namespace: information read ----
+---- Column name: biosample_local_id: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE hubmap.biosample_gene (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, gene)
+);
+=================== table_name: phenotype_gene ===========================
+---- Column name: phenotype: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE hubmap.phenotype_gene (
+phenotype VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(phenotype, gene)
+);
+=================== table_name: phenotype_disease ===========================
+---- Column name: phenotype: information read ----
+---- Column name: disease: information read ----
+create_table_query:
+CREATE TABLE hubmap.phenotype_disease (
+phenotype VARCHAR NOT NULL, 
+disease VARCHAR NOT NULL,
+PRIMARY KEY(phenotype, disease)
+);
+=================== table_name: subject_race ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: race: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject_race (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+race VARCHAR DEFAULT '',
+PRIMARY KEY(subject_id_namespace, subject_local_id, race)
+);
+=================== table_name: subject_role_taxonomy ===========================
+---- Column name: subject_id_namespace: information read ----
+---- Column name: subject_local_id: information read ----
+---- Column name: role_id: information read ----
+---- Column name: taxonomy_id: information read ----
+create_table_query:
+CREATE TABLE hubmap.subject_role_taxonomy (
+subject_id_namespace VARCHAR NOT NULL, 
+subject_local_id VARCHAR NOT NULL, 
+role_id VARCHAR NOT NULL, 
+taxonomy_id VARCHAR NOT NULL,
+PRIMARY KEY(subject_id_namespace, subject_local_id, role_id, taxonomy_id)
+);
+=================== table_name: assay_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.assay_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: analysis_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.analysis_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: ncbi_taxonomy ===========================
+---- Column name: id: information read ----
+---- Column name: clade: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.ncbi_taxonomy (
+id VARCHAR NOT NULL, 
+clade VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: anatomy ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.anatomy (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: file_format ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.file_format (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: data_type ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.data_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: disease ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.disease (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: phenotype ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.phenotype (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: compound ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.compound (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: substance ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: compound: information read ----
+create_table_query:
+CREATE TABLE hubmap.substance (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+compound VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: gene ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: organism: information read ----
+create_table_query:
+CREATE TABLE hubmap.gene (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+organism VARCHAR NOT NULL,
+PRIMARY KEY(id)
+);
+=================== table_name: protein ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+---- Column name: organism: information read ----
+create_table_query:
+CREATE TABLE hubmap.protein (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '', 
+organism VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: protein_gene ===========================
+---- Column name: protein: information read ----
+---- Column name: gene: information read ----
+create_table_query:
+CREATE TABLE hubmap.protein_gene (
+protein VARCHAR NOT NULL, 
+gene VARCHAR NOT NULL,
+PRIMARY KEY(protein, gene)
+);
+=================== table_name: sample_prep_method ===========================
+---- Column name: id: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+---- Column name: synonyms: information read ----
+create_table_query:
+CREATE TABLE hubmap.sample_prep_method (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+=================== table_name: id_namespace ===========================
+---- Column name: id: information read ----
+---- Column name: abbreviation: information read ----
+---- Column name: name: information read ----
+---- Column name: description: information read ----
+create_table_query:
+CREATE TABLE hubmap.id_namespace (
+id VARCHAR NOT NULL, 
+abbreviation VARCHAR DEFAULT '', 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+================== Defined all tables ======================
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: 2.0686488151550293 seconds.
+
+Names of all tables:
+['file', 'biosample', 'subject', 'dcc', 'project', 'project_in_project', 'collection', 'collection_in_collection', 'file_describes_collection', 'collection_defined_by_project', 'file_in_collection', 'biosample_in_collection', 'subject_in_collection', 'file_describes_biosample', 'file_describes_subject', 'biosample_from_subject', 'biosample_disease', 'subject_disease', 'collection_disease', 'collection_phenotype', 'collection_gene', 'collection_compound', 'collection_substance', 'collection_taxonomy', 'collection_anatomy', 'collection_protein', 'subject_phenotype', 'biosample_substance', 'subject_substance', 'biosample_gene', 'phenotype_gene', 'phenotype_disease', 'subject_race', 'subject_role_taxonomy', 'assay_type', 'analysis_type', 'ncbi_taxonomy', 'anatomy', 'file_format', 'data_type', 'disease', 'phenotype', 'compound', 'substance', 'gene', 'protein', 'protein_gene', 'sample_prep_method', 'id_namespace']
+
+Going to ingest metadata from files
+
+
+********* c2m2s dataframe, before checking if a single DCC is to be processed, is: **********
+    filetype  ... dcc_short_label
+30      C2M2  ...             4DN
+31      C2M2  ...    Metabolomics
+32      C2M2  ...          GlyGen
+33      C2M2  ...          HuBMAP
+34      C2M2  ...       KidsFirst
+35      C2M2  ...           SPARC
+74      C2M2  ...            ERCC
+81      C2M2  ...         MoTrPAC
+93      C2M2  ...            GTEx
+107     C2M2  ...             HMP
+123     C2M2  ...             IDG
+146     C2M2  ...           LINCS
+
+[12 rows x 14 columns]
+
+********* c2m2s dataframe is: **********
+   filetype        filename  ...                  created  dcc_short_label
+33     C2M2  submission.zip  ...  2024-06-13 19:27:22.387           HuBMAP
+
+[1 rows x 14 columns]
+Processing C2M2 Files...:   0%|          | 0/1 [00:00<?, ?it/s]
+================================== DCC short label: HuBMAP =============================================
+Unpack zip file: c2m2_extract_path: ingest/c2m2s/HuBMAP/submission
+--------- ingest/c2m2s/HuBMAP/submission/submission/dcc.tsv ---------
+table_name:dcc
+HuBMAP: dcc: Read from file: df: #rows = 1, #cols: 9
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/dcc.tsv: 2
+df: #rows = 1, #cols: 9
+pKeys: ['id']
+*** Entering dcc to database ***
+df: #rows = 1, #cols: 9
+
+A slice of df:
+                         id  ...                          contact_email
+0  cfde_registry_dcc:hubmap  ...  cfde-submissions@hubmapconsortium.org
+
+[1 rows x 5 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1284630298614502 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection.tsv ---------
+table_name:collection
+HuBMAP: collection: Read from file: df: #rows = 1327, #cols: 8
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection.tsv: 1328
+df: #rows = 1327, #cols: 8
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering collection to database ***
+df: #rows = 1327, #cols: 8
+
+A slice of df:
+                     id_namespace  ... abbreviation
+0  tag:hubmapconsortium.org,2023:  ...          NaN
+1  tag:hubmapconsortium.org,2023:  ...          NaN
+2  tag:hubmapconsortium.org,2023:  ...          NaN
+3  tag:hubmapconsortium.org,2023:  ...          NaN
+4  tag:hubmapconsortium.org,2023:  ...          NaN
+5  tag:hubmapconsortium.org,2023:  ...          NaN
+6  tag:hubmapconsortium.org,2023:  ...          NaN
+7  tag:hubmapconsortium.org,2023:  ...          NaN
+8  tag:hubmapconsortium.org,2023:  ...          NaN
+9  tag:hubmapconsortium.org,2023:  ...          NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1327
+count:1327
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.13169312477111816 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject.tsv ---------
+table_name:subject
+HuBMAP: subject: Read from file: df: #rows = 206, #cols: 10
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject.tsv: 207
+df: #rows = 206, #cols: 10
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering subject to database ***
+df: #rows = 206, #cols: 10
+
+A slice of df:
+                     id_namespace  ... persistent_id
+0  tag:hubmapconsortium.org,2023:  ...           NaN
+1  tag:hubmapconsortium.org,2023:  ...           NaN
+2  tag:hubmapconsortium.org,2023:  ...           NaN
+3  tag:hubmapconsortium.org,2023:  ...           NaN
+4  tag:hubmapconsortium.org,2023:  ...           NaN
+5  tag:hubmapconsortium.org,2023:  ...           NaN
+6  tag:hubmapconsortium.org,2023:  ...           NaN
+7  tag:hubmapconsortium.org,2023:  ...           NaN
+8  tag:hubmapconsortium.org,2023:  ...           NaN
+9  tag:hubmapconsortium.org,2023:  ...           NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0    206
+count:206
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09253573417663574 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/file_format.tsv ---------
+table_name:file_format
+HuBMAP: file_format: Read from file: df: #rows = 14, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_format.tsv: 15
+df: #rows = 14, #cols: 4
+pKeys: ['id']
+*** Entering file_format to database ***
+df: #rows = 14, #cols: 4
+
+A slice of df:
+            id  ...                                  synonyms
+0  format:2330  ...               ["Plain text format","txt"]
+1  format:2332  ...            ["eXtensible Markup Language"]
+2  format:3464  ...            ["JavaScript Object Notation"]
+3  format:3475  ...  ["Tab-delimited","Tab-separated values"]
+4  format:3508  ...                                        []
+5  format:3579  ...                           ["JPEG","jpeg"]
+6  format:3591  ...                                  ["tiff"]
+7  format:3620  ...                                        []
+8  format:3727  ...                                        []
+9  format:3752  ...                ["Comma-separated values"]
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07881832122802734 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject_substance.tsv ---------
+table_name:subject_substance
+HuBMAP: subject_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033034563064575195 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/biosample_in_collection.tsv ---------
+table_name:biosample_in_collection
+HuBMAP: biosample_in_collection: Read from file: df: #rows = 1327, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_in_collection.tsv: 1328
+df: #rows = 1327, #cols: 4
+pKeys: ['biosample_id_namespace', 'biosample_local_id', 'collection_id_namespace', 'collection_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample_in_collection to database ***
+df: #rows = 1327, #cols: 4
+
+A slice of df:
+           biosample_id_namespace  ... collection_local_id
+0  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+1  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+2  tag:hubmapconsortium.org,2023:  ...     HBM987.XGTH.368
+3  tag:hubmapconsortium.org,2023:  ...     HBM982.TTRB.258
+4  tag:hubmapconsortium.org,2023:  ...     HBM569.NBHZ.832
+5  tag:hubmapconsortium.org,2023:  ...     HBM297.MZZX.824
+6  tag:hubmapconsortium.org,2023:  ...     HBM784.HQQK.452
+7  tag:hubmapconsortium.org,2023:  ...     HBM467.RVKV.883
+8  tag:hubmapconsortium.org,2023:  ...     HBM674.JTXW.676
+9  tag:hubmapconsortium.org,2023:  ...     HBM439.WKBL.739
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1327
+count:1327
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10901761054992676 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_disease.tsv ---------
+table_name:collection_disease
+HuBMAP: collection_disease: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03424668312072754 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/file_describes_collection.tsv ---------
+table_name:file_describes_collection
+HuBMAP: file_describes_collection: Read from file: df: #rows = 1625, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_describes_collection.tsv: 1626
+df: #rows = 1625, #cols: 4
+pKeys: ['file_id_namespace', 'file_local_id', 'collection_id_namespace', 'collection_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file_describes_collection to database ***
+df: #rows = 1625, #cols: 4
+
+A slice of df:
+                file_id_namespace  ... collection_local_id
+0  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+1  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+2  tag:hubmapconsortium.org,2023:  ...     HBM987.XGTH.368
+3  tag:hubmapconsortium.org,2023:  ...     HBM982.TTRB.258
+4  tag:hubmapconsortium.org,2023:  ...     HBM569.NBHZ.832
+5  tag:hubmapconsortium.org,2023:  ...     HBM297.MZZX.824
+6  tag:hubmapconsortium.org,2023:  ...     HBM784.HQQK.452
+7  tag:hubmapconsortium.org,2023:  ...     HBM467.RVKV.883
+8  tag:hubmapconsortium.org,2023:  ...     HBM674.JTXW.676
+9  tag:hubmapconsortium.org,2023:  ...     HBM439.WKBL.739
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1625
+count:1625
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.1167292594909668 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/ncbi_taxonomy.tsv ---------
+table_name:ncbi_taxonomy
+HuBMAP: ncbi_taxonomy: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/ncbi_taxonomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.034188270568847656 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_substance.tsv ---------
+table_name:collection_substance
+HuBMAP: collection_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03481268882751465 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject_in_collection.tsv ---------
+table_name:subject_in_collection
+HuBMAP: subject_in_collection: Read from file: df: #rows = 1327, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_in_collection.tsv: 1328
+df: #rows = 1327, #cols: 4
+pKeys: ['subject_id_namespace', 'subject_local_id', 'collection_id_namespace', 'collection_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering subject_in_collection to database ***
+df: #rows = 1327, #cols: 4
+
+A slice of df:
+             subject_id_namespace  ... collection_local_id
+0  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+1  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+2  tag:hubmapconsortium.org,2023:  ...     HBM987.XGTH.368
+3  tag:hubmapconsortium.org,2023:  ...     HBM982.TTRB.258
+4  tag:hubmapconsortium.org,2023:  ...     HBM569.NBHZ.832
+5  tag:hubmapconsortium.org,2023:  ...     HBM297.MZZX.824
+6  tag:hubmapconsortium.org,2023:  ...     HBM784.HQQK.452
+7  tag:hubmapconsortium.org,2023:  ...     HBM467.RVKV.883
+8  tag:hubmapconsortium.org,2023:  ...     HBM674.JTXW.676
+9  tag:hubmapconsortium.org,2023:  ...     HBM439.WKBL.739
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1327
+count:1327
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.10932755470275879 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject_race.tsv ---------
+table_name:subject_race
+HuBMAP: subject_race: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_race.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03410673141479492 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_compound.tsv ---------
+table_name:collection_compound
+HuBMAP: collection_compound: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_compound.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033601999282836914 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/biosample_from_subject.tsv ---------
+table_name:biosample_from_subject
+HuBMAP: biosample_from_subject: Read from file: df: #rows = 644, #cols: 5
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_from_subject.tsv: 645
+df: #rows = 644, #cols: 5
+pKeys: ['biosample_id_namespace', 'biosample_local_id', 'subject_id_namespace', 'subject_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample_from_subject to database ***
+df: #rows = 644, #cols: 5
+
+A slice of df:
+           biosample_id_namespace  ... age_at_sampling
+0  tag:hubmapconsortium.org,2023:  ...             NaN
+1  tag:hubmapconsortium.org,2023:  ...             NaN
+2  tag:hubmapconsortium.org,2023:  ...             NaN
+3  tag:hubmapconsortium.org,2023:  ...             NaN
+4  tag:hubmapconsortium.org,2023:  ...             NaN
+5  tag:hubmapconsortium.org,2023:  ...             NaN
+6  tag:hubmapconsortium.org,2023:  ...             NaN
+7  tag:hubmapconsortium.org,2023:  ...             NaN
+8  tag:hubmapconsortium.org,2023:  ...             NaN
+9  tag:hubmapconsortium.org,2023:  ...             NaN
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0    644
+count:644
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09496712684631348 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/substance.tsv ---------
+table_name:substance
+HuBMAP: substance: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033019304275512695 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/file_describes_subject.tsv ---------
+table_name:file_describes_subject
+HuBMAP: file_describes_subject: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_describes_subject.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.033754825592041016 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_in_collection.tsv ---------
+table_name:collection_in_collection
+HuBMAP: collection_in_collection: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_in_collection.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03316664695739746 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/id_namespace.tsv ---------
+table_name:id_namespace
+HuBMAP: id_namespace: Read from file: df: #rows = 1, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/id_namespace.tsv: 2
+df: #rows = 1, #cols: 4
+pKeys: ['id']
+*** Entering id_namespace to database ***
+df: #rows = 1, #cols: 4
+
+A slice of df:
+                               id  ...                       description
+0  tag:hubmapconsortium.org,2023:  ...  Human BioMolecular Atlas Program
+
+[1 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.07946538925170898 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/biosample_substance.tsv ---------
+table_name:biosample_substance
+HuBMAP: biosample_substance: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_substance.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03337287902832031 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/project.tsv ---------
+table_name:project
+HuBMAP: project: Read from file: df: #rows = 13, #cols: 7
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/project.tsv: 14
+df: #rows = 13, #cols: 7
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering project to database ***
+df: #rows = 13, #cols: 7
+
+A slice of df:
+                     id_namespace  ...                            abbreviation
+0  tag:hubmapconsortium.org,2023:  ...                                  HuBMAP
+1  tag:hubmapconsortium.org,2023:  ...  University_of_California_San_Diego_TMC
+2  tag:hubmapconsortium.org,2023:  ...                            Stanford_TMC
+3  tag:hubmapconsortium.org,2023:  ...               University_of_Florida_TMC
+4  tag:hubmapconsortium.org,2023:  ...                          Vanderbilt_TMC
+5  tag:hubmapconsortium.org,2023:  ...                            Stanford_RTI
+6  tag:hubmapconsortium.org,2023:  ...  California_Institute_of_Technology_TMC
+7  tag:hubmapconsortium.org,2023:  ...                    EXT_Human_Cell_Atlas
+8  tag:hubmapconsortium.org,2023:  ...                    General_Electric_RTI
+9  tag:hubmapconsortium.org,2023:  ...                              Purdue_TTD
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0     13
+count:13
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.09460186958312988 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/phenotype_gene.tsv ---------
+table_name:phenotype_gene
+HuBMAP: phenotype_gene: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/phenotype_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.03286933898925781 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/file_in_collection.tsv ---------
+table_name:file_in_collection
+HuBMAP: file_in_collection: Read from file: df: #rows = 9465531, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_in_collection.tsv: 9465532
+df: #rows = 9465531, #cols: 4
+pKeys: ['file_id_namespace', 'file_local_id', 'collection_id_namespace', 'collection_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file_in_collection to database ***
+df: #rows = 9465531, #cols: 4
+
+A slice of df:
+                file_id_namespace  ... collection_local_id
+0  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+1  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+2  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+3  tag:hubmapconsortium.org,2023:  ...     HBM426.HLCN.236
+4  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+5  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+6  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+7  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+8  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+9  tag:hubmapconsortium.org,2023:  ...     HBM679.NNNK.283
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:      count
+0  9465531
+count:9465531
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 331.99068546295166 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/file_describes_biosample.tsv ---------
+table_name:file_describes_biosample
+HuBMAP: file_describes_biosample: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/file_describes_biosample.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.2580833435058594 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/file.tsv ---------
+table_name:file
+HuBMAP: file: Read from file: df: #rows = 9465531, #cols: 20
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/file.tsv: 9465532
+df: #rows = 9465531, #cols: 20
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering file to database ***
+df: #rows = 9465531, #cols: 20
+
+A slice of df:
+                     id_namespace  ...                                      persistent_id
+0  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+1  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+2  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+3  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+4  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+5  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+6  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+7  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+8  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+9  tag:hubmapconsortium.org,2023:  ...  http://hubmap-drs.hubmapconsortium.org/v1/obje...
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:      count
+0  9465531
+count:9465531
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 679.1629912853241 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_anatomy.tsv ---------
+table_name:collection_anatomy
+HuBMAP: collection_anatomy: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_anatomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 1.8212950229644775 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/phenotype.tsv ---------
+table_name:phenotype
+HuBMAP: phenotype: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8050053119659424 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/protein_gene.tsv ---------
+table_name:protein_gene
+HuBMAP: protein_gene: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/protein_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7782328128814697 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/data_type.tsv ---------
+table_name:data_type
+HuBMAP: data_type: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/data_type.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7380247116088867 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/anatomy.tsv ---------
+table_name:anatomy
+HuBMAP: anatomy: Read from file: df: #rows = 16, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/anatomy.tsv: 17
+df: #rows = 16, #cols: 4
+pKeys: ['id']
+*** Entering anatomy to database ***
+df: #rows = 16, #cols: 4
+
+A slice of df:
+               id  ...                                 synonyms
+0  UBERON:0000029  ...                                       []
+1  UBERON:0000059  ...                                       []
+2  UBERON:0000178  ...  ["portion of blood","vertebrate blood"]
+3  UBERON:0000948  ...   ["chambered heart","vertebrate heart"]
+4  UBERON:0000995  ...                                       []
+5  UBERON:0001255  ...            ["bladder","vesica urinaria"]
+6  UBERON:0001264  ...                                       []
+7  UBERON:0001465  ...                          ["knee region"]
+8  UBERON:0002097  ...             ["entire skin","skin organ"]
+9  UBERON:0002106  ...                                       []
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8379952907562256 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/biosample_disease.tsv ---------
+table_name:biosample_disease
+HuBMAP: biosample_disease: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.800119161605835 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/sample_prep_method.tsv ---------
+table_name:sample_prep_method
+HuBMAP: sample_prep_method: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/sample_prep_method.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8117611408233643 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/biosample.tsv ---------
+table_name:biosample
+HuBMAP: biosample: Read from file: df: #rows = 644, #cols: 8
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample.tsv: 645
+df: #rows = 644, #cols: 8
+pKeys: ['id_namespace', 'local_id']
+Going to write the count query
+Wrote the count query
+*** Entering biosample to database ***
+df: #rows = 644, #cols: 8
+
+A slice of df:
+                     id_namespace  ...                                      persistent_id
+0  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+1  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+2  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+3  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+4  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+5  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+6  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+7  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+8  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+9  tag:hubmapconsortium.org,2023:  ...  https://portal.hubmapconsortium.org/browse/sam...
+
+[10 rows x 5 columns]
+Data inserted successfully!
+sql_count_df:    count
+0    644
+count:644
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8390545845031738 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_phenotype.tsv ---------
+table_name:collection_phenotype
+HuBMAP: collection_phenotype: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8090732097625732 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/disease.tsv ---------
+table_name:disease
+HuBMAP: disease: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7944517135620117 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/compound.tsv ---------
+table_name:compound
+HuBMAP: compound: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/compound.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7320270538330078 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_taxonomy.tsv ---------
+table_name:collection_taxonomy
+HuBMAP: collection_taxonomy: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_taxonomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7193384170532227 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject_disease.tsv ---------
+table_name:subject_disease
+HuBMAP: subject_disease: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7483441829681396 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/assay_type.tsv ---------
+table_name:assay_type
+HuBMAP: assay_type: Read from file: df: #rows = 21, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/assay_type.tsv: 22
+df: #rows = 21, #cols: 4
+pKeys: ['id']
+*** Entering assay_type to database ***
+df: #rows = 21, #cols: 4
+
+A slice of df:
+            id  ...                                           synonyms
+0  OBI:0000470  ...                                                 []
+1  OBI:0001271  ...  ["transcription profiling by high throughput s...
+2  OBI:0001977  ...                                                 []
+3  OBI:0002117  ...                                            ["WGS"]
+4  OBI:0002631  ...                                      ["scRNA-seq"]
+5  OBI:0002762  ...                                     ["snATAC-seq"]
+6  OBI:0003087  ...                   ["intrinsic fluorescence assay"]
+7  OBI:0003089  ...                                  ["bulk ATAC-seq"]
+8  OBI:0003092  ...                                                 []
+9  OBI:0003093  ...                                          ["CODEX"]
+
+[10 rows x 4 columns]
+Data inserted successfully!
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8284485340118408 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/phenotype_disease.tsv ---------
+table_name:phenotype_disease
+HuBMAP: phenotype_disease: Read from file: df: #rows = 0, #cols: 2
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/phenotype_disease.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8044028282165527 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/protein.tsv ---------
+table_name:protein
+HuBMAP: protein: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/protein.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7697694301605225 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/project_in_project.tsv ---------
+table_name:project_in_project
+HuBMAP: project_in_project: Read from file: df: #rows = 12, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/project_in_project.tsv: 13
+df: #rows = 12, #cols: 4
+pKeys: ['parent_project_id_namespace', 'parent_project_local_id', 'child_project_id_namespace', 'child_project_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering project_in_project to database ***
+df: #rows = 12, #cols: 4
+
+A slice of df:
+      parent_project_id_namespace  ...                  child_project_local_id
+0  tag:hubmapconsortium.org,2023:  ...  University of California San Diego TMC
+1  tag:hubmapconsortium.org,2023:  ...                            Stanford TMC
+2  tag:hubmapconsortium.org,2023:  ...               University of Florida TMC
+3  tag:hubmapconsortium.org,2023:  ...                          Vanderbilt TMC
+4  tag:hubmapconsortium.org,2023:  ...                            Stanford RTI
+5  tag:hubmapconsortium.org,2023:  ...  California Institute of Technology TMC
+6  tag:hubmapconsortium.org,2023:  ...                    EXT Human Cell Atlas
+7  tag:hubmapconsortium.org,2023:  ...                    General Electric RTI
+8  tag:hubmapconsortium.org,2023:  ...                              Purdue TTD
+9  tag:hubmapconsortium.org,2023:  ...                     Broad Institute RTI
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0     12
+count:12
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.8126132488250732 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_gene.tsv ---------
+table_name:collection_gene
+HuBMAP: collection_gene: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7992641925811768 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject_role_taxonomy.tsv ---------
+table_name:subject_role_taxonomy
+HuBMAP: subject_role_taxonomy: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_role_taxonomy.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7207443714141846 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/subject_phenotype.tsv ---------
+table_name:subject_phenotype
+HuBMAP: subject_phenotype: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/subject_phenotype.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7588343620300293 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/gene.tsv ---------
+table_name:gene
+HuBMAP: gene: Read from file: df: #rows = 0, #cols: 5
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.7455556392669678 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/analysis_type.tsv ---------
+table_name:analysis_type
+HuBMAP: analysis_type: Read from file: df: #rows = 0, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/analysis_type.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6910660266876221 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/biosample_gene.tsv ---------
+table_name:biosample_gene
+HuBMAP: biosample_gene: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/biosample_gene.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6889238357543945 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_protein.tsv ---------
+table_name:collection_protein
+HuBMAP: collection_protein: Read from file: df: #rows = 0, #cols: 3
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_protein.tsv: 1
+>>>>>>>> Time taken to ingest the metadata from this file: 0.6616549491882324 seconds.
+
+--------- ingest/c2m2s/HuBMAP/submission/submission/collection_defined_by_project.tsv ---------
+table_name:collection_defined_by_project
+HuBMAP: collection_defined_by_project: Read from file: df: #rows = 1327, #cols: 4
+
+#Lines in file ingest/c2m2s/HuBMAP/submission/submission/collection_defined_by_project.tsv: 1328
+df: #rows = 1327, #cols: 4
+pKeys: ['collection_id_namespace', 'collection_local_id', 'project_id_namespace', 'project_local_id']
+Going to write the count query
+Wrote the count query
+*** Entering collection_defined_by_project to database ***
+df: #rows = 1327, #cols: 4
+
+Processing C2M2 Files...: 100%|██████████| 1/1 [18:01<00:00, 1081.07s/it]Processing C2M2 Files...: 100%|██████████| 1/1 [18:01<00:00, 1081.07s/it]
+A slice of df:
+          collection_id_namespace  ...                        project_local_id
+0  tag:hubmapconsortium.org,2023:  ...  University of California San Diego TMC
+1  tag:hubmapconsortium.org,2023:  ...                            Stanford TMC
+2  tag:hubmapconsortium.org,2023:  ...               University of Florida TMC
+3  tag:hubmapconsortium.org,2023:  ...  University of California San Diego TMC
+4  tag:hubmapconsortium.org,2023:  ...                            Stanford TMC
+5  tag:hubmapconsortium.org,2023:  ...                            Stanford TMC
+6  tag:hubmapconsortium.org,2023:  ...                          Vanderbilt TMC
+7  tag:hubmapconsortium.org,2023:  ...                            Stanford RTI
+8  tag:hubmapconsortium.org,2023:  ...  University of California San Diego TMC
+9  tag:hubmapconsortium.org,2023:  ...                            Stanford TMC
+
+[10 rows x 4 columns]
+Data inserted successfully!
+sql_count_df:    count
+0   1327
+count:1327
+>>> All good.
+>>>>>>>> Time taken to ingest the metadata from this file: 0.748098611831665 seconds.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to ingest the metadata from the files: 1081.091257572174 seconds.
+
+ ----------- Adding foreign key constraint for table file ----------
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES hubmap.id_namespace (id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_project_2;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_file_format_3;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_file_format_3 FOREIGN KEY (file_format) REFERENCES hubmap.file_format (id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_file_format_4;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_file_format_4 FOREIGN KEY (compression_format) REFERENCES hubmap.file_format (id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_data_type_5;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_data_type_5 FOREIGN KEY (data_type) REFERENCES hubmap.data_type (id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_assay_type_6;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_assay_type_6 FOREIGN KEY (assay_type) REFERENCES hubmap.assay_type (id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_analysis_type_7;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_analysis_type_7 FOREIGN KEY (analysis_type) REFERENCES hubmap.analysis_type (id);
+ALTER TABLE hubmap.file DROP CONSTRAINT IF EXISTS fk_file_collection_8;
+ALTER TABLE hubmap.file ADD CONSTRAINT  fk_file_collection_8 FOREIGN KEY (bundle_collection_id_namespace, bundle_collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample ----------
+ALTER TABLE hubmap.biosample DROP CONSTRAINT IF EXISTS fk_biosample_id_namespace_1;
+ALTER TABLE hubmap.biosample ADD CONSTRAINT  fk_biosample_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES hubmap.id_namespace (id);
+ALTER TABLE hubmap.biosample DROP CONSTRAINT IF EXISTS fk_biosample_project_2;
+ALTER TABLE hubmap.biosample ADD CONSTRAINT  fk_biosample_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ALTER TABLE hubmap.biosample DROP CONSTRAINT IF EXISTS fk_biosample_sample_prep_method_3;
+ALTER TABLE hubmap.biosample ADD CONSTRAINT  fk_biosample_sample_prep_method_3 FOREIGN KEY (sample_prep_method) REFERENCES hubmap.sample_prep_method (id);
+ALTER TABLE hubmap.biosample DROP CONSTRAINT IF EXISTS fk_biosample_anatomy_4;
+ALTER TABLE hubmap.biosample ADD CONSTRAINT  fk_biosample_anatomy_4 FOREIGN KEY (anatomy) REFERENCES hubmap.anatomy (id);
+ ----------- Adding foreign key constraint for table subject ----------
+ALTER TABLE hubmap.subject DROP CONSTRAINT IF EXISTS fk_subject_id_namespace_1;
+ALTER TABLE hubmap.subject ADD CONSTRAINT  fk_subject_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES hubmap.id_namespace (id);
+ALTER TABLE hubmap.subject DROP CONSTRAINT IF EXISTS fk_subject_project_2;
+ALTER TABLE hubmap.subject ADD CONSTRAINT  fk_subject_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table dcc ----------
+ALTER TABLE hubmap.dcc DROP CONSTRAINT IF EXISTS fk_dcc_project_1;
+ALTER TABLE hubmap.dcc ADD CONSTRAINT  fk_dcc_project_1 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table project ----------
+ALTER TABLE hubmap.project DROP CONSTRAINT IF EXISTS fk_project_id_namespace_1;
+ALTER TABLE hubmap.project ADD CONSTRAINT  fk_project_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES hubmap.id_namespace (id);
+ ----------- Adding foreign key constraint for table project_in_project ----------
+ALTER TABLE hubmap.project_in_project DROP CONSTRAINT IF EXISTS fk_project_in_project_project_1;
+ALTER TABLE hubmap.project_in_project ADD CONSTRAINT  fk_project_in_project_project_1 FOREIGN KEY (parent_project_id_namespace, parent_project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ALTER TABLE hubmap.project_in_project DROP CONSTRAINT IF EXISTS fk_project_in_project_project_2;
+ALTER TABLE hubmap.project_in_project ADD CONSTRAINT  fk_project_in_project_project_2 FOREIGN KEY (child_project_id_namespace, child_project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table collection ----------
+ALTER TABLE hubmap.collection DROP CONSTRAINT IF EXISTS fk_collection_id_namespace_1;
+ALTER TABLE hubmap.collection ADD CONSTRAINT  fk_collection_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES hubmap.id_namespace (id);
+ ----------- Adding foreign key constraint for table collection_in_collection ----------
+ALTER TABLE hubmap.collection_in_collection DROP CONSTRAINT IF EXISTS fk_collection_in_collection_collection_1;
+ALTER TABLE hubmap.collection_in_collection ADD CONSTRAINT  fk_collection_in_collection_collection_1 FOREIGN KEY (superset_collection_id_namespace, superset_collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_in_collection DROP CONSTRAINT IF EXISTS fk_collection_in_collection_collection_2;
+ALTER TABLE hubmap.collection_in_collection ADD CONSTRAINT  fk_collection_in_collection_collection_2 FOREIGN KEY (subset_collection_id_namespace, subset_collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_collection ----------
+ALTER TABLE hubmap.file_describes_collection DROP CONSTRAINT IF EXISTS fk_file_describes_collection_file_1;
+ALTER TABLE hubmap.file_describes_collection ADD CONSTRAINT  fk_file_describes_collection_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES hubmap.file (id_namespace, local_id);
+ALTER TABLE hubmap.file_describes_collection DROP CONSTRAINT IF EXISTS fk_file_describes_collection_collection_2;
+ALTER TABLE hubmap.file_describes_collection ADD CONSTRAINT  fk_file_describes_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table collection_defined_by_project ----------
+ALTER TABLE hubmap.collection_defined_by_project DROP CONSTRAINT IF EXISTS fk_collection_defined_by_project_collection_1;
+ALTER TABLE hubmap.collection_defined_by_project ADD CONSTRAINT  fk_collection_defined_by_project_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_defined_by_project DROP CONSTRAINT IF EXISTS fk_collection_defined_by_project_project_2;
+ALTER TABLE hubmap.collection_defined_by_project ADD CONSTRAINT  fk_collection_defined_by_project_project_2 FOREIGN KEY (project_id_namespace, project_local_id) REFERENCES hubmap.project (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_in_collection ----------
+ALTER TABLE hubmap.file_in_collection DROP CONSTRAINT IF EXISTS fk_file_in_collection_file_1;
+ALTER TABLE hubmap.file_in_collection ADD CONSTRAINT  fk_file_in_collection_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES hubmap.file (id_namespace, local_id);
+ALTER TABLE hubmap.file_in_collection DROP CONSTRAINT IF EXISTS fk_file_in_collection_collection_2;
+ALTER TABLE hubmap.file_in_collection ADD CONSTRAINT  fk_file_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_in_collection ----------
+ALTER TABLE hubmap.biosample_in_collection DROP CONSTRAINT IF EXISTS fk_biosample_in_collection_biosample_1;
+ALTER TABLE hubmap.biosample_in_collection ADD CONSTRAINT  fk_biosample_in_collection_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES hubmap.biosample (id_namespace, local_id);
+ALTER TABLE hubmap.biosample_in_collection DROP CONSTRAINT IF EXISTS fk_biosample_in_collection_collection_2;
+ALTER TABLE hubmap.biosample_in_collection ADD CONSTRAINT  fk_biosample_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table subject_in_collection ----------
+ALTER TABLE hubmap.subject_in_collection DROP CONSTRAINT IF EXISTS fk_subject_in_collection_subject_1;
+ALTER TABLE hubmap.subject_in_collection ADD CONSTRAINT  fk_subject_in_collection_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ALTER TABLE hubmap.subject_in_collection DROP CONSTRAINT IF EXISTS fk_subject_in_collection_collection_2;
+ALTER TABLE hubmap.subject_in_collection ADD CONSTRAINT  fk_subject_in_collection_collection_2 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_biosample ----------
+ALTER TABLE hubmap.file_describes_biosample DROP CONSTRAINT IF EXISTS fk_file_describes_biosample_file_1;
+ALTER TABLE hubmap.file_describes_biosample ADD CONSTRAINT  fk_file_describes_biosample_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES hubmap.file (id_namespace, local_id);
+ALTER TABLE hubmap.file_describes_biosample DROP CONSTRAINT IF EXISTS fk_file_describes_biosample_biosample_2;
+ALTER TABLE hubmap.file_describes_biosample ADD CONSTRAINT  fk_file_describes_biosample_biosample_2 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES hubmap.biosample (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table file_describes_subject ----------
+ALTER TABLE hubmap.file_describes_subject DROP CONSTRAINT IF EXISTS fk_file_describes_subject_file_1;
+ALTER TABLE hubmap.file_describes_subject ADD CONSTRAINT  fk_file_describes_subject_file_1 FOREIGN KEY (file_id_namespace, file_local_id) REFERENCES hubmap.file (id_namespace, local_id);
+ALTER TABLE hubmap.file_describes_subject DROP CONSTRAINT IF EXISTS fk_file_describes_subject_subject_2;
+ALTER TABLE hubmap.file_describes_subject ADD CONSTRAINT  fk_file_describes_subject_subject_2 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_from_subject ----------
+ALTER TABLE hubmap.biosample_from_subject DROP CONSTRAINT IF EXISTS fk_biosample_from_subject_biosample_1;
+ALTER TABLE hubmap.biosample_from_subject ADD CONSTRAINT  fk_biosample_from_subject_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES hubmap.biosample (id_namespace, local_id);
+ALTER TABLE hubmap.biosample_from_subject DROP CONSTRAINT IF EXISTS fk_biosample_from_subject_subject_2;
+ALTER TABLE hubmap.biosample_from_subject ADD CONSTRAINT  fk_biosample_from_subject_subject_2 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table biosample_disease ----------
+ALTER TABLE hubmap.biosample_disease DROP CONSTRAINT IF EXISTS fk_biosample_disease_biosample_1;
+ALTER TABLE hubmap.biosample_disease ADD CONSTRAINT  fk_biosample_disease_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES hubmap.biosample (id_namespace, local_id);
+ALTER TABLE hubmap.biosample_disease DROP CONSTRAINT IF EXISTS fk_biosample_disease_disease_2;
+ALTER TABLE hubmap.biosample_disease ADD CONSTRAINT  fk_biosample_disease_disease_2 FOREIGN KEY (disease) REFERENCES hubmap.disease (id);
+ ----------- Adding foreign key constraint for table subject_disease ----------
+ALTER TABLE hubmap.subject_disease DROP CONSTRAINT IF EXISTS fk_subject_disease_subject_1;
+ALTER TABLE hubmap.subject_disease ADD CONSTRAINT  fk_subject_disease_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ALTER TABLE hubmap.subject_disease DROP CONSTRAINT IF EXISTS fk_subject_disease_disease_2;
+ALTER TABLE hubmap.subject_disease ADD CONSTRAINT  fk_subject_disease_disease_2 FOREIGN KEY (disease) REFERENCES hubmap.disease (id);
+ ----------- Adding foreign key constraint for table collection_disease ----------
+ALTER TABLE hubmap.collection_disease DROP CONSTRAINT IF EXISTS fk_collection_disease_collection_1;
+ALTER TABLE hubmap.collection_disease ADD CONSTRAINT  fk_collection_disease_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_disease DROP CONSTRAINT IF EXISTS fk_collection_disease_disease_2;
+ALTER TABLE hubmap.collection_disease ADD CONSTRAINT  fk_collection_disease_disease_2 FOREIGN KEY (disease) REFERENCES hubmap.disease (id);
+ ----------- Adding foreign key constraint for table collection_phenotype ----------
+ALTER TABLE hubmap.collection_phenotype DROP CONSTRAINT IF EXISTS fk_collection_phenotype_collection_1;
+ALTER TABLE hubmap.collection_phenotype ADD CONSTRAINT  fk_collection_phenotype_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_phenotype DROP CONSTRAINT IF EXISTS fk_collection_phenotype_phenotype_2;
+ALTER TABLE hubmap.collection_phenotype ADD CONSTRAINT  fk_collection_phenotype_phenotype_2 FOREIGN KEY (phenotype) REFERENCES hubmap.phenotype (id);
+ ----------- Adding foreign key constraint for table collection_gene ----------
+ALTER TABLE hubmap.collection_gene DROP CONSTRAINT IF EXISTS fk_collection_gene_collection_1;
+ALTER TABLE hubmap.collection_gene ADD CONSTRAINT  fk_collection_gene_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_gene DROP CONSTRAINT IF EXISTS fk_collection_gene_gene_2;
+ALTER TABLE hubmap.collection_gene ADD CONSTRAINT  fk_collection_gene_gene_2 FOREIGN KEY (gene) REFERENCES hubmap.gene (id);
+ ----------- Adding foreign key constraint for table collection_compound ----------
+ALTER TABLE hubmap.collection_compound DROP CONSTRAINT IF EXISTS fk_collection_compound_collection_1;
+ALTER TABLE hubmap.collection_compound ADD CONSTRAINT  fk_collection_compound_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_compound DROP CONSTRAINT IF EXISTS fk_collection_compound_compound_2;
+ALTER TABLE hubmap.collection_compound ADD CONSTRAINT  fk_collection_compound_compound_2 FOREIGN KEY (compound) REFERENCES hubmap.compound (id);
+ ----------- Adding foreign key constraint for table collection_substance ----------
+ALTER TABLE hubmap.collection_substance DROP CONSTRAINT IF EXISTS fk_collection_substance_collection_1;
+ALTER TABLE hubmap.collection_substance ADD CONSTRAINT  fk_collection_substance_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_substance DROP CONSTRAINT IF EXISTS fk_collection_substance_substance_2;
+ALTER TABLE hubmap.collection_substance ADD CONSTRAINT  fk_collection_substance_substance_2 FOREIGN KEY (substance) REFERENCES hubmap.substance (id);
+ ----------- Adding foreign key constraint for table collection_taxonomy ----------
+ALTER TABLE hubmap.collection_taxonomy DROP CONSTRAINT IF EXISTS fk_collection_taxonomy_collection_1;
+ALTER TABLE hubmap.collection_taxonomy ADD CONSTRAINT  fk_collection_taxonomy_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_taxonomy DROP CONSTRAINT IF EXISTS fk_collection_taxonomy_ncbi_taxonomy_2;
+ALTER TABLE hubmap.collection_taxonomy ADD CONSTRAINT  fk_collection_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxon) REFERENCES hubmap.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table collection_anatomy ----------
+ALTER TABLE hubmap.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_collection_1;
+ALTER TABLE hubmap.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_anatomy_2;
+ALTER TABLE hubmap.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_anatomy_2 FOREIGN KEY (anatomy) REFERENCES hubmap.anatomy (id);
+ ----------- Adding foreign key constraint for table collection_protein ----------
+ALTER TABLE hubmap.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_collection_1;
+ALTER TABLE hubmap.collection_protein ADD CONSTRAINT  fk_collection_protein_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES hubmap.collection (id_namespace, local_id);
+ALTER TABLE hubmap.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_protein_2;
+ALTER TABLE hubmap.collection_protein ADD CONSTRAINT  fk_collection_protein_protein_2 FOREIGN KEY (protein) REFERENCES hubmap.protein (id);
+ ----------- Adding foreign key constraint for table subject_phenotype ----------
+ALTER TABLE hubmap.subject_phenotype DROP CONSTRAINT IF EXISTS fk_subject_phenotype_subject_1;
+ALTER TABLE hubmap.subject_phenotype ADD CONSTRAINT  fk_subject_phenotype_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ALTER TABLE hubmap.subject_phenotype DROP CONSTRAINT IF EXISTS fk_subject_phenotype_phenotype_2;
+ALTER TABLE hubmap.subject_phenotype ADD CONSTRAINT  fk_subject_phenotype_phenotype_2 FOREIGN KEY (phenotype) REFERENCES hubmap.phenotype (id);
+ ----------- Adding foreign key constraint for table biosample_substance ----------
+ALTER TABLE hubmap.biosample_substance DROP CONSTRAINT IF EXISTS fk_biosample_substance_biosample_1;
+ALTER TABLE hubmap.biosample_substance ADD CONSTRAINT  fk_biosample_substance_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES hubmap.biosample (id_namespace, local_id);
+ALTER TABLE hubmap.biosample_substance DROP CONSTRAINT IF EXISTS fk_biosample_substance_substance_2;
+ALTER TABLE hubmap.biosample_substance ADD CONSTRAINT  fk_biosample_substance_substance_2 FOREIGN KEY (substance) REFERENCES hubmap.substance (id);
+ ----------- Adding foreign key constraint for table subject_substance ----------
+ALTER TABLE hubmap.subject_substance DROP CONSTRAINT IF EXISTS fk_subject_substance_subject_1;
+ALTER TABLE hubmap.subject_substance ADD CONSTRAINT  fk_subject_substance_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ALTER TABLE hubmap.subject_substance DROP CONSTRAINT IF EXISTS fk_subject_substance_substance_2;
+ALTER TABLE hubmap.subject_substance ADD CONSTRAINT  fk_subject_substance_substance_2 FOREIGN KEY (substance) REFERENCES hubmap.substance (id);
+ ----------- Adding foreign key constraint for table biosample_gene ----------
+ALTER TABLE hubmap.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_biosample_1;
+ALTER TABLE hubmap.biosample_gene ADD CONSTRAINT  fk_biosample_gene_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES hubmap.biosample (id_namespace, local_id);
+ALTER TABLE hubmap.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_gene_2;
+ALTER TABLE hubmap.biosample_gene ADD CONSTRAINT  fk_biosample_gene_gene_2 FOREIGN KEY (gene) REFERENCES hubmap.gene (id);
+ ----------- Adding foreign key constraint for table phenotype_gene ----------
+ALTER TABLE hubmap.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_phenotype_1;
+ALTER TABLE hubmap.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_phenotype_1 FOREIGN KEY (phenotype) REFERENCES hubmap.phenotype (id);
+ALTER TABLE hubmap.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_gene_2;
+ALTER TABLE hubmap.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_gene_2 FOREIGN KEY (gene) REFERENCES hubmap.gene (id);
+ ----------- Adding foreign key constraint for table phenotype_disease ----------
+ALTER TABLE hubmap.phenotype_disease DROP CONSTRAINT IF EXISTS fk_phenotype_disease_phenotype_1;
+ALTER TABLE hubmap.phenotype_disease ADD CONSTRAINT  fk_phenotype_disease_phenotype_1 FOREIGN KEY (phenotype) REFERENCES hubmap.phenotype (id);
+ALTER TABLE hubmap.phenotype_disease DROP CONSTRAINT IF EXISTS fk_phenotype_disease_disease_2;
+ALTER TABLE hubmap.phenotype_disease ADD CONSTRAINT  fk_phenotype_disease_disease_2 FOREIGN KEY (disease) REFERENCES hubmap.disease (id);
+ ----------- Adding foreign key constraint for table subject_race ----------
+ALTER TABLE hubmap.subject_race DROP CONSTRAINT IF EXISTS fk_subject_race_subject_1;
+ALTER TABLE hubmap.subject_race ADD CONSTRAINT  fk_subject_race_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ ----------- Adding foreign key constraint for table subject_role_taxonomy ----------
+ALTER TABLE hubmap.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_subject_1;
+ALTER TABLE hubmap.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES hubmap.subject (id_namespace, local_id);
+ALTER TABLE hubmap.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_ncbi_taxonomy_2;
+ALTER TABLE hubmap.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxonomy_id) REFERENCES hubmap.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table assay_type ----------
+ ----------- Adding foreign key constraint for table analysis_type ----------
+ ----------- Adding foreign key constraint for table ncbi_taxonomy ----------
+ ----------- Adding foreign key constraint for table anatomy ----------
+ ----------- Adding foreign key constraint for table file_format ----------
+ ----------- Adding foreign key constraint for table data_type ----------
+ ----------- Adding foreign key constraint for table disease ----------
+ ----------- Adding foreign key constraint for table phenotype ----------
+ ----------- Adding foreign key constraint for table compound ----------
+ ----------- Adding foreign key constraint for table substance ----------
+ALTER TABLE hubmap.substance DROP CONSTRAINT IF EXISTS fk_substance_compound_1;
+ALTER TABLE hubmap.substance ADD CONSTRAINT  fk_substance_compound_1 FOREIGN KEY (compound) REFERENCES hubmap.compound (id);
+ ----------- Adding foreign key constraint for table gene ----------
+ALTER TABLE hubmap.gene DROP CONSTRAINT IF EXISTS fk_gene_ncbi_taxonomy_1;
+ALTER TABLE hubmap.gene ADD CONSTRAINT  fk_gene_ncbi_taxonomy_1 FOREIGN KEY (organism) REFERENCES hubmap.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table protein ----------
+ALTER TABLE hubmap.protein DROP CONSTRAINT IF EXISTS fk_protein_ncbi_taxonomy_1;
+ALTER TABLE hubmap.protein ADD CONSTRAINT  fk_protein_ncbi_taxonomy_1 FOREIGN KEY (organism) REFERENCES hubmap.ncbi_taxonomy (id);
+ ----------- Adding foreign key constraint for table protein_gene ----------
+ALTER TABLE hubmap.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_protein_1;
+ALTER TABLE hubmap.protein_gene ADD CONSTRAINT  fk_protein_gene_protein_1 FOREIGN KEY (protein) REFERENCES hubmap.protein (id);
+ALTER TABLE hubmap.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gene_2;
+ALTER TABLE hubmap.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES hubmap.gene (id);
+ ----------- Adding foreign key constraint for table sample_prep_method ----------
+ ----------- Adding foreign key constraint for table id_namespace ----------
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: 33.598745822906494 seconds.
+
+
+>>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table hubmap.file successful.
+
+Update successful.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: 2025.0128753185272 seconds.
+
+********** C2M2 metadata ingestion completed: schema_name: hubmap.

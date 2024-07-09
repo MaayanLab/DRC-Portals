@@ -29,19 +29,38 @@ psql "$(python3 dburl.py)" -a -f ingest_CV.sql
 # with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
 # will not work unless absolute path for the source tsv file is used.
 
+# Before ingesting, do a quick check to see from how many DCCs, c2m2 files will be ingested, by checking for current and deleted
+# linux bash command after downloding DccAssets.tsv to some folder:
+#grep C2M2 DccAssets.tsv |egrep -e "https.*zip.*202.*True.*-.*-.*-.*-"|awk '/False\t202/'
+
 # To ingest the c2m2 tables from files submitted by DCCs
 mkdir -p log
 python_cmd=python3;ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf}
 # Check for any warning or errors
-egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
-# If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
+egrep -i -e "Warning" ${logf} > log/warning_in_schemaC2M2_ingestion_${ymd}.log; 
+egrep -i -e "Error" ${logf} > log/error_in_schemaC2M2_ingestion_${ymd}.log;
+
+# If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
 dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 # To run it for all DCCs in one go (i.e., put tables from respectives DCCs into a schema by that DCC's name), run the linux shell script:
 chmod ug+x call_populateC2M2FromS3_DCCnameASschema.sh
-python_cmd=python3; ${python_cmd} ./call_populateC2M2FromS3_DCCnameASschema.sh
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} 
+# For 1 DCC or a few DCCs, call syntax is, as an example:
+DCC1=Metabolomics
+DCC2=4DN
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${DCC1} ${DCC2}
+# Example: For June 2024
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} 4DN GlyGen HuBMAP KidsFirst Metabolomics SPARC
 # The above run provides additional instructions at the end for more crosschecks 
 # between data in tables in the c2m2 schema and the tables in the DCC-name-specific schema.
+
+# If there is a need to to remove .0 from columns size_in_bytes and uncompressed_size_in_bytes 
+# of file tables of various schema: the script populateC2M2FromS3.py has been updated to address this.
+# However, to do it in psql, run the script rem_decimal_file_size_in_bytes_column.sql after editing suitably, using
+# on psql prompt: \i rem_decimal_file_size_in_bytes_column.sql
+# OR, directly specify the sql file name in psql command:
+# psql -h localhost -U drc -d drc -p [5432|5433] -a -f rem_decimal_file_size_in_bytes_column.sql
 
 # Other c2m2 related sql scripts
 psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -o log/log_c2m2_other_tables.log
@@ -50,7 +69,7 @@ psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -o log/log_c2m2_other_tab
 # ffl_biosample needs project_data_type, so, run c2m2_other_tables.sql first
 psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1.sql;
 
-# Also generate c2m2.ffl_collection
+# Also generate c2m2.ffl_collection [can be run in parallel to generatingc2m2.ffl_biosample]
 psql "$(python3 dburl.py)" -a -f collection_fully_flattened_allin1.sql;
 
 # Combine c2m2.ffl_biosample and c2m2.ffl_collection to create c2m2.ffl_biosample_collection
@@ -62,6 +81,7 @@ psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection.sql -o log/lo
 ./gen_ingest_slim_script.sh ingest_slim.sql
 psql "$(python3 dburl.py)" -a -f ingest_slim.sql
 
+# In the table c2m2.file, add the column access_url
 psql "$(python3 dburl.py)" -a -f create_access_urls.sql
 
 # .. and other scripts above

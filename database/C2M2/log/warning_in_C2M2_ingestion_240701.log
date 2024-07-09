@@ -1,0 +1,8 @@
+===================== New run ====================
+===================== DCC: 4DN ====================
+===================== DCC: GlyGen ====================
+===================== DCC: HuBMAP ====================
+===================== DCC: KidsFirst ====================
+===================== DCC: Metabolomics ====================
+===================== DCC: SPARC ====================
+/home/mano/DRC/DRC-Portals/database/C2M2/populateC2M2FromS3.py:326: DtypeWarning: Columns (19) have mixed types. Specify dtype option on import or set low_memory=False.

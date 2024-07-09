@@ -14,6 +14,12 @@ import { C2m2Table, C2m2SubmissionPrep } from "@/components/misc/ExternalC2m2"
   - [Tutorial](#tutorial)
 
 ## Introduction
+
+### Schematic of C2M2 
+(please right-click on the image to see options to view a larger image in a different tab)
+
+![Graphical schematic of C2M2](/img/C2M2_NEO4J_level0.jpg)
+
 The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. A complete C2M2 submission, also called an "instance" or a "datapackage", is a zipped folder containing multiple tab-delimited files (TSVs) representing metadata records along with a JSON schema. To read more about datapackages, skip to the [Frictionless Data Packages](#frictionless-data-packages) section. 
 
 Each TSV file is a **data table** containing various **data records** (rows) and their values for different **fields** (columns). **Entity tables** describe various types of data objects, while **association tables** describe the relationships between different entities. 
@@ -53,6 +59,11 @@ From the original C2M2 documentation:
 _Sourced from the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/C2M2-Table-Summary)_
 
 All of the tables in a C2M2 datapackage are inter-linked via foreign key relationships, as shown in the following diagram of the complete C2M2 system. 
+
+### Entity relationship diagram of C2M2 
+(please right-click on the image to see options to view a larger image in a different tab)
+
+![Entity relationship diagram of C2M2](/img/C2M2_ERD_no_FKlabel_edited.png)
 
 <C2m2Table />
 
