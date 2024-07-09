@@ -531,7 +531,7 @@ def code_assets_fair_assessment():
 
 def file_assets_fair_assessment():
     """Run FAIR Assessment for all current file assets"""
-    ingest_path = pathlib.Path('fair')
+    ingest_path = pathlib.Path('ingest')
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0]):
