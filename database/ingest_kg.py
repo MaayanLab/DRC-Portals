@@ -143,3 +143,4 @@ with kg_assertion_helper.writer() as kg_assertion:
                           evidence=assertion['evidence_class'],
                           dcc_id=file['dcc_id'],
                         ))
+                        
