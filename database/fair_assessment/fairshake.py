@@ -516,7 +516,7 @@ def code_assets_fair_assessment():
     """Run FAIR Assessment for all current code assets"""
     current_code_asset_df = current_code_assets()
     fairshake_df_data = []
-    for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0]):
+    for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0], desc='Processing code assets..'):
         if row['type'] == 'ETL': 
             rubric= etl_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
@@ -543,7 +543,7 @@ def file_assets_fair_assessment():
     ingest_path = __dir__.parent / 'ingest'
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
-    for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0]):
+    for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0], desc='Processing file assets..'):
         asset_type = row['filetype']
         row['dcc_short_label'] = row['link'].split('/')[3]
         if asset_type == 'XMT': 

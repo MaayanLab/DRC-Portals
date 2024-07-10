@@ -106,7 +106,7 @@ frames = [code_fair_assessment_df, file_fair_assessment_df]
 fair_assessment_df = pd.concat(frames, ignore_index=True)
 copy_from_records(connection, 'fair_assessments', ['id', 'dcc_id', 'type', 'link', 'rubric', 'timestamp'], (
   dict(id=str(uuid5(uuid0, '\t'.join((row['link'], str(row['timestamp']))))), dcc_id=row['dcc_id'], type=row['type'], link=row['link'], rubric=json.dumps(row['rubric']), timestamp=row['timestamp'])
-    for index, row in tqdm(fair_assessment_df.iterrows(), total=fair_assessment_df.shape[0])
+    for index, row in tqdm(fair_assessment_df.iterrows(), total=fair_assessment_df.shape[0], desc='Ingesting fair assessment results...')
 ), on=OnConflictSpec(conflict=("link", "timestamp"), update=('rubric')))
 
 
