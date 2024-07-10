@@ -1,6 +1,10 @@
 import neo4j, { Driver } from "neo4j-driver";
 
-import { NEO4J_PASSWORD, NEO4J_URI, NEO4J_USERNAME } from "./constants/app";
+import {
+  NEO4J_C2M2_READER_PASSWORD,
+  NEO4J_URL,
+  NEO4J_C2M2_READER_USERNAME,
+} from "./constants/app";
 
 let driver: Driver;
 
@@ -14,7 +18,11 @@ export const initDriver = async (
 
 export const getDriver = () => {
   if (driver === undefined) {
-    initDriver(NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD);
+    initDriver(
+      NEO4J_URL,
+      NEO4J_C2M2_READER_USERNAME,
+      NEO4J_C2M2_READER_PASSWORD
+    );
   }
   return driver;
 };

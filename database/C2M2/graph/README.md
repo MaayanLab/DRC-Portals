@@ -38,12 +38,11 @@ In case the example file does not exist, refer to the following to create a new 
 
 ```bash
 # Neo4j vars
-USERNAME=
-PASSWORD=
-C2M2_DBNAME=
-C2M2_READER_USERNAME=
-C2M2_READER_PASSWORD=
-NEO4J_AUTH=
+NEO4J_USERNAME=
+NEO4J_PASSWORD=
+NEO4J_C2M2_DBNAME=
+NEO4J_C2M2_READER_USERNAME=
+NEO4J_C2M2_READER_PASSWORD=
 
 # Postgres vars
 PG_DBNAME=
@@ -128,7 +127,7 @@ Once the script has finished, you will have a fully loaded C2M2 graph! The Neo4j
 
 ```bash
 $ source .env
-$ docker exec -it drc-portals-neo4j cypher-shell -p $PASSWORD -u $USERNAME
+$ docker exec -it drc-portals-neo4j cypher-shell -p $NEO4J_PASSWORD -u $NEO4J_USERNAME
 neo4j@neo4j> MATCH (p:Project) RETURN p.name LIMIT 25;
 ```
 

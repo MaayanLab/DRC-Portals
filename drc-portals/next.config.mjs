@@ -1,129 +1,123 @@
-import remarkGfm from 'remark-gfm'
-import createMDX from '@next/mdx'
+import remarkGfm from "remark-gfm";
+import createMDX from "@next/mdx";
 
-process.env.NEXTAUTH_URL_INTERNAL = 'http://localhost:3000/auth'
+process.env.NEXTAUTH_URL_INTERNAL = "http://localhost:3000/auth";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: "standalone",
   experimental: {
     serverActions: {
       allowedOrigins: [
-        'localhost:3000',
-        'data.cfde.cloud',
-        'info.cfde.cloud',
-        'cfde.cloud',
+        "localhost:3000",
+        "data.cfde.cloud",
+        "info.cfde.cloud",
+        "cfde.cloud",
       ],
     },
   },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    NEO4J_URL: process.env.NEO4J_URL,
+    NEO4J_C2M2_DBNAME: process.env.NEO4J_C2M2_DBNAME,
+    NEO4J_C2M2_READER_USERNAME: process.env.NEO4J_C2M2_READER_USERNAME,
+    NEO4J_C2M2_READER_PASSWORD: process.env.NEO4J_C2M2_READER_PASSWORD,
   },
-  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
+  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async rewrites() {
     return {
       beforeFiles: [
         {
-          has: [{type: 'host', value: 'data.cfde.cloud'},],
-          source: '/',
-          destination: '/data',
+          has: [{ type: "host", value: "data.cfde.cloud" }],
+          source: "/",
+          destination: "/data",
         },
         {
-          has: [{type: 'host', value: 'info.cfde.cloud'},],
-          source: '/',
-          destination: '/info',
+          has: [{ type: "host", value: "info.cfde.cloud" }],
+          source: "/",
+          destination: "/info",
         },
       ],
       afterFiles: [
         {
-          has: [{type: 'host', value: 'data.cfde.cloud'},],
-          source: '/:path*',
-          destination: '/data/:path*',
+          has: [{ type: "host", value: "data.cfde.cloud" }],
+          source: "/:path*",
+          destination: "/data/:path*",
         },
         {
-          has: [{type: 'host', value: 'info.cfde.cloud'},],
-          source: '/:path*',
-          destination: '/info/:path*',
+          has: [{ type: "host", value: "info.cfde.cloud" }],
+          source: "/:path*",
+          destination: "/info/:path*",
         },
       ],
-    }
+    };
   },
   async redirects() {
     return [
       {
-        source: '/data/contribute/documentation',
-        destination: '/data/submit',
+        source: "/data/contribute/documentation",
+        destination: "/data/submit",
         permanent: true,
       },
       {
-        source: '/data/contribute/:path*',
-        destination: '/data/submit/:path*',
+        source: "/data/contribute/:path*",
+        destination: "/data/submit/:path*",
         permanent: true,
       },
       {
-        has: [
-          {type: 'host', value: 'data.cfde.cloud'},
-        ],
-        source: '/info/:path*',
-        destination: 'https://info.cfde.cloud/:path*',
+        has: [{ type: "host", value: "data.cfde.cloud" }],
+        source: "/info/:path*",
+        destination: "https://info.cfde.cloud/:path*",
         permanent: false,
       },
       {
-        has: [
-          {type: 'host', value: 'data.cfde.cloud'},
-        ],
-        source: '/auth/:path*',
-        destination: 'https://cfde.cloud/auth/:path*',
+        has: [{ type: "host", value: "data.cfde.cloud" }],
+        source: "/auth/:path*",
+        destination: "https://cfde.cloud/auth/:path*",
         permanent: false,
       },
       {
-        has: [
-          {type: 'host', value: 'info.cfde.cloud'},
-        ],
-        source: '/data/:path*',
-        destination: 'https://data.cfde.cloud/:path*',
+        has: [{ type: "host", value: "info.cfde.cloud" }],
+        source: "/data/:path*",
+        destination: "https://data.cfde.cloud/:path*",
         permanent: false,
       },
       {
-        has: [
-          {type: 'host', value: 'info.cfde.cloud'},
-        ],
-        source: '/auth/:path*',
-        destination: 'https://cfde.cloud/auth/:path*',
+        has: [{ type: "host", value: "info.cfde.cloud" }],
+        source: "/auth/:path*",
+        destination: "https://cfde.cloud/auth/:path*",
         permanent: false,
       },
       {
-        has: [
-          {type: 'host', value: 'cfde.cloud'},
-        ],
-        source: '/',
-        destination: 'https://info.cfde.cloud',
+        has: [{ type: "host", value: "cfde.cloud" }],
+        source: "/",
+        destination: "https://info.cfde.cloud",
         permanent: false,
       },
-    ]
+    ];
   },
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
+        protocol: "https",
         hostname: "s3.amazonaws.com",
       },
       {
-        protocol: 'https',
+        protocol: "https",
         hostname: "minio.dev.maayanlab.cloud",
       },
       {
-        protocol: 'https',
-        hostname: 'cfde-drc.s3.amazonaws.com',
-        port: '',
-        pathname: '/assets/**',
+        protocol: "https",
+        hostname: "cfde-drc.s3.amazonaws.com",
+        port: "",
+        pathname: "/assets/**",
       },
     ],
   },
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.('.svg'),
-    )
+      rule.test?.test?.(".svg")
+    );
 
     config.module.rules.push(
       // Reapply the existing rule, but only for svg imports ending in ?url
@@ -137,22 +131,22 @@ const nextConfig = {
         test: /\.svg$/i,
         issuer: fileLoaderRule.issuer,
         resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
-        use: ['@svgr/webpack'],
-      },
-    )
+        use: ["@svgr/webpack"],
+      }
+    );
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.
-    fileLoaderRule.exclude = /\.svg$/i
+    fileLoaderRule.exclude = /\.svg$/i;
 
-    return config
-  }
-}
+    return config;
+  },
+};
 
 const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [],
   },
-})
+});
 
-export default withMDX(nextConfig)
+export default withMDX(nextConfig);

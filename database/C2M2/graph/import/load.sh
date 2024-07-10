@@ -85,12 +85,12 @@ for filename in "${files[@]}"; do
     # Check if it's a file
     if [ -f "/import/cypher/$filename" ]; then
         echo Loading file $filename...
-        cypher-shell -p $PASSWORD -u $USERNAME -d $C2M2_DBNAME -f "/import/cypher/$filename"
+        cypher-shell -p $NEO4J_PASSWORD -u $NEO4J_USERNAME -d $NEO4J_C2M2_DBNAME -f "/import/cypher/$filename"
     fi
 done
 
 # Make sure the C2M2 database is read-only once the data has been written
-cypher-shell -p $PASSWORD -u $USERNAME "ALTER DATABASE $C2M2_DBNAME SET ACCESS READ ONLY"
+cypher-shell -p $NEO4J_PASSWORD -u $NEO4J_USERNAME "ALTER DATABASE $NEO4J_C2M2_DBNAME SET ACCESS READ ONLY"
 
 # Create a read only user for the C2M2 database if it doesn't already exist
 sh ./init_c2m2_user.sh
