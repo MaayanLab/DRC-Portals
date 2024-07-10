@@ -1,1 +1,1 @@
-CREATE FULLTEXT INDEX synonymIdx FOR (n:Synonym) ON EACH [n.name]
+CREATE FULLTEXT INDEX synonymIdx IF NOT EXISTS FOR (n:Synonym) ON EACH [n.name]
