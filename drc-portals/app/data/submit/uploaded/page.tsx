@@ -99,7 +99,12 @@ export default async function UserFiles() {
             },
             fileAsset: true,
             codeAsset: true,
-            fairAssessments: true
+            fairAssessments: {
+                orderBy: {
+                    timestamp: 'desc',
+                },
+                take: 1,
+            }
         },
         where: {
             ...((user.role === 'DCC_APPROVER') || (user.role === 'READONLY')  ? {
