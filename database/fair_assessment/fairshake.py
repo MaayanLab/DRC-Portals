@@ -159,7 +159,9 @@ def entity_page_fair(entityPageExample, link):
                 "Entity page supports HEAD requests": fairshake_head_request_support,
                 "Persistent URL": fairshake_persistent_url}
         return rubric
-    except: 
+    except KeyboardInterrupt: raise
+    except:
+        import traceback; traceback.print_exc()
         rubric = {"Entity page url can be templated": fairshake_templated,
         "Entity page properly returns 404 on missing element": fairshake_return_404,
         "Entity page supports HEAD requests": fairshake_head_request_support,
@@ -208,7 +210,9 @@ def api_fair(row):
                 "Contact information available": fairshake_contact,
                 "Published in Smart API": fairshake_smartapi,
                 "Persistent URL": fairshake_persistent_url}
-        except: 
+        except KeyboardInterrupt: raise
+        except:
+            import traceback; traceback.print_exc()
             return {"Documented with OpenAPI": fairshake_openapi,
                     "Usage License specified": fairshake_license,  
                     "Contact information available": fairshake_contact,
@@ -353,7 +357,8 @@ def c2m2_fair(directory):
         rubric["Accessible via DRS"] = 1
         rubric['Machine readable metadata'] = 1
         return rubric
-    except: 
+    except KeyboardInterrupt: raise
+    except:
         import traceback; traceback.print_exc()
         return {'Machine readable metadata': 0.0,
                 'Persistent identifier': None,
