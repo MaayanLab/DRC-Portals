@@ -1,3 +1,7 @@
+import pathlib
+__dir__ = pathlib.Path(__file__).parent
+import sys
+sys.path.insert(0, str(__dir__.parent))
 import csv
 import pathlib
 from statistics import mean
@@ -20,9 +24,9 @@ from urllib.parse import urlsplit
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
-import sys, pathlib; sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
+
 
 def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
@@ -294,7 +298,7 @@ def chatbot_specs_fair(chatbot_specs_url):
 
 def check_ontology_in_term(term):
     """Return boolean defining if a term contains an ontological reference eg RO:922340"""
-    my_file = open("./ontology/ontologies.txt", "r") 
+    my_file = open(__dir__/"ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -305,7 +309,7 @@ def check_ontology_in_term(term):
 
 def check_standard_ontology(ontology):
     """Return boolean defining if an given ontology is considered community standard"""
-    my_file = open("./ontology/ontologies.txt", "r") 
+    my_file = open(__dir__/"ontology/ontologies.txt", "r") 
     data = my_file.read() 
     all_ontologies = data.split("\n")[:-1] 
     my_file.close() 
@@ -536,7 +540,7 @@ def code_assets_fair_assessment():
 
 def file_assets_fair_assessment():
     """Run FAIR Assessment for all current file assets"""
-    ingest_path = pathlib.Path(__file__).parent.parent / 'ingest'
+    ingest_path = __dir__.parent / 'ingest'
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0]):
