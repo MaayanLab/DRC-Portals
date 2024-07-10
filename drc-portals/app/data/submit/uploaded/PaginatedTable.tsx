@@ -355,11 +355,7 @@ export function PaginatedTable({ userFiles, role }: {
             }
             let fairAssessment; 
             if (userFile.fairAssessments.length > 0) {
-                fairAssessment = userFile.fairAssessments.sort((a, b) => {
-                    if (a.timestamp > b.timestamp) {return 1} 
-                    else if (a.timestamp > b.timestamp) {return -1}
-                    else {return 0} 
-                 })[0]
+                fairAssessment = userFile.fairAssessments[0]
             }
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment} />
@@ -375,11 +371,7 @@ export function PaginatedTable({ userFiles, role }: {
             }
             let fairAssessment; 
             if (userFile.fairAssessments.length > 0) {
-                fairAssessment = userFile.fairAssessments.sort((a, b) => {
-                    if (a.timestamp > b.timestamp) {return 1} 
-                    else if (a.timestamp > b.timestamp) {return -1}
-                    else {return 0} 
-                 })[0]
+                fairAssessment = userFile.fairAssessments[0]
             }            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>)
         })
     } else { // if readonly role or uploader
@@ -398,11 +390,7 @@ export function PaginatedTable({ userFiles, role }: {
             }
             let fairAssessment; 
             if (userFile.fairAssessments.length > 0) {
-                fairAssessment = userFile.fairAssessments.sort((a, b) => {
-                    if (a.timestamp > b.timestamp) {return 1} 
-                    else if (a.timestamp > b.timestamp) {return -1}
-                    else {return 0} 
-                 })[0]
+                fairAssessment = userFile.fairAssessments[0]
             }
             return (
                 <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>
