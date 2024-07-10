@@ -26,6 +26,7 @@ from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
 from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
+import logging; logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
 
 def deep_find(root, file):
