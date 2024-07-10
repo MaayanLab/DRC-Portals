@@ -7,7 +7,7 @@ import zipfile
 from df2pg import OnConflictSpec, copy_from_records
 from fairshake import PWB_metanode_fair, api_fair, apps_urls_fair, attribute_tables_fair, c2m2_fair, chatbot_specs_fair, code_assets_fair_assessment, entity_page_fair, etl_fair, file_assets_fair_assessment, kg_assertions_fair, xmt_fair
 import sys, pathlib; 
-sys.path.insert(0, str(pathlib.Path("../../ingest_common.py").parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from ingest_common import (
   TableHelper,
   connection,

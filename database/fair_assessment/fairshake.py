@@ -20,7 +20,7 @@ from urllib.parse import urlsplit
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
-import sys, pathlib; sys.path.insert(0, str(pathlib.Path("../../ingest_common.py").parent.parent))
+import sys, pathlib; sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
 
@@ -354,6 +354,7 @@ def c2m2_fair(directory):
         rubric['Machine readable metadata'] = 1
         return rubric
     except: 
+        import traceback; traceback.print_exc()
         return {'Machine readable metadata': 0.0,
                 'Persistent identifier': None,
                 'files with data type': None,
@@ -530,7 +531,7 @@ def code_assets_fair_assessment():
 
 def file_assets_fair_assessment():
     """Run FAIR Assessment for all current file assets"""
-    ingest_path = pathlib.Path('../ingest')
+    ingest_path = pathlib.Path(__file__).parent.parent / 'ingest'
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0]):
