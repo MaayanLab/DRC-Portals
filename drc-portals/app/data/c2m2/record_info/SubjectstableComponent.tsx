@@ -16,8 +16,8 @@ interface SubjectTableResult {
         subject_ethnicity_name: string,
         subject_role_name: string,
         subject_age_at_enrollment: string
-      }[];
-      subjects_table: {
+    }[];
+    subjects_table: {
         subject_id_namespace: string,
         subject_local_id: string,
         subject_race_name: string,
@@ -26,17 +26,17 @@ interface SubjectTableResult {
         subject_ethnicity_name: string,
         subject_role_name: string,
         subject_age_at_enrollment: string
-      }[];
-      count_sub: number;
+    }[];
+    count_sub: number;
 }
 
 const renderMetadataValue = (item: MetadataItem) => {
     if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
-      return (
-        <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
-            {item.value}
-        </Link>
-      );
+        return (
+            <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+                {item.value}
+            </Link>
+        );
     }
     return item.value;
 };
@@ -81,14 +81,14 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
                 (SELECT COALESCE(jsonb_agg(subjects_table_limited.*), '[]'::jsonb) FROM subjects_table_limited) AS subjects_table,
                 (SELECT COALESCE(jsonb_agg(subjects_table.*), '[]'::jsonb) FROM subjects_table) AS subjects_table_full
         `.toPrismaSql();
-        
+
         const t0: number = performance.now();
         const results = await prisma.$queryRaw<SubjectTableResult[]>(query);
         const t1: number = performance.now();
         console.log("Elapsed time for SubjectsTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
-            return <div>Error: No results found</div>;
+            return <div></div>;
         }
 
         // Assuming you want to process the first result in the array
@@ -103,27 +103,27 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
 
         const subjectTableTitle = "Subjects: " + countSub;
         const subject_table_columnsToIgnore: string[] = ['subject_id_namespace'];
-        
-        const { 
-            prunedData: subjectPrunedData, 
-            columnNames: subjectColNames, 
+
+        const {
+            prunedData: subjectPrunedData,
+            columnNames: subjectColNames,
             dynamicColumns: dynamicSubjectColumns,
-            staticColumns: staticSubjectColumns 
+            staticColumns: staticSubjectColumns
         } = pruneAndRetrieveColumnNames(
             subjectsTable,
-            subjectsTableFull, 
+            subjectsTableFull,
             subject_table_columnsToIgnore
         );
 
         // Add 'id' column with 'row-<index>' format
         const subjectPrunedDataWithId = subjectPrunedData.map((row, index) => ({ ...row, id: index }));
         const subjects_table_full_withId = subjectsTableFull
-          ? subjectsTableFull.map((row, index) => ({ ...row, id: index }))
-          : [];
+            ? subjectsTableFull.map((row, index) => ({ ...row, id: index }))
+            : [];
 
         const downloadFilename = generateHashedJSONFilename("SubjectTable_", searchParams);
         const categories: Category[] = [];
-    
+
 
         addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
         const category = categories[0];

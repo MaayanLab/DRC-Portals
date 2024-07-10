@@ -46,11 +46,11 @@ interface BiosampleTableResult {
 
 const renderMetadataValue = (item: MetadataItem) => {
     if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
-      return (
-        <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
-            {item.value}
-        </Link>
-      );
+        return (
+            <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+                {item.value}
+            </Link>
+        );
     }
     return item.value;
 };
@@ -127,7 +127,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         console.log("Elapsed time for BiosamplesTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
-            return <div>Error: No results found</div>;
+            return <div></div>;
         }
 
         // Assuming you want to process the first result in the array
@@ -142,21 +142,21 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         }
 
         const biosample_table_columnsToIgnore: string[] = [
-            'anatomy_name', 'disease_name', 'project_local_id', 
-            'project_id_namespace', 'subject_local_id', 
+            'anatomy_name', 'disease_name', 'project_local_id',
+            'project_id_namespace', 'subject_local_id',
             'subject_id_namespace', 'biosample_id_namespace'
         ];
 
         const biosampleTableTitle = "Biosamples: " + countBios;
 
-        const { 
-            prunedData: biosamplePrunedData, 
-            columnNames: bioSampleColNames, 
+        const {
+            prunedData: biosamplePrunedData,
+            columnNames: bioSampleColNames,
             dynamicColumns: dynamicBiosampleColumns,
-            staticColumns: staticBiosampleColumns 
+            staticColumns: staticBiosampleColumns
         } = pruneAndRetrieveColumnNames(
             biosamplesTable,
-            biosamplesTableFull, 
+            biosamplesTableFull,
             biosample_table_columnsToIgnore
         );
 
@@ -168,7 +168,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
 
         const downloadFilename = generateHashedJSONFilename("BiosampleTable_", searchParams);
         const categories: Category[] = [];
-    
+
 
         addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
         const category = categories[0];
@@ -182,7 +182,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                         <Card variant="outlined" sx={{ mb: 2 }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: "+ countBios}
+                                    {category.title + " (Uniform Columns) Count: " + countBios}
                                 </Typography>
                                 {category.metadata.map((item, i) => (
                                     item && item.value ? (
@@ -216,5 +216,5 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         console.error("Error fetching Biosamples table:", error);
         return <div>Error fetching Biosamples table: {(error as Error).message}</div>;
     }
-    
+
 }

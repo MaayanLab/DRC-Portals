@@ -89,7 +89,7 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
         console.log("Elapsed time for CollectionsTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
-            return <div>Error: No collections table results found</div>;
+            return <div></div>;
         }
 
         // Assuming you want to process the first result in the array
@@ -105,26 +105,26 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
         const collectionTableTitle = "Collections: " + countCol;
 
         const collections_table_columnsToIgnore: string[] = ['collection_id_namespace']; // don't include 'persistent_id' here
-        const { 
-            prunedData: collectionPrunedData, 
-            columnNames: collectionColNames, 
+        const {
+            prunedData: collectionPrunedData,
+            columnNames: collectionColNames,
             dynamicColumns: dynamicCollectionColumns,
-            staticColumns: staticCollectionColumns 
+            staticColumns: staticCollectionColumns
         } = pruneAndRetrieveColumnNames(
             collectionsTable,
-            collectionsTableFull, 
+            collectionsTableFull,
             collections_table_columnsToIgnore
         );
 
         // Add 'id' column with 'row-<index>' format
         const collectionPrunedDataWithId = collectionPrunedData.map((row, index) => ({ ...row, id: index }));
-        const collections_table_full_withId = 
+        const collections_table_full_withId =
             collectionsTableFull ? collectionsTableFull.map((row, index) => ({ ...row, id: index }))
-            : [];
+                : [];
 
         const downloadFilename = generateHashedJSONFilename("CollectionTable_", searchParams);
         const categories: Category[] = [];
-        
+
         addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
         const category = categories[0];
 
@@ -135,7 +135,7 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
                         <Card variant="outlined" sx={{ mb: 2 }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: "+ countCol}
+                                    {category.title + " (Uniform Columns) Count: " + countCol}
                                 </Typography>
                                 {category.metadata.map((item, i) => (
                                     item && item.value ? (
