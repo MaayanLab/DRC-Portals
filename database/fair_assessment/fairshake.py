@@ -8,7 +8,7 @@ from statistics import mean
 import numpy as np
 import pandas as pd
 import requests
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from datetime import datetime
 import re
 from urllib.parse import urlsplit

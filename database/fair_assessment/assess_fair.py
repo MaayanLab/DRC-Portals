@@ -2,7 +2,7 @@ import pathlib
 __dir__ = pathlib.Path(__file__).parent
 import sys
 sys.path.insert(0, str(__dir__.parent))
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from datetime import datetime
 import json
 import pathlib
