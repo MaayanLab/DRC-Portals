@@ -27,6 +27,7 @@ class TableHelper:
         yield csv.DictWriter(fw, self.columns, delimiter='\t', escapechar='\\', doublequote=False)
       print(f"inserting {self.tablename}...")
       with connection.cursor() as cur:
+        cur.execute('set statement_timeout = 0')
         cur.execute(f'''
           create table {quote(self.tablename+'_tmp')}
           as table {quote(self.tablename)}
@@ -56,6 +57,10 @@ load_dotenv('../drc-portals/.env')
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL == None:
+  load_dotenv('../../drc-portals/.env') # for fair assessment 
+  load_dotenv()
+  DATABASE_URL = os.getenv("DATABASE_URL")
 result = urlparse(DATABASE_URL)
 username = result.username
 password = result.password
@@ -115,5 +120,16 @@ def current_dcc_assets():
     how='inner',
   )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  return dcc_assets
+
+def current_code_assets():
+  dcc_assets = pd.merge(
+    left=pd.read_csv(code_assets_path(), sep='\t'),
+    left_on='link',
+    right=pd.read_csv(dcc_assets_path(), sep='\t'),
+    right_on='link',
+    how='inner',
+  )
   dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
   return dcc_assets
