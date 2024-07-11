@@ -107,7 +107,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
                   {library.gene_sets.map(set => (
                     <TableRow key={set.id}>
                       <TableCell component="th" scope="row">
-                        <Link href={`/data/processed/${set.node.type}/${set.id}`}>{set.node.label}</Link>
+                        <Link prefetch={false} href={`/data/processed/${set.node.type}/${set.id}`}>{set.node.label}</Link>
                       </TableCell>
                       <TableCell>
                         {format_description(set.node.description)}

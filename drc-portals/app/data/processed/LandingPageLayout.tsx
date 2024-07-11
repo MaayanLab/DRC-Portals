@@ -20,7 +20,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       </Grid>
       <Grid item xs={4}>
         {props.icon ? 
-          <Link href={props.icon.href}>
+          <Link prefetch={false} href={props.icon.href}>
             <Image src={props.icon.src} alt={props.icon.alt} width={240} height={240} />
           </Link>
           : null}

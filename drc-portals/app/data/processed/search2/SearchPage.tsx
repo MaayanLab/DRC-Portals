@@ -123,7 +123,7 @@ export default async function Page(props: PageProps) {
         </>
       : undefined}
       footer={
-        <Link href="/data">
+        <Link prefetch={false} href="/data">
           <Button
             sx={{textTransform: "uppercase"}}
             color="primary"

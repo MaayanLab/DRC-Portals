@@ -62,12 +62,12 @@ export default async function Page(props: PageProps) {
       metadata={[
         item.node.dcc?.label ? {
           label: 'Project',
-          value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link>
+          value: <Link prefetch={false} href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link>
         } : null,
         item.persistent_id ? {
           label: 'Persistent ID',
           value: /^https?:\/\//.exec(item.persistent_id) !== null ?
-            <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
+            <Link prefetch={false} href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
             : item.persistent_id,
         } : null,
         process.env.PUBLIC_URL && item.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
