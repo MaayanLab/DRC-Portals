@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import SearchFilter from "./SearchFilter";
 
 export default async function ProgramFilters({ q }: { q: string }) {

@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import SearchFilter from "./SearchFilter";
 import { pluralize, type_to_color, type_to_string } from "../utils";
 

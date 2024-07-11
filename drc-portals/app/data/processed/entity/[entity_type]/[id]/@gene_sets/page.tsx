@@ -1,5 +1,5 @@
 import ListItemCollapsible from "@/components/misc/ListItemCollapsible"
-import prisma from "@/lib/prisma"
+import prisma from "@/lib/prisma/slow"
 import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
 import Image from "next/image"
 import Link from "next/link"

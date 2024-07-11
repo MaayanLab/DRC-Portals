@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma"
+import prisma from "@/lib/prisma/slow"
 import { human_readable, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";

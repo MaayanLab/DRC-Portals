@@ -4,7 +4,7 @@
  */
 import PWBButton from "@/app/data/processed/PWBButton";
 import G2SGButton from "./G2SGButton";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { cache } from "react";
 
 const getGeneSet = cache(async (id: string) => (

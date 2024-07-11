@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { Grid, Typography } from "@mui/material";
 import { safeAsync } from '@/utils/safe'
 import kvCache from "@/lib/prisma/kvcache";

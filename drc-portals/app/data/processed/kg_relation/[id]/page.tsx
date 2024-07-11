@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma"
+import prisma from "@/lib/prisma/slow"
 import { format_description, human_readable, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";

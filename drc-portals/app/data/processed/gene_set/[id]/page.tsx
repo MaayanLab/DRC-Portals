@@ -1,5 +1,5 @@
 import React from 'react'
-import prisma from "@/lib/prisma"
+import prisma from "@/lib/prisma/slow"
 import Link from "next/link"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
