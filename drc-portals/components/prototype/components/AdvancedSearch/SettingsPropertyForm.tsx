@@ -74,7 +74,6 @@ export default function SettingsPropertyForm(
   };
 
   const updateKey = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("updateKey");
     setKey(event.target.value);
 
     if (!/^[A-Za-z]/.test(event.target.value)) {
