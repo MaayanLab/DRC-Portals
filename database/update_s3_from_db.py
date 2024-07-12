@@ -61,6 +61,8 @@ for table in tables:
 		cur.execute("select * from %s"%table)
 		df = pd.DataFrame(cur.fetchall(), columns=[desc[0] for desc in cur.description])
 		df = df.map(lambda x: x if not type(x) in [dict, list] else json.dumps(x))
+		if table == 'dcc_assets':
+			df['creator'] = ''
 		filename = 'current/%s_%s.tsv'%(now, table)
 		s3_filename = filename.replace('current/', 'database/files/')
 		df.to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
