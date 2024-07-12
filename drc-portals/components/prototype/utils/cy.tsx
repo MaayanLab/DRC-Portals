@@ -242,6 +242,25 @@ export const selectAll = (event: EventObject) => {
   event.cy.elements().select();
 };
 
+export const highlightNodesWithLabel = (event: EventObjectNode) => {
+  const eventNodeLabels: string[] = event.target.data("neo4j").labels || [];
+  event.cy.batch(() => {
+    event.cy
+      .nodes()
+      .filter((node) => {
+        const candidateLabels = new Set<string>(
+          node.data("neo4j").labels || []
+        );
+        return (
+          [...eventNodeLabels].filter((x) => candidateLabels.has(x)).length > 0
+        );
+      })
+      .removeClass("dimmed")
+      .addClass("highlight");
+    event.cy.elements().not(".highlight").addClass("dimmed");
+  });
+};
+
 export const selectNodesWithLabel = (event: EventObjectNode) => {
   const eventNodeLabels: string[] = event.target.data("neo4j").labels || [];
   event.cy.batch(() => {

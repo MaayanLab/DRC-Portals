@@ -37,6 +37,7 @@ import {
   createNodeTooltip,
   hideElement,
   highlightNeighbors,
+  highlightNodesWithLabel,
   resetHighlights,
   selectAll,
   selectNeighbors,
@@ -275,6 +276,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       ),
       createChartCxtMenuItem(
         `${cmpKey}-node-ctx-menu-2`,
+        contextMenuItemSelectWrapper(highlightNodesWithLabel, event),
+        "Highlight Nodes with this Label"
+      ),
+      createChartCxtMenuItem(
+        `${cmpKey}-node-ctx-menu-3`,
         contextMenuItemSelectWrapper(selectNodesWithLabel, event),
         "Select Nodes with this Label"
       ),
