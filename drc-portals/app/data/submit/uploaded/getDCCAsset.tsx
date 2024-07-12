@@ -20,14 +20,8 @@ export async function updateAssetApproval(file: {
 }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
+    if (!(session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER' || session.user.role === 'ADMIN')) throw new Error('user not allowed to update status')
     if (file.dcc_drc === 'drc') {
         const approved = await prisma.dccAsset.update({
             where: {
@@ -82,14 +76,8 @@ export async function updateAssetApproval(file: {
 export async function updateAssetCurrent(file: DccAsset) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN')) throw new Error('user not allowed to update status')
+    if (!(session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER' || session.user.role === 'ADMIN')) throw new Error('user not allowed to update status')
     const approved = await prisma.dccAsset.update({
         where: {
             link: file.link,
@@ -106,14 +94,8 @@ export async function updateAssetCurrent(file: DccAsset) {
 export async function deleteAsset(file: DccAsset) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callback=/data/submit/uploaded")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
     // if user is not an uploader or approver, then they should not have acccess to this function 
-    if (!(user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER' || user.role === 'ADMIN' || user.role === 'UPLOADER')) throw new Error('user not allowed to delete file')
+    if (!(session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER' || session.user.role === 'ADMIN' || session.user.role === 'UPLOADER')) throw new Error('user not allowed to delete file')
     const deleted = await prisma.dccAsset.update({
         where: {
             link: file.link,
@@ -138,13 +120,7 @@ export async function sendDCCApprovedEmails(asset: {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     // user here is a DCC approver
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
-    if (user.role === 'DCC_APPROVER') {
+    if (session.user.role === 'DCC_APPROVER') {
         if (asset) {
             const uploader = await prisma.user.findFirst({
                 where: {
@@ -174,7 +150,7 @@ export async function sendDCCApprovedEmails(asset: {
             // email uploader 
             if (uploader) {
                 const emailHtml = render(<Uploader_DCCApprovedEmail uploaderName={uploader.name}
-                    approverName={user.name ? user.name : 'Unknown'} asset={asset} />);
+                    approverName={session.user.name ? session.user.name : 'Unknown'} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (uploader.email) {
                     transporter.sendMail({
@@ -202,8 +178,8 @@ export async function sendDCCApprovedEmails(asset: {
             }))
             // email drc approvers
             DRCApprovers.forEach((approver => {
-                const emailHtml = render(<DRCApprover_DCCApprovedEmail reviewerName={approver.name ? approver.name : ''}
-                    uploaderName={uploader ? uploader.name : 'Unknown'} approverName={user.name}
+                const emailHtml = render(<DRCApprover_DCCApprovedEmail reviewerName={approver.name ? approver.name : 'Unknown'}
+                    uploaderName={uploader ? uploader.name : 'Unknown'} approverName={session.user.name ? session.user.name : 'Unknown'}
                     dcc={asset.dcc ? asset.dcc?.short_label : 'Unknown'} />);
                 const transporter = nodemailer.createTransport(server)
                 if (approver.email) {
@@ -231,13 +207,7 @@ export async function sendDRCApprovedEmails(asset: {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     // user here is a DRC approver
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) return redirect("/auth/signin?callbackUrl=/data/submit/uploaded")
-    if (user.role === 'DRC_APPROVER') {
+    if (session.user.role === 'DRC_APPROVER') {
         if (asset) {
             const uploader = await prisma.user.findFirst({
                 where: {
@@ -267,7 +237,7 @@ export async function sendDRCApprovedEmails(asset: {
             // email uploader 
             if (uploader) {
                 const emailHtml = render(<Uploader_DRCApprovedEmail uploaderName={uploader.name}
-                    reviewerName={user.name ? user.name : ''} asset={asset} />);
+                    reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (uploader.email) {
                     transporter.sendMail({
@@ -281,7 +251,7 @@ export async function sendDRCApprovedEmails(asset: {
             // email dcc approvers
             DCCApprovers.forEach((approver => {
                 const emailHtml = render(<DCCApprover_DRCApprovedEmail approverName={approver.name}
-                    reviewerName={user.name ? user.name : ''} asset={asset} />);
+                    reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (approver.email) {
                     transporter.sendMail({
@@ -295,7 +265,7 @@ export async function sendDRCApprovedEmails(asset: {
             }))
             // email drc approvers
             DRCApprovers.forEach((approver => {
-                const emailHtml = render(<DRCApprover_DRCApprovedEmail reviewerName={user.name ? user.name : ''} asset={asset} />);
+                const emailHtml = render(<DRCApprover_DRCApprovedEmail reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (approver.email) {
                     transporter.sendMail({

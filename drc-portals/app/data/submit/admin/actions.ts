@@ -11,14 +11,7 @@ import { redirect } from 'next/navigation';
 async function verifyUser() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (user.role != 'ADMIN') throw new Error('not an admin')
+    if (session.user.role !== 'ADMIN') throw new Error('not an admin')
 }
 
 async function getDCCObjects(dccShortLabels: string[]) {
@@ -59,7 +52,11 @@ export async function createOneUser(newUserData: {
     }
     else if (newUserData.role === "Admin") {
         prismaRole = Role.ADMIN
-    } else {
+    } 
+    else if (newUserData.role === "Read-Only") {
+        prismaRole = Role.READONLY
+    } 
+    else {
         throw new Error('not a role type')
     }
 
@@ -99,7 +96,9 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
         }
         else if (updatedData.role === "Admin") {
             prismaRole = Role.ADMIN
-        }
+        } else if (updatedData.role === "Read-Only") {
+            prismaRole = Role.READONLY
+        } 
 
         // add dcc to user in db
         // get the DCC objects from form dccString

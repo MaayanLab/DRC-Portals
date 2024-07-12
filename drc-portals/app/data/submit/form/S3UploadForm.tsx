@@ -12,7 +12,7 @@ import { FileDrop } from './FileDrop'
 import ThemedStack from './ThemedStack';
 import Status from './Status';
 import { DCCSelect, FileTypeSelect } from './DCCSelect';
-import { $Enums, DCC, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { Box, Link, List, ListItem, Stack, Tooltip } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
@@ -115,7 +115,7 @@ export function useS3UploadStatus() {
   return React.useContext(S3UploadStatusContext)
 }
 
-export function S3UploadForm(user: User & { dccs: DCC[] }
+export function S3UploadForm(user: { name?: string | null, email?: string | null, role: Role, dccs: string[] }
 ) {
 
   const [status, setStatus] = React.useState<S3UploadStatus>({})
@@ -291,7 +291,7 @@ export function S3UploadForm(user: User & { dccs: DCC[] }
               />
             </Grid>
             <Grid item>
-              <DCCSelect dccOptions={user.dccs.map((dcc) => dcc.short_label).toString()} />
+              <DCCSelect dccOptions={user.dccs.join(',')} />
             </Grid>
             <Grid item>
               <FileTypeSelect />
@@ -308,7 +308,7 @@ export function S3UploadForm(user: User & { dccs: DCC[] }
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
             <FormControl>
-              <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }}>
+              <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }} disabled={user.role === 'READONLY'}>
                 Submit Form
               </Button>
             </FormControl>

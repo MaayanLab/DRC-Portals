@@ -8,17 +8,16 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Box, TableFooter, TablePagination, TableSortLabel } from '@mui/material';
-import { BsCheckCircleFill } from "react-icons/bs";
-import { FaCircleExclamation } from "react-icons/fa6";
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
-import type { DccAsset, FileAsset, CodeAsset } from '@prisma/client'
+import type { DccAsset, FileAsset, CodeAsset, FairAssessment } from '@prisma/client'
 import { visuallyHidden } from '@mui/utils';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import { useDebounce } from 'use-debounce';
+import { ApprovedSymbol, NotApprovedSymbol } from './tableSymbols';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -161,6 +160,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         <TableHead>
             <TableRow>
                 <TableCell></TableCell>
+                <TableCell></TableCell>
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
@@ -268,10 +268,10 @@ export function PaginatedTable({ userFiles, role }: {
         } | null;
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
+        fairAssessments: FairAssessment[];
         assetType: string | null;
-    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN"
+    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY", 
 }) {
-
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
@@ -284,6 +284,7 @@ export function PaginatedTable({ userFiles, role }: {
         } | null;
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
+        fairAssessments: FairAssessment[];
         assetType: string | null;
     } & DccAsset)[]>([])
 
@@ -344,45 +345,55 @@ export function PaginatedTable({ userFiles, role }: {
 
     let symbolUserFiles;
 
-    if (role === 'UPLOADER') {
+    if ((role === 'DRC_APPROVER') || (role === 'ADMIN')) {
         symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let approvedSymbol = <FaCircleExclamation size={20} />
-            let currentSymbol = <FaCircleExclamation size={20} />
+            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
+            let approvedSymboldcc =<NotApprovedSymbol />
+            let currentSymbol = <CurrentBtn {...userFile} />
             if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
+                approvedSymboldcc = <ApprovedSymbol />
             }
-            if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
-            }
-            if (userFile.current) {
-                currentSymbol = <BsCheckCircleFill size={20} />
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments[0]
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment} />
             )
         })
     } else if (role === 'DCC_APPROVER') {
         symbolUserFiles = debouncedSortedData.map((userFile) => {
             let approvedSymboldcc = <ApprovalBtn {...userFile} dcc_drc='dcc' />
-            let approvedSymbol = <FaCircleExclamation size={20} />
+            let approvedSymbol = <NotApprovedSymbol />
             let currentSymbol = <CurrentBtn {...userFile} />
             if (userFile.drcapproved) {
-                approvedSymbol = <BsCheckCircleFill size={20} />
+                approvedSymbol = <ApprovedSymbol />
             }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />)
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments[0]
+            }            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>)
         })
-
-    } else {
+    } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
-            let approvedSymbol = <ApprovalBtn {...userFile} dcc_drc='drc' />
-            let approvedSymboldcc = <FaCircleExclamation size={20} />
-            let currentSymbol = <CurrentBtn {...userFile} />
+            let approvedSymboldcc = <NotApprovedSymbol />
+            let approvedSymbol =  <NotApprovedSymbol />
+            let currentSymbol =  <NotApprovedSymbol />
             if (userFile.dccapproved) {
-                approvedSymboldcc = <BsCheckCircleFill size={20} />
+                approvedSymboldcc = <ApprovedSymbol />
+            }
+            if (userFile.drcapproved) {
+                approvedSymbol = <ApprovedSymbol />
+            }
+            if (userFile.current) {
+                currentSymbol =  <ApprovedSymbol />
+            }
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments[0]
             }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>
             )
         })
     }
@@ -400,7 +411,7 @@ export function PaginatedTable({ userFiles, role }: {
                     onInput={(e) => setQueryString((e.target as HTMLFormElement).value)}
                 />
             </Search>
-            <Table sx={{ minWidth: 650}} aria-label="uploaded files">
+            <Table sx={{ maxWidth: '100%'}} aria-label="uploaded files">
                 <EnhancedTableHead
                     order={order}
                     orderBy={orderBy}
@@ -413,7 +424,7 @@ export function PaginatedTable({ userFiles, role }: {
                     <TableRow>
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={8}
+                            colSpan={10}
                             count={copyUserFiles.length}
                             rowsPerPage={rowsPerPage}
                             page={page}

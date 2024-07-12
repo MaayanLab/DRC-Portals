@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma'
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import { AdapterAccount } from 'next-auth/adapters'
+import { Adapter, AdapterAccount } from 'next-auth/adapters'
 
 export default function PrismaAdapterEx() {
   return {
@@ -36,5 +36,5 @@ export default function PrismaAdapterEx() {
       })
       return account as AdapterAccount
     }
-  }
+  } as Adapter
 }

@@ -5,16 +5,15 @@ import SearchPage from './SearchPage'
 import AllSearchPage from './AllSearchPage'
 import React from "react";
 import { FancyTab } from "@/components/misc/FancyTabs";
+import { redirect } from "next/navigation";
+import { safeAsync } from "@/utils/safe";
 
 type PageProps = { searchParams: Record<string, string> }
 
 export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
-  const [results = {
-    count: 0,
-    type_counts: [],
-    dcc_counts: [],
-  }] = searchParams.q ? await prisma.$queryRaw<Array<{
+  if (!searchParams.q) redirect('/data')
+  const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     count: number,
     type_counts: {type: NodeType | 'all' | 'c2m2', entity_type: string | null, count: number}[],
     dcc_counts: {id: string, short_label: string, count: number}[],
@@ -63,9 +62,10 @@ export default async function Page(props: PageProps) {
       (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
-  ` : [undefined]
-  results.type_counts.sort((a, b) => b.count - a.count)
-  results.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.type_counts.reduce((all, item) => all + item.count, 0) })
+  `)
+  results?.type_counts.sort((a, b) => b.count - a.count)
+  results?.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.type_counts.reduce((all, item) => all + item.count, 0) })
+  if (!results) return null
   return Object.values(results.type_counts).map(result => (
     <FancyTab
       key={`${result.type}-${result.entity_type}`}

@@ -2,6 +2,7 @@
  * All analyze modules, a function defines whether the module itself is compatible,
  *  and the button defines what to show.
  */
+import React from 'react'
 import Image from "next/image"
 import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
@@ -16,17 +17,41 @@ const modules: {
 }[] = [
   {
     compatible: (item) => true,
-    button: ({ item }) => <CardButton
-      icon={<Image src={DDIcon} height={64} alt="Data Distillery" />}
-      title="CFDE DD-Knowledge Graph"
-      description={<>The CFDE Data Distillery Knowledge Graph contains entities and relationships across the CFDE. View {item.node.label}'s neighborhood in the knowledge graph.</>}
-    >
-      <Button
-        color="secondary"
-        size="small"
-        disabled
-      >Coming Soon</Button>
-    </CardButton>,
+    button: ({ item }) => {
+      const url = React.useMemo(() => {
+        const params = new URLSearchParams()
+        if (item.type === 'gene') {
+          params.append('filter', JSON.stringify({
+            start: 'Gene',
+            start_field: 'label',
+            start_term: item.node.label,
+            end_field: 'label',
+          }))
+        } else {
+          params.append('filter', JSON.stringify({
+            start: item.type,
+            start_field: 'label',
+            start_term: item.node.label,
+            end_field: 'label',
+          }))
+        }
+        return `https://dd-kg-ui.cfde.cloud/?${params.toString()}`
+      }, [item])
+      return (
+        <CardButton
+          icon={<Image src={DDIcon} height={64} alt="Data Distillery" />}
+          title="CFDE DD-Knowledge Graph"
+          description={<>The CFDE Data Distillery Knowledge Graph contains entities and relationships across the CFDE. View {item.node.label}'s neighborhood in the knowledge graph.</>}
+        >
+          <Button
+            color="secondary"
+            size="small"
+            href={url}
+            target="_blank"
+          >Submit</Button>
+        </CardButton>
+      )
+    },
   },
   {
     compatible: (item) => item.type === 'gene',

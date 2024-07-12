@@ -52,6 +52,9 @@ connection.commit()
 
 # tools
 cur = connection.cursor()
+cur.execute('DELETE FROM partnership_publications')
+cur.execute('DELETE FROM dcc_publications')
+cur.execute('DELETE FROM tools')
 cur.execute('''
   create table tool_tmp
   as table tools
@@ -66,20 +69,19 @@ with open(tools_path(), 'r') as fr:
       sep='\t',
     )
 
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 cur.execute('''
-    insert into tools (id, label, description, url, icon)
-      select id, label, description, url, icon
+    insert into tools (%s)
+      select %s
       from tool_tmp
       on conflict (id)
         do update
-        set id = excluded.id,
-            label = excluded.label,
-            description = excluded.description,
-            url = excluded.url,
-            icon = excluded.icon
+        set %s
     ;
-  ''')
+  '''%(column_string, column_string, set_string))
 cur.execute('drop table tool_tmp;')
+
 connection.commit()
 
 # Publication
@@ -174,9 +176,9 @@ with open(outreach_path(), 'r') as fr:
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific)
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer
       from outreach_tmp
       on conflict (id)
         do update
@@ -194,7 +196,8 @@ cur.execute('''
             link = excluded.link,
             image = excluded.image,
             carousel = excluded.carousel,
-            cfde_specific = excluded.cfde_specific
+            cfde_specific = excluded.cfde_specific,
+            flyer = excluded.flyer
     ;
   ''')
 cur.execute('drop table outreach_tmp;')
@@ -229,9 +232,9 @@ connection.commit()
 ## Partnerships
 
 cur = connection.cursor()
-# cur.execute('DELETE FROM dcc_partnerships')
-# cur.execute('DELETE FROM partnership_publications')
-# cur.execute('DELETE FROM partnerships')
+cur.execute('DELETE FROM dcc_partnerships')
+cur.execute('DELETE FROM partnership_publications')
+cur.execute('DELETE FROM partnerships')
 
 cur.execute('''
   create table partnerships_tmp

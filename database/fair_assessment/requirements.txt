@@ -1,0 +1,10 @@
+BeautifulSoup4
+c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment
+h5py
+numpy
+psycopg2
+python-dotenv
+requests
+SQLAlchemy==1.4.36
+pandas==2.1.4
+tqdm

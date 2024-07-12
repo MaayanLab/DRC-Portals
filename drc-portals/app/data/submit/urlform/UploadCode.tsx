@@ -3,8 +3,7 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
-import { CodeAsset, User } from '@prisma/client';
+import { CodeAsset } from '@prisma/client';
 import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
@@ -39,14 +38,8 @@ const dccMapping: { [key: string]: string } = {
 export const saveCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not allowed to create')
-    if (!user.email) throw new Error('User email missing')
+    if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not allowed to create')
+    if (!session.user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
             short_label: formDcc,
@@ -67,7 +60,7 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
     const savedCode = await prisma.dccAsset.create({
         data: {
             link: url,
-            creator: user.email,
+            creator: session.user.email,
             current: true,
             dcc_id: dcc.id,
             codeAsset: {
@@ -87,8 +80,8 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
         }
     })
 
-    const receipt = await sendUploadReceipt(user, savedCode);
-    const dccApproverAlert = await sendDCCApproverEmail(user, formDcc, savedCode);
+    const receipt = await sendUploadReceipt(session.user, savedCode);
+    const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedCode);
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedCode);
 }
 
@@ -113,14 +106,8 @@ export const findCodeAsset = async (link: string) => {
 export const updateCodeAsset = async (name: string, assetType: string, url: string, formDcc: string, descripton: string, openAPISpecs = false, smartAPISpecs = false, smartAPIURL = '', entityPageExample = '') => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not an allowed to upload')
-    if (!user.email) throw new Error('User email missing')
+    if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not an allowed to upload')
+    if (!session.user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
             short_label: formDcc,
@@ -145,7 +132,7 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
         },
         data: {
             lastmodified: new Date(),
-            creator: user.email,
+            creator: session.user.email,
             dcc_id: dcc.id,
             codeAsset: {
                 delete: { link: url },
@@ -164,7 +151,7 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
 }
 
 
-export async function sendUploadReceipt(user: User, assetInfo: { codeAsset: CodeAsset | null }) {
+export async function sendUploadReceipt(user: { name?: string | null, email?: string | null }, assetInfo: { codeAsset: CodeAsset | null }) {
     if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
     const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
     const transporter = nodemailer.createTransport(server)
@@ -182,7 +169,7 @@ export async function sendUploadReceipt(user: User, assetInfo: { codeAsset: Code
     }
 }
 
-export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
+export async function sendDCCApproverEmail(user: { email?: string | null }, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     const approversList = await prisma.dCC.findFirst({

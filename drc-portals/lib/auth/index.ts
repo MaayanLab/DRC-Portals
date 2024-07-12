@@ -10,11 +10,14 @@ import GlobusProvider from '@/lib/auth/providers/globus'
 import type { OAuthConfig } from 'next-auth/providers/index'
 import PrismaAdapterEx from './adapters/prisma'
 import { Adapter } from 'next-auth/adapters'
+import { Role } from '@prisma/client'
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string
+      role: Role
+      dccs: string[]
     } & DefaultSession['user']
   }
 }
@@ -104,11 +107,28 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       // session.accessToken = token.accessToken
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
+      const userInfo = await prisma.user.findUniqueOrThrow({
+        where: { id },
+        select: {
+          name: true,
+          email: true,
+          role: true,
+          dccs: {
+            select: {
+              short_label: true,
+            },
+          },
+        },
+      })
+      session.user.name = userInfo.name
+      session.user.role = userInfo.role
+      session.user.email = userInfo.email
+      session.user.dccs = userInfo.dccs.map(({ short_label }) => short_label ?? '').filter(dcc => dcc !== '')
       return session
     },
     async redirect({ url, baseUrl }) {

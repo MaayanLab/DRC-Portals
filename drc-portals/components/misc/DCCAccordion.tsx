@@ -1,11 +1,22 @@
 'use client'
 import React, {useLayoutEffect} from 'react';
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, Stack } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { ExpandMore } from '@mui/icons-material'
 import { DCCFileTable } from './DCCFileTable';
 import { dccAsset, dccAssetObj, dccAssetRecord } from '@/utils/dcc-assets';
+import { useWidth } from './Carousel/helper';
 
+const Wrapper = ({children}: {children: React.ReactNode}) => {
+  const width = useWidth()
+  if (['xs'].indexOf(width) > -1) {
+    return(
+      <Stack spacing={1}>
+        {children}
+      </Stack>
+    )
+  } else return children
+}
 function AccordionHeader(
   props: {assetInfo: {current: dccAsset[], archived: dccAsset[]}, label: string, exp: boolean}
 ) {
@@ -18,14 +29,17 @@ function AccordionHeader(
     API: 'API Specifications',
     EntityPages: 'Entity Pages',
     PWBMetanodes: 'PWB Metanodes',
-    ChatbotSpecs: 'Chatbot Specifications'
+    ChatbotSpecs: 'Chatbot Specifications',
+    AppsURL: 'Apps URLs'
   }
   const label = label_map[props.label as keyof typeof label_map]
   if (props.assetInfo.current.length + props.assetInfo.archived.length < 1) {
     return (
-      <AccordionSummary sx={{ backgroundColor: "#b8c4e1"}}>
-        <Typography sx={{ color: '#ffffff', width: '32%', fontSize: '12pt'}}>{label}</Typography>
-        <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>0 Available Files</Typography>
+      <AccordionSummary sx={{ backgroundColor: "tertiary.light"}}>
+        <Wrapper>
+          <Typography sx={{ color: '#ffffff', width: '32%', fontSize: '12pt'}}><b>{label}</b></Typography>
+          <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>0 Available Files</Typography>
+        </Wrapper>
       </AccordionSummary>
     )
   } else {
@@ -35,15 +49,23 @@ function AccordionHeader(
       .toLocaleDateString('en-us', { month:'numeric', day:'numeric', year:'numeric' })
     return (
       <AccordionSummary
-        sx={{ backgroundColor: "#7187C3" }}
-        expandIcon={<ExpandMore />}
+        sx={{ backgroundColor: "tertiary.main" }}
+        expandIcon={<ExpandMore sx={{color: "#FFF"}}/>}
         aria-controls="panel1bh-content"
       >
-        <Typography sx={{ color: '#ffffff', width: '33%', fontSize: '12pt' }}>{label}</Typography>
-        <Typography sx={{ color: '#ffffff', width: '45%', fontSize: '12pt'}}>
-          {props.assetInfo.current.length} Current File(s) | {props.assetInfo.archived.length} Archived File(s)
-        </Typography>
-        <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>Modified {maxDate}</Typography>
+        <Wrapper>
+          <Typography sx={{ color: '#ffffff', width: {xs: "100%", sm: "100%", md: "33%", lg: "33%", xl: "33%"}, fontSize: '12pt' }}><b>{label}</b></Typography>
+          <Typography sx={{ color: '#ffffff',  display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
+            {props.assetInfo.current.length} Current File(s) | {props.assetInfo.archived.length} Archived File(s)
+          </Typography>
+          <Typography sx={{ color: '#ffffff',  display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
+            {props.assetInfo.current.length} Current File(s)
+          </Typography>
+          <Typography sx={{ color: '#ffffff',  display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none"},  width: {xs: "100%", sm: "100%", md: "45%", lg: "45%", xl: "45%"}, fontSize: '12pt'}}>
+            {props.assetInfo.archived.length} Archived File(s)
+          </Typography>
+          <Typography sx={{ color: '#ffffff', fontSize: '12pt' }}>Modified {maxDate}</Typography>
+        </Wrapper>
       </AccordionSummary>
     )
   }

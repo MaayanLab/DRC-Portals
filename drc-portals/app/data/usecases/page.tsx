@@ -43,7 +43,7 @@ const UseCaseCard = ({usecase}:{usecase: UseCaseWithDCC}) => (
 						</Stack>
 
 						{usecase.link && 
-						<Link href={usecase.link}>
+						<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
 							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
 								GO TO USE CASE
 							</Button>
@@ -64,8 +64,8 @@ const UseCaseCard = ({usecase}:{usecase: UseCaseWithDCC}) => (
 
 const CarouselCard = ({usecase}: {usecase: UseCaseWithDCC}) => (
 	<Box sx={{
-		minHeight: 300, 
-		width: 640,
+		minHeight: {xs: 150, sm: 150, md: 300, lg: 300, xl: 300}, 
+		width: {xs: 300, sm: 300, md: 640, lg: 640, xl: 640},
 		textAlign: "center", 
 		border: 1,
 		borderRadius: 5,
@@ -85,24 +85,27 @@ const ServerCarousel = ({usecases}: {usecases: Array<UseCaseWithDCC>}) => {
 	return usecases.map( (usecase, i) => (
 		<Container key={i} maxWidth="lg">
 			<Grid container spacing={2}>
+				<Grid item xs={12} sm={7} sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+					<CarouselCard usecase={usecase}/>
+				</Grid>
 				<Grid item xs={12} sm={5}>
 					<Stack direction="column"
 						alignItems="flex-start"
 						spacing={2}
 						sx={{height: "90%"}}
 					>
-						<Typography sx={{color: "#FFF", background: "#7187c3", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
+						<Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", paddingLeft: 3, paddingRight: 3}}variant="subtitle1">FEATURED</Typography>
 						<Typography variant="h3" color="secondary.dark">{usecase.title}</Typography>
 						<Typography variant="subtitle1">{usecase.description}</Typography>
 						{usecase.link && 
-						<Link href={usecase.link}>
+						<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
 							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
 								GO TO USE CASE
 							</Button>
 						</Link>}
 					</Stack>
 				</Grid>
-				<Grid item xs={12} sm={7}>
+				<Grid item xs={12} sm={7} sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
 					<CarouselCard usecase={usecase}/>
 				</Grid>
 			</Grid>
@@ -148,13 +151,23 @@ export default async function UseCasePage({searchParams}: {searchParams: {
 
     return (
         <Grid container spacing={2} sx={{marginTop: 2}}>
-			<Grid item xs={12}>
+			<Grid item xs={12} sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none"}}}>
+				<ClientCarousel title="" height={830}>
+					<ServerCarousel usecases={featured_usecases}/>
+				</ClientCarousel>
+			</Grid>
+			<Grid item xs={12} sx={{display: {xs: "none", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+				<ClientCarousel title="" height={650}>
+					<ServerCarousel usecases={featured_usecases}/>
+				</ClientCarousel>
+			</Grid>
+			<Grid item xs={12} sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
 				<ClientCarousel title="">
 					<ServerCarousel usecases={featured_usecases}/>
 				</ClientCarousel>
 			</Grid>
-            <Grid item xs={12} sx={{marginTop: 10}}>
-                <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">USE CASES</Typography>
+            <Grid item xs={12} sx={{marginTop: 2}}>
+                <Typography sx={{textAlign: "center"}} variant="h3" color="secondary">ALL USE CASES</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Typography sx={{textAlign: "center"}} variant="body2">

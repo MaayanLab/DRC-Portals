@@ -35,6 +35,12 @@ export default async function UserFiles() {
                     },
                     fileAsset: true,
                     codeAsset: true,
+                    fairAssessments: {
+                        orderBy: {
+                            timestamp: 'desc',
+                        },
+                        take: 1,
+                    }
                 }
             },
             dccs: true
@@ -93,9 +99,15 @@ export default async function UserFiles() {
             },
             fileAsset: true,
             codeAsset: true,
+            fairAssessments: {
+                orderBy: {
+                    timestamp: 'desc',
+                },
+                take: 1,
+            }
         },
         where: {
-            ...(user.role === 'DCC_APPROVER' ? {
+            ...((user.role === 'DCC_APPROVER') || (user.role === 'READONLY')  ? {
                 dcc: {
                     short_label: {
                         in: userDCCArray
@@ -123,7 +135,7 @@ export default async function UserFiles() {
             and current statuses of each file.
         </Typography>
 
-    } else if (user.role === 'DCC_APPROVER') {
+    } else if ((user.role === 'DCC_APPROVER') || (user.role === 'READONLY')) {
         userFiles = allFiles.map(obj => ({ ...obj, assetType: obj.fileAsset ? obj.fileAsset?.filetype : obj.codeAsset?.type ?? '' }))
         headerText = <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
             These are all assets that have been uploaded/submitted for your affiliated DCCs.
@@ -154,7 +166,7 @@ export default async function UserFiles() {
                     <Container className="justify-content-center">
                         <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
-                        <PaginatedTable userFiles={userFiles} role={user.role} />
+                        <PaginatedTable userFiles={userFiles} role={user.role}/>
                     </Container>
                 </Grid>
             </Grid>

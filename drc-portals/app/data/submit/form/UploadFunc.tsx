@@ -18,14 +18,7 @@ import nodemailer from 'nodemailer'
 async function verifyUser() {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
-
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!(user.role === 'ADMIN' || user.role === 'UPLOADER' || user.role === 'DRC_APPROVER' || user.role === 'DCC_APPROVER')) throw new Error('not authorized')
+    if (!(session.user.role === 'ADMIN' || session.user.role === 'UPLOADER' || session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER')) throw new Error('not authorized')
 }
 
 
@@ -115,14 +108,8 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
 export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session.user.id
-        }
-    })
-    if (user === null) throw new Error('No user found')
-    if (!((user.role === 'UPLOADER') || (user.role === 'ADMIN') || (user.role === 'DRC_APPROVER') || (user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
-    if (!user.email) throw new Error('User email missing')
+    if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
+    if (!session.user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
         where: {
             short_label: formDcc,
@@ -164,7 +151,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     const savedUpload = await prisma.dccAsset.create({
         data: {
             link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
-            creator: user.email,
+            creator: session.user.email,
             current: true,
             dcc_id: dcc.id,
             fileAsset: {
@@ -181,13 +168,13 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
         },
     })
 
-    const receipt = await sendUploadReceipt(user, savedUpload);
-    const dccApproverAlert = await sendDCCApproverEmail(user, formDcc, savedUpload)
+    const receipt = await sendUploadReceipt(session.user, savedUpload);
+    const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedUpload)
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);
     return savedUpload
 }
 
-export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: FileAsset | null }) {
+export async function sendUploadReceipt(user: { name?: string | null, email?: string | null }, assetInfo: { fileAsset: FileAsset | null }) {
     if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
     const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
     const transporter = nodemailer.createTransport(server)
@@ -206,7 +193,7 @@ export async function sendUploadReceipt(user: User, assetInfo: { fileAsset: File
     }
 }
 
-export async function sendDCCApproverEmail(user: User, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
+export async function sendDCCApproverEmail(user: { name?: string | null, email?: string | null }, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     const DCCApproversList = await prisma.dCC.findFirst({

@@ -32,7 +32,7 @@ const DrawerInfo = ({ assetOptions }: {
                 flexDirection: 'row-reverse',
                 "&.Mui-expanded": {
                     minHeight: 0,
-                    backgroundColor: '#7187C3'
+                    backgroundColor: 'tertiary.main'
                 },
               }}
             >
