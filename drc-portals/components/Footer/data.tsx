@@ -28,6 +28,7 @@ const Portal = () => (
         <Typography variant="footer">Information Portal</Typography>
       </Link>
       <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+      <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Video Tutorial</Typography></Link>
       <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
   </Stack>
 )
