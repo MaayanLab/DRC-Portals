@@ -33,7 +33,7 @@ export default async function Stats() {
       prisma.kGAssertion.count().then(count => ({ label: 'Assertions', count })),
     ])
     stats.sort((a, b) => b.count - a.count)
-    return stats
+    return stats.filter((stat) => stat.count > 0)
   }, process.env.NODE_ENV === 'development' ? 60*1000 : 24*60*60*1000))
   if ('error' in results) return <StatsFallback />
   return (
