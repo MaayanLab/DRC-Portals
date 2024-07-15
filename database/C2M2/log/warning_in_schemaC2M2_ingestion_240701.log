@@ -1,5 +1,0 @@
-/home/mano/DRC/DRC-Portals/database/C2M2/populateC2M2FromS3.py:326: DtypeWarning: Columns (19) have mixed types. Specify dtype option on import or set low_memory=False.
-/home/mano/DRC/DRC-Portals/database/C2M2/populateC2M2FromS3.py:326: DtypeWarning: Columns (4,19) have mixed types. Specify dtype option on import or set low_memory=False.
-/home/mano/DRC/DRC-Portals/database/C2M2/populateC2M2FromS3.py:326: DtypeWarning: Columns (12) have mixed types. Specify dtype option on import or set low_memory=False.
-Processing C2M2 Files...:  92%|█████████▏| 11/12 [35:17<02:17, 137.95s/it]/home/mano/DRC/DRC-Portals/database/C2M2/populateC2M2FromS3.py:326: DtypeWarning: Columns (15) have mixed types. Specify dtype option on import or set low_memory=False.
-/home/mano/DRC/DRC-Portals/database/C2M2/populateC2M2FromS3.py:326: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
