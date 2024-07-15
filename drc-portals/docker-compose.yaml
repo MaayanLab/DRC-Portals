@@ -111,7 +111,6 @@ services:
 
   drc-portal-postgres:
     image: postgres:16
-    shm_size: 1024m
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     shm_size: 1Gb
@@ -126,7 +125,6 @@ services:
 
   drc-portal-postgres-2:
     image: postgres:16
-    shm_size: 1024m
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     shm_size: 1Gb
