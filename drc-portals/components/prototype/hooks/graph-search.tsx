@@ -16,6 +16,7 @@ import {
   D3_FORCE_TOOLS,
   createCytoscapeElementsFromNeo4j,
   downloadChartData,
+  downloadChartPNG,
   downloadCyAsJson,
   unlockD3ForceNode,
 } from "../utils/cy";
@@ -87,6 +88,12 @@ export default function useGraphSearchBehavior() {
       downloadChartData(
         "search-chart-toolbar-download-data",
         "Download Data",
+        cyRef
+      ),
+    (cyRef: CytoscapeReference) =>
+      downloadChartPNG(
+        "search-chart-toolbar-download-png",
+        "Download PNG",
         cyRef
       ),
   ];

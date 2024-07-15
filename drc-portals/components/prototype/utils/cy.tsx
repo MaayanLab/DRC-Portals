@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import RadarIcon from "@mui/icons-material/Radar";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
@@ -403,6 +404,15 @@ export const downloadCyAsJson = (cy: cytoscape.Collection) => {
   downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
 };
 
+export const downloadCyAsPNG = (cy: cytoscape.Core) => {
+  const base64URI = cy.png({ bg: "#f2f2f2", scale: 3 });
+  const link = document.createElement("a");
+
+  link.href = base64URI;
+  link.download = "c2m2-graph-image.png";
+  link.click();
+};
+
 export const downloadChartData = (
   key: string,
   title: string,
@@ -420,6 +430,29 @@ export const downloadChartData = (
       <Tooltip title={title} arrow>
         <IconButton aria-label="download-data" onClick={fn}>
           <FileDownloadIcon />
+        </IconButton>
+      </Tooltip>
+    </Fragment>
+  );
+};
+
+export const downloadChartPNG = (
+  key: string,
+  title: string,
+  cyRef: CytoscapeReference
+) => {
+  const fn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      downloadCyAsPNG(cy);
+    }
+  };
+
+  return (
+    <Fragment key={key}>
+      <Tooltip title={title} arrow>
+        <IconButton aria-label="download-png" onClick={fn}>
+          <PhotoCameraIcon />
         </IconButton>
       </Tooltip>
     </Fragment>
