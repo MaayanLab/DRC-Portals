@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchPage from './SearchPage'
@@ -7,6 +7,7 @@ import React from "react";
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { redirect } from "next/navigation";
 import { safeAsync } from "@/utils/safe";
+import { Prisma_join } from "@/utils/prisma";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -16,51 +17,39 @@ export default async function Page(props: PageProps) {
   const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     count: number,
     type_counts: {type: NodeType | 'all' | 'c2m2', entity_type: string | null, count: number}[],
-    dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
     with results as (
-      select
-        "node".*,
-        "entity_node"."type" as "entity_type"
-      from "node"
-      left join "entity_node" on "entity_node"."id" = "node"."id"
-      where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
+      select *
+      from websearch_to_tsquery('english', ${searchParams.q}) q, "node"
+      where ${Prisma_join([
+        Prisma.sql`q @@ "node"."searchable"`,
+        searchParams.et ? Prisma.join(
+          searchParams.et.map(t =>  t.type === 'dcc' ? 
+              Prisma.sql`
+              "results"."dcc_id" = ${t.entity_type}
+              `
+            : Prisma.sql`
+            (
+              "results"."type" = ${t.type}::"NodeType"
+              ${t.entity_type ? Prisma.sql`
+                and "results"."entity_type" = ${t.entity_type}
+              ` : Prisma.empty}
+            )
+            `),
+        ' or ') : Prisma.empty,
+      ], ' and ')}
     ), total_count as (
       select count(*)::int as count
       from "results"
-      ${searchParams.et ? Prisma.sql`
-      where
-        ${Prisma.join(searchParams.et.map(t =>  t.type === 'dcc' ? 
-          Prisma.sql`
-          "results"."dcc_id" = ${t.entity_type}
-          `
-        : Prisma.sql`
-        (
-          "results"."type" = ${t.type}::"NodeType"
-          ${t.entity_type ? Prisma.sql`
-            and "results"."entity_type" = ${t.entity_type}
-          ` : Prisma.empty}
-        )
-        `), ' or ')}
-      ` : Prisma.empty}
     ), type_counts as (
       select "type", "entity_type", count(*)::int as count
       from "results"
       group by "type", "entity_type"
       order by count(*) desc
-    ), dcc_id_counts as (
-      select "dcc_id", count(*)::int as count
-      from "results"
-      group by "dcc_id"
-    ), dcc_counts as (
-      select "dccs".id, "dccs".short_label, "dcc_id_counts".count as count
-      from "dcc_id_counts"
-      inner join "dccs" on "dccs".id = "dcc_id"
     )
     select 
       (select count from total_count) as count,
-      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
-      (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
+      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts
     ;
   `)
   results?.type_counts.sort((a, b) => b.count - a.count)

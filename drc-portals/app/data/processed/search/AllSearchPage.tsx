@@ -1,10 +1,10 @@
-import prisma from "@/lib/prisma";
-import { pluralize, type_to_color, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
+import React from "react";
+import prisma from "@/lib/prisma/slow";
+import { type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import KGNode from '@/public/img/icons/KGNode.png'
 import KGEdge from '@/public/img/icons/KGEdge.png'
-import SearchFilter from "./SearchFilter";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
@@ -13,6 +13,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
+import ProgramFilters from "./ProgramFilters";
 
 type PageProps = { searchParams: Record<string, string> }
 
@@ -41,10 +42,10 @@ export default async function Page(props: PageProps) {
     searchParams.et.some(t => t.type === 'dcc')
       ? Prisma_join(
         searchParams.et.filter(t => t.type === 'dcc').map(t => Prisma_join([
-          Prisma.sql`"results"."dcc_id" = ${t.entity_type}`,
+          Prisma.sql`"node"."dcc_id" = ${t.entity_type}`,
           Prisma_join(searchParams.et ? searchParams.et.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
             (
-              "results"."type" = ${t.type}::"NodeType"
+              "node"."type" = ${t.type}::"NodeType"
             )
             `) : [], ' or '),
         ], ' and ')),
@@ -53,15 +54,15 @@ export default async function Page(props: PageProps) {
       // otherwise, we filter by entity type independent of dcc
       : Prisma_join(searchParams.et.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
         (
-          "results"."type" = ${t.type}::"NodeType"
+          "node"."type" = ${t.type}::"NodeType"
         )
         `), ' or '),
     // entities not associated with a DCC should be independently filterable
     Prisma_join(searchParams.et.filter(t => t.entity_type !== null).map(t => Prisma.sql`
       (
-        "results"."type" = 'entity'::"NodeType"
+        "node"."type" = 'entity'::"NodeType"
         ${t.entity_type ? Prisma.sql`
-          and "results"."entity_type" = ${t.entity_type}
+          and "node"."entity_type" = ${t.entity_type}
         ` : Prisma.empty}
       )
     `), ' or '),
@@ -73,16 +74,12 @@ export default async function Page(props: PageProps) {
     dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
     with results as (
-      select
-        "node".*,
-        "entity_node"."type" as "entity_type",
-        row_number() over (
-          partition by "node"."type", "node"."dcc_id"
-          order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q}))
-        ) as "rank"
-      from "node"
-      left join "entity_node" on "entity_node"."id" = "node"."id"
-      where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
+      select "node".*
+      from websearch_to_tsquery('english', ${searchParams.q}) q, "node"
+      where ${Prisma_join([Prisma.sql`q @@ "node"."searchable"`, filterClause], ' and ')}
+      order by "node"."pagerank" desc
+      offset ${offset}
+      limit 100
     ), items as (
       select id, type, entity_type, label, description, (
         select jsonb_build_object(
@@ -95,42 +92,31 @@ export default async function Page(props: PageProps) {
       ) as dcc
       from "results"
       ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
-      order by "results"."rank"
-      offset ${offset}
       limit ${limit}
     ), filter_count as (
       select count(*)::int as count
       from "results"
-      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
-    ), total_count as (
-      select count(*)::int as count
-      from "results"
-    ), dcc_id_counts as (
-      select "dcc_id", count(*)::int as count
-      from "results"
-      group by "dcc_id"
-    ), dcc_counts as (
-      select "dccs".id, "dccs".short_label, "dcc_id_counts".count as count
-      from "dcc_id_counts"
-      inner join "dccs" on "dccs".id = "dcc_id"
     )
     select 
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
-      (select count from total_count) as total_count,
-      (select count from filter_count) as filter_count,
-      (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
+      (select count from filter_count) as filter_count
     ;
   ` : [undefined]
-  if (!results?.total_count) return null
   return (
     <ListingPageLayout
       count={results?.filter_count}
+      maxCount={100}
       filters={
         <>
-          <Typography className="subtitle1">Program</Typography>
-          {results?.dcc_counts.map((dcc_count) =>
-            <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
-          )}
+          <span className="has-[.not-empty:empty]:hidden">
+            <Typography className="subtitle1">Program</Typography>
+            <span className="not-empty flex flex-col">
+              <React.Suspense fallback={null}>
+                <ProgramFilters q={searchParams.q ??''} />
+              </React.Suspense>
+            </span>
+            <hr className="m-2" />
+          </span>
         </>
       }
       footer={
@@ -149,7 +135,7 @@ export default async function Page(props: PageProps) {
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.filter_count}
+        count={(results?.filter_count??0)+offset}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
