@@ -91,7 +91,6 @@ export default async function Page(props: PageProps) {
         where "dccs".id = "dcc_id"
       ) as dcc
       from "results"
-      ${filterClause !== Prisma.empty ? Prisma.sql`where ${filterClause}` : Prisma.empty}
       limit ${limit}
     ), filter_count as (
       select count(*)::int as count

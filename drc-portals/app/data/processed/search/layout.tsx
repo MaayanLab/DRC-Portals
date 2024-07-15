@@ -51,7 +51,6 @@ export default async function Page({ children }: React.PropsWithChildren<{}>) {
         </FancyTab>
       }>
         {children}
-        {/* <C2M2SearchQueryComponent tab {...props} /> */}
       </React.Suspense>
     </FancyTabs>
   )
