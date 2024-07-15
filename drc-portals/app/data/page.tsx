@@ -84,7 +84,7 @@ const tool_cards = [
   }
 ];
 
-export default async function Home({ searchParams }: { searchParams: { error?: string } }) {
+export default async function Home({ searchParams }: { searchParams: { q?: string, error?: string } }) {
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -130,12 +130,14 @@ export default async function Home({ searchParams }: { searchParams: { error?: s
                             </Link>
                           </CustomTooltip>.
                         </Typography>
-
-                        <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
-                          <SearchField q="" error={searchParams.error} width={'544px'}/>
-                        </Box>
-                        <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
-                          <SearchField q="" error={searchParams.error} width={'270px'}/>
+                        <Box>
+                          <SearchField
+                            q={searchParams.q ?? ''}
+                            error={searchParams.error}
+                            InputProps={{
+                              sx: {width:{xs: '270px', sm: '270px', md: '544px', lg: '544px', xl: '544px'} }
+                            }}
+                          />
                         </Box>
                         <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
