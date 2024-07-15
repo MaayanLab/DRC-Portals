@@ -1,0 +1,8 @@
+__pycache__
+.cached
+C2M2/ingest
+C2M2/log
+data
+fair
+fairshake.ipynb
+ingest

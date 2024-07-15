@@ -196,6 +196,12 @@ services:
     # volumes:
     #   - ../auth/themes/drc-portal:/opt/keycloak/themes/drc-portal/
 
+  drc-portal-ingest:
+    build: ../database
+    image: maayanlab/drc-portal-ingest:0.9.0
+    deploy:
+      replicas: 0
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:

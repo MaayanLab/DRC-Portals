@@ -3,9 +3,7 @@ c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment
 h5py
 numpy
 pandas
-psycopg2
+psycopg2-binary
 python-dotenv
 requests
-requests
-SQLAlchemy==1.4.17
 tqdm
