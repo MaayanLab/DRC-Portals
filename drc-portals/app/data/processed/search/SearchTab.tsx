@@ -43,7 +43,7 @@ export default function SearchTabs(props: React.PropsWithChildren<{
         <Tab
           key={`${type}-${entity_type || ''}`}
           sx={{ fontSize: '14pt' }}
-          label={`${pluralize(type_to_string(type, entity_type))}${count ? ` (${count})` : ''}`}
+          label={`${pluralize(type_to_string(type, entity_type))}${count ? ` (${BigInt(count).toLocaleString()})` : ''}`}
           value={entity_type ? `${type}:${entity_type}` : type}
         />
       )}

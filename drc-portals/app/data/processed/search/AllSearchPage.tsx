@@ -70,7 +70,6 @@ export default async function Page(props: PageProps) {
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,
     total_count: number,
-    type_counts: {type: NodeType, entity_type: string | null, count: number}[],
     dcc_counts: {id: string, short_label: string, count: number}[],
   }>>`
     with results as (
@@ -106,11 +105,6 @@ export default async function Page(props: PageProps) {
     ), total_count as (
       select count(*)::int as count
       from "results"
-    ), type_counts as (
-      select "type", "entity_type", count(*)::int as count
-      from "results"
-      group by "type", "entity_type"
-      order by count(*) desc
     ), dcc_id_counts as (
       select "dcc_id", count(*)::int as count
       from "results"
@@ -124,7 +118,6 @@ export default async function Page(props: PageProps) {
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
       (select count from total_count) as total_count,
       (select count from filter_count) as filter_count,
-      (select coalesce(jsonb_agg(type_counts.*), '[]'::jsonb) from type_counts) as type_counts,
       (select coalesce(jsonb_agg(dcc_counts.*), '[]'::jsonb) from dcc_counts) as dcc_counts
     ;
   ` : [undefined]
@@ -137,14 +130,6 @@ export default async function Page(props: PageProps) {
           <Typography className="subtitle1">Program</Typography>
           {results?.dcc_counts.map((dcc_count) =>
             <SearchFilter key={`dcc-${dcc_count.id}`} id={`dcc:${dcc_count.id}`} count={dcc_count.count} label={dcc_count.short_label} />
-          )}
-          <hr className="m-2" />
-          <Typography className="subtitle1">Type</Typography>
-          {results?.type_counts.filter(({ entity_type }) => !entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
-          )}
-          {results?.type_counts.filter(({ entity_type }) => !!entity_type).map((type_count) =>
-            <SearchFilter key={`${type_count.type}-${type_count.entity_type}`} id={`entity:${type_count.entity_type}`} count={type_count.count} label={pluralize(type_to_string(type_count.type, type_count.entity_type))} color={type_to_color(type_count.type, type_count.entity_type)} />
           )}
         </>
       }

@@ -70,7 +70,7 @@ export default async function Page(props: PageProps) {
     <FancyTab
       key={`${result.type}-${result.entity_type}`}
       id={`${result.type}-${result.entity_type}`}
-      label={`${type_to_string(result.type, result.entity_type)} (${result.count})`}
+      label={<>{type_to_string(result.type, result.entity_type)}<br />{BigInt(result.count).toLocaleString()}</>}
       priority={result.count}
       hidden={result.count === 0}
     >

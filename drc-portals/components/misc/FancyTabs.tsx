@@ -17,7 +17,7 @@ import { Grid } from "@mui/material";
 
 type FancyTabProps = {
   id: string,
-  label: string,
+  label: React.ReactNode,
   priority?: number,
   hidden?: boolean,
 }
@@ -56,29 +56,35 @@ export function FancyTabs(props: React.PropsWithChildren<{
   }, [ctx.tabs])
   const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs[0]?.id, [props.tab, tab, tabs])
   return (
-    <Grid>
-      <Tabs
-        variant='fullWidth'
-        textColor='secondary'
-        value={currentTab}
-        onChange={props.onChange ?? ((evt, tab) => setTab(tab))}
-      >
-        {tabs.map(item => (
-          <Tab
-            key={item.id} 
-            sx={{ fontSize: '14pt' }}
-            label={item.label}
-            value={item.id}
-          />
-        ))}
-      </Tabs>
-      {tabs.length === 0 ?
-        ctx.initialized ? props.postInitializationFallback
-        : props.preInitializationFallback
-      : null}
-      <FancyTabContext.Provider value={[currentTab, register]}>
-        {props.children}
-      </FancyTabContext.Provider>
+    <Grid container xs={12}>
+      <Grid item xs={2} paddingRight={2}>
+          <Tabs
+            variant="scrollable"
+            textColor='secondary'
+            orientation="vertical"
+            scrollButtons="auto"
+            value={currentTab}
+            onChange={props.onChange ?? ((evt, tab) => setTab(tab))}
+          >
+            {tabs.map(item => (
+              <Tab
+                key={item.id} 
+                sx={{ fontSize: '14pt' }}
+                label={item.label}
+                value={item.id}
+              />
+            ))}
+          </Tabs>
+      </Grid>
+      <Grid item xs={10}>
+        {tabs.length === 0 ?
+          ctx.initialized ? props.postInitializationFallback
+          : props.preInitializationFallback
+        : null}
+        <FancyTabContext.Provider value={[currentTab, register]}>
+          {props.children}
+        </FancyTabContext.Provider>
+      </Grid>
     </Grid>
   )
 }
