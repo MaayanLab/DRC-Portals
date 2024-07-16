@@ -224,6 +224,7 @@ export const createCallBlock = (
   const wherePredicates: string[] = [...extraWherePredicates];
   const retVars: string[] = [];
   const withVars: string[] = [];
+  const matches: string[] = [];
   let matchPattern = "";
 
   elements.forEach((element, index) => {
@@ -256,13 +257,19 @@ export const createCallBlock = (
     }
   });
 
+  matches.push(`MATCH ${matchPattern}`, ...extraMatches);
+
   return [
     "CALL {",
     withVars.length > 0
       ? `\tWITH ${withVars.join(", ")}`
       : "\t// No previous vars to include in this CALL!",
-    `\tMATCH ${matchPattern}`,
-    extraMatches.join("\n"),
+    ...(matches.length > 1
+      ? matches.map(
+          (match) =>
+            `\t${match}\n\tWITH ${[...withVars, ...retVars].join(", ")}`
+        )
+      : matches.map((match) => `\t${match}`)),
     `\t${createWhereClause(wherePredicates)}`,
     `\tRETURN DISTINCT ${retVars.join(", ")}`,
     `\tSKIP ${skip || 0}`,
@@ -296,7 +303,7 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     );
     const extraWherePredicates: string[] = [];
     paths.slice(pathIdx + 1).forEach((subsequentPath) => {
-      let matchPattern = "\tMATCH ";
+      let matchPattern = "MATCH ";
       subsequentPath.elements.forEach((element, elIdx) => {
         const variable = element.key || "";
         const varIsKnown = tempKnownVars.has(variable);
