@@ -11,8 +11,8 @@ services:
       - ./import:/import
       - drc-portals-neo4j-data:/var/lib/neo4j/data
     environment:
-      - NEO4J_USERNAME
-      - NEO4J_PASSWORD
+      - USERNAME
+      - PASSWORD
       - GRAPH_C2M2_DBNAME
       - GRAPH_C2M2_READER_USERNAME
       - GRAPH_C2M2_READER_PASSWORD
