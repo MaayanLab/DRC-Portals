@@ -16,6 +16,7 @@ import {
   D3_FORCE_TOOLS,
   createCytoscapeElementsFromNeo4j,
   downloadChartData,
+  downloadChartPNG,
   downloadCyAsJson,
   unlockD3ForceNode,
 } from "../utils/cy";
@@ -61,6 +62,24 @@ export default function useGraphSearchBehavior() {
         }
       },
     },
+    {
+      fn: (event: EventObjectNode) =>
+        event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node)),
+      title: "Unlock Selection",
+      showFn: (event: EventObjectNode) =>
+        event.cy
+          .nodes(":selected")
+          .map((node) => {
+            const scratch = node.scratch();
+
+            if (scratch["d3-force"] !== undefined) {
+              return scratch["d3-force"].fx || scratch["d3-force"].fy;
+            } else {
+              return false;
+            }
+          })
+          .some((isLocked) => isLocked),
+    },
   ];
 
   const customTools = [
@@ -69,6 +88,12 @@ export default function useGraphSearchBehavior() {
       downloadChartData(
         "search-chart-toolbar-download-data",
         "Download Data",
+        cyRef
+      ),
+    (cyRef: CytoscapeReference) =>
+      downloadChartPNG(
+        "search-chart-toolbar-download-png",
+        "Download PNG",
         cyRef
       ),
   ];

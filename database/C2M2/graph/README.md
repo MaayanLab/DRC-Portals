@@ -38,9 +38,11 @@ In case the example file does not exist, refer to the following to create a new 
 
 ```bash
 # Neo4j vars
-USERNAME=
-PASSWORD=
-NEO4J_NEO4J_AUTH=
+NEO4J_USERNAME=
+NEO4J_PASSWORD=
+NEO4J_C2M2_DBNAME=
+NEO4J_C2M2_READER_USERNAME=
+NEO4J_C2M2_READER_PASSWORD=
 
 # Postgres vars
 PG_DBNAME=
@@ -121,11 +123,11 @@ docker exec drc-portals-neo4j /import/load.sh
 
 This will run the `load.sh` script _inside_ the Neo4j container. You should see some output detailing the progress of the script. Be aware that this process may take a while.
 
-Once the script has finished, you will have a fully loaded C2M2 graph! The Neo4j browser should be available at: http://localhost:7474. If for whatever reason you can't easily access the web browser, you can also explore the graph using `cypher-shell` from within the container:
+Once the script has finished, you will have a fully loaded C2M2 graph! The Neo4j browser should be available at: [localhost:7474](http://localhost:7474). If for whatever reason you can't easily access the web browser, you can also explore the graph using `cypher-shell` from within the container:
 
 ```bash
 $ source .env
-$ docker exec -it drc-portals-neo4j cypher-shell -p $PASSWORD -u $USERNAME
+$ docker exec -it drc-portals-neo4j cypher-shell -p $NEO4J_PASSWORD -u $NEO4J_USERNAME
 neo4j@neo4j> MATCH (p:Project) RETURN p.name LIMIT 25;
 ```
 

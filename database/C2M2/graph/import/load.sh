@@ -77,11 +77,20 @@ files=(
     "collection_taxonomy.cypher"
 )
 
+# Make sure the C2M2 database exists before putting any data into it
+sh ./init_c2m2_db.sh
+
 # Iterate over the array of filenames
 for filename in "${files[@]}"; do
     # Check if it's a file
     if [ -f "/import/cypher/$filename" ]; then
         echo Loading file $filename...
-        cypher-shell -p $PASSWORD -u $USERNAME -f "/import/cypher/$filename"
+        cypher-shell -p $NEO4J_PASSWORD -u $NEO4J_USERNAME -d $NEO4J_C2M2_DBNAME -f "/import/cypher/$filename"
     fi
 done
+
+# Make sure the C2M2 database is read-only once the data has been written
+cypher-shell -p $NEO4J_PASSWORD -u $NEO4J_USERNAME "ALTER DATABASE $NEO4J_C2M2_DBNAME SET ACCESS READ ONLY"
+
+# Create a read only user for the C2M2 database if it doesn't already exist
+sh ./init_c2m2_user.sh

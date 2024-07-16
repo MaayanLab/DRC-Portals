@@ -60,6 +60,7 @@ export default function GraphSearch() {
     const searchParams = new URLSearchParams(`q=${term}`);
     router.push(`?${searchParams.toString()}`);
     setSearchBarValue(term);
+    setEntityDetails(undefined); // Reset the entity details if a new query is submitted
   };
 
   useEffect(() => {

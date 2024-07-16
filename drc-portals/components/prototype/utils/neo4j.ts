@@ -167,7 +167,8 @@ export const getMatchSubpattern = (
   element: SearchBarOption,
   subPatternIdx: number,
   prevIsRelationship: boolean,
-  patternLength: number
+  patternLength: number,
+  omitLabelOrType = false
 ) => {
   let subPattern = "";
   const elementIsRelationship = isRelationshipOption(element);
@@ -188,16 +189,18 @@ export const getMatchSubpattern = (
     subPattern += `-[]-`;
   }
 
+  const labelOrTypeAnnotation = omitLabelOrType ? "" : `:${element.name}`;
+
   if (elementIsRelationship) {
     if (element.direction === Direction.OUTGOING) {
-      subPattern += `-[${variable}:${element.name}]->`;
+      subPattern += `-[${variable}${labelOrTypeAnnotation}]->`;
     } else if (element.direction === Direction.INCOMING) {
-      subPattern += `<-[${variable}:${element.name}]-`;
+      subPattern += `<-[${variable}${labelOrTypeAnnotation}]-`;
     } else {
       subPattern += `-[${variable}]-`;
     }
   } else {
-    subPattern += `(${variable}:${element.name})`;
+    subPattern += `(${variable}${labelOrTypeAnnotation})`;
   }
 
   // We've reached the last element in the pattern
@@ -213,30 +216,36 @@ export const getMatchSubpattern = (
 
 export const createCallBlock = (
   path: SchemaSearchPath,
-  withVars: string[],
-  extraMatches: string[]
+  knownKeys: Set<string>,
+  extraMatches: string[],
+  extraWherePredicates: string[]
 ) => {
   const { elements, skip, limit } = path;
-  const withVarsSet = new Set(withVars);
-  const wherePredicates: string[] = [];
-  const variables: string[] = [];
+  const wherePredicates: string[] = [...extraWherePredicates];
+  const retVars: string[] = [];
+  const withVars: string[] = [];
+  const matches: string[] = [];
   let matchPattern = "";
 
   elements.forEach((element, index) => {
     const variable = element.key || "";
+    const varIsKnown = knownKeys.has(variable);
     const prevIsRelationship =
       index > 0 ? isRelationshipOption(elements[index - 1]) : false;
+
+    if (varIsKnown) {
+      withVars.push(variable);
+    } else if (variable !== "") {
+      retVars.push(variable);
+    }
 
     matchPattern += getMatchSubpattern(
       element,
       index,
       prevIsRelationship,
-      elements.length
+      elements.length,
+      varIsKnown
     );
-
-    if (variable !== "") {
-      variables.push(variable);
-    }
 
     if (element.filters.length > 0) {
       element.filters.forEach((filter) => {
@@ -248,15 +257,21 @@ export const createCallBlock = (
     }
   });
 
+  matches.push(`MATCH ${matchPattern}`, ...extraMatches);
+
   return [
     "CALL {",
     withVars.length > 0
       ? `\tWITH ${withVars.join(", ")}`
       : "\t// No previous vars to include in this CALL!",
-    `\tMATCH ${matchPattern}`,
-    extraMatches.join("\n"),
+    ...(matches.length > 1
+      ? matches.map(
+          (match) =>
+            `\t${match}\n\tWITH ${[...withVars, ...retVars].join(", ")}`
+        )
+      : matches.map((match) => `\t${match}`)),
     `\t${createWhereClause(wherePredicates)}`,
-    `\tRETURN ${variables.filter((v) => !withVarsSet.has(v)).join(", ")}`,
+    `\tRETURN DISTINCT ${retVars.join(", ")}`,
     `\tSKIP ${skip || 0}`,
     `\tLIMIT ${limit || 10}`,
     "}",
@@ -281,68 +296,50 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     });
   });
 
-  const allSubsequentPathMatches =
-    paths.length > 1
-      ? paths.slice(1).reduce((matches: string[], path) => {
-          let matchClause = "\tMATCH ";
-
-          path.elements.forEach((element, index) => {
-            const prevIsRelationship =
-              index > 0
-                ? isRelationshipOption(path.elements[index - 1])
-                : false;
-
-            matchClause += getMatchSubpattern(
-              element,
-              index,
-              prevIsRelationship,
-              path.elements.length
-            );
-          });
-          return matches.concat([matchClause]);
-        }, [])
-      : [];
-
-  paths.forEach((path) => {
-    const keysRelatedToCurrentPath = new Set<string>(
-      path.elements
-        .filter((el) => el.key !== undefined)
-        .map((el) => el.key as string)
+  paths.forEach((path, pathIdx) => {
+    const subsequentMatches: string[] = [];
+    const tempKnownVars = new Set(
+      path.elements.filter((el) => el.key !== undefined).map((el) => el.key)
     );
-    const extraMatches =
-      allSubsequentPathMatches.length > 0
-        ? allSubsequentPathMatches.filter((_, index) => {
-            const subsequentPathKeys = new Set(
-              paths[
-                index + (paths.length - allSubsequentPathMatches.length)
-              ].elements
-                .filter((el) => el.key !== undefined)
-                .map((el) => el.key as string)
-            );
+    const extraWherePredicates: string[] = [];
+    paths.slice(pathIdx + 1).forEach((subsequentPath) => {
+      let matchPattern = "MATCH ";
+      subsequentPath.elements.forEach((element, elIdx) => {
+        const variable = element.key || "";
+        const varIsKnown = tempKnownVars.has(variable);
+        const prevIsRelationship =
+          elIdx > 0
+            ? isRelationshipOption(subsequentPath.elements[elIdx - 1])
+            : false;
 
-            // Keep track of keys which are transitively related to the current path, and add paths which contain them
-            if (
-              Array.from(subsequentPathKeys).filter((key) =>
-                keysRelatedToCurrentPath.has(key)
-              ).length > 0
-            ) {
-              subsequentPathKeys.forEach((key) =>
-                keysRelatedToCurrentPath.add(key)
-              );
-              return true;
-            } else {
-              return false;
+        if (!varIsKnown && variable !== "") {
+          tempKnownVars.add(variable);
+        }
+
+        matchPattern += getMatchSubpattern(
+          element,
+          elIdx,
+          prevIsRelationship,
+          subsequentPath.elements.length,
+          varIsKnown
+        );
+
+        if (element.filters.length > 0) {
+          element.filters.forEach((filter) => {
+            const predicate = createPredicate(variable, filter);
+            if (predicate !== undefined) {
+              extraWherePredicates.push(predicate);
             }
-          })
-        : [];
-    allSubsequentPathMatches.shift();
+          });
+        }
+      });
+      subsequentMatches.push(matchPattern);
+    });
+
     callBlocks.push(
-      createCallBlock(
-        path,
-        [...Array.from(nodeKeys), ...Array.from(relationshipKeys)],
-        extraMatches
-      )
+      createCallBlock(path, nodeKeys, subsequentMatches, extraWherePredicates)
     );
+
     path.elements.forEach((element) => {
       // Consider elements without keys as anonymous (i.e., they won't be returned explicitly)
       if (element.key !== undefined) {

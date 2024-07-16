@@ -74,7 +74,6 @@ export default function SettingsPropertyForm(
   };
 
   const updateKey = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("updateKey");
     setKey(event.target.value);
 
     if (!/^[A-Za-z]/.test(event.target.value)) {
@@ -156,43 +155,45 @@ export default function SettingsPropertyForm(
             </>
           )}
         </Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            marginBottom: 1,
-          }}
-        >
-          <Box>
-            <Typography
-              sx={{
-                alignContent: "center",
-                marginRight: 1,
-                paddingTop: "16.5px",
-              }}
-            >
-              Element Key:
-            </Typography>
+        {isRelationshipOption(value) ? null : (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              marginBottom: 1,
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  alignContent: "center",
+                  marginRight: 1,
+                  paddingTop: "16.5px",
+                }}
+              >
+                Element Key:
+              </Typography>
+            </Box>
+            <TextField
+              id="settings-prop-form-key-field"
+              color="secondary"
+              label="Key"
+              variant="outlined"
+              error={keyError}
+              helperText={keyErrorHelpText}
+              value={key}
+              sx={{ maxWidth: "202px" }}
+              inputProps={{ sx: { backgroundColor: "#fff" } }}
+              onChange={updateKey}
+            />
+            <Box sx={{ paddingTop: "16.5px" }}>
+              <Tooltip title={KEY_INFO} arrow placement="top">
+                <HelpIcon color="secondary" />
+              </Tooltip>
+            </Box>
           </Box>
-          <TextField
-            id="settings-prop-form-key-field"
-            color="secondary"
-            label="Key"
-            variant="outlined"
-            error={keyError}
-            helperText={keyErrorHelpText}
-            value={key}
-            sx={{ maxWidth: "202px" }}
-            inputProps={{ sx: { backgroundColor: "#fff" } }}
-            onChange={updateKey}
-          />
-          <Box sx={{ paddingTop: "16.5px" }}>
-            <Tooltip title={KEY_INFO} arrow placement="top">
-              <HelpIcon color="secondary" />
-            </Tooltip>
-          </Box>
-        </Box>
+        )}
       </Box>
       {properties?.length ? (
         <>

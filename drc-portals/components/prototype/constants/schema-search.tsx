@@ -47,7 +47,7 @@ export const OPERATOR_FUNCTIONS: ReadonlyMap<string, PredicateFn> = new Map([
   [
     STRING_CONTAINS,
     (variable, property, value) =>
-      `${variable}.${property} CONTAINS "${value}"`,
+      `toLower(${variable}.${property}) CONTAINS toLower("${value}")`,
   ],
   [
     STRING_STARTS_WITH,
