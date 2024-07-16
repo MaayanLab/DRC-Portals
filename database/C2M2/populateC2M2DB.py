@@ -23,7 +23,7 @@ host = "localhost"
 port = "5432"
 
 # Create a PostgreSQL engine
-engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}')
+engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
 
 # Load C2M2 schema from JSON file
 c2m2Schema = 'C2M2_datapackage.json'
@@ -47,7 +47,7 @@ schemaName = 'c2m2metadata'
 
 # Create a cursor for executing SQL statements
 cursor = conn.cursor()
-
+cursor.execute('set statement_timeout = 0')
 # Enable autocommit to avoid transaction issues
 conn.autocommit = True
 

@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /*
 Script to ingest C2M2 Controlled Vocabularies: being in the directory /home/mano/DRC/DRC-Portals/database, generated using the command ./gen_ingest_script.sh ingest_CV.sql
 Generated sql script ingest_CV.sql and made it executable for owner and group. The resulting sql script can be run as (upon starting psql shell, or equivalent command):

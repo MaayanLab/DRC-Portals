@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 DROP SCHEMA IF EXISTS c2m2 CASCADE;
 CREATE SCHEMA IF NOT EXISTS c2m2;
 

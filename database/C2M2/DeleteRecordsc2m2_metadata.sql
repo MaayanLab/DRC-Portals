@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 DELETE FROM c2m2_metadata.sample_prep_method;
 DELETE FROM c2m2_metadata.file;
 DELETE FROM c2m2_metadata.biosample;

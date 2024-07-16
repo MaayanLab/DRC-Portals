@@ -9,7 +9,7 @@ host = "localhost"
 port = "5432"
 
 # Create a PostgreSQL engine
-engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}')
+engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(

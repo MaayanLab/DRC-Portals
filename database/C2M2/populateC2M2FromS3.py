@@ -53,7 +53,7 @@ conn_params = {
 conn = psycopg2.connect(**conn_params)
 
 # Create a PostgreSQL engine
-engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}')
+engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -111,6 +111,7 @@ cqf = open(count_qf_name, "w")
 cursor = conn.cursor()
 # Enable autocommit to avoid transaction issues
 conn.autocommit = True
+cursor.execute('set statement_timeout = 0')
 
 #==========================================================================================
 # Function to map C2M2 data types to PostgreSQL data types

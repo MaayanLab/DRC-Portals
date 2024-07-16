@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /* DO NOT DELETE ANY OF THE COMMENTS */
 /* 
 run in psql as \i c2m2_other_tables.sql or on bash prompt:

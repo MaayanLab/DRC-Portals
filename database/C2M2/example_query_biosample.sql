@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 
 --- The query below as a starting point to write the sql code to 
 --- generat the table c2m2.ffl_biosample in the file biosample_fully_flattened.sql.

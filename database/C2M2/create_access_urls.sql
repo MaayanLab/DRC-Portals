@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 alter table c2m2.file add access_url varchar default '';
 update c2m2.file set access_url = (
   case

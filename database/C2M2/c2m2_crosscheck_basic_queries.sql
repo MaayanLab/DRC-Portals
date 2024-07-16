@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /* Some basic queries to check if metadata from various DCCs, together in the schema c2m2 
 or in respective schema are all good.
 1. Check if counts from respective schema match with count from c2m2 schema for tables which have 

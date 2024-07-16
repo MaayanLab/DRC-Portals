@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /*
 Script to remove .0 from columns size_in_bytes and uncompressed_size_in_bytes of file tables of various schema
 

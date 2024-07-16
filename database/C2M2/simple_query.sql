@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 WITH allres_full AS (
           SELECT DISTINCT c2m2.ffl_biosample_collection.*,
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
