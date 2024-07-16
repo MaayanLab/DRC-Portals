@@ -2,7 +2,7 @@
 // npx prisma generate
 // then run this
 
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/prisma/slow'
 
 async function main() {
   const allsamples = await prisma.geneEntity.findMany()

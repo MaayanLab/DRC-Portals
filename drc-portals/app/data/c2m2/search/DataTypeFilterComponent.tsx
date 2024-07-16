@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/c2m2";
 import SQL from '@/lib/prisma/raw';
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet";
 import React from 'react';

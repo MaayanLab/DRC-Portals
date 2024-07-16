@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/c2m2";
 import { Grid, Typography } from "@mui/material";
 
 export function StatsFallback() {
