@@ -106,13 +106,7 @@ docker logs --follow drc-portals-neo4j
 
 It is important to note that the container has a second volume mount: `/import`. We mount the `./import` directory located in this project to the `/import` directory in the Neo4j container. This allows us to easily "copy" the Postgres data and import scripts into the container, while simultaneously allowing us to edit those files in the host and have changes mirrored in the container. This can be handy for debugging or ad-hoc adjustments.
 
-Be aware that this is _NOT_ the default import directory for Neo4j! We explicitly change the import directory with the following environment variable option in the docker-compose file:
-
-```yaml
-- NEO4J_server.directories.import=/import
-```
-
-It is _highly_ recommended that you do not edit this setting! Suffice to say, the Neo4j container does some strange things with file permissions when host directories are mounted to the _default_ container directories. If you absolutely must create additional volumes (e.g., for logs or configs), it is strongly recommended to create _new_ directories, as we do with the `/import` directory.
+It is _highly_ recommended that you do not set any volume mount to the default Neo4j home directories. Suffice to say, the Neo4j container does some strange things with file permissions when host directories are mounted to the default container directories. If you want to create additional volumes (e.g., for logs or configs), it is strongly recommended to mount those directories to the root of the container, e.g. `/logs`, `/config` etc.
 
 ### Run the Load Process
 
