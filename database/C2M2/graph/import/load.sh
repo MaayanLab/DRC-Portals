@@ -15,6 +15,7 @@ files=(
     "project.cypher"
     # # DCC relies on project existing, so we add it after adding container entities...
     "dcc.cypher"
+    "id_namespace_dcc_id.cypher"
     # # Term entities next...
     "ncbi_taxonomy.cypher"
     "compound.cypher"

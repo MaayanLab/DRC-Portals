@@ -35,6 +35,7 @@ tables=(
     "file_in_collection"
     "gene"
     "id_namespace"
+    "id_namespace_dcc_id"
     "ncbi_taxonomy"
     "phenotype"
     "phenotype_association_type"

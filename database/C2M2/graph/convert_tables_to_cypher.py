@@ -280,6 +280,13 @@ def create_dcc_cypher():
     return create_dcc_stmt + MATCH_PROJECT_STR + merge_stmt
 
 
+def create_id_namespace_dcc_id_cypher():
+    match_id_namespace_str = 'MATCH (id_namespace:IDNamespace {id: row.id_namespace_id})\nWITH id_namespace, row\n'
+    match_dcc_str = 'MATCH (dcc:DCC {id: row.dcc_id})\n'
+    merge_stmt = 'MERGE (id_namespace)<-[:REGISTERED]-(dcc)'
+    return match_id_namespace_str + match_dcc_str + merge_stmt
+
+
 def create_dcc_constraints_cypher():
     return create_unique_constraint('DCC', 'id')
 
@@ -483,7 +490,7 @@ def create_subject_phenotype_cypher():
 def create_subject_race_cypher():
     # subject_id_namespace	subject_local_id	race
     match_subject_race_stmt = 'MATCH (subject_race:SubjectRace {id: row.race})\n'
-    merge_stmt = 'MERGE (subject)-[:IS_RACE]->(subject_race)'
+    merge_stmt = 'MERGE (subject)-[:IS_RACE]->(subject_race)\n'
     set_stmt = 'SET subject.race = row.race'
     return match_subject_race_stmt + MATCH_SUBJECT_STR + merge_stmt + set_stmt
 
@@ -553,6 +560,7 @@ def main():
         ('project', create_project_cypher),
         # DCC relies on project existing, so we add it after adding container entities...
         ('dcc', create_dcc_cypher),
+        ('id_namespace_dcc_id', create_id_namespace_dcc_id_cypher),
         # Term entities next...
         ('ncbi_taxonomy', create_ncbi_taxonomy_cypher),  # We do taxonomy first since gene and protein rely on it
         ('compound', create_compound_cypher),  # Followed by compound, since substance relies on it
