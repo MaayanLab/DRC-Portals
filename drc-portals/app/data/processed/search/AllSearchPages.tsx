@@ -28,7 +28,7 @@ export default async function Page(props: PageProps) {
       from "results"
     )
     select 
-      (select count from total_count) as count,
+      (select count::int from total_count) as count,
       (select coalesce(jsonb_agg("results".*), '[]'::jsonb) from "results") as type_counts
       ;
   `)
