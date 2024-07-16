@@ -13,9 +13,9 @@ services:
     environment:
       - NEO4J_USERNAME
       - NEO4J_PASSWORD
-      - NEO4J_C2M2_DBNAME
-      - NEO4J_C2M2_READER_USERNAME
-      - NEO4J_C2M2_READER_PASSWORD
+      - GRAPH_C2M2_DBNAME
+      - GRAPH_C2M2_READER_USERNAME
+      - GRAPH_C2M2_READER_PASSWORD
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_dbms_cypher_lenient__create__relationship=true
       - NEO4J_dbms_transaction_timeout=2m

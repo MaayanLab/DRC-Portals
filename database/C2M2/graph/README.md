@@ -40,9 +40,9 @@ In case the example file does not exist, refer to the following to create a new 
 # Neo4j vars
 NEO4J_USERNAME=
 NEO4J_PASSWORD=
-NEO4J_C2M2_DBNAME=
-NEO4J_C2M2_READER_USERNAME=
-NEO4J_C2M2_READER_PASSWORD=
+GRAPH_C2M2_DBNAME=
+GRAPH_C2M2_READER_USERNAME=
+GRAPH_C2M2_READER_PASSWORD=
 
 # Postgres vars
 PG_DBNAME=
