@@ -20,12 +20,14 @@ type FancyTabProps = {
   label: React.ReactNode,
   priority?: number,
   hidden?: boolean,
+  loading?: boolean,
+  disabled?: boolean,
 }
 const FancyTabContext = React.createContext([undefined as string | undefined, (data: FancyTabProps) => {}] as const)
 
 export function FancyTab(props: React.PropsWithChildren<FancyTabProps>) {
   const [currentTab, register] = React.useContext(FancyTabContext)
-  React.useEffect(() => register(props), [props.label, props.id])
+  React.useEffect(() => register({...props}), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
   if (props.id !== currentTab || props.hidden) return null
   return <>{props.children}</>
 }
@@ -49,38 +51,45 @@ export function FancyTabs(props: React.PropsWithChildren<{
     if (props.tab !== undefined)
       setTab(props.tab)
   }, [props.tab])
+  const initializing_state = React.useMemo(() => {
+    if (!ctx.initialized) return 'pre'
+    else if (!Object.values(ctx.tabs).some(tab => tab.loading)) return 'post'
+    else return 'initializing'
+  }, [ctx.tabs])
   const tabs = React.useMemo(() => {
     const tabs = Object.values(ctx.tabs).filter(tab => !tab.hidden)
     tabs.sort((a, b) => (b.priority??0) - (a.priority??0))
     return tabs
   }, [ctx.tabs])
   const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs[0]?.id, [props.tab, tab, tabs])
+  React.useDebugValue({ initializing_state, tabs, currentTab })
   return (
     <Grid container xs={12}>
       <Grid item xs={2} paddingRight={2}>
-          <Tabs
-            variant="scrollable"
-            textColor='secondary'
-            orientation="vertical"
-            scrollButtons="auto"
-            value={currentTab}
-            onChange={props.onChange ?? ((evt, tab) => setTab(tab))}
-          >
-            {tabs.map(item => (
-              <Tab
-                key={item.id} 
-                sx={{ fontSize: '14pt' }}
-                label={item.label}
-                value={item.id}
-              />
-            ))}
-          </Tabs>
+        <Tabs
+          variant="scrollable"
+          textColor='secondary'
+          orientation="vertical"
+          scrollButtons="auto"
+          value={currentTab}
+          onChange={props.onChange ?? ((evt, tab) => setTab(tab))}
+        >
+          {tabs.map(item => (
+            <Tab
+              key={item.id} 
+              sx={{ fontSize: '14pt' }}
+              label={item.label}
+              value={item.id}
+              disabled={item.disabled || item.loading}
+            />
+          ))}
+        </Tabs>
       </Grid>
       <Grid item xs={10}>
-        {tabs.length === 0 ?
-          ctx.initialized ? props.postInitializationFallback
-          : props.preInitializationFallback
-        : null}
+        {tabs.length > 0 ? null
+          : initializing_state === 'pre' ? props.preInitializationFallback
+          : initializing_state === 'post' ? props.postInitializationFallback
+          : null}
         <FancyTabContext.Provider value={[currentTab, register]}>
           {props.children}
         </FancyTabContext.Provider>

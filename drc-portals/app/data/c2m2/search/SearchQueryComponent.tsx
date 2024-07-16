@@ -364,7 +364,7 @@ export async function SearchQueryComponent(props: PageProps) {
               
             </ListingPageLayout>
         )
-        if (props.tab) return <FancyTab id="c2m2" priority={results.all_count} label={`C2M2 (${results.all_count})`} hidden={results.all_count === 0}>{body}</FancyTab>
+        if (props.tab) return <FancyTab id="c2m2" priority={results.all_count} label={<>Cross-Cut Metadata<br />{results.all_count ? BigInt(results.all_count).toLocaleString() : null}</>} hidden={results.all_count === 0} />
         else return body
 
         
@@ -382,7 +382,7 @@ export async function SearchQueryComponent(props: PageProps) {
           </Button>
         </Link>
         </>
-        if (props.tab) return <FancyTab id="c2m2" label={`C2M2`} hidden>{body}</FancyTab>
+        if (props.tab) return <FancyTab id="c2m2" label=<>Cross-Cut Metadata</> hidden>{body}</FancyTab>
         else return body
     }
 

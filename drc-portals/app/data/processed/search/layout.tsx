@@ -1,57 +1,11 @@
 import React from "react";
-import { FancyTab, FancyTabs } from "@/components/misc/FancyTabs";
-import Icon from "@mdi/react";
-import { mdiArrowLeft } from "@mdi/js";
-import { Button } from "@mui/material";
-import Link from "next/link";
-import ListingPageLayout from "../ListingPageLayout";
-import SearchablePagedTable from "../SearchablePagedTable";
-import ErrorRedirect from "./ErrorRedirect";
+import SearchTabs from "./tabs";
 
-export default async function Page({ children }: React.PropsWithChildren<{}>) {
+export default function Page(props: React.PropsWithChildren<{ tab: React.ReactNode }>) {
   return (
-    <FancyTabs
-      //preInitializationFallback={<>Loading...</>}
-      postInitializationFallback={<ErrorRedirect error={`No results`} />}
-    >
-      <React.Suspense fallback={
-        <FancyTab
-          id={`_`}
-          label={<>All</>}
-          priority={0}
-          hidden={false}
-        >
-        <ListingPageLayout
-          count={0}
-          maxCount={100}
-          footer={
-            <Link href="/data">
-              <Button
-                sx={{textTransform: "uppercase"}}
-                color="primary"
-                variant="contained"
-                startIcon={<Icon path={mdiArrowLeft} size={1} />}>
-                  BACK TO SEARCH
-              </Button>
-            </Link>
-          }
-        >
-          <SearchablePagedTable
-            q={''}
-            p={0}
-            r={0}
-            columns={[
-              <>&nbsp;</>,
-              <>Label</>,
-              <>Description</>,
-            ]}
-            rows={[]}
-          />
-        </ListingPageLayout>
-        </FancyTab>
-      }>
-        {children}
-      </React.Suspense>
-    </FancyTabs>
+    <SearchTabs>
+      {props.tab}
+      {props.children}
+    </SearchTabs>
   )
 }

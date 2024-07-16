@@ -25,6 +25,12 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
+  const dcc_filterable = {
+    gene_set_library: true,
+    gene_set: true,
+    dcc_asset: true,
+    c2m2_file: true,
+  }[props.type]
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
@@ -36,10 +42,8 @@ export default async function Page(props: PageProps) {
         Prisma.sql`q @@ "node"."searchable"`,
         Prisma.sql`"node"."type" = ${props.type}::"NodeType"`,
         props.entity_type !== null ? Prisma.sql`"node"."entity_type" = ${props.entity_type}` : Prisma.empty,
-        searchParams.et ? Prisma.join(searchParams.et.map(t => t.type === 'dcc' ? 
-          Prisma.sql`
-          "node"."dcc_id" = ${t.entity_type}
-          `
+        searchParams.et ? Prisma_join(searchParams.et.map(t => t.type === 'dcc' ? 
+          dcc_filterable ? Prisma.sql`"node"."dcc_id" = ${t.entity_type}` : Prisma.empty
         : Prisma.sql`
         (
           "node"."type" = ${t.type}::"NodeType"
@@ -49,6 +53,7 @@ export default async function Page(props: PageProps) {
         )
         `), ' or ') : Prisma.empty,
       ], ' and ')}
+      order by "node"."pagerank" desc
       offset ${offset}
       limit 100
     ), items as (
@@ -75,18 +80,21 @@ export default async function Page(props: PageProps) {
   return (
     <ListingPageLayout
       count={results?.count}
-      filters={
-        <>
-          <span className="has-[.not-empty:empty]:hidden">
-            <Typography className="subtitle1">Program</Typography>
-            <span className="not-empty flex flex-col">
-              <React.Suspense fallback={null}>
-                <ProgramFilters q={searchParams.q ??''} />
-              </React.Suspense>
-            </span>
-            <hr className="m-2" />
+      maxCount={100}
+      filters={{
+        gene_set_library: true,
+        gene_set: true,
+        dcc_asset: true,
+        c2m2_file: true,
+      }[props.type] ?
+        <span key={`${props.type}-${props.entity_type}`} className="has-[.not-empty:empty]:hidden">
+          <Typography className="subtitle1">Program</Typography>
+          <span className="not-empty flex flex-col">
+            <React.Suspense fallback={null}>
+              <ProgramFilters q={searchParams.q ??''} />
+            </React.Suspense>
           </span>
-        </>
+        </span> : null
       }
       footer={
         <Link prefetch={false} href="/data">

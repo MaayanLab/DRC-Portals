@@ -40,6 +40,7 @@ export function type_to_string(type: NodeType | string, entity_type: string | nu
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
+  else if (type === 'all') return 'Processed Data'
   else return capitalize(type)
 }
 
