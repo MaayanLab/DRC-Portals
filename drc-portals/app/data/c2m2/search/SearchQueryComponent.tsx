@@ -1,7 +1,7 @@
 // SearchQueryComponent.tsx
 import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
-import { useSanitizedSearchParams } from "@/app/data/processed/utils";
+import { useSanitizedSearchParams } from "@/app/data/c2m2/utils";
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import ListingPageLayout from "../ListingPageLayout";
@@ -31,7 +31,9 @@ type PageProps = { searchParams: Record<string, string>, tab?: boolean }
 
 export async function SearchQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams(props);
-    const offset = (searchParams.p - 1) * searchParams.r;
+    const currentPage = searchParams.C2M2MainSearchTbl_p ? +searchParams.C2M2MainSearchTbl_p : 1;
+    const offset = (currentPage - 1) * searchParams.r;
+
     const limit = searchParams.r;
 
     // // const filterConditionStr = generateFilterQueryString(searchParams, "allres");
