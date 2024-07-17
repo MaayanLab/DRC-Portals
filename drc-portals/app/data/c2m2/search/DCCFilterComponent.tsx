@@ -11,7 +11,7 @@ export default async function DCCFilterComponent({ q, filterClause, maxCount }: 
           SPLIT_PART(c2m2.ffl_biosample_collection.dcc_abbreviation, '_', 1) AS dcc_short_label
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
-        ${filterClause}
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
       ),
       dcc_name_count AS (

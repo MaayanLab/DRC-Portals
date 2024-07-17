@@ -9,7 +9,7 @@ export default async function AnatomyFilterComponent({ q, filterClause, maxCount
       WITH anares_full AS (
         SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.anatomy_name, 'Unspecified') AS anatomy_name
         FROM c2m2.ffl_biosample_collection
-        ${filterClause}
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         /*LIMIT ${maxCount}*/
       ),

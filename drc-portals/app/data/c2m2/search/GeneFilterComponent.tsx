@@ -10,7 +10,7 @@ export default async function GeneFilterComponent({ q, filterClause, maxCount }:
         SELECT COALESCE(c2m2.ffl_biosample_collection.gene_name, 'Unspecified') AS gene_name
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
-        ${filterClause}
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
       ),
       gene_name_count AS (
