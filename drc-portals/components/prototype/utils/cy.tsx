@@ -9,6 +9,7 @@ import {
   TypographyProps,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import RadarIcon from "@mui/icons-material/Radar";
@@ -17,6 +18,7 @@ import {
   EventObject,
   EventObjectEdge,
   EventObjectNode,
+  LayoutOptions,
   NodeSingular,
   Position,
 } from "cytoscape";
@@ -38,7 +40,7 @@ import {
   CytoscapeNodeData,
 } from "../interfaces/cy";
 import { SubGraph, NodeResult, RelationshipResult } from "../interfaces/neo4j";
-import { CytoscapeReference } from "../types/cy";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
 import { NodeElementFactory } from "../types/shared";
 
 import {
@@ -351,12 +353,27 @@ export const unlockD3ForceNode = (node: NodeSingular) => {
   const scratch = node.scratch();
   delete scratch["d3-force"].fx;
   delete scratch["d3-force"].fy;
+  node.scratch(scratch);
+};
+
+export const lockD3ForceNode = (node: NodeSingular) => {
+  const scratch = node.scratch();
+  const { x, y } = node.position();
+  node.scratch({
+    ...scratch,
+    "d3-force": {
+      ...scratch["d3-force"],
+      fx: x,
+      fy: y,
+    },
+  });
 };
 
 export const unlockD3ForceNodes = (
   key: string,
   title: string,
-  cyRef: CytoscapeReference
+  cyRef: CytoscapeReference,
+  layout: LayoutOptions
 ) => {
   // Note that this is directly manipulating some "under the hood" behavior implemented by the d3-force layout. When the
   // "fixedAfterDragging" option of the layout is set to true, a pair of hidden position properties (fx and fy) are set on nodes after a
@@ -368,12 +385,35 @@ export const unlockD3ForceNodes = (
     const cy = cyRef.current;
     if (cy !== undefined) {
       cy.nodes().forEach(unlockD3ForceNode);
+      cy.layout(layout).run(); // Ensures that the d3-force layout does not stop
     }
   };
   return (
     <Tooltip key={key} title={title} arrow>
       <IconButton aria-label="unlock-nodes" onClick={fn}>
         <LockOpenIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+export const lockD3ForceNodes = (
+  key: string,
+  title: string,
+  cyRef: CytoscapeReference,
+  layout: LayoutOptions
+) => {
+  const fn = () => {
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      cy.nodes().forEach(lockD3ForceNode);
+      cy.layout(layout).run();
+    }
+  };
+  return (
+    <Tooltip key={key} title={title} arrow>
+      <IconButton aria-label="lock-nodes" onClick={fn}>
+        <LockIcon />
       </IconButton>
     </Tooltip>
   );
@@ -459,11 +499,19 @@ export const downloadChartPNG = (
   );
 };
 
-export const D3_FORCE_TOOLS = [
-  (cyRef: CytoscapeReference) =>
+export const D3_FORCE_TOOLS: CustomToolbarFnFactory[] = [
+  (cyRef: CytoscapeReference, layout: LayoutOptions) =>
     unlockD3ForceNodes(
       "search-chart-toolbar-unlock-btn",
       "Unlock All Nodes",
-      cyRef
+      cyRef,
+      layout
+    ),
+  (cyRef: CytoscapeReference, layout: LayoutOptions) =>
+    lockD3ForceNodes(
+      "search-chart-toolbar-lock-btn",
+      "Lock All Nodes",
+      cyRef,
+      layout
     ),
 ];

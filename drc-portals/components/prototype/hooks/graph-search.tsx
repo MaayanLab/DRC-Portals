@@ -1,5 +1,6 @@
 "use client";
 
+import { Divider } from "@mui/material";
 import { ElementDefinition, EventObject, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,7 +12,7 @@ import {
 } from "../interfaces/cy";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
-import { CytoscapeReference } from "../types/cy";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
 import {
   D3_FORCE_TOOLS,
   createCytoscapeElementsFromNeo4j,
@@ -82,8 +83,18 @@ export default function useGraphSearchBehavior() {
     },
   ];
 
-  const customTools = [
+  const customTools: CustomToolbarFnFactory[] = [
     ...D3_FORCE_TOOLS,
+    () => {
+      return (
+        <Divider
+          key="graph-search-d3-force-tools-toolbar-divider"
+          orientation="vertical"
+          variant="middle"
+          flexItem
+        />
+      );
+    },
     (cyRef: CytoscapeReference) =>
       downloadChartData(
         "search-chart-toolbar-download-data",
