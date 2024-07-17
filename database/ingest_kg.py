@@ -14,6 +14,7 @@ dcc_assets = current_dcc_assets()
 # Ingest KG Assertions
 
 assertions = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
+assertions = assertions[assertions['size'] < 100000000]
 assertions_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
