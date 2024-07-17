@@ -9,19 +9,19 @@ services:
       - 7687:7687
     volumes:
       - ./import:/import
-      - drc-portals-neo4j-data:/var/lib/neo4j/data
+      - drc-portals-neo4j-data:/data
     environment:
       - USERNAME
       - PASSWORD
+      - NEO4J_AUTH
       - GRAPH_C2M2_DBNAME
       - GRAPH_C2M2_READER_USERNAME
       - GRAPH_C2M2_READER_PASSWORD
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_dbms_cypher_lenient__create__relationship=true
-      - NEO4J_dbms_transaction_timeout=2m
-      - NEO4J_dbms_lock_acquisition_timeout=2m
-      - NEO4J_server.directories.import=/import
-      - NEO4JLABS_PLUGINS=["apoc"]
+      - NEO4J_db_transaction_timeout=2m
+      - NEO4J_db_lock_acquisition_timeout=2m
+      - NEO4J_PLUGINS=["apoc"]
 
 volumes:
   drc-portals-neo4j-data:
