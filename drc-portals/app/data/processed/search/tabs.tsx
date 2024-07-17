@@ -9,10 +9,10 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { search, subpath } = React.useMemo(() => {
-    const m = /^\/data\/processed\/search\/(.+?)(\/(.+))?$/.exec(pathname)
+  const { basepath, search, subpath } = React.useMemo(() => {
+    const m = /^((\/data)?\/processed\/search)\/(.+?)(\/(.+))?$/.exec(pathname)
     if (!m) return {}
-    return { search: m[1], subpath: m[3] ?? 'all' }
+    return { basepath: m[1], search: m[3], subpath: m[4] ?? 'all' }
   }, [pathname])
   return (
     <FancyTabs
@@ -20,7 +20,7 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
       onChange={(evt, tab) => {
         const newSearchParams = new URLSearchParams(searchParams)
         newSearchParams.delete('p')
-        router.push(`/data/processed/search/${search}/${tab}?${newSearchParams.toString()}`, { scroll: false })
+        router.push(`${basepath}/${search}/${tab}?${newSearchParams.toString()}`, { scroll: false })
       }}
       postInitializationFallback={<ErrorRedirect error="No results" />}
     >
