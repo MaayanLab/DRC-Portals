@@ -34,8 +34,10 @@ export async function SearchQueryComponent(props: PageProps) {
     const offset = (searchParams.p - 1) * searchParams.r;
     const limit = searchParams.r;
 
-    const filterConditionStr = generateFilterQueryString(searchParams, "allres");
-    const filterClause = !filterConditionStr.isEmpty() ? SQL.template`WHERE ${filterConditionStr}` : SQL.empty();
+    // const filterConditionStr = generateFilterQueryString(searchParams, "allres");
+    const filterConditionStr = generateFilterQueryString(searchParams, "c2m2.ffl_biosample_collection");
+    // const filterClause = !filterConditionStr.isEmpty() ? SQL.template`WHERE ${filterConditionStr}` : SQL.empty();
+    const filterClause = !filterConditionStr.isEmpty() ? SQL.template`AND ${filterConditionStr}` : SQL.empty();
     
     // this is for filters count limit, passed to various filters for lazy loading
     const maxCount = 1000; 
@@ -109,10 +111,9 @@ export async function SearchQueryComponent(props: PageProps) {
           SELECT  c2m2.ffl_biosample_collection.*,
             ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
             FROM c2m2.ffl_biosample_collection
-            WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) 
+            WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${filterClause}
             ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
             protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
-            ${filterClause}
             LIMIT ${allres_filtered_maxrow_limit}     
         ),
         allres AS (
