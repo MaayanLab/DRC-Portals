@@ -14,6 +14,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import { Prisma_join } from '@/utils/prisma';
 import ProgramFilters from './ProgramFilters';
+import { safeAsync } from '@/utils/safe';
 
 export default async function Page(props: {
   search: string,
@@ -30,7 +31,7 @@ export default async function Page(props: {
     dcc_asset: true,
     c2m2_file: true,
   }[props.type]
-  const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
+  const { data: [results] = [], error } = searchParams.q ? await safeAsync(() => prisma.$queryRaw<Array<{
     items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
   }>>`
@@ -75,7 +76,8 @@ export default async function Page(props: {
       (select coalesce(jsonb_agg(items.*), '[]'::jsonb) from items) as items,
       (select count from total_count) as count
     ;
-  ` : [undefined]
+  `) : { error: undefined }
+  if (error) console.error(error)
   return (
     <ListingPageLayout
       count={results?.count}

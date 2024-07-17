@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma/c2m2";
+import { safeAsync } from "@/utils/safe";
 import { Grid, Typography } from "@mui/material";
 
 export function StatsFallback() {
@@ -23,7 +24,7 @@ export function StatsFallback() {
 }
 
 export default async function Stats() {
-  const counts = await prisma.$queryRaw<Array<{
+  const { data: counts, error } = await safeAsync(() => prisma.$queryRaw<Array<{
     label: string,
     count: number,
   }>>`
@@ -41,7 +42,9 @@ export default async function Stats() {
     select label, count
     from labeled_count
     order by count desc;
-  `
+  `)
+  if (error) console.error(error)
+  if (!counts) return <StatsFallback />
   return (
     <>
       {counts.map(({ label, count }) => (

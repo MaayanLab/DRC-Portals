@@ -2,12 +2,13 @@ import prisma from "@/lib/prisma/slow"
 import { human_readable, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
+import { safeAsync } from "@/utils/safe";
 
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const [results] = await prisma.$queryRaw<Array<{
+  const { data: [results] = [], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     assertions: {
       id: string,
       evidence: Prisma.JsonValue,
@@ -92,8 +93,9 @@ export default async function Page(props: { params: { entity_type: string, id: s
       (select coalesce(jsonb_agg(kg_assertion_fsp.*), '[]'::jsonb) from kg_assertion_fsp) as assertions,
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
-  `
-  if (results.n_assertions === 0) return null
+  `)
+  if (error) console.error(error)
+  if (results?.n_assertions) return null
   return (
     <SearchablePagedTable
       label="Knowledge Graph Assertions"
