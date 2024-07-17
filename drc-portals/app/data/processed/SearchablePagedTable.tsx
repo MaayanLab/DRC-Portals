@@ -62,9 +62,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <form action="" method="GET">
-            <SearchField q={props.q} placeholder={`Search ${props.label}`} />
-          </form>
+          <SearchField q={props.q} placeholder={`Search ${props.label}`} />
         </Stack>
       </Grid>
       }

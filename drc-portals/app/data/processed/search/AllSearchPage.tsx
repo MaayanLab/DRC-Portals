@@ -9,21 +9,11 @@ import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
-import { Metadata, ResolvingMetadata } from "next";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "next/link";
 import ProgramFilters from "./ProgramFilters";
 
-type PageProps = { searchParams: Record<string, string> }
-
-export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const parentMetadata = await parent
-  return {
-    title: `${parentMetadata.title?.absolute} | Search ${props.searchParams.q ?? ''}`,
-    keywords: parentMetadata.keywords,
-  }
-}
 
 /**
  * Like Prisma.join -- but filters out Prisma.empty, and supports empty/singular lists
@@ -33,8 +23,8 @@ function Prisma_join<T>(L: T[], sep: string) {
   return L.length === 0 ? Prisma.empty : L.length === 1 ? L[0] : Prisma.join(L, sep)
 }
 
-export default async function Page(props: PageProps) {
-  const searchParams = useSanitizedSearchParams(props)
+export default async function Page(props: { search: string, type: string, entity_type: string | null, searchParams: Record<string, string> }) {
+  const searchParams = useSanitizedSearchParams({ searchParams: {...props.searchParams, q: props.search } })
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const filterClause = searchParams.et ? Prisma_join([

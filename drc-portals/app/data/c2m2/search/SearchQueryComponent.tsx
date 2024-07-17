@@ -23,13 +23,14 @@ import AnatomyFilterComponent from './AnatomyFilterComponent';
 import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
 import React from "react";
+import { safeAsync } from '@/utils/safe';
 
 const allres_filtered_maxrow_limit = 200000;
 
-type PageProps = { searchParams: Record<string, string>, tab?: boolean }
+type PageProps = { search: string, searchParams: Record<string, string> }
 
 const doQuery = React.cache(async (props: PageProps) => {
-  const searchParams = useSanitizedSearchParams(props);
+  const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return
   const offset = (searchParams.p - 1) * searchParams.r;
   const limit = searchParams.r;
@@ -187,11 +188,17 @@ const doQuery = React.cache(async (props: PageProps) => {
   return results
 })
 
-export async function SearchQueryComponent(props: PageProps) {
-    const searchParams = useSanitizedSearchParams(props);
+export async function SearchQueryComponentTab(props: { search: string }) {
+  const results = await safeAsync(() => doQuery({ ...props, searchParams: {} }))
+  if (results.error) console.error(results.error)
+  if (!results.data) return <FancyTab id="c2m2" priority={0} label={<>Cross-Cut Metadata</>} hidden />
+  return <FancyTab id="c2m2" priority={results.data.all_count} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null}</>} hidden={results.data.all_count === 0} />
+}
 
-    const filterConditionStr = generateFilterQueryString(searchParams, "ffl_biosample_collection");
-    const filterClause = !filterConditionStr.isEmpty() ? filterConditionStr : SQL.empty();
+export async function SearchQueryComponent(props: PageProps) {
+    const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
+
+    const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
     
     // this is for filters count limit, passed to various filters for lazy loading
     const maxCount = 1000; 
@@ -201,12 +208,7 @@ export async function SearchQueryComponent(props: PageProps) {
         const results = await doQuery(props)
         const t1: number = performance.now();
         
-          if (!results) {
-            if (props.tab)
-              return <FancyTab id="c2m2" priority={0} label={<>Cross-Cut Metadata</>} hidden />
-            else
-              return null
-          }
+          if (!results) return null
           //  console.log(results)
           
 
@@ -304,7 +306,7 @@ export async function SearchQueryComponent(props: PageProps) {
           })) : [];
           
           
-          const body = (
+          return (
             <ListingPageLayout
             count={results?.count} // This matches with #records in the table on the right (without limit)
             all_count={results?.all_count} // This matches with #records in the table on the right (without any limit)
@@ -377,13 +379,11 @@ export async function SearchQueryComponent(props: PageProps) {
               
             </ListingPageLayout>
         )
-        if (props.tab) return <FancyTab id="c2m2" priority={results.all_count} label={<>Cross-Cut Metadata<br />{results.all_count ? BigInt(results.all_count).toLocaleString() : null}</>} hidden={results.all_count === 0} />
-        else return body
 
         
     } catch (error) {
         console.error('Error fetching query results:', error);
-        const body = <>
+        return <>
         <div className="mb-10">Error fetching query results.</div>
         <Link prefetch={false} href="/data">
           <Button
@@ -395,8 +395,6 @@ export async function SearchQueryComponent(props: PageProps) {
           </Button>
         </Link>
         </>
-        if (props.tab) return <FancyTab id="c2m2" label=<>Cross-Cut Metadata</> hidden>{body}</FancyTab>
-        else return body
     }
 
     

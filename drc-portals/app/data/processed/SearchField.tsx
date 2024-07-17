@@ -1,10 +1,18 @@
+'use client'
 import { mdiMagnify } from "@mdi/js";
 import Icon from '@mdi/react';
 import { InputAdornment, TextField } from '@mui/material';
+import { useRouter } from "next/navigation";
 
-export default function SearchField({ q, InputProps, placeholder = 'Enter one or more keywords', error }: { q: string, InputProps?: React.ComponentProps<typeof TextField>['InputProps'], placeholder?: string, error?: string }) {
+export default function SearchField({ action, q, InputProps, placeholder = 'Enter one or more keywords', error }: { action?: string, q: string, InputProps?: React.ComponentProps<typeof TextField>['InputProps'], placeholder?: string, error?: string }) {
+  const router = useRouter()
   return (
-    <>
+    <form onSubmit={evt => {
+      evt.preventDefault()
+      const formData = new FormData(evt.currentTarget)
+      const q = formData.get('q')
+      router.push(`${action ? action : window.location.pathname}/${q}`)
+    }}>
       <TextField
         label={error ? error.split(':')[0] : undefined}
         error={!!error}
@@ -20,6 +28,6 @@ export default function SearchField({ q, InputProps, placeholder = 'Enter one or
         }}
       />
       <input className="hidden" type="submit" />
-    </>
+    </form>
   )
 }

@@ -15,14 +15,13 @@ import Link from "next/link";
 import { Prisma_join } from '@/utils/prisma';
 import ProgramFilters from './ProgramFilters';
 
-type PageProps = {
-  searchParams: Record<string, string>,
+export default async function Page(props: {
+  search: string,
   type: string,
   entity_type: string | null,
-}
-
-export default async function Page(props: PageProps) {
-  const searchParams = useSanitizedSearchParams(props)
+  searchParams: Record<string, string>,
+}) {
+  const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } })
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const dcc_filterable = {
