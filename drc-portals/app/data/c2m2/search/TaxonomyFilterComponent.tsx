@@ -40,7 +40,7 @@ export default async function TaxonomyFilterComponent({ q, filterClause, maxCoun
     return ( 
       <FilterSet
         key={`ID:$taxonomy`}
-        id={`taxonomy`}
+        id={`ncbi_taxonomy`}
         filterList={TaxonomyFilters}
         filter_title="Species"
         example_query="e.g. Mus musculus"
