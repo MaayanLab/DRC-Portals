@@ -18,11 +18,11 @@ export default function Page(props: React.PropsWithChildren<{ params: { search: 
   if (!props.params.search) redirect('/data')
   return (
     <SearchTabs>
+      <React.Suspense fallback={<FancyTab id='c2m2' label={<>Cross-Cut Metadata Model</>} priority={Infinity} loading />}>
+        <C2M2SearchQueryComponentTab search={decodeURIComponent(props.params.search)} />
+      </React.Suspense>
       <React.Suspense fallback={<FancyTab id='all' label={<>Processed Data</>} loading />}>
         <AllSearchPages search={decodeURIComponent(props.params.search)} />
-      </React.Suspense>
-      <React.Suspense fallback={<FancyTab id='c2m2' label={<>Cross-Cut Metadata Model</>} loading />}>
-        <C2M2SearchQueryComponentTab search={decodeURIComponent(props.params.search)} />
       </React.Suspense>
       {props.children}
     </SearchTabs>

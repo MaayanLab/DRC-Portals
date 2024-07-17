@@ -191,8 +191,8 @@ const doQuery = React.cache(async (props: PageProps) => {
 export async function SearchQueryComponentTab(props: { search: string }) {
   const results = await safeAsync(() => doQuery({ ...props, searchParams: {} }))
   if (results.error) console.error(results.error)
-  if (!results.data) return <FancyTab id="c2m2" priority={0} label={<>Cross-Cut Metadata</>} hidden />
-  return <FancyTab id="c2m2" priority={results.data.all_count} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null}</>} hidden={results.data.all_count === 0} />
+  if (!results.data) return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata</>} hidden />
+  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null}</>} hidden={results.data.all_count === 0} />
 }
 
 export async function SearchQueryComponent(props: PageProps) {
