@@ -108,6 +108,17 @@ It is important to note that the container has a second volume mount: `/import`.
 
 It is _highly_ recommended that you do not set any volume mount to the default Neo4j home directories. Suffice to say, the Neo4j container does some strange things with file permissions when host directories are mounted to the default container directories. If you want to create additional volumes (e.g., for logs or configs), it is strongly recommended to mount those directories to the root of the container, e.g. `/logs`, `/config` etc.
 
+### Temporarily Unset Transaction Timeouts
+
+In the `docker-compose.yml` file, note the following two configurations for Neo4j:
+
+```yaml
+- NEO4J_db_transaction_timeout=2m
+- NEO4J_db_lock_acquisition_timeout=2m
+```
+
+Before continuing, you will need to temporarily comment out these configurations, or increase the timeout. Several of the import transactions take longer than the current setting of two minutes, which will result in the transaction prematurely terminating. Once the load is finished you can stop the container with `docker-compose down`, reset the configurations, and start it again with `docker-compose up -d`. This will restart the container with the reset configuration values.
+
 ### Run the Load Process
 
 To begin the process of loading the C2M2 data we exported from Postgres into Neo4j, simply run:
