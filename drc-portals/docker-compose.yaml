@@ -3,13 +3,19 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.8.8
+    image: maayanlab/drc-portal:0.9.2
+    deploy:
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 512M
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30
+      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30
       - PUBLIC_URL=https://cfde.cloud
       - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
@@ -30,7 +36,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.10.0-2
+    image: maayanlab/drc-portal-dev:0.10.0-9
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -113,6 +119,11 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 512M
     shm_size: 1Gb
     environment:
       - POSTGRES_DB
@@ -196,16 +207,16 @@ services:
     # volumes:
     #   - ../auth/themes/drc-portal:/opt/keycloak/themes/drc-portal/
 
-  drc-portal-ingest:
-    build: ../database
-    image: maayanlab/drc-portal-ingest:0.9.0
-    deploy:
-      replicas: 0
+  # drc-portal-ingest:
+  #   build: ../database
+  #   image: maayanlab/drc-portal-ingest:0.9.0
+  #   deploy:
+  #     replicas: 0
 
 volumes:
   drc-portal-postgres:
     x-kubernetes:
-      size: 120Gi
+      size: 100Gi
       class: gp2
 
   drc-portal-postgres-2:
