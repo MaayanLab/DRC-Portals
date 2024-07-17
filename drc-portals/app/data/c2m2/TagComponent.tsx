@@ -1,6 +1,7 @@
 'use client'
 import React from 'react';
 import { Chip, Typography, Button } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 const TagComponent = ({
     q,
@@ -11,8 +12,9 @@ const TagComponent = ({
     t?: { type: string; entity_type: string | null; }[] | undefined;
     onReset?: () => void;
 }) => {
+    const router = useRouter()
     const handleDelete = (tagToDelete: { type: string; entity_type: string | null }) => {
-        let baseUrl = window.location.origin + window.location.pathname;
+        let baseUrl = window.location.pathname;
         let updatedParams = new URLSearchParams(window.location.search);
 
         if (q && tagToDelete.type === 'q') {
@@ -30,17 +32,17 @@ const TagComponent = ({
             }
         }
 
-        window.location.href = `${baseUrl}?${updatedParams.toString()}`;
+        router.push(`${baseUrl}?${updatedParams.toString()}`); // Change the URL and reload the page
     };
 
     const handleReset = () => {
-        let baseUrl = window.location.origin + window.location.pathname;
+        let baseUrl = window.location.pathname;
         let updatedParams = new URLSearchParams(window.location.search);
 
         // Clear all tags from the URL
         updatedParams.delete('t');
         // Redirect to the updated URL
-        window.location.href = `${baseUrl}?${updatedParams.toString()}`;
+        router.push(`${baseUrl}?${updatedParams.toString()}`);
     };
 
     const renderQueryChip = () => {

@@ -13,6 +13,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { styled, lighten, darken } from '@mui/system';
 import Chip from '@mui/material/Chip';
+import { useRouter } from 'next/navigation';
 
 export type FilterObject = {
   id: string;
@@ -42,12 +43,12 @@ function getFirstLetter(opt: FilterObject): string {
 }
 
 export default function FilterSet({ id, filterList, filter_title, example_query, maxCount }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string, maxCount: number }) {
+  const router = useRouter()
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
   const [filterIndex, setFilterIndex] = useState<string[]>([]);
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
-  
 
   const options = filterList.map((option) => {
     //  console.log(option);
@@ -154,7 +155,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
     searchParams.set('t', updatedFilters.join('|'));
     searchParams.set('p', '1'); // Reset pagination to page 1
     const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    window.location.href = newUrl; // Change the URL and reload the page
+    router.push(newUrl); // Change the URL and reload the page
   };
 
 
