@@ -78,8 +78,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     // Generate the query clause for filters
 
-    const filterConditionStr = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
-    const filterClause = !filterConditionStr.isEmpty() ? SQL.template` AND ${filterConditionStr}` : SQL.empty();
+    const filterClause = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
 
     // To measure time taken by different parts
     const t0: number = performance.now();
@@ -123,7 +122,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             SELECT DISTINCT c2m2.ffl_biosample_collection.*,
                 ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
               FROM c2m2.ffl_biosample_collection
-              WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${filterClause}
+              WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+              ${!filterClause.isEmpty() ? `and ${filterClause}` : SQL.empty()}
               ORDER BY rank DESC
           ),
           allres AS (

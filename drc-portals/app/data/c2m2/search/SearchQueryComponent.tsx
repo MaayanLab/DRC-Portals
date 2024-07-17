@@ -34,8 +34,7 @@ const doQuery = React.cache(async (props: PageProps) => {
   const offset = (searchParams.p - 1) * searchParams.r;
   const limit = searchParams.r;
 
-  const filterConditionStr = generateFilterQueryString(searchParams, "ffl_biosample_collection");
-  const filterClause = !filterConditionStr.isEmpty() ? filterConditionStr : SQL.empty();
+  const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
   // To measure time taken by different parts
   const t0: number = performance.now();
   const [results] = await prisma.$queryRaw<Array<{

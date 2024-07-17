@@ -10,7 +10,7 @@ export default async function DataTypeFilterComponent({ q, filterClause, maxCoun
         SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.data_type_name, 'Unspecified') AS data_type_name
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
-        ${filterClause ? SQL.template`and ${filterClause}` : SQL.empty()}
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
       ),
       data_type_name_count AS (

@@ -10,7 +10,7 @@ export default async function TaxonomyFilterComponent({ q, filterClause, maxCoun
         SELECT COALESCE(c2m2.ffl_biosample_collection.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name 
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
-        ${filterClause ? SQL.template`and ${filterClause}` : SQL.empty()}
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
       ),
       taxonomy_name_count AS (

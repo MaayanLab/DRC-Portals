@@ -65,7 +65,8 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 SELECT DISTINCT c2m2.ffl_biosample_collection.*,
                     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
                 FROM c2m2.ffl_biosample_collection
-                WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) ${filterClause}
+                WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+                ${!filterClause.isEmpty() ? `and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
             ),
             allres AS (
