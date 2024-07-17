@@ -10,7 +10,7 @@ export default async function DiseaseFilterComponent({ q, filterClause, maxCount
         SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.disease_name, 'Unspecified') AS disease_name
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
-        ${filterClause}
+        ${filterClause ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
       ),
       disease_name_count AS (

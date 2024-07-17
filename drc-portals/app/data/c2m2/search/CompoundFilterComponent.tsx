@@ -10,7 +10,7 @@ export default async function CompoundFilterComponent({ q, filterClause, maxCoun
         SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.compound_name, 'Unspecified') AS compound_name
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
-        ${filterClause}
+        ${filterClause ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
       ),
       compound_name_count AS (
