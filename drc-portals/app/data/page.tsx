@@ -141,14 +141,14 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                       </Box>
                       <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
                         Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
-                          {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                          {['STAT3', 'blood', 'dexamethasone'].map(example => (
                             <Link key={example} href={`/data/processed/search/${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
                           ))}
                         </Stack>
                       </Typography>
                       <Typography variant="stats_sub_small" sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
                         Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
-                          {['MCF7', 'STAT3', 'blood', 'dexamethasone'].map(example => (
+                          {['STAT3', 'blood', 'dexamethasone'].map(example => (
                             <Link key={example} href={`/data/processed/search/${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
                           ))}
                         </Stack>
