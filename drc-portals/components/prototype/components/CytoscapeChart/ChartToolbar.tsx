@@ -3,6 +3,7 @@ import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import { IconButton, Paper, Tooltip } from "@mui/material";
 import Divider from "@mui/material/Divider";
+import { LayoutOptions } from "cytoscape";
 import { v4 } from "uuid";
 
 import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
@@ -10,11 +11,12 @@ import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 type ChartToolbarProps = {
   cyRef: CytoscapeReference;
   customTools?: CustomToolbarFnFactory[];
+  layout?: LayoutOptions;
 };
 
 export default function ChartToolbar(cmpProps: ChartToolbarProps) {
   const cmpKey = `chart-toolbar-${v4()}`;
-  const { cyRef, customTools } = cmpProps;
+  const { cyRef, customTools, layout } = cmpProps;
 
   // TODO: Note that the current implementation is tightly coupled to Cytoscape. An alternative implementation would have the toolbar
   // simply notify the parent element that one of the options was chosen, and then the parent can decide what to do then.
@@ -55,15 +57,7 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
     >
       {customTools === undefined
         ? null
-        : [
-            ...customTools.map((factoryFn) => factoryFn(cyRef)),
-            <Divider
-              key={`${cmpKey}-custom-divider`}
-              orientation="vertical"
-              variant="middle"
-              flexItem
-            />,
-          ]}
+        : [...customTools.map((factoryFn) => factoryFn(cyRef, layout))]}
       <Divider orientation="vertical" variant="middle" flexItem />
       <Tooltip title="Zoom In" arrow>
         <IconButton aria-label="zoom-in" onClick={handleZoomIn}>

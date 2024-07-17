@@ -425,7 +425,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       </ClickAwayListener>
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
-          <ChartToolbar cyRef={cyRef} customTools={customTools}></ChartToolbar>
+          <ChartToolbar
+            cyRef={cyRef}
+            customTools={customTools}
+            layout={layout}
+          ></ChartToolbar>
         </WidgetContainer>
       )}
       {legendPosition === undefined ? null : (
