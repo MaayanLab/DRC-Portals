@@ -12,7 +12,7 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
   const { search, subpath } = React.useMemo(() => {
     const m = /^\/data\/processed\/search\/(.+?)(\/(.+))?$/.exec(pathname)
     if (!m) return {}
-    return { search: m[1], subpath: m[3] }
+    return { search: m[1], subpath: m[3] ?? 'all' }
   }, [pathname])
   return (
     <FancyTabs

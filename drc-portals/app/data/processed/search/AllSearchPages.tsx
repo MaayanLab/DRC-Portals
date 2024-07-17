@@ -25,12 +25,9 @@ export default async function Page(props: { search: string }) {
       (select coalesce(jsonb_agg("results".*), '[]'::jsonb) from "results") as type_counts
       ;
   `)
-  if (error) {
-    console.error(error)
-    return <ErrorRedirect error="An unexpected error occurred" />
-  }
-  results?.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.count })
+  if (error) console.error(error)
   if (!results?.count) return <FancyTab id="all" label="All" hidden />
+  results.type_counts.splice(0, 0, { type: 'all', entity_type: null, count: results.count })
   return Object.values(results.type_counts).map(result => (
     <FancyTab
       key={`${result.type}-${result.entity_type}`}
