@@ -27,12 +27,12 @@ export function LinkedTypedNode({
 }) {
     return (
         <div className="flex flex-col">
-            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
+            <Link prefetch={false} href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
                 <Typography variant="body1" sx={{ overflowWrap: 'break-word', maxWidth: 300 }} color="secondary" fontWeight={focus ? 'bold' : undefined}>
                     {label}
                 </Typography>
             </Link>
-            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
+            <Link prefetch={false} href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
                 <Typography variant='caption' color="secondary">
                     {type_to_string(type, entity_type)}
                 </Typography>
@@ -53,7 +53,7 @@ export function SearchablePagedTableCellIcon(props: {
 }) {
     return (
         <div className="w-32 h-16 relative">
-            <Link href={props.href}>
+            <Link prefetch={false} href={props.href}>
                 <Image className="object-contain" src={props.src} alt={props.alt} fill />
             </Link>
         </div>
@@ -65,7 +65,7 @@ export function PreviewButton(props: {
 }) {
     return (
         <div className="pl-2 relative">
-            <Link href={props.href}>
+            <Link prefetch={false} href={props.href}>
                 <FindInPageOutlinedIcon sx={{ width: '50px', height: '50px' }} />
             </Link>
         </div>

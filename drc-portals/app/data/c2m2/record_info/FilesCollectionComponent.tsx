@@ -69,7 +69,7 @@ interface FileColTableResult {
 const renderMetadataValue = (item: MetadataItem) => {
     if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
         return (
-            <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+            <Link prefetch={false} href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
                 {item.value}
             </Link>
         );

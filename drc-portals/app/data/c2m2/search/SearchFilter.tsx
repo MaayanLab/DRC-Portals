@@ -18,7 +18,7 @@
 //     return { searchParams, currentFilterSet }
 //   }, [id, rawSearchParams])
 //   return (
-//     <Link href={`?${searchParams.toString()}`}>
+//     <Link prefetch={false} href={`?${searchParams.toString()}`}>
 //       <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
 //     </Link>
 //   )
@@ -56,7 +56,7 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   return (
-    <Link href={`?${searchParams.toString()}`}>
+    <Link prefetch={false} href={`?${searchParams.toString()}`}>
 
       <FormControlLabel
         sx={{ paddingLeft: '5px' }} // Adjust the padding value as needed

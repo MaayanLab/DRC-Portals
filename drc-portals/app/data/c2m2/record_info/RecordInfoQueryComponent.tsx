@@ -197,12 +197,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const metadata: (MetadataItem | null)[] = [
       { label: 'Project ID', value: projectLocalId },
       resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)
-        ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
+        ? { label: 'Project URL', value: <Link prefetch={false} href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
         : resultsRec?.project_persistent_id ? { label: 'Project URL', value: resultsRec?.project_persistent_id } : null,
       {
         label: 'Taxonomy',
         value: resultsRec?.taxonomy_name && resultsRec?.taxonomy_name !== "Unspecified"
-          ? <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.taxonomy_name}
           </Link>
           : /* resultsRec?.taxonomy_name || */ ''
@@ -211,7 +211,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Sample Source',
         value: resultsRec?.anatomy_name && resultsRec?.anatomy_name !== "Unspecified"
-          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.anatomy_name)}
           </Link>
           : /* resultsRec?.anatomy_name || */ ''
@@ -220,7 +220,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Disease',
         value: resultsRec?.disease_name && resultsRec?.disease_name !== "Unspecified"
-          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`http://purl.obolibrary.org/obo/${resultsRec?.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.disease_name)}
           </Link>
           : /* resultsRec?.disease_name || */ ''
@@ -229,7 +229,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Gene',
         value: resultsRec?.gene_name && resultsRec?.gene_name !== "Unspecified"
-          ? <Link href={`http://www.ensembl.org/id/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`http://www.ensembl.org/id/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.gene_name}
           </Link>
           : /* resultsRec?.gene_name || */ ''
@@ -238,7 +238,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Protein',
         value: resultsRec?.protein_name && resultsRec?.protein_name !== "Unspecified"
-          ? <Link href={`https://www.uniprot.org/uniprotkb/${resultsRec?.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`https://www.uniprot.org/uniprotkb/${resultsRec?.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.protein_name}
           </Link>
           : /* resultsRec?.protein_name || */ ''
@@ -247,7 +247,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Compound',
         value: resultsRec?.compound_name && resultsRec?.compound_name !== "Unspecified"
-          ? <Link href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.compound_name}
           </Link>
           : /* resultsRec?.compound_name || */ ''
@@ -256,7 +256,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Data type',
         value: resultsRec?.data_type_name && resultsRec?.data_type_name !== "Unspecified"
-          ? <Link href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link prefetch={false} href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.data_type_name)}
           </Link>
           : /* resultsRec?.data_type_name || */ ''

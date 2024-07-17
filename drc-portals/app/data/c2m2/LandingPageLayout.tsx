@@ -45,7 +45,7 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
   const renderMetadataValue = (item: MetadataItem) => {
     if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
       return (
-        <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+        <Link prefetch={false} href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
           {item.value}
         </Link>
       );
@@ -63,7 +63,7 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
       </Grid>
       <Grid item xs={4}>
         {props.icon ?
-          <Link href={props.icon.href} passHref>
+          <Link prefetch={false} href={props.icon.href} passHref>
             <Image src={props.icon.src} alt={props.icon.alt} width={120} height={120} />
           </Link>
           : null}

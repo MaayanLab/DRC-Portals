@@ -120,6 +120,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                     renderedColumns[column] = (column.toLowerCase().includes('persistent') || column.toLowerCase().includes('access'))
                                         && isURL(cellValueString) ? (
                                         <Link
+                                            prefetch={false}
                                             href={cellValueString}
                                             className="underline cursor-pointer text-blue-600"
                                             key={`${rowIndex}-${column}`}
