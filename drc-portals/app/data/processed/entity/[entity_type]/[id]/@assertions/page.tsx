@@ -95,7 +95,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
   `)
   if (error) console.error(error)
-  if (results?.n_assertions) return null
+  if (!results?.n_assertions) return null
   return (
     <SearchablePagedTable
       label="Knowledge Graph Assertions"
