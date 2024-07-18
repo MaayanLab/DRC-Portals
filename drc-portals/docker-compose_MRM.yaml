@@ -1,0 +1,161 @@
+version: '3.9'
+services:
+  drc-portal-app:
+    build: .
+    platform: linux/amd64
+    image: maayanlab/drc-portal:0.2.49
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@drc-portal-postgres:5433/${POSTGRES_DB}?schema=public
+      - NEXTAUTH_URL
+      - NEXTAUTH_SECRET
+      - NEXTAUTH_EMAIL
+      - NEXTAUTH_GITHUB
+      - NEXTAUTH_GOOGLE
+      - NEXTAUTH_ORCID
+      - NEXTAUTH_GLOBUS
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
+      - S3_ENDPOINT
+      - S3_BUCKET
+      - S3_REGION
+      - OPENAI_API_KEY
+
+  drc-portal-data-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://data.cfde.cloud
+        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
+        nginx.ingress.kubernetes.io/auth-secret: auth
+        nginx.ingress.kubernetes.io/auth-type: basic
+    ports:
+      - 80
+    environment:
+      nginx_server_name: data.cfde.cloud
+      nginx_proxy_00: / http://drc-portal-app:3000/data
+      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
+      nginx_redirect_00: /data/? https://data.cfde.cloud
+      nginx_redirect_01: /info/? https://info.cfde.cloud
+      nginx_redirect_02: /info/(.+) https://info.cfde.cloud/info/$$1
+      nginx_redirect_03: /auth/? https://cfde.cloud/auth
+      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
+
+  drc-portal-info-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://info.cfde.cloud
+        nginx.ingress.kubernetes.io/auth-realm: Authentication Required - drc
+        nginx.ingress.kubernetes.io/auth-secret: auth
+        nginx.ingress.kubernetes.io/auth-type: basic
+    ports:
+      - 80
+    environment:
+      nginx_server_name: info.cfde.cloud
+      nginx_proxy_00: / http://drc-portal-app:3000/info
+      nginx_proxy_01: /(.+) http://drc-portal-app:3000/$$1
+      nginx_redirect_00: /data/? https://data.cfde.cloud
+      nginx_redirect_01: /data/(.+) https://data.cfde.cloud/data/$$1
+      nginx_redirect_02: /info/? https://info.cfde.cloud
+      nginx_redirect_03: /auth/? https://cfde.cloud/auth
+      nginx_redirect_04: /auth/(.+) https://cfde.cloud/auth/$$1
+
+  drc-portal-proxy:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://cfde.cloud
+        nginx.ingress.kubernetes.io/enable-cors: 'true'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
+        nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
+    ports:
+      - 80
+    environment:
+      nginx_server_name: cfde.cloud
+      nginx_proxy_00: /(.*) http://drc-portal-app:3000/$$1
+      nginx_redirect_00: / https://info.cfde.cloud
+      nginx_redirect_01: /data/? https://data.cfde.cloud
+      nginx_redirect_02: /data/(.+) https://data.cfde.cloud/data/$$1
+      nginx_redirect_03: /info/? https://info.cfde.cloud
+      nginx_redirect_04: /info/(.+) https://info.cfde.cloud/info/$$1
+
+  drc-portal-cfde-info-redirect:
+    image: maayanlab/proxy:1.2.9
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://cfde.info
+    ports:
+      - 80
+    environment:
+      nginx_server_name: cfde.info
+      nginx_redirect_00: /(.*) https://info.cfde.cloud/$$1
+
+  drc-portal-postgres:
+    image: postgres:16
+    shm_size: 1024m
+    container_name: drc-portal-postgres_MRM
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - 5433:5433
+    volumes:
+      - drc-portal-postgres:/var/lib/postgresql/data
+    command: -p 5433
+    extraVolumes:
+      - name: drc-portal-postgres-dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1024Mi
+    extraVolumeMounts:
+      - name: drc-portal-postgres-dshm
+        mountPath: /dev/shm
+
+  drc-portal-postgres-2:
+    image: postgres:16
+    shm_size: 1024m
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - 5433:5433
+    volumes:
+      - drc-portal-postgres-2:/var/lib/postgresql/data
+    command: -p 5433
+    extraVolumes:
+      - name: drc-portal-postgres-dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1024Mi
+    extraVolumeMounts:
+      - name: drc-portal-postgres-dshm
+        mountPath: /dev/shm
+
+volumes:
+  drc-portal-postgres:
+    x-kubernetes:
+      size: 120Gi
+      class: gp2
+
+  drc-portal-postgres-2:
+    x-kubernetes:
+      size: 120Gi
+      class: gp2
+
+x-kubernetes:
+  name: drc-portal
+  namespace: drc

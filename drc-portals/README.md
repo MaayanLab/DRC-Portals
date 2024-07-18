@@ -6,14 +6,46 @@
 cp .env.example .env
 # start database
 #  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
+# Note that in line 110 (around that) for integration with other postgres containers, one may map other ports to 5432.
+# The UCSD team will just use 5432:5432 port-binding to avoid confusion.
+#  ports:
+#      - 5432:5432
 docker-compose up -d drc-portal-postgres
+# To try another container from user account, Mano tried post 5433 while one postgres db is at 5432; created another yaml file and used 5433 in .env too; specified container name in new yaml file and used command: -p 5433; shm_size: 1024m; size: 120Gi
+#docker-compose -f docker-compose_MRM.yaml up -d drc-portal-postgres
+
 # install node modules
 npm i
-# initialize prisma
-npx prisma migrate deploy
+# initialize prisma: Sometimes, if many changes happened, it may help to do: 'npx prisma migrate reset' 
+# Before that make sure you have all the migrations in prisma/migrations folder.
+# Another useful option: npx prisma migrate deploy # deploy means: it will only update the public schema
+# dev means it will update all schemas.
+# It it still gives issues, you may have to clean the DB completely by removing the public schema as well in psql:
+# DROP SCHEMA IF EXISTS public CASCADE; then, after the 'npx prisma migrate dev',
+# go to database folder and re-populate by 'python3 ingestion.py' or 'python ingestion.py'
+# Mano: if issues, may have to delete @@schema['public'] or @@schema['c2m2'] lines and a few other fixes
+# Obsolete: npx prisma migrate dev
+# Daniel: 2024/05/14: Below, primary means public schema
+# npm run migrate:primary
+npm run migrate
+# to roll back a migration: npx prisma migrate resolve --rolled-back 20240405074418_mano_20240405
+# After schema update, may need to run
+npm run generate
 # run dev server
 npm run dev
 ```
+
+## Pulling and pushing from database via Prisma
+```bash
+# To describe models from the latest version of the database, use:
+npx prisma db pull
+# This will update column names, primary and foreign key relations etc from the database into the schema.prisma file.
+
+# To write to the database from the latest version of the schema.prisma file, use:
+npx prisma db push
+# This will update column names, primary and foreign key relations etc from the schema.prisma file into the database. However, check docs to make sure data is not lost while updating columns.
+```
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the platform.
 

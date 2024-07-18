@@ -1,10 +1,15 @@
 {
   "name": "drc-portals",
-  "version": "0.8.8",
+  "version": "0.9.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && next build",
+    "generate:primary": "prisma generate --schema=prisma/schema.prisma",
+    "generate:c2m2": "prisma generate --schema=prisma/c2m2/schema.prisma",
+    "generate": "npm run generate:primary && npm run generate:c2m2",
+    "migrate:primary": "prisma migrate deploy --schema=prisma/schema.prisma",
+    "migrate": "npm run migrate:primary",
+    "build": "npm run generate && next build",
     "start": "next start",
     "lint": "next lint",
     "version": "npm run build && ts-node cli/version-compose.ts && docker-compose build drc-portal-app",
@@ -40,6 +45,7 @@
     "bootstrap": "^5.3.2",
     "citation-js": "^0.7.12",
     "classnames": "^2.3.2",
+    "crypto-js": "^4.2.0",
     "fairshakeinsignia": "^1.0.3",
     "fs": "^0.0.1-security",
     "html-entities": "^2.5.2",
@@ -75,6 +81,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

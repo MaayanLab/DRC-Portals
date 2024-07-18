@@ -23,6 +23,8 @@ export function capitalize(s: string) {
 }
 
 export function pluralize(s: string) {
+  if (s.toLowerCase() === 'all') return s
+  if (s.toLowerCase() === 'c2m2') return s
   if (s.endsWith('y')) return `${s.slice(0, -1)}ies`
   return `${s}s`
 }
@@ -38,6 +40,7 @@ export function type_to_string(type: NodeType | string, entity_type: string | nu
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
+  else if (type === 'all') return 'Processed Data'
   else return capitalize(type)
 }
 
@@ -99,6 +102,14 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       z.undefined().transform(_ => 1),
     ]).transform(r => ({10: 10, 20: 20, 50: 50}[r] ?? 10)),
     t: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split('|') : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(t => {
+      const [type, entity_type] = t.split(':')
+      return { type, entity_type: entity_type ? entity_type : null }
+    }) : undefined),
+    et: z.union([
       z.array(z.string()),
       z.string().transform(ts => ts ? ts.split('|') : undefined),
       z.undefined(),

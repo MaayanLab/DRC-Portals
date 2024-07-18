@@ -1,0 +1,16 @@
+__pycache__
+.DS_Store
+.env
+# Keep environment variables out of version control
+current/
+kub/
+node_modules
+output/
+outreach_files/
+package-lock.json
+partnership_files/
+playground*
+publication_files/
+tool_files/
+usecase_files/
+venv
