@@ -11,31 +11,31 @@ import Youtube from "@/public/img/icons/Youtube.svg"
 const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"}) => {
     return (
         <div className='flex items-center space-x-2'>
-            <Link href="mailto:contact@cfde.info">
+            <Link href="mailto:help@cfde.cloud">
                 <IconButton color={"secondary"}>
                     <Email/>
                 </IconButton>
             </Link>
-            <Link href="https://twitter.com/CfdeWorkbench">
+            <Link href="https://twitter.com/CfdeWorkbench" target="_blank" rel="noopener noreferrer">
                 <IconButton  color={"secondary"}>
                     <Twitter/>
                 </IconButton>
             </Link>
-            <Link href="https://www.youtube.com/channel/UCWucYIvMygAgG5t0xEGEZgg">
+            <Link href="https://www.youtube.com/@CFDEWorkbench" target="_blank" rel="noopener noreferrer">
                 <IconButton  color={"secondary"}>
                     <Youtube/>
                 </IconButton>
             </Link>
-            <Link href="/">
+            {/* <Link href="/">
                 <IconButton  color={"secondary"}>
                     <Facebook sx={{color: "#000"}}/>
                 </IconButton>
-            </Link>
-            <Link href="/">
+            </Link> */}
+            {/* <Link href="/">
                 <IconButton  color={"secondary"}>
                     <Linkedin/>
                 </IconButton>
-            </Link>
+            </Link> */}
         </div>
     )
 }

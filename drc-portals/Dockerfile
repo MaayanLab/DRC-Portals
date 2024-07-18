@@ -1,5 +1,8 @@
-FROM node
+FROM node:21
 WORKDIR /app
+
+# fix "sharp-missing-in-production" warning
+RUN npm i -g sharp
 
 ADD .next/standalone ./
 ADD .next/static ./.next/static

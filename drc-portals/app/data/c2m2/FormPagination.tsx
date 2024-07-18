@@ -1,29 +1,58 @@
 'use client'
-import React from 'react'
-import { Box, FormControl, Grid, InputLabel, MenuItem, Pagination, PaginationItem, Paper, Select, Stack, TableCell, TableRow, Typography } from '@mui/material'
-import { usePathname, useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { Box, Stack, Typography, Select, MenuItem, Pagination, PaginationItem } from '@mui/material'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const rowsPerPageOptions = [10, 20, 50]
 
-export default function FormPagination({ p, r, count }: { p: number, r: number, count?: number }) {
+interface FormPaginationProps {
+  p: number;
+  r: number;
+  count?: number;
+  tablePrefix: string;
+}
+
+export default function FormPagination({ p, r, count, tablePrefix }: FormPaginationProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const pageCount = (((count ?? 0) / r) | 0) + ((((count ?? 0) % r) === 0) ? 0 : 1)
+  const searchParams = useSearchParams()
+  const [currentPage, setCurrentPage] = useState(p)
+
+  useEffect(() => {
+    const pageParam = searchParams.get(`${tablePrefix}_p`)
+    if (pageParam) {
+      setCurrentPage(parseInt(pageParam))
+    } else {
+      setCurrentPage(p)
+    }
+  }, [searchParams, tablePrefix, p])
+
+  const pageCount = Math.ceil((count ?? 0) / r)
+
+  const updatePageParam = (value: string) => {
+    const newSearchParams = new URLSearchParams(window.location.search)
+    newSearchParams.set(`${tablePrefix}_p`, value)
+    router.push(pathname + '?' + newSearchParams.toString())
+  }
+
+  const updateRowsParam = (value: string) => {
+    const newSearchParams = new URLSearchParams(window.location.search)
+    newSearchParams.set('r', value)
+    newSearchParams.set(`${tablePrefix}_p`, '1') // Reset to first page when rows per page change
+    router.push(pathname + '?' + newSearchParams.toString())
+  }
+
   return (
     <Stack direction={"row"} justifyContent={"space-between"} justifyItems={"center"} alignContent={"center"} alignItems="center" flexWrap={"wrap"} gap={2}>
       <Box justifySelf={"center"}>
         <Pagination
-          siblingCount={0}
-          boundaryCount={1}
-          page={p}
+          siblingCount={1}
+          boundaryCount={2}
+          page={currentPage}
           count={pageCount}
-          onChange={(evt, value) => {
-            const newSearchParams = new URLSearchParams(window.location.search)
-            newSearchParams.set('p', value.toString())
-            router.push(pathname + '?' + newSearchParams.toString())
-          }}
+          onChange={(evt, value) => updatePageParam(value.toString())}
           variant="text"
           shape="rounded"
           color="primary"
@@ -39,12 +68,7 @@ export default function FormPagination({ p, r, count }: { p: number, r: number, 
         <Typography variant="nav" noWrap>DISPLAY PER PAGE</Typography>
         <Select
           value={r}
-          onChange={evt => {
-            const newSearchParams = new URLSearchParams(window.location.search)
-            newSearchParams.set('p', '1')
-            newSearchParams.set('r', evt.target.value.toString())
-            router.push(pathname + '?' + newSearchParams.toString())
-          }}
+          onChange={evt => updateRowsParam(evt.target.value.toString())}
         >
           {rowsPerPageOptions.map(rowsPerPage =>
             <MenuItem key={rowsPerPage} value={rowsPerPage}>{rowsPerPage}</MenuItem>

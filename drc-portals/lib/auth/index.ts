@@ -1,6 +1,7 @@
 import { DefaultSession, NextAuthOptions } from 'next-auth'
 import prisma from '@/lib/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import KeycloakProvider from 'next-auth/providers/keycloak'
 import EmailProvider from 'next-auth/providers/email'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
@@ -8,12 +9,15 @@ import ORCIDProvider from '@/lib/auth/providers/orcid'
 import GlobusProvider from '@/lib/auth/providers/globus'
 import type { OAuthConfig } from 'next-auth/providers/index'
 import PrismaAdapterEx from './adapters/prisma'
-
+import { Adapter } from 'next-auth/adapters'
+import { Role } from '@prisma/client'
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string
+      role: Role
+      dccs: string[]
     } & DefaultSession['user']
   }
 }
@@ -24,37 +28,75 @@ const providers = [
     name: 'Developer Account',
     credentials: {},
     async authorize(credentials, req) {
-      const user = await prisma.user.upsert({
-        create: {
-          id: process.env.NEXTAUTH_SECRET ?? '',
-          name: 'Developer',
-          role: 'ADMIN',
-          dcc: 'LINCS',
+      const LINCSDCCObject = await prisma.dCC.findFirst({
+        where: {
+          short_label: 'LINCS'
         },
+        select: {
+          id: true
+        }
+      })
+
+      const developerUser = await prisma.user.upsert({
         where: {
           id: process.env.NEXTAUTH_SECRET ?? '',
         },
         update: {
+          name: 'Developer',
           role: 'ADMIN',
-          dcc: 'LINCS',
+          email: 'test_developer@gmail.com',
+          dccs: {
+            connectOrCreate: {
+              where: {
+                id: LINCSDCCObject?.id
+              },
+              create: {
+                id: LINCSDCCObject?.id,
+                short_label: 'LINCS',
+                label: 'Library of Integrated Network-based Cellular Signatures',
+                homepage: 'https://lincsproject.org/'
+              },
+            },
+          },
         },
+        create: {
+          id: process.env.NEXTAUTH_SECRET ?? '',
+          name: 'Developer',
+          role: 'ADMIN',
+          email: 'test_developer@gmail.com',
+          dccs: {
+            connectOrCreate: {
+              where: {
+                id: LINCSDCCObject?.id
+              },
+              create: {
+                id: LINCSDCCObject?.id,
+                short_label: 'LINCS',
+                label: 'Library of Integrated Network-based Cellular Signatures',
+                homepage: 'https://lincsproject.org/'
+              },
+            },
+          },
+        }
       })
-      return user
+      return developerUser
+
     }
   }) : undefined,
-  process.env.NEXTAUTH_EMAIL ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
+  process.env.NEXTAUTH_KEYCLOAK ? KeycloakProvider(JSON.parse(process.env.NEXTAUTH_KEYCLOAK)) : undefined,
   process.env.NEXTAUTH_GITHUB ? GithubProvider(JSON.parse(process.env.NEXTAUTH_GITHUB)) : undefined,
   process.env.NEXTAUTH_GOOGLE ? GoogleProvider(JSON.parse(process.env.NEXTAUTH_GOOGLE)) : undefined,
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,
   process.env.NEXTAUTH_GLOBUS ? GlobusProvider(JSON.parse(process.env.NEXTAUTH_GLOBUS)) : undefined,
+  process.env.NEXTAUTH_EMAIL ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
-const cookiePrefix = useSecureCookies ? "__Secure-" : "" 
+const cookiePrefix = useSecureCookies ? "__Secure-" : ""
 const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapterEx(),
+  adapter: PrismaAdapterEx() as Adapter,
   providers,
   session: { strategy: 'jwt' },
   callbacks: {
@@ -65,11 +107,28 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
-    session({ session, token}) {
+    async session({ session, token }) {
       // session.accessToken = token.accessToken
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
+      const userInfo = await prisma.user.findUniqueOrThrow({
+        where: { id },
+        select: {
+          name: true,
+          email: true,
+          role: true,
+          dccs: {
+            select: {
+              short_label: true,
+            },
+          },
+        },
+      })
+      session.user.name = userInfo.name
+      session.user.role = userInfo.role
+      session.user.email = userInfo.email
+      session.user.dccs = userInfo.dccs.map(({ short_label }) => short_label ?? '').filter(dcc => dcc !== '')
       return session
     },
     async redirect({ url, baseUrl }) {

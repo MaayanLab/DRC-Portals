@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 COPY c2m2Metadata.file FROM '/home/shiva/c2m2/4DN/data/file.tsv' WITH CSV HEADER;
 COPY c2m2Metadata.biosample FROM '/home/shiva/c2m2/4DN/data/biosample.tsv' WITH CSV HEADER;
 COPY c2m2Metadata.subject FROM '/home/shiva/c2m2/4DN/data/subject.tsv' WITH CSV HEADER;

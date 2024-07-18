@@ -24,7 +24,13 @@ npm i
 # DROP SCHEMA IF EXISTS public CASCADE; then, after the 'npx prisma migrate dev',
 # go to database folder and re-populate by 'python3 ingestion.py' or 'python ingestion.py'
 # Mano: if issues, may have to delete @@schema['public'] or @@schema['c2m2'] lines and a few other fixes
-npx prisma migrate dev
+# Obsolete: npx prisma migrate dev
+# Daniel: 2024/05/14: Below, primary means public schema
+# npm run migrate:primary
+npm run migrate
+# to roll back a migration: npx prisma migrate resolve --rolled-back 20240405074418_mano_20240405
+# After schema update, may need to run
+npm run generate
 # run dev server
 npm run dev
 ```

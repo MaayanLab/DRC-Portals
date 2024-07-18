@@ -13,15 +13,17 @@ import { notFound } from 'next/navigation'
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Icon from "@mdi/react";
+import { Box } from "@mui/material";
 import { mdiArrowRight } from "@mdi/js";
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
-
+import { ReadMore } from "@/components/misc/ReadMore";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
-            short_label: decodeURI(params.dcc)
+            short_label: decodeURI(params.dcc),
+            active: true
         },
         include: {
             publications: {
@@ -80,32 +82,50 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                         <CardContent>
                             <Stack spacing={2}>
                                 <Typography variant="h2" color="secondary">
-                                    {dcc.label}{dcc.short_label && ` (${dcc.short_label})`}
+                                    {dcc.label}{dcc.short_label && dcc.short_label !== dcc.label && ` (${dcc.short_label})`}
                                 </Typography>
+                                {/* <ReadMore text={dcc.description?.replace(/["]+/g, '')}
+                                    link={dcc.cf_site}
+                                /> */}
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description} {dcc.cf_site && <>(Description was taken from <Link href={dcc.cf_site} className="underline">{dcc.cf_site}</Link>)</>}
+                                    {dcc.description} {dcc.cf_site && <>(Retrieved from the <Link href={dcc.cf_site} className="underline">NIH Common Fund site</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
                         <CardActions>
-                            <Link href={dcc.homepage}>
-                                <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                    {dcc.short_label} DCC Portal
-                                </Button>
-                            </Link>
-                            {dcc.cf_site && <Link href={dcc.cf_site}>
-                                <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                    {dcc.short_label} Program on the NIH Common Fund Website
-                                </Button>
-                            </Link>
-                            }
+                            <Stack sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+                                <Link href={dcc.homepage}>
+                                    <Button color="secondary"  sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                        {dcc.short_label} DCC Portal
+                                    </Button>
+                                </Link>
+                                {dcc.cf_site && <Link href={dcc.cf_site}>
+                                    <Button color="secondary" sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                        {dcc.short_label} Program on the NIH Common Fund Website
+                                    </Button>
+                                </Link>
+                                }
+                            </Stack>
+                            <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
+                                <Link href={dcc.homepage}>
+                                    <Button color="secondary"  sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                        {dcc.short_label} DCC Portal
+                                    </Button>
+                                </Link>
+                                {dcc.cf_site && <Link href={dcc.cf_site}>
+                                    <Button color="secondary" sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                                        {dcc.short_label} Program on the NIH Common Fund Website
+                                    </Button>
+                                </Link>
+                                }
+                            </Box>
                         </CardActions>
                     </Card>
                 </Grid>
                 {(outreach.length > 0) && 
                     <Grid item xs={12} md={(publications.length > 0 || Object.keys(assets).length > 0) ? 3:12}>
                         <Paper sx={{padding: 2, textAlign: "center"}}>
-                            <Typography sx={{color: "#FFF", background: "#7187c3", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
+                            <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
                             { (outreach === undefined || outreach.length === 0) ?
                                 <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>
                                     No events at the moment

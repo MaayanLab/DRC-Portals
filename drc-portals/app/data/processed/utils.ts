@@ -1,23 +1,46 @@
 import { z } from 'zod';
 import { NodeType } from "@prisma/client"
 
+const entity_type_map: Record<string, string> = {
+  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
+  'Congenital Abnormality': 'Congenital Abnormality',
+  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
+  'ENSEMBL': 'Transcript',
+  'gene': 'Gene',
+  'GLYCAN MOTIF': 'Glycan Motif',
+  'GLYCAN': 'Glycan',
+  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
+  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
+  'GLYGEN GLYCOSYLATION': 'Glycosylation',
+  'GLYGEN RESIDUE': 'Residue',
+  'GLYTOUCAN': 'Glytoucan',
+  'GTEXEQTL': 'eQTL',
+}
+
 export function capitalize(s: string) {
   if (s.length === 0) return ''
   return `${s[0].toUpperCase()}${s.slice(1)}`
 }
 
 export function pluralize(s: string) {
+  if (s.toLowerCase() === 'all') return s
+  if (s.toLowerCase() === 'c2m2') return s
   if (s.endsWith('y')) return `${s.slice(0, -1)}ies`
   return `${s}s`
 }
 
+export function human_readable(s: string) {
+  return capitalize(s.replaceAll('_', ' '))
+}
+
 export function type_to_string(type: NodeType | string, entity_type: string | null) {
-  if (type === 'entity') return entity_type ? capitalize(entity_type) : 'Entity'
+  if (type === 'entity') return entity_type ? entity_type_map[entity_type] || capitalize(entity_type) : 'Entity'
   else if (type === 'c2m2_file') return 'File'
   else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
+  else if (type === 'all') return 'Processed Data'
   else return capitalize(type)
 }
 
@@ -79,6 +102,14 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       z.undefined().transform(_ => 1),
     ]).transform(r => ({10: 10, 20: 20, 50: 50}[r] ?? 10)),
     t: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split('|') : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(t => {
+      const [type, entity_type] = t.split(':')
+      return { type, entity_type: entity_type ? entity_type : null }
+    }) : undefined),
+    et: z.union([
       z.array(z.string()),
       z.string().transform(ts => ts ? ts.split('|') : undefined),
       z.undefined(),

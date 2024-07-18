@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /* How to run: on psql prompt: be in the folder with this file or give full path:
 \i biosample_join.sql;
  */

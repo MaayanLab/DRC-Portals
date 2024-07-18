@@ -12,6 +12,8 @@ from ingest_common import (
   dcc_partnerships_path,
   partnership_publications_path,
   tools_path,
+  dcc_usecase_path,
+  usecase_path,
 )
 
 cur = connection.cursor()
@@ -30,8 +32,8 @@ with open(dcc_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, cf_site)
-      select id, label, short_label, description, homepage, icon, cfde_partner, cf_site
+    insert into dccs (id, label, short_label, description, homepage, icon, cfde_partner, active, cf_site)
+      select id, label, short_label, description, homepage, icon, cfde_partner, active, cf_site
       from dcc_tmp
       on conflict (id)
         do update
@@ -41,6 +43,7 @@ cur.execute('''
             homepage = excluded.homepage,
             icon = excluded.icon,
             cfde_partner = excluded.cfde_partner,
+            active = excluded.active,
             cf_site = excluded.cf_site
     ;
   ''')
@@ -49,6 +52,9 @@ connection.commit()
 
 # tools
 cur = connection.cursor()
+cur.execute('DELETE FROM partnership_publications')
+cur.execute('DELETE FROM dcc_publications')
+cur.execute('DELETE FROM tools')
 cur.execute('''
   create table tool_tmp
   as table tools
@@ -63,20 +69,19 @@ with open(tools_path(), 'r') as fr:
       sep='\t',
     )
 
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 cur.execute('''
-    insert into tools (id, label, description, url, icon)
-      select id, label, description, url, icon
+    insert into tools (%s)
+      select %s
       from tool_tmp
       on conflict (id)
         do update
-        set id = excluded.id,
-            label = excluded.label,
-            description = excluded.description,
-            url = excluded.url,
-            icon = excluded.icon
+        set %s
     ;
-  ''')
+  '''%(column_string, column_string, set_string))
 cur.execute('drop table tool_tmp;')
+
 connection.commit()
 
 # Publication
@@ -96,8 +101,8 @@ with open(publications_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id
+    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured)
+      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured
       from publication_tmp
       on conflict (id)
         do update
@@ -113,7 +118,13 @@ cur.execute('''
             doi = excluded.doi,
             authors = excluded.authors,
             landmark = excluded.landmark,
-            tool_id = excluded.tool_id
+            tool_id = excluded.tool_id,
+            carousel = excluded.carousel,
+            carousel_title = excluded.carousel_title,
+            carousel_link = excluded.carousel_link,
+            carousel_description = excluded.carousel_description,
+            image = excluded.image,
+            featured = excluded.featured
     ;
   ''')
 cur.execute('drop table publication_tmp;')
@@ -146,6 +157,9 @@ cur.execute('drop table dcc_publication_tmp;')
 connection.commit()
 
 cur = connection.cursor()
+
+cur.execute('DELETE FROM dcc_outreach')
+cur.execute('DELETE FROM outreach')
 cur.execute('''
   create table outreach_tmp
   as table outreach
@@ -162,9 +176,9 @@ with open(outreach_path(), 'r') as fr:
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel)
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer)
       select id, title, short_description, description, tags, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel
+       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer
       from outreach_tmp
       on conflict (id)
         do update
@@ -181,7 +195,9 @@ cur.execute('''
             application_end = excluded.application_end,
             link = excluded.link,
             image = excluded.image,
-            carousel = excluded.carousel
+            carousel = excluded.carousel,
+            cfde_specific = excluded.cfde_specific,
+            flyer = excluded.flyer
     ;
   ''')
 cur.execute('drop table outreach_tmp;')
@@ -216,9 +232,9 @@ connection.commit()
 ## Partnerships
 
 cur = connection.cursor()
-# cur.execute('DELETE FROM dcc_partnerships')
-# cur.execute('DELETE FROM partnership_publications')
-# cur.execute('DELETE FROM partnerships')
+cur.execute('DELETE FROM dcc_partnerships')
+cur.execute('DELETE FROM partnership_publications')
+cur.execute('DELETE FROM partnerships')
 
 cur.execute('''
   create table partnerships_tmp
@@ -303,6 +319,74 @@ cur.execute('''
 cur.execute('drop table partnership_publications_tmp;')
 connection.commit()
 
+# Use Cases
+
+cur = connection.cursor()
+
+cur.execute('''
+  DELETE FROM dcc_usecase;
+''')
+
+cur.execute('''
+  DELETE FROM usecase;
+''') 
+cur.execute('''
+  create table usecase_tmp
+  as table usecase
+  with no data;
+''')
+
+with open(usecase_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
+    cur.copy_from(fr, 'usecase_tmp',
+      columns=columns,
+      null='',
+      sep='\t',
+    )
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+    insert into usecase (%s)
+      select %s
+      from usecase_tmp
+      on conflict (id)
+        do update
+        set %s
+    ;
+  '''%(column_string, column_string, set_string))
+cur.execute('drop table usecase_tmp;')
+connection.commit()
+
+cur = connection.cursor()
+cur.execute('''
+  create table dcc_usecase_tmp
+  as table dcc_usecase
+  with no data;
+''')
+
+
+with open(dcc_usecase_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
+    cur.copy_from(fr, 'dcc_usecase_tmp',
+      columns=columns,
+      null='',
+      sep='\t',
+    )
+
+column_string = ", ".join(columns)
+
+cur.execute('''
+    insert into dcc_usecase (%s)
+      select %s
+      from dcc_usecase_tmp
+      on conflict 
+        do nothing
+    ;
+  '''%(column_string, column_string))
+cur.execute('drop table dcc_usecase_tmp;')
+connection.commit()
+
+
 # DCC Assets
 cur = connection.cursor()
 cur.execute('''
@@ -320,19 +404,12 @@ with open(dcc_assets_path(), 'r') as fr:
   )
 cur.execute('''
     insert into dcc_assets (link, lastmodified, current, creator, 
-            dcc_id, drcapproved, dccapproved, deleted)
+            dcc_id, drcapproved, dccapproved, deleted, created)
     select link, lastmodified, current, creator, 
-            dcc_id, drcapproved, dccapproved, deleted
+            dcc_id, drcapproved, dccapproved, deleted, created
     from dcc_assets_tmp
     on conflict (link)
-      do update
-      set lastmodified = excluded.lastmodified,
-          current = excluded.current,
-          creator = excluded.creator,
-          dcc_id = excluded.dcc_id,
-          drcapproved = excluded.drcapproved,
-          dccapproved = excluded.dccapproved,
-          deleted = excluded.deleted
+      do nothing;
   ''')
 cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
@@ -356,11 +433,7 @@ cur.execute('''
   select filetype, filename, link, size, sha256checksum
   from file_assets_tmp
   on conflict (link)
-    do update
-    set filetype = excluded.filetype,
-        filename = excluded.filename,
-        size = excluded.size,
-        sha256checksum = excluded.sha256checksum
+    do nothing;
 ''')
 cur.execute('drop table file_assets_tmp;')
 connection.commit()
@@ -381,18 +454,12 @@ with open(code_assets_path(), 'r') as fr:
   )
 cur.execute('''
     insert into code_assets (type, name, link, description, 
-            "openAPISpec", "smartAPISpec", "smartAPIURL")
+            "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample")
     select type, name, link, description, 
-            "openAPISpec", "smartAPISpec", "smartAPIURL"
+            "openAPISpec", "smartAPISpec", "smartAPIURL", "entityPageExample"
     from code_assets_tmp
     on conflict (link)
-      do update
-      set type = excluded.type,
-          name = excluded.name,
-          description = excluded.description,
-          "openAPISpec" = excluded."openAPISpec",
-          "smartAPISpec" = excluded."smartAPISpec",
-          "smartAPIURL" = excluded."smartAPIURL"
+      do nothing;
   ''')
 cur.execute('drop table code_assets_tmp;')
 connection.commit()

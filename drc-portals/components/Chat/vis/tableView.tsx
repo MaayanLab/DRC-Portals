@@ -56,10 +56,10 @@ export default function TableView(rowData: any) {
                 </tbody>
             </table>
             <div className='text-center m-2'>
-                <button className={classNames('btn-sm mr-1 p-1 border rounded opacity-50', { 'font-extrabold opacity-100': currentPage != 1 })} onClick={handlePreviousPage} disabled={currentPage === 1}>
+                <button className={classNames('px-2 btn-sm border rounded', { 'font-extrabold opacity-100 border-2': currentPage != 1 })} onClick={handlePreviousPage} disabled={currentPage === 1}>
                     Previous
                 </button>
-                <button className={classNames('btn-sm ml-1 p-1 border rounded opacity-50', { 'font-extrabold opacity-100': currentPage != totalPages })} onClick={handleNextPage} disabled={currentPage === totalPages}>
+                <button className={classNames('px-2 btn-sm border rounded', { 'font-extrabold opacity-100 border-2': currentPage != totalPages })} onClick={handleNextPage} disabled={currentPage === totalPages}>
                     Next
                 </button>
                 <p className={'text-sm mt-1'}>Page {currentPage} of {totalPages}</p>

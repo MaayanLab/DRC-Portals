@@ -1,14 +1,19 @@
-import prisma from "@/lib/prisma"
+import React from 'react'
+import prisma from "@/lib/prisma/slow"
 import Link from "next/link"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from "next";
 import { cache } from "react";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import modules from "./modules";
+import { notFound } from 'next/navigation';
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
+const getItem = cache((id: string) => prisma.geneSetNode.findUnique({
   where: {
     id,
   },
@@ -48,10 +53,19 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('gene_set', null)
   const item = await getItem(props.params.id)
+  if (!item) return {}
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('gene_set', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      item.node.dcc?.short_label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 
@@ -60,7 +74,8 @@ export default async function Page(props: PageProps) {
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const gene_set = await getItem(props.params.id)
-  const genes = await prisma.geneSetNode.findUniqueOrThrow({
+  if (!gene_set) return notFound()
+  const genes = await prisma.geneSetNode.findUnique({
     where: {
       id: props.params.id,
     },
@@ -105,6 +120,7 @@ export default async function Page(props: PageProps) {
       },
     }
   })
+  if (!genes) return notFound()
   return (
     <LandingPageLayout
       icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}
@@ -112,11 +128,21 @@ export default async function Page(props: PageProps) {
       subtitle={type_to_string('gene_set', null)}
       description={format_description(gene_set.node.description)}
       metadata={[
-        gene_set.node.dcc ? { label: 'Project', value: <Link href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,
-        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
+        gene_set.node.dcc ? { label: 'Project', value: <Link prefetch={false} href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,
+        { label: 'Gene Set Library', value: <Link prefetch={false} href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
         { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >
+      <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
+        <Grid item xs={12} sx={{marginBottom: 5}}>
+          <Typography variant="h2" color="secondary">Analyze</Typography>
+        </Grid>
+        <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {modules
+            .filter(({ compatible }) => compatible({ id: props.params.id, node: gene_set.node }))
+            .map(({ button: ModButton }, i) => <ModButton key={i} item={{ id: props.params.id, node: gene_set.node }} />)}
+        </Grid>
+      </Grid>
       <SearchablePagedTable
         label="Genes"
         q={searchParams.q ?? ''}

@@ -1,6 +1,0 @@
--- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'DCC_APPROVER', 'UPLOADER', 'DRC_APPROVER');
-
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "dcc" TEXT,
-ADD COLUMN     "role" "Role" NOT NULL DEFAULT 'USER';

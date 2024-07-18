@@ -4,23 +4,62 @@ import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
 import Link from "next/link"
 import prisma from "@/lib/prisma"
-import { shuffle } from "../Outreach"
 export default async function ServerCarousel () {
-    let outreach = await prisma.outreach.findMany({
+    const now = new Date()
+    const outreach = await prisma.outreach.findMany({
         where: {
           active: true,
-          carousel: true
+          carousel: true,
+          AND: [
+            // date filters
+            {
+              OR: [
+                {
+                  end_date: {
+                    gte: now
+                  }
+                },
+                {
+                  end_date: null,
+                  start_date: {
+                    gte: now
+                  }
+                },
+                {
+                  application_start: {
+                    gte: now
+                  },
+                  end_date: null,
+                  start_date: null,
+                },
+              ]
+            },
+          ]
         },
         orderBy: {
-          start_date: { sort: 'desc', nulls: 'last' },
+          start_date: { sort: 'asc', nulls: 'last' },
         }
       })
-    outreach = shuffle(outreach)
     const outreach_items = outreach.map(o=>({
         name: o.title,
         description: o.short_description,
         icon: o.image || '',
         url: o.link || '',
+    }))
+    const publications = await prisma.publication.findMany({
+        where: {
+          carousel: true
+        },
+        orderBy: {
+          year: { sort: 'desc', nulls: 'last' },
+        }
+      })
+    
+    const publication_items = publications.map(o=>({
+        name: o.carousel_title || o.title,
+        description: o.carousel_description,
+        icon: o.image || '',
+        url: o.carousel_link || `https://www.doi.org/${o.doi}` || '',
     }))
     const items = [
         {
@@ -54,30 +93,36 @@ export default async function ServerCarousel () {
             url: "https://pubmed.ncbi.nlm.nih.gov/36409836/"
         }
       ]
-      
     
-    const children = [...items, ...outreach_items].map( (item, i) => (
-        <Box key={i} sx={{
-            minHeight: 300, 
-            width: 640,
-            textAlign: "center", 
-            border: 1,
-            borderRadius: 5,
-            borderColor: "rgba(81, 123, 154, 0.5)", 
-            padding: 2
-        }}>
-            <Link href={item.url} target="_blank" rel="noopener noreferrer">
-                <Box className="flex flex-col" sx={{minHeight: 300, boxShadow: "none", background: "#FFF"}}>
-                    <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
-                    <div className="flex grow items-center justify-center relative">
-                        <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
-                    </div>
-                </Box>
-            </Link>
-        </Box>
+    
+    const children = [...outreach_items, ...publication_items, ...items].map( (item, i) => (
+        <div key={i}>
+            <Box key={i} sx={{
+                minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
+                width: {xs: 300, sm: 300, md: 450, lg: 600, xl: 600}, 
+                textAlign: "center", 
+                border: 1,
+                borderRadius: 5,
+                borderColor: "rgba(81, 123, 154, 0.5)", 
+                padding: 2
+            }}>
+                <Link href={item.url} target="_blank" rel="noopener noreferrer">
+                    <Box className="flex flex-col" sx={{
+                            minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
+                            boxShadow: "none", 
+                            background: "#FFF"
+                        }}>
+                        <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
+                        <div className="flex grow items-center justify-center relative">
+                            <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
+                        </div>
+                    </Box>
+                </Link>
+            </Box>
+        </div>
     ))
 
-    return <ClientCarousel>{children}</ClientCarousel>
+    return <ClientCarousel title="PRODUCTS, PARTNERSHIPS, & EVENTS">{children}</ClientCarousel>
 
 }
 

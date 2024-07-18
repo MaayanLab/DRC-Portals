@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import Typography from '@mui/material/Typography'
 import { ElevatedIconButton } from "./Buttons";
-
-export const Logo = ({href, title, color, size}: {href: string, title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large"}) => (
+export const Logo = ({title, color, size, href}: {title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large", href:"/info"|"/data"}) => (
     <Link href={href} className='flex items-center space-x-3'>
         <div>
         <ElevatedIconButton

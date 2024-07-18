@@ -1,16 +1,20 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
 import ListingPageLayout from "../ListingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode, Description, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 import { Metadata, ResolvingMetadata } from 'next'
 import { Typography } from "@mui/material";
+import { safeAsync } from "@/utils/safe";
 
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = pluralize(type_to_string('c2m2_file', null))
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${pluralize(type_to_string('c2m2_file', null))}`,
+    title: `${parentMetadata.title?.absolute} | ${title}`,
+    keywords: [title, parentMetadata.keywords].join(', '),
   }
 }
 
@@ -18,7 +22,7 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const [results] = await prisma.$queryRaw<Array<{
+  const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     items: {
       id: string,
       data_type: string,
@@ -37,14 +41,26 @@ export default async function Page(props: PageProps) {
     count: number,
   }>>`
     with items as (
+      select *
+      from
+        ${searchParams.q ? Prisma.sql`websearch_to_tsquery('english', ${searchParams.q}) q,` : Prisma.empty}
+        "node"
+      where "node"."type" = 'c2m2_file'
+      ${searchParams.q ? Prisma.sql`
+      and q @@ "node"."searchable"
+      ` : Prisma.empty}
+      order by "node"."pagerank" desc
+      offset ${offset}
+      limit 100
+    ), paginated_items as (
       select
-        "c2m2_file_node"."id",
+        "items"."id",
         "c2m2_file_node"."data_type",
         "c2m2_file_node"."assay_type",
         jsonb_build_object(
-          'type', node."type",
-          'label', node."label",
-          'description', node."description",
+          'type', items."type",
+          'label', items."label",
+          'description', items."description",
           'dcc', (
             select jsonb_build_object(
               'short_label', short_label,
@@ -52,21 +68,11 @@ export default async function Page(props: PageProps) {
               'icon', icon
             )
             from "dccs"
-            where "node"."dcc_id" = "dccs"."id"
+            where "items"."dcc_id" = "dccs"."id"
           )
         ) as node
-      from "c2m2_file_node"
-      inner join "node" on "node"."id" = "c2m2_file_node"."id"
-      ${searchParams.q ? Prisma.sql`
-        where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
-      ` : Prisma.sql`
-        order by "c2m2_file_node"."id"
-      `}
-    ), paginated_items as (
-      select *
       from items
-      offset ${offset}
+      inner join "c2m2_file_node" on items."id" = "c2m2_file_node"."id"
       limit ${limit}
     )
     select
@@ -77,17 +83,19 @@ export default async function Page(props: PageProps) {
         (select count("c2m2_file_node".id)::int from "c2m2_file_node") as count
       `}
     ;
-  `
+  `)
+  if (error) console.error(error)
   return (
     <ListingPageLayout
-      count={results.count}
+      count={results?.count ?? 0}
+      maxCount={100}
     >
       <SearchablePagedTable
         label={`${type_to_string('c2m2_file', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results.count}
+        count={(results?.count??0)+offset}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
@@ -95,13 +103,13 @@ export default async function Page(props: PageProps) {
           <>Data Type</>,
           <>Assay Type</>,
         ]}
-        rows={results.items.map(item => [
-          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${item.node.dcc.short_label}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
+        rows={results?.items.map(item => [
+          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/${item.node.type}/${item.id}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
           <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
           <Typography variant={'body1'} color="secondary">{item.data_type}</Typography>,
           <Typography variant={'body1'} color="secondary">{item.assay_type}</Typography>,,
-        ])}
+        ]) ?? []}
       />
     </ListingPageLayout>
   )

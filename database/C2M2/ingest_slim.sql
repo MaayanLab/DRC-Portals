@@ -1,5 +1,6 @@
+set statement_timeout = 0;
 /*
-Script to ingest C2M2 relevant slim and related table: being in the directory /home/mano/DRC/DRC-Portals/database, generated using the command ./gen_ingest_slim_script.sh ingest_slim.sql
+Script to ingest C2M2 relevant slim and related table: being in the directory /home/u8sand/Programs/work/active/DRC-Portals/database/C2M2, generated using the command ./gen_ingest_slim_script.sh ingest_slim.sql
 Generated sql script ingest_slim.sql and made it executable for owner and group. The resulting sql script can be run as (upon starting psql shell, or equivalent command):
 \i ingest_slim.sql
 OR, directly specify the sql file name in psql command:

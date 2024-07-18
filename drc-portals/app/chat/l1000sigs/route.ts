@@ -14,20 +14,9 @@ export async function POST(req: NextRequest
         headers: {
             'Content-Type': 'application/json',
     }})
-    try {
-    const tableDataJson = await response.json()
-
-    return new NextResponse(JSON.stringify(tableDataJson), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-    });
-    } catch (error) {
-        console.log(error)
-        return new NextResponse(JSON.stringify({
-        }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
-
+    if (!response.ok) {
+        return Response.json({}, { status: response.status })
     }
+    const tableDataJson = await response.json()
+    return Response.json(tableDataJson, { status: 200 });
 }

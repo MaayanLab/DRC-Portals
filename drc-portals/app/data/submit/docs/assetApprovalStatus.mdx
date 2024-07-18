@@ -1,0 +1,25 @@
+import { BsCheckCircleFill } from "react-icons/bs";
+import { FaCircleExclamation } from "react-icons/fa6";
+
+### Not Approved
+
+This is the first stage of approval. All assets that are just uploaded or submitted by a DCC uploader will first be placed in this category. The asset will be tagged by the <FaCircleExclamation style={{ display: 'inline-flex', alignItems: 'center' }}/> icon on the Uploaded Assets page, icon which represents that the file was not reviewed by the DCC approver or evaluated by the DRC.
+![Screenshot showing not approved asset](/img/submission_system/notdcc_notdrc_approved.png)
+*Figure 1: A screenshot of Uploaded Assets page showing a submitted asset without DCC or DRC approval. View of Uploader User*
+
+
+
+### DCC Approved
+
+When an asset has been approved by a DCC approver (appointed by each DCC), the status of the asset will be updated to 'DCC Approved' which is tagged by the  <BsCheckCircleFill style={{ display: 'inline-flex', alignItems: 'center' }}/> icon under the DCC Status column on the Uploaded Assets page.
+![Screenshot showing DCC but not DRC approved asset](/img/submission_system/dcc_notdrc_approved.png)
+*Figure 2: A screenshot of Uploaded Assets page showing a submitted asset with DCC approval but without DRC approval. View of Uploader User*
+
+
+
+### DRC Approved
+
+When an asset has been approved by an appointed DRC approver, the status of the asset will be updated to 'DRC Approved'. This status is tagged by the <BsCheckCircleFill style={{ display: 'inline-flex', alignItems: 'center' }}/> icon under the “DRC Status” column on the Uploaded Assets page. Please note that DCC and DRC approval status are independent of each other.
+![Screenshot showing DCC and DRC approved asset](/img/submission_system/dcc_drc_approved.png)
+*Figure 3: A screenshot of Uploaded Assets page showing a submitted asset with both DCC approval and DRC approval. View of Uploader User*
+

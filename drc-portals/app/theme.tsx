@@ -92,7 +92,7 @@ export const cfde_theme = createTheme({
             fontStyle: "normal",
             fontWeight: 600,
             textTransform: "uppercase",
-            color: "#336699"
+            color: "#2D5986"
         },
         footer: {
             fontFamily: dm_sans.style.fontFamily,
@@ -112,6 +112,12 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
             color: "#9E9E9E"
         },
+        stats_sub_small: {
+            fontSize: 14,
+            fontStyle: "normal",
+            fontWeight: 500,
+            color: "#9E9E9E"
+        },
     },
     palette: {
         primary: {
@@ -120,12 +126,14 @@ export const cfde_theme = createTheme({
             dark: "#84A9AE"
         },
         secondary: {
-            main: "#336699",
-            light: "#81A1C1",
-            dark: "#1F3D5C"
+            main: "#2D5986",
+            light: "#9cbcde",
+            dark: "#122436"
         },
         tertiary: {
-            main: "#7187C3"
+            main: "#2D5986",
+            light: "#9cbcde",
+            dark: "#122436"
         },
         paperGray: {
             main: "#FAFAFA",
@@ -155,7 +163,7 @@ export const cfde_theme = createTheme({
         MuiOutlinedInput: {
             styleOverrides: {
                 notchedOutline: {
-                    borderColor: '#336699',
+                    borderColor: '#2D5986',
                 },
             },
         },
@@ -171,7 +179,7 @@ export const cfde_theme = createTheme({
                 root: {
                     color: "#B7C3E2",
                     '&.Mui-checked': {
-                        color: "#336699",
+                        color: "#2D5986",
                     },
                     '& .MuiSvgIcon-root': { 
                         fontSize: 20,
@@ -184,7 +192,7 @@ export const cfde_theme = createTheme({
                 root: ({ ownerState }) => ({
                     ...(ownerState.color === 'tertiary' &&
                      {
-                        color: '#7187C3',
+                        color: '#2D5986',
                       }),
                   }),
             }
@@ -200,11 +208,11 @@ export const cfde_theme = createTheme({
                     ...(ownerState.variant === 'contained' &&
                       ownerState.color === 'primary' && {
                         backgroundColor: '#C3E1E6',
-                        color: '#336699',
+                        color: '#2D5986',
                       }),
                     ...(ownerState.variant === 'contained' &&
                       ownerState.color === 'tertiary' && {
-                        backgroundColor: '#7187C3',
+                        backgroundColor: '#2D5986',
                         color: '#FFFFFF',
                       }),
                   }),
@@ -221,11 +229,11 @@ export const cfde_theme = createTheme({
                     ...(ownerState.variant === 'filled' &&
                       ownerState.color === 'primary' && {
                         backgroundColor: '#C3E1E6',
-                        color: '#336699',
+                        color: '#2D5986',
                       }),
                     ...(ownerState.variant === 'filled' &&
                       ownerState.color === 'tertiary' && {
-                        backgroundColor: '#7187C3',
+                        backgroundColor: '#2D5986',
                         color: '#FFFFFF',
                       }),
                   }),
@@ -253,6 +261,15 @@ export const cfde_theme = createTheme({
                 }
             ],
         },
+        MuiAccordion: {
+            styleOverrides: {
+                root: {
+                    "&:before": {
+                       display: "none"
+                    }
+              },
+            },   
+        }
     }
 })
 
@@ -264,6 +281,7 @@ declare module '@mui/material/styles' {
       footer: React.CSSProperties;
       stats_h3: React.CSSProperties;
       stats_sub: React.CSSProperties;
+      stats_sub_small: React.CSSProperties;
     }
   
     // allow configuration using `createTheme`
@@ -274,6 +292,7 @@ declare module '@mui/material/styles' {
       footer?: React.CSSProperties;
       stats_h3?: React.CSSProperties;
       stats_sub?: React.CSSProperties;
+      stats_sub_small?: React.CSSProperties;
     }
 
     interface Palette {
@@ -306,6 +325,7 @@ declare module '@mui/material/styles' {
       footer: true;
       stats_h3: true;
       stats_sub: true;
+      stats_sub_small: true;
     }
   }
 

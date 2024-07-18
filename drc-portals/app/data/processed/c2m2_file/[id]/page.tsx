@@ -1,16 +1,18 @@
-import prisma from "@/lib/prisma"
+import prisma from "@/lib/prisma/slow"
 import Link from "next/link"
 import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import { Metadata, ResolvingMetadata } from 'next'
 import { cache } from "react";
+import { notFound } from "next/navigation";
 
 type PageProps = { params: { id: string } }
 
-const getItem = cache((id: string) => prisma.c2M2FileNode.findUniqueOrThrow({
+const getItem = cache((id: string) => prisma.c2M2FileNode.findUnique({
   where: { id },
   select: {
     persistent_id: true,
+    access_url: true,
     size_in_bytes: true,
     file_format: true,
     assay_type: true,
@@ -32,16 +34,26 @@ const getItem = cache((id: string) => prisma.c2M2FileNode.findUniqueOrThrow({
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const title = type_to_string('c2m2_file', null)
   const item = await getItem(props.params.id)
+  if (!item) return {}
+  const parentMetadata = await parent
   return {
-    title: `${(await parent).title?.absolute} | ${type_to_string('c2m2_file', null)} | ${item.node.label}`,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
     description: item.node.description,
+    keywords: [
+      title,
+      item.node.label,
+      item.node.dcc?.short_label,
+      parentMetadata.keywords,
+    ].join(', '),
   }
 }
 
 export default async function Page(props: PageProps) {
   const item = await getItem(props.params.id)
-  return (
+  if (!item) return notFound()
+    return (
     <LandingPageLayout
       icon={item.node.dcc?.icon ? { href: `/info/dcc/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}
       title={item.node.label}
@@ -50,14 +62,15 @@ export default async function Page(props: PageProps) {
       metadata={[
         item.node.dcc?.label ? {
           label: 'Project',
-          value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link>
+          value: <Link prefetch={false} href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link>
         } : null,
         item.persistent_id ? {
           label: 'Persistent ID',
           value: /^https?:\/\//.exec(item.persistent_id) !== null ?
-            <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
+            <Link prefetch={false} href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
             : item.persistent_id,
         } : null,
+        process.env.PUBLIC_URL && item.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
         item.size_in_bytes ? {
           label: 'Size in Bytes',
           value: item.size_in_bytes.toLocaleString(),
