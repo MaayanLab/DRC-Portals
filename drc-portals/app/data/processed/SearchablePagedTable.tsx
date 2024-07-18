@@ -53,6 +53,7 @@ export function SearchablePagedTableCellIcon(props: {
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
   q: string, p: number, r: number, count?: number,
+  loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
@@ -83,7 +84,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 <TableBody>
                   {props.rows.length === 0 ? <TableRow>
                     <TableCell colSpan={props.columns.length} align="center">
-                      No results satisfy the query and filters
+                      {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
                     </TableCell>
                   </TableRow> :
                     props.rows.map((row, i) => (
