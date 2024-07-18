@@ -316,10 +316,16 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         }
         if (t.entity_type) {
   
-            const valid_colnames: string[] = ['dcc', 'disease', 
+            const valid_colnames_old: string[] = ['dcc', 'disease', 
             'taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
-            'data_type']; // Note that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
-    //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+            'data_type'];
+            // Note that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
+            //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+            
+            const valid_colnames: string[] = ['dcc', 'disease', 
+                'taxonomy', 'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
+                'data_type'];
+                
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
             //typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${t.type}_name"`} = ${t.entity_type}`);
@@ -344,7 +350,9 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
   
     return filterConditionStr;
   }
+
   
+
 
 const dccAbbrTable: { [key: string]: string } = {
     "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
