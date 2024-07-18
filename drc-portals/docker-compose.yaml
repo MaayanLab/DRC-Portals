@@ -30,7 +30,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.10.0-2
+    image: maayanlab/drc-portal-dev:0.10.0-6
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -199,7 +199,7 @@ services:
 volumes:
   drc-portal-postgres:
     x-kubernetes:
-      size: 40Gi
+      size: 100Gi
       class: gp2
 
   drc-portal-postgres-2:
