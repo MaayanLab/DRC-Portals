@@ -34,14 +34,14 @@ export default function FormPagination({ p, r, count, tablePrefix }: FormPaginat
   const updatePageParam = (value: string) => {
     const newSearchParams = new URLSearchParams(window.location.search)
     newSearchParams.set(`${tablePrefix}_p`, value)
-    router.push(pathname + '?' + newSearchParams.toString())
+    router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
   }
 
   const updateRowsParam = (value: string) => {
     const newSearchParams = new URLSearchParams(window.location.search)
     newSearchParams.set('r', value)
     newSearchParams.set(`${tablePrefix}_p`, '1') // Reset to first page when rows per page change
-    router.push(pathname + '?' + newSearchParams.toString())
+    router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
   }
 
   return (

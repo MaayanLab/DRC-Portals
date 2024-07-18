@@ -22,7 +22,7 @@ export default function FormPagination({ p, r, count }: { p: number, r: number, 
           onChange={(evt, value) => {
             const newSearchParams = new URLSearchParams(window.location.search)
             newSearchParams.set('p', value.toString())
-            router.push(pathname + '?' + newSearchParams.toString())
+            router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
           }}
           variant="text"
           shape="rounded"
@@ -43,7 +43,7 @@ export default function FormPagination({ p, r, count }: { p: number, r: number, 
             const newSearchParams = new URLSearchParams(window.location.search)
             newSearchParams.set('p', '1')
             newSearchParams.set('r', evt.target.value.toString())
-            router.push(pathname + '?' + newSearchParams.toString())
+            router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
           }}
         >
           {rowsPerPageOptions.map(rowsPerPage =>
