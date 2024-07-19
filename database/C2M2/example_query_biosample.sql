@@ -5,21 +5,21 @@ set statement_timeout = 0;
 
 --- some queries on the ffl_biosample table;
 
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & brain');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & organ');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & mouse');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & human');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & homo sapiens');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & homo & sapiens');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & asian & male');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer');
-select count(*) from c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & brain');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & organ');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & mouse');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & human');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & homo sapiens');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & homo & sapiens');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & asian & male');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer');
+select count(*) from c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & brain');
 
 select dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
-biosample_local_id from c2m2.ffl2_biosample where searchable @@ websearch_to_tsquery('english', 'blood');
+biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'blood');
 select count(*) from (select dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
-biosample_local_id from c2m2.ffl2_biosample where searchable @@ websearch_to_tsquery('english', 'blood'));
+biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'blood'));
 
 --- To generate count of unique subject, biosample, etc, grouped by another set of columns
 --- from fl_biosample local_id is biosample_local_id
@@ -33,28 +33,28 @@ select count(*) from c2m2.biosample where project_local_id = 'PR000024';
 
 select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
 count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
-count(distinct collection_local_id) as count_col from c2m2.fl_biosample 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample_collection 
 where project_id_namespace ilike '%4dn%' group by 
 id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 --- crosscheck as:
 select count(*) from c2m2.biosample where project_local_id = '12a92962-8265-4fc0-b2f8-cf14f05db58b' and anatomy = 'CL:0000081';
 
---- from ffl_biosample
+--- from ffl_biosample_collection
 select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
 count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
-count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample_collection 
 where project_id_namespace ilike '%metab%' group by 
 biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 
 select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
 count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
-count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample_collection 
 where project_id_namespace ilike '%4dn%' group by 
 biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 
 select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
 count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
-count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample_collection 
 where project_id_namespace ilike '%4dn%' and subject_local_id = '0f011b1e-b772-4f2a-8c24-cc55de28a994' group by 
 biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 --- crosscheck as:
@@ -65,8 +65,12 @@ where subject_local_id = '0f011b1e-b772-4f2a-8c24-cc55de28a994';
 
 --- add a filter on anatomy
 select project_name,anatomy_name,disease_name,subject_local_id,dcc_name from 
-c2m2.ffl_biosample where searchable @@ to_tsquery('english', 'liver & cancer & brain') and 
+c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & brain') and 
 anatomy_name ilike '%liver%';
+
+select project_name,anatomy_name,disease_name,subject_local_id,dcc_name from 
+c2m2.ffl_biosample_collection where searchable @@ to_tsquery('english', 'liver & cancer & brain') and 
+anatomy_name ilike '%brain%';
 
 --- to debug whu null was showing up in DCC name/abbreviation
 --- join with project_in_project was needed since parent_project_id_namespace is what is connected to dcc.project_id_namespace
@@ -215,9 +219,9 @@ from c2m2.fl_biosample
 -----------------------------------------------------------------------------------------------
    --- allres_full
    EXPLAIN (ANALYZE)
-   SELECT DISTINCT c2m2.ffl_biosample.*,
+   SELECT DISTINCT c2m2.ffl_biosample_collection.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
-    FROM c2m2.ffl_biosample
+    FROM c2m2.ffl_biosample_collection
     WHERE searchable @@ websearch_to_tsquery('english', 'blood');
 
 -----------------------------------------------------------------------------------------------
@@ -245,9 +249,9 @@ from c2m2.fl_biosample
     COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
     COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
     COUNT(DISTINCT collection_local_id)::INT AS count_col
-  FROM (SELECT DISTINCT c2m2.ffl_biosample.*,
+  FROM (SELECT DISTINCT c2m2.ffl_biosample_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
-        FROM c2m2.ffl_biosample
+        FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', 'blood')
     ) allres_full 
   LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
@@ -263,9 +267,9 @@ from c2m2.fl_biosample
 --- allres_full, allres, allres_filtered combined
 EXPLAIN (ANALYZE)
 WITH allres_full AS (
-  SELECT DISTINCT c2m2.ffl_biosample.*,
+  SELECT DISTINCT c2m2.ffl_biosample_collection.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
-    FROM c2m2.ffl_biosample
+    FROM c2m2.ffl_biosample_collection
     WHERE searchable @@ websearch_to_tsquery('english', 'blood') 
 ),
 allres AS (
@@ -320,9 +324,9 @@ SELECT * from (
 
 EXPLAIN (ANALYZE)
 WITH allres_full AS (
-  SELECT DISTINCT c2m2.ffl_biosample.*,
+  SELECT DISTINCT c2m2.ffl_biosample_collection.*,
     ts_rank_cd(searchable, websearch_to_tsquery('english', :'myq')) as "rank"
-    FROM c2m2.ffl_biosample
+    FROM c2m2.ffl_biosample_collection
     WHERE searchable @@ websearch_to_tsquery('english', :'myq') 
 ),
 allres AS (
