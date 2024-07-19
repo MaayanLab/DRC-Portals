@@ -32,7 +32,8 @@ type PageProps = { search: string, searchParams: Record<string, string> }
 const doQuery = React.cache(async (props: PageProps) => {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return
-  const offset = (searchParams.p - 1) * searchParams.r;
+  const currentPage = searchParams.C2M2MainSearchTbl_p ? +searchParams.C2M2MainSearchTbl_p : 1;
+  const offset = (currentPage - 1) * searchParams.r;
   const limit = searchParams.r;
 
   const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
