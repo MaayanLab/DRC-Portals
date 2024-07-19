@@ -85,7 +85,7 @@ const TagComponent = ({
 
         const typeDisplayNames: Record<string, string> = {
             'dcc': 'Common Fund Program',
-            'taxonomy': 'Species',
+            'ncbi_taxonomy': 'Species',
             'anatomy': 'Anatomy',
             'disease': 'Disease',
             'gene': 'Gene',
