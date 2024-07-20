@@ -196,7 +196,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                 </TableBody>
                             </Table>
                         </TableContainer> */}
-                        <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 'auto', width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+                        <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                             <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%'}}>
                                 <TableHead>
                                     <TableRow>
