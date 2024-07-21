@@ -435,3 +435,12 @@ SELECT
 --- carcinoma 37.2 59600
 --- neuroblastoma 0.86 620
 --- cancer 43.9 59800
+
+--- test effect of master limit or no limit
+EXPLAIN (ANALYZE)
+SELECT  count(*) from (select c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', 'blood')
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id);
