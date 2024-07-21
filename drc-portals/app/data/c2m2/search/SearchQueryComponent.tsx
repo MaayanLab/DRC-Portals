@@ -107,8 +107,8 @@ const doQuery = React.cache(async (props: PageProps) => {
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
-        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        /* ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name,
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id */
         LIMIT ${allres_filtered_maxrow_limit}     
     ),
     allres AS (
