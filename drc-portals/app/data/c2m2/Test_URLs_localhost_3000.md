@@ -7,6 +7,8 @@ localhost:3000/data if testing from your local instance
 
 Search: liver, filter: DCC/CF program: SPARC
 
+## Temporary note: All the URLs below need to be updated to reflect the latest change in the URL/folder structure around 07/18/2024
+
 localhost:3000/data/processed/search?q=liver&t=dcc%3AStimulating+Peripheral+Activity+to+Relieve+Conditions&p=1
 
 Select a row:

@@ -32,7 +32,8 @@ type PageProps = { search: string, searchParams: Record<string, string> }
 const doQuery = React.cache(async (props: PageProps) => {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return
-  const offset = (searchParams.p - 1) * searchParams.r;
+  const currentPage = searchParams.C2M2MainSearchTbl_p ? +searchParams.C2M2MainSearchTbl_p : 1;
+  const offset = (currentPage - 1) * searchParams.r;
   const limit = searchParams.r;
 
   const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
@@ -106,8 +107,8 @@ const doQuery = React.cache(async (props: PageProps) => {
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
-        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        /* ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name,
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id */
         LIMIT ${allres_filtered_maxrow_limit}     
     ),
     allres AS (

@@ -14,20 +14,9 @@
 
 # Be in the folder database/C2M2
 
-# Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc. This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too). This script can be run as (upon starting psql shell, or equivalent command):
-# \i create_id_namespace_dcc_id.sql
-# OR, directly specify the sql file name in psql command:
 mkdir -p log
-psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o log/log_create_id_namespace_dcc_id.log
-
-# To ingest controlled vocabulary files into c2m2 schema
-# on psql prompt while being in database folder: \i ingest_CV.sql
-# on bash prompt : psql -h localhost -U drc -d drc -a -f ingest_CV.sql # this may prompt for DB password if not stored in ~/.pgpass file (permission 600)
-#psql -h localhost -U drc -d drc -p [5432|5433] -a -f ingest_CV.sql
-psql "$(python3 dburl.py)" -a -f ingest_CV.sql
-# To be added if needed: using python script: I am using \COPY inside the sql file, so
-# with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
-# will not work unless absolute path for the source tsv file is used.
+# id_namespace_dcc_id should be created after the core c2m2 tables have been created, because the py script to ingest into c2m2 deletes and recreates the c2m2 schema.
+#NOT here: # psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o log/log_create_id_namespace_dcc_id.log
 
 # Before ingesting, do a quick check to see from how many DCCs, c2m2 files will be ingested, by checking for current and deleted
 # linux bash command after downloding DccAssets.tsv to some folder:
@@ -39,6 +28,20 @@ python_cmd=python3;ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${ymd}.log; ${py
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} > log/warning_in_schemaC2M2_ingestion_${ymd}.log; 
 egrep -i -e "Error" ${logf} > log/error_in_schemaC2M2_ingestion_${ymd}.log;
+
+# Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc. This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too). This script can be run as (upon starting psql shell, or equivalent command):
+# \i create_id_namespace_dcc_id.sql
+# OR, directly specify the sql file name in psql command:
+psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o log/log_create_id_namespace_dcc_id.log
+
+# To ingest controlled vocabulary files into c2m2 schema
+# on psql prompt while being in database folder: \i ingest_CV.sql
+# on bash prompt : psql -h localhost -U drc -d drc -a -f ingest_CV.sql # this may prompt for DB password if not stored in ~/.pgpass file (permission 600)
+#psql -h localhost -U drc -d drc -p [5432|5433] -a -f ingest_CV.sql
+psql "$(python3 dburl.py)" -a -f ingest_CV.sql
+# To be added if needed: using python script: I am using \COPY inside the sql file, so
+# with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
+# will not work unless absolute path for the source tsv file is used.
 
 # If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
 dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}

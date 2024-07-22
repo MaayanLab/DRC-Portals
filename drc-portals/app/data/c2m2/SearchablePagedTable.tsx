@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image, { StaticImageData } from 'next/image';
 import { NodeType } from '@prisma/client';
 import { type_to_string } from '../processed/utils';
-import FindInPageOutlinedIcon from '@mui/icons-material/FindInPageOutlined';
+import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';
 import TagComponent from './TagComponent';
 import { RowType } from './utils'; // Import the RowType
 
@@ -51,7 +51,7 @@ export function SearchablePagedTableCellIcon(props: {
     src: string | StaticImageData, href: string, alt: string
 }) {
     return (
-        <div className="w-32 h-16 relative">
+        <div className="w-20 h-20 relative">
             <Link prefetch={false} href={props.href}>
                 <Image className="object-contain" src={props.src} alt={props.alt} fill />
             </Link>
@@ -63,9 +63,11 @@ export function PreviewButton(props: {
     href: string, alt: string
 }) {
     return (
-        <div className="pl-2 relative">
+        <div className="relative">
             <Link prefetch={false} href={props.href}>
-                <FindInPageOutlinedIcon sx={{ width: '50px', height: '50px' }} />
+                <PageviewOutlinedIcon 
+                sx={{ width: '40px', height: '40px' }}
+                 />
             </Link>
         </div>
     );
@@ -193,7 +195,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                 </TableBody>
                             </Table>
                         </TableContainer> */}
-                        <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 700, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+                        <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                             <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%'}}>
                                 <TableHead>
                                     <TableRow>
@@ -241,7 +243,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                                             padding: '8px',
                                                             overflowWrap: 'break-word',
                                                             textAlign: 'left',
-                                                            maxWidth: 200,
+                                                            maxWidth: 190,
                                                             minWidth: 50,
                                                             whiteSpace: 'nowrap',
                                                             overflow: 'hidden',
