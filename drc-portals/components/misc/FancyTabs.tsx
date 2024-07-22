@@ -61,8 +61,12 @@ export function FancyTabs(props: React.PropsWithChildren<{
     tabs.sort((a, b) => (b.priority??0) - (a.priority??0))
     return tabs
   }, [ctx.tabs])
-  const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs[0]?.id, [props.tab, tab, tabs])
-  React.useDebugValue({ initializing_state, tabs, currentTab })
+  const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs.filter(tab => !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
+  React.useEffect(() => {
+    if (initializing_state !== 'pre' && props.tab === undefined && props.onChange && currentTab !== undefined) {
+      props.onChange(undefined, currentTab)
+    }
+  }, [initializing_state, props.tab, props.onChange, currentTab])
   return (
     <Grid container xs={12}>
       <Grid item xs={2} paddingRight={2}>
