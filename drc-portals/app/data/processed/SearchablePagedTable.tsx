@@ -1,7 +1,7 @@
 import React from "react"
 import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
 import FormPagination from "./FormPagination"
-import SearchField from "./SearchField"
+import { SearchForm, SearchField } from './SearchField'
 import Link from "next/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
@@ -63,7 +63,9 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchField q={props.q} placeholder={`Search ${props.label}`} />
+          <SearchForm>
+            <SearchField q={props.q} placeholder={`Search ${props.label}`} />
+          </SearchForm>
         </Stack>
       </Grid>
       }
