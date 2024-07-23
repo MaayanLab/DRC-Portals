@@ -217,11 +217,10 @@ export const getMatchSubpattern = (
 export const createCallBlock = (
   path: SchemaSearchPath,
   knownKeys: Set<string>,
-  extraMatches: string[],
-  extraWherePredicates: string[]
+  extraMatches: string[]
 ) => {
   const { elements, skip, limit } = path;
-  const wherePredicates: string[] = [...extraWherePredicates];
+  const wherePredicates: string[] = [];
   const retVars: string[] = [];
   const withVars: string[] = [];
   const matches: string[] = [];
@@ -257,7 +256,10 @@ export const createCallBlock = (
     }
   });
 
-  matches.push(`MATCH ${matchPattern}`, ...extraMatches);
+  matches.push(
+    `MATCH ${matchPattern}\n\t${createWhereClause(wherePredicates)}`,
+    ...extraMatches
+  );
 
   return [
     "CALL {",
@@ -266,11 +268,15 @@ export const createCallBlock = (
       : "\t// No previous vars to include in this CALL!",
     ...(matches.length > 1
       ? matches.map(
-          (match) =>
-            `\t${match}\n\tWITH ${[...withVars, ...retVars].join(", ")}`
+          (match, matchIndex) =>
+            matchIndex < matches.length - 1
+              ? `\t${match}\n\tWITH DISTINCT ${[...withVars, ...retVars].join(
+                  ", "
+                )}`
+              : `\t${match}` // Last MATCH doesn't need `WITH` because we RETURN on the next line
         )
       : matches.map((match) => `\t${match}`)),
-    `\t${createWhereClause(wherePredicates)}`,
+    ``,
     `\tRETURN DISTINCT ${retVars.join(", ")}`,
     `\tSKIP ${skip || 0}`,
     `\tLIMIT ${limit || 10}`,
@@ -301,9 +307,9 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     const tempKnownVars = new Set(
       path.elements.filter((el) => el.key !== undefined).map((el) => el.key)
     );
-    const extraWherePredicates: string[] = [];
     paths.slice(pathIdx + 1).forEach((subsequentPath) => {
       let matchPattern = "MATCH ";
+      const wherePredicates: string[] = [];
       subsequentPath.elements.forEach((element, elIdx) => {
         const variable = element.key || "";
         const varIsKnown = tempKnownVars.has(variable);
@@ -328,21 +334,21 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
           element.filters.forEach((filter) => {
             const predicate = createPredicate(variable, filter);
             if (predicate !== undefined) {
-              extraWherePredicates.push(predicate);
+              wherePredicates.push(predicate);
             }
           });
         }
       });
-      subsequentMatches.push(matchPattern);
+      subsequentMatches.push(
+        matchPattern + `\n${createWhereClause(wherePredicates)}`
+      );
     });
 
-    callBlocks.push(
-      createCallBlock(path, nodeKeys, subsequentMatches, extraWherePredicates)
-    );
+    callBlocks.push(createCallBlock(path, nodeKeys, subsequentMatches));
 
     path.elements.forEach((element) => {
-      // Consider elements without keys as anonymous (i.e., they won't be returned explicitly)
-      if (element.key !== undefined) {
+      // Consider elements without keys (it is either undefined or an empty string) as anonymous (i.e., they won't be returned explicitly)
+      if (element.key !== undefined && element.key !== "") {
         if (isRelationshipOption(element)) {
           relationshipKeys.add(element.key);
         } else {

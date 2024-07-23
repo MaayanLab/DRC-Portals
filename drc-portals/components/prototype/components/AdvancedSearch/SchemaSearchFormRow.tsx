@@ -1,3 +1,5 @@
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, IconButton, TextField } from "@mui/material";
 import { ChangeEvent } from "react";
@@ -10,15 +12,26 @@ import SchemaAutocomplete from "./SchemaAutocomplete";
 
 interface SchemaSearchFormRowProps {
   value: SchemaSearchPath;
+  isFirst: boolean;
+  isLast: boolean;
   onChange: (value: SchemaSearchPath) => void;
   onDelete: () => void;
   onElementSelected: (element: SearchBarOption, index: number) => void;
+  onShift: (shiftUp: boolean) => void;
 }
 
 export default function SchemaSearchFormRow(
   cmpProps: SchemaSearchFormRowProps
 ) {
-  const { value, onChange, onDelete, onElementSelected } = cmpProps;
+  const {
+    value,
+    isFirst,
+    isLast,
+    onChange,
+    onDelete,
+    onElementSelected,
+    onShift,
+  } = cmpProps;
 
   const onAutocompleteChange = (newElements: SearchBarOption[]) => {
     onChange({
@@ -45,6 +58,30 @@ export default function SchemaSearchFormRow(
 
   return (
     <Box display={{ display: "flex", alignItems: "center", width: "100%" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignContent: "center",
+        }}
+      >
+        <IconButton
+          disabled={isFirst}
+          aria-label="shift path up"
+          color="secondary"
+          onClick={() => onShift(true)}
+        >
+          <ArrowUpwardIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          disabled={isLast}
+          aria-label="shift path down"
+          color="secondary"
+          onClick={() => onShift(false)}
+        >
+          <ArrowDownwardIcon fontSize="small" />
+        </IconButton>
+      </Box>
       <Box sx={{ flexGrow: 1, margin: 1 }}>
         <SchemaAutocomplete
           value={value.elements}
@@ -84,7 +121,7 @@ export default function SchemaSearchFormRow(
       ></TextField>
       <Box sx={{ alignContent: "center" }}>
         <IconButton aria-label="delete path" color="error" onClick={onDelete}>
-          <DeleteIcon />
+          <DeleteIcon fontSize="small" />
         </IconButton>
       </Box>
     </Box>
