@@ -71,6 +71,15 @@ export default function SchemaSearch() {
     setSelectedElement({ element, elementIdx, pathIdx });
   };
 
+  const shiftPath = (index: number) => (shiftUp: boolean) => {
+    const updatedValue = [...value];
+    const newIndex = shiftUp ? index - 1 : index + 1;
+
+    updatedValue.splice(newIndex, 0, updatedValue.splice(index, 1)[0]);
+    setValue(updatedValue);
+    setSelectedElement(null);
+  };
+
   const handleElementUpdated = (updatedElement: SearchBarOption) => {
     if (selectedElement !== null) {
       const updatedValue = [...value];
@@ -106,6 +115,9 @@ export default function SchemaSearch() {
             <SchemaSearchFormRow
               key={`schema-search-form-row-${path.id}`}
               value={path}
+              isFirst={index === 0}
+              isLast={index === value.length - 1}
+              onShift={shiftPath(index)}
               onChange={updatePath(index)}
               onDelete={deletePath(index)}
               onElementSelected={(element, elementIdx) =>
