@@ -74,12 +74,22 @@ export default function SettingsPropertyForm(
   };
 
   const updateKey = (event: ChangeEvent<HTMLInputElement>) => {
-    setKey(event.target.value);
+    const newKey = event.target.value;
+    setKey(newKey);
 
-    if (!/^[A-Za-z]/.test(event.target.value)) {
+    if (newKey.length === 0) {
+      // Empty key is valid, but just remove the property from `value` rather than set it to `undefined` or ""
+      setKeyError(false);
+      setKeyErrorHelpText(null);
+
+      const updatedValue = { ...value };
+      delete updatedValue.key;
+      liftValue(updatedValue);
+      setValue(updatedValue);
+    } else if (!/^[A-Za-z]/.test(newKey)) {
       setKeyError(true);
       setKeyErrorHelpText("Keys must start with a letter.");
-    } else if (!/^[A-Za-z0-9_]+$/.test(event.target.value)) {
+    } else if (!/^[A-Za-z0-9_]+$/.test(newKey)) {
       setKeyError(true);
       setKeyErrorHelpText(
         "Keys must only contain alphanumerics and underscores."
@@ -89,7 +99,7 @@ export default function SettingsPropertyForm(
       setKeyErrorHelpText(null);
 
       const updatedValue = { ...value };
-      updatedValue.key = event.target.value;
+      updatedValue.key = newKey;
       liftValue(updatedValue);
       setValue(updatedValue);
     }
