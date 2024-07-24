@@ -1,0 +1,244 @@
+import { z } from 'zod'
+import prisma from '@/lib/prisma'
+import { $Enums } from '@prisma/client'
+
+function reduce_role(roles: string[]) {
+  if (roles.includes('ADMIN')) return 'ADMIN'
+  else if (roles.includes('DRC_APPROVER')) return 'DRC_APPROVER'
+  else if (roles.includes('DCC_APPROVER')) return 'DCC_APPROVER'
+  else if (roles.includes('UPLOADER')) return 'UPLOADER'
+  else if (roles.includes('READONLY')) return 'READONLY'
+  else return 'USER'
+}
+
+function ensure_email<T extends { email: string | null }>({ email, ...rest }: T) {
+  if (email === null) throw new Error('Email must be present')
+  return { email: email as string, ...rest }
+}
+
+export async function keycloak_pull({ id, userAccessToken }: { id: string, userAccessToken: string }) {
+  const req = await fetch(`https://auth.cfde.cloud/realms/cfde/protocol/openid-connect/userinfo`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${userAccessToken}`,
+    },
+  })
+  if (req.ok) {
+    const keycloakUserInfo = await z.object({
+      name: z.string(),
+      given_name: z.string(),
+      family_name: z.string(),
+      email: z.string(),
+      preferred_username: z.string(),
+      resource_access: z.object({
+        'cfde-workbench': z.object({
+          roles: z.string().array(),
+        }).passthrough(),
+      }).passthrough(),
+    }).transform(({ resource_access, ...rest }) => ({
+      ...rest,
+      resource_access,
+      roles: resource_access["cfde-workbench"].roles.filter(role => role.startsWith('role:')).map(role => role.slice('role:'.length)),
+      dccs: resource_access["cfde-workbench"].roles.filter(role => role.startsWith('dcc:')).map(role => role.slice('dcc:'.length)).filter((dcc) => dcc !== '*'), })
+    ).parseAsync(await req.json())
+    const userRole = reduce_role(keycloakUserInfo.roles)
+    const userDccs = await prisma.dCC.findMany({
+      select: { id: true },
+      where: { short_label: { in: keycloakUserInfo.dccs } }
+    })
+    const userInfo = await prisma.user.update({
+      where: { id },
+      select: {
+        name: true,
+        email: true,
+        role: true,
+        dccs: {
+          select: {
+            short_label: true,
+          },
+        },
+      },
+      data: {
+        name: keycloakUserInfo.name,
+        email: keycloakUserInfo.email,
+        role: userRole,
+        dccs: {
+          connect: userDccs,
+        },
+      },
+    })
+    return userInfo
+  } else if (req.status === 404) {
+    const userInfo = await prisma.user.findUniqueOrThrow({
+      where: { id },
+      select: {
+        name: true,
+        email: true,
+        role: true,
+        dccs: {
+          select: {
+            short_label: true,
+          },
+        },
+      },
+    })
+    await keycloak_push({ userInfo })
+    return userInfo
+  }
+  throw new Error(`Unhandled status ${req.status}`)
+}
+
+export async function keycloak_client_uid({ accessToken }: { accessToken: string }) {
+  const { clientId } = keycloak_config()
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/clients?first=0&max=1&clientId=${clientId}&exact=true`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+  const res = await req.json()
+  return res[0]['id']
+}
+
+export async function keycloak_client_roles({ clientUid, accessToken }: { clientUid: string, accessToken: string }) {
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/clients/${clientUid}/roles`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+  const res = await req.json()
+  const client_roles = {} as Record<string, { id: string, name: string }>
+  for (const item of res) {
+    client_roles[item.name] = { id: item.id, name: item.name }
+  }
+  return client_roles
+}
+
+export function keycloak_name_split(name: string | null) {
+  let firstName: string
+  let lastName: string 
+  if (name) {
+    const lastSpace = name.lastIndexOf(' ')
+    if (lastSpace === -1) {
+      firstName = name
+      lastName = ''
+    } else {
+      firstName = name.slice(0, lastSpace)
+      lastName = name.slice(lastSpace+1)
+    }
+  } else {
+    firstName = ''
+    lastName = ''
+  }
+  return { firstName, lastName }
+}
+
+export async function keycloak_user_find({ userInfo, accessToken }: { userInfo: { email: string }, accessToken: string }) {
+  const params = new URLSearchParams()
+  params.append('email', userInfo.email)
+  params.append('exact', 'true')
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users?${params.toString()}`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+  if (!req.ok) throw new Error('Failed to get userId')
+  const res = await req.json()
+  const userId = await res[0]['id']
+  return userId
+}
+
+export async function keycloak_user_roles_put({ userId, roles, accessToken }: { userId: string, roles: string[], accessToken: string }) {
+  const clientUid = await keycloak_client_uid({ accessToken })
+  const clientRoles = await keycloak_client_roles({ clientUid, accessToken })
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userId}/role-mappings/clients/${clientUid}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(roles.map(role => clientRoles[role])),
+  })
+  if (!req.ok) {
+    console.warn('Failed to update user roles')
+  }
+}
+
+export async function keycloak_user_put({ userId, userInfo, accessToken }: { userId: string, userInfo: {
+  name: string | null;
+  email: string
+  role: $Enums.Role;
+  dccs: {
+      short_label: string | null;
+  }[];
+}, accessToken: string }) {
+  const {firstName, lastName} = keycloak_name_split(userInfo.name)
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userId}`, {
+    method: 'PUT',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      userId,
+      username: userInfo.email,
+      firstName,
+      lastName,
+      email: userInfo.email,
+      // emailVerified:true,
+      // createdTimestamp:1721339139173,
+      // enabled:true,
+      // totp:false,
+      // disableableCredentialTypes:[],
+      // requiredActions:[],
+      // federatedIdentities:[{"identityProvider":"github","userId":"1341861","userName":"u8sand"}],
+      // "notBefore":0,
+      // "access":{"manageGroupMembership":true,"view":true,"mapRoles":true,"impersonate":true,"manage":true},
+      // "attributes":{},
+    }),
+  })
+  if (!req.ok) {
+    console.warn('Failed to update user roles')
+  }
+}
+
+export function keycloak_config() {
+  const { issuer, clientId, clientSecret } = JSON.parse(process.env.NEXTAUTH_KEYCLOAK ?? '{}')
+  return { issuer, clientId, clientSecret }
+}
+
+export async function keycloak_access_token() {
+  const { clientId, clientSecret } = keycloak_config()
+  const body = new URLSearchParams()
+  body.append("grant_type", "client_credentials")
+  const req = await fetch(`https://auth.cfde.cloud/realms/cfde/protocol/openid-connect/token`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+    },
+    body,
+  })
+  const res = await req.json()
+  return res["access_token"]
+}
+
+export async function keycloak_push({ userInfo: userInfoRaw }: { userInfo: {
+  name: string | null;
+  email: string | null;
+  role: $Enums.Role;
+  dccs: {
+      short_label: string | null;
+  }[];
+} }) {
+  const userInfo = ensure_email(userInfoRaw)
+  const accessToken = await keycloak_access_token()
+  const userId = await keycloak_user_find({ userInfo, accessToken })
+  await keycloak_user_put({ userId, userInfo, accessToken })
+  await keycloak_user_roles_put({ userId, roles: [
+    ...userInfo.dccs.map(dcc => `dcc:${dcc.short_label}`),
+    `role:${userInfo.role.toString()}`,
+  ], accessToken })
+}
