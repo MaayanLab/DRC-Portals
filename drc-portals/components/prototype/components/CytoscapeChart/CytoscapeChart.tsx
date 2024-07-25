@@ -221,7 +221,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         popperRef.current.update();
       }
       setHoveredNode(event.target.data());
-    }, 200);
+    }, 500);
   };
 
   const handleBlurNode = (event: EventObjectNode) => {
