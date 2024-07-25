@@ -335,6 +335,8 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
           isRelationshipOption(element) ? `r${++edgeCount}` : `n${++nodeCount}`
         }`;
         newElements.push(element);
+      } else {
+        newElements.push(element);
       }
 
       if (index === path.elements.length - 1) {
@@ -350,6 +352,7 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     });
 
     path.elements = newElements;
+    console.log(path.elements);
   });
 
   paths.forEach((path, pathIdx) => {
