@@ -58,6 +58,14 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
             short_label: true,
           },
         },
+        accounts: {
+          select: {
+            providerAccountId: true,
+          },
+          where: {
+            provider: 'keycloak',
+          },
+        },
       },
       data: {
         name: keycloakUserInfo.name,
@@ -73,13 +81,20 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
     const userInfo = await prisma.user.findUniqueOrThrow({
       where: { id },
       select: {
-        id: true,
         name: true,
         email: true,
         role: true,
         dccs: {
           select: {
             short_label: true,
+          },
+        },
+        accounts: {
+          select: {
+            providerAccountId: true,
+          },
+          where: {
+            provider: 'keycloak',
           },
         },
       },
@@ -136,7 +151,7 @@ export function keycloak_name_split(name: string | null) {
   return { firstName, lastName }
 }
 
-export async function keycloak_user_find<USER_INFO extends { id: string }>({ userInfo, accessToken }: { userInfo: USER_INFO, accessToken: string }) {
+export async function keycloak_user_find<USER_INFO extends { accounts: { providerAccountId: string }[] }>({ userInfo, accessToken }: { userInfo: USER_INFO, accessToken: string }) {
   // const params = new URLSearchParams()
   // params.append('email', userInfo.email)
   // params.append('exact', 'true')
@@ -149,7 +164,7 @@ export async function keycloak_user_find<USER_INFO extends { id: string }>({ use
   // if (!req.ok) throw new Error('Failed to get userId')
   // const res = await req.json()
   // return await res[0]
-  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userInfo.id}`, {
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userInfo.accounts[0].providerAccountId}`, {
     headers: {
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
@@ -215,15 +230,15 @@ export async function keycloak_access_token() {
   return res["access_token"]
 }
 
-export async function keycloak_push({ userInfo: userInfoRaw }: { userInfo: {
-  id: string,
+export async function keycloak_push<USER_INFO extends {
   name: string | null;
   email: string | null;
   role: $Enums.Role;
   dccs: {
       short_label: string | null;
   }[];
-} }) {
+  accounts: { providerAccountId: string }[],
+}>({ userInfo: userInfoRaw }: { userInfo: USER_INFO }) {
   const userInfo = ensure_email(userInfoRaw)
   const accessToken = await keycloak_access_token()
   const keycloakUserInfo = await keycloak_user_find({ userInfo, accessToken })

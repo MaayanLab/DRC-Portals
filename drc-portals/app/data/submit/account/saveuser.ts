@@ -23,6 +23,9 @@ export async function saveuser(formData: FormData, userId: string) {
                     }
                 },
                 accounts: {
+                    select: {
+                        providerAccountId: true,
+                    },
                     where: {
                         provider: 'keycloak',
                     }
@@ -33,7 +36,7 @@ export async function saveuser(formData: FormData, userId: string) {
                 email: email.toString(),
             },
         });
-        if (userInfo.accounts.some(account => account.provider === 'keycloak')) await keycloak_push({ userInfo })
+        if (userInfo.accounts.length > 0) await keycloak_push({ userInfo })
     } else {
         const userInfo = await prisma.user.update({
             where: {
@@ -49,6 +52,9 @@ export async function saveuser(formData: FormData, userId: string) {
                     }
                 },
                 accounts: {
+                    select: {
+                        providerAccountId: true,
+                    },
                     where: {
                         provider: 'keycloak',
                     }
@@ -58,7 +64,7 @@ export async function saveuser(formData: FormData, userId: string) {
                 name: name?.toString(),
             },
         })
-        if (userInfo.accounts.some(account => account.provider === 'keycloak')) await keycloak_push({ userInfo })
+        if (userInfo.accounts.length > 0) await keycloak_push({ userInfo })
     }
     revalidatePath('/')
     return {success: 'Success'}

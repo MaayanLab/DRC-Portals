@@ -77,6 +77,9 @@ export async function createOneUser(newUserData: {
                 }
             },
             accounts: {
+                select: {
+                    providerAccountId: true,
+                },
                 where: {
                     provider: 'keycloak',
                 }
@@ -91,7 +94,7 @@ export async function createOneUser(newUserData: {
             role: prismaRole as Role
         }
     })
-    if (userInfo.accounts.some(account => account.provider === 'keycloak')) await keycloak_push({ userInfo })
+    if (userInfo.accounts.length > 0) await keycloak_push({ userInfo })
 
     revalidatePath('/')
 }
@@ -150,6 +153,9 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
                         }
                     },
                     accounts: {
+                        select: {
+                            providerAccountId: true,
+                        },
                         where: {
                             provider: 'keycloak',
                         }
@@ -167,7 +173,7 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
                 },
             })
         ])
-        if (updatedUser.accounts.some(account => account.provider === 'keycloak')) await keycloak_push({ userInfo: updatedUser })
+        if (updatedUser.accounts.length > 0) await keycloak_push({ userInfo: updatedUser })
     }))
     revalidatePath('/')
 }
