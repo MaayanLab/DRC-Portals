@@ -165,7 +165,7 @@ export const createWhereClause = (predicates: string[]) => {
 
 export const getMatchSubpattern = (
   element: SearchBarOption,
-  subPatternIdx: number,
+  elementIdx: number,
   prevIsRelationship: boolean,
   patternLength: number,
   omitLabelOrType = false
@@ -175,7 +175,7 @@ export const getMatchSubpattern = (
   const variable = element.key || "";
 
   // If the first element of the pattern is a relationship, prepend it with an anonymous node
-  if (subPatternIdx === 0 && elementIsRelationship) {
+  if (elementIdx === 0 && elementIsRelationship) {
     subPattern += `()`;
   }
 
@@ -185,7 +185,7 @@ export const getMatchSubpattern = (
   }
 
   // If the current and previous element are both Nodes, then we need to add an anonymous relationship between them
-  if (subPatternIdx !== 0 && !elementIsRelationship && !prevIsRelationship) {
+  if (elementIdx !== 0 && !elementIsRelationship && !prevIsRelationship) {
     subPattern += `-[]-`;
   }
 
@@ -204,7 +204,7 @@ export const getMatchSubpattern = (
   }
 
   // We've reached the last element in the pattern
-  if (subPatternIdx === patternLength - 1) {
+  if (elementIdx === patternLength - 1) {
     // If the last element is a relationship, tack on an anonymous node
     if (elementIsRelationship) {
       subPattern += `()`;
@@ -229,6 +229,7 @@ export const createCallBlock = (
   elements.forEach((element, index) => {
     const variable = element.key || "";
     const varIsKnown = knownKeys.has(variable);
+    const varIsAnonymous = element.name.length === 0;
     const prevIsRelationship =
       index > 0 ? isRelationshipOption(elements[index - 1]) : false;
 
@@ -243,7 +244,7 @@ export const createCallBlock = (
       index,
       prevIsRelationship,
       elements.length,
-      varIsKnown
+      varIsAnonymous || varIsKnown
     );
 
     if (element.filters.length > 0) {
@@ -293,13 +294,62 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
   paths.forEach((path, pathIndex) => {
     let nodeCount = 0;
     let edgeCount = 0;
-    path.elements.forEach((element) => {
+    const newElements: SearchBarOption[] = [];
+
+    path.elements.forEach((element, index) => {
+      const elementIsRelationship = isRelationshipOption(element);
+      const prevElement = index > 0 ? path.elements[index - 1] : undefined;
+      const prevIsRelationship =
+        prevElement !== undefined && isRelationshipOption(prevElement);
+
+      // If the first element of the pattern is a relationship, prepend it with an anonymous node
+      if (index === 0 && elementIsRelationship) {
+        newElements.push({
+          name: "",
+          filters: [],
+          key: `p${pathIndex + 1}n${++nodeCount}`,
+        });
+      }
+
+      // If the current and previous element are both Relationships, then we need to add an anonymous node between them
+      if (elementIsRelationship && prevIsRelationship) {
+        newElements.push({
+          name: "",
+          filters: [],
+          key: `p${pathIndex + 1}n${++nodeCount}`,
+        });
+      }
+
+      // If the current and previous element are both Nodes, then we need to add an anonymous relationship between them
+      if (index !== 0 && !elementIsRelationship && !prevIsRelationship) {
+        newElements.push({
+          name: "",
+          filters: [],
+          key: `p${pathIndex + 1}r${++edgeCount}`,
+          direction: Direction.UNDIRECTED,
+        });
+      }
+
       if (element.key === undefined || element.key.length === 0) {
         element.key = `p${pathIndex + 1}${
           isRelationshipOption(element) ? `r${++edgeCount}` : `n${++nodeCount}`
         }`;
+        newElements.push(element);
+      }
+
+      if (index === path.elements.length - 1) {
+        // If the last element is a relationship, tack on an anonymous node
+        if (elementIsRelationship) {
+          newElements.push({
+            name: "",
+            filters: [],
+            key: `p${pathIndex + 1}n${++nodeCount}`,
+          });
+        }
       }
     });
+
+    path.elements = newElements;
   });
 
   paths.forEach((path, pathIdx) => {
@@ -313,6 +363,7 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
       subsequentPath.elements.forEach((element, elIdx) => {
         const variable = element.key || "";
         const varIsKnown = tempKnownVars.has(variable);
+        const varIsAnonymous = element.name.length === 0;
         const prevIsRelationship =
           elIdx > 0
             ? isRelationshipOption(subsequentPath.elements[elIdx - 1])
@@ -327,7 +378,7 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
           elIdx,
           prevIsRelationship,
           subsequentPath.elements.length,
-          varIsKnown
+          varIsAnonymous || varIsKnown
         );
 
         if (element.filters.length > 0) {
