@@ -37,6 +37,7 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
       }).passthrough(),
     }).transform(({ resource_access, ...rest }) => ({
       ...rest,
+      id,
       resource_access,
       roles: resource_access["cfde-workbench"].roles.filter(role => role.startsWith('role:')).map(role => role.slice('role:'.length)),
       dccs: resource_access["cfde-workbench"].roles.filter(role => role.startsWith('dcc:')).map(role => role.slice('dcc:'.length)).filter((dcc) => dcc !== '*'), })
@@ -72,6 +73,7 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
     const userInfo = await prisma.user.findUniqueOrThrow({
       where: { id },
       select: {
+        id: true,
         name: true,
         email: true,
         role: true,
@@ -134,26 +136,33 @@ export function keycloak_name_split(name: string | null) {
   return { firstName, lastName }
 }
 
-export async function keycloak_user_find({ userInfo, accessToken }: { userInfo: { email: string }, accessToken: string }) {
-  const params = new URLSearchParams()
-  params.append('email', userInfo.email)
-  params.append('exact', 'true')
-  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users?${params.toString()}`, {
+export async function keycloak_user_find<USER_INFO extends { id: string }>({ userInfo, accessToken }: { userInfo: USER_INFO, accessToken: string }) {
+  // const params = new URLSearchParams()
+  // params.append('email', userInfo.email)
+  // params.append('exact', 'true')
+  // const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users?${params.toString()}`, {
+  //   headers: {
+  //     Accept: 'application/json',
+  //     Authorization: `Bearer ${accessToken}`,
+  //   },
+  // })
+  // if (!req.ok) throw new Error('Failed to get userId')
+  // const res = await req.json()
+  // return await res[0]
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userInfo.id}`, {
     headers: {
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
   })
   if (!req.ok) throw new Error('Failed to get userId')
-  const res = await req.json()
-  const userId = await res[0]['id']
-  return userId
+  return await req.json()
 }
 
-export async function keycloak_user_roles_put({ userId, roles, accessToken }: { userId: string, roles: string[], accessToken: string }) {
+export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string }>({ keycloakUserInfo, roles, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, roles: string[], accessToken: string }) {
   const clientUid = await keycloak_client_uid({ accessToken })
   const clientRoles = await keycloak_client_roles({ clientUid, accessToken })
-  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userId}/role-mappings/clients/${clientUid}`, {
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${keycloakUserInfo['id']}/role-mappings/clients/${clientUid}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -166,37 +175,18 @@ export async function keycloak_user_roles_put({ userId, roles, accessToken }: { 
   }
 }
 
-export async function keycloak_user_put({ userId, userInfo, accessToken }: { userId: string, userInfo: {
-  name: string | null;
-  email: string
-  role: $Enums.Role;
-  dccs: {
-      short_label: string | null;
-  }[];
-}, accessToken: string }) {
+export async function keycloak_user_put<KEYCLOAK_INFO extends { id: string }, USER_INFO extends { name: string | null }>({ keycloakUserInfo, userInfo, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, userInfo: USER_INFO, accessToken: string }) {
   const {firstName, lastName} = keycloak_name_split(userInfo.name)
-  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${userId}`, {
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${keycloakUserInfo['id']}`, {
     method: 'PUT',
     headers: {
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
-      userId,
-      username: userInfo.email,
+      ...keycloakUserInfo,
       firstName,
       lastName,
-      email: userInfo.email,
-      // emailVerified:true,
-      // createdTimestamp:1721339139173,
-      // enabled:true,
-      // totp:false,
-      // disableableCredentialTypes:[],
-      // requiredActions:[],
-      // federatedIdentities:[{"identityProvider":"github","userId":"1341861","userName":"u8sand"}],
-      // "notBefore":0,
-      // "access":{"manageGroupMembership":true,"view":true,"mapRoles":true,"impersonate":true,"manage":true},
-      // "attributes":{},
     }),
   })
   if (!req.ok) {
@@ -226,6 +216,7 @@ export async function keycloak_access_token() {
 }
 
 export async function keycloak_push({ userInfo: userInfoRaw }: { userInfo: {
+  id: string,
   name: string | null;
   email: string | null;
   role: $Enums.Role;
@@ -235,9 +226,9 @@ export async function keycloak_push({ userInfo: userInfoRaw }: { userInfo: {
 } }) {
   const userInfo = ensure_email(userInfoRaw)
   const accessToken = await keycloak_access_token()
-  const userId = await keycloak_user_find({ userInfo, accessToken })
-  await keycloak_user_put({ userId, userInfo, accessToken })
-  await keycloak_user_roles_put({ userId, roles: [
+  const keycloakUserInfo = await keycloak_user_find({ userInfo, accessToken })
+  await keycloak_user_put({ keycloakUserInfo, userInfo, accessToken })
+  await keycloak_user_roles_put({ keycloakUserInfo, roles: [
     ...userInfo.dccs.map(dcc => `dcc:${dcc.short_label}`),
     `role:${userInfo.role.toString()}`,
   ], accessToken })

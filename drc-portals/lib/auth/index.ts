@@ -117,7 +117,7 @@ export const authOptions: NextAuthOptions = {
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
       const userInfo = token.provider === 'keycloak' ?
-        await keycloak_pull({ id, userAccessToken: z.string().parse(token.access_token) })
+        await keycloak_pull({ id, userAccessToken: z.string().parse(token.accessToken) })
         : await prisma.user.findUniqueOrThrow({
           where: { id },
           select: {
