@@ -206,7 +206,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
 
 const type_tags = (type: string) => {
   if (type === "training") return ["fellowship", "workshop", "internship", "course", "training program"]
-  else if (type === "outreach") return ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon", "hackathon"]
+  else if (type === "outreach") return ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon", "hackathon", "symposium"]
   else return []
 }
 
