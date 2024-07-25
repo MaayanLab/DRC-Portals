@@ -253,11 +253,12 @@ export const createNodeSegment = (
 };
 
 export const getSearchPathElements = (path: SearchBarOption[]) => {
-  const newPath: ReactElement[] = [];
+  const newPath: ReactElement[][] = [];
   path
     .filter((entity) => factoryExistsFilter(entity.name))
     .forEach((entity, index) => {
       // We know for sure the name is in the map from the filter above, but we need the explicit type coercion to ignore errors
+      const compositeElement: ReactElement[] = [];
       const entityElement = createEntityElement(entity);
       const entityIsRelationship = isRelationshipOption(entity);
       const prevEntity = index > 0 ? path[index - 1] : undefined;
@@ -266,28 +267,29 @@ export const getSearchPathElements = (path: SearchBarOption[]) => {
 
       // If the first element of the path is a relationship, prepend it with an anonymous node
       if (index === 0 && entityIsRelationship) {
-        newPath.push(createAnonymousNodeElement());
+        compositeElement.push(createAnonymousNodeElement());
       }
 
       // If the current and previous element are both Relationships, then we need to add an anonymous node between them
       if (index > 0 && entityIsRelationship && prevIsRelationship) {
-        newPath.push(createAnonymousNodeElement());
+        compositeElement.push(createAnonymousNodeElement());
       }
 
       // Add the current entity
       if (entityIsRelationship) {
-        newPath.push(entityElement);
+        compositeElement.push(entityElement);
       } else {
         if (prevEntity !== undefined && !prevIsRelationship) {
-          newPath.push(createLineDividerElement());
+          compositeElement.push(createLineDividerElement());
         }
-        newPath.push(entityElement);
+        compositeElement.push(entityElement);
       }
 
       // If the last element is a relationship, append an anonymous node
       if (entityIsRelationship && index === path.length - 1) {
-        newPath.push(createAnonymousNodeElement());
+        compositeElement.push(createAnonymousNodeElement());
       }
+      newPath.push(compositeElement);
     });
 
   return newPath;

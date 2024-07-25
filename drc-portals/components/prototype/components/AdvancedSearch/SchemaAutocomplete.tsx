@@ -69,17 +69,21 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       }
       key={v4()}
     >
-      {getSearchPathElements(value.concat(option))}
+      {getSearchPathElements(value.concat(option)).flatMap(
+        (element) => element
+      )}
     </li>
   );
 
   // TODO: If any element in the value list has filters set, add an asterisk to it
   const handleRenderTags = (value: SearchBarOption[]) =>
-    getSearchPathElements(value).map((element, index) => (
-      <Box key={v4()} onClick={() => onElementSelected(value[index], index)}>
-        {element}
-      </Box>
-    ));
+    getSearchPathElements(value).map((elements, index) =>
+      elements.map((element) => (
+        <Box key={v4()} onClick={() => onElementSelected(value[index], index)}>
+          {element}
+        </Box>
+      ))
+    );
 
   const handleRenderInput = (params: any) => (
     <TextField
