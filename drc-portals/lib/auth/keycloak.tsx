@@ -37,7 +37,6 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
       }).passthrough(),
     }).transform(({ resource_access, ...rest }) => ({
       ...rest,
-      id,
       resource_access,
       roles: resource_access["cfde-workbench"].roles.filter(role => role.startsWith('role:')).map(role => role.slice('role:'.length)),
       dccs: resource_access["cfde-workbench"].roles.filter(role => role.startsWith('dcc:')).map(role => role.slice('dcc:'.length)).filter((dcc) => dcc !== '*'), })
@@ -72,7 +71,7 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
         email: keycloakUserInfo.email,
         role: userRole,
         dccs: {
-          connect: userDccs,
+          set: userDccs,
         },
       },
     })
@@ -101,6 +100,8 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
     })
     await keycloak_push({ userInfo })
     return userInfo
+  } else if (req.status === 401) {
+    throw new Error(`Permission Denied`)
   }
   throw new Error(`Unhandled status ${req.status}`)
 }
@@ -174,20 +175,80 @@ export async function keycloak_user_find<USER_INFO extends { accounts: { provide
   return await req.json()
 }
 
-export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string }>({ keycloakUserInfo, roles, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, roles: string[], accessToken: string }) {
-  const clientUid = await keycloak_client_uid({ accessToken })
-  const clientRoles = await keycloak_client_roles({ clientUid, accessToken })
+
+export async function keycloak_user_roles<KEYCLOAK_INFO extends { id: string }>({ keycloakUserInfo, clientUid, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, clientUid: string, accessToken: string }) {
   const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${keycloakUserInfo['id']}/role-mappings/clients/${clientUid}`, {
-    method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify(roles.map(role => clientRoles[role])),
   })
-  if (!req.ok) {
-    console.warn('Failed to update user roles')
+  const res = await req.json()
+  const user_roles = {} as Record<string, { id: string, name: string }>
+  for (const item of res) {
+    user_roles[item.name] = { id: item.id, name: item.name }
   }
+  return user_roles
+}
+
+export async function keycloak_client_role_post({ role, clientUid, accessToken }: { role: string, clientUid: string, accessToken: string }){
+  const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/clients/${clientUid}/roles`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({"description":'', 'name': role, 'attributes': {}})
+  })
+  if (!req.ok) throw new Error('Failed to register role')
+  const req2 = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/clients/${clientUid}/roles/${role}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+  const { id, name } = await req2.json()
+  return { id: id as string, name: name as string }
+}
+
+export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string }>({ keycloakUserInfo, roles, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, roles: string[], accessToken: string }) {
+  const clientUid = await keycloak_client_uid({ accessToken })
+  const clientRoles = await keycloak_client_roles({ clientUid, accessToken })
+  const keycloakUserRoles = await keycloak_user_roles({ keycloakUserInfo, clientUid, accessToken })
+  await Promise.all([
+    // add missing roles
+    ...roles.filter(role => keycloakUserRoles[role] === undefined).map(async (role) => {
+      if (!(role in clientRoles)) {
+        clientRoles[role] = await keycloak_client_role_post({ role, clientUid, accessToken })
+      }
+      const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${keycloakUserInfo['id']}/role-mappings/clients/${clientUid}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify([clientRoles[role]]),
+      })
+      return req.status
+    }),
+    // remove stale roles
+    ...Object.keys(keycloakUserRoles).filter(role => !roles.includes(role)).map(async (role) => {
+      const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${keycloakUserInfo['id']}/role-mappings/clients/${clientUid}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify([clientRoles[role]]),
+      })
+      return req.status
+    }),
+  ])
 }
 
 export async function keycloak_user_put<KEYCLOAK_INFO extends { id: string }, USER_INFO extends { name: string | null }>({ keycloakUserInfo, userInfo, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, userInfo: USER_INFO, accessToken: string }) {
