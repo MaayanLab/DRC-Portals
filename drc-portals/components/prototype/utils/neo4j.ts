@@ -352,7 +352,6 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     });
 
     path.elements = newElements;
-    console.log(path.elements);
   });
 
   paths.forEach((path, pathIdx) => {
