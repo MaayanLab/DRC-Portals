@@ -68,7 +68,7 @@ export async function keycloak_pull({ id, userAccessToken }: { id: string, userA
       },
       data: {
         name: keycloakUserInfo.name,
-        email: keycloakUserInfo.email,
+        // email: keycloakUserInfo.email,
         role: userRole,
         dccs: {
           set: userDccs,

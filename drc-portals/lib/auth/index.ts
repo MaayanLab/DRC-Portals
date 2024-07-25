@@ -108,11 +108,19 @@ export const authOptions: NextAuthOptions = {
         token.id = user?.id
         token.provider = account.provider
         token.accessToken = account.access_token
+        if (![
+          process.env.NODE_ENV === 'development' ? 'credentials' : '_',
+          process.env.NEXTAUTH_KEYCLOAK ? 'keycloak' : '_',
+          process.env.NEXTAUTH_GITHUB ? 'github' : '_',
+          process.env.NEXTAUTH_GOOGLE ? 'google' : '_',
+          process.env.NEXTAUTH_ORCID ? 'orcid' : '_',
+          process.env.NEXTAUTH_GLOBUS ? 'globus' : '_',
+          process.env.NEXTAUTH_EMAIL ? 'email' : '_',
+        ].includes(token.provider as string)) return {}
       }
       return token
     },
     async session({ session, token }) {
-      // session.accessToken = token.accessToken
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
