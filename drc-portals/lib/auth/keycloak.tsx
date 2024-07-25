@@ -214,11 +214,11 @@ export async function keycloak_client_role_post({ role, clientUid, accessToken }
   return { id: id as string, name: name as string }
 }
 
-export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string }>({ keycloakUserInfo, roles, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, roles: string[], accessToken: string }) {
+export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string, email: string }>({ keycloakUserInfo, roles, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, roles: string[], accessToken: string }) {
   const clientUid = await keycloak_client_uid({ accessToken })
   const clientRoles = await keycloak_client_roles({ clientUid, accessToken })
   const keycloakUserRoles = await keycloak_user_roles({ keycloakUserInfo, clientUid, accessToken })
-  await Promise.all([
+  const results = await Promise.all([
     // add missing roles
     ...roles.filter(role => keycloakUserRoles[role] === undefined).map(async (role) => {
       if (!(role in clientRoles)) {
@@ -233,7 +233,7 @@ export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string
         },
         body: JSON.stringify([clientRoles[role]]),
       })
-      return req.status
+      return { role, status: req.status }
     }),
     // remove stale roles
     ...Object.keys(keycloakUserRoles).filter(role => !roles.includes(role)).map(async (role) => {
@@ -246,16 +246,20 @@ export async function keycloak_user_roles_put<KEYCLOAK_INFO extends { id: string
         },
         body: JSON.stringify([clientRoles[role]]),
       })
-      return req.status
+      return { role, status: req.status }
     }),
   ])
+  results.filter(({ status }) => status > 400).forEach(({ role, status }) => {
+    console.warn(`Failed to update user ${keycloakUserInfo.email} role ${role}: status code ${status}`)
+  })
 }
 
-export async function keycloak_user_put<KEYCLOAK_INFO extends { id: string }, USER_INFO extends { name: string | null }>({ keycloakUserInfo, userInfo, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, userInfo: USER_INFO, accessToken: string }) {
+export async function keycloak_user_put<KEYCLOAK_INFO extends { id: string }, USER_INFO extends { name: string | null, email: string }>({ keycloakUserInfo, userInfo, accessToken }: { keycloakUserInfo: KEYCLOAK_INFO, userInfo: USER_INFO, accessToken: string }) {
   const {firstName, lastName} = keycloak_name_split(userInfo.name)
   const req = await fetch(`https://auth.cfde.cloud/admin/realms/cfde/users/${keycloakUserInfo['id']}`, {
     method: 'PUT',
     headers: {
+      'Content-Type': 'application/json',
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
@@ -265,9 +269,7 @@ export async function keycloak_user_put<KEYCLOAK_INFO extends { id: string }, US
       lastName,
     }),
   })
-  if (!req.ok) {
-    console.warn('Failed to update user roles')
-  }
+  if (!req.ok) console.warn(`Failed to update user profile ${userInfo.email}`)
 }
 
 export function keycloak_config() {
