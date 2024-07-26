@@ -1,5 +1,7 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { Grid, Typography } from "@mui/material";
+import { safeAsync } from '@/utils/safe'
+import kvCache from "@/lib/prisma/kvcache";
 
 export function StatsFallback() {
   return (
@@ -7,7 +9,7 @@ export function StatsFallback() {
       {[
         { label: 'KG Assertions' },
         { label: 'Files' },
-        { label: 'Drugs' },
+        { label: 'Compounds' },
         { label: 'Genes' },
         { label: 'Gene Sets' },
       ].map(({ label }) => (
@@ -21,33 +23,25 @@ export function StatsFallback() {
     </>
   )
 }
-
 export default async function Stats() {
-  const counts = await prisma.$queryRaw<Array<{
-    label: string,
-    count: number,
-  }>>`
-    with labeled_count as (
-      select 'Genes' as label, (select count(*) from gene_entity) as count
-      union
-      select 'Gene sets' as label, (select count(*) from gene_set_node) as count
-      union
-      select 'Drugs' as label, (select count(*) from entity_node where type = 'Drug') as count
-      union
-      select 'Files' as label, (select count(*) from c2m2_file_node) as count
-      union
-      select 'Assertions' as label, (select count(*) from kg_assertion) as count
-    )
-    select label, count
-    from labeled_count
-    order by count desc;
-  `
+  const results = await safeAsync(() => kvCache('stats', async () => {
+    const stats = await Promise.all([
+      prisma.geneEntity.count().then(count => ({ label: 'Genes', count })),
+      prisma.geneSetNode.count().then(count => ({ label: 'Gene sets', count })),
+      prisma.entityNode.count({ where: { type: 'Compound' } }).then(count => ({ label: 'Compounds', count })),
+      prisma.c2M2FileNode.count().then(count => ({ label: 'Files', count })),
+      prisma.kGAssertion.count().then(count => ({ label: 'Assertions', count })),
+    ])
+    stats.sort((a, b) => b.count - a.count)
+    return stats.filter((stat) => stat.count > 0)
+  }, process.env.NODE_ENV === 'development' ? 60*1000 : 24*60*60*1000))
+  if ('error' in results) return <StatsFallback />
   return (
     <>
-      {counts.map(({ label, count }) => (
+      {results.data.map(({ label, count }) => (
         <Grid item xs={6} sm={4} md={3} lg={2} key="kg">
           <div  className="flex flex-col">
-            <Typography variant="h2" color="secondary">{count.toLocaleString()}</Typography>
+            <Typography variant="h2" color="secondary">{BigInt(count).toLocaleString()}</Typography>
             <Typography variant="subtitle1" color="secondary">{label.toUpperCase()}</Typography>
           </div>
         </Grid>

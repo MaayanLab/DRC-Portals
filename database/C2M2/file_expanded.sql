@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /* run in psql as \i file_expanded.sql */
 
 --- This script takes the file table and joins with file_describes_* tables

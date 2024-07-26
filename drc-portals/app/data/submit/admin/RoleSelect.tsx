@@ -29,7 +29,8 @@ export default function RoleSelect(props: CreateUserFormProps | UpdateUserFormPr
         'Uploader',
         'DCC Approver',
         'DRC Approver',
-        "Admin"
+        "Admin",
+        "Read-Only"
     ]
 
     const handleChange = (event: SelectChangeEvent) => {

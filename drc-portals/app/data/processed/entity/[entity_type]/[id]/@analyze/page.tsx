@@ -5,6 +5,7 @@ import modules from "./modules";
 
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const item = await getItem(props.params.id)
+  if (!item) return null
   return (
     <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
       <Grid item xs={12} sx={{marginBottom: 5}}>

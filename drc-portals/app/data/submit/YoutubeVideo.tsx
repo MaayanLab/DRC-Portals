@@ -3,15 +3,15 @@
 import React from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 
-export default function YoutubeVideo() {
+export default function YoutubeVideo({size}: {size: 'large' | 'small'}) {
   const onPlayerReady: YouTubeProps['onReady'] = (event) => {
     // access to player in all event handlers via event.target
     event.target.pauseVideo();
   }
 
   const opts: YouTubeProps['opts'] = {
-    height: '390',
-    width: '640',
+    height: size === 'large' ? '390': '156',
+    width: size === 'large' ? '640': '256',
     playerVars: {
       autoplay: 1,
     },

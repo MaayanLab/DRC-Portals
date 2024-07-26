@@ -19,6 +19,8 @@ import sys
 import time
 import subprocess
 import gc
+import urllib.parse
+from dotenv import load_dotenv
 
 # debug
 debug = 1
@@ -26,12 +28,17 @@ actually_ingest_tables = 1
 
 newline = '\n'
 
+# Lines copied from dburl.py and modified
+load_dotenv(pathlib.Path(__file__).parent.parent.parent/'drc-portals'/'.env')
+c2m2_database_url = urllib.parse.urlparse(os.getenv('C2M2_DATABASE_URL'))
+#print(f"{c2m2_database_url.scheme}://{c2m2_database_url.username}:{c2m2_database_url.password}@{c2m2_database_url.hostname}:{c2m2_database_url.port}{c2m2_database_url.path}")
+
 # PostgreSQL connection details
-database_name = "drc"
-user = "drc"
-password = "drcpass"
-host = "localhost"
-port = "5433" # "5432" (default) or "5433"
+database_name = "drc" # c2m2_database_url.path is /drc, don't want the / part, so fixed here
+user = c2m2_database_url.username # "drc"
+password = c2m2_database_url.password # "drcpass"
+host = c2m2_database_url.hostname # "localhost"
+port = c2m2_database_url.port # "5433" # "5432" (default) or "5433"
 
 # Connection parameters
 conn_params = {
@@ -46,7 +53,7 @@ conn_params = {
 conn = psycopg2.connect(**conn_params)
 
 # Create a PostgreSQL engine
-engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}')
+engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -104,6 +111,7 @@ cqf = open(count_qf_name, "w")
 cursor = conn.cursor()
 # Enable autocommit to avoid transaction issues
 conn.autocommit = True
+cursor.execute('set statement_timeout = 0')
 
 #==========================================================================================
 # Function to map C2M2 data types to PostgreSQL data types
@@ -248,6 +256,9 @@ print(f"Going to ingest metadata from files{newline}");
 # 'filetype', 'filename', 'link', 'size', 'lastmodified', 'current', ... 'dcc_short_label'
 # Below, c2m2 holds one row.
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
+print(f"{newline}********* c2m2s dataframe, before checking if a single DCC is to be processed, is: **********");
+print(f"{c2m2s}"); 
+
 if(single_dcc == 1): # Mano
     c2m2s = c2m2s[c2m2s['dcc_short_label'] == dcc_short_label]; # This should select just one row of the c2m2s data.frame
 
@@ -523,6 +534,25 @@ print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: {t3
 # # Commit the changes 
 conn.commit()
 
+#------------------------------------------------------
+# Remove .0 from the size_in_bytes column of file table
+# Define the UPDATE query
+file_size_in_bytes_update_query1 = f"UPDATE {schema_name}.file  SET size_in_bytes = REGEXP_REPLACE(size_in_bytes, '\.0$', '');";
+file_size_in_bytes_update_query2 = f"UPDATE {schema_name}.file  SET uncompressed_size_in_bytes = REGEXP_REPLACE(uncompressed_size_in_bytes, '\.0$', '');";
+file_size_in_bytes_update_query = file_size_in_bytes_update_query1 + file_size_in_bytes_update_query2;
+# Execute the UPDATE query
+print(f"{newline}>>>>>>>> Attempting removal of .0 from columns size_in_bytes and uncompressed_size_in_bytes of table {schema_name}.file successful.{newline}");
+try:
+    cursor.execute(file_size_in_bytes_update_query)
+    print(f"Update successful.{newline}");
+except Exception as fsu_e:
+    print(f"Error executing the query{newline}{file_size_in_bytes_update_query}: {fsu_e}");
+finally:
+    # Commit the changes 
+    conn.commit();
+#------------------------------------------------------
+
+#cursor.close()
 conn.close()
 
 t4 = time.time();

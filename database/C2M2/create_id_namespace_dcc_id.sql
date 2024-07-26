@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /*
 Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc.
 This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing 

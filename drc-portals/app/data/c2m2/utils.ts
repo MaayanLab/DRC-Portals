@@ -2,13 +2,26 @@ import React, { ReactNode } from 'react';
 import { Metadata } from "next";
 import CryptoJS from 'crypto-js';
 import SQL from '@/lib/prisma/raw';
-import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { z } from 'zod';
 
 
+export interface MetadataItem {
+    label: string;
+    value: ReactNode;
+}
+
+export interface Category {
+    title: string;
+    metadata: MetadataItem[];
+  }
 // Function to generate MD5 hash
 export const generateMD5Hash = (inputString: string) => {
   return CryptoJS.MD5(inputString).toString();
+}
+
+export interface RowType {
+    id: string | number; // Adjust the type based on your `id`
+    [key: string]: any; // Use 'any' to include all possible row properties
 }
 
 
@@ -16,6 +29,20 @@ export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function generateHashedJSONFilename(prefix: string, searchParams: any): string {
+    // Create download filename for this recordInfo based on md5sum
+    // Stringify q and t from searchParams pertaining to this record
+    const qString = JSON.stringify(searchParams.q);
+    const tString = JSON.stringify(searchParams.t);
+
+    // Concatenate qString and tString into a single string
+    const concatenatedString = `${qString}${tString}`;
+    const recordInfoHashFileName = generateMD5Hash(concatenatedString);
+    const qString_clean = sanitizeFilename(qString, '__');
+    const hashedFileName = prefix + "_" + qString_clean + "_" + recordInfoHashFileName + ".json"
+
+    return hashedFileName;
+}
 export function isURL(str: string): boolean {
     const http_pattern = /^http/i;
     const drs_pattern = /^drs:\/\//i;
@@ -39,6 +66,11 @@ dccIconTable["LINCS"] = "/img/LINCS.gif";
 dccIconTable["MW"] = "/img/Metabolomics.png";
 dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
 dccIconTable["SPARC"] = "/img/SPARC.svg";
+
+// For C2M2 schematic: neo4j-based and postgres ERD
+const C2M2_neo4j_level0_img = "/img/C2M2_NEO4J_level0.jpg";
+const C2M2_ERD_img = "/img/C2M2_ERD_no_FKlabel_edited.jpg";
+
 
 export function getDCCIcon(iconKey: string): string {
     if (iconKey && dccIconTable.hasOwnProperty(iconKey)) {
@@ -103,7 +135,7 @@ export function reorderArrayOfObjectsKeys(originalArray: Record<string, any>[], 
 }
 
 interface StaticCols {
-    [key: string]: string | null;
+    [key: string]: string | bigint | null;
   }
   
 export function reorderStaticCols(staticCols: StaticCols, priorityFileCols: string[]): StaticCols {
@@ -154,9 +186,11 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 // This is different from search/Page.tsx because it has specifics for this page.
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
 
-export function generateQueryForReview(schemaName: string, tableName: string) {
-    return SQL.template`SELECT * FROM ${schemaName}.${tableName} IS NOT NULL LIMIT 10`;
+export function generateQueryForReview(schemaName: string, tableName: string): SQL {
+    // The SQL template function ensures proper formatting and sanitization
+    return SQL.template`SELECT * FROM "${SQL.raw(schemaName)}"."${SQL.raw(tableName)}"`;
 }
+
 
 export const schemaToDCC = [
     { schema: '_4dn', label: '4DN' },
@@ -282,10 +316,16 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         }
         if (t.entity_type) {
   
-            const valid_colnames: string[] = ['dcc', 'disease', 
-            'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
+            const valid_colnames_old: string[] = ['dcc', 'disease', 
+            'taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
             'data_type'];
-    //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+            // Note that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
+            //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
+            
+            const valid_colnames: string[] = ['dcc', 'disease', 
+                'taxonomy', 'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
+                'data_type'];
+                
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
             //typeFilters[t.type].push(SQL.template`${SQL.raw`"${tablename}."${t.type}_name"`} = ${t.entity_type}`);
@@ -310,7 +350,9 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
   
     return filterConditionStr;
   }
+
   
+
 
 const dccAbbrTable: { [key: string]: string } = {
     "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
@@ -431,39 +473,13 @@ export function getNameFromFileProjTable(iconKey: string): string {
 }
 
 
-/* export interface Category {
-    title: string;
-    metadata: { label: React.ReactNode; value: React.ReactNode }[];
-  }
-  
-export  function addCategoryColumns(columns: Record<string, React.ReactNode>, getNameFunction: (key: string) => React.ReactNode, categoryTitle: string, categories: Category[]) {
-      if (!columns || Object.keys(columns).length === 0) return;
-  
-      // Check if the category already exists, if not create a new one
-      let category = categories.find(c => c.title === categoryTitle);
-      if (!category) {
-          category = { title: categoryTitle, metadata: [] };
-          categories.push(category);
-      }
-  
-      for (const [key, value] of Object.entries(columns)) {
-          if (value !== undefined) { // Check if value is not undefined
-              const stringValue = typeof value === 'bigint' ? value.toString() : value.toString();
-              category.metadata.push({ label: getNameFunction(key), value: stringValue });
-          }
-      }
-  } */
 
 
 
-export interface Category {
-    title: string;
-    metadata: { label: ReactNode; value: ReactNode }[];
-}
 
 export function addCategoryColumns(
     columns: Record<string, ReactNode | string | bigint>,
-    getNameFunction: (key: string) => ReactNode,
+    getNameFunction: (key: string) => string,
     categoryTitle: string,
     categories: Category[]
 ) {
@@ -479,6 +495,10 @@ export function addCategoryColumns(
     for (const [key, value] of Object.entries(columns)) {
         if (value !== undefined) { // Check if value is not undefined
             const stringValue = typeof value === 'bigint' ? value.toString() : value;
+            /* const metadataItem: MetadataItem = { 
+                label: getNameFunction(key), 
+                value: stringValue 
+              }; */
             category.metadata.push({ label: getNameFunction(key), value: stringValue });
         }
     }
@@ -535,4 +555,18 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
 
   // Parse and return the parameters
   return schema.parse(props.searchParams);
+}
+
+export function get_partial_list_string(all_count: number, count: number, all_count_limit: number): string {
+  return (all_count ?? 0).toLocaleString() + 
+    ((all_count > all_count_limit) ? " (" + (count ?? 0).toLocaleString() + " listed)" : '')
+    ;
+}
+
+export function sanitizeFilename(filename: string, repchar: string): string {
+    // Define a regular expression that matches invalid characters
+    const invalidCharacters = /[\/\\:*?"<>|]/g;
+    // Replace invalid characters with an underscore
+    // repchar can be '__'
+    return filename.replace(invalidCharacters, repchar);
 }

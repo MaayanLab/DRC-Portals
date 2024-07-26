@@ -14,6 +14,12 @@ import { C2m2Table, C2m2SubmissionPrep } from "@/components/misc/ExternalC2m2"
   - [Tutorial](#tutorial)
 
 ## Introduction
+
+### Schematic of C2M2 
+(please right-click on the image to see options to view a larger image in a different tab)
+
+![Graphical schematic of C2M2](/img/C2M2_NEO4J_level0.jpg)
+
 The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. A complete C2M2 submission, also called an "instance" or a "datapackage", is a zipped folder containing multiple tab-delimited files (TSVs) representing metadata records along with a JSON schema. To read more about datapackages, skip to the [Frictionless Data Packages](#frictionless-data-packages) section. 
 
 Each TSV file is a **data table** containing various **data records** (rows) and their values for different **fields** (columns). **Entity tables** describe various types of data objects, while **association tables** describe the relationships between different entities. 
@@ -53,6 +59,11 @@ From the original C2M2 documentation:
 _Sourced from the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/C2M2-Table-Summary)_
 
 All of the tables in a C2M2 datapackage are inter-linked via foreign key relationships, as shown in the following diagram of the complete C2M2 system. 
+
+### Entity relationship diagram of C2M2 
+(please right-click on the image to see options to view a larger image in a different tab)
+
+![Entity relationship diagram of C2M2](/img/C2M2_ERD_no_FKlabel_edited.png)
 
 <C2m2Table />
 
@@ -96,7 +107,7 @@ To submit a datapackage, navigate to the [Submission System](https://data.cfde.c
 ## Tutorial
 For the April 2022 CFDE Cross-Pollination meeting, the LINCS DCC demonstrated a Jupyter Notebook tutorial on building the `file`, `biosample`, and `subject` tables for LINCS L1000 signature data. The code and files can be found at the following link: 
 
-[LINCS C2M2 Demo (04-05-2022 Cross-Pollination)](https://github.com/nih-cfde/LINCS-metadata/tree/main/scripts/April-CrossPollination-Demo)
+[LINCS C2M2 Demo (04-05-2022 Cross-Pollination)](https://github.com/MaayanLab/lincs-data-manifests/tree/main/April-CrossPollination-Demo)
 
 Code snippets from this tutorial corresponding to each step are reproduced below. Note that the C2M2 datapackage building process will vary across DCCs, depending on the types of generated data, ontologies, and access standards in place. In general, the process will be as follows: 
 1. Become familiar with the current structure of the C2M2, including the required fields across the entity and association tables, and download the most recent version of the [JSON schema](https://osf.io/c63aw/). Gather any metadata mapping files you may need. 

@@ -8,7 +8,7 @@ import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
-import type { CodeAsset, DccAsset, FileAsset } from '@prisma/client'
+import type { CodeAsset, DccAsset, FairAssessment, FileAsset } from '@prisma/client'
 import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteAsset } from './getDCCAsset';
 import Button from '@mui/material/Button';
@@ -18,6 +18,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { CheckCircle, Error } from '@mui/icons-material'
+import { generateInsignia } from './FairshakeInsignia';
 
 
 
@@ -105,11 +106,11 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                             </TableRow>
                             <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>OpenAPI Specifications</TableCell>
-                                <TableCell>{props.fileInfo.openAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : ((<Error />))}</TableCell>
+                                <TableCell>{props.fileInfo.openAPISpec ? (<CheckCircle sx={{ color: "tertiary.main" }} />) : ((<Error />))}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>Deposited in SmartAPI</TableCell>
-                                <TableCell>{props.fileInfo.smartAPISpec ? (<CheckCircle sx={{ color: "#7187C3" }} />) : (<Error />)}</TableCell>
+                                <TableCell>{props.fileInfo.smartAPISpec ? (<CheckCircle sx={{ color: "tertiary.main" }} />) : (<Error />)}</TableCell>
                             </TableRow>
                             {props.fileInfo.smartAPIURL && <TableRow>
                                 <TableCell variant="head" align="left" style={{ width: 200 }}>SmartAPI URL</TableCell>
@@ -126,7 +127,7 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
     )
 }
 
-export function DeleteDialogButton({ userFile }: { userFile: DccAsset }) {
+export function DeleteDialogButton({ userFile, userRole }: { userFile: DccAsset, userRole: string }) {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -142,38 +143,42 @@ export function DeleteDialogButton({ userFile }: { userFile: DccAsset }) {
         handleClose();
     }
 
-    return (
-        <React.Fragment>
-            <button onClick={handleClickOpen}>
-                <DeleteIcon />
-            </button>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {"Delete Uploaded File?"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete this file? Deleting files is permanent and cannot be undone
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button color="secondary" onClick={handleClose}>No</Button>
-                    <Button color="secondary" onClick={deleteRow} autoFocus>
-                        Yes, Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </React.Fragment>
-    );
+    if (userRole === 'READONLY') {
+        return <></>
+    } else {
+        return (
+            <React.Fragment>
+                <button onClick={handleClickOpen}>
+                    <DeleteIcon />
+                </button>
+                <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Delete Uploaded File?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete this file? Deleting files is permanent and cannot be undone
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="secondary" onClick={handleClose}>No</Button>
+                        <Button color="secondary" onClick={deleteRow} autoFocus>
+                            Yes, Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </React.Fragment>
+        );
+    }
 }
 
 
-export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSymbol }: {
+export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSymbol, role, fairAssessment }: {
     userFile: {
         dcc: {
             label: string;
@@ -182,32 +187,52 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
         assetType: string | null;
-    } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element
+    } & DccAsset, approvedSymboldcc: React.JSX.Element, approvedSymbol: React.JSX.Element, currentSymbol: React.JSX.Element, role: string, 
+    fairAssessment: FairAssessment | undefined
 }) {
     const [open, setOpen] = React.useState(false);
     const fileInfo = userFile.fileAsset ? { ...userFile.fileAsset } : { ...userFile.codeAsset } as FileAsset | CodeAsset
     const assetInfoType = userFile.fileAsset ? 'FileAsset' : 'CodeAsset'
+
+    React.useEffect(() => {
+        if (fairAssessment){
+            const rubric = fairAssessment.rubric
+            const jsonString = JSON.stringify(rubric)
+            if (jsonString) {
+                const rubricObject = JSON.parse(jsonString)
+                const mockScores = Object.assign({}, Object.values(rubricObject)); 
+                const mockMetrics = Object.assign({}, Object.keys(rubricObject)); 
+                // const mockScores=  {0: 0.62, 1: 0.75, 2: 0.75, 3: 0.75, 4: 0.5, 5: 0.81, 6: 0.5625, 7: 0.8, 8: 0, 9: 0.67}
+                // const mockMetrics = {0: "DCC Provides FAIR C2M2", 1: "DCC Provides FAIR XMTs", 2: "DCC Provides FAIR KG Assertions", 3: "DCC Provides FAIR Attribute Tables", 4: "DCC Provides FAIR ETL Github Link", 5: "DCC Provides FAIR API Links", 6: "DCC Provides FAIR Entity Pages", 7: "DCC Provides FAIR PWB Metanodes", 8: "DCC Provides FAIR Chatbot Specs", 9: "DCC Provides FAIR Apps URLs"}
+                let insigniaEl = document.createElement('div')
+                insigniaEl.id = userFile.link
+                generateInsignia(insigniaEl.id, mockScores, mockMetrics)
+                document.getElementById('insiginia-div')?.appendChild(insigniaEl)
+            }
+
+        }
+    }, [fairAssessment])
+
     return (
         <>
             <TableRow
                 key={userFile.lastmodified.toString()}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-                <TableCell><CollapsibleArrow open={open} setOpen={setOpen} /></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center" >{userFile.lastmodified.toLocaleString()}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center" style={{
-                    whiteSpace: "normal",
-                    wordBreak: "break-word"
-                }}>{userFile.creator}</TableCell>
-                {userFile.fileAsset ? <TableCell sx={{ fontSize: 14 }} align="center">{userFile.fileAsset.filetype}</TableCell> : <TableCell sx={{ fontSize: 14 }} align="center">{userFile.codeAsset?.type}</TableCell>}
-                <TableCell sx={{ fontSize: 14 }} align="center">{userFile.dcc?.short_label ?? userFile.dcc_id}</TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="right"><div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'>{currentSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"><div className='flex justify-center'><DeleteDialogButton userFile={userFile} /></div></TableCell>
+                <TableCell style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><CollapsibleArrow open={open} setOpen={setOpen} /></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center' id={userFile.link} style={{width: "50px"}}></div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}>{userFile.lastmodified.toLocaleString()}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center" style={{whiteSpace: "normal", wordBreak: "break-word"}}>{userFile.creator}</TableCell>
+                {userFile.fileAsset ? <TableCell sx={{ fontSize: 14 }} align="center" style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}>{userFile.fileAsset.filetype}</TableCell> : <TableCell sx={{ fontSize: 14 }} align="center" style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}>{userFile.codeAsset?.type}</TableCell>}
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box", whiteSpace: "normal", wordBreak: "break-word"}}>{userFile.dcc?.short_label ?? userFile.dcc_id}</TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="right"  style={{width: 100,maxWidth: 100,overflow: "hidden",borderStyle: "border-box"}}> <div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{currentSymbol}</div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'><DeleteDialogButton userFile={userFile}  userRole={role}/></div></TableCell>
+                
             </TableRow>
             <TableRow>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
                     {assetInfoType === 'FileAsset' && <FileInfo open={open} fileInfo={fileInfo as FileAsset} type='FileAsset' />}
                     {assetInfoType === 'CodeAsset' && <FileInfo open={open} fileInfo={fileInfo as CodeAsset} type='CodeAsset' />}
                 </TableCell>

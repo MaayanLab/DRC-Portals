@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 --- Do not run it in one go as a script. Instead, copy/paste individual statements to run as needed to explore.
 --- Some example collection queries
 

@@ -19,7 +19,7 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
       <Grid container direction="row" spacing={2} justifyContent={"center"} sx={{marginTop: 5}}>
         {dccs.map(dcc=>(
           <Tooltip title={dcc.short_label} placement="top">
-            <Grid item xs={6} md={spacing} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, margin: 1}}>
+            <Grid item xs={spacing} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, margin: 1}}>
               <Link href={`${baseEndpoint}/${dcc.short_label}`}>
                 <Image className={className || ''}  src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>
               </Link>

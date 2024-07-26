@@ -31,7 +31,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         justifyContent="center"
         alignItems="center"
       >
-        <Grid item xs={3}>
+        <Grid item md={9} xs={12}>
           <Typography sx={{ml:3, mt:2, color: "secondary.dark"}} variant="h2">
             {dcc}
           </Typography>
@@ -41,8 +41,8 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             </Typography>
           </Link>
         </Grid>
-        <Grid item xs={6}></Grid>
-        <Grid item xs={3}>
+        {/* <Grid item xs={6}></Grid> */}
+        <Grid item md={3} xs={12}>
           <img className="object-scale-down h-16 self-center mx-auto" 
             src={dcc_dbinfo.icon ? dcc_dbinfo.icon: ''} alt={dcc} />
         </Grid>

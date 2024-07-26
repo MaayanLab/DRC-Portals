@@ -8,8 +8,6 @@ import CardContent from '@mui/material/CardContent'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 
 import Stack from '@mui/material/Stack'
 import Chip from '@mui/material/Chip'
@@ -29,7 +27,9 @@ import { parseAsJson } from 'next-usequerystate';
 import { Prisma } from "@prisma/client"
 import { Tooltip, IconButton, Avatar, CardActions } from "@mui/material"
 import { ClientCheckbox } from "./ClientCheckBox"
-type OutreachWithDCC = Prisma.OutreachGetPayload<{
+import dynamic from "next/dynamic"
+const ClientExpander = dynamic(()=>(import('./ClientExpander')), {ssr: false})
+export type OutreachWithDCC = Prisma.OutreachGetPayload<{
   include: {
       dccs: {
         include: {
@@ -71,6 +71,13 @@ export interface OutreachParams {
   cfde_specific?: boolean
 }
 
+const same_date = (start_date:Date|null, end_date:Date|null) => {
+  if (!start_date || ! end_date) return false
+  return start_date.getFullYear() === end_date.getFullYear() &&
+    start_date.getMonth() === end_date.getMonth() &&
+    start_date.getDate() === end_date.getDate();
+}
+
 const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
   outreach: OutreachWithDCC[], 
   featured: Boolean,
@@ -87,6 +94,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
         if (Array.isArray(e.tags)) {
           tags = e.tags
         }
+        if (same_date(e.start_date, e.end_date)) console.log(e.title, e.start_date?.toDateString(), e.end_date?.toDateString())
         return (
           <Card>
             <CardContent>
@@ -99,21 +107,27 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                       <Typography variant="caption">{e.start_date.toLocaleString('default', { year: 'numeric' })}</Typography>
                     </Paper>
                   }
-                  {e.end_date  &&
+                  {(e.end_date && !same_date(e.start_date, e.end_date))  && 
                     <Paper elevation={0} sx={{backgroundColor: "secondary.main", color: "#EDF0F8", minWidth: 65, padding: 1}}>
                       <Typography variant="caption">{e.end_date.toLocaleString('default', { month: 'short' })}</Typography>
                       <Typography variant="h4">{e.end_date.toLocaleString('default', { day: '2-digit' })}</Typography>
                       <Typography variant="caption">{e.end_date.toLocaleString('default', { year: 'numeric' })}</Typography>
                     </Paper>
                   }
+                  {(e.start_date && e.end_date && same_date(e.start_date, e.end_date))  && 
+                    <Paper elevation={0} sx={{backgroundColor: "secondary.main", color: "#EDF0F8", minWidth: 65, padding: 1}}>
+                      <Typography variant="h5">{e.start_date.toLocaleString('default', { hour: 'numeric', hour12: true, minute: 'numeric', timeZone: "America/New_York"})}</Typography>
+                      <Typography variant="body1">to</Typography>
+                      <Typography variant="h5">{e.end_date.toLocaleString('default', { hour: 'numeric', hour12: true, minute: 'numeric', timeZone: "America/New_York"})} ET</Typography>
+                    </Paper>
+                  }
                 </div>
                 { (e.image) && 
                     <div className="flex flex-row justify-center"
                       style={{
-                        background: "linear-gradient(diagonal, #336699, #006666)",
                         overflow: "hidden",  
                         // height: "100%",
-                        minHeight: 200,
+                        minHeight: 150,
                         position: "relative",
                         zIndex: 2
                       }}
@@ -128,7 +142,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                     new_filter.tags = [`${tag}`]
                     return (
                       <Link href={`/info/training_and_outreach?filter=${JSON.stringify(new_filter)}`}>
-                        <Chip variant="filled" sx={{ textTransform: "capitalize", background: tag === "internship"? "#7187C3": "#EDF0F8", color: tag === "internship"?"#FFF":"#29527A", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
+                        <Chip variant="filled" sx={{ textTransform: "capitalize", backgroundColor: tag === "internship"? "tertiary.main": "primary.main", color: tag === "internship"?"#FFF":"secondary.main", minWidth: 150, borderRadius: 2}} key={i} label={tag?.toString()}/>
                       </Link>
                     )
                   })}
@@ -174,9 +188,14 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
             </CardContent>
             <CardActions>
                 <ExportCalendar event={e} />
+                {(e.link || '' ).indexOf('https') > -1 ?
                 <Link href={e.link || ''} target="_blank" rel="noopener noreferrer">
                   <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
+                </Link>:
+                <Link href={e.link || ''}>
+                  <Button  color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />}>VISIT PAGE</Button>
                 </Link>
+                }
             </CardActions>
           </Card>
         )
@@ -186,7 +205,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
 )
 
 const type_tags = (type: string) => {
-  if (type === "training") return ["fellowship", "workshop", "internship", "course"]
+  if (type === "training") return ["fellowship", "workshop", "internship", "course", "training program"]
   else if (type === "outreach") return ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon"]
   else return []
 }
@@ -259,9 +278,14 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
         ],
         
       },
-      orderBy: {
-        start_date: { sort: 'desc', nulls: 'last' }
-      }
+      orderBy: [
+        {
+          end_date: { sort: 'asc', nulls: 'last' }
+        },
+        {
+          start_date: { sort: 'asc', nulls: 'last' }
+        }
+      ] 
     }): []
 
     const recurring = (status && (status.length === 0 || status.indexOf('recurring') > -1)) ?  await prisma.outreach.findMany({
@@ -324,111 +348,102 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       },
     }): []
     return (
-      <Grid container spacing={1} sx={{marginTop: 2}}>
-        {expand_filter && <Grid item xs={12} sm={3}>
-          <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
-            <Button variant="outlined" color="secondary">
-              Collapse Filter
-            </Button>
-          </Link>
-          <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", marginTop: 1 }} elevation={0}>
-            <Stack spacing={1}>
-              <Typography variant={'body1'}><b>Type</b></Typography>
-              <FormGroup>
-                <ClientCheckbox query_key="type" value='outreach' label="Outreach"/>
-                <ClientCheckbox query_key="type" value='training' label="Training"/>
-                <ClientCheckbox query_key="cfde_specific" value={'cfde_specific'} label="CFDE specific activity"/>
-              </FormGroup>
-              <Typography variant={'body1'}><b>Status</b></Typography>
+      <ClientExpander>
+        <Grid container spacing={1} sx={{marginTop: 2}}>
+          {expand_filter && <Grid item xs={12} sm={3}>
+            <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+              <Button variant="outlined" color="secondary">
+                Collapse Filter
+              </Button>
+            </Link>
+            <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", marginTop: 1 }} elevation={0}>
+              <Stack spacing={1}>
+                <Typography variant={'body1'}><b>Type</b></Typography>
                 <FormGroup>
-                  <ClientCheckbox query_key="status" value='active' label="Active"/>
-                  <ClientCheckbox query_key="status" value='recurring' label="Recurring"/>
-                  <ClientCheckbox query_key="status" value='past' label="Past"/>
+                  <ClientCheckbox query_key="type" value='outreach' label="Outreach"/>
+                  <ClientCheckbox query_key="type" value='training' label="Training"/>
+                  <ClientCheckbox query_key="cfde_specific" value={'cfde_specific'} label="CFDE specific activity"/>
                 </FormGroup>
-              <Typography variant={'body1'}><b>Tag</b></Typography>
-                <FormGroup>
-                  {distinct_tags.map((tag)=>(
-                    <ClientCheckbox key={tag} query_key="tags" value={tag} label={tag}/>
-                  ))}
-                </FormGroup>
-            </Stack>
-          </Paper>
-        </Grid>
-        }
-        <Grid item xs={12} sm={expand_filter ? 9:12}>
-          <Grid container>
-            <Grid item xs={12}>
-              <Grid container justifyContent={"space-between"}>
-                <Grid item sx={{height: 50}}>
-                  { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
-                    <Button variant="outlined" color="secondary">
-                      Expand Filter
-                    </Button>
-                  </Link>
-                  }
-                </Grid>
-                <Grid item>
-                  <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
-                  {/* {tags && tags.map(tag=>(
-                    <Link key={tag} href={'/info/training_and_outreach'}>
-                      <Chip variant="filled" 
-                        sx={{ background: tag === "internship"? "#7187C3": "#EDF0F8", 
-                          color: tag === "internship"?"#FFF":"#29527A", 
-                          minWidth: 150, borderRadius: 2, textTransform: 'capitalize', marginLeft: 1}} 
-                          label={tag?.toString()}
-                          icon={<DeleteIcon color={tag === "internship" ? "primary": "secondary"}/>}
-                        />
+                <Typography variant={'body1'}><b>Status</b></Typography>
+                  <FormGroup>
+                    <ClientCheckbox query_key="status" value='active' label="Active"/>
+                    <ClientCheckbox query_key="status" value='recurring' label="Recurring"/>
+                    <ClientCheckbox query_key="status" value='past' label="Past"/>
+                  </FormGroup>
+                <Typography variant={'body1'}><b>Tag</b></Typography>
+                  <FormGroup>
+                    {distinct_tags.map((tag)=>(
+                      <ClientCheckbox key={tag} query_key="tags" value={tag} label={tag}/>
+                    ))}
+                  </FormGroup>
+              </Stack>
+            </Paper>
+          </Grid>
+          }
+          <Grid item xs={12} sm={expand_filter ? 9:12}>
+            <Grid container>
+              <Grid item xs={12}>
+                <Grid container justifyContent={"space-between"}>
+                  <Grid item sx={{height: 50}}>
+                    { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+                      <Button variant="outlined" color="secondary">
+                        Expand Filter
+                      </Button>
                     </Link>
-                  ))} */}
+                    }
+                  </Grid>
+                  <Grid item>
+                    <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
+                  </Grid>
                 </Grid>
               </Grid>
+            {(current.length) > 0 && 
+              <>
+                <Grid item xs={12}>
+                  <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                    Active
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
+                </Grid>
+              </>
+            }
+            {(recurring.length) > 0 && 
+              <>
+                <Grid item xs={12}>
+                  <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                    Recurring
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <OutreachComponent now={now} outreach={recurring} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
+                </Grid>
+              </>
+            }
+            {past.length > 0 && 
+              <>
+                <Grid item xs={12}>
+                  <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
+                    Past
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true} filter={parsedParams} expand_filter={expand_filter || false}/>
+                </Grid>
+              </>
+          }
+          {(past.length === 0 && current.length === 0 && recurring.length === 0)  &&
+            <Grid item xs={12} sx={{marginTop: 10}}>
+              <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
+                No records found
+              </Typography>
             </Grid>
-          {(current.length) > 0 && 
-            <>
-              <Grid item xs={12}>
-                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Active
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={current} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
-              </Grid>
-            </>
           }
-          {(recurring.length) > 0 && 
-            <>
-              <Grid item xs={12}>
-                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Recurring
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={recurring} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false}/>
-              </Grid>
-            </>
-          }
-          {past.length > 0 && 
-            <>
-              <Grid item xs={12}>
-                <Typography variant="h3" color="secondary" sx={{marginBottom: 1}}>
-                  Past
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true} filter={parsedParams} expand_filter={expand_filter || false}/>
-              </Grid>
-            </>
-        }
-        {(past.length === 0 && current.length === 0 && recurring.length === 0)  &&
-          <Grid item xs={12} sx={{marginTop: 10}}>
-            <Typography variant="body1" color="secondary" sx={{textAlign: "center"}}>
-              No records found
-            </Typography>
-          </Grid>
-        }
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </ClientExpander>
     )
   }
 

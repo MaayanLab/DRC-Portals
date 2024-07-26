@@ -19,7 +19,7 @@ export default function Standards() {
       <Grid item xs={12} sx={{mt:3, mb:4}}>
           <StyledAccordion >
             <StyledAccordionSummary>
-              <Typography fontWeight="bold" color="#ffffff">CFDE Data and Metadata Submission System</Typography>
+              <Typography fontWeight="bold">CFDE Data and Metadata Submission System</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
@@ -42,7 +42,7 @@ export default function Standards() {
 
           <StyledAccordion >
             <StyledAccordionSummary>
-              <Typography fontWeight="bold" color="#ffffff">C2M2</Typography>
+              <Typography fontWeight="bold">C2M2</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
@@ -60,7 +60,7 @@ export default function Standards() {
 
           <StyledAccordion >
             <StyledAccordionSummary>
-              <Typography fontWeight="bold" color="#ffffff">RNA-seq Standard Pipeline</Typography>
+              <Typography fontWeight="bold">RNA-seq Standard Pipeline</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
@@ -80,7 +80,7 @@ export default function Standards() {
 
           <StyledAccordion >
             <StyledAccordionSummary >
-                <Typography fontWeight="bold" color="#ffffff">OpenAPI & SmartAPI</Typography>
+                <Typography fontWeight="bold">OpenAPI & SmartAPI</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
@@ -102,7 +102,7 @@ export default function Standards() {
 
           <StyledAccordion >
             <StyledAccordionSummary >
-                <Typography fontWeight="bold" color="#ffffff">Knowledge Graph Assertions</Typography>
+                <Typography fontWeight="bold">Knowledge Graph Assertions</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
@@ -121,7 +121,7 @@ export default function Standards() {
 
           <StyledAccordion >
             <StyledAccordionSummary >
-                <Typography fontWeight="bold" color="#ffffff">FAIR Evaluations with FAIRshake</Typography>
+                <Typography fontWeight="bold">FAIR Evaluations with FAIRshake</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">
@@ -141,7 +141,7 @@ export default function Standards() {
 
           <StyledAccordion >
             <StyledAccordionSummary >
-                <Typography fontWeight="bold" color="#ffffff">Playbook Metanodes</Typography>
+                <Typography fontWeight="bold">Playbook Metanodes</Typography>
             </StyledAccordionSummary>
             <StyledAccordionDetails >
               <Typography sx={{m:2}} color="#666666">

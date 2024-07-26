@@ -18,7 +18,7 @@ c2m2s_path = ingest_path / 'c2m2s'
 
 c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link',), pk_columns=('id',))
 c2m2_file_helper = TableHelper('c2m2_file_node', ('id', 'c2m2_datapackage_id', 'creation_time', 'persistent_id', 'access_url', 'size_in_bytes', 'file_format', 'data_type', 'assay_type', 'mime_type', 'md5', 'sha256'), pk_columns=('id',))
-node_helper = TableHelper('node', ('id', 'type', 'label', 'description', 'dcc_id',), pk_columns=('id',))
+node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
 
 with c2m2_file_helper.writer() as c2m2_file:
   with node_helper.writer() as node:
@@ -103,6 +103,8 @@ with c2m2_file_helper.writer() as c2m2_file:
               dcc_id=c2m2['dcc_id'],
               id=c2m2_file_id,
               type='c2m2_file',
+              entity_type=None,
               label=file['filename'],
               description=description,
+              pagerank=0,
             ))

@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 /* run in psql as \i biosample_fully_flattened.sql */
 ---
 --- Make it project cetnric; most tables are already included in this biosample centrix flattening

@@ -15,10 +15,11 @@ def quote(col): return f'"{col}"'
 
 #%%
 class TableHelper:
-  def __init__(self, tablename, columns, pk_columns):
+  def __init__(self, tablename, columns, pk_columns, add_columns=tuple()):
     self.tablename = tablename
     self.pk_columns = pk_columns
     self.columns = columns
+    self.add_columns = add_columns
   @contextlib.contextmanager
   def writer(self):
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -27,8 +28,9 @@ class TableHelper:
         yield csv.DictWriter(fw, self.columns, delimiter='\t', escapechar='\\', doublequote=False)
       print(f"inserting {self.tablename}...")
       with connection.cursor() as cur:
+        cur.execute('set statement_timeout = 0')
         cur.execute(f'''
-          create table {quote(self.tablename+'_tmp')}
+          create temporary table {quote(self.tablename+'_tmp')}
           as table {quote(self.tablename)}
           with no data;
         ''')
@@ -38,13 +40,17 @@ class TableHelper:
             null='',
             sep='\t',
           )
+        update_set = ','.join([
+          *[f"{quote(col)} = excluded.{quote(col)}" for col in self.columns if col not in self.pk_columns and col not in self.add_columns],
+          *[f"{quote(col)} = {quote(self.tablename)}.{quote(col)} + excluded.{quote(col)}" for col in self.add_columns],
+        ])
+        do_update_set = f"do update set {update_set}" if update_set else "do nothing"
         cur.execute(f'''
             insert into {quote(self.tablename)} ({', '.join(map(quote, self.columns))})
               select {', '.join(map(quote, self.columns))}
               from {quote(self.tablename+'_tmp')}
               on conflict ({', '.join(map(quote, self.pk_columns))})
-                do update
-                set {','.join(f"{col} = excluded.{col}" for col in map(quote, self.columns) if col not in self.pk_columns)};
+              {do_update_set};
         ''')
         cur.execute(f"drop table {quote(self.tablename+'_tmp')};")
         connection.commit()
@@ -56,6 +62,10 @@ load_dotenv(pathlib.Path(__file__).parent.parent / 'drc-portals' / '.env')
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL == None:
+  load_dotenv('../../drc-portals/.env') # for fair assessment 
+  load_dotenv()
+  DATABASE_URL = os.getenv("DATABASE_URL")
 result = urlparse(DATABASE_URL)
 username = result.username
 password = result.password
@@ -90,20 +100,20 @@ def ensure_file_factory(url, path):
 
 #%%
 # Fetch data for ingest
-dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/041124/DCC.tsv', 'DCC.tsv')
-dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_dcc_publication.tsv', 'dcc_publications.tsv')
-publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_publication.tsv', 'publications.tsv')
-dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
-outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/outreach_files/current_outreach.tsv', 'outreach.tsv')
-dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/DccAssets.tsv', 'DccAssets.tsv')
-file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/050824/FileAssets.tsv', 'FileAssets.tsv')
-code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/041624/CodeAssets.tsv', 'CodeAssets.tsv')
-dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/dcc_partnerships.tsv', 'dcc_partnerships.tsv')
-partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/032724/partnerships.tsv', 'partnerships.tsv')
-partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/publication_files/current_partnership_publication.tsv', 'partnership_publications.tsv')
-tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/012224/tools.tsv', 'tools.tsv')
-dcc_usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/usecase_files/current_dcc_usecase.tsv', 'dcc_usecase.tsv')
-usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/usecase_files/current_usecase.tsv', 'usecase.tsv')
+dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv', 'DCC.tsv')
+dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_publications.tsv', 'dcc_publications.tsv')
+publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_publications.tsv', 'publications.tsv')
+dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
+outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_outreach.tsv', 'outreach.tsv')
+dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv', 'DccAssets.tsv')
+file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_file_assets.tsv', 'FileAssets.tsv')
+code_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_code_assets.tsv', 'CodeAssets.tsv')
+dcc_partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_partnerships.tsv', 'dcc_partnerships.tsv')
+partnerships_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_partnerships.tsv', 'partnerships.tsv')
+partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_partnership_publications.tsv', 'partnership_publications.tsv')
+tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_tools.tsv', 'tools.tsv')
+dcc_usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_usecase.tsv', 'dcc_usecase.tsv')
+usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_usecase.tsv', 'usecase.tsv')
 
 #%%
 def current_dcc_assets():
@@ -115,5 +125,16 @@ def current_dcc_assets():
     how='inner',
   )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  return dcc_assets
+
+def current_code_assets():
+  dcc_assets = pd.merge(
+    left=pd.read_csv(code_assets_path(), sep='\t'),
+    left_on='link',
+    right=pd.read_csv(dcc_assets_path(), sep='\t'),
+    right_on='link',
+    how='inner',
+  )
   dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
   return dcc_assets

@@ -1,3 +1,4 @@
+set statement_timeout = 0;
 -- Step 1: Check and Create Index on Anatomy Table
 DO $$ 
 BEGIN

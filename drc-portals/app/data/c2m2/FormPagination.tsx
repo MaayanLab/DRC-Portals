@@ -34,22 +34,22 @@ export default function FormPagination({ p, r, count, tablePrefix }: FormPaginat
   const updatePageParam = (value: string) => {
     const newSearchParams = new URLSearchParams(window.location.search)
     newSearchParams.set(`${tablePrefix}_p`, value)
-    router.push(pathname + '?' + newSearchParams.toString())
+    router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
   }
 
   const updateRowsParam = (value: string) => {
     const newSearchParams = new URLSearchParams(window.location.search)
     newSearchParams.set('r', value)
     newSearchParams.set(`${tablePrefix}_p`, '1') // Reset to first page when rows per page change
-    router.push(pathname + '?' + newSearchParams.toString())
+    router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
   }
 
   return (
     <Stack direction={"row"} justifyContent={"space-between"} justifyItems={"center"} alignContent={"center"} alignItems="center" flexWrap={"wrap"} gap={2}>
       <Box justifySelf={"center"}>
         <Pagination
-          siblingCount={0}
-          boundaryCount={1}
+          siblingCount={1}
+          boundaryCount={2}
           page={currentPage}
           count={pageCount}
           onChange={(evt, value) => updatePageParam(value.toString())}

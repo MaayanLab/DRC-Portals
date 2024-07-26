@@ -1,6 +1,22 @@
 import { z } from 'zod';
 import { NodeType } from "@prisma/client"
 
+const entity_type_map: Record<string, string> = {
+  'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
+  'Congenital Abnormality': 'Congenital Abnormality',
+  'ENCODE CCRE': 'Candidate Cis-Regulatory Element',
+  'ENSEMBL': 'Transcript',
+  'gene': 'Gene',
+  'GLYCAN MOTIF': 'Glycan Motif',
+  'GLYCAN': 'Glycan',
+  'GLYCOSYLTRANSFERASE REACTION': 'Glycosyl Transferace Reaction',
+  'GLYGEN GLYCOSEQUENCE': 'Glycosequence',
+  'GLYGEN GLYCOSYLATION': 'Glycosylation',
+  'GLYGEN RESIDUE': 'Residue',
+  'GLYTOUCAN': 'Glytoucan',
+  'GTEXEQTL': 'eQTL',
+}
+
 export function capitalize(s: string) {
   if (s.length === 0) return ''
   return `${s[0].toUpperCase()}${s.slice(1)}`
@@ -13,13 +29,18 @@ export function pluralize(s: string) {
   return `${s}s`
 }
 
+export function human_readable(s: string) {
+  return capitalize(s.replaceAll('_', ' '))
+}
+
 export function type_to_string(type: NodeType | string, entity_type: string | null) {
-  if (type === 'entity') return entity_type ? capitalize(entity_type) : 'Entity'
+  if (type === 'entity') return entity_type ? entity_type_map[entity_type] || capitalize(entity_type) : 'Entity'
   else if (type === 'c2m2_file') return 'File'
   else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
+  else if (type === 'all') return 'Processed Data'
   else return capitalize(type)
 }
 

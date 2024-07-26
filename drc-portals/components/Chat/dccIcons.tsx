@@ -1,5 +1,6 @@
 "use client";
-import { Typography } from "@mui/material";
+import { Typography, Button, Box } from "@mui/material";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import React from "react";
 import { DCC } from "@prisma/client";
@@ -26,7 +27,7 @@ export default function DccIcons({ submit }: { submit: Function }) {
         {" "}
         {dccs ? (
           dccs.map((dcc) => (
-            <button
+            <Button
               onClick={() => {
                 submit({
                   role: "user",
@@ -36,23 +37,13 @@ export default function DccIcons({ submit }: { submit: Function }) {
                   args: null,
                 });
               }}
+              
               key={dcc.id}
             >
-              <div
-                data-te-chip-init
-                data-te-ripple-init
-                className="dcc-button fit-content [word-wrap: break-word] my-[5px] mx-[5px] flex h-[60px] cursor-pointer items-center justify-between rounded-[16px] bg-[#eeeeee] px-[12px] py-0 text-[13px] font-normal normal-case leading-loose text-[#4f4f4f] shadow-none transition-[opacity] duration-300 ease-linear hover:!shadow-none active:bg-[#cacfd1]"
-                key={dcc.id}
-              >
-                <img
-                  className="max-w-12 max-h-10"
-                  alt={dcc.id}
-                  width={"100%"}
-                  height={"100%"}
-                  src={dcc.icon as string}
-                />
-              </div>
-            </button>
+              <Box sx={{width: 75, height: 75, position: "relative", margin: 1}}>
+                <Image src={dcc.icon || ''} alt={dcc.label} fill={true} style={{objectFit: "contain"}}/>
+              </Box>
+            </Button>
           ))
         ) : (
           <></>

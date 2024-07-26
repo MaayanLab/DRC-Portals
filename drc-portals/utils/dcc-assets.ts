@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@/prisma';
+import type { PrismaClient } from '.prisma/client'
 
 export type dccAsset = {
   dcc_id: string
@@ -51,7 +51,11 @@ async function getCreatorAff(
     if (creator) { 
       // if DRC or Admin upload, mark as DRC even if user is DCC-affiliated
       if (creator.role == "ADMIN" || creator.role == "DRC_APPROVER") {
-        return "DRC"
+        if (dccName == 'LINCS') {
+          return dccName
+        } else {
+          return "DRC"
+        }
       // all other roles (aka just UPLOADER), mark as DCC
       } else {
         return dccName
@@ -67,7 +71,11 @@ async function getCreatorAff(
       return dccName
     // in all other cases with no creator, mark as DRC upload
     } else {
+      if (dccName == 'LINCS') {
+        return dccName
+      } else {
       return "DRC"
+      }
     }
   }
 }
@@ -190,7 +198,7 @@ async function getData(
 async function getDataObj(
   prisma: PrismaClient, dccId: string, dccName: string, ft: string
 ) {
-  const codetypes = ['ETL', 'API', 'Entity Page Template', 'PWB Metanodes', 'Chatbot Specs']
+  const codetypes = ['ETL', 'API', 'Entity Page Template', 'PWB Metanodes', 'Chatbot Specs', 'Apps URL']
   const is_code = codetypes.includes(ft)
   return (
     {
@@ -214,5 +222,6 @@ export async function getDccDataObj(
     EntityPages: await getDataObj(prisma, dccId, dccName, 'Entity Page Template'),
     PWBMetanodes: await getDataObj(prisma, dccId, dccName, 'PWB Metanodes'),
     ChatbotSpecs: await getDataObj(prisma, dccId, dccName, 'Chatbot Specs'),
+    AppsURL: await getDataObj(prisma, dccId, dccName, 'Apps URL')
   })
 }

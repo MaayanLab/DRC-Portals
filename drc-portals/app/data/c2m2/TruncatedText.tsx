@@ -2,7 +2,12 @@
 import React from 'react';
 import Typography from '@mui/material/Typography';
 
-const TruncatedText = ({ text, maxLength }) => {
+interface TruncatedTextProps {
+    text: string;
+    maxLength: number;
+}
+
+const TruncatedText: React.FC<TruncatedTextProps> = ({ text, maxLength }) => {
     if (!text) {
         return null;
     }
