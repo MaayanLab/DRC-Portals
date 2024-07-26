@@ -113,7 +113,10 @@ export const getSearchBarValue = (searchParams: URLSearchParams) => {
   return newValue.join(" ");
 };
 
-export const getSchemaSearchValue = (params: URLSearchParams) => {
+export const getSchemaSearchValue = (
+  params: URLSearchParams,
+  errorCallback: () => void
+) => {
   const schemaQuery = params.get("schema_q");
 
   if (schemaQuery === null) {
@@ -132,7 +135,8 @@ export const getSchemaSearchValue = (params: URLSearchParams) => {
 
     return value;
   } catch (e) {
-    // If for any reason (decoding, parsing, etc.) we couldn't get the state, return null instead
+    // If for any reason (decoding, parsing, etc.) we couldn't get the state, call the error callback and return null instead
+    errorCallback();
     return null;
   }
 };

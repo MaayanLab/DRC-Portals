@@ -65,15 +65,12 @@ export default function GraphSearch() {
 
   useEffect(() => {
     if (searchParams.size > 0) {
-      const schemaValue = getSchemaSearchValue(searchParams);
-
-      if (schemaValue === null) {
-        console.warn("Schema search params are malformed.");
-        setError(BASIC_SEARCH_ERROR_MSG);
-      } else {
-        setSchemaValue(schemaValue);
-      }
-
+      setSchemaValue(
+        getSchemaSearchValue(searchParams, () => {
+          console.warn("Schema search params are malformed.");
+          setError(BASIC_SEARCH_ERROR_MSG);
+        })
+      );
       setSearchBarValue(getSearchBarValue(searchParams));
     }
   }, []);
