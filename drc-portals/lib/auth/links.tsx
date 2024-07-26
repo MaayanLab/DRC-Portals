@@ -1,32 +1,26 @@
 'use client'
 
 import React from 'react'
-import Link from "next/link"
+import Button from '@mui/material/Button';
 import { signIn, signOut } from 'next-auth/react'
 
 export function SignInLink({ children }: React.PropsWithChildren<{}>) {
-  if (process.env.NODE_ENV === 'development') {
-    return <Link
-      href="/auth/signin"
-      onClick={evt => {
+  return <Button
+    sx={{padding: "5px 16px"}}
+    size="small"
+    color="secondary"
+    variant="outlined"
+    onClick={evt => {
         evt.preventDefault()
-        signIn()
-      }}>{children}</Link>
-  } else {
-    return <Link
-      href="/auth/signin/keycloak"
-      onClick={evt => {
-        evt.preventDefault()
-        signIn('keycloak')
-      }}>{children}</Link>
-  }
+        if (process.env.NODE_ENV === 'development') signIn()
+        else signIn('keycloak')
+    }}>{children}</Button>
 }
 
 export function SignOutLink({ children }: React.PropsWithChildren<{}>) {
-  return <Link
-    href="/auth/signout"
+  return <button
     onClick={evt => {
       evt.preventDefault()
       signOut()
-    }}>{children}</Link>
+    }}>{children}</button>
 }
