@@ -15,7 +15,7 @@ export function SignInLink({ children }: React.PropsWithChildren<{}>) {
     onClick={evt => {
       evt.preventDefault()
       if (process.env.NODE_ENV === 'development') signIn()
-      else router.push(`/auth/keycloak?callbackUrl=${encodeURIComponent(window.location.href)}`)
+      else router.push(`${process.env.NEXTAUTH_URL}/keycloak?callbackUrl=${encodeURIComponent(window.location.href)}`)
     }}>{children}</Button>
 }
 
@@ -23,6 +23,6 @@ export function SignOutLink({ children }: React.PropsWithChildren<{}>) {
   return <button
     onClick={evt => {
       evt.preventDefault()
-      signOut()
+      signOut({ redirect: false })
     }}>{children}</button>
 }
