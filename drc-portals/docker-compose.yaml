@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.9.10
+    image: maayanlab/drc-portal:0.10.0
     deploy:
       resources:
         reservations:
@@ -20,10 +20,11 @@ services:
       - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
-      - NEXTAUTH_GITHUB
-      - NEXTAUTH_GOOGLE
-      - NEXTAUTH_ORCID
-      - NEXTAUTH_GLOBUS
+      # - NEXTAUTH_GITHUB
+      # - NEXTAUTH_GOOGLE
+      # - NEXTAUTH_ORCID
+      # - NEXTAUTH_GLOBUS
+      - NEXTAUTH_KEYCLOAK
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT
@@ -36,7 +37,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.10.0-9
+    image: maayanlab/drc-portal-dev:0.10.0-17
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -50,9 +51,10 @@ services:
       - NEXTAUTH_URL=https://dev.cfde.cloud/auth
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
-      - NEXTAUTH_GITHUB
-      - NEXTAUTH_GOOGLE
-      - NEXTAUTH_GLOBUS
+      # - NEXTAUTH_GITHUB
+      # - NEXTAUTH_GOOGLE
+      # - NEXTAUTH_GLOBUS
+      - NEXTAUTH_KEYCLOAK
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT
