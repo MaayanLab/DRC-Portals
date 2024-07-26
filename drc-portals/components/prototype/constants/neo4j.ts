@@ -109,7 +109,6 @@ export const IS_SUPERSET_OF_TYPE = "IS_SUPERSET_OF";
 export const IS_PARENT_OF_TYPE = "IS_PARENT_OF";
 export const DESCRIBES_TYPE = "DESCRIBES";
 export const TESTED_FOR_TYPE = "TESTED_FOR";
-export const REFERENCES_TYPE = "REFERENCES";
 export const IS_RACE_TYPE = "IS_RACE";
 
 // Set of all relationship types
@@ -131,7 +130,6 @@ export const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set([
   PREPPED_VIA_TYPE,
   PRODUCED_TYPE,
   REGISTERED_TYPE,
-  REFERENCES_TYPE,
   SAMPLED_FROM_TYPE,
   TESTED_FOR_TYPE,
 ]);
@@ -170,18 +168,6 @@ export const OUTGOING_CONNECTIONS: ReadonlyMap<
       [GENERATED_BY_ANALYSIS_TYPE_TYPE, [ANALYSIS_TYPE_LABEL]],
       [IS_DATA_TYPE_TYPE, [DATA_TYPE_LABEL]],
       [IS_FILE_FORMAT_TYPE, [FILE_FORMAT_LABEL]],
-      [
-        REFERENCES_TYPE,
-        [
-          ANATOMY_LABEL,
-          COMPOUND_LABEL,
-          GENE_LABEL,
-          NCBI_TAXONOMY_LABEL,
-          PROTEIN_LABEL,
-          SUBJECT_LABEL,
-          SUBSTANCE_LABEL,
-        ],
-      ],
     ]),
   ],
   [GENE_LABEL, new Map([[HAS_SOURCE_TYPE, [NCBI_TAXONOMY_LABEL]]])],
