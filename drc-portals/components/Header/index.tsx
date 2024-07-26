@@ -16,7 +16,7 @@ import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 import { DRCDrawer } from './drawer';
 
-import Link from "next/link"
+import Link from "@/utils/link"
 import UserComponent from "../misc/LoginComponents/UserComponent"
 import { authOptions } from '@/lib/auth'
 import { TextNav } from "./client"

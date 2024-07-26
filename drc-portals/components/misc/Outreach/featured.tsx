@@ -1,5 +1,5 @@
 import React from "react"
-import Link from "next/link"
+import Link from "@/utils/link"
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 

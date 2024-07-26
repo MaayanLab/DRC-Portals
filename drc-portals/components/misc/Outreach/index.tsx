@@ -1,5 +1,5 @@
 import React from "react"
-import Link from "next/link"
+import Link from "@/utils/link"
 import Image from "next/image"
 import Divider from '@mui/material/Divider'
 import Card from '@mui/material/Card'

@@ -2,7 +2,7 @@ import ListItemCollapsible from "@/components/misc/ListItemCollapsible"
 import prisma from "@/lib/prisma/slow"
 import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/utils/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
 import { safeAsync } from "@/utils/safe"
 
@@ -107,7 +107,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
                   {library.gene_sets.map(set => (
                     <TableRow key={set.id}>
                       <TableCell component="th" scope="row">
-                        <Link prefetch={false} href={`/data/processed/${set.node.type}/${set.id}`}>{set.node.label}</Link>
+                        <Link href={`/data/processed/${set.node.type}/${set.id}`}>{set.node.label}</Link>
                       </TableCell>
                       <TableCell>
                         {format_description(set.node.description)}

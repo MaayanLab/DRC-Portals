@@ -1,6 +1,6 @@
 'use client'
 import { useState } from "react"
-import Link from "next/link";
+import Link from "@/utils/link";
 import { Button, Stack, Divider, Typography } from "@mui/material"
 import Drawer from '@mui/material/Drawer';
 import { useTheme } from '@mui/material/styles';

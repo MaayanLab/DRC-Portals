@@ -10,7 +10,7 @@ import SearchablePagedTable, { Description } from './SearchablePagedTable';
 import DownloadButton from './DownloadButton';
 import DRSBundleButton from './DRSBundleButton';
 import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
-import Link from 'next/link';
+import Link from '@/utils/link';
 import { RowType } from './utils'; // Import the RowType
 
 type TableFunction = (column: string) => string | undefined;
@@ -120,7 +120,6 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                     renderedColumns[column] = (column.toLowerCase().includes('persistent') || column.toLowerCase().includes('access'))
                                         && isURL(cellValueString) ? (
                                         <Link
-                                            prefetch={false}
                                             href={cellValueString}
                                             className="underline cursor-pointer text-blue-600"
                                             key={`${rowIndex}-${column}`}

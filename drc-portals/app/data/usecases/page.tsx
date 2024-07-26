@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/utils/link";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container } from "@mui/material";

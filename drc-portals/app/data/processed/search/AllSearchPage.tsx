@@ -11,7 +11,7 @@ import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import Link from "next/link";
+import Link from "@/utils/link";
 import ProgramFilters from "./ProgramFilters";
 
 

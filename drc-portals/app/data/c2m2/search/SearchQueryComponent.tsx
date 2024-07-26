@@ -9,7 +9,7 @@ import { Button } from "@mui/material";
 import { redirect } from "next/navigation";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import Link from "next/link";
+import Link from "@/utils/link";
 import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename} from "@/app/data/c2m2/utils";
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
@@ -241,56 +241,56 @@ export async function SearchQueryComponent(props: PageProps) {
             previewButton: <PreviewButton href={res.record_info_url} alt="More details about this result" />,
             dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
             projectName: (res.project_persistent_id && isURL(res.project_persistent_id)) 
-              ? <Link prefetch={false} href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> 
+              ? <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link> 
               : <Description description={res.project_name} />,
             attributes: (
               <>
                 {res.taxonomy_name !== "Unspecified" && (
                   <>
                     <span>Species: </span>
-                    <Link prefetch={false} href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`} target="_blank"><i><u>{res.taxonomy_name}</u></i></Link>
+                    <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${res.taxonomy_id}`} target="_blank"><i><u>{res.taxonomy_name}</u></i></Link>
                     <br />
                   </>
                 )}
                 {res.disease_name !== "Unspecified" && (
                   <>
                     <span>Disease: </span>
-                    <Link prefetch={false} href={`http://purl.obolibrary.org/obo/${res.disease}`} target="_blank"><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.disease}`} target="_blank"><i><u>{capitalizeFirstLetter(res.disease_name)}</u></i></Link>
                     <br />
                   </>
                 )}
                 {res.anatomy_name !== "Unspecified" && (
                   <>
                     <span>Sample source: </span>
-                    <Link prefetch={false} href={`http://purl.obolibrary.org/obo/${res.anatomy}`} target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`} target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
                     <br />
                   </>
                 )}
                 {res.gene_name !== "Unspecified" && (
                   <>
                     <span>Gene: </span>
-                    <Link prefetch={false} href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
+                    <Link href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
                     <br />
                   </>
                 )}
                 {res.protein_name !== "Unspecified" && (
                   <>
                     <span>Protein: </span>
-                    <Link prefetch={false} href={`https://www.uniprot.org/uniprotkb/${res.protein}`} target="_blank"><i><u>{res.protein_name}</u></i></Link>
+                    <Link href={`https://www.uniprot.org/uniprotkb/${res.protein}`} target="_blank"><i><u>{res.protein_name}</u></i></Link>
                     <br />
                   </>
                 )}
                 {res.compound_name !== "Unspecified" && (
                   <>
                     <span>Compound: </span>
-                    <Link prefetch={false} href={`https://pubchem.ncbi.nlm.nih.gov/compound/${res.compound}`} target="_blank"><i><u>{res.compound_name}</u></i></Link>
+                    <Link href={`https://pubchem.ncbi.nlm.nih.gov/compound/${res.compound}`} target="_blank"><i><u>{res.compound_name}</u></i></Link>
                     <br />
                   </>
                 )}
                 {res.data_type_name !== "Unspecified" && (
                   <>
                     <span>Data type: </span>
-                    <Link prefetch={false} href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
+                    <Link href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
                     <br />
                   </>
                 )}
@@ -350,7 +350,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 </>
               }
               footer={
-                <Link prefetch={false} href="/data">
+                <Link href="/data">
                   <Button
                     sx={{ textTransform: "uppercase" }}
                     color="primary"
@@ -385,7 +385,7 @@ export async function SearchQueryComponent(props: PageProps) {
         console.error('Error fetching query results:', error);
         return <>
         <div className="mb-10">Error fetching query results.</div>
-        <Link prefetch={false} href="/data">
+        <Link href="/data">
           <Button
             sx={{ textTransform: "uppercase" }}
             color="primary"

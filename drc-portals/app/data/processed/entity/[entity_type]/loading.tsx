@@ -1,7 +1,7 @@
 import { mdiArrowLeft } from "@mdi/js";
 import Icon from "@mdi/react";
 import { Button } from "@mui/material";
-import Link from "next/link";
+import Link from "@/utils/link";
 import React from "react";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable from "@/app/data/processed/SearchablePagedTable";
