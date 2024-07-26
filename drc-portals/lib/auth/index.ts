@@ -90,7 +90,7 @@ const providers = [
   process.env.NEXTAUTH_GOOGLE ? GoogleProvider(JSON.parse(process.env.NEXTAUTH_GOOGLE)) : undefined,
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,
   process.env.NEXTAUTH_GLOBUS ? GlobusProvider(JSON.parse(process.env.NEXTAUTH_GLOBUS)) : undefined,
-  process.env.NEXTAUTH_EMAIL ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
+  process.env.NEXTAUTH_EMAIL && !process.env.NEXTAUTH_KEYCLOAK ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
@@ -115,7 +115,7 @@ export const authOptions: NextAuthOptions = {
           process.env.NEXTAUTH_GOOGLE ? 'google' : '_',
           process.env.NEXTAUTH_ORCID ? 'orcid' : '_',
           process.env.NEXTAUTH_GLOBUS ? 'globus' : '_',
-          process.env.NEXTAUTH_EMAIL ? 'email' : '_',
+          process.env.NEXTAUTH_EMAIL && !process.env.NEXTAUTH_KEYCLOAK ? 'email' : '_',
         ].includes(token.provider as string)) return {}
       }
       return token
@@ -131,7 +131,7 @@ export const authOptions: NextAuthOptions = {
         process.env.NEXTAUTH_GOOGLE ? 'google' : '_',
         process.env.NEXTAUTH_ORCID ? 'orcid' : '_',
         process.env.NEXTAUTH_GLOBUS ? 'globus' : '_',
-        process.env.NEXTAUTH_EMAIL ? 'email' : '_',
+        process.env.NEXTAUTH_EMAIL && !process.env.NEXTAUTH_KEYCLOAK ? 'email' : '_',
       ].includes(token.provider as string)) throw new Error('Unsupported provider')
       const userInfo = token.provider === 'keycloak' ?
         await keycloak_pull({ id, userAccessToken: z.string().parse(token.accessToken) })
