@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack"
 import { useWidth } from './helper';
 export default function ClientCarousel({children, title}: {children: React.ReactNode, title?: string}) {
   const width = useWidth()
-  console.log(width)
+  // console.log(width)
     return (
       <Stack spacing={1} alignItems={"center"}>
         {title && <Typography variant="subtitle2" color="secondary">
