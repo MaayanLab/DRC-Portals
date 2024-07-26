@@ -23,6 +23,6 @@ export function SignOutLink({ children }: React.PropsWithChildren<{}>) {
   return <button
     onClick={evt => {
       evt.preventDefault()
-      signOut({ redirect: false })
+      signOut()
     }}>{children}</button>
 }
