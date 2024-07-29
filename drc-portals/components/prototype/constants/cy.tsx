@@ -151,6 +151,7 @@ export const ChartContainer = styled(Paper)({
 
 export const WidgetContainer = styled(Box)({
   flexGrow: 1,
+  display: "flex",
   position: "absolute",
   zIndex: 1,
   padding: "inherit",

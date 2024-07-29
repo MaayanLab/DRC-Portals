@@ -1,10 +1,14 @@
 "use client";
 
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import {
   ClickAwayListener,
   Divider,
+  IconButton,
   MenuList,
   Paper,
+  Tooltip,
   TypographyProps,
 } from "@mui/material";
 import { Instance } from "@popperjs/core";
@@ -89,6 +93,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   );
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipTitle, setTooltipTitle] = useState<ReactNode>(null);
+  const [toolbarHidden, setToolbarHidden] = useState(false);
+  const [showToolbarHiddenTooltip, setShowToolbarHiddenTooltip] =
+    useState(false);
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
   const contextMenuPosRef = useRef<{
@@ -204,6 +211,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       setTooltipOpen(true);
       setTooltipTitle(title);
     }
+  };
+
+  const handleHideToolbarBtnClicked = () => {
+    setToolbarHidden(!toolbarHidden);
+    setShowToolbarHiddenTooltip(false);
   };
 
   const handleHoverNode = (event: EventObjectNode) => {
@@ -425,11 +437,30 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       </ClickAwayListener>
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
-          <ChartToolbar
-            cyRef={cyRef}
-            customTools={customTools}
-            layout={layout}
-          ></ChartToolbar>
+          <Tooltip
+            open={showToolbarHiddenTooltip}
+            title={toolbarHidden ? "Show Toolbar" : "Hide Toolbar"}
+            disableHoverListener
+            onMouseEnter={() => setShowToolbarHiddenTooltip(true)}
+            onMouseLeave={() => setShowToolbarHiddenTooltip(false)}
+            TransitionProps={{ exit: false }}
+            arrow
+          >
+            <IconButton onClick={handleHideToolbarBtnClicked}>
+              {toolbarHidden ? (
+                <KeyboardDoubleArrowLeftIcon />
+              ) : (
+                <KeyboardDoubleArrowRightIcon />
+              )}
+            </IconButton>
+          </Tooltip>
+          {toolbarHidden ? null : (
+            <ChartToolbar
+              cyRef={cyRef}
+              customTools={customTools}
+              layout={layout}
+            ></ChartToolbar>
+          )}
         </WidgetContainer>
       )}
       {legendPosition === undefined ? null : (

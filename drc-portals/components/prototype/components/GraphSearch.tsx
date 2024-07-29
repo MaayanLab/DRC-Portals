@@ -1,6 +1,8 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
+import { Box, Grid, IconButton, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import {
@@ -55,12 +57,19 @@ export default function GraphSearch() {
   const [schemaValue, setSchemaValue] = useState<SchemaSearchPath[] | null>(
     null
   );
+  const [searchHidden, setSearchHidden] = useState(false);
+  const [showSearchHiddenTooltip, setShowSearchHiddenTooltip] = useState(false);
 
   const handleSubmit = (term: string) => {
     const searchParams = new URLSearchParams(`q=${term}`);
     router.push(`?${searchParams.toString()}`);
     setSearchBarValue(term);
     setEntityDetails(undefined); // Reset the entity details if a new query is submitted
+  };
+
+  const handleHideSearchBtnClicked = () => {
+    setSearchHidden(!searchHidden);
+    setShowSearchHiddenTooltip(false);
   };
 
   useEffect(() => {
@@ -130,13 +139,34 @@ export default function GraphSearch() {
         sx={{ position: "relative", height: "inherit" }}
       >
         <SearchBarContainer>
-          <SearchBar
-            value={searchBarValue}
-            error={error}
-            loading={loading}
-            clearError={clearSearchError}
-            onSubmit={handleSubmit}
-          ></SearchBar>
+          {searchHidden ? null : (
+            <SearchBar
+              value={searchBarValue}
+              error={error}
+              loading={loading}
+              clearError={clearSearchError}
+              onSubmit={handleSubmit}
+            ></SearchBar>
+          )}
+          <Box sx={{ alignContent: "center" }}>
+            <Tooltip
+              open={showSearchHiddenTooltip}
+              title={searchHidden ? "Show Search" : "Hide Search"}
+              disableHoverListener
+              onMouseEnter={() => setShowSearchHiddenTooltip(true)}
+              onMouseLeave={() => setShowSearchHiddenTooltip(false)}
+              TransitionProps={{ exit: false }}
+              arrow
+            >
+              <IconButton onClick={handleHideSearchBtnClicked}>
+                {searchHidden ? (
+                  <KeyboardDoubleArrowRightIcon />
+                ) : (
+                  <KeyboardDoubleArrowLeftIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </SearchBarContainer>
         <CytoscapeChart
           elements={elements}
