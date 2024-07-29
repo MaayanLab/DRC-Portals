@@ -65,9 +65,9 @@ export function PreviewButton(props: {
     return (
         <div className="relative">
             <Link href={props.href}>
-                <PageviewOutlinedIcon 
-                sx={{ width: '40px', height: '40px' }}
-                 />
+                <PageviewOutlinedIcon
+                    sx={{ width: '40px', height: '40px' }}
+                />
             </Link>
         </div>
     );
@@ -122,81 +122,23 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                 </Grid>
             }
             <Grid item xs={12} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-                {props.rows.length === 0 ? (
-                    <>No results</>
-                ) : (
-                    <Stack spacing={1}>
-                        {(props.q || props.t) &&
-                            <Box display="inline-block">
-                                <TagComponent q={props.q} t={props.t} />
-                            </Box>
-                        }
-                        <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
-                        {/* <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 700, width: '100%' }}>
-                            <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'fixed', overflowX: 'auto' }}>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                indeterminate={selectedRows.length > 0 && selectedRows.length < props.rows.length}
-                                                checked={props.rows.length > 0 && selectedRows.length === props.rows.length}
-                                                onChange={handleSelectAllClick}
-                                            />
-                                        </TableCell>
-                                        {props.columns.map((column, i) => (
-                                            <TableCell
-                                                key={i}
-                                                align="center"
-                                                sx={{
-                                                    padding: '8px',
-                                                    textAlign: 'left',
-                                                    backgroundColor: '#F0F8FF',
-                                                    fontWeight: 'bold',
-                                                    whiteSpace: 'nowrap',
-                                                    minWidth: '500',// Prevent text from wrapping
-                                                    textOverflow: 'ellipsis', // Show ellipsis for overflow text
-                                                }}
-                                            >
-                                                <Typography variant='h6' color="secondary">{column}</Typography>
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {props.rows.map((row, i) => (
-                                        <TableRow key={row.id}>
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={selectedRows.some(selectedRow => selectedRow.id === row.id)}
-                                                    onChange={() => handleCheckboxChange(row)}
-                                                />
-                                            </TableCell>
-                                            {Object.entries(row)
-                                                .filter(([key]) => key !== 'id') // Ignore the 'id' key
-                                                .map(([key, value], j) => (
-                                                    <TableCell
-                                                        key={j}
-                                                        sx={{
-                                                            padding: '8px',
-                                                            maxWidth: 500, // Set a maximum width
-                                                            overflowWrap: 'break-word',
-                                                            textAlign: 'left',
-                                                            whiteSpace: 'nowrap', // Prevent text from wrapping
-                                                            overflowX: 'hidden', // Prevent overflow
-                                                            textOverflow: 'ellipsis', // Show ellipsis for overflow text
-                                                        }}
-                                                        align="left"
-                                                    >
-                                                        {value}
-                                                    </TableCell>
-                                                ))}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer> */}
-                        <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
-                            <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%'}}>
+                <Stack spacing={1}>
+                    {(props.q || props.t) &&
+                        <Box display="inline-block">
+                            <TagComponent q={props.q} t={props.t} />
+                        </Box>
+                    }
+                    <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
+
+                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+                        {props.rows.length === 0 ? (
+                            
+                                     <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
+                                        No results found
+                                    </Typography>
+
+                        ) : (
+                            <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%' }}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell padding="checkbox">
@@ -258,11 +200,11 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                     ))}
                                 </TableBody>
                             </Table>
-                        </TableContainer>
-
-                    </Stack>
-                )}
+                        )}
+                    </TableContainer>
+                </Stack>
             </Grid>
+
         </Grid>
     );
 };

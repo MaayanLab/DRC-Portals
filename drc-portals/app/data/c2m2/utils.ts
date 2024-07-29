@@ -332,8 +332,13 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
             typeFilters[t.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(t.type, valid_colnames)}_name" = ${t.entity_type}`);
         } else {
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" is null`);
-            typeFilters[t.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(t.type, valid_colnames)}_name" = ${'Unspecified'}`);
-          }
+            //typeFilters[t.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(t.type, valid_colnames)}_name" = ${'Unspecified'}`);
+            if(tablename == 'allres'){
+                typeFilters[t.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(t.type, valid_colnames)}_name" = 'Unspecified'`);
+            } else{
+                typeFilters[t.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(t.type, valid_colnames)}_name" is null`);
+            }
+         }
         }
       });
   
