@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/utils/link";
 import { Typography, Button, Divider, Chip } from "@mui/material";
 import { Publication } from "@prisma/client";
 import ExportCitation from "./ExportCitation";

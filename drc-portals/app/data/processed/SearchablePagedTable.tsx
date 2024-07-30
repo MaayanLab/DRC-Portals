@@ -2,7 +2,7 @@ import React from "react"
 import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
 import FormPagination from "./FormPagination"
 import { SearchForm, SearchField } from './SearchField'
-import Link from "next/link"
+import Link from "@/utils/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
 import { type_to_color, type_to_string } from "./utils"
@@ -25,8 +25,8 @@ export function LinkedTypedNode({
 }) {
   return (
     <div className="flex flex-col">
-      <Link prefetch={false} href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
-      <Link prefetch={false} href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }
@@ -43,7 +43,7 @@ export function SearchablePagedTableCellIcon(props: {
 }) {
   return (
     <Box sx={{width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}, position: "relative"}}>
-      <Link prefetch={false} href={props.href}>
+      <Link href={props.href}>
         <Image className="object-contain" src={props.src} alt={props.alt} fill />
       </Link>
     </Box>

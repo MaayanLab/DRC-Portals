@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react"
 import { Grid, Stack, Typography } from "@mui/material"
-import Link from "next/link"
+import Link from "@/utils/link"
 import Image from "next/image"
 
 export default function LandingPageLayout(props: React.PropsWithChildren<{
@@ -20,7 +20,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       </Grid>
       <Grid item xs={4}>
         {props.icon ? 
-          <Link prefetch={false} href={props.icon.href}>
+          <Link href={props.icon.href}>
             <Image src={props.icon.src} alt={props.icon.alt} width={240} height={240} />
           </Link>
           : null}

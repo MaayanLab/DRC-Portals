@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma/c2m2";
 import SQL from '@/lib/prisma/raw';
 import React from 'react';
-import Link from "next/link";
+import Link from "@/utils/link";
 import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "../ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
@@ -69,7 +69,7 @@ interface FileColTableResult {
 const renderMetadataValue = (item: MetadataItem) => {
     if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
         return (
-            <Link prefetch={false} href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+            <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
                 {item.value}
             </Link>
         );

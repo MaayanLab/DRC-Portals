@@ -1,6 +1,6 @@
 import React from 'react'
 import prisma from "@/lib/prisma/slow"
-import Link from "next/link"
+import Link from "@/utils/link"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
@@ -128,8 +128,8 @@ export default async function Page(props: PageProps) {
       subtitle={type_to_string('gene_set', null)}
       description={format_description(gene_set.node.description)}
       metadata={[
-        gene_set.node.dcc ? { label: 'Project', value: <Link prefetch={false} href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,
-        { label: 'Gene Set Library', value: <Link prefetch={false} href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
+        gene_set.node.dcc ? { label: 'Project', value: <Link href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,
+        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
         { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >

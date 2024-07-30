@@ -1,6 +1,6 @@
 {
   "name": "drc-portals",
-  "version": "0.9.8",
+  "version": "0.10.5",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -35,7 +35,7 @@
     "@mui/x-data-grid": "^6.18.2",
     "@next/mdx": "^14.1.4",
     "@next/third-parties": "^14.1.0",
-    "@prisma/client": "^5.7.0",
+    "@prisma/client": "^5.17.0",
     "@react-email/components": "0.0.14",
     "@svgr/webpack": "^8.1.0",
     "@types/js-cookie": "^3.0.6",

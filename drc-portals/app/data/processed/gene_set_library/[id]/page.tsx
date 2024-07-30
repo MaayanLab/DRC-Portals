@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma/slow"
-import Link from "next/link"
+import Link from "@/utils/link"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
@@ -107,12 +107,12 @@ export default async function Page(props: PageProps) {
       description={format_description(library.node.description)}
       metadata={[
         ...library.node.dcc?.label ? [
-          { label: 'Project', value: <Link prefetch={false} href={`/info/dcc/${library.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{library.node.dcc.label}</Link> },
-          { label: 'Asset', value:  <Link prefetch={false} href={`/data/matrix/${library.node.dcc.short_label}#XMT`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
+          { label: 'Project', value: <Link href={`/info/dcc/${library.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{library.node.dcc.label}</Link> },
+          { label: 'Asset', value:  <Link href={`/data/matrix/${library.node.dcc.short_label}#XMT`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
         ] : [],
         { label: 'Gene coverage', value: library._count.genes.toLocaleString() },
         { label: 'Gene sets', value: library._count.gene_sets.toLocaleString() },
-        { label: 'Download', value: <Link prefetch={false} href={library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.dcc_asset_link}</Link> },
+        { label: 'Download', value: <Link href={library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.dcc_asset_link}</Link> },
       ]}
     >
       <SearchablePagedTable

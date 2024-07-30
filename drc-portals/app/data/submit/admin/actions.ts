@@ -7,6 +7,7 @@ import type { User } from '@prisma/client'
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { keycloak_push } from "@/lib/auth/keycloak";
 
 async function verifyUser() {
     const session = await getServerSession(authOptions)
@@ -65,7 +66,25 @@ export async function createOneUser(newUserData: {
     const newDCCObjectsIDs = newDCCObjects.map((dccObject) => {return ({id: dccObject.id})})
 
     // connect user to the new DCCs
-    await prisma.user.create({
+    const userInfo = await prisma.user.create({
+        select: {
+            name: true,
+            email: true,
+            role: true,
+            dccs: {
+                select: {
+                    short_label: true,
+                }
+            },
+            accounts: {
+                select: {
+                    providerAccountId: true,
+                },
+                where: {
+                    provider: 'keycloak',
+                }
+            },
+        },
         data:{
             name: newUserData.name,
             email: newUserData.email,
@@ -75,6 +94,8 @@ export async function createOneUser(newUserData: {
             role: prismaRole as Role
         }
     })
+    if (userInfo.accounts.length > 0) await keycloak_push({ userInfo })
+
     revalidatePath('/')
 }
 
@@ -122,6 +143,24 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
                 where: {
                     id: users[updatedData.index]['id']
                 },
+                select: {
+                    name: true,
+                    email: true,
+                    role: true,
+                    dccs: {
+                        select: {
+                            short_label: true,
+                        }
+                    },
+                    accounts: {
+                        select: {
+                            providerAccountId: true,
+                        },
+                        where: {
+                            provider: 'keycloak',
+                        }
+                    },
+                },
                 data: {
                     ...(updatedData.role.toString() != '' ? {
                         role: prismaRole as Role,
@@ -134,6 +173,7 @@ export async function updateUserInfo(updatedForms: updateForm[], users: User[]) 
                 },
             })
         ])
+        if (updatedUser.accounts.length > 0) await keycloak_push({ userInfo: updatedUser })
     }))
     revalidatePath('/')
 }

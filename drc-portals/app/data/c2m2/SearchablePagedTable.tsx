@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
 import FormPagination from './FormPagination';
-import Link from 'next/link';
+import Link from '@/utils/link';
 import Image, { StaticImageData } from 'next/image';
 import { NodeType } from '@prisma/client';
 import { type_to_string } from '../processed/utils';
@@ -26,12 +26,12 @@ export function LinkedTypedNode({
 }) {
     return (
         <div className="flex flex-col">
-            <Link prefetch={false} href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
+            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
                 <Typography variant="body1" sx={{ overflowWrap: 'break-word', maxWidth: 300 }} color="secondary" fontWeight={focus ? 'bold' : undefined}>
                     {label}
                 </Typography>
             </Link>
-            <Link prefetch={false} href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
+            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
                 <Typography variant='caption' color="secondary">
                     {type_to_string(type, entity_type)}
                 </Typography>
@@ -52,7 +52,7 @@ export function SearchablePagedTableCellIcon(props: {
 }) {
     return (
         <div className="w-20 h-20 relative">
-            <Link prefetch={false} href={props.href}>
+            <Link href={props.href}>
                 <Image className="object-contain" src={props.src} alt={props.alt} fill />
             </Link>
         </div>
@@ -64,7 +64,7 @@ export function PreviewButton(props: {
 }) {
     return (
         <div className="relative">
-            <Link prefetch={false} href={props.href}>
+            <Link href={props.href}>
                 <PageviewOutlinedIcon
                     sx={{ width: '40px', height: '40px' }}
                 />

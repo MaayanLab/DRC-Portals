@@ -11,7 +11,7 @@ import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { Button, Typography } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import Link from "next/link";
+import Link from "@/utils/link";
 import { Prisma_join } from '@/utils/prisma';
 import ProgramFilters from './ProgramFilters';
 import { safeAsync } from '@/utils/safe';
@@ -98,7 +98,7 @@ export default async function Page(props: {
         </span> : null
       }
       footer={
-        <Link prefetch={false} href="/data">
+        <Link href="/data">
           <Button
             sx={{textTransform: "uppercase"}}
             color="primary"

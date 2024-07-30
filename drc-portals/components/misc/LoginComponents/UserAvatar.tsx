@@ -1,14 +1,10 @@
 'use client'
 import { useState } from 'react';
-import Link from 'next/link';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import { Session } from 'next-auth';
-import { SignOutLink } from '@/lib/auth/links';
-import { AccountLink } from './MyAccount';
 // some code taken from MUI
 
 function stringToColor(string: string) {
@@ -41,7 +37,7 @@ function stringToColor(string: string) {
   }
 
   
-export default function UserAvatar ({session}: {session: Session}) {
+export default function UserAvatar ({session, children}: React.PropsWithChildren<{session: Session}>) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     
     const open = Boolean(anchorEl);
@@ -78,12 +74,7 @@ export default function UserAvatar ({session}: {session: Session}) {
                 'aria-labelledby': 'user-button',
                 }}
             >
-                <MenuItem onClick={handleClose}>
-                    <AccountLink>My account</AccountLink>
-                    </MenuItem>
-                <MenuItem onClick={handleClose}>
-                    <SignOutLink>Logout</SignOutLink>
-                </MenuItem>
+                {children}
             </Menu>
         </>
     )

@@ -89,7 +89,9 @@ const TagComponent = ({
             'anatomy': 'Anatomy',
             'disease': 'Disease',
             'gene': 'Gene',
-            'data_type': 'Data Type'
+            'data_type': 'Data Type',
+            'compound': 'Compound',
+            'protein': 'Protein'
             // Add more mappings as needed
         };
 

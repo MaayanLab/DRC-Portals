@@ -1,5 +1,5 @@
 'use client'
-import Link from "next/link"
+import Link from "@/utils/link"
 import { Button } from "@mui/material"
 
 const DownloadPDF = ({link}: {link: string}) => (
