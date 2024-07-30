@@ -1,11 +1,12 @@
 "use client";
-
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import {
   ClickAwayListener,
   Divider,
   IconButton,
+  MenuItem,
   MenuList,
   Paper,
   Tooltip,
@@ -23,6 +24,7 @@ import {
 import cytoscape from "cytoscape";
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
+import { NestedMenuItem } from "mui-nested-menu";
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import { v4 } from "uuid";
@@ -37,15 +39,10 @@ import {
 import { PositionOffsets } from "../../interfaces/shared";
 import { CustomToolbarFnFactory } from "../../types/cy";
 import {
-  createChartCxtMenuItem,
   createNodeTooltip,
   hideElement,
-  highlightNeighbors,
-  highlightNodesWithLabel,
   resetHighlights,
   selectAll,
-  selectNeighbors,
-  selectNodesWithLabel,
   showElement,
 } from "../../utils/cy";
 
@@ -130,7 +127,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     if (event.target.hasClass("dimmed")) {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-shared-ctx-menu-0`,
+          `${cmpKey}-cxt-menu-show`,
           contextMenuItemSelectWrapper(showElement, event),
           "Show"
         )
@@ -138,7 +135,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     } else {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-shared-ctx-menu-1`,
+          `${cmpKey}-cxt-menu-hide`,
           contextMenuItemSelectWrapper(hideElement, event),
           "Hide"
         )
@@ -151,7 +148,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const getStaticMenuItems = (event: EventObject) => {
     const items = [
       createChartCxtMenuItem(
-        `${cmpKey}-static-ctx-menu-0`,
+        `${cmpKey}-cxt-menu-select-all`,
         contextMenuItemSelectWrapper(selectAll, event),
         "Select All"
       ),
@@ -163,7 +160,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     ) {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-static-ctx-menu-1`,
+          `${cmpKey}-cxt-menu-reset-highlights`,
           contextMenuItemSelectWrapper(resetHighlights, event),
           "Reset Highlights"
         )
@@ -174,9 +171,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       items.push(
         ...staticCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val, idx) =>
+          .map((val) =>
             createChartCxtMenuItem(
-              `${cmpKey}-custom-static-ctx-menu-${idx}`,
+              `${cmpKey}-cxt-menu-${val.key}`,
               contextMenuItemSelectWrapper(val.fn, event),
               val.title
             )
@@ -274,41 +271,60 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     }
   };
 
+  const createChartCxtMenuItem = (
+    key: string,
+    fn: (...args: any[]) => void,
+    content: ReactNode
+  ) => {
+    return (
+      <MenuItem key={key} onClick={fn}>
+        {content}
+      </MenuItem>
+    );
+  };
+
+  // TODO: Consider refactoring this into the util file, or maybe moving the util function here
+  const createNestedChartCxtMenuItem = (
+    label: string,
+    children: CxtMenuItem[],
+    event: EventObject
+  ) => {
+    return (
+      <NestedMenuItem
+        key={`${cmpKey}-cxt-menu-${label}`}
+        rightIcon={<KeyboardArrowRightIcon />}
+        renderLabel={() => label}
+        parentMenuOpen={true}
+        sx={{ paddingX: "16px" }}
+      >
+        {children.map((child) =>
+          child.children === undefined
+            ? createChartCxtMenuItem(
+                `${cmpKey}-cxt-menu-${child.key}`,
+                contextMenuItemSelectWrapper(child.fn, event),
+                child.title
+              )
+            : createNestedChartCxtMenuItem(child.title, child.children, event)
+        )}
+      </NestedMenuItem>
+    );
+  };
+
   const handleCxtTapNode = (event: EventObjectNode) => {
-    const items = [
-      createChartCxtMenuItem(
-        `${cmpKey}-node-ctx-menu-0`,
-        contextMenuItemSelectWrapper(highlightNeighbors, event),
-        "Highlight Neighbors"
-      ),
-      createChartCxtMenuItem(
-        `${cmpKey}-node-ctx-menu-1`,
-        contextMenuItemSelectWrapper(selectNeighbors, event),
-        "Select Neighbors"
-      ),
-      createChartCxtMenuItem(
-        `${cmpKey}-node-ctx-menu-2`,
-        contextMenuItemSelectWrapper(highlightNodesWithLabel, event),
-        "Highlight Nodes with this Label"
-      ),
-      createChartCxtMenuItem(
-        `${cmpKey}-node-ctx-menu-3`,
-        contextMenuItemSelectWrapper(selectNodesWithLabel, event),
-        "Select Nodes with this Label"
-      ),
-      ...getSharedMenuItems(event),
-    ];
+    const items = [...getSharedMenuItems(event)];
 
     if (nodeCxtMenuItems !== undefined) {
       items.push(
         ...nodeCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val, idx) =>
-            createChartCxtMenuItem(
-              `${cmpKey}-custom-node-ctx-menu-${idx}`,
-              contextMenuItemSelectWrapper(val.fn, event),
-              val.title
-            )
+          .map((val) =>
+            val.children
+              ? createNestedChartCxtMenuItem(val.title, val.children, event)
+              : createChartCxtMenuItem(
+                  `${cmpKey}-cxt-menu-${val.key}`,
+                  contextMenuItemSelectWrapper(val.fn, event),
+                  val.title
+                )
           )
       );
     }
@@ -323,9 +339,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       items.push(
         ...edgeCxtMenuItems
           .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val, idx) =>
+          .map((val) =>
             createChartCxtMenuItem(
-              `${cmpKey}-custom-edge-ctx-menu-${idx}`,
+              `${cmpKey}-cxt-menu-${val.key}`,
               contextMenuItemSelectWrapper(val.fn, event),
               val.title
             )

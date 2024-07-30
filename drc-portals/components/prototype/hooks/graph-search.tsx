@@ -19,6 +19,10 @@ import {
   downloadChartData,
   downloadChartPNG,
   downloadCyAsJson,
+  highlightNeighbors,
+  highlightNodesWithLabel,
+  selectNeighbors,
+  selectNodesWithLabel,
   unlockD3ForceNode,
 } from "../utils/cy";
 import { SubGraph } from "../interfaces/neo4j";
@@ -40,6 +44,7 @@ export default function useGraphSearchBehavior() {
       fn: (event: EventObject) =>
         downloadCyAsJson(event.cy.elements(":selected")),
       title: "Download Selection",
+      key: "download-selection",
       showFn: (event: EventObject) => event.cy.elements(":selected").length > 0,
     },
   ];
@@ -48,10 +53,12 @@ export default function useGraphSearchBehavior() {
     {
       fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
       title: "Show Details",
+      key: "show-details",
     },
     {
       fn: (event: EventObjectNode) => unlockD3ForceNode(event.target),
       title: "Unlock",
+      key: "unlock",
       showFn: (event: EventObjectNode) => {
         const node = event.target;
         const scratch = node.scratch();
@@ -67,6 +74,7 @@ export default function useGraphSearchBehavior() {
       fn: (event: EventObjectNode) =>
         event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node)),
       title: "Unlock Selection",
+      key: "unlock-selection",
       showFn: (event: EventObjectNode) =>
         event.cy
           .nodes(":selected")
@@ -80,6 +88,40 @@ export default function useGraphSearchBehavior() {
             }
           })
           .some((isLocked) => isLocked),
+    },
+    {
+      fn: () => undefined,
+      title: "Highlight",
+      key: "highlight",
+      children: [
+        {
+          fn: (event: EventObjectNode) => highlightNeighbors(event),
+          title: "Neighbors",
+          key: "highlight-neighbors",
+        },
+        {
+          fn: (event: EventObjectNode) => highlightNodesWithLabel(event),
+          title: "Nodes with this Label",
+          key: "highlight-nodes-with-label",
+        },
+      ],
+    },
+    {
+      fn: () => undefined,
+      title: "Select",
+      key: "select",
+      children: [
+        {
+          fn: (event: EventObjectNode) => selectNeighbors(event),
+          title: "Select Neighbors",
+          key: "select-neighbors",
+        },
+        {
+          fn: (event: EventObjectNode) => selectNodesWithLabel(event),
+          title: "Select Nodes with this Label",
+          key: "select-nodes-with-label",
+        },
+      ],
     },
   ];
 

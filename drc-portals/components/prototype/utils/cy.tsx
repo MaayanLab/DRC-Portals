@@ -2,7 +2,6 @@ import {
   Box,
   IconButton,
   ListItem,
-  MenuItem,
   Stack,
   Tooltip,
   Typography,
@@ -215,18 +214,6 @@ export const createNodeTooltip = (
   } else {
     return null;
   }
-};
-
-export const createChartCxtMenuItem = (
-  key: string,
-  fn: (...args: any[]) => void,
-  content: ReactNode
-) => {
-  return (
-    <MenuItem key={key} onClick={fn}>
-      {content}
-    </MenuItem>
-  );
 };
 
 export const highlightNeighbors = (event: EventObjectNode) => {
