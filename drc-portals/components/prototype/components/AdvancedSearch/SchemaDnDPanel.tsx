@@ -45,7 +45,7 @@ export default function SchemaDnDPanel() {
       </div>
       <Box sx={{ display: "flex", flexWrap: "wrap" }}>
         {Array.from(NODE_LABELS).map((label) =>
-          createNodeElement(label, { margin: 2 })
+          createNodeElement(label, undefined, { margin: 2 })
         )}
       </Box>
       <div
