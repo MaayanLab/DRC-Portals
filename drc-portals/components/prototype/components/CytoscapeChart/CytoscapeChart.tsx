@@ -69,7 +69,7 @@ type CytoscapeChartProps = {
 };
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
-  const cmpKey = `cy-chart-${v4()}`;
+  const cmpKey = useRef(`cy-chart-${v4()}`);
   const {
     elements,
     layout,
@@ -127,7 +127,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     if (event.target.hasClass("dimmed")) {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-cxt-menu-show`,
+          `${cmpKey.current}-cxt-menu-show`,
           contextMenuItemSelectWrapper(showElement, event),
           "Show"
         )
@@ -135,7 +135,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     } else {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-cxt-menu-hide`,
+          `${cmpKey.current}-cxt-menu-hide`,
           contextMenuItemSelectWrapper(hideElement, event),
           "Hide"
         )
@@ -148,7 +148,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const getStaticMenuItems = (event: EventObject) => {
     const items = [
       createChartCxtMenuItem(
-        `${cmpKey}-cxt-menu-select-all`,
+        `${cmpKey.current}-cxt-menu-select-all`,
         contextMenuItemSelectWrapper(selectAll, event),
         "Select All"
       ),
@@ -160,7 +160,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     ) {
       items.push(
         createChartCxtMenuItem(
-          `${cmpKey}-cxt-menu-reset-highlights`,
+          `${cmpKey.current}-cxt-menu-reset-highlights`,
           contextMenuItemSelectWrapper(resetHighlights, event),
           "Reset Highlights"
         )
@@ -173,7 +173,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           .filter((val) => val.showFn === undefined || val.showFn(event))
           .map((val) =>
             createChartCxtMenuItem(
-              `${cmpKey}-cxt-menu-${val.key}`,
+              `${cmpKey.current}-cxt-menu-${val.key}`,
               contextMenuItemSelectWrapper(val.fn, event),
               val.title
             )
@@ -188,7 +188,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     const staticMenuItems = getStaticMenuItems(event);
     if (menuItems.length > 0 && staticMenuItems.length > 0) {
       menuItems.push(
-        <Divider key={`${cmpKey}-ctx-menu-divider`} variant="middle" />
+        <Divider key={`${cmpKey.current}-ctx-menu-divider`} variant="middle" />
       );
     }
     menuItems.push(...staticMenuItems);
@@ -291,7 +291,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   ) => {
     return (
       <NestedMenuItem
-        key={`${cmpKey}-cxt-menu-${label}`}
+        key={`${cmpKey.current}-cxt-menu-${label}`}
         rightIcon={<KeyboardArrowRightIcon />}
         renderLabel={() => label}
         parentMenuOpen={true}
@@ -300,7 +300,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         {children.map((child) =>
           child.children === undefined
             ? createChartCxtMenuItem(
-                `${cmpKey}-cxt-menu-${child.key}`,
+                `${cmpKey.current}-cxt-menu-${child.key}`,
                 contextMenuItemSelectWrapper(child.fn, event),
                 child.title
               )
@@ -321,7 +321,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
             val.children
               ? createNestedChartCxtMenuItem(val.title, val.children, event)
               : createChartCxtMenuItem(
-                  `${cmpKey}-cxt-menu-${val.key}`,
+                  `${cmpKey.current}-cxt-menu-${val.key}`,
                   contextMenuItemSelectWrapper(val.fn, event),
                   val.title
                 )
@@ -341,7 +341,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           .filter((val) => val.showFn === undefined || val.showFn(event))
           .map((val) =>
             createChartCxtMenuItem(
-              `${cmpKey}-cxt-menu-${val.key}`,
+              `${cmpKey.current}-cxt-menu-${val.key}`,
               contextMenuItemSelectWrapper(val.fn, event),
               val.title
             )
@@ -452,7 +452,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         </ChartCxtMenu>
       </ClickAwayListener>
       {toolbarPosition === undefined ? null : (
-        <WidgetContainer key={`${cmpKey}-toolbar`} sx={{ ...toolbarPosition }}>
+        <WidgetContainer
+          key={`${cmpKey.current}-toolbar`}
+          sx={{ ...toolbarPosition }}
+        >
           <Tooltip
             open={showToolbarHiddenTooltip}
             title={toolbarHidden ? "Show Toolbar" : "Hide Toolbar"}
@@ -480,7 +483,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         </WidgetContainer>
       )}
       {legendPosition === undefined ? null : (
-        <WidgetContainer key={`${cmpKey}-legend`} sx={{ ...legendPosition }}>
+        <WidgetContainer
+          key={`${cmpKey.current}-legend`}
+          sx={{ ...legendPosition }}
+        >
           <ChartLegend></ChartLegend>
         </WidgetContainer>
       )}

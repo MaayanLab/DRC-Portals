@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useRef } from "react";
 import { v4 } from "uuid";
 
 import {
@@ -22,7 +23,7 @@ import {
 import { createArrowDividerElement } from "../../utils/shared";
 
 export default function ChartLegend() {
-  const cmpKey = v4();
+  const cmpKey = useRef(v4());
   const legend = new Map<string, JSX.Element>(
     new Map([
       [
@@ -72,7 +73,7 @@ export default function ChartLegend() {
         <Stack>
           {Array.from(legend.entries()).map(([key, el]) => (
             <Box
-              key={`legend-${cmpKey}-${key}`}
+              key={`legend-${cmpKey.current}-${key}`}
               display="flex"
               sx={{ m: 1, alignItems: "center" }}
             >
