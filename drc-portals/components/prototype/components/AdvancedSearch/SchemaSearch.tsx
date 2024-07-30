@@ -32,7 +32,9 @@ export default function SchemaSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState<SchemaSearchPath[]>(
-    getSchemaSearchValue(searchParams) || []
+    getSchemaSearchValue(searchParams, () => {
+      console.warn("Schema search params are malformed.");
+    }) || []
   );
   const [selectedElement, setSelectedElement] =
     useState<SelectedPathElement | null>(null);
