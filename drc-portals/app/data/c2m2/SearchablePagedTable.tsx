@@ -1,6 +1,5 @@
-// SearchablePagedTable.tsx
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
 import FormPagination from './FormPagination';
 import Link from '@/utils/link';
@@ -90,11 +89,18 @@ interface SearchablePagedTableProps {
 const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
 
+
+    useEffect(() => {
+        // Clear the selectedRows state whenever the page or rows change
+        setSelectedRows([]);
+    }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
+    
+
     const handleCheckboxChange = (row: RowType) => { // Use the RowType
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
         const updatedSelectedRows = isSelected
             ? selectedRows.filter(selectedRow => selectedRow.id !== row.id)
-            : [...selectedRows, row];
+            : [...selectedSelectedRows, row];
 
         setSelectedRows(updatedSelectedRows);
         props.onRowSelect(updatedSelectedRows, false);
@@ -132,11 +138,9 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
 
                     <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
-                            
-                                     <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
-                                        No results found
-                                    </Typography>
-
+                            <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
+                                No results found
+                            </Typography>
                         ) : (
                             <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%' }}>
                                 <TableHead>
@@ -204,10 +208,8 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                     </TableContainer>
                 </Stack>
             </Grid>
-
         </Grid>
     );
 };
-
 
 export default SearchablePagedTable;
