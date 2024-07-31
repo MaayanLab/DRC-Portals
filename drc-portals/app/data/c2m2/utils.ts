@@ -539,7 +539,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       z.array(z.string()).transform(ps => +ps[ps.length - 1]),
       z.string().transform(p => +p),
       z.undefined().transform(() => 10),
-    ]).transform(r => ({ 10: 10, 20: 20, 50: 50 }[r] ?? 10)),
+    ]).transform(r => ({ 10: 10, 20: 20, 50: 50, 100: 100 }[r] ?? 10)),
     t: z.union([
       z.array(z.string()),
       z.string().transform(ts => ts ? ts.split('|') : undefined),
