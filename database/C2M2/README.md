@@ -38,7 +38,7 @@ psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o log/log_creat
 # on psql prompt while being in database folder: \i ingest_CV.sql
 # on bash prompt : psql -h localhost -U drc -d drc -a -f ingest_CV.sql # this may prompt for DB password if not stored in ~/.pgpass file (permission 600)
 #psql -h localhost -U drc -d drc -p [5432|5433] -a -f ingest_CV.sql
-psql "$(python3 dburl.py)" -a -f ingest_CV.sql
+psql "$(python3 dburl.py)" -a -f ingest_CV.sql -o log/log_ingest_CV.sql
 # To be added if needed: using python script: I am using \COPY inside the sql file, so
 # with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
 # will not work unless absolute path for the source tsv file is used.
