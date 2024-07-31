@@ -1,4 +1,5 @@
 'use server'
+import { keycloak_push } from "@/lib/auth/keycloak";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from 'next/cache';
 
@@ -8,24 +9,62 @@ export async function saveuser(formData: FormData, userId: string) {
   const name  = formData.get('name')
   try{
     if (email) {
-        await prisma.user.update({
+        const userInfo = await prisma.user.update({
             where: {
                 id: userId,
+            },
+            select: {
+                name: true,
+                email: true,
+                role: true,
+                dccs: {
+                    select: {
+                        short_label: true,
+                    }
+                },
+                accounts: {
+                    select: {
+                        providerAccountId: true,
+                    },
+                    where: {
+                        provider: 'keycloak',
+                    }
+                },
             },
             data: {
                 name: name?.toString(),
                 email: email.toString(),
             },
         });
+        if (userInfo.accounts.length > 0) await keycloak_push({ userInfo })
     } else {
-        await prisma.user.update({
+        const userInfo = await prisma.user.update({
             where: {
                 id: userId,
+            },
+            select: {
+                name: true,
+                email: true,
+                role: true,
+                dccs: {
+                    select: {
+                        short_label: true,
+                    }
+                },
+                accounts: {
+                    select: {
+                        providerAccountId: true,
+                    },
+                    where: {
+                        provider: 'keycloak',
+                    }
+                },
             },
             data: {
                 name: name?.toString(),
             },
-        });
+        })
+        if (userInfo.accounts.length > 0) await keycloak_push({ userInfo })
     }
     revalidatePath('/')
     return {success: 'Success'}

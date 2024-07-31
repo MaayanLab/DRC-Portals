@@ -1,0 +1,15 @@
+body {
+  min-width: 500px;
+}
+.pf-c-button.pf-m-primary {
+  background-color: transparent;
+}
+.pf-c-page__header {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.pf-c-page__header-brand-link:hover, #brandLink:hover {
+  text-decoration: none;
+}

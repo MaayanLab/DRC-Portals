@@ -1,0 +1,97 @@
+:root {
+  --pf-v5-global--FontFamily--text: "DM Sans", helvetica, arial, sans-serif;
+  --pf-v5-global--FontFamily--heading: "Hanken Grotesk", helvetica, arial, sans-serif;
+  --pf-v5-global--FontFamily--text--vf: "DM Sans", helvetica, arial, sans-serif;
+  --pf-v5-global--FontFamily--heading--vf: "Hanken Grotesk", helvetica, arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(180deg, #FFFFFF 0%, #DBE0ED 100%);
+  height: 100vh;
+  font-family: "Hanken Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.pf-c-tab-content > .pf-c-toolbar {
+  background-color: transparent;
+}
+.pf-c-tab-content > .pf-c-table {
+  background-color: transparent;
+}
+.pf-c-pagination.pf-m-bottom.pf-m-compact {
+  background-color: transparent;
+}
+.pf-c-button.pf-m-plain {
+  color: black;
+}
+
+.pf-c-dropdown__toggle.pf-m-plain:not(.pf-m-text) {
+  color: black;
+}
+.pf-c-dropdown__toggle-icon {
+  color: black;
+}
+.pf-c-card {
+  background-color: transparent;
+}
+.keycloak__realm_selector_dropdown__toggle {
+  background-color: transparent;
+  color: black;
+}
+.pf-c-page__header {
+  background-color: transparent;
+  color: black;
+}
+.pf-c-page, .pf-c-page__main-breadcrumb, .pf-c-page__main-section.pf-m-light {
+  background-color: transparent;
+}
+
+.pf-c-page__sidebar {
+  background: white;
+}
+.pf-c-nav__link.pf-m-current, .pf-c-nav__link.pf-m-current:hover, .pf-c-nav__item.pf-m-current:not(.pf-m-expanded) .pf-c-nav__link {
+  background: white;
+  color: black;
+}
+
+.pf-c-nav__section-title, .pf-c-nav__link {
+  color: black;
+}
+
+.pf-c-data-list__item {
+  background: transparent;
+}
+
+#kc-header {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+#kc-header-wrapper {
+  display:flex;
+  flex-direction:row;
+  justify-content:center;
+  font-size: 40px;
+  color:#336699;
+  font-family: "DM Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-right: 16px;
+}
+
+#kc-header-wrapper > div {
+  color: transparent;
+  border-radius: 50%;
+  box-shadow: 0px 1px 3px 1px rgba(15, 31, 46, 0.15);
+  background: white;
+  width: 56px;
+  height: 56px;
+}
+#kc-header-wrapper > div > img {
+  width: 52px;
+  height: 52px;
+}

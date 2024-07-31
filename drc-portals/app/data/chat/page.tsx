@@ -1,6 +1,6 @@
 import Chat from "@/components/Chat/chat";
 import { Typography } from "@mui/material";
-import Link from "next/link";
+import Link from "@/utils/link";
 
 export default function ChatPage() {
   return (

@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { Button } from '@mui/material'
-import Link from 'next/link'
+import Link from '@/utils/link'
 
 const ENDPOINT = 'https://playbook-workflow-builder.cloud'
 

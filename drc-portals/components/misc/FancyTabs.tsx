@@ -81,21 +81,31 @@ export function FancyTabs(props: React.PropsWithChildren<{
           {tabs.map(item => (
             <Tab
               key={item.id}
-              sx={{ fontSize: '14pt' }}
+              sx={{
+                fontSize: '14pt',
+                '&.Mui-selected': {
+                  color: 'navy', // Only change text color for selected tab, no background color change
+                },
+                '&:hover': {
+                  backgroundColor: '#d3d3d3', // Background color on hover - issue 319
+                  cursor: 'pointer', // Pointer cursor on hover
+                },
+              }}
               label={
-                // implementation of linear progress bar when tab is loading - fix for issue #308
                 <>
                   {item.label}
-                  {item.loading &&
+                  {item.loading && (
                     <Box sx={{ width: '100%' }}>
                       <LinearProgress color="primary" />
                     </Box>
-                  }
+                  )}
                 </>
               }
               value={item.id}
               disabled={item.disabled || item.loading}
             />
+
+
           ))}
         </Tabs>
       </Grid>

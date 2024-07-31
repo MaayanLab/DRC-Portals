@@ -2,7 +2,7 @@
 
 // import React from 'react'
 // import { useSearchParams } from "next/navigation"
-// import Link from 'next/link'
+// import Link from '@/utils/link'
 // import { Checkbox, FormControlLabel, Typography } from '@mui/material'
 
 // export default function SearchFilter({ id, label, count }: { id: string, label: string, count: number }) {
@@ -18,7 +18,7 @@
 //     return { searchParams, currentFilterSet }
 //   }, [id, rawSearchParams])
 //   return (
-//     <Link prefetch={false} href={`?${searchParams.toString()}`}>
+//     <Link href={`?${searchParams.toString()}`}>
 //       <FormControlLabel control={<Checkbox />} label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
 //     </Link>
 //   )
@@ -32,7 +32,7 @@
 import React from 'react'
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect } from 'react';
-import Link from 'next/link'
+import Link from '@/utils/link'
 import { Checkbox, FormControlLabel, Typography, TextField, Autocomplete } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -56,7 +56,7 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   return (
-    <Link prefetch={false} href={`?${searchParams.toString()}`}>
+    <Link href={`?${searchParams.toString()}`}>
 
       <FormControlLabel
         sx={{ paddingLeft: '5px' }} // Adjust the padding value as needed
