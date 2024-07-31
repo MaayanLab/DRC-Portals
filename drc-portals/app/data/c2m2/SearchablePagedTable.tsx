@@ -100,7 +100,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
         const updatedSelectedRows = isSelected
             ? selectedRows.filter(selectedRow => selectedRow.id !== row.id)
-            : [...selectedSelectedRows, row];
+            : [...selectedRows, row];
 
         setSelectedRows(updatedSelectedRows);
         props.onRowSelect(updatedSelectedRows, false);
