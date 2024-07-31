@@ -59,13 +59,6 @@ const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
                 tablePrefix={props.tablePrefix}
                 onRowSelect={handleRowSelect}
             />
-            <FormPagination 
-                p={props.p} 
-                r={props.r} 
-                count={props.count} 
-                tablePrefix={props.tablePrefix} 
-                onPageChange={setCurrentPage} // Pass callback to get page information
-            />
             <DownloadButton data={selectedData} filename={props.downloadFileName} />
         </div>
     );
