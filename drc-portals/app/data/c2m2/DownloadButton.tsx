@@ -6,9 +6,10 @@ import DownloadIcon from '@mui/icons-material/Download'; // Ensure you have @mui
 interface DownloadButtonProps {
   data?: { [key: string]: string | bigint | number }[];
   filename?: string;
+  name?: string;
 }
 
-const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.json' }) => {
+const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.json', name = 'Download'}) => {
   if (!data || data.length == 0) return null; // Render nothing if data is undefined
   
 
@@ -36,9 +37,8 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.
       color="primary"
       startIcon={<DownloadIcon />}
       onClick={handleDownload}
-      sx={{ marginTop: '10px'}}
     >
-      Download JSON
+      {name}
     </Button>
   );
 };
