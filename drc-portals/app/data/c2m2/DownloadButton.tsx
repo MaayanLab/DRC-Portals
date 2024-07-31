@@ -36,6 +36,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.
       color="primary"
       startIcon={<DownloadIcon />}
       onClick={handleDownload}
+      sx={{ marginTop: '10px'}}
     >
       Download JSON
     </Button>
