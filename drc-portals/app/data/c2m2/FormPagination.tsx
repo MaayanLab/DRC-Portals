@@ -5,16 +5,17 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-const rowsPerPageOptions = [10, 20, 50]
+const rowsPerPageOptions = [10, 20, 50, 100, 'All']
 
 interface FormPaginationProps {
   p: number;
   r: number;
   count?: number;
   tablePrefix: string;
+  onPageChange?: (page: number) => void; // Callback for page changes
 }
 
-export default function FormPagination({ p, r, count, tablePrefix }: FormPaginationProps) {
+export default function FormPagination({ p, r, count, tablePrefix, onPageChange }: FormPaginationProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -29,7 +30,13 @@ export default function FormPagination({ p, r, count, tablePrefix }: FormPaginat
     }
   }, [searchParams, tablePrefix, p])
 
-  const pageCount = Math.ceil((count ?? 0) / r)
+  const pageCount = Math.ceil((count ?? 0) / (r === 'All' ? (count ?? 1) : r))
+
+  useEffect(() => {
+    if (onPageChange) {
+      onPageChange(currentPage)
+    }
+  }, [currentPage, onPageChange])
 
   const updatePageParam = (value: string) => {
     const newSearchParams = new URLSearchParams(window.location.search)
