@@ -381,7 +381,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 columns={tableCols}
                 rows={tableRows}
                 tablePrefix="C2M2MainSearchTbl"
-                data={results?.records_full}
+                data={results?.records}
                 downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
               />
 
