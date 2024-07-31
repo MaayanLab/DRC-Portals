@@ -1,15 +1,18 @@
 "use client";
 
-import { Divider } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import { ElementDefinition, EventObject, EventObjectNode } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { INCOMING_CONNECTIONS, OUTGOING_CONNECTIONS } from "../constants/neo4j";
+import { Direction } from "../enums/schema-search";
 import {
   NodeCxtMenuItem,
   CytoscapeNodeData,
   CxtMenuItem,
 } from "../interfaces/cy";
+import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
 import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
@@ -25,7 +28,11 @@ import {
   selectNodesWithLabel,
   unlockD3ForceNode,
 } from "../utils/cy";
-import { SubGraph } from "../interfaces/neo4j";
+import {
+  createDirectedRelationshipElement,
+  createNodeElement,
+} from "../utils/shared";
+import { createExpandNodeCypher } from "../utils/neo4j";
 
 export default function useGraphSearchBehavior() {
   const searchParams = useSearchParams();
@@ -39,11 +46,16 @@ export default function useGraphSearchBehavior() {
   const neo4jService: Neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
 
+  const expandNode = async (cypher: string) => {
+    const records = await neo4jService.executeRead<SubGraph>(cypher);
+    return createCytoscapeElementsFromNeo4j(records);
+  };
+
   const staticCxtMenuItems: CxtMenuItem[] = [
     {
-      fn: (event: EventObject) =>
+      action: (event: EventObject) =>
         downloadCyAsJson(event.cy.elements(":selected")),
-      title: "Download Selection",
+      renderContent: (event: EventObjectNode) => "Download Selection",
       key: "download-selection",
       showFn: (event: EventObject) => event.cy.elements(":selected").length > 0,
     },
@@ -51,13 +63,66 @@ export default function useGraphSearchBehavior() {
 
   const nodeCxtMenuItems: NodeCxtMenuItem[] = [
     {
-      fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
-      title: "Show Details",
+      action: (event: EventObjectNode) => setEntityDetails(event.target.data()),
+      renderContent: (event: EventObjectNode) => "Show Details",
       key: "show-details",
     },
     {
-      fn: (event: EventObjectNode) => unlockD3ForceNode(event.target),
-      title: "Unlock",
+      action: (event: EventObjectNode) => undefined,
+      renderContent: (event: EventObjectNode) => "Expand",
+      key: "expand",
+      children: (event: EventObjectNode) => {
+        const nodeLabel = event.target.data("neo4j")?.labels[0] || "";
+        return [
+          ...Array.from(
+            OUTGOING_CONNECTIONS.get(nodeLabel)?.entries() || []
+          ).map(
+            (val) =>
+              [Direction.OUTGOING, val] as [Direction, [string, string[]]]
+          ),
+          ...Array.from(
+            INCOMING_CONNECTIONS.get(nodeLabel)?.entries() || []
+          ).map(
+            (val) =>
+              [Direction.INCOMING, val] as [Direction, [string, string[]]]
+          ),
+        ]
+          .sort(([a_dir, a_type], [b_dir, b_type]) =>
+            a_type[0].localeCompare(b_type[0])
+          )
+          .flatMap(([dir, [type, labels]]) =>
+            labels.map((label) => {
+              return {
+                action: (event: EventObjectNode) => {
+                  const nodeId = event.target.data("id");
+                  const cypher = createExpandNodeCypher(
+                    nodeId,
+                    label,
+                    dir,
+                    type
+                  );
+                  expandNode(cypher).then((newElements) => {
+                    setElements((prevElements) => [
+                      ...prevElements,
+                      ...newElements,
+                    ]);
+                  });
+                },
+                key: `${type}-${dir}-${label}`,
+                renderContent: (event: EventObjectNode) => (
+                  <>
+                    <Box>{createDirectedRelationshipElement(type, dir)}</Box>
+                    <Box>{createNodeElement(label)}</Box>
+                  </>
+                ),
+              } as NodeCxtMenuItem;
+            })
+          );
+      },
+    },
+    {
+      action: (event: EventObjectNode) => unlockD3ForceNode(event.target),
+      renderContent: (event: EventObjectNode) => "Unlock",
       key: "unlock",
       showFn: (event: EventObjectNode) => {
         const node = event.target;
@@ -71,9 +136,9 @@ export default function useGraphSearchBehavior() {
       },
     },
     {
-      fn: (event: EventObjectNode) =>
+      action: (event: EventObjectNode) =>
         event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node)),
-      title: "Unlock Selection",
+      renderContent: (event: EventObjectNode) => "Unlock Selection",
       key: "unlock-selection",
       showFn: (event: EventObjectNode) =>
         event.cy
@@ -90,35 +155,36 @@ export default function useGraphSearchBehavior() {
           .some((isLocked) => isLocked),
     },
     {
-      fn: () => undefined,
-      title: "Highlight",
+      action: (event: EventObjectNode) => undefined,
+      renderContent: (event: EventObjectNode) => "Highlight",
       key: "highlight",
-      children: [
+      children: (event: EventObjectNode) => [
         {
-          fn: (event: EventObjectNode) => highlightNeighbors(event),
-          title: "Neighbors",
+          action: (event: EventObjectNode) => highlightNeighbors(event),
+          renderContent: (event: EventObjectNode) => "Neighbors",
           key: "highlight-neighbors",
         },
         {
-          fn: (event: EventObjectNode) => highlightNodesWithLabel(event),
-          title: "Nodes with this Label",
+          action: (event: EventObjectNode) => highlightNodesWithLabel(event),
+          renderContent: (event: EventObjectNode) => "Nodes with this Label",
           key: "highlight-nodes-with-label",
         },
       ],
     },
     {
-      fn: () => undefined,
-      title: "Select",
+      action: (event: EventObjectNode) => undefined,
+      renderContent: (event: EventObjectNode) => "Select",
       key: "select",
-      children: [
+      children: (event: EventObjectNode) => [
         {
-          fn: (event: EventObjectNode) => selectNeighbors(event),
-          title: "Select Neighbors",
+          action: (event: EventObjectNode) => selectNeighbors(event),
+          renderContent: (event: EventObjectNode) => "Select Neighbors",
           key: "select-neighbors",
         },
         {
-          fn: (event: EventObjectNode) => selectNodesWithLabel(event),
-          title: "Select Nodes with this Label",
+          action: (event: EventObjectNode) => selectNodesWithLabel(event),
+          renderContent: (event: EventObjectNode) =>
+            "Select Nodes with this Label",
           key: "select-nodes-with-label",
         },
       ],

@@ -113,9 +113,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setContextMenuOpen(false);
   };
 
-  const contextMenuItemSelectWrapper = (fn: Function, ...args: any[]) => {
+  const contextMenuItemSelectWrapper = (action: Function, ...args: any[]) => {
     return () => {
-      fn(...args);
+      action(...args);
       handleContextMenuClose();
     };
   };
@@ -174,8 +174,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           .map((val) =>
             createChartCxtMenuItem(
               `${cmpKey.current}-cxt-menu-${val.key}`,
-              contextMenuItemSelectWrapper(val.fn, event),
-              val.title
+              contextMenuItemSelectWrapper(val.action, event),
+              val.renderContent(event)
             )
           )
       );
@@ -273,27 +273,27 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const createChartCxtMenuItem = (
     key: string,
-    fn: (...args: any[]) => void,
+    action: (...args: any[]) => void,
     content: ReactNode
   ) => {
     return (
-      <MenuItem key={key} onClick={fn}>
+      <MenuItem key={key} onClick={action}>
         {content}
       </MenuItem>
     );
   };
 
-  // TODO: Consider refactoring this into the util file, or maybe moving the util function here
   const createNestedChartCxtMenuItem = (
-    label: string,
+    content: ReactNode,
+    key: string,
     children: CxtMenuItem[],
     event: EventObject
   ) => {
     return (
       <NestedMenuItem
-        key={`${cmpKey.current}-cxt-menu-${label}`}
+        key={`${cmpKey.current}-cxt-menu-${key}`}
         rightIcon={<KeyboardArrowRightIcon />}
-        renderLabel={() => label}
+        renderLabel={() => content}
         parentMenuOpen={true}
         sx={{ paddingX: "16px" }}
       >
@@ -301,10 +301,15 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           child.children === undefined
             ? createChartCxtMenuItem(
                 `${cmpKey.current}-cxt-menu-${child.key}`,
-                contextMenuItemSelectWrapper(child.fn, event),
-                child.title
+                contextMenuItemSelectWrapper(child.action, event),
+                child.renderContent(event)
               )
-            : createNestedChartCxtMenuItem(child.title, child.children, event)
+            : createNestedChartCxtMenuItem(
+                child.renderContent(event),
+                child.key,
+                child.children(event),
+                event
+              )
         )}
       </NestedMenuItem>
     );
@@ -319,11 +324,16 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           .filter((val) => val.showFn === undefined || val.showFn(event))
           .map((val) =>
             val.children
-              ? createNestedChartCxtMenuItem(val.title, val.children, event)
+              ? createNestedChartCxtMenuItem(
+                  val.renderContent(event),
+                  val.key,
+                  val.children(event),
+                  event
+                )
               : createChartCxtMenuItem(
                   `${cmpKey.current}-cxt-menu-${val.key}`,
-                  contextMenuItemSelectWrapper(val.fn, event),
-                  val.title
+                  contextMenuItemSelectWrapper(val.action, event),
+                  val.renderContent(event)
                 )
           )
       );
@@ -342,8 +352,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           .map((val) =>
             createChartCxtMenuItem(
               `${cmpKey.current}-cxt-menu-${val.key}`,
-              contextMenuItemSelectWrapper(val.fn, event),
-              val.title
+              contextMenuItemSelectWrapper(val.action, event),
+              val.renderContent(event)
             )
           )
       );

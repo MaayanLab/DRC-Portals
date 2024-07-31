@@ -289,7 +289,7 @@ export const printNodePositions = (
   ariaLabel: string,
   cyRef: CytoscapeReference
 ) => {
-  const fn = () => {
+  const action = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       cy.nodes().forEach((el) => {
@@ -299,7 +299,7 @@ export const printNodePositions = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label={ariaLabel} onClick={fn}>
+      <IconButton aria-label={ariaLabel} onClick={action}>
         <RadarIcon />
       </IconButton>
     </Tooltip>
@@ -313,7 +313,7 @@ export const resetChart = (
   positions: Map<string, Position>,
   cyRef: CytoscapeReference
 ) => {
-  const fn = () => {
+  const action = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       cy.batch(() => {
@@ -329,7 +329,7 @@ export const resetChart = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label={ariaLabel} onClick={fn}>
+      <IconButton aria-label={ariaLabel} onClick={action}>
         <RestoreIcon />
       </IconButton>
     </Tooltip>
@@ -368,7 +368,7 @@ export const unlockD3ForceNodes = (
   // appears that when this scratch position data exists, the layout will not attempt to move the node. It does not seem there is an
   // alternative method of "unlocking" the nodes after they have been dragged, except perhaps by updating the layout options to set
   // "fixedAfterDragging" to false.
-  const fn = () => {
+  const action = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       cy.nodes().forEach(unlockD3ForceNode);
@@ -377,7 +377,7 @@ export const unlockD3ForceNodes = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label="unlock-nodes" onClick={fn}>
+      <IconButton aria-label="unlock-nodes" onClick={action}>
         <LockOpenIcon />
       </IconButton>
     </Tooltip>
@@ -390,7 +390,7 @@ export const lockD3ForceNodes = (
   cyRef: CytoscapeReference,
   layout: LayoutOptions
 ) => {
-  const fn = () => {
+  const action = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       cy.nodes().forEach(lockD3ForceNode);
@@ -399,7 +399,7 @@ export const lockD3ForceNodes = (
   };
   return (
     <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label="lock-nodes" onClick={fn}>
+      <IconButton aria-label="lock-nodes" onClick={action}>
         <LockIcon />
       </IconButton>
     </Tooltip>
@@ -445,7 +445,7 @@ export const downloadChartData = (
   title: string,
   cyRef: CytoscapeReference
 ) => {
-  const fn = () => {
+  const action = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       downloadCyAsJson(cy.elements());
@@ -455,7 +455,7 @@ export const downloadChartData = (
   return (
     <Fragment key={key}>
       <Tooltip title={title} arrow>
-        <IconButton aria-label="download-data" onClick={fn}>
+        <IconButton aria-label="download-data" onClick={action}>
           <FileDownloadIcon />
         </IconButton>
       </Tooltip>
@@ -468,7 +468,7 @@ export const downloadChartPNG = (
   title: string,
   cyRef: CytoscapeReference
 ) => {
-  const fn = () => {
+  const action = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       downloadCyAsPNG(cy);
@@ -478,7 +478,7 @@ export const downloadChartPNG = (
   return (
     <Fragment key={key}>
       <Tooltip title={title} arrow>
-        <IconButton aria-label="download-png" onClick={fn}>
+        <IconButton aria-label="download-png" onClick={action}>
           <PhotoCameraIcon />
         </IconButton>
       </Tooltip>

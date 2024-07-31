@@ -7,25 +7,28 @@ import {
   NodeDataDefinition,
   NodeDefinition,
 } from "cytoscape";
+import { ReactNode } from "react";
 
 export interface CxtMenuItem {
-  title: string;
+  renderContent: (event: EventObject) => ReactNode;
   key: string;
-  fn: (event: EventObject) => void;
+  action: (event: EventObject) => void;
   showFn?: (event: EventObject) => boolean;
-  children?: CxtMenuItem[];
+  children?: (event: EventObject) => CxtMenuItem[];
 }
 
 export interface NodeCxtMenuItem extends CxtMenuItem {
-  fn: (event: EventObjectNode) => void;
+  renderContent: (event: EventObjectNode) => ReactNode;
+  action: (event: EventObjectNode) => void;
   showFn?: (event: EventObjectNode) => boolean;
-  children?: NodeCxtMenuItem[];
+  children?: (event: EventObjectNode) => NodeCxtMenuItem[];
 }
 
 export interface EdgeCxtMenuItem extends CxtMenuItem {
-  fn: (event: EventObjectEdge) => void;
+  renderContent: (event: EventObjectEdge) => ReactNode;
+  action: (event: EventObjectEdge) => void;
   showFn?: (event: EventObjectEdge) => boolean;
-  children?: EdgeCxtMenuItem[];
+  children?: (event: EventObjectEdge) => EdgeCxtMenuItem[];
 }
 
 export interface CytoscapeNodeData extends NodeDataDefinition {

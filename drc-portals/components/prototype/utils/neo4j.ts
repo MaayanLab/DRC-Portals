@@ -421,3 +421,24 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     .join(", ")}])) AS relationships
   `;
 };
+
+export const createExpandNodeCypher = (
+  nodeId: string,
+  nodeLabel: string,
+  direction: Direction,
+  relType: string
+) => {
+  const relMatch =
+    direction === Direction.INCOMING
+      ? `<-[r:${relType}]-`
+      : `-[r:${relType}]->`;
+  return [
+    `MATCH (n)${relMatch}(m:${nodeLabel})`,
+    `WHERE id(n) = ${nodeId}`,
+    `WITH DISTINCT m, r`,
+    "LIMIT 10",
+    `RETURN DISTINCT collect(DISTINCT ${createNodeReprStr(
+      "m"
+    )}) AS nodes, collect(DISTINCT ${createRelReprStr("r")}) AS relationships`,
+  ].join("\n");
+};

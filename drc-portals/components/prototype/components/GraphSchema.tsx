@@ -89,31 +89,36 @@ export default function GraphSchema() {
 
   const staticCxtMenuItems: CxtMenuItem[] = [
     {
-      fn: searchPath,
-      title: "Search Path",
+      action: searchPath,
+      renderContent: (event: EventObjectNode) => "Search Path",
+      key: "search-path",
       showFn: () => pathRef.current.length > 0,
     },
     {
-      fn: resetPath,
-      title: "Reset Path",
+      action: resetPath,
+      renderContent: (event: EventObjectNode) => "Reset Path",
+      key: "reset-path",
       showFn: () => pathRef.current.length > 0,
     },
   ];
   const nodeCxtMenuItems: NodeCxtMenuItem[] = [
     {
-      fn: (event: EventObjectNode) => setEntityDetails(event.target.data()),
-      title: "Show Details",
+      action: (event: EventObjectNode) => setEntityDetails(event.target.data()),
+      renderContent: (event: EventObjectNode) => "Show Details",
+      key: "show-details",
     },
     {
-      fn: appendNodeToPath,
-      title: "Add to Path",
+      action: appendNodeToPath,
+      renderContent: (event: EventObjectNode) => "Add to Path",
+      key: "add-to-path",
       showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
     },
   ];
   const edgeCxtMenuItems: EdgeCxtMenuItem[] = [
     {
-      fn: appendEdgeToPath,
-      title: "Add to Path",
+      action: appendEdgeToPath,
+      renderContent: (event: EventObjectEdge) => "Add to Path",
+      key: "add-to-path",
       showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
     },
   ];
