@@ -24,6 +24,7 @@ import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
 import React from "react";
 import { safeAsync } from '@/utils/safe';
+import DownloadButton from '../DownloadButton';
 
 const allres_filtered_maxrow_limit = 200000;
 
@@ -350,15 +351,22 @@ export async function SearchQueryComponent(props: PageProps) {
                 </>
               }
               footer={
+                <>
                 <Link href="/data">
                   <Button
-                    sx={{ textTransform: "uppercase" }}
+                    sx={{ textTransform: "uppercase", marginRight: '16px' }}
                     color="primary"
                     variant="contained"
                     startIcon={<Icon path={mdiArrowLeft} size={1} />}>
                     BACK TO SEARCH
                   </Button>
                 </Link>
+                <DownloadButton 
+                data={results?.records_full} 
+                filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
+                name='DOWNLOAD ALL' 
+                />
+                </>
               }
               data={results?.records_full}
               downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
@@ -373,10 +381,10 @@ export async function SearchQueryComponent(props: PageProps) {
                 columns={tableCols}
                 rows={tableRows}
                 tablePrefix="C2M2MainSearchTbl"
-                data={results?.records_full}
+                data={results?.records}
                 downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
               />
-              
+
             </ListingPageLayout>
         )
 

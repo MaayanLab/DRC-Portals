@@ -48,7 +48,11 @@ const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
                 tablePrefix={props.tablePrefix}
                 onRowSelect={handleRowSelect}
             />
-            <DownloadButton data={selectedData} filename={props.downloadFileName} />
+            <DownloadButton 
+            data={selectedData} 
+            filename={props.downloadFileName}
+            name='DOWNLOAD SELECTED'
+            />
         </div>
     );
 };
