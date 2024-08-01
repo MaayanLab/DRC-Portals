@@ -84,10 +84,10 @@ export function FancyTabs(props: React.PropsWithChildren<{
               sx={{
                 fontSize: '14pt',
                 '&.Mui-selected': {
-                  color: 'navy', // Only change text color for selected tab, no background color change
+                  color: '#295988', // Only change text color for selected tab, no background color change
                 },
                 '&:hover': {
-                  backgroundColor: '#d3d3d3', // Background color on hover - issue 319
+                  backgroundColor: '#c9d2e9', // Background color on hover - issue 319
                   cursor: 'pointer', // Pointer cursor on hover
                 },
               }}
