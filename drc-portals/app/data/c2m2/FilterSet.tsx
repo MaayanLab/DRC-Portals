@@ -13,7 +13,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { styled, lighten, darken } from '@mui/system';
 import Chip from '@mui/material/Chip';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export type FilterObject = {
   id: string;
@@ -140,6 +140,8 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
   // Apply filters logic
   const applyFilters = () => {
     const searchParams = new URLSearchParams(window.location.search);
+    // At this point rest the C2M2MainSearchTbl_p needs to be removed to fix Issue #325
+    searchParams.delete('C2M2MainSearchTbl_p');
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
@@ -225,6 +227,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
         sx={{ width: 'auto' }}
         onBlur={() => {
           // Reload the page when focus is removed from the Autocomplete component
+
           applyFilters();
         }}
       // value={selectedFiltersForAutocomplete}
