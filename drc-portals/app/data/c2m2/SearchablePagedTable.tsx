@@ -136,7 +136,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                     }
                     <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
 
-                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
                             <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
                                 No results found
