@@ -23,7 +23,6 @@ import {
 import { createArrowDividerElement } from "../../utils/shared";
 
 export default function ChartLegend() {
-  const cmpKey = useRef(v4());
   const legend = new Map<string, JSX.Element>(
     new Map([
       [
@@ -73,7 +72,7 @@ export default function ChartLegend() {
         <Stack>
           {Array.from(legend.entries()).map(([key, el]) => (
             <Box
-              key={`legend-${cmpKey.current}-${key}`}
+              key={`legend-${key}`}
               display="flex"
               sx={{ m: 1, alignItems: "center" }}
             >
