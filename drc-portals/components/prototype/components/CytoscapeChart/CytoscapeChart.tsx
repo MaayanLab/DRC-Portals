@@ -25,12 +25,7 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
-import {
-  CxtMenuItem,
-  EdgeCxtMenuItem,
-  NodeCxtMenuItem,
-  CytoscapeNodeData,
-} from "../../interfaces/cy";
+import { CytoscapeNodeData } from "../../interfaces/cy";
 import { PositionOffsets } from "../../interfaces/shared";
 import { CustomToolbarFnFactory } from "../../types/cy";
 import {
@@ -47,7 +42,6 @@ import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
 import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
-import NestedChartCxtMenuItem from "./NestedChartCxtMenuItem";
 
 cytoscape.use(d3Force);
 
@@ -60,9 +54,9 @@ interface CytoscapeChartProps {
   tooltipBoxStyleProps?: CSSProperties;
   tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
-  staticCxtMenuItems?: CxtMenuItem[];
-  nodeCxtMenuItems?: NodeCxtMenuItem[];
-  edgeCxtMenuItems?: EdgeCxtMenuItem[];
+  staticCxtMenuItems?: ReactNode[];
+  nodeCxtMenuItems?: ReactNode[];
+  edgeCxtMenuItems?: ReactNode[];
 }
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
@@ -112,19 +106,23 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   // Menu items that are shared between nodes and edges
   const getSharedMenuItems = (event: EventObjectNode | EventObjectEdge) => {
-    const items = [];
+    const items: ReactNode[] = [];
 
     if (event.target.hasClass("dimmed")) {
       items.push(
-        <ChartCxtMenuItem key="cxt-menu-show" action={showElement}>
-          Show
-        </ChartCxtMenuItem>
+        <ChartCxtMenuItem
+          key="cxt-menu-show"
+          renderContent={(event) => "Show"}
+          action={showElement}
+        ></ChartCxtMenuItem>
       );
     } else {
       items.push(
-        <ChartCxtMenuItem key="cxt-menu-hide" action={hideElement}>
-          Hide
-        </ChartCxtMenuItem>
+        <ChartCxtMenuItem
+          key="cxt-menu-hide"
+          renderContent={(event) => "Hide"}
+          action={hideElement}
+        ></ChartCxtMenuItem>
       );
     }
 
@@ -132,10 +130,12 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const getStaticMenuItems = (event: EventObject) => {
-    const items = [
-      <ChartCxtMenuItem key="cxt-menu-select-all" action={selectAll}>
-        Select All
-      </ChartCxtMenuItem>,
+    const items: ReactNode[] = [
+      <ChartCxtMenuItem
+        key="cxt-menu-select-all"
+        renderContent={() => "Select All"}
+        action={selectAll}
+      ></ChartCxtMenuItem>,
     ];
 
     if (
@@ -145,29 +145,20 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       items.push(
         <ChartCxtMenuItem
           key="cxt-menu-reset-highlights"
+          renderContent={() => "Reset Highlights"}
           action={resetHighlights}
-        >
-          Reset Highlights
-        </ChartCxtMenuItem>
+        ></ChartCxtMenuItem>
       );
     }
 
     if (staticCxtMenuItems !== undefined) {
-      items.push(
-        ...staticCxtMenuItems
-          .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val) => (
-            <ChartCxtMenuItem key={`cxt-menu-${val.key}`} action={val.action}>
-              {val.renderContent(event)}
-            </ChartCxtMenuItem>
-          ))
-      );
+      items.push(...staticCxtMenuItems);
     }
 
     return items;
   };
 
-  const handleContextMenu = (event: EventObject, menuItems: JSX.Element[]) => {
+  const handleContextMenu = (event: EventObject, menuItems: ReactNode[]) => {
     const staticMenuItems = getStaticMenuItems(event);
     if (menuItems.length > 0 && staticMenuItems.length > 0) {
       menuItems.push(
@@ -259,23 +250,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     const items = [...getSharedMenuItems(event)];
 
     if (nodeCxtMenuItems !== undefined) {
-      items.push(
-        ...nodeCxtMenuItems
-          .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val) =>
-            val.children ? (
-              <NestedChartCxtMenuItem
-                key={val.key}
-                label={val.renderContent(event)}
-                items={val.children(event)}
-              ></NestedChartCxtMenuItem>
-            ) : (
-              <ChartCxtMenuItem key={`cxt-menu-${val.key}`} action={val.action}>
-                {val.renderContent(event)}
-              </ChartCxtMenuItem>
-            )
-          )
-      );
+      items.push(...nodeCxtMenuItems);
     }
 
     handleContextMenu(event, items);
@@ -285,15 +260,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     const items = [...getSharedMenuItems(event)];
 
     if (edgeCxtMenuItems !== undefined) {
-      items.push(
-        ...edgeCxtMenuItems
-          .filter((val) => val.showFn === undefined || val.showFn(event))
-          .map((val) => (
-            <ChartCxtMenuItem key={`cxt-menu-${val.key}`} action={val.action}>
-              {val.renderContent(event)}
-            </ChartCxtMenuItem>
-          ))
-      );
+      items.push(...edgeCxtMenuItems);
     }
 
     handleContextMenu(event, items);

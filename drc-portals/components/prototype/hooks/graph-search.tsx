@@ -1,17 +1,15 @@
 "use client";
 
 import { Box, Divider } from "@mui/material";
-import { ElementDefinition, EventObject, EventObjectNode } from "cytoscape";
+import { ElementDefinition } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
+import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
+import ChartNestedCxtMenuItem from "../components/CytoscapeChart/NestedChartCxtMenuItem";
 import { INCOMING_CONNECTIONS, OUTGOING_CONNECTIONS } from "../constants/neo4j";
 import { Direction } from "../enums/schema-search";
-import {
-  NodeCxtMenuItem,
-  CytoscapeNodeData,
-  CxtMenuItem,
-} from "../interfaces/cy";
+import { CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
 import Neo4jService from "../services/neo4j";
@@ -51,27 +49,26 @@ export default function useGraphSearchBehavior() {
     return createCytoscapeElementsFromNeo4j(records);
   };
 
-  const staticCxtMenuItems: CxtMenuItem[] = [
-    {
-      action: (event: EventObject) =>
-        downloadCyAsJson(event.cy.elements(":selected")),
-      renderContent: (event: EventObjectNode) => "Download Selection",
-      key: "download-selection",
-      showFn: (event: EventObject) => event.cy.elements(":selected").length > 0,
-    },
+  const staticCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-download-selection"
+      renderContent={(event) => "Download Selection"}
+      action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
+      showFn={(event) => event.cy.elements(":selected").length > 0}
+    ></ChartCxtMenuItem>,
   ];
 
-  const nodeCxtMenuItems: NodeCxtMenuItem[] = [
-    {
-      action: (event: EventObjectNode) => setEntityDetails(event.target.data()),
-      renderContent: (event: EventObjectNode) => "Show Details",
-      key: "show-details",
-    },
-    {
-      action: (event: EventObjectNode) => undefined,
-      renderContent: (event: EventObjectNode) => "Expand",
-      key: "expand",
-      children: (event: EventObjectNode) => {
+  const nodeCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-show-details"
+      renderContent={(event) => "Show Details"}
+      action={(event) => setEntityDetails(event.target.data())}
+      showFn={(event) => event.cy.elements(":selected").length > 0}
+    ></ChartCxtMenuItem>,
+    <ChartNestedCxtMenuItem
+      key="chart-cxt-expand"
+      renderContent={(event) => "Expand"}
+      renderChildren={(event) => {
         const nodeLabel = event.target.data("neo4j")?.labels[0] || "";
         return [
           ...Array.from(
@@ -92,39 +89,41 @@ export default function useGraphSearchBehavior() {
           )
           .flatMap(([dir, [type, labels]]) =>
             labels.map((label) => {
-              return {
-                action: (event: EventObjectNode) => {
-                  const nodeId = event.target.data("id");
-                  const cypher = createExpandNodeCypher(
-                    nodeId,
-                    label,
-                    dir,
-                    type
-                  );
-                  expandNode(cypher).then((newElements) => {
-                    setElements((prevElements) => [
-                      ...prevElements,
-                      ...newElements,
-                    ]);
-                  });
-                },
-                key: `${type}-${dir}-${label}`,
-                renderContent: (event: EventObjectNode) => (
-                  <>
-                    <Box>{createDirectedRelationshipElement(type, dir)}</Box>
-                    <Box>{createNodeElement(label)}</Box>
-                  </>
-                ),
-              } as NodeCxtMenuItem;
+              return (
+                <ChartCxtMenuItem
+                  key={`${type}-${dir}-${label}`}
+                  renderContent={(event) => (
+                    <>
+                      <Box>{createDirectedRelationshipElement(type, dir)}</Box>
+                      <Box>{createNodeElement(label)}</Box>
+                    </>
+                  )}
+                  action={(event) => {
+                    const nodeId = event.target.data("id");
+                    const cypher = createExpandNodeCypher(
+                      nodeId,
+                      label,
+                      dir,
+                      type
+                    );
+                    expandNode(cypher).then((newElements) => {
+                      setElements((prevElements) => [
+                        ...prevElements,
+                        ...newElements,
+                      ]);
+                    });
+                  }}
+                ></ChartCxtMenuItem>
+              );
             })
           );
-      },
-    },
-    {
-      action: (event: EventObjectNode) => unlockD3ForceNode(event.target),
-      renderContent: (event: EventObjectNode) => "Unlock",
-      key: "unlock",
-      showFn: (event: EventObjectNode) => {
+      }}
+    ></ChartNestedCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-unlock"
+      renderContent={(event) => "Unlock"}
+      action={(event) => unlockD3ForceNode(event.target)}
+      showFn={(event) => {
         const node = event.target;
         const scratch = node.scratch();
 
@@ -133,14 +132,15 @@ export default function useGraphSearchBehavior() {
         } else {
           return false;
         }
-      },
-    },
-    {
-      action: (event: EventObjectNode) =>
-        event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node)),
-      renderContent: (event: EventObjectNode) => "Unlock Selection",
-      key: "unlock-selection",
-      showFn: (event: EventObjectNode) =>
+      }}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-unlock-selection"
+      renderContent={(event) => "Unlock Selection"}
+      action={(event) =>
+        event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node))
+      }
+      showFn={(event) =>
         event.cy
           .nodes(":selected")
           .map((node) => {
@@ -152,43 +152,41 @@ export default function useGraphSearchBehavior() {
               return false;
             }
           })
-          .some((isLocked) => isLocked),
-    },
-    {
-      action: (event: EventObjectNode) => undefined,
-      renderContent: (event: EventObjectNode) => "Highlight",
-      key: "highlight",
-      children: (event: EventObjectNode) => [
-        {
-          action: (event: EventObjectNode) => highlightNeighbors(event),
-          renderContent: (event: EventObjectNode) => "Neighbors",
-          key: "highlight-neighbors",
-        },
-        {
-          action: (event: EventObjectNode) => highlightNodesWithLabel(event),
-          renderContent: (event: EventObjectNode) => "Nodes with this Label",
-          key: "highlight-nodes-with-label",
-        },
-      ],
-    },
-    {
-      action: (event: EventObjectNode) => undefined,
-      renderContent: (event: EventObjectNode) => "Select",
-      key: "select",
-      children: (event: EventObjectNode) => [
-        {
-          action: (event: EventObjectNode) => selectNeighbors(event),
-          renderContent: (event: EventObjectNode) => "Select Neighbors",
-          key: "select-neighbors",
-        },
-        {
-          action: (event: EventObjectNode) => selectNodesWithLabel(event),
-          renderContent: (event: EventObjectNode) =>
-            "Select Nodes with this Label",
-          key: "select-nodes-with-label",
-        },
-      ],
-    },
+          .some((isLocked) => isLocked)
+      }
+    ></ChartCxtMenuItem>,
+    <ChartNestedCxtMenuItem
+      key="chart-cxt-highlight"
+      renderContent={(event) => "Highlight"}
+      renderChildren={(event) => [
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-neighbors"
+          renderContent={(event) => "Neighbors"}
+          action={highlightNeighbors}
+        ></ChartCxtMenuItem>,
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-nodes-with-label"
+          renderContent={(event) => "Nodes with this Label"}
+          action={highlightNodesWithLabel}
+        ></ChartCxtMenuItem>,
+      ]}
+    ></ChartNestedCxtMenuItem>,
+    <ChartNestedCxtMenuItem
+      key="chart-cxt-select"
+      renderContent={(event) => "Select"}
+      renderChildren={(event) => [
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-neighbors"
+          renderContent={(event) => "Select Neighbors"}
+          action={selectNeighbors}
+        ></ChartCxtMenuItem>,
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-nodes-with-label"
+          renderContent={(event) => "Select Nodes with this Label"}
+          action={selectNodesWithLabel}
+        ></ChartCxtMenuItem>,
+      ]}
+    ></ChartNestedCxtMenuItem>,
   ];
 
   const customTools: CustomToolbarFnFactory[] = [

@@ -5,13 +5,18 @@ import { ReactNode, useContext } from "react";
 import { ChartCxtMenuContext } from "./ChartCxtMenuContext";
 
 interface ChartCxtMenuItemProps {
-  children: ReactNode;
+  renderContent: (event: EventObject) => ReactNode;
   action: (event: EventObject) => void;
+  showFn?: (event: EventObject) => boolean;
 }
 
 export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
-  const { children, action } = cmpProps;
+  const { renderContent, action, showFn } = cmpProps;
   const context = useContext(ChartCxtMenuContext);
+  const renderThis = !(
+    context === null ||
+    (showFn !== undefined && !showFn(context.event))
+  );
 
   const handleOnClick = () => {
     if (context !== null) {
@@ -20,7 +25,7 @@ export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
     }
   };
 
-  return context === null ? null : (
-    <MenuItem onClick={handleOnClick}>{children}</MenuItem>
-  );
+  return renderThis ? (
+    <MenuItem onClick={handleOnClick}>{renderContent(context.event)}</MenuItem>
+  ) : null;
 }

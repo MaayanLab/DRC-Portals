@@ -3,23 +3,19 @@
 import { Grid } from "@mui/material";
 import { EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 import {
   SCHEMA_ELEMENTS,
   SCHEMA_LAYOUT,
   SCHEMA_STYLESHEET,
 } from "../constants/cy";
-import {
-  CxtMenuItem,
-  EdgeCxtMenuItem,
-  NodeCxtMenuItem,
-  CytoscapeNodeData,
-} from "../interfaces/cy";
+import { CytoscapeNodeData } from "../interfaces/cy";
 import { SchemaData } from "../types/schema";
 import { convertPathToSearchValue, isPathEligible } from "../utils/schema";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
+import ChartCxtMenuItem from "./CytoscapeChart/ChartCxtMenuItem";
 import GraphEntityDetails from "./GraphEntityDetails";
 
 export default function GraphSchema() {
@@ -87,40 +83,45 @@ export default function GraphSchema() {
     });
   };
 
-  const staticCxtMenuItems: CxtMenuItem[] = [
-    {
-      action: searchPath,
-      renderContent: (event: EventObjectNode) => "Search Path",
-      key: "search-path",
-      showFn: () => pathRef.current.length > 0,
-    },
-    {
-      action: resetPath,
-      renderContent: (event: EventObjectNode) => "Reset Path",
-      key: "reset-path",
-      showFn: () => pathRef.current.length > 0,
-    },
+  const showAddToPath = (event: EventObject) =>
+    pathRef.current.length === 0 || isPathEligible(event);
+
+  const staticCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-search-path"
+      renderContent={(event) => "Search Path"}
+      action={searchPath}
+      showFn={() => pathRef.current.length > 0}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-search-path"
+      renderContent={(event) => "Reset Path"}
+      action={resetPath}
+      showFn={() => pathRef.current.length > 0}
+    ></ChartCxtMenuItem>,
   ];
-  const nodeCxtMenuItems: NodeCxtMenuItem[] = [
-    {
-      action: (event: EventObjectNode) => setEntityDetails(event.target.data()),
-      renderContent: (event: EventObjectNode) => "Show Details",
-      key: "show-details",
-    },
-    {
-      action: appendNodeToPath,
-      renderContent: (event: EventObjectNode) => "Add to Path",
-      key: "add-to-path",
-      showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
-    },
+
+  const nodeCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-show-details"
+      renderContent={(event) => "Show Details"}
+      action={(event: EventObjectNode) => setEntityDetails(event.target.data())}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-add-to-path"
+      renderContent={(event) => "Add to Path"}
+      action={appendNodeToPath}
+      showFn={showAddToPath}
+    ></ChartCxtMenuItem>,
   ];
-  const edgeCxtMenuItems: EdgeCxtMenuItem[] = [
-    {
-      action: appendEdgeToPath,
-      renderContent: (event: EventObjectEdge) => "Add to Path",
-      key: "add-to-path",
-      showFn: (event) => pathRef.current.length === 0 || isPathEligible(event),
-    },
+
+  const edgeCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-add-to-path"
+      renderContent={(event) => "Add to Path"}
+      action={appendEdgeToPath}
+      showFn={showAddToPath}
+    ></ChartCxtMenuItem>,
   ];
 
   return (
