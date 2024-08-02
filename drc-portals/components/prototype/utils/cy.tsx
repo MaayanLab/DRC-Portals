@@ -336,6 +336,16 @@ export const resetChart = (
   );
 };
 
+export const isNodeD3Locked = (node: NodeSingular) => {
+  const scratch = node.scratch();
+
+  if (scratch["d3-force"] !== undefined) {
+    return scratch["d3-force"].fx || scratch["d3-force"].fy;
+  } else {
+    return false;
+  }
+};
+
 export const unlockD3ForceNode = (node: NodeSingular) => {
   const scratch = node.scratch();
   delete scratch["d3-force"].fx;
@@ -405,6 +415,12 @@ export const lockD3ForceNodes = (
     </Tooltip>
   );
 };
+
+export const unlockSelection = (selection: cytoscape.NodeCollection) =>
+  selection.forEach((node) => unlockD3ForceNode(node));
+
+export const selectionHasLockedNode = (selection: cytoscape.NodeCollection) =>
+  Array.from(selection).some(isNodeD3Locked);
 
 export const getCyDataForDownload = (cy: cytoscape.Collection) => {
   return {
