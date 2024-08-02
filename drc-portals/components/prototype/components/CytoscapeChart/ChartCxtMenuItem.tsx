@@ -1,6 +1,6 @@
 import { MenuItem } from "@mui/material";
 import { EventObject } from "cytoscape";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useRef } from "react";
 
 import { ChartCxtMenuContext } from "./ChartCxtMenuContext";
 
@@ -13,9 +13,10 @@ interface ChartCxtMenuItemProps {
 export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
   const { renderContent, action, showFn } = cmpProps;
   const context = useContext(ChartCxtMenuContext);
-  const renderThis = !(
-    context === null ||
-    (showFn !== undefined && !showFn(context.event))
+  const showItem = useRef(
+    // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
+    // result of, for example, closing the menu
+    context !== null && (showFn === undefined || showFn(context.event))
   );
 
   const handleOnClick = () => {
@@ -25,7 +26,7 @@ export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
     }
   };
 
-  return renderThis ? (
+  return context !== null && showItem.current ? (
     <MenuItem onClick={handleOnClick}>{renderContent(context.event)}</MenuItem>
   ) : null;
 }

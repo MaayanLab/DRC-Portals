@@ -1,7 +1,7 @@
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { EventObject } from "cytoscape";
 import { NestedMenuItem } from "mui-nested-menu";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useRef } from "react";
 
 import { ChartCxtMenuContext } from "./ChartCxtMenuContext";
 
@@ -16,12 +16,13 @@ export default function ChartNestedCxtMenuItem(
 ) {
   const { renderContent, renderChildren, showFn } = cmpProps;
   const context = useContext(ChartCxtMenuContext);
-  const renderThis = !(
-    context === null ||
-    (showFn !== undefined && !showFn(context.event))
+  const showItem = useRef(
+    // Capture the initial value `showFn`, this prevents the menu from prematurely removing elements if the upstream state changed as a
+    // result of, for example, closing the menu
+    context !== null && (showFn === undefined || showFn(context.event))
   );
 
-  return renderThis ? (
+  return context !== null && showItem.current ? (
     <NestedMenuItem
       rightIcon={<KeyboardArrowRightIcon />}
       renderLabel={() => renderContent(context.event)}
