@@ -172,8 +172,8 @@ const doQuery = React.cache(async (props: PageProps) => {
     allres_limited AS (
       SELECT *
       FROM allres_filtered
-      OFFSET ${offset}
-      LIMIT ${limit}   
+      /* OFFSET ${offset} */ /* Commented out to speed up pagination */
+      /* LIMIT ${limit} */  
     ),
     total_count as (
       select count(*)::int as count
