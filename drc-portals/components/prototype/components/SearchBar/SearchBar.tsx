@@ -83,6 +83,9 @@ export default function SearchBar(cmpProps: SearchBarProps) {
         width: "auto",
         minWidth: "510px",
         backgroundColor: "transparent",
+        "& .MuiOutlinedInput-root": {
+          paddingRight: "120px!important",
+        },
       }}
     />
   );
