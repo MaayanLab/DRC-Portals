@@ -160,7 +160,7 @@ const doQuery = React.cache(async (props: PageProps) => {
     allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres /*${filterClause}*/),
     allres_filtered AS (
       SELECT allres.*, 
-      concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
+      concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
       '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
       '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
       '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,

@@ -3,7 +3,7 @@ import { format_description, pluralize, type_to_string } from "@/app/data/proces
 import { MetadataItem, getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
-import ExpandableTable from "../ExpandableTable";
+import ExpandableTable from "../../ExpandableTable";
 import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent from "./BiosamplesTableComponent";

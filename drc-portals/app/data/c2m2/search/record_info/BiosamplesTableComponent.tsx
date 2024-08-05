@@ -3,7 +3,7 @@ import SQL from '@/lib/prisma/raw';
 import React from 'react';
 import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromBiosampleTable, Category } from "@/app/data/c2m2/utils";
-import ExpandableTable from "../ExpandableTable";
+import ExpandableTable from "../../ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 
 interface BiosampleTableResult {
