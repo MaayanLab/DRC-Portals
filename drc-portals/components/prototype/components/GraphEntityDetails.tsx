@@ -23,45 +23,43 @@ export default function GraphEntityDetails(
   }, [cmpProps.entityDetails]);
 
   return (
-    <Grid item xs={12} lg={3} sx={{ height: "inherit" }}>
-      <Paper
-        sx={{
-          background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)",
-          height: "100%",
-          width: "100%",
-          padding: "12px 24px",
-          overflow: "auto",
-        }}
-        elevation={0}
-      >
-        {/* Need align-items: center */}
-        <div className="flex flex-row align-middle justify-between items-center border-b border-b-slate-400 mb-4">
-          <Typography variant="h5">Entity Details</Typography>
-          <IconButton onClick={onCloseDetails}>
-            <CloseIcon />
-          </IconButton>
-        </div>
-        <Box sx={{ overflow: "auto" }}>
-          {entityDetails.neo4j === undefined ? (
-            <Typography>No details available to show.</Typography>
-          ) : (
-            <>
-              {entityDetails.neo4j.labels === undefined ? (
-                <Typography>No labels found on this node.</Typography>
-              ) : (
-                createNodeLabels(entityDetails.neo4j.labels)
-              )}
-              {entityDetails.neo4j.properties === undefined ? (
-                <Typography>No properties found on this node.</Typography>
-              ) : (
-                createNodeProperties(entityDetails.neo4j.properties, {
-                  variant: "body2",
-                })
-              )}
-            </>
-          )}
-        </Box>
-      </Paper>
-    </Grid>
+    <Paper
+      sx={{
+        background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)",
+        height: "100%",
+        width: "100%",
+        padding: "12px 24px",
+        overflow: "auto",
+      }}
+      elevation={0}
+    >
+      {/* Need align-items: center */}
+      <div className="flex flex-row align-middle justify-between items-center border-b border-b-slate-400 mb-4">
+        <Typography variant="h5">Entity Details</Typography>
+        <IconButton onClick={onCloseDetails}>
+          <CloseIcon />
+        </IconButton>
+      </div>
+      <Box sx={{ overflow: "auto" }}>
+        {entityDetails.neo4j === undefined ? (
+          <Typography>No details available to show.</Typography>
+        ) : (
+          <>
+            {entityDetails.neo4j.labels === undefined ? (
+              <Typography>No labels found on this node.</Typography>
+            ) : (
+              createNodeLabels(entityDetails.neo4j.labels)
+            )}
+            {entityDetails.neo4j.properties === undefined ? (
+              <Typography>No properties found on this node.</Typography>
+            ) : (
+              createNodeProperties(entityDetails.neo4j.properties, {
+                variant: "body2",
+              })
+            )}
+          </>
+        )}
+      </Box>
+    </Paper>
   );
 }

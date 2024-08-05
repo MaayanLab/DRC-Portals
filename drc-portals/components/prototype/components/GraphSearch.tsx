@@ -134,8 +134,7 @@ export default function GraphSearch() {
     >
       <Grid
         item
-        xs={12}
-        lg={entityDetails === undefined ? 12 : 9}
+        xs={entityDetails === undefined ? 12 : 9}
         sx={{ position: "relative", height: "inherit" }}
       >
         <SearchBarContainer>
@@ -179,10 +178,12 @@ export default function GraphSearch() {
         ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (
-        <GraphEntityDetails
-          entityDetails={entityDetails}
-          onCloseDetails={() => setEntityDetails(undefined)}
-        />
+        <Grid item xs={3} sx={{ height: "inherit" }}>
+          <GraphEntityDetails
+            entityDetails={entityDetails}
+            onCloseDetails={() => setEntityDetails(undefined)}
+          />
+        </Grid>
       ) : null}
     </Grid>
   );
