@@ -155,8 +155,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             file_col_table_limited AS (
               SELECT * 
               FROM file_col_table
-              OFFSET ${fileColTblOffset}
-              LIMIT ${limit}
+              /* OFFSET ${fileColTblOffset} */ /* Not needed for TablePagination */
+              /* LIMIT ${limit} */
             ),
             count_file_col AS (
               SELECT COUNT(*)::int AS count

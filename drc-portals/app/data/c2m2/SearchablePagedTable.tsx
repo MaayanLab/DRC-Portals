@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
-import FormPagination from './FormPagination';
+import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox, TablePagination } from '@mui/material';
 import Link from '@/utils/link';
 import Image, { StaticImageData } from 'next/image';
 import { NodeType } from '@prisma/client';
@@ -88,15 +87,24 @@ interface SearchablePagedTableProps {
 
 const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(props.r || 10); // Default to 10 rows per page
 
 
     useEffect(() => {
         // Clear the selectedRows state whenever the page or rows change
         setSelectedRows([]);
-    }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
-    
+    }, [page, rowsPerPage, props.rows]); // Dependencies to monitor changes in page, rows per page, or rows
 
-    const handleCheckboxChange = (row: RowType) => { // Use the RowType
+    // Automatically navigate to the first page if the current page is empty
+    useEffect(() => {
+        const totalPages = Math.ceil((props.count || 0) / rowsPerPage);
+        if (page >= totalPages && totalPages > 0) {
+            setPage(0);
+        }
+    }, [props.count, rowsPerPage, page]);
+
+    const handleCheckboxChange = (row: RowType) => {
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
         const updatedSelectedRows = isSelected
             ? selectedRows.filter(selectedRow => selectedRow.id !== row.id)
@@ -114,6 +122,15 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
         }
         setSelectedRows([]);
         props.onRowSelect([], false);
+    };
+
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
     };
 
     return (
@@ -134,7 +151,16 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             <TagComponent q={props.q} t={props.t} />
                         </Box>
                     }
-                    <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
+
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={props.count ?? 0}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
 
                     <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
@@ -172,7 +198,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.rows.map((row, i) => (
+                                    {props.rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, i) => (
                                         <TableRow key={row.id}>
                                             <TableCell padding="checkbox">
                                                 <Checkbox
