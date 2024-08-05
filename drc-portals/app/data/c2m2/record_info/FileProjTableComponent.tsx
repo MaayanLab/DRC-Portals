@@ -145,8 +145,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
             file_table_limited as (
             SELECT * 
             FROM file_table
-            OFFSET ${fileProjTblOffset}
-            LIMIT ${limit}
+            /* OFFSET ${fileProjTblOffset} *//* Not needed for TablePagination */
+            /* LIMIT ${limit}*/
             ), /* Mano */
             count_file AS (
             select count(*)::int as count

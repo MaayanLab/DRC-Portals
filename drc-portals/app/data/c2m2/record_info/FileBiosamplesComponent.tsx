@@ -156,8 +156,8 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                 file_bios_table_limited as (
                     SELECT * 
                     FROM file_bios_table
-                    OFFSET ${fileBiosTblOffset}
-                    LIMIT ${limit}
+                    /* OFFSET ${fileBiosTblOffset} *//* Not needed for TablePagination */
+                    /* LIMIT ${limit} */
                 ), /* Mano */
                 count_file_bios AS (
                     select count(*)::int as count

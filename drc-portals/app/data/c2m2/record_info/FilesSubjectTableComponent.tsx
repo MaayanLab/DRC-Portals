@@ -158,8 +158,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 file_sub_table_limited as (
                   SELECT * 
                   FROM file_sub_table
-                  OFFSET ${fileSubTblOffset}
-                  LIMIT ${limit}
+                  /* OFFSET ${fileSubTblOffset} */
+                  /* LIMIT ${limit} */
                 ), /* Mano */
                 count_file_sub AS (
                   select count(*)::int as count

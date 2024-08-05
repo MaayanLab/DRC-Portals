@@ -109,8 +109,8 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
             biosamples_table_limited AS (
                 SELECT * 
                 FROM biosamples_table
-                OFFSET ${bioSamplTblOffset}
-                LIMIT ${limit}
+                /*OFFSET ${bioSamplTblOffset}*/ /* Not needed for TablePagination */
+                /*LIMIT ${limit}*/
             ),
             count_bios AS (
                 SELECT COUNT(*)::INT AS count
