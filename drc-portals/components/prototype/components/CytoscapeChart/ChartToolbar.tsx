@@ -19,19 +19,21 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
   // TODO: Note that the current implementation is tightly coupled to Cytoscape. An alternative implementation would have the toolbar
   // simply notify the parent element that one of the options was chosen, and then the parent can decide what to do then.
 
-  const handleZoomIn = () => {
+  const handleZoom = (zoomOut: boolean) => {
     const cy = cyRef.current;
     if (cy !== undefined) {
-      const currentZoom = cy.zoom();
-      cy.zoom(currentZoom + currentZoom / (currentZoom + 1));
-    }
-  };
+      let currentZoom = cy.zoom();
+      const zoomModifier =
+        (currentZoom / (currentZoom + 1)) * (zoomOut ? -1 : 1);
+      const currentDimensions = cy.elements().boundingBox();
 
-  const handleZoomOut = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      const currentZoom = cy.zoom();
-      cy.zoom(currentZoom - currentZoom / (currentZoom + 1));
+      cy.zoom({
+        level: currentZoom + zoomModifier,
+        renderedPosition: {
+          x: currentDimensions.w / 2,
+          y: currentDimensions.h / 2,
+        },
+      });
     }
   };
 
@@ -58,12 +60,12 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
         : [...customTools.map((factoryFn) => factoryFn(cyRef, layout))]}
       <Divider orientation="vertical" variant="middle" flexItem />
       <Tooltip title="Zoom In" arrow>
-        <IconButton aria-label="zoom-in" onClick={handleZoomIn}>
+        <IconButton aria-label="zoom-in" onClick={() => handleZoom(false)}>
           <ZoomInIcon />
         </IconButton>
       </Tooltip>
       <Tooltip title="Zoom Out" arrow>
-        <IconButton aria-label="zoom-out" onClick={handleZoomOut}>
+        <IconButton aria-label="zoom-out" onClick={() => handleZoom(true)}>
           <ZoomOutIcon />
         </IconButton>
       </Tooltip>
