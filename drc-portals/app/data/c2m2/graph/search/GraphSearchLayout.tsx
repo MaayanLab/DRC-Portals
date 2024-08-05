@@ -10,7 +10,7 @@ export default function GraphSearchLayout() {
       sx={{ paddingTop: 2, paddingBottom: 2 }}
       spacing={2}
     >
-      <Grid item container xs={12} spacing={1}>
+      <Grid item xs={12} spacing={1}>
         <GraphSearch></GraphSearch>
       </Grid>
     </Grid>

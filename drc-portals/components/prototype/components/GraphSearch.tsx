@@ -125,7 +125,6 @@ export default function GraphSearch() {
   return (
     <Grid
       container
-      item
       spacing={1}
       xs={12}
       sx={{

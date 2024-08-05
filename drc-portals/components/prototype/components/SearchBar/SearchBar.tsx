@@ -81,7 +81,7 @@ export default function SearchBar(cmpProps: SearchBarProps) {
       sx={{
         borderRadius: "4px",
         width: "auto",
-        minWidth: "510px",
+        minWidth: "480px",
         backgroundColor: "transparent",
         "& .MuiOutlinedInput-root": {
           paddingRight: "120px!important",
