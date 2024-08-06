@@ -58,6 +58,7 @@
     "jssha": "^3.3.1",
     "jszip": "^3.10.1",
     "lamejs": "^1.2.1",
+    "lucene-query-parser": "^1.2.0",
     "markdown-to-jsx": "^7.4.7",
     "mic-recorder-to-mp3": "^2.2.2",
     "mui-nested-menu": "^3.4.0",
