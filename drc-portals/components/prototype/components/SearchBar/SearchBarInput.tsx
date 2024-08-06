@@ -35,10 +35,9 @@ export default function SearchBarInput(cmpProps: SearchBarInputProps) {
         sx: {
           backgroundColor: "#FFF",
         },
-        endAdornment: loading ? (
-          <CircularProgress color="inherit" size={20} />
-        ) : (
+        endAdornment: (
           <SearchBarEndAdornment
+            loading={loading}
             showClearBtn={showClearBtn}
             onSearch={onSearch}
             onClear={onClear}
