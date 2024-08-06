@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import PlaybookButton from '../playbookButton';
 import TableView from '../vis/tableView';
-import TableViewCol from '../vis/tableViewCol';
+import TableViewCol from '../vis/tableViewIMPC';
 
 const getPlaybookInfo = async (body: any) => {
 

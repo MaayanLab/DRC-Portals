@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import TableViewCol from '../vis/tableViewCol';
+import TableViewCol from '../vis/tableViewIMPC';
 import PlaybookButton from '../playbookButton';
 
 const getPlaybookKidsFirstData = async (body: any) => {

@@ -1,4 +1,24 @@
 {
+  "FourDN": {
+    "desc": "I can query the 4D Nucleome API and return a list of Experiment Sets based on your filters:",
+    "input": "ExperimentSetInput"
+  },
+  "GlyGenBiomarker": {
+    "desc": "I can query the GlyGen Biomarker API and return a list of Biomarkers related to your term:",
+    "input": "BiomarkerInput"
+  },
+  "HuBMAPSearch": {
+    "desc": "I can query the HuBMAP Search API and return a list of datasets related to your organ, assay, and/or group:",
+    "input": "SearchInputs"
+  },
+  "SenNetSearch": {
+    "desc": "I can query the SenNet Search API and return a list of datasets related to your organ, assay, and/or group:",
+    "input": "SearchInputs"
+  },
+  "MoTrPACSearch": {
+    "desc": "I can query timewise endurance training over 8 weeks in adult rats by the selected gene, protein or metabolite from the MoTrPAC Data Hub:",
+    "input": "MoTrPACInput"
+  },
   "GtexGeneExpression": {
     "desc": "I can query the expression of your gene across tissues from GTEx version 8 and produced a plot of z-scored values. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
@@ -22,6 +42,14 @@
   "RegElementSetInfo": {
     "desc": "I can query regulatory elements from the Linked Data Hub. Please ensure the gene symbol below is correct:",
     "input": "GeneInput"
+  },
+  "ChEA3": {
+    "desc": "I can query the ChIP-X Enrichment Analysis Version 3 (ChEA3) tool that ranks transcription factors associated with user-submitted gene sets:",
+    "input": "GeneSetInput"
+  },
+  "KEA3": {
+    "desc": "I can query the Kinase Enrichment Analysis 3 (KEA3) tool which infers upstream kinases whose putative substrates are overrepresented in a user-inputted list of proteins or differentially phosphorylated proteins:",
+    "input": "GeneSetInput"
   },
   "sigComLincs": {
     "desc": "I can send your gene set(s) to SigCom LINCS which is a web-based search engine that serves over 1.5 million gene expression signatures processed, analyzed, and visualized from LINCS, GTEx, and GEO. SigCom LINCS provides rapid signature similarity search for mimickers and reversers given sets of up and down genes. Once you submit your gene set I will provide a link to the result:",

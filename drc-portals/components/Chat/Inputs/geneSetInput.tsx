@@ -5,15 +5,21 @@ import uniqueArray from '@/components/Chat/utils/uniqueArray'
 
 // Import gene set components and map them to names
 import SigComLincs from '../GeneSet/sigComLincs'
+import ChEA3 from '../GeneSet/ChEA3'
+import KEA3 from '../GeneSet/KEA3'
 import classNames from 'classnames'
 import Button from '@mui/material/Button';
 
 let processMapper: Record<string, any> = {
-  'sigComLincs': SigComLincs
+  'sigComLincs': SigComLincs,
+  'ChEA3': ChEA3,
+  'KEA3': KEA3
 }
 
 let upDownMapper: Record<string, any> = {
-  'sigComLincs': true
+  'sigComLincs': true,
+  'ChEA3': false,
+  'KEA3': false
 }
 
 

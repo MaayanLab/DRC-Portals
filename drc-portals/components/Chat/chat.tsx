@@ -10,8 +10,12 @@ import GeneInput from "./Inputs/geneInput";
 import GeneSetInput from "./Inputs/geneSetInput";
 import GlycanInput from "./Inputs/glycanInput";
 import PhenotypeInput from "./Inputs/phenotypeInput";
+import SearchInputs from "./Inputs/searchInputs";
 import { Input } from "@mui/material";
 import DccIcons from "./dccIcons";
+import MoTrPACInput from "./Inputs/MoTrPACInput"
+import BiomarkerInput from "./Inputs/BiomarkerInput"
+import ExperimentSetInput from "./Inputs/experimentSetInput";
 
 type content = {
   text: {
@@ -44,6 +48,10 @@ let processMapper: Record<string, any> = {
   GeneSetInput: GeneSetInput,
   GlycanInput: GlycanInput,
   PhenotypeInput: PhenotypeInput,
+  SearchInputs: SearchInputs,
+  MoTrPACInput: MoTrPACInput,
+  BiomarkerInput: BiomarkerInput,
+  ExperimentSetInput:ExperimentSetInput,
 };
 
 export default function Chat() {
@@ -286,9 +294,26 @@ export default function Chat() {
             "Which L1000 drugs most significantly up or down regulate STAT3?"
           }
           submit={submit}
+        
         />
         <ChatExample
+          example={
+            "Which transcription factors regulate my gene set?"
+          }
+          submit={submit}
+        />        
+        <ChatExample
+          example={
+            "Which kinases regulate my gene set?"
+          }
+          submit={submit}
+        /> 
+        <ChatExample
           example={"Which L1000 signatures up or down regulate my gene set?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"Can you please provide a list of experiment sets for Humans?"}
           submit={submit}
         />
         <ChatExample
@@ -305,6 +330,22 @@ export default function Chat() {
         />
         <ChatExample
           example={"Can you provide information about the glycan G17689DH?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"Can you please provide HuBMAP datasets from the kidney profiled with single-cell RNA-seq?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"Can you please provide SenNet Histology datasets collected from the Heart?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"Can you please display how BRD2 expression changes in response to training in the heart?"}
+          submit={submit}
+        />
+        <ChatExample
+          example={"Can you please perform a Biomarker search for Colorectal Cancer?"}
           submit={submit}
         />
         <ChatExample

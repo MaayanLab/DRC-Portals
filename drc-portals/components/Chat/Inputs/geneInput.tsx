@@ -12,6 +12,7 @@ import ScoredGTExTissue from '../Gene/scoredGTExTissue'
 import ScoredARCHS4Tissue from '../Gene/scoredARCHS4Tissue'
 import RegElementSetInfo from '../Gene/RegElementSetInfo'
 import KidsFirstTumorExpr from '../Gene/KidsFirstTumorExpr'
+import GlyGenBiomarker from '../Biomarker/GlyGenBiomarker'
 
 let processMapper: Record<string, any> = {
     'GtexGeneExpression': ScoredGTExTissue,
@@ -20,6 +21,7 @@ let processMapper: Record<string, any> = {
     'ImpcPhenotypes': ImpcPhenotypes,
     'RegElementSetInfo': RegElementSetInfo,
     'KidsFirstTumorExpr': KidsFirstTumorExpr,
+    'GlyGenBiomarker': GlyGenBiomarker,
 }
 
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
