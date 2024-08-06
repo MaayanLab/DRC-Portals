@@ -8,6 +8,7 @@ import { ReactNode, useState } from "react";
 import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
 import ChartNestedCxtMenuItem from "../components/CytoscapeChart/NestedChartCxtMenuItem";
 import { INCOMING_CONNECTIONS, OUTGOING_CONNECTIONS } from "../constants/neo4j";
+import { NO_RESULTS_ERROR_MSG } from "../constants/search-bar";
 import { Direction } from "../enums/schema-search";
 import { CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
@@ -44,7 +45,7 @@ export default function useGraphSearchBehavior() {
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
   >(undefined);
-  const neo4jService: Neo4jService = new Neo4jService(getDriver());
+  const neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
 
   const expandNode = async (cypher: string) => {
@@ -221,7 +222,7 @@ export default function useGraphSearchBehavior() {
     const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
 
     if (cytoscapeElements.length === 0) {
-      setError("We couldn't find any results for your search");
+      setError(NO_RESULTS_ERROR_MSG);
     } else {
       clearSearchError();
       setElements(cytoscapeElements);

@@ -5,11 +5,11 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import { Box, Grid, IconButton, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { D3_FORCE_LAYOUT, DEFAULT_STYLESHEET } from "../constants/cy";
 import {
   BASIC_SEARCH_ERROR_MSG,
-  D3_FORCE_LAYOUT,
-  DEFAULT_STYLESHEET,
-} from "../constants/cy";
+  NO_RESULTS_ERROR_MSG,
+} from "../constants/search-bar";
 import { SearchBarContainer } from "../constants/search-bar";
 import useGraphSearchBehavior from "../hooks/graph-search";
 import { SchemaSearchPath } from "../interfaces/schema-search";
@@ -21,6 +21,7 @@ import {
 import {
   createSchemaSearchCypher,
   createSynonymSearchCypher,
+  inputIsValidLucene,
 } from "../utils/neo4j";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
@@ -53,7 +54,7 @@ export default function GraphSearch() {
     subjectRaces,
     dccNames,
   } = getTextSearchValues(searchParams);
-  const [searchBarValue, setSearchBarValue] = useState<string | null>(null);
+  const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [schemaValue, setSchemaValue] = useState<SchemaSearchPath[] | null>(
     null
   );
@@ -61,7 +62,7 @@ export default function GraphSearch() {
   const [showSearchHiddenTooltip, setShowSearchHiddenTooltip] = useState(false);
 
   const handleSubmit = (term: string) => {
-    const searchParams = new URLSearchParams(`q=${term}`);
+    const searchParams = new URLSearchParams(`q=${encodeURIComponent(term)}`);
     router.push(`?${searchParams.toString()}`);
     setSearchBarValue(term);
     setEntityDetails(undefined); // Reset the entity details if a new query is submitted
@@ -85,24 +86,28 @@ export default function GraphSearch() {
   }, []);
 
   useEffect(() => {
-    if (searchBarValue !== null && searchBarValue.length > 0) {
-      setLoading(true);
-      setInitialNetworkData(
-        createSynonymSearchCypher(
-          searchBarValue,
-          searchFile,
-          searchSubject,
-          searchBiosample,
-          subjectGenders,
-          subjectRaces,
-          dccNames
+    if (searchBarValue.length > 0) {
+      if (inputIsValidLucene(searchBarValue)) {
+        setLoading(true);
+        setInitialNetworkData(
+          createSynonymSearchCypher(
+            searchBarValue,
+            searchFile,
+            searchSubject,
+            searchBiosample,
+            subjectGenders,
+            subjectRaces,
+            dccNames
+          )
         )
-      )
-        .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
-        .finally(() => {
-          setLoading(false);
-          clearLongRequestTimer();
-        });
+          .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
+          .finally(() => {
+            setLoading(false);
+            clearLongRequestTimer();
+          });
+      } else {
+        setError(NO_RESULTS_ERROR_MSG);
+      }
     }
   }, [searchBarValue]);
 

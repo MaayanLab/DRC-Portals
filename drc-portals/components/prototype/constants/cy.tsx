@@ -2627,6 +2627,3 @@ export const SCHEMA_STYLESHEET: any[] = [
 export const SCHEMA_LAYOUT = {
   name: "preset",
 };
-
-export const BASIC_SEARCH_ERROR_MSG =
-  "An error occured during your search. Please try again later.";

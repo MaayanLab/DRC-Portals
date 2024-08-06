@@ -1,3 +1,6 @@
+// @ts-ignore
+import parser from "lucene-query-parser";
+
 import { OPERATOR_FUNCTIONS } from "../constants/schema-search";
 import { Direction } from "../enums/schema-search";
 import {
@@ -7,6 +10,15 @@ import {
 import { PredicateFn, SearchBarOption } from "../types/schema-search";
 
 import { isRelationshipOption } from "./schema-search";
+
+export const inputIsValidLucene = (input: string) => {
+  try {
+    parser.parse(input);
+  } catch {
+    return false;
+  }
+  return true;
+};
 
 export const createNodeReprStr = (varName: string) => {
   return `{
@@ -26,6 +38,15 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
+export const createSynonymOptionsCypher = (input: string) => {
+  return `
+  CALL db.index.fulltext.queryNodes('synonymIdx', '${input}')
+  YIELD node
+  RETURN node.name AS synonym
+  LIMIT 10
+  `;
+};
+
 export const createSynonymSearchCypher = (
   searchTerm: string,
   searchFile = true,
@@ -36,8 +57,8 @@ export const createSynonymSearchCypher = (
   dccNames?: string[],
   synLimit = 100,
   termLimit = 100,
-  coreLimit = 100,
-  projLimit = 10
+  collectionLimit = 50,
+  projLimit = 50
 ) => {
   if (dccNames === undefined) {
     dccNames = [];
@@ -46,10 +67,8 @@ export const createSynonymSearchCypher = (
   const termFilters = [];
   const dccNameFilter =
     dccNames.length > 0
-      ? `WHERE dcc.abbreviation IN [${dccNames
-          .map((n) => `'${n}'`)
-          .join(", ")}]`
-      : "WHERE TRUE";
+      ? `dcc.abbreviation IN [${dccNames.map((n) => `'${n}'`).join(", ")}]`
+      : "TRUE // (No DCC name filter)";
 
   if (searchFile) {
     termFilters.push("(label IN ['File'])");
@@ -91,29 +110,23 @@ export const createSynonymSearchCypher = (
     LIMIT ${termLimit}
   }
   CALL {
-    WITH synonym, term
-    MATCH (term)<-[]-(core)
+    WITH term
+    OPTIONAL MATCH collectionPath=(:IDNamespace)-[:CONTAINS]->(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
+    RETURN DISTINCT collectionPath
+    LIMIT ${collectionLimit}
+  }
+  CALL {
+    WITH term, collectionPath
+    OPTIONAL MATCH projectPath=(term)<-[]-(core)<-[:CONTAINS]-(:Project)<-[:IS_PARENT_OF*0..]-(:Project)<-[:PRODUCED]-(dcc:DCC)
     WHERE any(
       label IN labels(core)
         WHERE
           ${termFilters.join(" OR\n\t\t")}
-    )
-    RETURN DISTINCT core
-    LIMIT ${coreLimit}
-  }
-  CALL {
-    WITH synonym, term, core
-    MATCH (core)<-[:CONTAINS]-(project:Project)
-    RETURN DISTINCT project
+    ) AND ${dccNameFilter}
+    RETURN DISTINCT projectPath
     LIMIT ${projLimit}
   }
-  CALL {
-    WITH synonym, term, core, project
-    MATCH (project)<-[*]-(dcc:DCC)
-    ${dccNameFilter}
-    RETURN DISTINCT dcc
-  }
-  MATCH path=(term)<-[]-(core)<-[:CONTAINS]-(project:Project)<-[*]-(dcc:DCC)
+  WITH apoc.path.combine(collectionPath, projectPath) AS path
   UNWIND nodes(path) AS n
   UNWIND relationships(path) AS r
   RETURN collect(DISTINCT ${createNodeReprStr(
