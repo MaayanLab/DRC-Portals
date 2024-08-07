@@ -24,12 +24,13 @@ import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
 import React from "react";
 import { safeAsync } from '@/utils/safe';
-import DownloadButton from '../DownloadButton';
+import DownloadAllButton from '../DownloadAllButton';
 
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
 
 const allres_filtered_maxrow_limit = 200000;
+const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
 
 type PageProps = { search: string, searchParams: Record<string, string> }
 
@@ -45,34 +46,6 @@ const doQuery = React.cache(async (props: PageProps) => {
   const t0: number = performance.now();
   const [results] = await prisma.$queryRaw<Array<{
     records: {
-      //rank: number,
-      dcc_name: string,
-      dcc_abbreviation: string,
-      dcc_short_label: string,
-      taxonomy_name: string,
-      taxonomy_id: string,
-      disease_name: string,
-      disease: string,
-      anatomy_name: string,
-      anatomy: string,
-      gene_name: string,
-      gene: string,
-      protein_name: string,
-      protein: string,
-      compound_name: string,
-      compound: string,
-      data_type_name: string,
-      data_type: string,
-      project_name: string,
-      project_description: string,
-      project_persistent_id: string,
-      count: number, // this is based on across all-columns of ffl_biosample
-      count_bios: number,
-      count_sub: number,
-      count_col: number,
-      record_info_url: string,
-    }[],
-    records_full: {
       //rank: number,
       dcc_name: string,
       dcc_abbreviation: string,
@@ -184,7 +157,6 @@ const doQuery = React.cache(async (props: PageProps) => {
     )
     
     SELECT
-    (SELECT COALESCE(jsonb_agg(allres_filtered.*), '[]'::jsonb) AS records_full FROM allres_filtered ), 
     (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited ), 
     (SELECT count FROM total_count) as count,
     (SELECT filtered_count FROM allres_filtered_count) as all_count
@@ -364,15 +336,13 @@ export async function SearchQueryComponent(props: PageProps) {
                     BACK TO SEARCH
                   </Button>
                 </Link>
-                <DownloadButton 
-                data={results?.records_full} 
-                filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
-                name='DOWNLOAD ALL' 
+                <DownloadAllButton
+                  apiEndpoint={apiEndpoint}
+                  filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
+                  name="DOWNLOAD ALL"   // Optional: Specify a button name
                 />
                 </>
               }
-              data={results?.records_full}
-              downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
               <C2M2MainSearchTable
