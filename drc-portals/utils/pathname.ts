@@ -7,10 +7,12 @@ import { usePathname as useNextPathname } from "next/navigation"
 export default function usePathname() {
   const nextPathname = useNextPathname()
   const pathname = React.useMemo(() => {
-    if (typeof window !== 'undefined' && window.location.origin.includes('data.cfde.cloud') && !nextPathname.startsWith('/data'))
-      return `/data${nextPathname}`
-    else if (typeof window !== 'undefined' && window.location.origin.includes('info.cfde.cloud') && !nextPathname.startsWith('/info'))
-      return `/info${nextPathname}`
+    if (typeof window !== 'undefined' && window.location.origin.includes('data.cfde.cloud') && !nextPathname.startsWith('/data')) {
+      return `/data${nextPathname === '/' ? '' : nextPathname}`
+    }
+    else if (typeof window !== 'undefined' && window.location.origin.includes('info.cfde.cloud') && !nextPathname.startsWith('/info')) {
+      return `/info${nextPathname === '/' ? '' : nextPathname}`
+    }
     else
       return nextPathname
   }, [nextPathname])
