@@ -6,7 +6,7 @@ import csv
 import contextlib
 import tempfile
 import urllib.request
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
 
@@ -60,6 +60,10 @@ class TableHelper:
 
 load_dotenv(pathlib.Path(__file__).parent.parent / 'drc-portals' / '.env')
 load_dotenv()
+########## DB ADMIN INFO: BEGIN ############
+# Comment the line below with .env.dbadmin if not ingesting, almost always ingesting if running these scripts
+#load_dotenv(pathlib.Path(__file__).parent.parent.parent/'DB_ADMIN_INFO'/'.env.dbadmin')
+########## DB ADMIN INFO: END   ############
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL == None:
@@ -68,10 +72,13 @@ if DATABASE_URL == None:
   DATABASE_URL = os.getenv("DATABASE_URL")
 result = urlparse(DATABASE_URL)
 username = result.username
-password = result.password
+password = unquote(result.password)
 database = result.path[1:]
 hostname = result.hostname
 port = result.port
+
+##### Line below is for debug only, always keep commented otherwise
+#####print(f"username: {username}, password: {password}, database: {database}, hostname: {hostname}")
 
 connection = psycopg2.connect(
     database = database,

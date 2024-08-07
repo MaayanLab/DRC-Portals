@@ -446,23 +446,23 @@ select * from c2m2.subject where local_id = 'SU000182';
 select * from c2m2.biosample_from_subject where subject_local_id = 'SU000182';
 
 
-drc=# select count(*) from c2m2.ffl_biosample where collection_local_id is null;
-count | 3722253
+select count(*) from c2m2.ffl_biosample where collection_local_id is null;
+--- count | 3722253
 
-drc=# select count(*) from c2m2.ffl_biosample where project_local_id is null;
-count | 18214
+select count(*) from c2m2.ffl_biosample where project_local_id is null;
+--- count | 18214
 
-drc=# select count(*) from c2m2.ffl_biosample where dcc_name is null;
-count | 18214
+select count(*) from c2m2.ffl_biosample where dcc_name is null;
+--- count | 18214
 
-drc=# select count(*) from c2m2.ffl_biosample where subject_local_id is null;
-count | 54491
+select count(*) from c2m2.ffl_biosample where subject_local_id is null;
+--- count | 54491
 
-drc=# select count(*) from c2m2.ffl_biosample where biosample_local_id is null;
-count | 23901
+select count(*) from c2m2.ffl_biosample where biosample_local_id is null;
+--- count | 23901
 
 select count(*) from c2m2.ffl_biosample where biosample_local_id is null AND subject_local_id is null;
-0
+--- 0
 
 --- project_name is null but collection_local_id is not null
 select * from c2m2.ffl_biosample_collection where project_name is null and collection_local_id is not null limit 1;
@@ -492,7 +492,7 @@ select distinct collection_local_id, count(collection_local_id) as count from c2
 select count(*) from (select distinct collection_local_id from c2m2.file_in_collection where collection_id_namespace ilike '%hubmap%');
   1185
 
-drc=# select distinct file_id_namespace, count(file_id_namespace) as count from c2m2.file_in_collection group by file_id_namespace;
+select distinct file_id_namespace, count(file_id_namespace) as count from c2m2.file_in_collection group by file_id_namespace;
                    file_id_namespace                    |  count  
 --------------------------------------------------------+---------
  adult_gtex                                             |     498
@@ -532,7 +532,7 @@ drc=# select distinct id_namespace, count(id_namespace) as count from c2m2.file 
 (16 rows)
 
 --- Most file_in_collection from hubmap; some collections have ~200,000 files
-drc=# select distinct project_local_id, count(project_local_id) as count from c2m2.file where id_namespace ilike '%hubmap%' group by project_local_id;
+select distinct project_local_id, count(project_local_id) as count from c2m2.file where id_namespace ilike '%hubmap%' group by project_local_id;
              project_local_id              |  count  
 -------------------------------------------+---------
  Broad Institute RTI                       |     589
@@ -554,20 +554,20 @@ select count(*) from (select distinct c2m2.file_describes_in_collection.file_loc
 c2m2.file inner join c2m2.file_describes_in_collection on 
 c2m2.file.local_id = c2m2.file_describes_in_collection.file_local_id 
 where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
-6540
-For chosen data type, we get just 153 files related to collection
+--- 6540
+--- For chosen data type, we get just 153 files related to collection
 
 select count(*) from (select distinct c2m2.file_describes_biosample.file_local_id from 
 c2m2.file inner join c2m2.file_describes_biosample on 
 c2m2.file.local_id = c2m2.file_describes_biosample.file_local_id 
 where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
-0
+--- 0
 
 select count(*) from (select distinct c2m2.file_describes_subject.file_local_id from 
 c2m2.file inner join c2m2.file_describes_subject on 
 c2m2.file.local_id = c2m2.file_describes_subject.file_local_id 
 where c2m2.file.project_local_id = 'b0b9c607-f8b4-4f02-93f4-9895b461334b');
-0
+--- 0
 
 --- Timing for count vs. actual record
 --- join file with project and file_format
@@ -598,4 +598,9 @@ select count(*) from (
 select f.local_id, f.project_local_id, f.file_format, fd.collection_local_id, c.name, c.description
 from c2m2.file f left join c2m2.file_describes_in_collection fd on (f.local_id = fd.file_local_id)
 left join c2m2.collection c on (fd.collection_local_id = c.local_id)); 
+
+--- Files with access_url
+select id_namespace, local_id, project_local_id, filename,access_url from c2m2.file where (access_url is not null AND access_url != '') limit 100;
+--- from a DCC
+select id_namespace, local_id, project_local_id, filename,access_url from c2m2.file where (access_url is not null AND access_url != '' AND id_namespace ilike '%metab%') limit 100;
 

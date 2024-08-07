@@ -23,19 +23,19 @@ biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websea
 
 --- To generate count of unique subject, biosample, etc, grouped by another set of columns
 --- from fl_biosample local_id is biosample_local_id
-select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
-count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
-count(distinct collection_local_id) as count_col from c2m2.fl_biosample 
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
 where project_id_namespace ilike '%metab%' group by 
-id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 --- crosscheck as:
 select count(*) from c2m2.biosample where project_local_id = 'PR000024';
 
-select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
-count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
 count(distinct collection_local_id) as count_col from c2m2.ffl_biosample_collection 
 where project_id_namespace ilike '%4dn%' group by 
-id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 --- crosscheck as:
 select count(*) from c2m2.biosample where project_local_id = '12a92962-8265-4fc0-b2f8-cf14f05db58b' and anatomy = 'CL:0000081';
 
@@ -78,7 +78,7 @@ anatomy_name ilike '%brain%';
 
 select * from c2m2.project_in_project where child_project_id_namespace ilike '%hmp%';
 
---- kept here for reference
+--- kept here for reference DO NOT RUN AS WE DON'T CREATE THE TABLE FL_BIOSAMPLE anymore
 
 --- COLUMNS TO SHOW TO USER ---
 
@@ -315,12 +315,12 @@ SELECT * from (
 
 -----------------------------------------------------------------------------------------------
 --- entire CTE in search/page.tsc
-/* \set myq 'blood'; \set my_disease 'cancer'; */
+/**/ \set myq 'blood'; \set my_disease 'cancer'; /**/
 /* \set myq 'blood'; \set my_disease 'carcinoma'; */
 /*  \set myq 'brain'; \set my_disease 'malignant astrocytoma';  */
- /*\set myq 'liver'; \set my_disease 'cancer'; */
+/* \set myq 'liver'; \set my_disease 'cancer'; */
 /* \set myq 'intestine'; \set my_disease 'cancer'; */
- \set myq 'parkinson'; \set my_disease 'cancer'; 
+/* \set myq 'parkinson'; \set my_disease 'cancer';  */
 
 EXPLAIN (ANALYZE)
 WITH allres_full AS (
@@ -444,3 +444,22 @@ SELECT  count(*) from (select c2m2.ffl_biosample_collection.*,
         WHERE searchable @@ websearch_to_tsquery('english', 'blood')
         ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
         protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id);
+
+--- Find time for just count vs. getting actual records
+EXPLAIN (ANALYZE)
+      SELECT  count(*) from (SELECT c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', 'blood')
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT 200000);
+
+EXPLAIN (ANALYZE)
+      SELECT  c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', 'blood')
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT 200000;

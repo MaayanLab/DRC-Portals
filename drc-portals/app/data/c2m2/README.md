@@ -52,6 +52,19 @@ https://ucsd-sslab.ngrok.app/data/processed/search?q=parkinson&r=50&C2M2MainSear
 
 https://ucsd-sslab.ngrok.app/data/c2m2/record_info?q=parkinson&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-KJENS1ADPD0000-ST|disease_name:Alzheimer%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:cardiovascular%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix
 
+Some other filters:
+https://ucsd-sslab.ngrok.app/data/processed/search/blood%20diabetes/c2m2 -> 
+page 5: https://ucsd-sslab.ngrok.app/data/processed/search/blood%20diabetes/c2m2?C2M2MainSearchTbl_p=5 
+-> apply filter species:homo sapiens: https://ucsd-sslab.ngrok.app/data/processed/search/blood%20diabetes/c2m2?t=ncbi_taxonomy%3AHomo+sapiens&p=1 goes to page 1, correct behavior.
+
+https://ucsd-sslab.ngrok.app/data/processed/search/parkinsons/c2m2 ->
+page 6: https://ucsd-sslab.ngrok.app/data/processed/search/parkinsons/c2m2?C2M2MainSearchTbl_p=6 
+-> filter: DCC:MW: https://ucsd-sslab.ngrok.app/data/processed/search/parkinsons/c2m2?t=dcc%3AUCSD+Metabolomics+Workbench&p=1 
+
+one step back, another filter: anatomy:brain: https://ucsd-sslab.ngrok.app/data/processed/search/parkinsons/c2m2?p=1&t=anatomy%3Abrain
+
+-> another filter: species: Mus musculus: https://ucsd-sslab.ngrok.app/data/processed/search/parkinsons/c2m2?p=1&t=anatomy%3Abrain%7Cncbi_taxonomy%3AMus+musculus
+
 ### Search: intestine homo sapiens female cancer
 https://ucsd-sslab.ngrok.app/data/processed/search?q=intestine+homo+sapiens+female+cancer
 
