@@ -62,8 +62,8 @@ export default function GraphSearch() {
   const [showSearchHiddenTooltip, setShowSearchHiddenTooltip] = useState(false);
 
   const handleSubmit = (term: string) => {
-    const searchParams = new URLSearchParams(`q=${encodeURIComponent(term)}`);
-    router.push(`?${searchParams.toString()}`);
+    const params = new URLSearchParams(`q=${encodeURIComponent(term)}`);
+    router.push(`?${params.toString()}`);
     setSearchBarValue(term);
     setEntityDetails(undefined); // Reset the entity details if a new query is submitted
   };
@@ -83,7 +83,7 @@ export default function GraphSearch() {
       );
       setSearchBarValue(getSearchBarValue(searchParams));
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (searchBarValue.length > 0) {
