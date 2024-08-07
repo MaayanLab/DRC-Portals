@@ -18,10 +18,10 @@ export async function POST(req: NextRequest
         });
     
         if (!response.ok) {
-          if(response.status == 303){
+          if(response.status == 303){//Currently reaccuring error. Redisgned Fetch to wait a few seconds to retry. 
             attempts++
             console.log("caught error303:", response.status)
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 3 seconds
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait
             continue
           }
           throw new Error(`HTTP error! status: ${response.status}`);

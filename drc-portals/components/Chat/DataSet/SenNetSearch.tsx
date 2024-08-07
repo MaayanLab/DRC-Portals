@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import TableViewCol from '../vis/tableViewCol';
-
+//Fetch SenNet Data
 const getSenNetData= async (body: any) => {
 
   const options: any = {
@@ -17,7 +17,8 @@ const getSenNetData= async (body: any) => {
 };
 
 export default function SenNetSearch(props: any) {
-  const mustClauses = [];
+  const mustClauses = []; //Store search clauses
+  //Add clauses for props
   if(props.organ){
     mustClauses.push(          
       {
@@ -60,7 +61,7 @@ export default function SenNetSearch(props: any) {
       }
     }
   }
-
+  //fetch
   const { data, isLoading, error } = useSWR(payload, getSenNetData);
   
   if (error) {
@@ -71,11 +72,12 @@ export default function SenNetSearch(props: any) {
     return <>Loading...</>;
   }
   console.log(data)
+  //Handle data
   const workdata = data?.data?.hits?.hits;
-
+  
   if (Array.isArray(workdata) && workdata.length > 0) {
     const feeddata = new Array(workdata.length);
-  
+    //Reformat results
     for (let i = 0; i < workdata.length; i++) {
       if(workdata[i]._source.doi_url){
         feeddata[i] = {

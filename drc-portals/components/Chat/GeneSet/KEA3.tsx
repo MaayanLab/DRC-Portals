@@ -1,8 +1,8 @@
 import useSWR from 'swr';
-import TableView from '../vis/tableView';
 import TableViewCol from '../vis/tableViewCol';
 import PlaybookButton from '../playbookButton';
 
+//Fetch Playbook Data. Used to obtain a PWB ID for the Playbook button
 const getPlaybookKEA3Data = async (body: any) => {
 
     const options: any = {
@@ -18,6 +18,7 @@ const getPlaybookKEA3Data = async (body: any) => {
     return data
 };
 
+//Fetch KEA3 Data. Used for the table.
 const getKEA3Data = async (body: any) => {
 
   const options: any = {
@@ -77,12 +78,12 @@ export default function KEA3(props: any) {
     return <>Loading...</>;
   }
 
+  //Reformatting results
   const columns = ["Rank", "Kinase", "Mean Rank"];
   const rename = {
-    "Kinase": "TF",
+    "Kinase": "TF",   //KEA3 API results results as TFs. Rename to Kinase
     "Mean Rank": "Score"
   }
-  
   console.log(keaData);
   return (
     <>

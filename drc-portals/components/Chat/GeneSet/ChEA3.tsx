@@ -2,6 +2,7 @@ import useSWR from 'swr';
 import TableViewCol from '../vis/tableViewCol';
 import PlaybookButton from '../playbookButton';
 
+//Fetch Playbook Data. Used to obtain a PWB ID for the Playbook button
 const getPlaybookChEA3Data = async (body: any) => {
 
     const options: any = {
@@ -17,6 +18,7 @@ const getPlaybookChEA3Data = async (body: any) => {
     return data
 };
 
+//Fetch ChEA3 Data. Used for the table.
 const getChEA3Data = async (body: any) => {
 
   const options: any = {
@@ -74,22 +76,14 @@ export default function ChEA3(props: any) {
     return <>Loading...</>;
   }
 
+  //Reformatting results
   const columns = ["Rank", "TF", "Mean Rank"];
   const rename={
     "Mean Rank": "Score"
   }
-  const sample = [
-    {
-      Library: "ARCHS4 Coexpression,6;Enrichr Queries,8;GTEx Coexpression,6",
-      Overlapping_Genes: "NPDC1,CAMK2B,NPRL2,ZBTB16,PILRB,PKD1,SORBS3,HDAC6,DNAJB2,FBXL8,MCF2L,CEP170B,TRIB3,ZNF358",
-      Query_Name: "myQuery",
-      Rank: "1",
-      Score: "6.667",
-      TF: "HSF4"
-    }
-  ]
+  //Dispaly results
   const cheaDisplayData = cheaData.data["Integrated--meanRank"]
- console.log(cheaData);
+  console.log(cheaData);
   return (
     <>
       <div className='col'>

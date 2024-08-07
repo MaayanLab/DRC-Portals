@@ -2,20 +2,7 @@ import useSWR from 'swr';
 import TableViewCol from '../vis/tableViewCol';
 import LinkButton from '../linkButton';
 
-const fetchImpcPhenotype = async (geneId: string) => {
-  const firstLetter = geneId[0].toUpperCase();
-  const restOfTheString = geneId.slice(1).toLowerCase();
-  const res = await fetch(`https://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=marker_symbol:${firstLetter + restOfTheString}`)
-  const data = await res.json();
-return data['response']['docs'];
-};
-const headers = {"Accept":"application/json"}
-
-// const getFourDNData = async (body: any) => {
-//     const res = await fetch(`https://data.4dnucleome.org/browse/?experiments_in_set.biosample.biosource.organism.name=hamster`,{headers, redirect: 'follow'})
-//     const data = await res.json()
-//     return data
-// };
+//Fetch FourDN data
 const getFourDNData = async (body: any) => {
 
   const options: any = {
@@ -34,6 +21,7 @@ const getFourDNData = async (body: any) => {
 export default function FourDN(props: any) {
   console.log(props)
   const organism = props.organism
+  //Remove the end ()
   const experimentItems = [" (Hi-C)", " (FISH)", " (DNA binding)", " (Proximity-seq)", " (Immunofluorescence)", " (Replication timing)", " (Transcription)", " (SPT)", " (Hi-C single cell)", " (IP-based 3C)", " (Enrichment Hi-C)", " (Open Chromatin)", " (Ligation-free 3C)", " (OptoDroplet)", " (Reporter Expression)", " (RNA-DNA Hi-C)", " (DNA damage detection)", " (TEM)"]
   const experiment = props.experiment.map((val: string)=>{
     experimentItems.map((item: string)=>{
@@ -41,10 +29,12 @@ export default function FourDN(props: any) {
     })
     return val
   })
+  //Creating the payload
   let payload: {[key: string]: any} = {
     "type":"ExperimentSetReplicate",
     "experimentset_type":"replicate"
-    }
+  }
+  //Adds organisms and experiment types
   if(organism!="All"){
     for(const entry in organism){
       if (!payload['experiments_in_set.biosample.biosource.organism.name']){
@@ -76,6 +66,7 @@ export default function FourDN(props: any) {
   const columns = ["Display Title", "Description"];
 
   console.log(data);
+  //If data doesn't exist
   if(!data?.data){
     return (
       <>
@@ -84,15 +75,14 @@ export default function FourDN(props: any) {
         </div>
       </>)
   }
+
+  //Format results
   const rename = {
   "Display Title": "display_title",
   "Description": "description"
   }
   const link = {
-    "display_title": "https://data.4dnucleome.org/experiment-set-replicates/"
-  }
-  const linkFragmentRow = {
-    "display_title":"display_title"
+    "display_title": "https://data.4dnucleome.org/experiment-set-replicates/" //Link for hyperlinked values in column
   }
   return (
     <>

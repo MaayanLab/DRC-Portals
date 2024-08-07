@@ -23,7 +23,7 @@ export default function TableViewColMoTrPAC({rowData, columns, removeIndexes = [
         const tableHeader = columnNames?.map((columnName) => (
             <th key={columnName} className='text-slate-800'>{columnName}</th>
         ));
-        const assayDisplayKeys: { [key: string]: string }  = {
+        const assayDisplayKeys: { [key: string]: string }  = { //For replacing the assays used for the API to a formatted display. 
             "transcript-rna-seq": "RNA-seq",
             "epigen-atac-seq": "ATAC-seq",
             "epigen-rrbs": "RRBS",

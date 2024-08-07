@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import TableViewColMoTrPAC from '../vis/tableViewColMoTrPAC';
 
+//Fetch MoTrPAC Data
 const getMoTrPACData= async (body: any) => {
 
     const options: any = {
@@ -31,12 +32,12 @@ const getMoTrPACData= async (body: any) => {
 
 export default function MoTrPACSearch(props: any) {
     console.log(props)
-    var ktype = 'gene'
-    var key = props.term
-    const type = props.type || 'gene'
-    const selection = props.selection || 'timewise'
-    const tissue = props.tissue=='All'? []: props.tissue
-    const assayKeys: { [key: string]: string }  = {
+    var ktype = 'gene' //Default value to Gene
+    var key = props.term //Term
+    const type = props.type || 'gene' //Set input type
+    const selection = props.selection || 'timewise' //Selection for Timewise/Training Data
+    const tissue = props.tissue=='All'? []: props.tissue //Filter for Tissue
+    const assayKeys: { [key: string]: string }  = {//keys for assay and display assay
         "RNA-seq": "transcript-rna-seq",
         "ATAC-seq": "epigen-atac-seq",
         "RRBS": "epigen-rrbs",
@@ -60,7 +61,8 @@ export default function MoTrPACSearch(props: any) {
         "Protein Ubiquitination": "prot-ub",
         "Protein Ubiquitination (Corrected)": "prot-ub-protein-corrected"
       }
-    const assay = props.assay=='All'?[]:assayKeys[props.assay]=="Protein Ubiquitination"? ["prot-ub", "prot-ub-protein-corrected"]: assayKeys[props.assay]||[]
+    const assay = props.assay=='All'?[]:assayKeys[props.assay]=="Protein Ubiquitination"? ["prot-ub", "prot-ub-protein-corrected"]: assayKeys[props.assay]||[]//Handle case exception
+    //Modify key type
     if(type == 'gene'){
         ktype = 'gene'
     }
@@ -92,7 +94,7 @@ export default function MoTrPACSearch(props: any) {
             },
             'p_value': {
                 'min':'',
-                'max': props.pvalueHigh||'',
+                'max': props.pvalueHigh||'', //Filter for p-value
             },
         },
         'fields': [
@@ -138,100 +140,20 @@ export default function MoTrPACSearch(props: any) {
             </>)
     }
     var tableData1 = []
-    var tableData2 = []
-    var tableData3 = []
-    var tableData4 = []
-    var tableData5 = []
+
     const columnData = ['Gene Symbol', 'Metabolite', 'Feature ID', 'Tissue', 'Assay', 'Sex', 'Timepoint', 'logFC', 'p-value', 'Adj p-value', 'Selection FDR', 'Male p-value', 'Female p-value']
-    // if(type=="metabolite"){
-    //     if(selection == "timewise")
-    //         tableData1 = data.data.result.metabolomics_timewise.data
-    //     else if(selection == "training")
-    //         tableData1 = data.data.result.metabolomics_training.data
-    //     return (
-    //         <>
-    //             {selection == "training"?(
-    //                 <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[0,5,6,7,10]}/>
-    //             ):
-    //             <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[0,11,12]}/>}
-    //         </>
-    //     )
-    // }
-    // if(type=="protein"){
-    //     if(selection == "timewise")
-    //         tableData1 = data.data.result.proteomics_untargeted_timewise.data
-    //     else if(selection == "training")
-    //         tableData1 = data.data.result.proteomics_untargeted_training.data
-    //     return (
-    //         <>
-    //             {selection == "training"?(
-    //                 <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[1,5,6,7,10]}/>
-    //             ):
-    //             <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[1,11,12]}/>}
-    //         </>
-    //     )
-    // }
-    // if(selection == "timewise"){
-    //     if(data.data.uniqs.assay['epigen-atac-seq']){
-    //         tableData1 = data.data.result.epigenomics_atac_timewise.data
-    //     }
-    //     if(data.data.uniqs.assay['epigen-rrbs']){
-    //         tableData2 = data.data.result.epigenomics_rrbs_timewise.data
-    //     }
-    //     if(data.data.uniqs.assay['epigen-rrbs']){
-    //         tableData3 = data.data.result.proteomics_untargeted_timewise.data
-    //     }
-    //     if(data.data.uniqs.assay['transcript-rna-seq']){
-    //         tableData4 = data.data.result.transcriptomics_timewise.data
-    //     }
-    //     if(data.data.uniqs.assay['prot-ph']||data.data.uniqs.assay['prot-pr']||data.data.uniqs.assay['prot-ub']||data.data.uniqs.assay['prot-ac']||data.data.uniqs.assay['prot-ub-protein-corrected']){
-    //         tableData4 = data.data.result.proteomics_untargeted_timewise.data
-    //     }
-    // }
-    // else if(selection == "training"){
-    //     if(data.data.uniqs.assay['epigen-atac-seq']){
-    //         tableData1 = data.data.result.epigenomics_atac_training.data
-    //     }
-    //     if(data.data.uniqs.assay['epigen-rrbs']){
-    //         tableData2 = data.data.result.epigenomics_rrbs_training.data
-    //     }
-    //     if(data.data.uniqs.assay['epigen-rrbs']){
-    //         tableData3 = data.data.result.proteomics_untargeted_training.data
-    //     }
-    //     if(data.data.uniqs.assay['transcript-rna-seq']){
-    //         tableData4 = data.data.result.transcriptomics_training.data
-    //     }
-    //     if(data.data.uniqs.assay['prot-ph']||data.data.uniqs.assay['prot-pr']||data.data.uniqs.assay['prot-ub']||data.data.uniqs.assay['prot-ac']||data.data.uniqs.assay['prot-ub-protein-corrected']){
-    //         tableData4 = data.data.result.proteomics_untargeted_training.data
-    //     }
-    // }
+    //Get data based off selection
     if(selection =="timewise"){
         tableData1 = data.data.result.timewise.data
     }
     else if (selection =="training"){
         tableData1 = data.data.result.training.data
     }
-    // const tableData = tableData1.concat(tableData2,tableData3,tableData4)
-    // const columnData = data.data.result.epigenomics_atac_timewise.headers
-    // [
-    //     "gene_symbol",
-    //     "metabolite",
-    //     "feature_ID",
-    //     "tissue",
-    //     "assay",
-    //     "sex",
-    //     "comparison_group",
-    //     "logFC",
-    //     "p_value",
-    //     "adj_p_value",
-    //     "selection_fdr",
-    //     "p_value_male",
-    //     "p_value_female"
-    // ],
+
     return (
         <>
             {selection == "training"?(
-                <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[1,5,6,7,10]}/>
+                <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[1,5,6,7,10]}/>//Training and Timewise data have different nan values. Removes the NA values for each selection.
             ):
             <TableViewColMoTrPAC rowData={tableData1} columns={columnData} removeIndexes={[1,11,12]}/>}
         </>

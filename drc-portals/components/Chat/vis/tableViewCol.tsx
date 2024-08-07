@@ -31,7 +31,7 @@ export default function TableViewCol({rowData, columns, rename, link, linkFragme
         const tableRows = rowData.slice(startIndex, endIndex).map((row: any, i: number) => (
             <tr key={i}>
                 {columnNames?.map((columnName) => {
-                    //special renamings and returns
+                    //special renamings, returns, and hyperlinks
                     if(rename!=null&&rename[columnName]){
                         columnName = rename[columnName]
                     }
@@ -45,23 +45,23 @@ export default function TableViewCol({rowData, columns, rename, link, linkFragme
 
                     }
                     //link exceptions
-                    if (columnName=="HuBMAP ID"&&row["DOI URL"]){
+                    if (columnName=="HuBMAP ID"&&row["DOI URL"]){//HuBMAP
                         const cellValue = row[columnName];
                         return <td key={columnName}>{<a href={row["DOI URL"]} target="_blank">{cellValue}</a>}</td>;
                     }
-                    else if (columnName=="HuBMAP ID"){
+                    else if (columnName=="HuBMAP ID"){//HuBMAP
                         const cellValue = row[columnName];
                         return <td key={columnName}>{<a href={"https://portal.hubmapconsortium.org/browse/dataset/"+row["uuid"].replace(".","%2E")} target="_blank">{cellValue}</a>}</td>;
                     }
-                    if (columnName=="SenNet ID"&&row["DOI URL"]){
+                    if (columnName=="SenNet ID"&&row["DOI URL"]){//SenNet
                         const cellValue = row[columnName];
                         return <td key={columnName}>{<a href={row["DOI URL"]} target="_blank">{cellValue}</a>}</td>;
                     }
-                    else if (columnName=="SenNet ID"){
+                    else if (columnName=="SenNet ID"){//SenNet
                         const cellValue = row[columnName];
                         return <td key={columnName}>{<a href={"https://data.sennetconsortium.org/dataset?uuid="+row["uuid"]} target="_blank">{cellValue}</a>}</td>;
                     }
-                    if(columnName=="assessed_biomarker_entity_id"){
+                    if(columnName=="assessed_biomarker_entity_id"){//Spaces biomarker entity ids and hyperlinks each id. 
                         const cellValue = row[columnName];                        
                         const links = cellValue.split(";")
                         const linksList = links.map((link:any,index:any)=>(

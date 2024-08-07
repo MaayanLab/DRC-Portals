@@ -10,7 +10,7 @@ export async function POST(req: NextRequest
 ) {
     const payload = await req.json();
     let fragment = ''
-    for(const key in payload){
+    for(const key in payload){ //Format every key properly and add to the fragment
       if (payload.hasOwnProperty(key)){
         if (Array.isArray(payload[key])){
           for(const value of payload[key]){

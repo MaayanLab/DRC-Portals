@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import TableViewCol from '../vis/tableViewCol';
 
+//fetch HuBMAP data
 const getHuBMAPData= async (body: any) => {
 
   const options: any = {
@@ -17,8 +18,9 @@ const getHuBMAPData= async (body: any) => {
 };
 
 export default function HuBMAPSearch(props: any) {
-  const mustClauses = [];
-  let size = 50
+  const mustClauses = []; //Store search clauses
+  let size = 50 //Default search result length
+  //Adjust number of returned results based on props. Adjustment because of an inconsistent error.
   if(!props.group_name && (props.organ || props.dataset_type)){
     size = 50
   }
@@ -31,7 +33,7 @@ export default function HuBMAPSearch(props: any) {
       }
     );
   }
-
+  //Add clauses for props
   if(props.group_name){
     mustClauses.push(          
       {
@@ -79,11 +81,12 @@ export default function HuBMAPSearch(props: any) {
     return <>Loading...</>;
   }
   console.log(data)
+  //Handle results
   const workdata = data?.data?.hits?.hits;
 
   if (Array.isArray(workdata) && workdata.length > 0) {
     const feeddata = new Array(workdata.length);
-  
+    //Reformat results
     for (let i = 0; i < workdata.length; i++) {
       if(workdata[i]._source.doi_url){
         feeddata[i] = {
@@ -103,7 +106,7 @@ export default function HuBMAPSearch(props: any) {
       }
 
     }
-  
+    //
     const columns = ["HuBMAP ID", "Title"];
     if(!props.group_name){
       columns.push("Group Name")
@@ -119,7 +122,7 @@ export default function HuBMAPSearch(props: any) {
   } else {
     console.error('workdata is null or undefined');
   }
-
+  //Return statement if no data
   return (
     <>
       <div className='col'>
