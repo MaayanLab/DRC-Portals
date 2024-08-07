@@ -1,5 +1,6 @@
 // @ts-ignore
 import parser from "lucene-query-parser";
+import { int } from "neo4j-driver";
 
 import { OPERATOR_FUNCTIONS } from "../constants/schema-search";
 import { Direction } from "../enums/schema-search";
@@ -20,6 +21,20 @@ export const inputIsValidLucene = (input: string) => {
   return true;
 };
 
+export const escapeCypherString = (input: string) => {
+  // convert any \u0060 to literal backtick, then escape backticks, and finally wrap in single quotes and backticks
+  return `\`${input.replace(/\\u0060/g, "`").replace(/`/g, "``")}\``;
+};
+
+export const makeParamsWriteable = (params: { [key: string]: any }) => {
+  Object.keys(params).forEach((key) => {
+    if (typeof params[key] === "number") {
+      params[key] = int(params[key]);
+    }
+  });
+  return params;
+};
+
 export const createNodeReprStr = (varName: string) => {
   return `{
     identity: id(${varName}),
@@ -38,82 +53,29 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
-export const createSynonymOptionsCypher = (input: string) => {
-  return `
-  CALL db.index.fulltext.queryNodes('synonymIdx', '${input}')
+export const createSynonymOptionsCypher = () => `
+  CALL db.index.fulltext.queryNodes('synonymIdx', $input)
   YIELD node
   RETURN node.name AS synonym
   LIMIT 10
   `;
-};
 
-export const createSynonymSearchCypher = (
-  searchTerm: string,
-  searchFile = true,
-  searchSubject = true,
-  searchBiosample = true,
-  subjectGenders?: string[],
-  subjectRaces?: string[],
-  dccNames?: string[],
-  synLimit = 100,
-  termLimit = 100,
-  collectionLimit = 50,
-  projLimit = 50
-) => {
-  if (dccNames === undefined) {
-    dccNames = [];
-  }
-
-  const termFilters = [];
-  const dccNameFilter =
-    dccNames.length > 0
-      ? `dcc.abbreviation IN [${dccNames.map((n) => `'${n}'`).join(", ")}]`
-      : "TRUE // (No DCC name filter)";
-
-  if (searchFile) {
-    termFilters.push("(label IN ['File'])");
-  }
-
-  if (searchSubject) {
-    let subjectFilter = "(label IN ['Subject']";
-
-    if (subjectGenders !== undefined && subjectGenders.length > 0) {
-      subjectFilter += `AND core.sex IN [${subjectGenders
-        .map((g) => `'cfde_subject_sex:${g}'`)
-        .join(", ")}]`;
-    }
-
-    if (subjectRaces !== undefined && subjectRaces.length > 0) {
-      subjectFilter += `AND core.race IN [${subjectRaces
-        .map((g) => `'cfde_subject_race:${g}'`)
-        .join(", ")}]`;
-    }
-
-    subjectFilter += ")";
-    termFilters.push(subjectFilter);
-  }
-
-  if (searchBiosample) {
-    termFilters.push("(label IN ['Biosample'])");
-  }
-
-  // TODO: Consider pushing the parameterization to the driver
-  return `
-  CALL db.index.fulltext.queryNodes('synonymIdx', '${searchTerm}')
+export const createSynonymSearchCypher = () => `
+  CALL db.index.fulltext.queryNodes('synonymIdx', $searchTerm)
   YIELD node AS synonym
   WITH synonym
-  LIMIT ${synLimit}
+  LIMIT $synLimit
   CALL {
     WITH synonym
     MATCH (synonym)<-[:HAS_SYNONYM]-(term)
     RETURN DISTINCT term
-    LIMIT ${termLimit}
+    LIMIT $termLimit
   }
   CALL {
     WITH term
     OPTIONAL MATCH collectionPath=(:IDNamespace)-[:CONTAINS]->(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
     RETURN DISTINCT collectionPath
-    LIMIT ${collectionLimit}
+    LIMIT $collectionLimit
   }
   CALL {
     WITH term, collectionPath
@@ -121,19 +83,20 @@ export const createSynonymSearchCypher = (
     WHERE any(
       label IN labels(core)
         WHERE
-          ${termFilters.join(" OR\n\t\t")}
-    ) AND ${dccNameFilter}
+          label IN $coreLabels
+          AND (size($subjectGenders) = 0 OR core.sex IN $subjectGenders)
+          AND (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
+    ) AND (size($dccAbbrevs) = 0 OR dcc.abbreviation IN $dccAbbrevs)
     RETURN DISTINCT projectPath
-    LIMIT ${projLimit}
+    LIMIT $projLimit
   }
   WITH apoc.path.combine(collectionPath, projectPath) AS path
   UNWIND nodes(path) AS n
   UNWIND relationships(path) AS r
-  RETURN collect(DISTINCT ${createNodeReprStr(
-    "n"
-  )}) AS nodes, collect(DISTINCT ${createRelReprStr("r")}) AS relationships
+  RETURN
+    collect(DISTINCT ${createNodeReprStr("n")}) AS nodes,
+    collect(DISTINCT ${createRelReprStr("r")}) AS relationships
   `;
-};
 
 export const createPredicate = (
   variable: string,

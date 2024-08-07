@@ -92,7 +92,7 @@ export default function SearchBar(cmpProps: SearchBarProps) {
       debounce(async (input: string) => {
         if (inputIsValidLucene(input)) {
           await neo4jService
-            .executeRead(createSynonymOptionsCypher(input))
+            .executeRead(createSynonymOptionsCypher(), { input })
             .then((records) => {
               setOptions(records.map((record) => record.get("synonym")));
             })

@@ -4,9 +4,7 @@ export interface AdvancedSearchValues {
   phraseQuery: string;
   allQuery: string;
   noneQuery: string;
-  searchFile: boolean;
-  searchSubject: boolean;
-  searchBiosample: boolean;
+  coreLabels: string[];
   subjectGenders: string[];
   subjectRaces: string[];
   dccNames: string[];

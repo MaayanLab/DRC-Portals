@@ -156,9 +156,9 @@ export default function TextSearch() {
       phraseValue,
       allValue,
       noneValue,
-      searchFile.toString(),
-      searchSubject.toString(),
-      searchBiosample.toString(),
+      searchFile,
+      searchSubject,
+      searchBiosample,
       selectedGenders,
       selectedRaces,
       selectedDccs
@@ -173,9 +173,7 @@ export default function TextSearch() {
       phraseQuery,
       allQuery,
       noneQuery,
-      searchFile,
-      searchSubject,
-      searchBiosample,
+      coreLabels,
       subjectGenders,
       subjectRaces,
       dccNames,
@@ -210,9 +208,11 @@ export default function TextSearch() {
     setAnyValue(`${query.trim()} ${anyQuery}`.trim());
     setAllValue(`${allQuery} ${extractedAllQuery}`.trim());
     setNoneValue(`${noneQuery} ${extractedNoneQuery}`.trim());
-    setSearchFile(searchFile);
-    setSearchSubject(searchSubject);
-    setSearchBiosample(searchBiosample);
+    setSearchFile(coreLabels.length === 0 || coreLabels.includes("File"));
+    setSearchSubject(coreLabels.length === 0 || coreLabels.includes("Subject"));
+    setSearchBiosample(
+      coreLabels.length === 0 || coreLabels.includes("Biosample")
+    );
     setSelectedGenders(subjectGenders);
     setSelectedRaces(subjectRaces);
     setSelectedDccs(dccNames);

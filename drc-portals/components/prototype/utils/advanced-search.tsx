@@ -2,28 +2,29 @@ import { AdvancedSearchValues } from "../interfaces/advanced-search";
 import { SchemaSearchPathSchema } from "../schemas/schema-search";
 
 export const createTextSearchParams = (
-  q?: string | null,
-  epq?: string | null,
-  aq?: string | null,
-  eq?: string | null,
-  file?: string | null,
-  sub?: string | null,
-  bio?: string | null,
+  q?: string,
+  epq?: string,
+  aq?: string,
+  eq?: string,
+  searchFile?: boolean,
+  searchSubject?: boolean,
+  searchBiosample?: boolean,
   subg?: string[],
   subr?: string[],
   dccs?: string[]
 ) => {
-  if (dccs === undefined) {
-    dccs = [];
-  }
+  const coreLabels = [
+    ...(searchFile ? ["File"] : []),
+    ...(searchSubject ? ["Subject"] : []),
+    ...(searchBiosample ? ["Biosample"] : []),
+  ];
+
   let query =
     `?as_q=${encodeURIComponent(q || "")}` +
     `&as_epq=${encodeURIComponent(epq || "")}` +
     `&as_aq=${encodeURIComponent(aq || "")}` +
     `&as_eq=${encodeURIComponent(eq || "")}` +
-    `&as_file=${encodeURIComponent(file || "")}` +
-    `&as_sub=${encodeURIComponent(sub || "")}` +
-    `&as_bio=${encodeURIComponent(bio || "")}` +
+    `&as_core_labels=${encodeURIComponent(coreLabels.join(","))}` +
     `&as_subg=${encodeURIComponent((subg || []).join(","))}` +
     `&as_subr=${encodeURIComponent((subr || []).join(","))}` +
     `&as_dccs=${encodeURIComponent((dccs || []).join(","))}`;
@@ -38,15 +39,9 @@ export const getTextSearchValues = (
   const phraseQuery = decodeURIComponent(params.get("as_epq") || "");
   const allQuery = decodeURIComponent(params.get("as_aq") || "");
   const noneQuery = decodeURIComponent(params.get("as_eq") || "");
-  const searchFile =
-    params.get("as_file") === null ||
-    (params.get("as_file") as string).toLowerCase() === "true";
-  const searchSubject =
-    params.get("as_sub") === null ||
-    (params.get("as_sub") as string).toLowerCase() === "true";
-  const searchBiosample =
-    params.get("as_bio") === null ||
-    (params.get("as_bio") as string).toLowerCase() === "true";
+  const coreLabels = decodeURIComponent(params.get("as_core_labels") || "")
+    .split(",")
+    .filter((n) => n !== "");
   const subjectGenders = decodeURIComponent(params.get("as_subg") || "")
     .split(",")
     .filter((n) => n !== "");
@@ -63,9 +58,7 @@ export const getTextSearchValues = (
     phraseQuery,
     allQuery,
     noneQuery,
-    searchFile,
-    searchSubject,
-    searchBiosample,
+    coreLabels,
     subjectGenders,
     subjectRaces,
     dccNames,

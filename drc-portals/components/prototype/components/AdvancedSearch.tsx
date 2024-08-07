@@ -12,7 +12,10 @@ import TextSearch from "./AdvancedSearch/TextSearch";
 
 export default function AdvancedSearch() {
   const searchParams = useSearchParams();
-  const initialTab = searchParams.has("q") || searchParams.has("as_q") ? 0 : 1;
+  const initialTab =
+    searchParams.has("q") || searchParams.has("as_q") || searchParams.size === 0
+      ? 0
+      : 1;
 
   return (
     <Tabs defaultValue={initialTab}>

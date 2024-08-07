@@ -46,14 +46,8 @@ export default function GraphSearch() {
     clearLongRequestTimer,
     setInitialNetworkData,
   } = useGraphSearchBehavior();
-  const {
-    searchFile,
-    searchSubject,
-    searchBiosample,
-    subjectGenders,
-    subjectRaces,
-    dccNames,
-  } = getTextSearchValues(searchParams);
+  const { coreLabels, subjectGenders, subjectRaces, dccNames } =
+    getTextSearchValues(searchParams);
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [schemaValue, setSchemaValue] = useState<SchemaSearchPath[] | null>(
     null
@@ -89,17 +83,17 @@ export default function GraphSearch() {
     if (searchBarValue.length > 0) {
       if (inputIsValidLucene(searchBarValue)) {
         setLoading(true);
-        setInitialNetworkData(
-          createSynonymSearchCypher(
-            searchBarValue,
-            searchFile,
-            searchSubject,
-            searchBiosample,
-            subjectGenders,
-            subjectRaces,
-            dccNames
-          )
-        )
+        setInitialNetworkData(createSynonymSearchCypher(), {
+          searchTerm: searchBarValue,
+          synLimit: 100,
+          termLimit: 100,
+          collectionLimit: 50,
+          projLimit: 50,
+          dccAbbrevs: dccNames,
+          coreLabels,
+          subjectGenders,
+          subjectRaces,
+        })
           .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
           .finally(() => {
             setLoading(false);

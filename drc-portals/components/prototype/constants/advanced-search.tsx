@@ -18,8 +18,8 @@ export const SM_COLUMNS = 9;
 export const MD_COLUMNS = 12;
 
 export const DCC_NAMES: readonly string[] = [
-  "4DN",
-  "ERCC",
+  "4DN_DCIC",
+  "ERCC_DCC",
   "GTex",
   "GlyGen",
   "HMP",
@@ -33,20 +33,20 @@ export const DCC_NAMES: readonly string[] = [
 ];
 
 export const SUBJECT_GENDERS: ReadonlyMap<string, string> = new Map([
-  ["0", "Indeterminate"],
-  ["1", "Female"],
-  ["2", "Male"],
-  ["3", "Intersex"],
+  ["cfde_subject_sex:0", "Indeterminate"],
+  ["cfde_subject_sex:1", "Female"],
+  ["cfde_subject_sex:2", "Male"],
+  ["cfde_subject_sex:3", "Intersex"],
 ]);
 
 export const SUBJECT_RACES: ReadonlyMap<string, string> = new Map([
-  ["0", "American Indian or Alaska Native"],
-  ["1", "Asian or Pacific Islander (Legacy)"],
-  ["2", "Black or African American"],
-  ["3", "White"],
-  ["4", "Other"],
-  ["5", "Asian"],
-  ["6", "Native Hawaiian or Other Pacific Islander"],
+  ["cfde_subject_race:0", "American Indian or Alaska Native"],
+  ["cfde_subject_race:1", "Asian or Pacific Islander (Legacy)"],
+  ["cfde_subject_race:2", "Black or African American"],
+  ["cfde_subject_race:3", "White"],
+  ["cfde_subject_race:4", "Other"],
+  ["cfde_subject_race:5", "Asian"],
+  ["cfde_subject_race:6", "Native Hawaiian or Other Pacific Islander"],
 ]);
 
 export const NODE_HELPER_TEXT =

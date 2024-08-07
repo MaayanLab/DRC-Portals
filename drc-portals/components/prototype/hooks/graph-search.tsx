@@ -213,11 +213,11 @@ export default function useGraphSearchBehavior() {
     setElements([]);
   };
 
-  const setInitialNetworkData = async (cypher: string) => {
+  const setInitialNetworkData = async (cypher: string, params?: any) => {
     clearNetwork();
 
     setLongRequestTimer();
-    const records = await neo4jService.executeRead<SubGraph>(cypher);
+    const records = await neo4jService.executeRead<SubGraph>(cypher, params);
 
     const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
 
