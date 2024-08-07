@@ -11,8 +11,8 @@ export default function NavBreadcrumbs() {
     const path = usePathname()
     const { path_split, format_path_split } = React.useMemo(() => {
         let path_split = path.replace("/", "").split("/")
-        if (window.location.origin === 'data.cfde.cloud' && path_split[0] !== 'data') path_split = path_split.splice(0, 0, 'data')
-        else if (window.location.origin === 'info.cfde.cloud' && path_split[0] !== 'info') path_split = path_split.splice(0, 0, 'info')
+        if (window.location.origin.includes('data.cfde.cloud') && path_split[0] !== 'data') path_split = path_split.splice(0, 0, 'data')
+        else if (window.location.origin.includes('info.cfde.cloud') && path_split[0] !== 'info') path_split = path_split.splice(0, 0, 'info')
         const format_path_split = path_split.map(p => decodeURIComponent(p).replace('_', ' '))
         if (path_split[0] === 'data' && path_split[1] === 'processed') {
             format_path_split[1] = type_to_string(decodeURIComponent(path_split[1]), null)
