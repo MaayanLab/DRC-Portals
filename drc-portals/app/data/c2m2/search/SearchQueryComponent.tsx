@@ -26,6 +26,9 @@ import React from "react";
 import { safeAsync } from '@/utils/safe';
 import DownloadButton from '../DownloadButton';
 
+//------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
+// Do not delete the abive comment line
+
 const allres_filtered_maxrow_limit = 200000;
 
 type PageProps = { search: string, searchParams: Record<string, string> }
