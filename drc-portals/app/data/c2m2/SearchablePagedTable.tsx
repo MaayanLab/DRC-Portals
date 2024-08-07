@@ -90,10 +90,10 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
 
 
-    useEffect(() => {
-        // Clear the selectedRows state whenever the page or rows change
-        setSelectedRows([]);
-    }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
+    // useEffect(() => {
+    //     // Clear the selectedRows state whenever the page or rows change
+    //     setSelectedRows([]);
+    // }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
     
 
     const handleCheckboxChange = (row: RowType) => { // Use the RowType
