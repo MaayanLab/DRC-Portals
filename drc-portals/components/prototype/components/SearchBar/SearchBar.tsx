@@ -58,7 +58,7 @@ export default function SearchBar(cmpProps: SearchBarProps) {
       setValue("");
     } else {
       setValue(newValue);
-      submit(`"${newValue}"`);
+      submit(newValue);
     }
   };
 
@@ -124,7 +124,7 @@ export default function SearchBar(cmpProps: SearchBarProps) {
     <Autocomplete
       freeSolo
       value={value}
-      options={options}
+      options={options.map((option) => `"${option}"`)}
       onChange={handleOnChange}
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
