@@ -73,7 +73,14 @@ export const createSynonymSearchCypher = () => `
   }
   CALL {
     WITH term
-    OPTIONAL MATCH collectionPath=(:IDNamespace)-[:CONTAINS]->(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
+    OPTIONAL MATCH collectionPath=(:IDNamespace)-[:CONTAINS]->(core)<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
+    WHERE any(
+      label IN labels(core)
+        WHERE
+          (size($coreLabels) = 0 OR label IN $coreLabels)
+          AND (size($subjectGenders) = 0 OR core.sex IN $subjectGenders)
+          AND (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
+    )
     RETURN DISTINCT collectionPath
     LIMIT $collectionLimit
   }
@@ -83,7 +90,7 @@ export const createSynonymSearchCypher = () => `
     WHERE any(
       label IN labels(core)
         WHERE
-          label IN $coreLabels
+          (size($coreLabels) = 0 OR label IN $coreLabels)
           AND (size($subjectGenders) = 0 OR core.sex IN $subjectGenders)
           AND (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
     ) AND (size($dccAbbrevs) = 0 OR dcc.abbreviation IN $dccAbbrevs)
