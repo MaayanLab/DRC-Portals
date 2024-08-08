@@ -73,7 +73,7 @@ export const createSynonymSearchCypher = () => `
   }
   CALL {
     WITH term
-    OPTIONAL MATCH collectionPath=(:IDNamespace)-[:CONTAINS]->(core)<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
+    OPTIONAL MATCH collectionPath=(:DCC)-[:PRODUCED]->(:Project)-[:IS_PARENT_OF*0..]->(:Project)-[:CONTAINS]->(core)<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
     WHERE any(
       label IN labels(core)
         WHERE
