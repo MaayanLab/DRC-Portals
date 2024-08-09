@@ -108,17 +108,6 @@ async function Outreach({ orientation='horizontal', size=2, searchParams}:{
           start_date: { sort: 'desc', nulls: 'last' },
         }
       })
-      if (outreach.length === 0) {
-        outreach = await prisma.outreach.findMany({
-          where: {
-            active: true,
-            featured: true,
-          },
-          orderBy: {
-            start_date: { sort: 'desc', nulls: 'last' },
-          }
-        })
-      }
       outreach = shuffle(outreach).slice(0,size)
       if (outreach.length === 0) {
         outreach = await prisma.outreach.findMany({
