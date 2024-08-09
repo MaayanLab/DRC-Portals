@@ -213,7 +213,12 @@ export default function useGraphSearchBehavior() {
     setElements([]);
   };
 
-  const setInitialNetworkData = async (cypher: string, params?: any) => {
+  const setInitialNetworkData = async (
+    cypher: string,
+    params?: {
+      [key: string]: any;
+    }
+  ) => {
     clearNetwork();
 
     setLongRequestTimer();

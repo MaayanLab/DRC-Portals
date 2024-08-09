@@ -5,6 +5,7 @@ export interface BasePropertyFilter {
   name: string;
   operator: string;
   value: PropertyValue;
+  paramName: string;
 }
 
 export interface BaseSearchBarOption {

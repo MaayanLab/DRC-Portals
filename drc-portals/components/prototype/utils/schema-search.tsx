@@ -1,5 +1,6 @@
 import { Paper, Popper } from "@mui/material";
 import { CSSProperties, ReactElement } from "react";
+import { v4 } from "uuid";
 
 import {
   INCOMING_CONNECTIONS,
@@ -324,6 +325,7 @@ export const createPropertyFilter = (
       // type: PropertyType, // TODO
       operator: propertyOperator,
       value: "",
+      paramName: v4().replace(/\-/g, "_"),
     };
   } else {
     return undefined;

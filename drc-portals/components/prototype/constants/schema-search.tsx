@@ -42,41 +42,47 @@ export const PROPERTY_OPERATORS: ReadonlyMap<string, string[]> = new Map([
 export const OPERATOR_FUNCTIONS: ReadonlyMap<string, PredicateFn> = new Map([
   [
     STRING_EQUALS,
-    (variable, property, value) => `${variable}.${property} = "${value}"`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} = $${paramName}`,
   ],
   [
     STRING_CONTAINS,
-    (variable, property, value) =>
-      `toLower(${variable}.${property}) CONTAINS toLower("${value}")`,
+    (variableName, property, paramName) =>
+      `toLower(${variableName}.${property}) CONTAINS toLower($${paramName})`,
   ],
   [
     STRING_STARTS_WITH,
-    (variable, property, value) =>
-      `${variable}.${property} STARTS WITH "${value}"`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} STARTS WITH $${paramName}`,
   ],
   [
     STRING_ENDS_WITH,
-    (variable, property, value) =>
-      `${variable}.${property} ENDS WITH "${value}"`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} ENDS WITH $${paramName}`,
   ],
   [
     NUMBER_EQUALS,
-    (variable, property, value) => `${variable}.${property} = ${value}`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} = $${paramName}`,
   ],
   [
     NUMBER_GREATER_THAN,
-    (variable, property, value) => `${variable}.${property} > ${value}`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} > $${paramName}`,
   ],
   [
     NUMBER_LESS_THAN,
-    (variable, property, value) => `${variable}.${property} < ${value}`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} < $${paramName}`,
   ],
   [
     NUMBER_GREATER_THAN_OR_EQUAL,
-    (variable, property, value) => `${variable}.${property} >= ${value}`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} >= $${paramName}`,
   ],
   [
     NUMBER_LESS_THAN_OR_EQUAL,
-    (variable, property, value) => `${variable}.${property} <= ${value}`,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} <= $${paramName}`,
   ],
 ]);

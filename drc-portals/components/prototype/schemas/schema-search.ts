@@ -8,6 +8,7 @@ export const BasePropertyFilterSchema = z.object({
   name: z.string(),
   operator: z.string(),
   value: PropertyValueSchema,
+  paramName: z.string(),
 });
 
 export const BaseSearchBarOptionSchema = z.object({

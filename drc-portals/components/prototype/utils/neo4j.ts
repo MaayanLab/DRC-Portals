@@ -106,14 +106,14 @@ export const createSynonymSearchCypher = () => `
   `;
 
 export const createPredicate = (
-  variable: string,
+  variableName: string,
   filter: BasePropertyFilter
 ) => {
   const predicate = OPERATOR_FUNCTIONS.has(filter.operator)
     ? (OPERATOR_FUNCTIONS.get(filter.operator) as PredicateFn)(
-        variable,
+        variableName,
         filter.name,
-        filter.value
+        filter.paramName
       )
     : undefined;
 
@@ -155,7 +155,7 @@ export const getMatchSubpattern = (
 ) => {
   let subPattern = "";
   const elementIsRelationship = isRelationshipOption(element);
-  const variable = element.key || "";
+  const variableName = element.key || "";
 
   // If the first element of the pattern is a relationship, prepend it with an anonymous node
   if (elementIdx === 0 && elementIsRelationship) {
@@ -176,14 +176,14 @@ export const getMatchSubpattern = (
 
   if (elementIsRelationship) {
     if (element.direction === Direction.OUTGOING) {
-      subPattern += `-[${variable}${labelOrTypeAnnotation}]->`;
+      subPattern += `-[${variableName}${labelOrTypeAnnotation}]->`;
     } else if (element.direction === Direction.INCOMING) {
-      subPattern += `<-[${variable}${labelOrTypeAnnotation}]-`;
+      subPattern += `<-[${variableName}${labelOrTypeAnnotation}]-`;
     } else {
-      subPattern += `-[${variable}]-`;
+      subPattern += `-[${variableName}]-`;
     }
   } else {
-    subPattern += `(${variable}${labelOrTypeAnnotation})`;
+    subPattern += `(${variableName}${labelOrTypeAnnotation})`;
   }
 
   // We've reached the last element in the pattern
@@ -210,16 +210,16 @@ export const createCallBlock = (
   let matchPattern = "";
 
   elements.forEach((element, index) => {
-    const variable = element.key || "";
-    const varIsKnown = knownKeys.has(variable);
+    const variableName = element.key || "";
+    const varIsKnown = knownKeys.has(variableName);
     const varIsAnonymous = element.name.length === 0;
     const prevIsRelationship =
       index > 0 ? isRelationshipOption(elements[index - 1]) : false;
 
     if (varIsKnown) {
-      withVars.push(variable);
-    } else if (variable !== "") {
-      retVars.push(variable);
+      withVars.push(variableName);
+    } else if (variableName !== "") {
+      retVars.push(variableName);
     }
 
     matchPattern += getMatchSubpattern(
@@ -232,7 +232,7 @@ export const createCallBlock = (
 
     if (element.filters.length > 0) {
       element.filters.forEach((filter) => {
-        const predicate = createPredicate(variable, filter);
+        const predicate = createPredicate(variableName, filter);
         if (predicate !== undefined) {
           wherePredicates.push(predicate);
         }
@@ -273,7 +273,6 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
   const relationshipKeys = new Set<string>();
   const callBlocks: string[] = [];
 
-  // Make sure every element has a key before proceeding, this ensures every entity in the query will have a variable name
   paths.forEach((path, pathIndex) => {
     let nodeCount = 0;
     let edgeCount = 0;
@@ -313,12 +312,15 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
         });
       }
 
+      // Make sure every element has a key before proceeding, this ensures every entity in the query will have a variable name
       if (element.key === undefined || element.key.length === 0) {
         element.key = `p${pathIndex + 1}${
           isRelationshipOption(element) ? `r${++edgeCount}` : `n${++nodeCount}`
         }`;
         newElements.push(element);
       } else {
+        // Make sure all keys have been escaped to prevent Cypher injections
+        element.key = escapeCypherString(element.key);
         newElements.push(element);
       }
 
@@ -332,6 +334,11 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
           });
         }
       }
+
+      // Make sure all filter property names have been escaped to prevent Cypher injections
+      element.filters.forEach((filter) => {
+        filter.name = escapeCypherString(filter.name);
+      });
     });
 
     path.elements = newElements;
@@ -346,16 +353,16 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
       let matchPattern = "MATCH ";
       const wherePredicates: string[] = [];
       subsequentPath.elements.forEach((element, elIdx) => {
-        const variable = element.key || "";
-        const varIsKnown = tempKnownVars.has(variable);
+        const variableName = element.key || "";
+        const varIsKnown = tempKnownVars.has(variableName);
         const varIsAnonymous = element.name.length === 0;
         const prevIsRelationship =
           elIdx > 0
             ? isRelationshipOption(subsequentPath.elements[elIdx - 1])
             : false;
 
-        if (!varIsKnown && variable !== "") {
-          tempKnownVars.add(variable);
+        if (!varIsKnown && variableName !== "") {
+          tempKnownVars.add(variableName);
         }
 
         matchPattern += getMatchSubpattern(
@@ -368,7 +375,7 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
 
         if (element.filters.length > 0) {
           element.filters.forEach((filter) => {
-            const predicate = createPredicate(variable, filter);
+            const predicate = createPredicate(variableName, filter);
             if (predicate !== undefined) {
               wherePredicates.push(predicate);
             }

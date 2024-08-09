@@ -5,7 +5,7 @@ export type PropertyValue = string | number;
 export type SearchBarOption = NodeOption | RelationshipOption;
 
 export type PredicateFn = (
-  variable: string,
+  variableName: string,
   property: string,
-  value: PropertyValue
+  paramName: string
 ) => string;

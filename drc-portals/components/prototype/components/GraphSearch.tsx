@@ -112,7 +112,18 @@ export default function GraphSearch() {
       schemaValue !== null
     ) {
       setLoading(true);
-      setInitialNetworkData(createSchemaSearchCypher(schemaValue))
+
+      // Set the Cypher query params by reading param names from every filter in the value object
+      const queryParams: { [key: string]: any } = {};
+      schemaValue.forEach((row) => {
+        row.elements.forEach((element) => {
+          element.filters.forEach((filter) => {
+            queryParams[filter.paramName] = filter.value;
+          });
+        });
+      });
+
+      setInitialNetworkData(createSchemaSearchCypher(schemaValue), queryParams)
         .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
         .finally(() => {
           setLoading(false);
