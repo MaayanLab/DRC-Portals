@@ -43,8 +43,10 @@ export async function GET(request: Request) {
       ? sanitizedParams.q.join(' ')
       : sanitizedParams.q ?? '';
 
+    console.log("QueryParam  = "+queryParam)
     // Generate filter clause
     const filterClause = generateFilterQueryString(sanitizedParams, "ffl_biosample_collection");
+    console.log("In route.tsx , filterClause = "+ filterClause);
     const allres_filtered_maxrow_limit = 200000; // Adjust the limit as needed
 
     // Execute the SQL query
@@ -77,8 +79,6 @@ export async function GET(request: Request) {
         count_col: number,
         record_info_url: string,
       }[],
-
-
     }>>(SQL.template`
       WITH allres_full AS (
         SELECT  c2m2.ffl_biosample_collection.*,
@@ -150,7 +150,7 @@ export async function GET(request: Request) {
       SELECT
       (SELECT COALESCE(jsonb_agg(allres_filtered.*), '[]'::jsonb) AS records_full FROM allres_filtered )
     `.toPrismaSql())
-
+    console.log("route.ts results length = " + (results ? results.records_full.length : "0" ));
     return NextResponse.json(results ? results.records_full : "");
   } catch (error) {
     console.error('Error executing query:', error);

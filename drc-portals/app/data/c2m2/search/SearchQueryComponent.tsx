@@ -29,7 +29,7 @@ import DownloadAllButton from '../DownloadAllButton';
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
 
-const allres_filtered_maxrow_limit = 200000;
+const allres_filtered_maxrow_limit = 100;
 const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
 
 type PageProps = { search: string, searchParams: Record<string, string> }
@@ -164,11 +164,18 @@ const doQuery = React.cache(async (props: PageProps) => {
   return results
 })
 
-export async function SearchQueryComponentTab(props: { search: string }) {
+/* export async function SearchQueryComponentTab(props: { search: string }) {
   const results = await safeAsync(() => doQuery({ ...props, searchParams: {} }))
   if (results.error) console.error(results.error)
   if (!results.data) return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata</>} hidden />
-  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null}</>} hidden={results.data.all_count === 0} />
+  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null }</>} hidden={results.data.all_count === 0} />
+} */
+
+export async function SearchQueryComponentTab(props: { search: string }) {
+  //const results = await safeAsync(() => doQuery({ ...props, searchParams: {} }))
+  //if (results.error) console.error(results.error)
+  //if (!results.data) return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata</>} hidden />
+  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br /></>}  />
 }
 
 export async function SearchQueryComponent(props: PageProps) {
