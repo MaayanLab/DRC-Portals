@@ -29,7 +29,7 @@ import DownloadAllButton from '../DownloadAllButton';
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
 
-const allres_filtered_maxrow_limit = 100;
+const allres_filtered_maxrow_limit = 50000;
 const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
 
 type PageProps = { search: string, searchParams: Record<string, string> }
@@ -347,6 +347,8 @@ export async function SearchQueryComponent(props: PageProps) {
                   apiEndpoint={apiEndpoint}
                   filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
                   name="DOWNLOAD ALL"   // Optional: Specify a button name
+                  q={searchParams.q ?? ''}
+                  t={searchParams.t}
                 />
                 </>
               }

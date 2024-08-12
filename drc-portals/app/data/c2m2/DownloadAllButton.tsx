@@ -2,18 +2,36 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
+import SQL from '@/lib/prisma/raw';  // Import SQL
 
+// Define the type for searchParams
 interface DownloadAllButtonProps {
   apiEndpoint: string;
   filename?: string;
   name?: string;
+  q?: string;
+  t?: { type: string; entity_type: string | null; }[] | undefined;
 }
 
-const DownloadAllButton: React.FC<DownloadAllButtonProps> = ({ apiEndpoint, filename = 'data.json', name = 'Download' }) => {
+const DownloadAllButton: React.FC<DownloadAllButtonProps> = ({ apiEndpoint, filename = 'data.json', name = 'Download', q, t }) => {
   const handleDownload = async () => {
     try {
-      // Fetch data from the API endpoint
-      const response = await fetch(apiEndpoint);
+      // Convert filterClause to string using JSON.stringify if SQL.toString is not available
+      
+
+      // Fetch data from the API endpoint with q and filterClause
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',  // Use POST method to send q and filterClause in the body
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          q,
+          t,  
+          limit: 200000,  // Set the limit as required
+        }),  // Send q, filterClause (stringified), and limit in the body
+      });
+
       if (!response.ok) throw new Error('Network response was not ok');
 
       const result = await response.json();
