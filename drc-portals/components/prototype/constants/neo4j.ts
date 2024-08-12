@@ -79,6 +79,10 @@ export const BIOSAMPLE_RELATED_LABELS: ReadonlyArray<string> = [
   SAMPLE_PREP_METHOD_LABEL,
 ];
 
+// Meta labels
+export const SYNONYM_LABEL = "Synonym";
+export const META_LABELS: ReadonlyArray<string> = [SYNONYM_LABEL];
+
 // Set of all node labels
 export const NODE_LABELS: ReadonlySet<string> = new Set([
   ...ADMIN_LABELS,
@@ -106,10 +110,12 @@ export const IS_GRANULARITY_TYPE = "IS_GRANULARITY";
 export const IS_SEX_TYPE = "IS_SEX";
 export const IS_ETHNICITY_TYPE = "IS_ETHNICITY";
 export const IS_SUPERSET_OF_TYPE = "IS_SUPERSET_OF";
+export const DEFINED_BY_TYPE = "DEFINED_BY";
 export const IS_PARENT_OF_TYPE = "IS_PARENT_OF";
 export const DESCRIBES_TYPE = "DESCRIBES";
 export const TESTED_FOR_TYPE = "TESTED_FOR";
 export const IS_RACE_TYPE = "IS_RACE";
+export const HAS_SYNONYM_TYPE = "HAS_SYNONYM";
 
 // Set of all relationship types
 export const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set([
@@ -127,11 +133,17 @@ export const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set([
   IS_RACE_TYPE,
   IS_SEX_TYPE,
   IS_SUPERSET_OF_TYPE,
+  DEFINED_BY_TYPE,
   PREPPED_VIA_TYPE,
   PRODUCED_TYPE,
   REGISTERED_TYPE,
   SAMPLED_FROM_TYPE,
   TESTED_FOR_TYPE,
+]);
+
+// Set of meta relationship types
+export const META_RELATIONSHIP_TYPES: ReadonlySet<string> = new Set([
+  HAS_SYNONYM_TYPE,
 ]);
 
 export const OUTGOING_CONNECTIONS: ReadonlyMap<
@@ -151,6 +163,7 @@ export const OUTGOING_CONNECTIONS: ReadonlyMap<
     new Map([
       [CONTAINS_TYPE, [...CORE_LABELS, ...TERM_LABELS]],
       [IS_SUPERSET_OF_TYPE, [COLLECTION_LABEL]],
+      [DEFINED_BY_TYPE, [PROJECT_LABEL]],
     ]),
   ],
   [

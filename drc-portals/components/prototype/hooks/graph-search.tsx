@@ -1,15 +1,14 @@
 "use client";
 
-import { Box, Divider } from "@mui/material";
+import { Divider } from "@mui/material";
 import { ElementDefinition, EventObject } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useState } from "react";
 
+import ExpandNodeMenuItem from "../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
 import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
 import ChartNestedCxtMenuItem from "../components/CytoscapeChart/NestedChartCxtMenuItem";
-import { INCOMING_CONNECTIONS, OUTGOING_CONNECTIONS } from "../constants/neo4j";
 import { NO_RESULTS_ERROR_MSG } from "../constants/search-bar";
-import { Direction } from "../enums/schema-search";
 import { CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
 import { getDriver } from "../neo4j";
@@ -30,11 +29,6 @@ import {
   unlockD3ForceNode,
   unlockSelection,
 } from "../utils/cy";
-import {
-  createDirectedRelationshipElement,
-  createNodeElement,
-} from "../utils/shared";
-import { createExpandNodeCypher } from "../utils/neo4j";
 
 export default function useGraphSearchBehavior() {
   const searchParams = useSearchParams();
@@ -47,51 +41,6 @@ export default function useGraphSearchBehavior() {
   >(undefined);
   const neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
-
-  const expandNode = async (cypher: string) => {
-    const records = await neo4jService.executeRead<SubGraph>(cypher);
-    return createCytoscapeElementsFromNeo4j(records);
-  };
-
-  const expandRenderChildren = (event: EventObject) => {
-    const nodeLabel = event.target.data("neo4j")?.labels[0] || "";
-    return [
-      ...Array.from(OUTGOING_CONNECTIONS.get(nodeLabel)?.entries() || []).map(
-        (val) => [Direction.OUTGOING, val] as [Direction, [string, string[]]]
-      ),
-      ...Array.from(INCOMING_CONNECTIONS.get(nodeLabel)?.entries() || []).map(
-        (val) => [Direction.INCOMING, val] as [Direction, [string, string[]]]
-      ),
-    ]
-      .sort(([a_dir, a_type], [b_dir, b_type]) =>
-        a_type[0].localeCompare(b_type[0])
-      )
-      .flatMap(([dir, [type, labels]]) =>
-        labels.map((label) => {
-          return (
-            <ChartCxtMenuItem
-              key={`${type}-${dir}-${label}`}
-              renderContent={(event) => (
-                <>
-                  <Box>{createDirectedRelationshipElement(type, dir)}</Box>
-                  <Box>{createNodeElement(label)}</Box>
-                </>
-              )}
-              action={(event) => {
-                const nodeId = event.target.data("id");
-                const cypher = createExpandNodeCypher(nodeId, label, dir, type);
-                expandNode(cypher).then((newElements) => {
-                  setElements((prevElements) => [
-                    ...prevElements,
-                    ...newElements,
-                  ]);
-                });
-              }}
-            ></ChartCxtMenuItem>
-          );
-        })
-      );
-  };
 
   const highlightRenderChildren = (event: EventObject) => [
     <ChartCxtMenuItem
@@ -135,11 +84,10 @@ export default function useGraphSearchBehavior() {
       action={(event) => setEntityDetails(event.target.data())}
       showFn={(event) => event.cy.elements(":selected").length > 0}
     ></ChartCxtMenuItem>,
-    <ChartNestedCxtMenuItem
+    <ExpandNodeMenuItem
       key="chart-cxt-expand"
-      renderContent={(event) => "Expand"}
-      renderChildren={expandRenderChildren}
-    ></ChartNestedCxtMenuItem>,
+      setElements={setElements}
+    ></ExpandNodeMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-unlock"
       renderContent={(event) => "Unlock"}

@@ -53,6 +53,20 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
+export const createNodeOutgoingRelsCypher = () => `
+  MATCH (n)-[r_outgoing]->(n_outgoing)
+  WHERE id(n) = $node_id
+  WITH labels(n_outgoing) AS outgoing_labels, type(r_outgoing) AS outgoing_type
+  RETURN outgoing_labels, outgoing_type, count([outgoing_labels, outgoing_type]) AS count
+`;
+
+export const createNodeIncomingRelsCypher = () => `
+  MATCH (n_incoming)-[r_incoming]->(n)
+  WHERE id(n) = $node_id
+  WITH labels(n_incoming) AS incoming_labels, type(r_incoming) AS incoming_type
+  RETURN incoming_labels, incoming_type, count([incoming_labels, incoming_type]) AS count
+`;
+
 export const createSynonymOptionsCypher = () => `
   CALL db.index.fulltext.queryNodes('synonymIdx', $input)
   YIELD node
@@ -426,7 +440,7 @@ export const createExpandNodeCypher = (
     `MATCH (n)${relMatch}(m:${nodeLabel})`,
     `WHERE id(n) = ${nodeId}`,
     `WITH DISTINCT m, r`,
-    "LIMIT 10",
+    "LIMIT $limit",
     `RETURN DISTINCT collect(DISTINCT ${createNodeReprStr(
       "m"
     )}) AS nodes, collect(DISTINCT ${createRelReprStr("r")}) AS relationships`,

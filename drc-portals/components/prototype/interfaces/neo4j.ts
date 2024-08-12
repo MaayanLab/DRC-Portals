@@ -18,3 +18,15 @@ export interface RelationshipResult {
   start: Integer;
   end: Integer;
 }
+
+export interface NodeOutgoingRelsResult {
+  outgoing_labels: string[];
+  outgoing_type: string;
+  count: number;
+}
+
+export interface NodeIncomingRelsResult {
+  incoming_labels: string[];
+  incoming_type: string;
+  count: number;
+}
