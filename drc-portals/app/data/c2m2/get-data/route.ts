@@ -1,7 +1,6 @@
-// app/api/get-data/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import SQL from '@/lib/prisma/raw';  // Import SQL
+import SQL from '@/lib/prisma/raw'; // Import SQL
 import { generateFilterClauseFromtParam } from '../utils';
 
 const prisma = new PrismaClient();
@@ -9,14 +8,17 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     // Parse the request body
-    const { q, t, limit } = await request.json();
+    const { q, t, limit, offset } = await request.json();
 
     // Ensure `limit` is provided and is a valid number
     const maxLimit = typeof limit === 'number' && limit > 0 ? limit : 200000; // Default to 200,000 if limit is invalid
 
+    // Ensure `offset` is provided and is a valid number
+    const maxOffset = typeof offset === 'number' && offset >= 0 ? offset : 0; // Default to 0 if offset is invalid
+
     // Validate q and filterClause
     const queryParam = typeof q === 'string' ? q : '';
-    console.log("queryParam = "+queryParam);
+    console.log("queryParam = " + queryParam);
     const filterClause = generateFilterClauseFromtParam(t, "ffl_biosample_collection"); // Adjust tablename as needed
 
     // Execute the SQL query
@@ -51,14 +53,15 @@ export async function POST(request: Request) {
       }[],
     }>>(SQL.template`
     WITH allres_full AS (
-      SELECT  c2m2.ffl_biosample_collection.*,
+      SELECT c2m2.ffl_biosample_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${queryParam})) as "rank"
         FROM c2m2.ffl_biosample_collection
         WHERE searchable @@ websearch_to_tsquery('english', ${queryParam})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
-        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
-        LIMIT ${maxLimit}     
+        ORDER BY rank DESC, dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name,
+        protein_name, compound_name, data_type_name, subject_local_id, biosample_local_id, collection_local_id
+        LIMIT ${maxLimit}
+        OFFSET ${maxOffset}
     ),
       allres AS (
         SELECT 
@@ -66,7 +69,7 @@ export async function POST(request: Request) {
           allres_full.dcc_name AS dcc_name,
           allres_full.dcc_abbreviation AS dcc_abbreviation,
           SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-          COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, 
+          COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
           COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
           SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
           COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
@@ -85,24 +88,24 @@ export async function POST(request: Request) {
           c2m2.project.description AS project_description,
           allres_full.project_persistent_id as project_persistent_id,
           COUNT(*)::INT AS count,
-          COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
-          COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+          COUNT(DISTINCT biosample_local_id)::INT AS count_bios,
+          COUNT(DISTINCT subject_local_id)::INT AS count_sub,
           COUNT(DISTINCT collection_local_id)::INT AS count_col
         FROM allres_full 
-        LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
-          allres_full.project_local_id = c2m2.project.local_id) 
-        GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+        LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND
+          allres_full.project_local_id = c2m2.project.local_id)
+        GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id,
           disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
-          data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id 
-        ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+          data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id
+        ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name,
           protein_name, compound_name, data_type_name
       ),
       allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres),
       allres_filtered AS (
-        SELECT allres.*, 
-        concat_ws('', '/data/c2m2/search/record_info?q=', ${queryParam}, '&t=', 'dcc_name:', allres.dcc_name, 
-        '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
-        '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
+        SELECT allres.*,
+        concat_ws('', '/data/c2m2/search/record_info?q=', ${queryParam}, '&t=', 'dcc_name:', allres.dcc_name,
+        '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name,
+        '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name,
         '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
         '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
         FROM allres
