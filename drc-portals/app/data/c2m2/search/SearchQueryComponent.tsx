@@ -360,6 +360,8 @@ export async function SearchQueryComponent(props: PageProps) {
                   apiEndpoint={apiEndpoint}
                   filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
                   name="DOWNLOAD ALL"   // Optional: Specify a button name
+                  q={searchParams.q ?? ''}
+                  t={searchParams.t}
                 />
                 </>
               }
