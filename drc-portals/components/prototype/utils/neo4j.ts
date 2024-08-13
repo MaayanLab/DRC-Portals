@@ -11,6 +11,12 @@ import {
 import { PredicateFn, SearchBarOption } from "../types/schema-search";
 
 import { isRelationshipOption } from "./schema-search";
+import {
+  BIOSAMPLE_LABEL,
+  CORE_LABELS,
+  FILE_LABEL,
+  SUBJECT_LABEL,
+} from "../constants/neo4j";
 
 export const inputIsValidLucene = (input: string) => {
   try {
@@ -74,7 +80,75 @@ export const createSynonymOptionsCypher = () => `
   LIMIT 10
   `;
 
-export const createSynonymSearchCypher = () => `
+const createCollectionSynonymCallBlock = (label: string) => {
+  const lines: string[] = [
+    "WITH term",
+    `OPTIONAL MATCH collectionPath=(:DCC)-[:PRODUCED]->(:Project)-[:IS_PARENT_OF*0..]->(:Project)-[:CONTAINS]->(core:${escapeCypherString(
+      label
+    )})<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)`,
+  ];
+
+  if (label === SUBJECT_LABEL) {
+    lines.push(
+      "WHERE",
+      "(size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND",
+      "(size($subjectRaces) = 0 OR core.race IN $subjectRaces)"
+    );
+  }
+
+  lines.push("RETURN DISTINCT collectionPath", "LIMIT $collectionLimit");
+
+  return lines.join("\n") + "\n";
+};
+
+const createProjectSynonymCallBlock = (label: string) => {
+  const lines: string[] = ["WITH term, collectionPath"];
+
+  if (label === SUBJECT_LABEL) {
+    lines.push(
+      `OPTIONAL MATCH projectPath=(term)<-[:ASSOCIATED_WITH|TESTED_FOR]-(core:${escapeCypherString(
+        label
+      )})<-[:CONTAINS]-(:Project)<-[:IS_PARENT_OF*0..]-(:Project)<-[:PRODUCED]-(dcc:DCC)`,
+      "WHERE",
+      "(size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND",
+      "(size($subjectRaces) = 0 OR core.race IN $subjectRaces)"
+    );
+  } else if (label === BIOSAMPLE_LABEL) {
+    lines.push(
+      `OPTIONAL MATCH projectPath=(term)<-[:ASSOCIATED_WITH|SAMPLED_FROM|TESTED_FOR]-(core:${escapeCypherString(
+        label
+      )})<-[:CONTAINS]-(:Project)<-[:IS_PARENT_OF*0..]-(:Project)<-[:PRODUCED]-(dcc:DCC)`
+    );
+  } else {
+    console.warn(
+      "Tried to create a project connection Cypher for a label which was not Biosample or Subject!"
+    );
+    return "";
+  }
+
+  lines.push("RETURN DISTINCT projectPath", "LIMIT $projectLimit");
+
+  return lines.join("\n") + "\n";
+};
+
+export const createSynonymSearchCypher = (coreLabels: string[]) => {
+  const collectionPathQueries: string[] = [];
+  const projectPathQueries: string[] = [];
+
+  if (coreLabels.length === 0) {
+    coreLabels = Array.from(CORE_LABELS);
+  }
+
+  coreLabels.forEach((label) => {
+    collectionPathQueries.push(createCollectionSynonymCallBlock(label));
+
+    // File nodes have no direct connections to term nodes under the current schema, so they can be safely ignored in the project path
+    if (label !== FILE_LABEL) {
+      projectPathQueries.push(createProjectSynonymCallBlock(label));
+    }
+  });
+
+  return `
   CALL db.index.fulltext.queryNodes('synonymIdx', $searchTerm)
   YIELD node AS synonym
   WITH synonym
@@ -86,38 +160,21 @@ export const createSynonymSearchCypher = () => `
     LIMIT $termLimit
   }
   CALL {
-    WITH term
-    OPTIONAL MATCH collectionPath=(:DCC)-[:PRODUCED]->(:Project)-[:IS_PARENT_OF*0..]->(:Project)-[:CONTAINS]->(core)<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
-    WHERE any(
-      label IN labels(core)
-        WHERE
-          (size($coreLabels) = 0 OR label IN $coreLabels)
-          AND (size($subjectGenders) = 0 OR core.sex IN $subjectGenders)
-          AND (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
-    )
-    RETURN DISTINCT collectionPath
-    LIMIT $collectionLimit
+    ${collectionPathQueries.join("UNION ALL\n")}
   }
   CALL {
-    WITH term, collectionPath
-    OPTIONAL MATCH projectPath=(term)<-[]-(core)<-[:CONTAINS]-(:Project)<-[:IS_PARENT_OF*0..]-(:Project)<-[:PRODUCED]-(dcc:DCC)
-    WHERE any(
-      label IN labels(core)
-        WHERE
-          (size($coreLabels) = 0 OR label IN $coreLabels)
-          AND (size($subjectGenders) = 0 OR core.sex IN $subjectGenders)
-          AND (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
-    ) AND (size($dccAbbrevs) = 0 OR dcc.abbreviation IN $dccAbbrevs)
-    RETURN DISTINCT projectPath
-    LIMIT $projLimit
+    ${projectPathQueries.join("UNION ALL\n")}
   }
-  WITH apoc.path.combine(collectionPath, projectPath) AS path
-  UNWIND nodes(path) AS n
-  UNWIND relationships(path) AS r
+  WITH
+    COALESCE(nodes(collectionPath), []) + COALESCE(nodes(projectPath), []) AS joinedNodes,
+    COALESCE(relationships(collectionPath), []) + COALESCE(relationships(projectPath), []) AS joinedRels
+  UNWIND joinedNodes AS n
+  UNWIND joinedRels AS r
   RETURN
     collect(DISTINCT ${createNodeReprStr("n")}) AS nodes,
     collect(DISTINCT ${createRelReprStr("r")}) AS relationships
   `;
+};
 
 export const createPredicate = (
   variableName: string,

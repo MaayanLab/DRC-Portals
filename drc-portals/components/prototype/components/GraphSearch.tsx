@@ -83,14 +83,13 @@ export default function GraphSearch() {
     if (searchBarValue.length > 0) {
       if (inputIsValidLucene(searchBarValue)) {
         setLoading(true);
-        setInitialNetworkData(createSynonymSearchCypher(), {
+        setInitialNetworkData(createSynonymSearchCypher(coreLabels), {
           searchTerm: searchBarValue,
           synLimit: 100,
           termLimit: 100,
           collectionLimit: 50,
-          projLimit: 50,
+          projectLimit: 50,
           dccAbbrevs: dccNames,
-          coreLabels,
           subjectGenders,
           subjectRaces,
         })
