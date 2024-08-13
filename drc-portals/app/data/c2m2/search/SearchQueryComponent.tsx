@@ -29,7 +29,10 @@ import DownloadAllButton from '../DownloadAllButton';
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
 
-const allres_filtered_maxrow_limit = 100;
+const allres_filtered_maxrow_limit = 50000;
+var super_offset = 0;
+const super_limit = 50000;
+
 const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
 
 type PageProps = { search: string, searchParams: Record<string, string> }
@@ -41,7 +44,9 @@ const doQuery = React.cache(async (props: PageProps) => {
   const offset = (currentPage - 1) * searchParams.r;
   const limit = searchParams.r;
 
-  const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
+  //const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
+  // 2024/08/09: Tried to combine allres_full and allres codes, so, pass allres_full below
+  const filterClause = generateFilterQueryString(searchParams, "allres_full");
   // To measure time taken by different parts
   const t0: number = performance.now();
   const [results] = await prisma.$queryRaw<Array<{
@@ -65,7 +70,7 @@ const doQuery = React.cache(async (props: PageProps) => {
       data_type_name: string,
       data_type: string,
       project_name: string,
-      project_description: string,
+      //project_description: string,
       project_persistent_id: string,
       count: number, // this is based on across all-columns of ffl_biosample
       count_bios: number,
@@ -78,7 +83,8 @@ const doQuery = React.cache(async (props: PageProps) => {
     // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
     // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
   }>>(SQL.template`
-    WITH allres_full AS (
+    WITH 
+    /**** allres_full AS (
       SELECT  c2m2.ffl_biosample_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
         FROM c2m2.ffl_biosample_collection
@@ -87,10 +93,10 @@ const doQuery = React.cache(async (props: PageProps) => {
         ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
         protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
         LIMIT ${allres_filtered_maxrow_limit}     
-    ),
+    ), ****/
     allres AS (
       SELECT 
-        allres_full.rank AS rank,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
         SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -116,22 +122,29 @@ const doQuery = React.cache(async (props: PageProps) => {
         /* allres_full.project_name AS project_name, */
         COALESCE(allres_full.project_name, 
           concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-        c2m2.project.description AS project_description,
+        /**** c2m2.project.description AS project_description, ****/
         allres_full.project_persistent_id as project_persistent_id,
         COUNT(*)::INT AS count,
         COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
         COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
         COUNT(DISTINCT collection_local_id)::INT AS count_col
-      FROM allres_full 
-      LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
-        allres_full.project_local_id = c2m2.project.local_id) 
+      FROM c2m2.ffl_biosample_collection as allres_full 
+      /**** LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+        allres_full.project_local_id = c2m2.project.local_id) ****/
       /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
         allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
+
+      /**** Mano: 2024/08/09: Trying to combine allres_full and allres into one CTE ****/  
+      WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        
       GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
         disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
-        data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id 
+        data_type_name, data_type, project_name /**** , project_description ****/ , allres_full.project_persistent_id 
       ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name
+        protein_name, compound_name, data_type_name /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
+      OFFSET ${super_offset}
+      LIMIT ${super_limit} /* ${allres_filtered_maxrow_limit}      */
     ),
     allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres /*${filterClause}*/),
     allres_filtered AS (
@@ -400,3 +413,58 @@ export async function SearchQueryComponent(props: PageProps) {
   // https://ucsd-sslab.ngrok.app/data/processed/search?q=parkinson&p=1&s=c2m2&t=taxonomy%3AHomo+sapiens
   // Issue fixed by changing ncbi_taxonomy to taxonomy in utils.ts in function generateFilterQueryString
   //
+
+/*
+// Keeping a copy of original CTE parts for allres_full and allres
+    WITH allres_full AS (
+      SELECT  c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT ${allres_filtered_maxrow_limit}     
+    ),
+    allres AS (
+      SELECT 
+        allres_full.rank AS rank,
+        allres_full.dcc_name AS dcc_name,
+        allres_full.dcc_abbreviation AS dcc_abbreviation,
+        SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
+        COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+        COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+        REPLACE(allres_full.disease, ':', '_') AS disease,
+        COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+        REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+        COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+        allres_full.gene AS gene,
+        COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+        allres_full.protein AS protein,
+        COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+        allres_full.substance_compound AS compound,
+        COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+        REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+        COALESCE(allres_full.project_name, 
+          concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+        c2m2.project.description AS project_description,
+        allres_full.project_persistent_id as project_persistent_id,
+        COUNT(*)::INT AS count,
+        COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+        COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+        COUNT(DISTINCT collection_local_id)::INT AS count_col
+      FROM allres_full 
+      LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+        allres_full.project_local_id = c2m2.project.local_id) 
+      /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
+        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
+      /*** GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+        disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
+        data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id 
+      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name
+    ),
+
+*/  
