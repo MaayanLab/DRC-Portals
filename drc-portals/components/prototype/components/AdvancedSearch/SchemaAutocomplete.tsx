@@ -2,13 +2,17 @@ import { Autocomplete, Box, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
+import { Direction } from "../../enums/schema-search";
 import { SearchBarOption } from "../../types/schema-search";
 import {
   CustomPaper,
   CustomPopper,
   getSearchPathElements,
   getOptions,
+  isRelationshipOption,
 } from "../../utils/schema-search";
+
+import SchemaAutocompleteEndAdornment from "./SchemaAutocompleteEndAdornment";
 
 interface SchemaAutocompleteProps {
   value?: SearchBarOption[];
@@ -85,6 +89,30 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       ))
     );
 
+  const handleOnReverse = () => {
+    setValue(
+      [...value]
+        .map((value) => {
+          if (isRelationshipOption(value)) {
+            return {
+              ...value,
+              direction:
+                value.direction === Direction.INCOMING
+                  ? Direction.OUTGOING
+                  : Direction.INCOMING,
+            };
+          } else {
+            return value;
+          }
+        })
+        .reverse()
+    );
+  };
+
+  const handleOnClear = () => {
+    setValue([]);
+  };
+
   const handleRenderInput = (params: any) => (
     <TextField
       {...params}
@@ -93,6 +121,13 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
       InputProps={{
         ...params.InputProps,
         sx: { backgroundColor: "#FFF" },
+        endAdornment: (
+          <SchemaAutocompleteEndAdornment
+            showBtns={value.length !== 0}
+            onReverse={handleOnReverse}
+            onClear={handleOnClear}
+          />
+        ),
       }}
     />
   );
@@ -116,6 +151,9 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
         borderRadius: "4px",
         minWidth: "340px",
         backgroundColor: "transparent",
+        "& .MuiOutlinedInput-root": {
+          paddingRight: "90px!important",
+        },
       }}
     />
   );

@@ -1,4 +1,4 @@
-import { CircularProgress, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { KeyboardEvent } from "react";
 
 import SearchBarEndAdornment from "./SearchBarEndAdornment";
