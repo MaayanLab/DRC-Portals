@@ -5,6 +5,7 @@ files=(
     "synonym_constraints.cypher"
     "synonym_indexes.cypher"
     "synonyms.cypher"
+    "all_projects_dcc.cypher"
 )
 
 # Iterate over the array of filenames
