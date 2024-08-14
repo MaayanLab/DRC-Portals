@@ -74,10 +74,20 @@ export const createNodeIncomingRelsCypher = () => `
 `;
 
 export const createSynonymOptionsCypher = () => `
-  CALL db.index.fulltext.queryNodes('synonymIdx', $input)
-  YIELD node
-  RETURN node.name AS synonym
-  LIMIT 10
+  CALL {
+    CALL db.index.fulltext.queryNodes('synonymIdx', $input)
+    YIELD node AS s
+    RETURN s.name AS synonym
+    LIMIT $limit
+    UNION ALL
+    MATCH (s:Synonym)
+    WHERE s.name STARTS WITH $input
+    RETURN s.name AS synonym
+    ORDER BY size(s.name)
+    LIMIT $limit
+  }
+  RETURN DISTINCT synonym
+  ORDER BY size(synonym)
   `;
 
 const createCollectionSynonymCallBlock = (label: string) => {
