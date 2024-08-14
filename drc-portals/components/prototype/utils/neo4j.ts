@@ -1,6 +1,7 @@
 // @ts-ignore
 import parser from "lucene-query-parser";
 import { int } from "neo4j-driver";
+import { v4 } from "uuid";
 
 import { OPERATOR_FUNCTIONS } from "../constants/schema-search";
 import { Direction } from "../enums/schema-search";
@@ -512,4 +513,17 @@ export const createExpandNodeCypher = (
       "m"
     )}) AS nodes, collect(DISTINCT ${createRelReprStr("r")}) AS relationships`,
   ].join("\n");
+};
+
+export const neo4jSafeUUID = () => {
+  let uuid = v4();
+  const alphabets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSTUVWXYZ";
+
+  if (/^\d/.test(uuid)) {
+    const randomAlphabet =
+      alphabets[Math.floor(Math.random() * alphabets.length)];
+    uuid = randomAlphabet + uuid.slice(1);
+  }
+
+  return uuid.replace(/\-/g, "_");
 };

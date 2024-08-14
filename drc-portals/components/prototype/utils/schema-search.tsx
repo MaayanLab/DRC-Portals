@@ -1,6 +1,5 @@
 import { Paper, Popper } from "@mui/material";
 import { CSSProperties, ReactElement } from "react";
-import { v4 } from "uuid";
 
 import {
   INCOMING_CONNECTIONS,
@@ -22,6 +21,7 @@ import {
   RelationshipElementFactory,
 } from "../types/shared";
 
+import { neo4jSafeUUID } from "./neo4j";
 import {
   LABEL_TO_FACTORY_MAP,
   TYPE_TO_FACTORY_MAP,
@@ -325,7 +325,7 @@ export const createPropertyFilter = (
       // type: PropertyType, // TODO
       operator: propertyOperator,
       value: "",
-      paramName: v4().replace(/\-/g, "_"),
+      paramName: neo4jSafeUUID(),
     };
   } else {
     return undefined;
