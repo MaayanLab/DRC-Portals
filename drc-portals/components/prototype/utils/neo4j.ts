@@ -112,7 +112,7 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
   }
   CALL {
     WITH term, dcc
-    OPTIONAL MATCH collectionPath=(dcc)-[:REGISTERED]->(:IDNamespace)-[:CONTAINS]->(core:${coreLabels
+    MATCH path=(dcc)-[:REGISTERED]->(:IDNamespace)-[:CONTAINS]->(core:${coreLabels
       .map(escapeCypherString)
       .join(
         "|"
@@ -125,12 +125,11 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
           (size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND
           (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
       )
-    RETURN DISTINCT collectionPath
+    RETURN DISTINCT path
     LIMIT $collectionLimit
-  }
-  CALL {
-    WITH term
-    OPTIONAL MATCH corePath=(term)<-[:ASSOCIATED_WITH|TESTED_FOR]-(core:${coreLabels
+    UNION ALL
+    WITH term, dcc
+    MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR]-(core:${coreLabels
       .map(escapeCypherString)
       .join("|")})<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
     WHERE
@@ -141,14 +140,12 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
           (size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND
           (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
       )
-    RETURN DISTINCT corePath
+    RETURN DISTINCT path
     LIMIT $coreLimit
   }
-  WITH
-    COALESCE(nodes(collectionPath), []) + COALESCE(nodes(corePath), []) AS joinedNodes,
-    COALESCE(relationships(collectionPath), []) + COALESCE(relationships(corePath), []) AS joinedRels
-  UNWIND joinedNodes AS n
-  UNWIND joinedRels AS r
+  WITH nodes(path) AS pathNodes, relationships(path) AS pathRels
+  UNWIND pathNodes AS n
+  UNWIND pathRels AS r
   RETURN
     collect(DISTINCT ${createNodeReprStr("n")}) AS nodes,
     collect(DISTINCT ${createRelReprStr("r")}) AS relationships
