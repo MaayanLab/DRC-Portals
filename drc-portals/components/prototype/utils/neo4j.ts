@@ -97,19 +97,22 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
   }
 
   return `
-  CALL db.index.fulltext.queryNodes('synonymIdx', $searchTerm)
-  YIELD node AS synonym
-  WITH synonym
-  LIMIT $synLimit
   CALL {
+    CALL db.index.fulltext.queryNodes('synonymIdx', $searchTerm)
+    YIELD node AS synonym
     WITH synonym
+    LIMIT $synLimit
     MATCH (synonym)<-[:HAS_SYNONYM]-(term)
     RETURN DISTINCT term
     LIMIT $termLimit
   }
   CALL {
-    WITH term
-    OPTIONAL MATCH collectionPath=(:DCC)-[:PRODUCED]->(:Project)-[:IS_PARENT_OF*0..]->(:Project)-[:CONTAINS]->(core:${coreLabels
+    MATCH (dcc:DCC)
+    RETURN dcc
+  }
+  CALL {
+    WITH term, dcc
+    OPTIONAL MATCH collectionPath=(dcc)-[:REGISTERED]->(:IDNamespace)-[:CONTAINS]->(core:${coreLabels
       .map(escapeCypherString)
       .join(
         "|"
@@ -127,11 +130,9 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
   }
   CALL {
     WITH term
-    OPTIONAL MATCH projectPath=(term)<-[:ASSOCIATED_WITH|TESTED_FOR]-(core:${coreLabels
+    OPTIONAL MATCH corePath=(term)<-[:ASSOCIATED_WITH|TESTED_FOR]-(core:${coreLabels
       .map(escapeCypherString)
-      .join(
-        "|"
-      )})<-[:CONTAINS]-(:Project)<-[:IS_PARENT_OF*0..]-(:Project)<-[:PRODUCED]-(dcc:DCC)
+      .join("|")})<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
     WHERE
       core:File OR
       core:Biosample OR
@@ -140,12 +141,12 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
           (size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND
           (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
       )
-    RETURN DISTINCT projectPath
-    LIMIT $projectLimit
+    RETURN DISTINCT corePath
+    LIMIT $coreLimit
   }
   WITH
-    COALESCE(nodes(collectionPath), []) + COALESCE(nodes(projectPath), []) AS joinedNodes,
-    COALESCE(relationships(collectionPath), []) + COALESCE(relationships(projectPath), []) AS joinedRels
+    COALESCE(nodes(collectionPath), []) + COALESCE(nodes(corePath), []) AS joinedNodes,
+    COALESCE(relationships(collectionPath), []) + COALESCE(relationships(corePath), []) AS joinedRels
   UNWIND joinedNodes AS n
   UNWIND joinedRels AS r
   RETURN

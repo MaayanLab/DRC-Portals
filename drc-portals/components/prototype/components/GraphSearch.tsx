@@ -86,9 +86,9 @@ export default function GraphSearch() {
         setInitialNetworkData(createSynonymSearchCypher(coreLabels), {
           searchTerm: searchBarValue,
           synLimit: 10,
-          termLimit: 100,
+          termLimit: 10,
           collectionLimit: 50,
-          projectLimit: 50,
+          coreLimit: 50,
           dccAbbrevs: dccNames,
           subjectGenders,
           subjectRaces,

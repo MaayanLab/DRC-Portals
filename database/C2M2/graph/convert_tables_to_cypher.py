@@ -275,9 +275,8 @@ def create_disease_association_type_cypher():
 def create_dcc_cypher():
     # id	dcc_name	dcc_abbreviation	dcc_description	contact_email	contact_name	dcc_url	project_id_namespace	project_local_id
     props = '{id: row.id, name: row.dcc_name, abbreviation: row.dcc_abbreviation, description: row.dcc_description, contact_email: row.contact_email, contact_name: row.contact_name, url: row.dcc_url}'
-    create_dcc_stmt = f'CREATE (dcc:DCC {props})\nWITH dcc, row\n'
-    merge_stmt = f'MERGE (dcc)-[:PRODUCED]->(project)'
-    return create_dcc_stmt + MATCH_PROJECT_STR + merge_stmt
+    create_dcc_stmt = f'CREATE (dcc:DCC {props})\n'
+    return create_dcc_stmt
 
 
 def create_id_namespace_dcc_id_cypher():

@@ -98,7 +98,6 @@ export const NODE_LABELS: ReadonlySet<string> = new Set([
 export const ASSOCIATED_WITH_TYPE = "ASSOCIATED_WITH";
 export const CONTAINS_TYPE = "CONTAINS";
 export const REGISTERED_TYPE = "REGISTERED";
-export const PRODUCED_TYPE = "PRODUCED";
 export const HAS_SOURCE_TYPE = "HAS_SOURCE";
 export const SAMPLED_FROM_TYPE = "SAMPLED_FROM";
 export const PREPPED_VIA_TYPE = "PREPPED_VIA";
@@ -135,7 +134,6 @@ export const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set([
   IS_SUPERSET_OF_TYPE,
   DEFINED_BY_TYPE,
   PREPPED_VIA_TYPE,
-  PRODUCED_TYPE,
   REGISTERED_TYPE,
   SAMPLED_FROM_TYPE,
   TESTED_FOR_TYPE,
@@ -166,13 +164,7 @@ export const OUTGOING_CONNECTIONS: ReadonlyMap<
       [DEFINED_BY_TYPE, [PROJECT_LABEL]],
     ]),
   ],
-  [
-    DCC_LABEL,
-    new Map([
-      [PRODUCED_TYPE, [PROJECT_LABEL]],
-      [REGISTERED_TYPE, [ID_NAMESPACE_LABEL]],
-    ]),
-  ],
+  [DCC_LABEL, new Map([[REGISTERED_TYPE, [ID_NAMESPACE_LABEL]]])],
   [
     FILE_LABEL,
     new Map([
