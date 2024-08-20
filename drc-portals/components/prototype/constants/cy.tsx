@@ -53,7 +53,6 @@ import {
   NCBI_TAXONOMY_LABEL,
   PHENOTYPE_LABEL,
   PREPPED_VIA_TYPE,
-  PRODUCED_TYPE,
   PROJECT_LABEL,
   PROTEIN_LABEL,
   REGISTERED_TYPE,
@@ -423,9 +422,9 @@ const GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID = "gene-associated-with-phenotype";
 
 const FILE_POS = { x: 0, y: 0 };
 const ID_NAMESPACE_POS = { x: FILE_POS.x, y: -120 };
-const DCC_POS = { x: -450, y: 250 };
-const COLLECTION_POS = { x: 300, y: DCC_POS.y };
-const PROJECT_POS = { x: -1 * COLLECTION_POS.x, y: DCC_POS.y };
+const DCC_POS = { x: 0, y: -220 };
+const COLLECTION_POS = { x: 300, y: 250 };
+const PROJECT_POS = { x: -1 * COLLECTION_POS.x, y: 250 };
 const ANALYSIS_TYPE_POS = { x: 215, y: -38 };
 const ASSAY_TYPE_POS = { x: -1 * ANALYSIS_TYPE_POS.x, y: ANALYSIS_TYPE_POS.y };
 const FILE_FORMAT_POS = { x: 150, y: -70 };
@@ -454,20 +453,7 @@ const GENE_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 4.1 };
 const PHENOTYPE_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 5.3 };
 const DISEASE_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 6.2 };
 const ANATOMY_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 7.1 };
-const ALL_TERMS_NODE_POS = { x: -1 * DCC_POS.x, y: DCC_POS.y };
-
-const DCC_REGISTERED_ID_NAMESPACE_SOURCE_DEG = 0;
-const DCC_REGISTERED_ID_NAMESPACE_TARGET_DEG = 0;
-const DCC_REGISTERED_ID_NAMESPACE_SOURCE_POS = getEdgePoint(
-  DCC_POS,
-  DCC_REGISTERED_ID_NAMESPACE_SOURCE_DEG,
-  SCHEMA_NODE_RADIUS
-);
-const DCC_REGISTERED_ID_NAMESPACE_TARGET_POS = getEdgePoint(
-  ID_NAMESPACE_POS,
-  DCC_REGISTERED_ID_NAMESPACE_TARGET_DEG,
-  SCHEMA_NODE_RADIUS
-);
+const ALL_TERMS_NODE_POS = { x: 450, y: 250 };
 
 const ID_NAMESPACE_CONTAINS_PROJECT_SOURCE_DEG = -90;
 const ID_NAMESPACE_CONTAINS_PROJECT_TARGET_DEG = 0;
@@ -1250,16 +1236,7 @@ export const SCHEMA_NODES = [
 
 export const SCHEMA_EDGES = [
   {
-    classes: ["admin-relationship"],
-    data: {
-      id: DCC_PRODUCED_PROJECT_EDGE_ID,
-      source: DCC_NODE_ID,
-      target: PROJECT_NODE_ID,
-      label: PRODUCED_TYPE,
-    },
-  },
-  {
-    classes: ["admin-relationship"],
+    classes: ["admin-relationship", "horizontal-text"],
     data: {
       id: DCC_REGISTERED_ID_NAMESPACE_EDGE_ID,
       source: DCC_NODE_ID,
@@ -1731,36 +1708,7 @@ export const SCHEMA_STYLESHEET: any[] = [
   },
   {
     selector: `edge#${DCC_REGISTERED_ID_NAMESPACE_EDGE_ID}`,
-    style: {
-      label: "",
-      "source-label": "data(label)",
-      "source-text-offset": 100,
-      "curve-style": "round-segments",
-      "radius-type": "arc-radius",
-      "edge-distances": "endpoints",
-      "source-endpoint": `${DCC_REGISTERED_ID_NAMESPACE_SOURCE_DEG}deg`,
-      "target-endpoint": `${DCC_REGISTERED_ID_NAMESPACE_TARGET_DEG}deg`,
-      ...getSegmentPropsWithPoints(
-        DCC_REGISTERED_ID_NAMESPACE_SOURCE_POS,
-        [
-          {
-            x: DCC_REGISTERED_ID_NAMESPACE_SOURCE_POS.x,
-            y:
-              DCC_REGISTERED_ID_NAMESPACE_TARGET_POS.y -
-              SCHEMA_EDGE_SPACING * 2,
-          },
-          {
-            x: DCC_REGISTERED_ID_NAMESPACE_TARGET_POS.x,
-            y:
-              DCC_REGISTERED_ID_NAMESPACE_TARGET_POS.y -
-              SCHEMA_EDGE_SPACING * 2,
-          },
-        ],
-        DCC_REGISTERED_ID_NAMESPACE_TARGET_POS,
-        [true, true]
-      ),
-      "segment-radii": [20, 20],
-    },
+    style: {},
   },
   {
     selector: `edge#${ID_NAMESPACE_CONTAINS_PROJECT_EDGE_ID}`,
