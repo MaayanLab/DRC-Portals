@@ -14,6 +14,7 @@ import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFile
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 import { FancyTab } from '@/components/misc/FancyTabs';
+import AssayTypeFilterComponent from './DataTypeFilterComponent';
 import DCCFilterComponent from './DCCFilterComponent';
 import DataTypeFilterComponent from './DataTypeFilterComponent';
 import CompoundFilterComponent from './CompoundFilterComponent';
@@ -25,15 +26,18 @@ import DiseaseFilterComponent from './DiseaseFilterComponent';
 import React from "react";
 import { safeAsync } from '@/utils/safe';
 import DownloadAllButton from '../DownloadAllButton';
+import c2m2 from '@/lib/prisma/c2m2';
 
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
 
-const allres_filtered_maxrow_limit = 50000;
+const allres_filtered_maxrow_limit = 500000;
 var super_offset = 0;
-const super_limit = 50000;
+const super_limit = 500000;
 
 const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
+
+const main_table = 'ffl_biosample_collection_cmp'; // 'ffl_biosample_collection' or 'ffl_biosample_collection_cmp'
 
 type PageProps = { search: string, searchParams: Record<string, string> }
 
@@ -69,6 +73,8 @@ const doQuery = React.cache(async (props: PageProps) => {
       compound: string,
       data_type_name: string,
       data_type: string,
+      assay_type_name: string,
+      assay_type: string,
       project_name: string,
       //project_description: string,
       project_persistent_id: string,
@@ -95,7 +101,7 @@ const doQuery = React.cache(async (props: PageProps) => {
         LIMIT ${allres_filtered_maxrow_limit}     
     ), ****/
     allres AS (
-      SELECT 
+      SELECT DISTINCT 
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
@@ -119,30 +125,36 @@ const doQuery = React.cache(async (props: PageProps) => {
         allres_full.substance_compound AS compound,
         COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
         REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+        /**** COALESCE(c2m2.project_data_type.assay_type_name, 'Unspecified') AS assay_type_name,
+        REPLACE(c2m2.project_data_type.assay_type_id, ':', '_') AS assay_type, ****/
+        COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
+        REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
         /* allres_full.project_name AS project_name, */
         COALESCE(allres_full.project_name, 
           concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
         /**** c2m2.project.description AS project_description, ****/
         allres_full.project_persistent_id as project_persistent_id,
         COUNT(*)::INT AS count,
-        COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+        /**** COUNT(DISTINCT biosample_local_id)::INT ****/ -99 AS count_bios, 
         COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
         COUNT(DISTINCT collection_local_id)::INT AS count_col
-      FROM c2m2.ffl_biosample_collection as allres_full 
+      /**** FROM c2m2.ffl_biosample_collection_cmp as allres_full ****/
+      FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} as allres_full 
+      
       /**** LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
         allres_full.project_local_id = c2m2.project.local_id) ****/
-      /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
-        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
+      /**** LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
+        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time ****/
 
       /**** Mano: 2024/08/09: Trying to combine allres_full and allres into one CTE ****/  
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         
-      GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+      GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, allres_full.project_local_id, taxonomy_name, taxonomy_id, 
         disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
-        data_type_name, data_type, project_name /**** , project_description ****/ , allres_full.project_persistent_id 
-      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
+        allres_full.data_type_name, data_type, assay_type_name, assay_type, project_name /**** , project_description ****/ , allres_full.project_persistent_id 
+      ORDER BY rank DESC, dcc_short_label, project_name /* , disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name, assay_type_name */ /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
       OFFSET ${super_offset}
       LIMIT ${super_limit} /* ${allres_filtered_maxrow_limit}      */
     ),
@@ -194,8 +206,9 @@ export async function SearchQueryComponentTab(props: { search: string }) {
 export async function SearchQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
 
-    const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
-    
+    //const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
+    const filterClause = generateFilterQueryString(searchParams, main_table);
+
     // this is for filters count limit, passed to various filters for lazy loading
     const maxCount = 1000; 
     try {
@@ -290,6 +303,13 @@ export async function SearchQueryComponent(props: PageProps) {
                     <br />
                   </>
                 )}
+                {res.assay_type_name !== "Unspecified" && (
+                  <>
+                    <span>Assay type: </span>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.assay_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.assay_type_name)}</u></i></Link>
+                    <br />
+                  </>
+                )}
               </>
             ),
             assets: (
@@ -311,35 +331,39 @@ export async function SearchQueryComponent(props: PageProps) {
               filters={
                 <>
                   <React.Suspense fallback={<>Loading..</>}>
-                    <DiseaseFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <DiseaseFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <TaxonomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <TaxonomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <AnatomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <AnatomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <GeneFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <GeneFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <ProteinFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <ProteinFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <CompoundFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <CompoundFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <DataTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount}/>
+                    <DataTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <DCCFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <AssayTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount} main_table = {main_table} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <DCCFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   

@@ -76,3 +76,5 @@ drc=> select count(*) from c2m2.ffl_biosample_collection;
 --- Also, project_description is actually not needed on the main search results page, so, no need to join anyway. 
 --- Leads to some saving.
 --- liver: 3.5 s, blood: 28 s (10s saved), lincs 2021: 57 s (about 6 s saving)
+
+--- see the sql files with the name ending in _cmp.sql

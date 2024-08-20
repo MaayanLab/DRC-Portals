@@ -81,6 +81,7 @@ select distinct
     c2m2.project.name,  c2m2.project.abbreviation, c2m2.project.description, 
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
+    c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name, c2m2.project_data_type.assay_type_description,
 
     c2m2.subject_role_taxonomy.taxonomy_id,
     c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, 
@@ -143,6 +144,7 @@ select distinct
     c2m2.project.name as project_name,  c2m2.project.abbreviation as project_abbreviation, 
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
+    c2m2.project_data_type.assay_type_id as assay_type_id, c2m2.project_data_type.assay_type_name as assay_type_name, 
 
     c2m2.subject_role_taxonomy.taxonomy_id as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
@@ -422,13 +424,17 @@ BEGIN
     END IF;
 END $$;
 
+--- Below, use dcc_abbreviation and project_name instead of project_local_id as project_name 
+--- is used in ORDER BY during query, also changed order to match ORDER BY
 DO $$ 
 BEGIN
     DROP INDEX IF EXISTS ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
     AND indexname = 'ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data') THEN
         CREATE INDEX ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_biosample USING 
-        btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name);
+        --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name, assay_type_name);
+        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, 
+        compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
 --- */
