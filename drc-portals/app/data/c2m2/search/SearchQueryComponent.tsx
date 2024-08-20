@@ -382,7 +382,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 </Link>
                 <DownloadAllButton
                   apiEndpoint={apiEndpoint}
-                  filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
+                  filename={"CFDEC2M2MainSearchTable_ALL_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
                   name="DOWNLOAD ALL"   // Optional: Specify a button name
                   q={searchParams.q ?? ''}
                   t={searchParams.t}
