@@ -1,7 +1,9 @@
 "use client";
 
+import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
+import Rotate90DegreesCcwIcon from "@mui/icons-material/Rotate90DegreesCcw";
 import { Divider } from "@mui/material";
-import { ElementDefinition, EventObject } from "cytoscape";
+import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useState } from "react";
 
@@ -23,6 +25,7 @@ import {
   highlightNeighbors,
   highlightNodesWithLabel,
   isNodeD3Locked,
+  rotateChart,
   selectNeighbors,
   selectNodesWithLabel,
   selectionHasLockedNode,
@@ -114,6 +117,26 @@ export default function useGraphSearchBehavior() {
 
   const customTools: CustomToolbarFnFactory[] = [
     ...D3_FORCE_TOOLS,
+    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
+      rotateChart(
+        "search-chart-toolbar-rotate-cw",
+        "Rotate Clockwise",
+        "rotate-cw",
+        <Rotate90DegreesCwIcon />,
+        90,
+        cyRef,
+        layout
+      ),
+    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
+      rotateChart(
+        "search-chart-toolbar-rotate-ccw",
+        "Rotate Counter-Clockwise",
+        "rotate-ccw",
+        <Rotate90DegreesCcwIcon />,
+        -90,
+        cyRef,
+        layout
+      ),
     () => {
       return (
         <Divider

@@ -502,6 +502,48 @@ export const downloadChartPNG = (
   );
 };
 
+export const rotateChart = (
+  key: string,
+  title: string,
+  label: string,
+  icon: ReactNode,
+  angle: number,
+  cyRef: CytoscapeReference,
+  layout: LayoutOptions
+) => {
+  const action = (angle: number) => {
+    const cy = cyRef.current;
+    if (cy !== undefined && layout !== undefined) {
+      const center = { x: cy.width() / 2, y: cy.height() / 2 };
+      const rad = angle * (Math.PI / 180); // Convert angle to radians
+
+      cy.batch(() => {
+        cy.nodes().forEach((node) => {
+          const pos = node.position();
+          const x = pos.x - center.x;
+          const y = pos.y - center.y;
+          const newX = x * Math.cos(rad) - y * Math.sin(rad) + center.x;
+          const newY = x * Math.sin(rad) + y * Math.cos(rad) + center.y;
+
+          node.position({ x: newX, y: newY });
+          lockD3ForceNode(node);
+        });
+      });
+      cy.layout(layout).run();
+    }
+  };
+
+  return (
+    <Fragment key={key}>
+      <Tooltip title={title} arrow>
+        <IconButton aria-label={label} onClick={() => action(angle)}>
+          {icon}
+        </IconButton>
+      </Tooltip>
+    </Fragment>
+  );
+};
+
 export const D3_FORCE_TOOLS: CustomToolbarFnFactory[] = [
   (cyRef: CytoscapeReference, layout: LayoutOptions) =>
     unlockD3ForceNodes(
