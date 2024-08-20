@@ -58,7 +58,7 @@ const info_nav = [
   {title: "Publications", href: "/info/publications"},
   {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
   {title: "Documentation", href: "/info/documentation"},
-  {title: "News", href: "/info/news"},
+  {title: "What's New?", href: "/info/news"},
   // {title: "About", href: "/info/coming_soon"},
 ]
 
