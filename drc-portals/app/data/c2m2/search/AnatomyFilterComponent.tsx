@@ -3,12 +3,16 @@ import SQL from '@/lib/prisma/raw';
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet";
 import React from 'react';
 
-export default async function AnatomyFilterComponent({ q, filterClause, maxCount }: { q: string, filterClause: SQL, maxCount: number }) {
+// const main_table = 'ffl_biosample_collection_cmp'; // 'ffl_biosample_collection' or 'ffl_biosample_collection_cmp'
+
+/* SELECT DISTINCT COALESCE(${SQL.template`c2m2."${SQL.raw(main_table)}"`}.anatomy_name, 'Unspecified') AS anatomy_name */
+
+export default async function AnatomyFilterComponent({ q, filterClause, maxCount, main_table }: { q: string, filterClause: SQL, maxCount: number, main_table: string }) {
   try {
     const query = SQL.template`
       WITH anares_full AS (
-        SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.anatomy_name, 'Unspecified') AS anatomy_name
-        FROM c2m2.ffl_biosample_collection
+        SELECT DISTINCT COALESCE(anatomy_name, 'Unspecified') AS anatomy_name
+        FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/

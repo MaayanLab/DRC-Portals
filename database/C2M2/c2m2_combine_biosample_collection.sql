@@ -41,8 +41,10 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample_collection' 
     AND indexname = 'ffl_biosample_collection_idx_many_cols') THEN
         CREATE INDEX ffl_biosample_collection_idx_many_cols ON c2m2.ffl_biosample_collection USING 
-        btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, 
-            gene_name, protein_name, compound_name, data_type_name);
+        --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, 
+        ---    gene_name, protein_name, compound_name, data_type_name, assay_type_name);
+        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, 
+        compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
 

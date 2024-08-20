@@ -3,13 +3,13 @@ import SQL from '@/lib/prisma/raw';
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet";
 import React from 'react';
 
-export default async function DCCFilterComponent({ q, filterClause, maxCount }: { q: string, filterClause: SQL, maxCount: number }) {
+export default async function DCCFilterComponent({ q, filterClause, maxCount, main_table }: { q: string, filterClause: SQL, maxCount: number, main_table: string }) {
   try {
     const query = SQL.template`
       WITH dccres_full AS (
-        SELECT DISTINCT c2m2.ffl_biosample_collection.dcc_name,
-          SPLIT_PART(c2m2.ffl_biosample_collection.dcc_abbreviation, '_', 1) AS dcc_short_label
-        FROM c2m2.ffl_biosample_collection
+        SELECT DISTINCT ${SQL.template`c2m2."${SQL.raw(main_table)}"`}.dcc_name,
+          SPLIT_PART(${SQL.template`c2m2."${SQL.raw(main_table)}"`}.dcc_abbreviation, '_', 1) AS dcc_short_label
+        FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/
