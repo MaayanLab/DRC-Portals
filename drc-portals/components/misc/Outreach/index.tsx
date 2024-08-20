@@ -223,7 +223,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
 }) {
     const now = new Date()
     
-    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: true, status: ['active', 'recurring', 'past'], cfde_specific: true})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
     const {tags, type, expand_filter, status=[], cfde_specific} = parsedParams
     let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]): [...type_tags('outreach'), ...type_tags('training')]
