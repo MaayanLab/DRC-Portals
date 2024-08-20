@@ -1,5 +1,4 @@
 set statement_timeout = 0;
-set max_parallel_workers to 4;
 /* DO NOT DELETE ANY OF THE COMMENTS */
 /* 
 run in psql as \i c2m2_combine_biosample_collection_cmp.sql or on bash prompt:
@@ -19,9 +18,6 @@ CREATE TABLE c2m2.ffl_biosample_collection_cmp as (
     union
     (select * from c2m2.ffl_collection_cmp /* limit 100000000 */ )
     )
-    --- Mano: 2024/08/27: May be, preordering might make the query a bit faster
-    ORDER BY dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
-    protein_name, compound_name, data_type_name, assay_type_name    
 );
 
 DO $$ 
@@ -51,8 +47,6 @@ BEGIN
         compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
-
-set max_parallel_workers to 0;
 
 --- test:
 
