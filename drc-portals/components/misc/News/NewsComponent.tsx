@@ -7,6 +7,7 @@ import { Prisma } from "@prisma/client";
 import NewsFilter from "./NewsFilters";
 import Image from "next/image";
 import { filterOptions } from './FilterOptions';
+import { JsonArray } from "next-auth/adapters";
 
 type NewsWithDetails = Prisma.NewsGetPayload<{}>;
 
@@ -28,10 +29,11 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
     }, []);
 
     const filteredNews = news.filter(item => {
+        const tags = item.tags as JsonArray
         if (selectedPortals.length === 0) return false; 
         if (!selectedPortals.includes(item.portal)) return false;
         if (selectedTags[item.portal] && selectedTags[item.portal].length > 0) {
-            return item.tags?.some(tag => selectedTags[item.portal].includes(tag)) || !item.tags || item.tags.length === 0;
+            return tags?.some(tag => selectedTags[item.portal].includes(`${tag}`)) || !item.tags || tags.length === 0;
         }
         return true;
     });
@@ -120,9 +122,9 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
                                     <Grid sx={{ marginTop: 1 }} >
                                         {item.supp_description && (
                                             <List sx={{ paddingLeft: 2 }}>
-                                                {item.supp_description.map((desc, i) => (
+                                                {(item.supp_description as JsonArray).map((desc, i) => (
                                                     <ListItem key={i} sx={{ display: 'list-item', padding: 0 }}>
-                                                        <ListItemText primary={<Typography color="textSecondary">• {desc}</Typography>} />
+                                                        <ListItemText primary={<Typography color="textSecondary">• {`${desc}`}</Typography>} />
                                                     </ListItem>
                                                 ))}
                                             </List>
@@ -146,10 +148,10 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
                                                 sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }}
                                             />
                                         )}
-                                        {item.tags && item.tags.map((tag, idx) => (
+                                        {item.tags && (item.tags as JsonArray).map((tag, idx) => (
                                             <Chip
                                                 key={idx}
-                                                label={tag}
+                                                label={`${tag}`}
                                                 color="secondary"
                                                 sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0, marginLeft: 1 }}
                                             />
