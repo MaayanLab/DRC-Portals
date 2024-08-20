@@ -114,6 +114,7 @@ partnership_publications_path = ensure_file_factory('https://cfde-drc.s3.amazona
 tools_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_tools.tsv', 'tools.tsv')
 dcc_usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_usecase.tsv', 'dcc_usecase.tsv')
 usecase_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_usecase.tsv', 'usecase.tsv')
+news_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_news.tsv', 'news.tsv')
 
 #%%
 def current_dcc_assets():
