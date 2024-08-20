@@ -1,16 +1,17 @@
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 
+import GraphSchemaLink from "@/components/prototype/components/GraphSchemaLink";
 import GraphSearch from "@/components/prototype/components/GraphSearch";
 
 export default function GraphSearchLayout() {
   return (
-    <Grid
-      container
-      justifyContent={"center"}
-      sx={{ paddingTop: 2, paddingBottom: 2 }}
-      spacing={2}
-    >
-      <Grid item xs={12} spacing={1}>
+    <Grid container justifyContent={"center"} rowSpacing={1}>
+      <Grid item xs={12}>
+        <Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
+          <GraphSchemaLink></GraphSchemaLink>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
         <GraphSearch></GraphSearch>
       </Grid>
     </Grid>

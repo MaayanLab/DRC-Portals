@@ -22,6 +22,8 @@ import {
 import { SearchBarOption } from "../../types/schema-search";
 import { getSchemaSearchValue } from "../../utils/advanced-search";
 
+import GraphSchemaLink from "../GraphSchemaLink";
+
 import SchemaSearchFormRow from "./SchemaSearchFormRow";
 import SettingsPropertyForm from "./SettingsPropertyForm";
 
@@ -99,6 +101,29 @@ export default function SchemaSearch() {
 
   return (
     <Grid container rowSpacing={ROW_SPACING}>
+      <Grid item xs={12}>
+        <Typography variant="body1">
+          C2M2 Graph Schema Search allows you to easily search the C2M2 graph
+          database by constructing queries without needing to write Cypher code.
+          Start by using the autocomplete search bars to add nodes and
+          relationships to your query. As you select a node or relationship, the
+          dropdown lists will update to show only the options that are connected
+          to your current selection, helping you build a valid query step by
+          step.
+        </Typography>
+        <br />
+        <Typography variant="body1">
+          You can add multiple "paths" to your search, with each path building
+          on the results of the previous one. If needed, you can also apply
+          filters or set limits on the results for more precise searches. Once
+          you're ready, simply submit your query, and the results will be
+          displayed in an interactive graph. This tool helps you navigate the
+          database efficiently, even if you're unfamiliar with the underlying
+          graph structure. If you would like to view a represenatation of the
+          graph structure, please visit the <GraphSchemaLink></GraphSchemaLink>{" "}
+          page
+        </Typography>
+      </Grid>
       <Grid
         item
         spacing={2}
