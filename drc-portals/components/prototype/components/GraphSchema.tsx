@@ -6,6 +6,7 @@ import {
   SCHEMA_ELEMENTS,
   SCHEMA_LAYOUT,
   SCHEMA_STYLESHEET,
+  SCHEMA_LEGEND,
 } from "../constants/cy";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
@@ -26,6 +27,7 @@ export default function GraphSchema() {
           elements={SCHEMA_ELEMENTS}
           layout={SCHEMA_LAYOUT}
           stylesheet={SCHEMA_STYLESHEET}
+          legend={SCHEMA_LEGEND}
           legendPosition={{ top: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
           tooltipContentProps={{ noWrap: false }}

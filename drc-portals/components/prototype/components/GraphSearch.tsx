@@ -36,6 +36,7 @@ export default function GraphSearch() {
     error,
     elements,
     entityDetails,
+    legend,
     setLoading,
     setError,
     setEntityDetails,
@@ -179,6 +180,8 @@ export default function GraphSearch() {
           elements={elements}
           layout={D3_FORCE_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}
+          legend={legend}
+          legendPosition={{ bottom: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
           customTools={customTools}
           staticCxtMenuItems={staticCxtMenuItems}

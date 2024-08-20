@@ -57,6 +57,7 @@ interface CytoscapeChartProps {
   staticCxtMenuItems?: ReactNode[];
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
+  legend?: Map<string, ReactNode>;
 }
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
@@ -72,6 +73,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     staticCxtMenuItems,
     nodeCxtMenuItems,
     edgeCxtMenuItems,
+    legend,
   } = cmpProps;
 
   const cyRef = useRef<cytoscape.Core>();
@@ -393,11 +395,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           )}
         </WidgetContainer>
       )}
-      {legendPosition === undefined ? null : (
+      {legendPosition !== undefined && legend !== undefined ? (
         <WidgetContainer key="cy-chart-legend" sx={{ ...legendPosition }}>
-          <ChartLegend></ChartLegend>
+          <ChartLegend legend={legend}></ChartLegend>
         </WidgetContainer>
-      )}
+      ) : null}
     </>
   );
 }

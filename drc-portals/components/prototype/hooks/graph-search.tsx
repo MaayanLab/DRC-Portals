@@ -5,11 +5,16 @@ import Rotate90DegreesCcwIcon from "@mui/icons-material/Rotate90DegreesCcw";
 import { Divider } from "@mui/material";
 import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import ExpandNodeMenuItem from "../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
 import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
 import ChartNestedCxtMenuItem from "../components/CytoscapeChart/NestedChartCxtMenuItem";
+import {
+  SCHEMA_LEGEND,
+  SCHEMA_RELATIONSHIP_ITEM,
+  STYLE_CLASS_TO_LEGEND_KEY_MAP,
+} from "../constants/cy";
 import { NO_RESULTS_ERROR_MSG } from "../constants/search-bar";
 import { CytoscapeNodeData } from "../interfaces/cy";
 import { SubGraph } from "../interfaces/neo4j";
@@ -39,6 +44,7 @@ export default function useGraphSearchBehavior() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [elements, setElements] = useState<ElementDefinition[]>([]);
+  const [legend, setLegend] = useState<Map<string, ReactNode>>();
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
   >(undefined);
@@ -205,6 +211,52 @@ export default function useGraphSearchBehavior() {
     }
   };
 
+  const resetLegend = () => {
+    if (elements.length === 0) {
+      setLegend(undefined);
+    } else {
+      const newLegend = new Map<string, ReactNode>();
+      const nodeClasses = new Set<string>();
+      let relationshipElementFound = false;
+
+      elements.forEach((element) => {
+        if (element.data.source !== undefined) {
+          relationshipElementFound = true;
+        } else {
+          const elementClasses = element.classes;
+          if (typeof elementClasses === "string") {
+            elementClasses
+              .split(" ")
+              .forEach((value) => nodeClasses.add(value));
+          } else if (Array.isArray(elementClasses)) {
+            elementClasses.forEach((value) => nodeClasses.add(value));
+          }
+        }
+      });
+
+      Array.from(nodeClasses)
+        .sort()
+        .forEach((nodeClass) => {
+          const legendKey = STYLE_CLASS_TO_LEGEND_KEY_MAP.get(nodeClass);
+          if (legendKey !== undefined) {
+            newLegend.set(legendKey, SCHEMA_LEGEND.get(legendKey));
+          }
+        });
+
+      if (relationshipElementFound) {
+        newLegend.set(
+          SCHEMA_RELATIONSHIP_ITEM,
+          SCHEMA_LEGEND.get(SCHEMA_RELATIONSHIP_ITEM)
+        );
+      }
+      setLegend(newLegend);
+    }
+  };
+
+  useEffect(() => {
+    resetLegend();
+  }, [elements]);
+
   return {
     searchParams,
     router,
@@ -212,6 +264,7 @@ export default function useGraphSearchBehavior() {
     error,
     elements,
     entityDetails,
+    legend,
     setLoading,
     setError,
     setEntityDetails,

@@ -1,24 +1,32 @@
+import CircleIcon from "@mui/icons-material/Circle";
 import { Box, Paper, TypographyProps, styled } from "@mui/material";
 import { Css, Position } from "cytoscape";
-import { CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 
 import { CytoscapeNodeData } from "../interfaces/cy";
 
 import {
+  ADMIN_NODE_CLASS,
   ADMIN_NODE_COLOR,
+  BIOSAMPLE_RELATED_NODE_CLASS,
   BIOSAMPLE_RELATED_NODE_COLOR,
   CFDE_DARK_BLUE,
+  CONTAINER_NODE_CLASS,
   CONTAINER_NODE_COLOR,
+  CORE_NODE_CLASS,
   CORE_NODE_COLOR,
   DO_LINK,
   EDAM_LINK,
   ENTITY_STYLES_MAP,
+  FILE_RELATED_NODE_CLASS,
   FILE_RELATED_NODE_COLOR,
   HPO_LINK,
   NCBI_TAXONOMY_LINK,
   NODE_CLASS_MAP,
   OBI_LINK,
+  SUBJECT_RELATED_NODE_CLASS,
   SUBJECT_RELATED_NODE_COLOR,
+  TERM_NODE_CLASS,
   TERM_NODE_COLOR,
   UBERON_LINK,
 } from "./shared";
@@ -66,6 +74,7 @@ import {
   SUBSTANCE_LABEL,
   TESTED_FOR_TYPE,
 } from "./neo4j";
+import { createArrowDividerElement } from "../utils/shared";
 
 const getRelativePos = (s: Position, t: Position, c: Position) => {
   const numerator = (c.x - s.x) * (t.x - s.x) + (c.y - s.y) * (t.y - s.y);
@@ -1605,6 +1614,65 @@ export const SCHEMA_EDGES = [
     },
   },
 ];
+
+export const SCHEMA_ADMIN_NODE_ITEM = "Admin Node";
+export const SCHEMA_CONTAINER_NODE_ITEM = "Container Node";
+export const SCHEMA_CORE_NODE_ITEM = "Core Node";
+export const SCHEMA_TERM_NODE_ITEM = "Term Node";
+export const SCHEMA_FILE_RELATED_NODE_ITEM = "File Related Node";
+export const SCHEMA_SUBJECT_RELATED_NODE_ITEM = "Subject Related Node";
+export const SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM = "Biosample Related Node";
+export const SCHEMA_RELATIONSHIP_ITEM = "Relationship";
+
+export const STYLE_CLASS_TO_LEGEND_KEY_MAP = new Map<string, string>([
+  [ADMIN_NODE_CLASS, SCHEMA_ADMIN_NODE_ITEM],
+  [CONTAINER_NODE_CLASS, SCHEMA_CONTAINER_NODE_ITEM],
+  [CORE_NODE_CLASS, SCHEMA_CORE_NODE_ITEM],
+  [TERM_NODE_CLASS, SCHEMA_TERM_NODE_ITEM],
+  [FILE_RELATED_NODE_CLASS, SCHEMA_FILE_RELATED_NODE_ITEM],
+  [SUBJECT_RELATED_NODE_CLASS, SCHEMA_SUBJECT_RELATED_NODE_ITEM],
+  [BIOSAMPLE_RELATED_NODE_CLASS, SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM],
+]);
+
+export const SCHEMA_LEGEND = new Map<string, ReactNode>(
+  new Map([
+    [
+      SCHEMA_ADMIN_NODE_ITEM,
+      <CircleIcon sx={{ color: ADMIN_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_CONTAINER_NODE_ITEM,
+      <CircleIcon sx={{ color: CONTAINER_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_CORE_NODE_ITEM,
+      <CircleIcon sx={{ color: CORE_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_TERM_NODE_ITEM,
+      <CircleIcon sx={{ color: TERM_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_FILE_RELATED_NODE_ITEM,
+      <CircleIcon sx={{ color: FILE_RELATED_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_SUBJECT_RELATED_NODE_ITEM,
+      <CircleIcon
+        sx={{ color: SUBJECT_RELATED_NODE_COLOR }}
+        fontSize="small"
+      />,
+    ],
+    [
+      SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM,
+      <CircleIcon
+        sx={{ color: BIOSAMPLE_RELATED_NODE_COLOR }}
+        fontSize="small"
+      />,
+    ],
+    [SCHEMA_RELATIONSHIP_ITEM, createArrowDividerElement(false)],
+  ])
+);
 
 export const SCHEMA_ELEMENTS = [...SCHEMA_NODES, ...SCHEMA_EDGES];
 
