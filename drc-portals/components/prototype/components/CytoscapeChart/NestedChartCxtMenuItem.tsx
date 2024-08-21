@@ -26,7 +26,7 @@ export default function ChartNestedCxtMenuItem(
     <NestedMenuItem
       rightIcon={<KeyboardArrowRightIcon />}
       renderLabel={() => renderContent(context.event)}
-      parentMenuOpen={true}
+      parentMenuOpen={context.open}
       sx={{ paddingX: "16px" }}
     >
       {renderChildren(context.event)}

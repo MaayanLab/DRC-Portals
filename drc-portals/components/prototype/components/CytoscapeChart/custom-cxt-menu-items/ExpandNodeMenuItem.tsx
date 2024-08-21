@@ -183,7 +183,7 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
         )
       }
       renderLabel={() => "Expand"}
-      parentMenuOpen={true}
+      parentMenuOpen={context.open}
       sx={{ paddingX: "16px" }}
     >
       {subMenuItems.length > 0

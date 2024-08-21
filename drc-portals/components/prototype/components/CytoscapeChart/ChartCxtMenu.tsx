@@ -20,7 +20,7 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
       // Don't try to display the context menu if we don't know what the event was
       return null;
     } else {
-      const context = { event, onClose };
+      const context = { open, event, onClose };
 
       return (
         <Popper
