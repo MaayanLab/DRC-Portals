@@ -14,7 +14,7 @@ import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFile
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 import { FancyTab } from '@/components/misc/FancyTabs';
-import AssayTypeFilterComponent from './DataTypeFilterComponent';
+import AssayTypeFilterComponent from './AssayTypeFilterComponent';
 import DCCFilterComponent from './DCCFilterComponent';
 import DataTypeFilterComponent from './DataTypeFilterComponent';
 import CompoundFilterComponent from './CompoundFilterComponent';
