@@ -14,14 +14,17 @@
 
 # Be in the folder database/C2M2
 
-# If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null
-#server_label=
-server_label=_dbserver
+# If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
+server_label=
+#server_label=_dbserver
+
+# Uncomment one from below for env_file_name; not utilizing actively since .py files other than dburl.py have not been edited for this
+#env_file_name=.env
+env_file_name=.env_pgcontainer
 
 # logdir should not have any spaces
 logdir=log${server_label}
 mkdir -p ${logdir}
-
 
 # id_namespace_dcc_id should be created after the core c2m2 tables have been created, because the py script to ingest into c2m2 deletes and recreates the c2m2 schema.
 #NOT here: # psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o ${logdir}/log_create_id_namespace_dcc_id.log
@@ -76,6 +79,7 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 
 # Other c2m2 related sql scripts
 psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -o ${logdir}/log_c2m2_other_tables.log
+#psql "$(python3 dburl.py ${env_file_name})" -a -f c2m2_other_tables.sql -o ${logdir}/log_c2m2_other_tables.log
 
 # After ingesting c2m2 files, create the table ffl_biosample by running (be in the database/C2M2 folder)
 # ffl_biosample needs project_data_type, so, run c2m2_other_tables.sql first
