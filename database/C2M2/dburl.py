@@ -2,7 +2,26 @@ import os
 import pathlib
 import urllib.parse
 from dotenv import load_dotenv
-load_dotenv(pathlib.Path(__file__).parent.parent.parent/'drc-portals'/'.env')
+import sys
+
+debug = 0;
+
+# check if the name of the env file was passed as an argument
+argv = sys.argv[1:]; # exclude the name of the script file
+if len(argv)>0:
+    env_file_name = argv[0];
+else:
+    env_file_name = '.env';
+
+if debug>0:
+    print(f"env_file_name:{env_file_name}")
+
+#load_dotenv(pathlib.Path(__file__).parent.parent.parent/'drc-portals'/'.env'); # Original line by Daniel
+env_path = pathlib.Path(__file__).parent.parent.parent / 'drc-portals' / env_file_name
+if debug>0:
+    print(f"env_path:{env_path}")
+
+load_dotenv(env_path)
 ########## DB ADMIN INFO: BEGIN ############
 # Comment the line below with .env.dbadmin if not ingesting, almost always ingesting if running these scripts
 #load_dotenv(pathlib.Path(__file__).parent.parent.parent.parent/'DB_ADMIN_INFO'/'.env.dbadmin')

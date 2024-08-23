@@ -1,6 +1,7 @@
 __pycache__
 .DS_Store
 .env
+.env_pgcontainer
 # Keep environment variables out of version control
 current/
 kub/
