@@ -31,7 +31,7 @@ import c2m2 from '@/lib/prisma/c2m2';
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
 
-const allres_filtered_maxrow_limit = 500000;
+const allres_filtered_maxrow_limit = 500000; // Not in use after Aug 15
 var super_offset = 0;
 const super_limit = 500000;
 
