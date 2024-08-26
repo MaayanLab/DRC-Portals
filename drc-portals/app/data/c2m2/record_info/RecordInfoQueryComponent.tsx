@@ -103,6 +103,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         compound: string,
         data_type_name: string,
         data_type: string,
+        assay_type_name: string,
+        assay_type: string,
         project_name: string,
         project_persistent_id: string,
         project_local_id: string,
@@ -145,6 +147,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               allres_full.substance_compound AS compound,
               COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
               REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+              /**** COALESCE(c2m2.project_data_type.assay_type_name, 'Unspecified') AS assay_type_name,
+              REPLACE(c2m2.project_data_type.assay_type_id, ':', '_') AS assay_type, ****/
+              COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
+              REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
               /* allres_full.project_name AS project_name, */
               COALESCE(allres_full.project_name, 
                 concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
@@ -169,12 +175,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
               anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+              data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
               allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
             /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-              protein_name, compound_name, data_type_name /*rank DESC*/
+              protein_name, compound_name, data_type_name, assay_type_name /*rank DESC*/
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
@@ -258,6 +264,14 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         value: resultsRec?.data_type_name && resultsRec?.data_type_name !== "Unspecified"
           ? <Link href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.data_type_name)}
+          </Link>
+          : /* resultsRec?.data_type_name || */ ''
+      },
+      {
+        label: 'Assay type',
+        value: resultsRec?.assay_type_name && resultsRec?.assay_type_name !== "Unspecified"
+          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.assay_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.assay_type_name)}
           </Link>
           : /* resultsRec?.data_type_name || */ ''
       },
