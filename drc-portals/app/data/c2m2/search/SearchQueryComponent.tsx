@@ -165,7 +165,7 @@ const doQuery = React.cache(async (props: PageProps) => {
       '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
       '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
       '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
-      '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
+      '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name, '|', 'assay_type_name:', allres.assay_type_name) AS record_info_url
       FROM allres
       /*${filterClause}*/
       /*LIMIT ${allres_filtered_maxrow_limit}*/
