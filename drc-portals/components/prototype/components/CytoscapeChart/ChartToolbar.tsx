@@ -6,7 +6,6 @@ import Divider from "@mui/material/Divider";
 import { LayoutOptions } from "cytoscape";
 
 import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
-import { lockD3ForceNode } from "../../utils/cy";
 
 type ChartToolbarProps = {
   cyRef: CytoscapeReference;

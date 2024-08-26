@@ -3,6 +3,7 @@ import parser from "lucene-query-parser";
 import { int } from "neo4j-driver";
 import { v4 } from "uuid";
 
+import { CORE_LABELS } from "../constants/neo4j";
 import { OPERATOR_FUNCTIONS } from "../constants/schema-search";
 import { Direction } from "../enums/schema-search";
 import {
@@ -12,12 +13,6 @@ import {
 import { PredicateFn, SearchBarOption } from "../types/schema-search";
 
 import { isRelationshipOption } from "./schema-search";
-import {
-  BIOSAMPLE_LABEL,
-  CORE_LABELS,
-  FILE_LABEL,
-  SUBJECT_LABEL,
-} from "../constants/neo4j";
 
 export const inputIsValidLucene = (input: string) => {
   try {
