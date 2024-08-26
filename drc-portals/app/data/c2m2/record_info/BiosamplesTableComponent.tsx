@@ -4,7 +4,8 @@ import React from 'react';
 import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromBiosampleTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "../ExpandableTable";
-import { Grid, Typography, Card, CardContent } from "@mui/material";
+import { Paper, Grid, Typography, Card, CardContent } from "@mui/material";
+
 
 interface BiosampleTableResult {
     biosamples_table_full: {
@@ -177,39 +178,39 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         console.log("Biosample Category = " + category);
 
         return (
-            <Grid container spacing={2} direction="column">
-                {category && (
-                    <Grid item xs={12}>
-                        <Card variant="outlined" sx={{ mb: 2 }}>
-                            <CardContent id={`card-content-${category.title}`}>
-                                <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: " + countBios}
-                                </Typography>
-                                {category.metadata.map((item, i) => (
-                                    item && item.value ? (
-                                        <Typography key={i} variant="body2">
-                                            <strong>{item.label}: </strong>
-                                            {renderMetadataValue(item)}
-                                        </Typography>
-                                    ) : null
-                                ))}
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                )}
-                <Grid item xs={12}>
-                    <ExpandableTable
-                        data={biosamplePrunedDataWithId}
-                        full_data={biosamples_table_full_withId}
-                        downloadFileName={downloadFilename}
-                        tableTitle={biosampleTableTitle}
-                        searchParams={searchParams}
-                        count={countBios}
-                        colNames={dynamicBiosampleColumns}
-                        dynamicColumns={dynamicBiosampleColumns}
-                        tablePrefix="bioSamplTbl"
-                    />
-                </Grid>
+            <Grid container spacing={0} direction="column">
+            {category && (
+            <Grid item xs={12}>
+            <Card variant="outlined" sx={{ mb: 0, borderBottom: "none" }}>
+                <CardContent id={`card-content-${category.title}`}>
+                <Typography variant="h5" component="div">
+                    {category.title + " (Uniform Columns) Count: " + countBios}
+                </Typography>
+                {category.metadata.map((item, i) => (
+                    item && item.value ? (
+                    <Typography key={i} variant="body2">
+                        <strong>{item.label}: </strong>
+                        {renderMetadataValue(item)}
+                    </Typography>
+                    ) : null
+                ))}
+                </CardContent>
+            </Card>
+            </Grid>
+            )}
+            <Grid item xs={12}>
+                <ExpandableTable
+                    data={biosamplePrunedDataWithId}
+                    full_data={biosamples_table_full_withId}
+                    downloadFileName={downloadFilename}
+                    tableTitle={biosampleTableTitle}
+                    searchParams={searchParams}
+                    count={countBios}
+                    colNames={dynamicBiosampleColumns}
+                    dynamicColumns={dynamicBiosampleColumns}
+                    tablePrefix="bioSamplTbl"
+                />
+            </Grid>
             </Grid>
         );
 
