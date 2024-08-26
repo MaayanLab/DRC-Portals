@@ -232,10 +232,10 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
         const fileBiosTableTitle = fileBios_table_label_base + ": " + get_partial_list_string(countFileBios, count_file_bios_table_withlimit, file_count_limit_bios);
 
         return (
-            <Grid container spacing={2} direction="column" sx={{ maxWidth: '100%' }}>
+            <Grid container spacing={0} direction="column" sx={{ maxWidth: '100%' }}>
                 {category && (
                     <Grid item xs={12} sx={{ maxWidth: '100%' }}>
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ mb: 0, borderBottom: "none" }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
                                     {category.title + " (Uniform Columns) Count: " + countFileBios}
