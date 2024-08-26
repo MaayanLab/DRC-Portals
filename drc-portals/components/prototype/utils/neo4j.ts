@@ -129,7 +129,7 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
     LIMIT $collectionLimit
     UNION ALL
     WITH term, dcc
-    MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR]-(core:${coreLabels
+    MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR|SAMPLED_FROM]-(core:${coreLabels
       .map(escapeCypherString)
       .join("|")})<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
     WHERE
