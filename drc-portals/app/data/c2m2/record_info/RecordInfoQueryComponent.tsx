@@ -297,26 +297,32 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <CollectionsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} colTblOffset={colTblOffset} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesProjTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileProjTblOffset={fileProjTblOffset} file_count_limit_proj={file_count_limit_proj} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileSubTblOffset={fileSubTblOffset} file_count_limit_sub={file_count_limit_sub} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesBiosampleTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileBiosTblOffset={fileBiosTblOffset} file_count_limit_bios={file_count_limit_bios} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col} />
