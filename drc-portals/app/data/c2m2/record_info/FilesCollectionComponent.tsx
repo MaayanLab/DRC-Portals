@@ -109,7 +109,9 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                 allres_full.substance_compound as compound, 
                 allres_full.compound_name,
                 allres_full.data_type_id AS data_type, 
-                allres_full.data_type_name
+                allres_full.data_type_name,
+                allres_full.assay_type_id AS assay_type, /****/
+                allres_full.assay_type_name /****/
             FROM allres_full
         ),
         col_info AS (
@@ -127,14 +129,16 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             FROM c2m2.file AS f
             INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                     AND f.project_id_namespace = ui.project_id_namespace
-                                    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
+                                    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/
+                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
           ),
           file_col_table_keycol AS (
               SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
               f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
               f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
               f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
-              dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name
+              ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
+              /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
             FROM c2m2.file_describes_in_collection fdc
               INNER JOIN file_table_keycol ftk ON 
               (ftk.local_id = fdc.file_local_id AND ftk.id_namespace = fdc.file_id_namespace)
@@ -143,9 +147,10 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
               INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
               INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
                 AND f.project_id_namespace = ui.project_id_namespace
-                AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) )
-              LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-              LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
+                AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/ 
+                AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+              /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
+              LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
               LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
             ),
             file_col_table AS (
