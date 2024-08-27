@@ -297,12 +297,18 @@ export async function SearchQueryComponent(props: PageProps) {
                   </>
                 )}
                 {res.data_type_name !== "Unspecified" && (
-                  <>
-                    <span>Data type: </span>
-                    <Link href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
-                    <br />
-                  </>
+                <>
+                <span>Data type: </span>
+                <Link href={res.data_type.startsWith("ILX") || res.data_type.startsWith("ILX_")
+                      ? `https://scicrunch.org/scicrunch/interlex/view/${res.data_type}`
+                      : `http://edamontology.org/${res.data_type}`
+                 } target="_blank">
+                 <i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i>
+                 </Link>
+                 <br />
+                 </>
                 )}
+
                 {res.assay_type_name !== "Unspecified" && (
                   <>
                     <span>Assay type: </span>
