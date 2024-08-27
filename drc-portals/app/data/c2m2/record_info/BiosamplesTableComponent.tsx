@@ -69,7 +69,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
             ),
-            allres AS (
+            /****Not used allres AS (
                 SELECT DISTINCT
                     COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
                     COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
@@ -86,7 +86,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
                 GROUP BY disease_name, anatomy_name, gene_name, allres_full.project_local_id, c2m2.project.persistent_id
                 ORDER BY disease_name, anatomy_name, gene_name
-            ),
+            ), ****/
             biosamples_table AS (
                 SELECT DISTINCT
                     allres_full.biosample_id_namespace,
