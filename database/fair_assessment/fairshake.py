@@ -405,6 +405,7 @@ def c2m2_fair(directory):
     
 
 def xmt_fair(xmt_path, row):
+    """Run FAIR Assessment for a XMT file asset given its filepath and database row"""
     # initialize fairshake variables
     fairshake_drs = 1
     fairshake_persistent = 0
@@ -438,6 +439,7 @@ def xmt_fair(xmt_path, row):
           
 
 def attribute_tables_fair(attr_table_path, row):
+    """Run FAIR Assessment for an Attribute table file asset given its filepath and database row"""
     # initialize fairshake variables
     fairshake_drs = 1
     fairshake_persistent = 0
@@ -469,6 +471,7 @@ def attribute_tables_fair(attr_table_path, row):
 
 
 def kg_assertions_fair(assertions_extract_path):
+    """Run FAIR Assessment for a KG Assertions file asset given its filepath and database row"""
     # initialize fairshake metric variables
     fairshake_drs = 1
     fairshake_persistent = 0

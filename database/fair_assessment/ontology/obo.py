@@ -1,3 +1,7 @@
+"""
+Credit to Daniel J.B Clarke -- https://github.com/nih-cfde/c2m2-assessment/blob/main/c2m2_assessment/ontology/parser/obo.py
+"""
+
 import re
 from c2m2_assessment.ontology.parser.ontology import Ontology
 
