@@ -1,3 +1,5 @@
+"use client";
+
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import WarningIcon from "@mui/icons-material/Warning";
 import { Box, CircularProgress, Tooltip, Typography } from "@mui/material";

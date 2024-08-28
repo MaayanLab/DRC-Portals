@@ -1,3 +1,5 @@
+"use client";
+
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { EventObject } from "cytoscape";
 import { NestedMenuItem } from "mui-nested-menu";

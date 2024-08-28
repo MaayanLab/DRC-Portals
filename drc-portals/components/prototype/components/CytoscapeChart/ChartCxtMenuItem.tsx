@@ -1,3 +1,5 @@
+"use client";
+
 import { MenuItem } from "@mui/material";
 import { EventObject } from "cytoscape";
 import { ReactNode, useContext, useRef } from "react";
