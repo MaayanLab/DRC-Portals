@@ -22,7 +22,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 
 import {
   COLUMN_SPACING,
-  DCC_NAMES,
+  DCC_ABBREVS,
   LEFT_COLUMN_MD_WIDTH,
   LEFT_COLUMN_SM_WIDTH,
   LEFT_COLUMN_XS_WIDTH,
@@ -55,7 +55,7 @@ export default function TextSearch() {
   const [searchSubject, setSearchSubject] = useState(true);
   const [searchBiosample, setSearchBiosample] = useState(true);
   const [selectedDccs, setSelectedDccs] = useState<string[]>([]);
-  const allDccsSelected = selectedDccs.length === DCC_NAMES.length;
+  const allDccsSelected = selectedDccs.length === DCC_ABBREVS.length;
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const allGendersSelected = selectedGenders.length === SUBJECT_GENDERS.size;
   const [selectedRaces, setSelectedRaces] = useState<string[]>([]);
@@ -103,7 +103,7 @@ export default function TextSearch() {
     } = event;
 
     if (value.indexOf("all") > -1) {
-      setSelectedDccs(allDccsSelected ? [] : Array.from(DCC_NAMES));
+      setSelectedDccs(allDccsSelected ? [] : Array.from(DCC_ABBREVS));
     } else {
       setSelectedDccs(
         // On autofill we get a stringified value.
@@ -176,7 +176,7 @@ export default function TextSearch() {
       coreLabels,
       subjectGenders,
       subjectRaces,
-      dccNames,
+      dccAbbrevs,
     } = getTextSearchValues(searchParams);
     const phraseQueryRegex = /(["'])(?:(?=(\\?))\2.)*?\1/;
     const allQueryRegex = /\B\+\w+/g;
@@ -215,7 +215,7 @@ export default function TextSearch() {
     );
     setSelectedGenders(subjectGenders);
     setSelectedRaces(subjectRaces);
-    setSelectedDccs(dccNames);
+    setSelectedDccs(dccAbbrevs);
   }, []);
 
   return (
@@ -595,12 +595,12 @@ export default function TextSearch() {
                   checked={allDccsSelected}
                   indeterminate={
                     selectedDccs.length > 0 &&
-                    selectedDccs.length < DCC_NAMES.length
+                    selectedDccs.length < DCC_ABBREVS.length
                   }
                 />
                 <ListItemText primary="Select All" />
               </MenuItem>
-              {DCC_NAMES.map((abbrev) => (
+              {DCC_ABBREVS.map((abbrev) => (
                 <MenuItem key={`dcc-list-item-${abbrev}`} value={abbrev}>
                   <Checkbox checked={selectedDccs.indexOf(abbrev) > -1} />
                   <ListItemText primary={abbrev} />

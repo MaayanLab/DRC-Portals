@@ -103,6 +103,7 @@ export const createSynonymSearchCypher = (coreLabels: string[]) => {
   }
   CALL {
     MATCH (dcc:DCC)
+    WHERE size($dccAbbrevs) = 0 OR dcc.abbreviation IN $dccAbbrevs
     RETURN dcc
   }
   CALL {

@@ -17,7 +17,7 @@ export const XS_COLUMNS = 4;
 export const SM_COLUMNS = 9;
 export const MD_COLUMNS = 12;
 
-export const DCC_NAMES: readonly string[] = [
+export const DCC_ABBREVS: readonly string[] = [
   "4DN_DCIC",
   "ERCC_DCC",
   "GTex",

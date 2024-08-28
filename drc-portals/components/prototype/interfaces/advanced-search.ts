@@ -7,5 +7,5 @@ export interface AdvancedSearchValues {
   coreLabels: string[];
   subjectGenders: string[];
   subjectRaces: string[];
-  dccNames: string[];
+  dccAbbrevs: string[];
 }

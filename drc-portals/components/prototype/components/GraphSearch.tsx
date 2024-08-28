@@ -47,7 +47,7 @@ export default function GraphSearch() {
     clearLongRequestTimer,
     setInitialNetworkData,
   } = useGraphSearchBehavior();
-  const { coreLabels, subjectGenders, subjectRaces, dccNames } =
+  const { coreLabels, subjectGenders, subjectRaces, dccAbbrevs } =
     getTextSearchValues(searchParams);
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [schemaValue, setSchemaValue] = useState<SchemaSearchPath[] | null>(
@@ -90,7 +90,7 @@ export default function GraphSearch() {
           termLimit: 10,
           collectionLimit: 1,
           coreLimit: 1,
-          dccAbbrevs: dccNames,
+          dccAbbrevs,
           subjectGenders,
           subjectRaces,
         })

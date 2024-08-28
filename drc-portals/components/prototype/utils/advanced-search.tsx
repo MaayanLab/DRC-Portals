@@ -48,7 +48,7 @@ export const getTextSearchValues = (
   const subjectRaces = decodeURIComponent(params.get("as_subr") || "")
     .split(",")
     .filter((n) => n !== "");
-  const dccNames = decodeURIComponent(params.get("as_dccs") || "")
+  const dccAbbrevs = decodeURIComponent(params.get("as_dccs") || "")
     .split(",")
     .filter((n) => n !== "");
 
@@ -61,7 +61,7 @@ export const getTextSearchValues = (
     coreLabels,
     subjectGenders,
     subjectRaces,
-    dccNames,
+    dccAbbrevs,
   };
 };
 
