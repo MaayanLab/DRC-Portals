@@ -21,7 +21,7 @@ export async function GET(
         error: "Missing required search parameters",
         message:
           "The request is missing one or more required search parameters: [node_label, direction, rel_type, limit].",
-        missing_params: [
+        missingParams: [
           nodeLabel === null ? "node_label" : null,
           direction === null ? "direction" : null,
           relType === null ? "rel_type" : null,
