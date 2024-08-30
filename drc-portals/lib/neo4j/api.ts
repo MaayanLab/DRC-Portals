@@ -1,5 +1,7 @@
+const GRAPH_API_PREFIX = "/data/c2m2/graph/api";
+
 export const fetchAllNodeRels = (nodeId: string) =>
-  fetch(`/data/c2m2/graph/api/all-rels/${nodeId}`, {
+  fetch(`${GRAPH_API_PREFIX}/all-rels/${nodeId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -14,7 +16,7 @@ export const fetchExpandNode = (
   limit: number
 ) =>
   fetch(
-    `/data/c2m2/graph/api/expand/${nodeId}?node_label=${label}&direction=${direction}&rel_type=${type}&limit=${limit}`,
+    `${GRAPH_API_PREFIX}/expand/${nodeId}?node_label=${label}&direction=${direction}&rel_type=${type}&limit=${limit}`,
     {
       method: "GET",
       headers: {
@@ -22,3 +24,11 @@ export const fetchExpandNode = (
       },
     }
   );
+
+export const fetchSynonyms = (query: string) =>
+  fetch(`${GRAPH_API_PREFIX}/synonyms?q=${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });

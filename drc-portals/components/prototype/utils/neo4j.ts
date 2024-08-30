@@ -55,23 +55,6 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
-export const createSynonymOptionsCypher = () => `
-  CALL {
-    CALL db.index.fulltext.queryNodes('synonymIdx', $input)
-    YIELD node AS s
-    RETURN s.name AS synonym
-    LIMIT $limit
-    UNION ALL
-    MATCH (s:Synonym)
-    WHERE s.name STARTS WITH $input
-    RETURN s.name AS synonym
-    ORDER BY size(s.name)
-    LIMIT $limit
-  }
-  RETURN DISTINCT synonym
-  ORDER BY size(synonym)
-  `;
-
 export const createSynonymSearchCypher = (coreLabels: string[]) => {
   if (coreLabels.length === 0) {
     coreLabels = Array.from(CORE_LABELS);

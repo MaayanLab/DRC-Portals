@@ -10,13 +10,13 @@ import {
   useState,
 } from "react";
 
+import { fetchSynonyms } from "@/lib/neo4j/api";
+import { SynoynmsResult } from "@/lib/neo4j/interfaces";
+
 import SearchBarInput from "./SearchBarInput";
 import { getDriver } from "../../neo4j";
 import Neo4jService from "../../services/neo4j";
-import {
-  createSynonymOptionsCypher,
-  inputIsValidLucene,
-} from "../../utils/neo4j";
+import { inputIsValidLucene } from "../../utils/neo4j";
 
 interface SearchBarProps {
   value: string;
@@ -91,10 +91,10 @@ export default function SearchBar(cmpProps: SearchBarProps) {
     () =>
       debounce(async (input: string) => {
         if (inputIsValidLucene(input)) {
-          await neo4jService
-            .executeRead(createSynonymOptionsCypher(), { input, limit: 10 })
-            .then((records) => {
-              setOptions(records.map((record) => record.get("synonym")));
+          await fetchSynonyms(input)
+            .then((response) => response.json())
+            .then((data: SynoynmsResult[]) => {
+              setOptions(data.map((row) => row.synonym));
             })
             .catch((error) => {
               console.debug(error);

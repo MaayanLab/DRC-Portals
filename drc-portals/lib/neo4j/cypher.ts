@@ -34,3 +34,20 @@ export const getIncomingRelsCypher = () => `
   WITH labels(n) AS incomingLabels, type(incomingRel) AS incomingType
   RETURN incomingLabels, incomingType, count([incomingLabels, incomingType]) AS count
 `;
+
+export const getSynonymsCypher = () => `
+  CALL {
+    CALL db.index.fulltext.queryNodes('synonymIdx', $input)
+    YIELD node AS s
+    RETURN s.name AS synonym
+    LIMIT $limit
+    UNION ALL
+    MATCH (s:Synonym)
+    WHERE s.name STARTS WITH $input
+    RETURN s.name AS synonym
+    ORDER BY size(s.name)
+    LIMIT $limit
+  }
+  RETURN DISTINCT synonym
+  ORDER BY size(synonym)
+  `;

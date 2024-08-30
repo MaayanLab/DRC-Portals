@@ -33,3 +33,7 @@ export interface NodeAllRelsResults {
   outgoing: NodeOutgoingRelsResult[];
   incoming: NodeIncomingRelsResult[];
 }
+
+export interface SynoynmsResult {
+  synonym: string;
+}
