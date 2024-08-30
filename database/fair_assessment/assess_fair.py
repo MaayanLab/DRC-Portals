@@ -23,6 +23,9 @@ ingest_path = pathlib.Path('ingest')
 fair_assessments_helper = TableHelper('fair_assessments', ('id', 'dcc_id', 'type', 'link', 'rubric', 'timestamp'), pk_columns=("link", "timestamp"))
 
 def assess_dcc_asset(row):
+    """Runs fair assessment for a single DCC asset
+    row: Row containing asset information with same fields as that in a dataframe returned by either current_dcc_assets() or current_code_assets()
+    """
     with fair_assessments_helper.writer() as fair_assessment:
         asset_type = ''
         rubric = {}
