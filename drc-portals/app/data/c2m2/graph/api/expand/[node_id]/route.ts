@@ -4,6 +4,8 @@ import { getExpandNodeCypher } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import { SubGraph } from "@/lib/neo4j/interfaces";
 
+const MAX_LIMIT = 1000;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { node_id: string } }
@@ -14,7 +16,7 @@ export async function GET(
   const relType = searchParams.get("rel_type");
   const limit = searchParams.get("limit");
 
-  if (!nodeLabel || !direction || !relType) {
+  if (!nodeLabel || !direction || !relType || !limit) {
     return Response.json(
       {
         error: "Missing required search parameters",
@@ -26,6 +28,17 @@ export async function GET(
           relType === null ? "rel_type" : null,
           limit === null ? "limit" : null,
         ].filter((x) => x !== null),
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!(1 <= Number(limit) && Number(limit) <= MAX_LIMIT)) {
+    return Response.json(
+      {
+        error: "Invalid search parameter",
+        message: "The 'limit' parameter must be between 1 and 1000.",
+        limit,
       },
       { status: 400 }
     );
