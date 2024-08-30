@@ -13,7 +13,14 @@ export const initDriver = async (
   username: string,
   password: string
 ) => {
-  driver = neo4j.driver(uri, neo4j.auth.basic(username, password));
+  driver = neo4j.driver(
+    uri,
+    neo4j.auth.basic(username, password),
+    // See this documentation: https://github.com/neo4j/neo4j-javascript-driver#enabling-native-numbers. It is highly unlikely we will
+    // need the lossless integer behavior which is the default out of the box. And, for any queries where we do expect potentially unsafe
+    // values, we can handle them explicitly by converting to strings on the Neo4j end.
+    { disableLosslessIntegers: true }
+  );
 };
 
 export const getDriver = () => {

@@ -1,4 +1,3 @@
-import { Integer } from "neo4j-driver";
 import { NextRequest } from "next/server";
 
 import { getExpandNodeCypher } from "@/lib/neo4j/cypher";
@@ -45,18 +44,18 @@ export async function GET(
       {
         nodes: result.get("nodes").map((node) => {
           return {
-            identity: Integer.toNumber(node.identity),
+            identity: node.identity,
             labels: node.labels,
             properties: node.properties,
           };
         }),
         relationships: result.get("relationships").map((relationship) => {
           return {
-            identity: Integer.toNumber(relationship.identity),
+            identity: relationship.identity,
             type: relationship.type,
             properties: relationship.properties,
-            start: Integer.toNumber(relationship.start),
-            end: Integer.toNumber(relationship.end),
+            start: relationship.start,
+            end: relationship.end,
           };
         }),
       },

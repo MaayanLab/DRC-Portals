@@ -1,5 +1,3 @@
-import { Integer } from "neo4j-driver";
-
 import {
   getIncomingRelsCypher,
   getOutgoingRelsCypher,
@@ -31,14 +29,14 @@ export async function GET(
           return {
             outgoingLabels: record.get("outgoingLabels"),
             outgoingType: record.get("outgoingType"),
-            count: Integer.toNumber(record.get("count")),
+            count: record.get("count"),
           };
         }),
         incoming: incomingResults.map((record) => {
           return {
             incomingLabels: record.get("incomingLabels"),
             incomingType: record.get("incomingType"),
-            count: Integer.toNumber(record.get("count")),
+            count: record.get("count"),
           };
         }),
       },

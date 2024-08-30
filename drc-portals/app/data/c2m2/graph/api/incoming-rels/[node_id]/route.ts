@@ -1,5 +1,3 @@
-import { Integer } from "neo4j-driver";
-
 import { getIncomingRelsCypher } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import { NodeIncomingRelsResult } from "@/lib/neo4j/interfaces";
@@ -19,7 +17,7 @@ export async function GET(
         return {
           incomingLabels: record.get("incomingLabels"),
           incomingType: record.get("incomingType"),
-          count: Integer.toNumber(record.get("count")),
+          count: record.get("count"),
         };
       }),
       { status: 200 }
