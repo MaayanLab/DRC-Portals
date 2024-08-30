@@ -13,13 +13,7 @@ export async function GET(
       { nodeId: Number(params.node_id) }
     );
     return Response.json(
-      incomingResults.map((record) => {
-        return {
-          incomingLabels: record.get("incomingLabels"),
-          incomingType: record.get("incomingType"),
-          count: record.get("count"),
-        };
-      }),
+      incomingResults.map((record) => record.toObject()),
       { status: 200 }
     );
   } catch (error) {

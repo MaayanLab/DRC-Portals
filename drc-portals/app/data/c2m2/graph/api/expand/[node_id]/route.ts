@@ -40,27 +40,7 @@ export async function GET(
         limit: Number(limit),
       }
     );
-    return Response.json(
-      {
-        nodes: result.get("nodes").map((node) => {
-          return {
-            identity: node.identity,
-            labels: node.labels,
-            properties: node.properties,
-          };
-        }),
-        relationships: result.get("relationships").map((relationship) => {
-          return {
-            identity: relationship.identity,
-            type: relationship.type,
-            properties: relationship.properties,
-            start: relationship.start,
-            end: relationship.end,
-          };
-        }),
-      },
-      { status: 200 }
-    );
+    return Response.json(result.toObject(), { status: 200 });
   } catch (error) {
     return Response.json(
       {

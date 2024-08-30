@@ -25,20 +25,8 @@ export async function GET(
     );
     return Response.json(
       {
-        outgoing: outgoingResults.map((record) => {
-          return {
-            outgoingLabels: record.get("outgoingLabels"),
-            outgoingType: record.get("outgoingType"),
-            count: record.get("count"),
-          };
-        }),
-        incoming: incomingResults.map((record) => {
-          return {
-            incomingLabels: record.get("incomingLabels"),
-            incomingType: record.get("incomingType"),
-            count: record.get("count"),
-          };
-        }),
+        outgoing: outgoingResults.map((record) => record.toObject()),
+        incoming: incomingResults.map((record) => record.toObject()),
       },
       { status: 200 }
     );
