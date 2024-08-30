@@ -55,20 +55,6 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
-export const createNodeOutgoingRelsCypher = () => `
-  MATCH (n)-[r_outgoing]->(n_outgoing)
-  WHERE id(n) = $node_id
-  WITH labels(n_outgoing) AS outgoing_labels, type(r_outgoing) AS outgoing_type
-  RETURN outgoing_labels, outgoing_type, count([outgoing_labels, outgoing_type]) AS count
-`;
-
-export const createNodeIncomingRelsCypher = () => `
-  MATCH (n_incoming)-[r_incoming]->(n)
-  WHERE id(n) = $node_id
-  WITH labels(n_incoming) AS incoming_labels, type(r_incoming) AS incoming_type
-  RETURN incoming_labels, incoming_type, count([incoming_labels, incoming_type]) AS count
-`;
-
 export const createSynonymOptionsCypher = () => `
   CALL {
     CALL db.index.fulltext.queryNodes('synonymIdx', $input)
@@ -453,27 +439,6 @@ export const createSchemaSearchCypher = (paths: SchemaSearchPath[]) => {
     .map((key) => `collect(${createRelReprStr(key)})`)
     .join(", ")}])) AS relationships
   `;
-};
-
-export const createExpandNodeCypher = (
-  nodeId: string,
-  nodeLabel: string,
-  direction: Direction,
-  relType: string
-) => {
-  const relMatch =
-    direction === Direction.INCOMING
-      ? `<-[r:${relType}]-`
-      : `-[r:${relType}]->`;
-  return [
-    `MATCH (n)${relMatch}(m:${nodeLabel})`,
-    `WHERE id(n) = ${nodeId}`,
-    `WITH DISTINCT m, r`,
-    "LIMIT $limit",
-    `RETURN DISTINCT collect(DISTINCT ${createNodeReprStr(
-      "m"
-    )}) AS nodes, collect(DISTINCT ${createRelReprStr("r")}) AS relationships`,
-  ].join("\n");
 };
 
 export const neo4jSafeUUID = () => {

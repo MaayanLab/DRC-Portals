@@ -85,6 +85,21 @@ export const createCytoscapeEdgeFromNeo4j = (
   };
 };
 
+export const createCytoscapeElementsFromSubGraph = (subgraph: SubGraph) => {
+  let nodes: CytoscapeNode[] = [];
+  let edges: CytoscapeEdge[] = [];
+
+  subgraph.nodes.forEach((node) => {
+    nodes.push(createCytoscapeNodeFromNeo4j(node));
+  });
+
+  subgraph.relationships.forEach((relationship) =>
+    edges.push(createCytoscapeEdgeFromNeo4j(relationship))
+  );
+
+  return [...nodes, ...edges];
+};
+
 export const createCytoscapeElementsFromNeo4j = (
   records: Record<SubGraph>[]
 ) => {

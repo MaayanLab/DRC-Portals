@@ -5,7 +5,6 @@ import WarningIcon from "@mui/icons-material/Warning";
 import { Box, CircularProgress, Tooltip, Typography } from "@mui/material";
 import { ElementDefinition } from "cytoscape";
 import { NestedMenuItem } from "mui-nested-menu";
-import { Integer } from "neo4j-driver";
 import {
   Dispatch,
   SetStateAction,
@@ -16,23 +15,14 @@ import {
 
 import { META_RELATIONSHIP_TYPES } from "@/components/prototype/constants/neo4j";
 import { Direction } from "@/components/prototype/enums/schema-search";
-import {
-  NodeIncomingRelsResult,
-  NodeOutgoingRelsResult,
-  SubGraph,
-} from "@/components/prototype/interfaces/neo4j";
-import { getDriver } from "@/components/prototype/neo4j";
-import Neo4jService from "@/components/prototype/services/neo4j";
-import { createCytoscapeElementsFromNeo4j } from "@/components/prototype/utils/cy";
-import {
-  createExpandNodeCypher,
-  createNodeIncomingRelsCypher,
-  createNodeOutgoingRelsCypher,
-} from "@/components/prototype/utils/neo4j";
+import { SubGraph } from "@/components/prototype/interfaces/neo4j";
+import { createCytoscapeElementsFromSubGraph } from "@/components/prototype/utils/cy";
 import {
   createDirectedRelationshipElement,
   createNodeElement,
 } from "@/components/prototype/utils/shared";
+import { fetchAllNodeRels, fetchExpandNode } from "@/lib/neo4j/api";
+import { NodeAllRelsResults } from "@/lib/neo4j/interfaces";
 
 import { ChartCxtMenuContext } from "../ChartCxtMenuContext";
 import ChartCxtMenuItem from "../ChartCxtMenuItem";
@@ -57,71 +47,70 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
     []
   );
   const context = useContext(ChartCxtMenuContext);
-  const neo4jService = new Neo4jService(getDriver());
 
-  const fetchNodeConnections = async () => {
-    if (context !== null) {
-      const outgoingResults =
-        await neo4jService.executeRead<NodeOutgoingRelsResult>(
-          createNodeOutgoingRelsCypher(),
-          {
-            node_id: Number(context.event.target.data("id")),
-          }
-        );
-      const incomingResults =
-        await neo4jService.executeRead<NodeIncomingRelsResult>(
-          createNodeIncomingRelsCypher(),
-          {
-            node_id: Number(context.event.target.data("id")),
-          }
-        );
-      setSubMenuItems(
-        [
-          ...outgoingResults.map((record) => {
-            return {
-              label: record.get("outgoing_labels")[0],
-              type: record.get("outgoing_type"),
-              count: Integer.toNumber(record.get("count")),
-              direction: Direction.OUTGOING,
-            };
-          }),
-          ...incomingResults.map((record) => {
-            return {
-              label: record.get("incoming_labels")[0],
-              type: record.get("incoming_type"),
-              count: Integer.toNumber(record.get("count")),
-              direction: Direction.INCOMING,
-            };
-          }),
-        ]
-          .sort((a, b) => {
-            if (
-              a.direction === Direction.OUTGOING &&
-              b.direction === Direction.INCOMING
-            ) {
-              return -1;
-            } else if (
-              a.direction === Direction.INCOMING &&
-              b.direction === Direction.OUTGOING
-            ) {
-              return 1;
-            } else {
-              return 0;
-            }
-          })
-          .filter(
-            (result) =>
-              !Array.from(META_RELATIONSHIP_TYPES).includes(result.type)
-          )
-      );
-    }
+  const expandNode = (
+    nodeId: string,
+    label: string,
+    direction: string,
+    type: string
+  ) => {
+    fetchExpandNode(nodeId, label, direction, type, EXPAND_LIMIT)
+      .then((response) => response.json())
+      .then((data: SubGraph) =>
+        setElements((prevElements) => [
+          ...prevElements,
+          ...createCytoscapeElementsFromSubGraph(data),
+        ])
+      )
+      .catch((reason) => console.error(reason)); // TODO: Should add some visual indication of failure, perhaps a snackbar?
   };
 
-  const expandNode = async (cypher: string) => {
-    const records = await neo4jService.executeRead<SubGraph>(cypher, {
-      limit: EXPAND_LIMIT,
-    });
-    return createCytoscapeElementsFromNeo4j(records);
+  const setExpandOptions = (nodeId: string) => {
+    fetchAllNodeRels(nodeId)
+      .then((response) => response.json())
+      .then((data: NodeAllRelsResults) =>
+        setSubMenuItems(
+          [
+            ...data.outgoing.map((record) => {
+              return {
+                label: record.outgoingLabels[0],
+                type: record.outgoingType,
+                count: record.count,
+                direction: Direction.OUTGOING,
+              };
+            }),
+            ...data.incoming.map((record) => {
+              return {
+                label: record.incomingLabels[0],
+                type: record.incomingType,
+                count: record.count,
+                direction: Direction.INCOMING,
+              };
+            }),
+          ]
+            .sort((a, b) => {
+              if (
+                a.direction === Direction.OUTGOING &&
+                b.direction === Direction.INCOMING
+              ) {
+                return -1;
+              } else if (
+                a.direction === Direction.INCOMING &&
+                b.direction === Direction.OUTGOING
+              ) {
+                return 1;
+              } else {
+                return 0;
+              }
+            })
+            .filter(
+              (result) =>
+                !Array.from(META_RELATIONSHIP_TYPES).includes(result.type)
+            )
+        )
+      )
+      .catch((reason) => console.error(reason)) // TODO: Should add some visual indication of failure, perhaps an icon next to the expand option?
+      .finally(() => setLoading(false));
   };
 
   const createConnectionMenuItem = (
@@ -158,20 +147,16 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
           ) : null}
         </Box>
       )}
-      action={(event) => {
-        const nodeId = event.target.data("id");
-        const cypher = createExpandNodeCypher(nodeId, label, direction, type);
-        expandNode(cypher).then((newElements) => {
-          setElements((prevElements) => [...prevElements, ...newElements]);
-        });
-      }}
+      action={(event) =>
+        expandNode(event.target.data("id"), label, direction, type)
+      }
     ></ChartCxtMenuItem>
   );
 
   useEffect(() => {
-    fetchNodeConnections().then(() => {
-      setLoading(false);
-    });
+    if (context !== null) {
+      setExpandOptions(context.event.target.data("id"));
+    }
   }, []);
 
   return context !== null ? (
