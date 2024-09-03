@@ -135,7 +135,7 @@ const doQuery = React.cache(async (props: PageProps) => {
         /**** c2m2.project.description AS project_description, ****/
         allres_full.project_persistent_id as project_persistent_id,
         COUNT(*)::INT AS count,
-        /**** COUNT(DISTINCT biosample_local_id)::INT ****/ -99 AS count_bios, 
+        /**** COUNT(DISTINCT biosample_local_id)::INT ****/ /**** SUM(count_bios)::INT ****/ -99 AS count_bios, 
         COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
         COUNT(DISTINCT collection_local_id)::INT AS count_col
       /**** FROM c2m2.ffl_biosample_collection_cmp as allres_full ****/
@@ -153,8 +153,8 @@ const doQuery = React.cache(async (props: PageProps) => {
       GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, allres_full.project_local_id, taxonomy_name, taxonomy_id, 
         disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
         allres_full.data_type_name, data_type, assay_type_name, assay_type, project_name /**** , project_description ****/ , allres_full.project_persistent_id 
-      ORDER BY rank DESC, dcc_short_label, project_name /* , disease_name, taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name, assay_type_name */ /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
+      ORDER BY rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name, assay_type_name /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
       OFFSET ${super_offset}
       LIMIT ${super_limit} /* ${allres_filtered_maxrow_limit}      */
     ),

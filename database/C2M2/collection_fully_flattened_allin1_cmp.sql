@@ -1,4 +1,5 @@
 set statement_timeout = 0;
+set max_parallel_workers to 4;
 /* DO NOT DELETE ANY OF THE COMMENTS */
 /* run in psql as \i collection_fully_flattened_allin1_cmp.sql */
 /* Or on linux command prompt:psql -h localhost -U drc -d drc -p [5432|5433] -a -f collection_fully_flattened_allin1_cmp.sql; */
@@ -6,8 +7,17 @@ set statement_timeout = 0;
 --- Mano: 2024/08/15
 --- This is similar to the script collection_fully_flattened_allin1.sql except that biosample_id_namespace, biosample_local_id, 
 --- biosample_persistent_id and biosample_creation_time is not included in searchable or actual columns.
+--- Mano: 2024/08/27: If some other columns were to hold distinct values for biosamples, and not useful for 
+--- the main serach results, then they must be exlcuded to achieve the speedup.
+--- Important: some biosamples are part of more than one collection, e.g., 
+--- select * from c2m2.biosample_in_collection where biosample_local_id = 'SAMN00761801';
+--- If collection_local_id still retained, then those biosample counts will be replicated and count_bios
+--- in actual search (SearchQueryComponent.tsx) will be artificially bloated. To fix this, 
+--- also exclude subject and collection related such information (from searchable as well)
+--- Look for comment marks /**? and ?**/
 
 --- This builds a collection centric fully flattened table.
+--- This follow the style used in the file biosample_fully_flattened_allin1_cmp.tsx
 ---
 --- table name c2m2.ffl_collection means fully flattened collection
 
@@ -34,7 +44,6 @@ END $$;
 
 
 
-
     /**** IMPORTANT WARNING: It may appear that many nulls can be filled with content from 
     subject_in_collection, biosample_in_collection. But see file collection_queries.sql why 
     we will not include subject_in_collection and biosample_in_collection here as it creates discepancy 
@@ -48,17 +57,17 @@ select distinct
 --- COLUMNS TO SHOW TO USER ---
     -- concatenate all and save to_tsvector as searchable
     to_tsvector(concat_ws('|', 
-    /* null, null, */ /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
+    /**? null, null, ?**/ /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
     c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 
-    /* null, null, */ /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
+    /**? null, null, ?**/ /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
     null, /* c2m2.biosample.sample_prep_method */ c2m2.collection_anatomy.anatomy,
     null, /* c2m2.disease_association_type.id, */ /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
-    null, null, /** c2m2.subject.id_namespace, c2m2.subject.local_id, **/ /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
-    null, /** c2m2.biosample_from_subject.age_at_sampling, **/
+    /**? null, null, ?**/ /** c2m2.subject.id_namespace, c2m2.subject.local_id, **/ /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
+    /**? null, ?**/ /** c2m2.biosample_from_subject.age_at_sampling, **/
     c2m2.collection_gene.gene,
     /* keeping empty line for line number match with biosample_fully_flattened_allin1.sql */
-    c2m2.collection.id_namespace, c2m2.collection.local_id, 
+    /**? c2m2.collection.id_namespace, c2m2.collection.local_id, ?**/
     c2m2.collection_substance.substance, /** **/
 
     /* Include dcc_name and dcc_abbreviation in searchable or not */
@@ -73,7 +82,7 @@ select distinct
     c2m2.disease.name, c2m2.disease.description, c2m2.disease.synonyms,
 
     null, null, null, /** c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity,  **/
-    null, /** c2m2.subject.age_at_enrollment, **/
+    /**? null, ?**/ /** c2m2.subject.age_at_enrollment, **/
 
     c2m2.substance.name, c2m2.substance.description, 
     c2m2.substance.synonyms, c2m2.compound.id, /* c2m2.substance.compound, */
@@ -91,9 +100,9 @@ select distinct
     c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, 
     c2m2.ncbi_taxonomy.synonyms,
 
-    c2m2.collection.persistent_id, c2m2.collection.creation_time,
+    /**? c2m2.collection.persistent_id, c2m2.collection.creation_time,
     c2m2.collection.name, c2m2.collection.abbreviation, 
-    c2m2.collection.description, c2m2.collection.has_time_series_data,
+    c2m2.collection.description, ?**/ c2m2.collection.has_time_series_data,
 
     null, null, /** c2m2.sample_prep_method.name, c2m2.sample_prep_method.description, **/
     null, /** c2m2.sample_prep_method.synonyms, **/
@@ -116,17 +125,17 @@ select distinct
 
     )) as searchable,
     -- sample_prep_method, anatomy, biosample_disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
-    --- null /* c2m2.biosample.id_namespace */ as biosample_id_namespace, null /* c2m2.biosample.local_id */ as biosample_local_id, 
+    ---? null /* c2m2.biosample.id_namespace */ as biosample_id_namespace, null /* c2m2.biosample.local_id */ as biosample_local_id, 
     c2m2.collection_defined_by_project.project_id_namespace as project_id_namespace, c2m2.collection_defined_by_project.project_local_id as project_local_id, 
-    --- null /* c2m2.biosample.persistent_id */ as biosample_persistent_id, null /* c2m2.biosample.creation_time */ as biosample_creation_time, 
+    ---? null /* c2m2.biosample.persistent_id */ as biosample_persistent_id, null /* c2m2.biosample.creation_time */ as biosample_creation_time, 
     null /* c2m2.biosample.sample_prep_method */ as sample_prep_method, c2m2.collection_anatomy.anatomy as anatomy, 
     null /* c2m2.disease_association_type.id */ AS disease_association_type, /* c2m2.disease_association_type.id is c2m2.biosample_disease.association_type or c2m2.subject_disease.association_type */
     c2m2.disease.id as disease, /* c2m2.disease.id is c2m2.biosample_disease.disease or c2m2.subject_disease.disease */
-    null /* c2m2.subject.id_namespace */ as subject_id_namespace, null /* c2m2.subject.local_id */ as subject_local_id, /* was from c2m2.biosample_from_subject*/
-    null /* c2m2.biosample_from_subject.age_at_sampling */ as biosample_age_at_sampling,
+    ---? null /* c2m2.subject.id_namespace */ as subject_id_namespace, null /* c2m2.subject.local_id */ as subject_local_id, /* was from c2m2.biosample_from_subject*/
+    ---? null /* c2m2.biosample_from_subject.age_at_sampling */ as biosample_age_at_sampling,
     c2m2.collection_gene.gene as gene,
     /* keeping empty line for line number match with biosample_fully_flattened_allin1.sql */
-    c2m2.collection.id_namespace as collection_id_namespace, c2m2.collection.local_id as collection_local_id,
+    /**? c2m2.collection.id_namespace as collection_id_namespace, c2m2.collection.local_id as collection_local_id, ?**/
     c2m2.collection_substance.substance as substance, /** **/
 
     c2m2.dcc.dcc_name as dcc_name, c2m2.dcc.dcc_abbreviation as dcc_abbreviation,
@@ -138,7 +147,7 @@ select distinct
     c2m2.disease.name as disease_name,
 
     null /* c2m2.subject.granularity */ as subject_granularity, null /* c2m2.subject.sex */ as subject_sex, null /* c2m2.subject.ethnicity */ as subject_ethnicity, 
-    null /* c2m2.subject.age_at_enrollment */ as subject_age_at_enrollment,
+    ---? null /* c2m2.subject.age_at_enrollment */ as subject_age_at_enrollment,
 
     c2m2.substance.name as substance_name, c2m2.compound.id /* c2m2.substance.compound, */ as substance_compound,
 
@@ -153,10 +162,10 @@ select distinct
     c2m2.collection_taxonomy.taxon as subject_role_taxonomy_taxonomy_id, /** **/ /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
 
-    /* Mano: 2024/04/29: likely, none of these columns need to be included in ffl_biosample or ffl_collection 
+    /* Mano: 2024/04/29: likely, none of these columns need to be included in ffl_biosample_cmp or ffl_collection_cmp 
     as these are not used in the query needed for the main search results page */
-    c2m2.collection.persistent_id as collection_persistent_id, c2m2.collection.creation_time as collection_creation_time,
-    c2m2.collection.name as collection_name, c2m2.collection.abbreviation as collection_abbreviation, 
+    /**? c2m2.collection.persistent_id as collection_persistent_id, c2m2.collection.creation_time as collection_creation_time,
+    c2m2.collection.name as collection_name, c2m2.collection.abbreviation as collection_abbreviation, ?**/
     c2m2.collection.has_time_series_data as collection_has_time_series_data,
 
     null /** c2m2.sample_prep_method.name **/ as sample_prep_method_name,
@@ -176,6 +185,15 @@ select distinct
     null /** c2m2.phenotype_association_type.id **/ AS phenotype_association_type, c2m2.phenotype.id as phenotype, 
     null /** c2m2.phenotype_association_type.name **/ as phenotype_association_type_name,
     c2m2.phenotype.name as phenotype_name
+
+    --- Mano: 2024/08/20: add counts
+    --- These counts will be based on GROUP BY all other columns, which is a lot more than that 
+    --- used in allres in query. So, there, you will have to do a sum of these counts. May be 
+    --- doing a direct count in allres (the way it is being done as of now) might be faster.
+    ,
+    /* COUNT(DISTINCT c2m2.biosample.local_id)::INT */ 0 AS count_bios, /**** Mano: 2024/08/27: note the count instead of individual IDs ****/
+    /* COUNT(DISTINCT c2m2.subject.local_id)::INT */ 0 AS count_sub,
+    COUNT(DISTINCT c2m2.collection.local_id)::INT AS count_col
 
 from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related tables here instead of in generating fl_biosample
 
@@ -404,6 +422,35 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     /* Mano: 2024/02/13 Addition of subject_disease added about 981 more rows (from MW (kidsfirst already 
     had them included at biosample level too)), and subject_phenotype added 238 rows (all from MW)
     */
+
+    --- GROUP BY not needed since count_bios is 0 but still keeping code if even needed    
+    --- Column names used here may differ between biosample*_cmp.sql and collection*_cmp.sql
+    --- Use the column name from the original table if a null value is not used
+    --- For null columns, use the name of the column in the resulting table
+    GROUP BY 
+    --- Some of these column names are not correct as they are not costomized for collections
+    searchable, c2m2.project.id_namespace, c2m2.project.local_id, c2m2.biosample.sample_prep_method, c2m2.biosample.anatomy,
+    c2m2.disease_association_type.id, c2m2.disease.id, 
+    c2m2.biosample_gene.gene, 
+    c2m2.biosample_substance.substance, c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation,
+    c2m2.anatomy.name, c2m2.gene.name, c2m2.protein.id, c2m2.protein.name, c2m2.disease.name, 
+    c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity, 
+    c2m2.substance.name, c2m2.substance.compound, c2m2.compound.name, c2m2.project.persistent_id, 
+    c2m2.project.creation_time, c2m2.project.name, c2m2.project.abbreviation, c2m2.project_data_type.data_type_id, 
+    c2m2.project_data_type.data_type_name, c2m2.project_data_type.assay_type_id, 
+    c2m2.project_data_type.assay_type_name, c2m2.subject_role_taxonomy.taxonomy_id, c2m2.ncbi_taxonomy.name,
+    c2m2.collection.has_time_series_data, c2m2.sample_prep_method.name,
+    c2m2.subject_race.race, c2m2.subject_race_CV.name, c2m2.subject_granularity.name, c2m2.subject_sex.name,
+    c2m2.subject_ethnicity.name, c2m2.subject_role_taxonomy.role_id, c2m2.subject_role.name,
+    c2m2.disease_association_type.name, c2m2.phenotype_association_type.id, c2m2.phenotype.id,
+    c2m2.phenotype_association_type.name, c2m2.phenotype.name
+
+    --- May be, preordering might make the query a bit faster,  BUT no need in ffl_biosample and ffl_collection
+    /* 
+    ORDER BY dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+    protein_name, compound_name, data_type_name, assay_type_name    
+    */
+
 );
 
 DO $$ 
@@ -441,6 +488,8 @@ BEGIN
         compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
+
+set max_parallel_workers to 0;
 --- */
 
 /* To drop existing ffl2_collection and its indexes
