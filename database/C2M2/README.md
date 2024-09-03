@@ -15,12 +15,12 @@
 # Be in the folder database/C2M2
 
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
-server_label=
-#server_label=_dbserver
+#server_label=
+server_label=_dbserver
 
 # Uncomment one from below for env_file_name; not utilizing actively since .py files other than dburl.py have not been edited for this
-#env_file_name=.env
-env_file_name=.env_pgcontainer
+env_file_name=.env
+#env_file_name=.env_pgcontainer
 
 # logdir should not have any spaces
 logdir=log${server_label}
@@ -90,7 +90,7 @@ psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1_cmp.sql;
 
 # Also generate c2m2.ffl_collection [can be run in parallel to generatingc2m2.ffl_biosample]
 psql "$(python3 dburl.py)" -a -f collection_fully_flattened_allin1.sql;
-psql "$(python3 dburl.py)" -a -f collection_fully_flattened_allin1_cmp.sql;
+psql "$(python3 dburl.py)" -f collection_fully_flattened_allin1_cmp.sql;
 
 # Combine c2m2.ffl_biosample and c2m2.ffl_collection to create c2m2.ffl_biosample_collection
 psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection.sql -o ${logdir}/log_c2m2_combine_bios_col.log

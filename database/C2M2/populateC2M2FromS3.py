@@ -563,6 +563,23 @@ finally:
     # Commit the changes 
     conn.commit();
 #------------------------------------------------------
+# Update the description and synonyms for the name 'Homo sapiens' in the table c2m2.ncbi_taxonomy
+# This will be redundant if the entry is updated in the ncbi_taxonomy.tsv[.gz] file itself
+if (schema_name == 'c2m2'):
+    ncbi_tax_human_str_1 = f"UPDATE {schema_name}.ncbi_taxonomy SET description = 'Human', synonyms = '[\"Human\"]' ";
+    ncbi_tax_human_str_2 = f"WHERE id = 'NCBI:txid9606' AND name = 'Homo sapiens';";
+    ncbi_tax_human_update_query = ncbi_tax_human_str_1 + ncbi_tax_human_str_2; 
+    # Execute the UPDATE query
+    print(f"{newline}>>>>>>>> Attempting update of description and synonym for Homo sapiens in table {schema_name}.file successful.{newline}");
+    try:
+        cursor.execute(ncbi_tax_human_update_query)
+        print(f"Update successful.{newline}");
+    except Exception as fsu_e:
+        print(f"Error executing the query{newline}{ncbi_tax_human_update_query}: {fsu_e}");
+    finally:
+        # Commit the changes 
+        conn.commit();
+#------------------------------------------------------
 
 #cursor.close()
 conn.close()
