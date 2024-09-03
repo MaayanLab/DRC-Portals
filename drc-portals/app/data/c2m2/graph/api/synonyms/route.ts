@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       getDriver(),
       getSynonymsCypher(),
       {
-        input: query,
+        query,
         limit: 10,
       }
     );

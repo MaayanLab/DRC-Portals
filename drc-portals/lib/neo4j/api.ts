@@ -32,3 +32,24 @@ export const fetchSynonyms = (query: string) =>
       "Content-Type": "application/json",
     },
   });
+
+export const fetchSearch = (
+  query: string,
+  coreLabels: string[],
+  dccAbbrevs: string[],
+  subjectGenders: string[],
+  subjectRaces: string[]
+) =>
+  fetch(
+    `${GRAPH_API_PREFIX}/search?q=${query}&as_core_labels=${coreLabels.join(
+      ","
+    )}&as_dccs=${dccAbbrevs.join(",")}&as_subg=${subjectGenders.join(
+      ","
+    )}&as_subr=${subjectRaces.join(",")}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );

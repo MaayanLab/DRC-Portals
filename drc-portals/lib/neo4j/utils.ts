@@ -1,3 +1,8 @@
+export const escapeCypherString = (input: string) => {
+  // convert any \u0060 to literal backtick, then escape backticks, and finally wrap in single quotes and backticks
+  return `\`${input.replace(/\\u0060/g, "`").replace(/`/g, "``")}\``;
+};
+
 export const createNodeReprStr = (varName: string) => {
   return `{
     identity: id(${varName}),
