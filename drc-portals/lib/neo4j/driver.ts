@@ -40,7 +40,7 @@ export const closeDriver = async () => {
   }
 };
 
-const makeParamsWriteable = (params: { [key: string]: any }) => {
+export const makeParamsWriteable = (params: { [key: string]: any }) => {
   Object.keys(params).forEach((key) => {
     if (typeof params[key] === "number") {
       params[key] = int(params[key]);

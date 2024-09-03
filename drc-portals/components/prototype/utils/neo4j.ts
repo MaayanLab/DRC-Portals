@@ -1,9 +1,11 @@
-// @ts-ignore
-import parser from "lucene-query-parser";
-import { int } from "neo4j-driver";
 import { v4 } from "uuid";
 
-import { CORE_LABELS } from "../constants/neo4j";
+import {
+  createNodeReprStr,
+  createRelReprStr,
+  escapeCypherString,
+} from "@/lib/neo4j/utils";
+
 import { OPERATOR_FUNCTIONS } from "../constants/schema-search";
 import { Direction } from "../enums/schema-search";
 import {
@@ -13,109 +15,6 @@ import {
 import { PredicateFn, SearchBarOption } from "../types/schema-search";
 
 import { isRelationshipOption } from "./schema-search";
-
-export const inputIsValidLucene = (input: string) => {
-  try {
-    parser.parse(input);
-  } catch {
-    return false;
-  }
-  return true;
-};
-
-export const escapeCypherString = (input: string) => {
-  // convert any \u0060 to literal backtick, then escape backticks, and finally wrap in single quotes and backticks
-  return `\`${input.replace(/\\u0060/g, "`").replace(/`/g, "``")}\``;
-};
-
-export const makeParamsWriteable = (params: { [key: string]: any }) => {
-  Object.keys(params).forEach((key) => {
-    if (typeof params[key] === "number") {
-      params[key] = int(params[key]);
-    }
-  });
-  return params;
-};
-
-export const createNodeReprStr = (varName: string) => {
-  return `{
-    identity: id(${varName}),
-    labels: labels(${varName}),
-    properties: properties(${varName})
-  }`;
-};
-
-export const createRelReprStr = (varName: string) => {
-  return `{
-    identity: id(${varName}),
-    type: type(${varName}),
-    properties: properties(${varName}),
-    start: id(startNode(${varName})),
-    end: id(endNode(${varName}))
-  }`;
-};
-
-export const createSynonymSearchCypher = (coreLabels: string[]) => {
-  if (coreLabels.length === 0) {
-    coreLabels = Array.from(CORE_LABELS);
-  }
-
-  return `
-  CALL {
-    CALL db.index.fulltext.queryNodes('synonymIdx', $searchTerm)
-    YIELD node AS synonym
-    WITH synonym
-    LIMIT $synLimit
-    MATCH (synonym)<-[:HAS_SYNONYM]-(term)
-    RETURN DISTINCT term
-    LIMIT $termLimit
-  }
-  CALL {
-    MATCH (dcc:DCC)
-    WHERE size($dccAbbrevs) = 0 OR dcc.abbreviation IN $dccAbbrevs
-    RETURN dcc
-  }
-  CALL {
-    WITH term, dcc
-    MATCH path=(dcc)-[:REGISTERED]->(:IDNamespace)-[:CONTAINS]->(core:${coreLabels
-      .map(escapeCypherString)
-      .join(
-        "|"
-      )})<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
-    WHERE
-      core:File OR
-      core:Biosample OR
-      (
-          core:Subject AND
-          (size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND
-          (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
-      )
-    RETURN DISTINCT path
-    LIMIT $collectionLimit
-    UNION ALL
-    WITH term, dcc
-    MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR|SAMPLED_FROM]-(core:${coreLabels
-      .map(escapeCypherString)
-      .join("|")})<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
-    WHERE
-      core:File OR
-      core:Biosample OR
-      (
-          core:Subject AND
-          (size($subjectGenders) = 0 OR core.sex IN $subjectGenders) AND
-          (size($subjectRaces) = 0 OR core.race IN $subjectRaces)
-      )
-    RETURN DISTINCT path
-    LIMIT $coreLimit
-  }
-  WITH nodes(path) AS pathNodes, relationships(path) AS pathRels
-  UNWIND pathNodes AS n
-  UNWIND pathRels AS r
-  RETURN
-    collect(DISTINCT ${createNodeReprStr("n")}) AS nodes,
-    collect(DISTINCT ${createRelReprStr("r")}) AS relationships
-  `;
-};
 
 export const createPredicate = (
   variableName: string,

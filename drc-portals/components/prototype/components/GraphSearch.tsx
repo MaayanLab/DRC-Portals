@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, ReactNode } from "react";
 
 import { fetchSearch } from "@/lib/neo4j/api";
+import { inputIsValidLucene } from "@/lib/neo4j/utils";
 
 import ExpandNodeMenuItem from "../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
 import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
@@ -54,7 +55,7 @@ import {
   unlockD3ForceNode,
   unlockSelection,
 } from "../utils/cy";
-import { createSchemaSearchCypher, inputIsValidLucene } from "../utils/neo4j";
+import { createSchemaSearchCypher } from "../utils/neo4j";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";

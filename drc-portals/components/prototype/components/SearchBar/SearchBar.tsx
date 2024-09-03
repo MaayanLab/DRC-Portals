@@ -12,11 +12,11 @@ import {
 
 import { fetchSynonyms } from "@/lib/neo4j/api";
 import { SynoynmsResult } from "@/lib/neo4j/interfaces";
+import { inputIsValidLucene } from "@/lib/neo4j/utils";
 
 import SearchBarInput from "./SearchBarInput";
 import { getDriver } from "../../neo4j";
 import Neo4jService from "../../services/neo4j";
-import { inputIsValidLucene } from "../../utils/neo4j";
 
 interface SearchBarProps {
   value: string;

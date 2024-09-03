@@ -1,7 +1,9 @@
 import { Driver, Record, RecordShape } from "neo4j-driver";
 
 import { GRAPH_C2M2_DBNAME } from "../constants/app";
-import { makeParamsWriteable } from "../utils/neo4j";
+
+// TODO: Remove this! Once all the frontend driver code is refactored to the backend, this entire file becomes irrelevant
+import { makeParamsWriteable } from "@/lib/neo4j/driver";
 
 export default class Neo4jService {
   driver: Driver;
