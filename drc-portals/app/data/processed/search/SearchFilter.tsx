@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useSearchParams } from "next/navigation"
-import Link from 'next/link'
+import Link from '@/utils/link'
 import { Checkbox, FormControlLabel, Typography } from '@mui/material'
 
 export default function SearchFilter({ id, label, color, count }: { id: string, label: string, color?: string, count: number }) {
@@ -18,7 +18,7 @@ export default function SearchFilter({ id, label, color, count }: { id: string, 
     return { searchParams, currentFilterSet }
   }, [id, rawSearchParams])
   return (
-    <Link prefetch={false} href={`?${searchParams.toString()}`}>
+    <Link href={`?${searchParams.toString()}`}>
       <FormControlLabel control={<Checkbox/>} label={<Typography variant='body2' color={color ?? 'secondary'}>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
     </Link>
   )

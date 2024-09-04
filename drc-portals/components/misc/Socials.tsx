@@ -1,6 +1,6 @@
 'use server'
 import React from "react"
-import Link from "next/link"
+import Link from "@/utils/link"
 import IconButton from "@mui/material/IconButton"
 import Twitter from "@/public/img/icons/Twitter.svg"
 import Email from "@/public/img/icons/email.svg"

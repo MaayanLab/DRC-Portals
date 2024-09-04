@@ -1,9 +1,8 @@
-// SearchablePagedTable.tsx
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
 import FormPagination from './FormPagination';
-import Link from 'next/link';
+import Link from '@/utils/link';
 import Image, { StaticImageData } from 'next/image';
 import { NodeType } from '@prisma/client';
 import { type_to_string } from '../processed/utils';
@@ -26,12 +25,12 @@ export function LinkedTypedNode({
 }) {
     return (
         <div className="flex flex-col">
-            <Link prefetch={false} href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
+            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
                 <Typography variant="body1" sx={{ overflowWrap: 'break-word', maxWidth: 300 }} color="secondary" fontWeight={focus ? 'bold' : undefined}>
                     {label}
                 </Typography>
             </Link>
-            <Link prefetch={false} href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
+            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
                 <Typography variant='caption' color="secondary">
                     {type_to_string(type, entity_type)}
                 </Typography>
@@ -52,7 +51,7 @@ export function SearchablePagedTableCellIcon(props: {
 }) {
     return (
         <div className="w-20 h-20 relative">
-            <Link prefetch={false} href={props.href}>
+            <Link href={props.href}>
                 <Image className="object-contain" src={props.src} alt={props.alt} fill />
             </Link>
         </div>
@@ -64,7 +63,7 @@ export function PreviewButton(props: {
 }) {
     return (
         <div className="relative">
-            <Link prefetch={false} href={props.href}>
+            <Link href={props.href}>
                 <PageviewOutlinedIcon
                     sx={{ width: '40px', height: '40px' }}
                 />
@@ -89,6 +88,13 @@ interface SearchablePagedTableProps {
 
 const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
+
+
+    // useEffect(() => {
+    //     // Clear the selectedRows state whenever the page or rows change
+    //     setSelectedRows([]);
+    // }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
+    
 
     const handleCheckboxChange = (row: RowType) => { // Use the RowType
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
@@ -128,15 +134,12 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             <TagComponent q={props.q} t={props.t} />
                         </Box>
                     }
-                    <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
-
-                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 800, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+                    
+                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
-                            
-                                     <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
-                                        No results found
-                                    </Typography>
-
+                            <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
+                                No results found
+                            </Typography>
                         ) : (
                             <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%' }}>
                                 <TableHead>
@@ -202,12 +205,12 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             </Table>
                         )}
                     </TableContainer>
+                    <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
+
                 </Stack>
             </Grid>
-
         </Grid>
     );
 };
-
 
 export default SearchablePagedTable;

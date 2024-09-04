@@ -23,19 +23,19 @@ biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websea
 
 --- To generate count of unique subject, biosample, etc, grouped by another set of columns
 --- from fl_biosample local_id is biosample_local_id
-select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
-count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
-count(distinct collection_local_id) as count_col from c2m2.fl_biosample 
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+count(distinct collection_local_id) as count_col from c2m2.ffl_biosample 
 where project_id_namespace ilike '%metab%' group by 
-id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 --- crosscheck as:
 select count(*) from c2m2.biosample where project_local_id = 'PR000024';
 
-select id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
-count(distinct local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
+select biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id, 
+count(distinct biosample_local_id) as count_bios, count(distinct subject_local_id) as count_sub, 
 count(distinct collection_local_id) as count_col from c2m2.ffl_biosample_collection 
 where project_id_namespace ilike '%4dn%' group by 
-id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
+biosample_id_namespace,project_id_namespace,project_local_id,anatomy,disease,subject_local_id;
 --- crosscheck as:
 select count(*) from c2m2.biosample where project_local_id = '12a92962-8265-4fc0-b2f8-cf14f05db58b' and anatomy = 'CL:0000081';
 
@@ -78,7 +78,7 @@ anatomy_name ilike '%brain%';
 
 select * from c2m2.project_in_project where child_project_id_namespace ilike '%hmp%';
 
---- kept here for reference
+--- kept here for reference DO NOT RUN AS WE DON'T CREATE THE TABLE FL_BIOSAMPLE anymore
 
 --- COLUMNS TO SHOW TO USER ---
 
@@ -315,12 +315,12 @@ SELECT * from (
 
 -----------------------------------------------------------------------------------------------
 --- entire CTE in search/page.tsc
-/* \set myq 'blood'; \set my_disease 'cancer'; */
+/**/ \set myq 'blood'; \set my_disease 'cancer'; /**/
 /* \set myq 'blood'; \set my_disease 'carcinoma'; */
 /*  \set myq 'brain'; \set my_disease 'malignant astrocytoma';  */
- /*\set myq 'liver'; \set my_disease 'cancer'; */
+/* \set myq 'liver'; \set my_disease 'cancer'; */
 /* \set myq 'intestine'; \set my_disease 'cancer'; */
- \set myq 'parkinson'; \set my_disease 'cancer'; 
+/* \set myq 'parkinson'; \set my_disease 'cancer';  */
 
 EXPLAIN (ANALYZE)
 WITH allres_full AS (
@@ -444,3 +444,221 @@ SELECT  count(*) from (select c2m2.ffl_biosample_collection.*,
         WHERE searchable @@ websearch_to_tsquery('english', 'blood')
         ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
         protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id);
+
+--- Find time for just count vs. getting actual records
+EXPLAIN (ANALYZE)
+      SELECT  count(*) from (SELECT c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', 'blood')
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT 200000);
+
+EXPLAIN (ANALYZE)
+      SELECT  c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', 'blood')
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT 200000;
+
+--- liver
+EXPLAIN (ANALYZE)
+      SELECT  c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'liver')) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', 'liver')
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT 200000;
+
+--- actual full query
+/**/ \set myq 'liver'; \set my_disease 'cancer'; /**/
+--- If large enough work_mem, then sort happens in RAM as opposed to disk; but these disks also are very fast
+set work_mem = '64MB'; /* set LOCAL work_mem = '64MB'; or 256MB or 512MB, not much difference for blood 31 vs 30s */
+/* See lines like: Sort Method: external merge  Disk          &     Sort Method: quicksort */
+EXPLAIN (ANALYZE)
+    WITH 
+    allres AS (
+      SELECT 
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'blood')) AS rank,
+        allres_full.dcc_name AS dcc_name,
+        allres_full.dcc_abbreviation AS dcc_abbreviation,
+        SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
+        /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
+        COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+        /* CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name, */
+        COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+        REPLACE(allres_full.disease, ':', '_') AS disease,
+        /* CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name, */
+        COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+        REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+        /* CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name, */
+        COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+        allres_full.gene AS gene,
+        COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+        allres_full.protein AS protein,
+        COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+        allres_full.substance_compound AS compound,
+        COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+        REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+        /* allres_full.project_name AS project_name, */
+        COALESCE(allres_full.project_name, 
+          concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+        /**** c2m2.project.description AS project_description, ****/
+        allres_full.project_persistent_id as project_persistent_id,
+        COUNT(*)::INT AS count,
+        COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+        COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+        COUNT(DISTINCT collection_local_id)::INT AS count_col
+      FROM c2m2.ffl_biosample_collection as allres_full 
+      /**** LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+        allres_full.project_local_id = c2m2.project.local_id) ****/
+      /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
+        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
+
+      /**** Mano: 2024/08/09: Trying to combine allres_full and allres into one CTE ****/  
+      WHERE searchable @@ websearch_to_tsquery('english', 'blood')
+        
+      GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+        disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
+        data_type_name, data_type, project_name /**** , project_description ****/ , allres_full.project_persistent_id 
+      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
+      OFFSET 0
+      LIMIT 50000 /* ${allres_filtered_maxrow_limit}      */
+    ),
+    allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres /*${filterClause}*/),
+    allres_filtered AS (
+      SELECT allres.*, 
+      concat_ws('', '/data/c2m2/record_info?q=', 'blood', '&t=', 'dcc_name:', allres.dcc_name, 
+      '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
+      '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
+      '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
+      '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
+      FROM allres
+      /*${filterClause}*/
+      /*LIMIT ${allres_filtered_maxrow_limit}*/
+    ),
+    allres_limited AS (
+      SELECT *
+      FROM allres_filtered
+      OFFSET 0
+      LIMIT 10   
+    ),
+    total_count as (
+      select count(*)::int as count
+      from allres_filtered
+    )
+    
+    SELECT
+    (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited ), 
+    (SELECT count FROM total_count) as count,
+    (SELECT filtered_count FROM allres_filtered_count) as all_count
+;
+
+--- Figure out the anomaly of searching for metabol or metabolomics and DCC filter MW
+--- metabol gives 1191, metabolomics gives 2254 (same as on the web/ngrok)
+select count(*) from (
+      SELECT DISTINCT 
+        ts_rank_cd(searchable, websearch_to_tsquery('english', 'metabolomics')) AS rank,
+        allres_full.dcc_name AS dcc_name,
+        allres_full.dcc_abbreviation AS dcc_abbreviation,
+        SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
+        /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
+        COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+        /* CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name, */
+        COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+        REPLACE(allres_full.disease, ':', '_') AS disease,
+        /* CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name, */
+        COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+        REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+        /* CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name, */
+        COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+        allres_full.gene AS gene,
+        COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+        allres_full.protein AS protein,
+        COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+        allres_full.substance_compound AS compound,
+        COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+        REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+        /* allres_full.project_name AS project_name, */
+        COALESCE(allres_full.project_name, 
+          concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+        /**** c2m2.project.description AS project_description, ****/
+        allres_full.project_persistent_id as project_persistent_id,
+        COUNT(*)::INT AS count,
+        /**** COUNT(DISTINCT biosample_local_id)::INT ****/ -99 AS count_bios, 
+        COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+        COUNT(DISTINCT collection_local_id)::INT AS count_col
+      /**** FROM c2m2.ffl_biosample_collection_cmp as allres_full ****/
+      FROM c2m2."ffl_biosample_collection_cmp" as allres_full 
+      
+      /**** LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+        allres_full.project_local_id = c2m2.project.local_id) ****/
+      /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
+        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
+
+      /**** Mano: 2024/08/09: Trying to combine allres_full and allres into one CTE ****/  
+      WHERE searchable @@ websearch_to_tsquery('english', 'metabolomics')
+        and ("allres_full"."dcc_name" = 'UCSD Metabolomics Workbench')
+        
+      GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+        disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
+        data_type_name, data_type, project_name /**** , project_description ****/ , allres_full.project_persistent_id 
+      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name /* DONOT INCLUDE THESE THREE: , subject_local_id, biosample_local_id, collection_local_id */
+      OFFSET 0
+      LIMIT 10000000 /* $10      */
+);
+
+
+--- Test if project_data_type can be generated with a simpler query
+select count(*) from (select distinct c2m2.file.project_id_namespace, c2m2.file.project_local_id,
+    c2m2.file.data_type, c2m2.file.assay_type from 
+    c2m2.project 
+    left join c2m2.file
+        on (c2m2.project.local_id = c2m2.file.project_local_id and
+        c2m2.project.id_namespace = c2m2.file.project_id_namespace)
+    );
+  
+  select count(*) from (select distinct project_id_namespace, project_local_id,
+    data_type, assay_type from c2m2.file);
+
+
+(select distinct c2m2.file.project_id_namespace, c2m2.file.project_local_id,
+    c2m2.file.data_type, c2m2.file.assay_type from 
+    c2m2.project 
+    left join c2m2.file
+        on (c2m2.project.local_id = c2m2.file.project_local_id and
+        c2m2.project.id_namespace = c2m2.file.project_id_namespace)
+)
+except
+(select distinct project_id_namespace, project_local_id, data_type, assay_type from c2m2.file);
+
+
+----->
+project_id_namespace | project_local_id | data_type | assay_type 
+----------------------+------------------+-----------+------------
+                      |                  |           | 
+(1 row)
+
+------------------------
+--- Add assay_type filter in C2M2 main search results page; suggested during the demo during August12 DRC/KC meeting.
+
+--- This will require adding assay_type (and related information) into ffl_biosample and ffl_collection (which are then combined into ffl_biosample_collection), resulting in about 15% more rows (and make the search a bit slower correspondingly) as per the counts below.
+select count(*) from (select distinct project_local_id, data_type, assay_type from c2m2.file);
+4934
+
+select count(*) from (select distinct project_local_id, data_type from c2m2.file);
+4276
+
+---- substantial increase if add all others from file
+select count(*) from (select distinct project_local_id, file_format, data_type, assay_type, analysis_type from c2m2.file);
+7127

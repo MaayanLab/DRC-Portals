@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma/c2m2';
 
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import Link from "next/link";
+import Link from "@/utils/link";
 //import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash} from "@/app/data/c2m2/utils";
 import { schemaToDCC, tableToName} from "@/app/data/review/utils";
 import SQL from '@/lib/prisma/raw';

@@ -13,7 +13,7 @@
 import React from "react";
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
-import { Grid } from "@mui/material";
+import { Grid, LinearProgress, Box } from "@mui/material";
 
 type FancyTabProps = {
   id: string,
@@ -23,11 +23,11 @@ type FancyTabProps = {
   loading?: boolean,
   disabled?: boolean,
 }
-const FancyTabContext = React.createContext([undefined as string | undefined, (data: FancyTabProps) => {}] as const)
+const FancyTabContext = React.createContext([undefined as string | undefined, (data: FancyTabProps) => { }] as const)
 
 export function FancyTab(props: React.PropsWithChildren<FancyTabProps>) {
   const [currentTab, register] = React.useContext(FancyTabContext)
-  React.useEffect(() => register({...props}), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
+  React.useEffect(() => register({ ...props }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
   if (props.id !== currentTab || props.hidden) return null
   return <>{props.children}</>
 }
@@ -41,7 +41,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
 }>) {
   const [ctx, setCtx] = React.useState({ initialized: false, tabs: {} as Record<string, FancyTabProps> })
   const register = React.useCallback((props: FancyTabProps) => {
-    setCtx(({ tabs }) => ({ initialized: true, tabs: {...tabs, [props.id]: props} }))
+    setCtx(({ tabs }) => ({ initialized: true, tabs: { ...tabs, [props.id]: props } }))
     return () => {
       setCtx(({ tabs: { [props.id]: _, ...tabs } }) => ({ initialized: true, tabs }))
     }
@@ -58,7 +58,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
   }, [ctx.tabs])
   const tabs = React.useMemo(() => {
     const tabs = Object.values(ctx.tabs).filter(tab => !tab.hidden)
-    tabs.sort((a, b) => (b.priority??0) - (a.priority??0))
+    tabs.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
     return tabs
   }, [ctx.tabs])
   const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs.filter(tab => !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
@@ -80,20 +80,40 @@ export function FancyTabs(props: React.PropsWithChildren<{
         >
           {tabs.map(item => (
             <Tab
-              key={item.id} 
-              sx={{ fontSize: '14pt' }}
-              label={item.label}
+              key={item.id}
+              sx={{
+                fontSize: '14pt',
+                '&.Mui-selected': {
+                  color: '#295988', // Only change text color for selected tab, no background color change
+                },
+                '&:hover': {
+                  backgroundColor: '#c9d2e9', // Background color on hover - issue 319
+                  cursor: 'pointer', // Pointer cursor on hover
+                },
+              }}
+              label={
+                <>
+                  {item.label}
+                  {item.loading && (
+                    <Box sx={{ width: '100%' }}>
+                      <LinearProgress color="primary" />
+                    </Box>
+                  )}
+                </>
+              }
               value={item.id}
               disabled={item.disabled || item.loading}
             />
+
+
           ))}
         </Tabs>
       </Grid>
       <Grid item xs={10}>
         {tabs.length > 0 ? null
           : initializing_state === 'pre' ? props.preInitializationFallback
-          : initializing_state === 'post' ? props.postInitializationFallback
-          : null}
+            : initializing_state === 'post' ? props.postInitializationFallback
+              : null}
         <FancyTabContext.Provider value={[currentTab, register]}>
           {props.children}
         </FancyTabContext.Provider>

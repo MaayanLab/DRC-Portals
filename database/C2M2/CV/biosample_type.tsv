@@ -1,0 +1,4 @@
+id	name	description
+cfde_biosample_type:0	Tissue	Tissue
+cfde_biosample_type:1	Supernatant	Supernatant
+cfde_biosample_type:2	Biofluid	Biofluid

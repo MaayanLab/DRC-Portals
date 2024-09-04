@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma/c2m2";
 import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
 import { MetadataItem, getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
-import Link from "next/link";
+import Link from "@/utils/link";
 import ExpandableTable from "../ExpandableTable";
 import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
@@ -103,6 +103,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         compound: string,
         data_type_name: string,
         data_type: string,
+        assay_type_name: string,
+        assay_type: string,
         project_name: string,
         project_persistent_id: string,
         project_local_id: string,
@@ -145,6 +147,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               allres_full.substance_compound AS compound,
               COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
               REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+              /**** COALESCE(c2m2.project_data_type.assay_type_name, 'Unspecified') AS assay_type_name,
+              REPLACE(c2m2.project_data_type.assay_type_id, ':', '_') AS assay_type, ****/
+              COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
+              REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
               /* allres_full.project_name AS project_name, */
               COALESCE(allres_full.project_name, 
                 concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
@@ -169,12 +175,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
               anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+              data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
               allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
             /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-              protein_name, compound_name, data_type_name /*rank DESC*/
+              protein_name, compound_name, data_type_name, assay_type_name /*rank DESC*/
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
@@ -197,12 +203,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const metadata: (MetadataItem | null)[] = [
       { label: 'Project ID', value: projectLocalId },
       resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)
-        ? { label: 'Project URL', value: <Link prefetch={false} href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
+        ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
         : resultsRec?.project_persistent_id ? { label: 'Project URL', value: resultsRec?.project_persistent_id } : null,
       {
         label: 'Taxonomy',
         value: resultsRec?.taxonomy_name && resultsRec?.taxonomy_name !== "Unspecified"
-          ? <Link prefetch={false} href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec?.taxonomy_id}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.taxonomy_name}
           </Link>
           : /* resultsRec?.taxonomy_name || */ ''
@@ -211,7 +217,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Sample Source',
         value: resultsRec?.anatomy_name && resultsRec?.anatomy_name !== "Unspecified"
-          ? <Link prefetch={false} href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.anatomy}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.anatomy_name)}
           </Link>
           : /* resultsRec?.anatomy_name || */ ''
@@ -220,7 +226,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Disease',
         value: resultsRec?.disease_name && resultsRec?.disease_name !== "Unspecified"
-          ? <Link prefetch={false} href={`http://purl.obolibrary.org/obo/${resultsRec?.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.disease}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.disease_name)}
           </Link>
           : /* resultsRec?.disease_name || */ ''
@@ -229,7 +235,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Gene',
         value: resultsRec?.gene_name && resultsRec?.gene_name !== "Unspecified"
-          ? <Link prefetch={false} href={`http://www.ensembl.org/id/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`http://www.ensembl.org/id/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.gene_name}
           </Link>
           : /* resultsRec?.gene_name || */ ''
@@ -238,7 +244,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Protein',
         value: resultsRec?.protein_name && resultsRec?.protein_name !== "Unspecified"
-          ? <Link prefetch={false} href={`https://www.uniprot.org/uniprotkb/${resultsRec?.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`https://www.uniprot.org/uniprotkb/${resultsRec?.protein}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.protein_name}
           </Link>
           : /* resultsRec?.protein_name || */ ''
@@ -247,7 +253,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Compound',
         value: resultsRec?.compound_name && resultsRec?.compound_name !== "Unspecified"
-          ? <Link prefetch={false} href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.compound_name}
           </Link>
           : /* resultsRec?.compound_name || */ ''
@@ -256,8 +262,16 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Data type',
         value: resultsRec?.data_type_name && resultsRec?.data_type_name !== "Unspecified"
-          ? <Link prefetch={false} href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.data_type_name)}
+          </Link>
+          : /* resultsRec?.data_type_name || */ ''
+      },
+      {
+        label: 'Assay type',
+        value: resultsRec?.assay_type_name && resultsRec?.assay_type_name !== "Unspecified"
+          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.assay_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.assay_type_name)}
           </Link>
           : /* resultsRec?.data_type_name || */ ''
       },
@@ -283,26 +297,32 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <CollectionsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} colTblOffset={colTblOffset} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesProjTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileProjTblOffset={fileProjTblOffset} file_count_limit_proj={file_count_limit_proj} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileSubTblOffset={fileSubTblOffset} file_count_limit_sub={file_count_limit_sub} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesBiosampleTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileBiosTblOffset={fileBiosTblOffset} file_count_limit_bios={file_count_limit_bios} />
         </React.Suspense>
+        
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col} />

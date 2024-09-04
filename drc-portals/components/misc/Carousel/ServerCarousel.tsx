@@ -2,7 +2,7 @@ import Image from "next/image"
 import Typography from "@mui/material/Typography"
 import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
-import Link from "next/link"
+import Link from "@/utils/link"
 import prisma from "@/lib/prisma"
 export default async function ServerCarousel () {
     const now = new Date()

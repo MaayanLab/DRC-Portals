@@ -3,12 +3,12 @@ import SQL from '@/lib/prisma/raw';
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet";
 import React from 'react';
 
-export default async function CompoundFilterComponent({ q, filterClause, maxCount }: { q: string, filterClause: SQL, maxCount: number }) {
+export default async function CompoundFilterComponent({ q, filterClause, maxCount, main_table }: { q: string, filterClause: SQL, maxCount: number, main_table: string }) {
   try {
     const query = SQL.template`
       WITH cpdres_full AS (
-        SELECT DISTINCT COALESCE(c2m2.ffl_biosample_collection.compound_name, 'Unspecified') AS compound_name
-        FROM c2m2.ffl_biosample_collection
+        SELECT DISTINCT COALESCE(compound_name, 'Unspecified') AS compound_name
+        FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
         /*LIMIT ${maxCount}*/

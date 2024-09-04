@@ -30,15 +30,22 @@ newline = '\n'
 
 # Lines copied from dburl.py and modified
 load_dotenv(pathlib.Path(__file__).parent.parent.parent/'drc-portals'/'.env')
+########## DB ADMIN INFO: BEGIN ############
+# Comment the line below with .env.dbadmin if not ingesting, almost always ingesting if running these scripts
+#load_dotenv(pathlib.Path(__file__).parent.parent.parent/'DB_ADMIN_INFO'/'.env.dbadmin')
+########## DB ADMIN INFO: END   ############
 c2m2_database_url = urllib.parse.urlparse(os.getenv('C2M2_DATABASE_URL'))
 #print(f"{c2m2_database_url.scheme}://{c2m2_database_url.username}:{c2m2_database_url.password}@{c2m2_database_url.hostname}:{c2m2_database_url.port}{c2m2_database_url.path}")
 
 # PostgreSQL connection details
 database_name = "drc" # c2m2_database_url.path is /drc, don't want the / part, so fixed here
 user = c2m2_database_url.username # "drc"
-password = c2m2_database_url.password # "drcpass"
+password = urllib.parse.unquote(c2m2_database_url.password); # "drcpass"
 host = c2m2_database_url.hostname # "localhost"
 port = c2m2_database_url.port # "5433" # "5432" (default) or "5433"
+
+##### Line below is for debug only, always keep commented otherwise
+##### print(f"user: {user}, password: {password}, database_name: {database_name}, host: {host}, port: {port}")
 
 # Connection parameters
 conn_params = {
@@ -53,7 +60,9 @@ conn_params = {
 conn = psycopg2.connect(**conn_params)
 
 # Create a PostgreSQL engine
-engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
+#engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
+# encode the password: https://docs.sqlalchemy.org/en/20/core/engines.html
+engine = create_engine(f'postgresql://{user}:{urllib.parse.quote_plus(password)}@{host}:{port}/{database_name}', connect_args={"options": "-c statement_timeout=0"})
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -91,7 +100,10 @@ if(len(sys.argv) > 1):
 
     single_dcc = 1;
     print(f"********** DCC name (dcc_short_label) specified as an argument: {dcc_short_label}; will use schema_name: {schema_name}, so, will ingest only from that DCC.");
-    qf_folder = 'log/';    
+    qf_folder = 'log/';
+    if(len(sys.argv) > 2):
+        logfolder = str(sys.argv[2]);
+        qf_folder = f'{logfolder}/';
 else:
     dcc_short_label = "C2M2";
     schema_name = "c2m2"; #dcc_short_label.lower(); # if there is one by the name c2m2 for testing, use a different name here, e.g., c2
@@ -550,6 +562,23 @@ except Exception as fsu_e:
 finally:
     # Commit the changes 
     conn.commit();
+#------------------------------------------------------
+# Update the description and synonyms for the name 'Homo sapiens' in the table c2m2.ncbi_taxonomy
+# This will be redundant if the entry is updated in the ncbi_taxonomy.tsv[.gz] file itself
+if (schema_name == 'c2m2'):
+    ncbi_tax_human_str_1 = f"UPDATE {schema_name}.ncbi_taxonomy SET description = 'Human', synonyms = '[\"Human\"]' ";
+    ncbi_tax_human_str_2 = f"WHERE id = 'NCBI:txid9606' AND name = 'Homo sapiens';";
+    ncbi_tax_human_update_query = ncbi_tax_human_str_1 + ncbi_tax_human_str_2; 
+    # Execute the UPDATE query
+    print(f"{newline}>>>>>>>> Attempting update of description and synonym for Homo sapiens in table {schema_name}.file successful.{newline}");
+    try:
+        cursor.execute(ncbi_tax_human_update_query)
+        print(f"Update successful.{newline}");
+    except Exception as fsu_e:
+        print(f"Error executing the query{newline}{ncbi_tax_human_update_query}: {fsu_e}");
+    finally:
+        # Commit the changes 
+        conn.commit();
 #------------------------------------------------------
 
 #cursor.close()

@@ -1,10 +1,11 @@
 import prisma from "@/lib/prisma/c2m2";
 import SQL from '@/lib/prisma/raw';
 import React from 'react';
-import Link from "next/link";
+import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromBiosampleTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "../ExpandableTable";
-import { Grid, Typography, Card, CardContent } from "@mui/material";
+import { Paper, Grid, Typography, Card, CardContent } from "@mui/material";
+
 
 interface BiosampleTableResult {
     biosamples_table_full: {
@@ -47,7 +48,7 @@ interface BiosampleTableResult {
 const renderMetadataValue = (item: MetadataItem) => {
     if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
         return (
-            <Link prefetch={false} href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+            <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
                 {item.value}
             </Link>
         );
@@ -69,7 +70,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
             ),
-            allres AS (
+            /****Not used allres AS (
                 SELECT DISTINCT
                     COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
                     COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
@@ -86,7 +87,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
                 GROUP BY disease_name, anatomy_name, gene_name, allres_full.project_local_id, c2m2.project.persistent_id
                 ORDER BY disease_name, anatomy_name, gene_name
-            ),
+            ), ****/
             biosamples_table AS (
                 SELECT DISTINCT
                     allres_full.biosample_id_namespace,
@@ -177,39 +178,39 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         console.log("Biosample Category = " + category);
 
         return (
-            <Grid container spacing={2} direction="column">
-                {category && (
-                    <Grid item xs={12}>
-                        <Card variant="outlined" sx={{ mb: 2 }}>
-                            <CardContent id={`card-content-${category.title}`}>
-                                <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: " + countBios}
-                                </Typography>
-                                {category.metadata.map((item, i) => (
-                                    item && item.value ? (
-                                        <Typography key={i} variant="body2">
-                                            <strong>{item.label}: </strong>
-                                            {renderMetadataValue(item)}
-                                        </Typography>
-                                    ) : null
-                                ))}
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                )}
-                <Grid item xs={12}>
-                    <ExpandableTable
-                        data={biosamplePrunedDataWithId}
-                        full_data={biosamples_table_full_withId}
-                        downloadFileName={downloadFilename}
-                        tableTitle={biosampleTableTitle}
-                        searchParams={searchParams}
-                        count={countBios}
-                        colNames={dynamicBiosampleColumns}
-                        dynamicColumns={dynamicBiosampleColumns}
-                        tablePrefix="bioSamplTbl"
-                    />
-                </Grid>
+            <Grid container spacing={0} direction="column">
+            {category && (
+            <Grid item xs={12}>
+            <Card variant="outlined" sx={{ mb: 0, borderBottom: "none" }}>
+                <CardContent id={`card-content-${category.title}`}>
+                <Typography variant="h5" component="div">
+                    {category.title + " (Uniform Columns) Count: " + countBios}
+                </Typography>
+                {category.metadata.map((item, i) => (
+                    item && item.value ? (
+                    <Typography key={i} variant="body2">
+                        <strong>{item.label}: </strong>
+                        {renderMetadataValue(item)}
+                    </Typography>
+                    ) : null
+                ))}
+                </CardContent>
+            </Card>
+            </Grid>
+            )}
+            <Grid item xs={12}>
+                <ExpandableTable
+                    data={biosamplePrunedDataWithId}
+                    full_data={biosamples_table_full_withId}
+                    downloadFileName={downloadFilename}
+                    tableTitle={biosampleTableTitle}
+                    searchParams={searchParams}
+                    count={countBios}
+                    colNames={dynamicBiosampleColumns}
+                    dynamicColumns={dynamicBiosampleColumns}
+                    tablePrefix="bioSamplTbl"
+                />
+            </Grid>
             </Grid>
         );
 

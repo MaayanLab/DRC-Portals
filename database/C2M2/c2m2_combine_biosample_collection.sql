@@ -1,4 +1,5 @@
 set statement_timeout = 0;
+set max_parallel_workers to 4;
 /* DO NOT DELETE ANY OF THE COMMENTS */
 /* 
 run in psql as \i c2m2_combine_biosample_collection.sql or on bash prompt:
@@ -18,6 +19,9 @@ CREATE TABLE c2m2.ffl_biosample_collection as (
     union
     (select * from c2m2.ffl_collection /* limit 100000000 */ )
     )
+    --- Mano: 2024/08/27: May be, preordering might make the query a bit faster
+    ORDER BY dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+    protein_name, compound_name, data_type_name, assay_type_name    
 );
 
 DO $$ 
@@ -41,10 +45,14 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample_collection' 
     AND indexname = 'ffl_biosample_collection_idx_many_cols') THEN
         CREATE INDEX ffl_biosample_collection_idx_many_cols ON c2m2.ffl_biosample_collection USING 
-        btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, 
-            gene_name, protein_name, compound_name, data_type_name);
+        --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, 
+        ---    gene_name, protein_name, compound_name, data_type_name, assay_type_name);
+        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, 
+        compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
+
+set max_parallel_workers to 0;
 
 --- test:
 
