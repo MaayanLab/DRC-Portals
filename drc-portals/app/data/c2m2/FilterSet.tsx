@@ -112,62 +112,95 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
 
   const indexRows = chunkArray(filterIndex, 8);
 
-  // Check if all options have been selected or if there are no options
   const disableAutocomplete = options.length === 0 || selectedFilters.length === filterList.length;
 
   return (
     <>
       <div>{filter_title}</div>
-      <Autocomplete
-        multiple
-        autoComplete
-        disableCloseOnSelect
-        limitTags={3}
-        id="filterSet"
-        options={options
-          .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id))
-          .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
-        }
-        noOptionsText=""
-        freeSolo={false} // Disable free text input
-        groupBy={(option) => getFirstLetter(option)}
-        getOptionLabel={(option) => `${option.name}`}
-        value={selectedFiltersForAutocomplete}
-        onChange={(event, newValue) => {
-          const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
-          setSelectedFilters(validNewValue);
-        }}
-        renderTags={(value, getTagProps) =>
-          value.map((option, index) => (
-            <Chip
-              variant="outlined"
-              label={option.name}
-              size="medium"
-              {...getTagProps({ index })}
-              onDelete={undefined}
+      {options.length > 0 && (
+        <Autocomplete
+          multiple
+          autoComplete
+          disableCloseOnSelect
+          limitTags={3}
+          id="filterSet"
+          options={options
+            .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id))
+            .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
+          }
+          noOptionsText=""
+          freeSolo={false} // Disable free text input
+          groupBy={(option) => getFirstLetter(option)}
+          getOptionLabel={(option) => `${option.name}`}
+          value={selectedFiltersForAutocomplete}
+          onChange={(event, newValue) => {
+            const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
+            setSelectedFilters(validNewValue);
+          }}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                variant="outlined"
+                label={option.name}
+                size="medium"
+                {...getTagProps({ index })}
+                onDelete={undefined}
+                sx={{
+                  backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
+                  color: 'navy', // Navy blue text
+                  fontWeight: 'bold', // Bold text
+                  borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
+                }}
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size='small'
+              placeholder={example_query}
+              disabled={disableAutocomplete} // Disable input if no options or all selected
+              sx={{
+                backgroundColor: theme => theme.palette.mode === 'light' ? '#f7f7f7' : '#424242', // Lighter background for input field
+                '& .MuiInputBase-input::placeholder': {
+                  color: theme => theme.palette.text.primary, // Darker example text
+                  opacity: 0.8,
+                },
+                '& .MuiAutocomplete-popupIndicator': {
+                  display: disableAutocomplete ? 'none' : 'flex', // Hide arrow if no options or all selected
+                  color: theme => theme.palette.text.primary,
+                  fontWeight: 'bold', // Increase prominence of downward arrow
+                },
+              }}
             />
-          ))
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            size='small'
-            placeholder={example_query}
-            disabled={disableAutocomplete} // Disable input if no options or all selected
-          />
-        )}
-        renderGroup={(params) => (
-          <li key={params.key}>
-            <GroupHeader>{params.group}</GroupHeader>
-            <GroupItems>{params.children}</GroupItems>
-          </li>
-        )}
-        sx={{ width: 'auto' }}
-        onBlur={() => {
-          applyFilters();
-        }}
-        disabled={disableAutocomplete} // Disable entire Autocomplete if no options or all selected
-      />
+          )}
+          renderGroup={(params) => (
+            <li key={params.key}>
+              <GroupHeader>{params.group}</GroupHeader>
+              <GroupItems>{params.children}</GroupItems>
+            </li>
+          )}
+          sx={{ width: 'auto' }}
+          onBlur={() => {
+            applyFilters();
+          }}
+        />
+      )}
+      {/* Render selected chips even when the Autocomplete is hidden */}
+      {!options.length && selectedFiltersForAutocomplete.map((option, index) => (
+        <Chip
+          key={option.id}
+          variant="outlined"
+          label={option.name}
+          size="medium"
+          sx={{
+            backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
+            color: 'navy', // Navy blue text
+            fontWeight: 'bold', // Bold text
+            borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
+          }}
+        />
+      ))}
     </>
   );
 }
