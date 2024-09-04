@@ -9,8 +9,8 @@ import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, ReactNode } from "react";
 
-import { fetchSearch } from "@/lib/neo4j/api";
-import { inputIsValidLucene } from "@/lib/neo4j/utils";
+import { fetchPathSearch, fetchSearch } from "@/lib/neo4j/api";
+import { SubGraph } from "@/lib/neo4j/types";
 
 import ExpandNodeMenuItem from "../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
 import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
@@ -28,20 +28,14 @@ import {
 } from "../constants/search-bar";
 import { SearchBarContainer } from "../constants/search-bar";
 import { CytoscapeNodeData } from "../interfaces/cy";
-import { SubGraph } from "../interfaces/neo4j";
-import { SchemaSearchPath } from "../interfaces/schema-search";
-import { getDriver } from "../neo4j";
-import Neo4jService from "../services/neo4j";
 import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
 import {
-  getSchemaSearchValue,
   getSearchBarValue,
   getTextSearchValues,
 } from "../utils/advanced-search";
 import {
   D3_FORCE_TOOLS,
-  createCytoscapeElementsFromNeo4j,
-  createCytoscapeElementsFromSubGraph,
+  createCytoscapeElements,
   downloadChartData,
   downloadChartPNG,
   downloadCyAsJson,
@@ -55,7 +49,6 @@ import {
   unlockD3ForceNode,
   unlockSelection,
 } from "../utils/cy";
-import { createSchemaSearchCypher } from "../utils/neo4j";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
@@ -73,15 +66,11 @@ export default function GraphSearch() {
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
   >(undefined);
-  const neo4jService = new Neo4jService(getDriver());
   let longRequestTimerId: NodeJS.Timeout | null = null;
 
   const { coreLabels, subjectGenders, subjectRaces, dccAbbrevs } =
     getTextSearchValues(searchParams);
   const [searchBarValue, setSearchBarValue] = useState<string>("");
-  const [schemaValue, setSchemaValue] = useState<SchemaSearchPath[] | null>(
-    null
-  );
   const [searchHidden, setSearchHidden] = useState(false);
   const [showSearchHiddenTooltip, setShowSearchHiddenTooltip] = useState(false);
 
@@ -236,27 +225,6 @@ export default function GraphSearch() {
     setElements([]);
   };
 
-  const setInitialNetworkData = async (
-    cypher: string,
-    params?: {
-      [key: string]: any;
-    }
-  ) => {
-    clearNetwork();
-
-    setLongRequestTimer();
-    const records = await neo4jService.executeRead<SubGraph>(cypher, params);
-
-    const cytoscapeElements = createCytoscapeElementsFromNeo4j(records);
-
-    if (cytoscapeElements.length === 0) {
-      setError(NO_RESULTS_ERROR_MSG);
-    } else {
-      clearSearchError();
-      setElements(cytoscapeElements);
-    }
-  };
-
   const resetLegend = () => {
     if (elements.length === 0) {
       setLegend(undefined);
@@ -299,20 +267,44 @@ export default function GraphSearch() {
     }
   };
 
-  const getSearchResults = () => {
+  // TODO: Could probably wrap the two search queries in a shared function which does all the state management, since the handling of the result is nearly identical
+  const getSearchResults = (
+    query: string,
+    labels: string[],
+    dccs: string[],
+    genders: string[],
+    races: string[]
+  ) => {
     setLoading(true);
     clearNetwork();
     setLongRequestTimer();
-    fetchSearch(
-      searchBarValue,
-      coreLabels,
-      dccAbbrevs,
-      subjectGenders,
-      subjectRaces
-    )
+    fetchSearch(query, labels, dccs, genders, races)
       .then((response) => response.json())
       .then((data: SubGraph) => {
-        const cytoscapeElements = createCytoscapeElementsFromSubGraph(data);
+        const cytoscapeElements = createCytoscapeElements(data);
+
+        if (cytoscapeElements.length === 0) {
+          setError(NO_RESULTS_ERROR_MSG);
+        } else {
+          clearSearchError();
+          setElements(cytoscapeElements);
+        }
+      })
+      .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
+      .finally(() => {
+        setLoading(false);
+        clearLongRequestTimer();
+      });
+  };
+
+  const getPathSearchResults = (pathQuery: string, queryParams: string) => {
+    setLoading(true);
+    clearNetwork();
+    setLongRequestTimer();
+    fetchPathSearch(pathQuery, queryParams)
+      .then((response) => response.json())
+      .then((data: SubGraph) => {
+        const cytoscapeElements = createCytoscapeElements(data);
 
         if (cytoscapeElements.length === 0) {
           setError(NO_RESULTS_ERROR_MSG);
@@ -333,53 +325,27 @@ export default function GraphSearch() {
   }, [elements]);
 
   useEffect(() => {
-    if (searchParams.size > 0) {
-      setSchemaValue(
-        getSchemaSearchValue(searchParams, () => {
-          console.warn("Schema search params are malformed.");
-          setError(BASIC_SEARCH_ERROR_MSG);
-        })
-      );
-      setSearchBarValue(getSearchBarValue(searchParams));
+    if (searchParams.has("q") || searchParams.has("as_q")) {
+      const newSearchBarValue = getSearchBarValue(searchParams);
+      setSearchBarValue(newSearchBarValue);
+
+      if (newSearchBarValue.length > 0) {
+        // TODO: Something about handing the state objects into a function feels wrong to me, I've got a feeling there's a better way to do this...
+        getSearchResults(
+          newSearchBarValue,
+          coreLabels,
+          dccAbbrevs,
+          subjectGenders,
+          subjectRaces
+        );
+      }
+    } else if (searchParams.has("schema_q")) {
+      const pathQuery = searchParams.get("schema_q") || "";
+      const queryParams = searchParams.get("cy_params") || "";
+
+      getPathSearchResults(pathQuery, queryParams);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    if (searchBarValue.length > 0) {
-      if (inputIsValidLucene(searchBarValue)) {
-        getSearchResults();
-      } else {
-        setError(NO_RESULTS_ERROR_MSG);
-      }
-    }
-  }, [searchBarValue]);
-
-  useEffect(() => {
-    if (
-      !searchParams.has("q") &&
-      !searchParams.has("as_q") &&
-      schemaValue !== null
-    ) {
-      setLoading(true);
-
-      // Set the Cypher query params by reading param names from every filter in the value object
-      const queryParams: { [key: string]: any } = {};
-      schemaValue.forEach((row) => {
-        row.elements.forEach((element) => {
-          element.filters.forEach((filter) => {
-            queryParams[filter.paramName] = filter.value;
-          });
-        });
-      });
-
-      setInitialNetworkData(createSchemaSearchCypher(schemaValue), queryParams)
-        .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
-        .finally(() => {
-          setLoading(false);
-          clearLongRequestTimer();
-        });
-    }
-  }, [schemaValue]);
 
   return (
     <Grid

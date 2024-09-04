@@ -42,7 +42,7 @@ import {
   SUBJECT_SEX_LABEL,
   SUBSTANCE_LABEL,
   TERM_LABELS,
-} from "./neo4j";
+} from "@/lib/neo4j/constants";
 
 export const EDGE_COLOR = "#797979";
 export const CFDE_DARK_BLUE = "#336699";

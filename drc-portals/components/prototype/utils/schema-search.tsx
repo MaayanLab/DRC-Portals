@@ -1,27 +1,28 @@
 import { Paper, Popper } from "@mui/material";
 import { CSSProperties, ReactElement } from "react";
 
+import { Direction } from "@/lib/neo4j/enums";
 import {
   INCOMING_CONNECTIONS,
   NODE_LABELS,
   OUTGOING_CONNECTIONS,
   PROPERTY_MAP,
+  PROPERTY_OPERATORS,
   RELATIONSHIP_TYPES,
-} from "../constants/neo4j";
-import { PROPERTY_OPERATORS } from "../constants/schema-search";
-import { Direction } from "../enums/schema-search";
+} from "@/lib/neo4j/constants";
 import {
-  BasePropertyFilter,
-  NodeOption,
-  RelationshipOption,
-} from "../interfaces/schema-search";
-import { SearchBarOption } from "../types/schema-search";
+  BasePropFilter,
+  NodePathElement,
+  PathElement,
+  RelationshipPathElement,
+} from "@/lib/neo4j/types";
+import { neo4jSafeUUID } from "@/lib/neo4j/utils";
+
 import {
   NodeElementFactory,
   RelationshipElementFactory,
 } from "../types/shared";
 
-import { neo4jSafeUUID } from "./neo4j";
 import {
   LABEL_TO_FACTORY_MAP,
   TYPE_TO_FACTORY_MAP,
@@ -41,9 +42,9 @@ export const CustomPopper = (props: any) => (
 );
 
 export const isRelationshipOption = (
-  option: NodeOption | RelationshipOption
-): option is RelationshipOption => {
-  return (option as RelationshipOption).direction !== undefined;
+  option: NodePathElement | RelationshipPathElement
+): option is RelationshipPathElement => {
+  return (option as RelationshipPathElement).direction !== undefined;
 };
 
 export const getAllNodeOptions = () => {
@@ -76,15 +77,15 @@ export const getAllRelationshipOptions = () => {
     });
 };
 
-export const getOptions = (value?: SearchBarOption[]): SearchBarOption[] => {
-  let nodes: NodeOption[];
-  let relationships: RelationshipOption[];
+export const getOptions = (value?: PathElement[]): PathElement[] => {
+  let nodes: NodePathElement[];
+  let relationships: RelationshipPathElement[];
   if (value === undefined || value.length === 0) {
     nodes = getAllNodeOptions();
     relationships = getAllRelationshipOptions();
   } else {
     // We can safely rule out a possible undefined value because of the above `if` block
-    const last = value.at(-1) as SearchBarOption;
+    const last = value.at(-1) as PathElement;
 
     if (isRelationshipOption(last)) {
       const relationshipType = last.name;
@@ -220,7 +221,7 @@ export const getOptions = (value?: SearchBarOption[]): SearchBarOption[] => {
 };
 
 export const createEntityElement = (
-  entity: SearchBarOption,
+  entity: PathElement,
   style?: CSSProperties
 ) => {
   if (isRelationshipOption(entity)) {
@@ -238,10 +239,7 @@ export const createEntityElement = (
   }
 };
 
-export const createNodeSegment = (
-  node: JSX.Element,
-  prev?: SearchBarOption
-) => {
+export const createNodeSegment = (node: JSX.Element, prev?: PathElement) => {
   let segment: JSX.Element[] = [];
 
   if (prev !== undefined && !isRelationshipOption(prev)) {
@@ -253,7 +251,7 @@ export const createNodeSegment = (
   return segment;
 };
 
-export const getSearchPathElements = (path: SearchBarOption[]) => {
+export const getSearchPathElements = (path: PathElement[]) => {
   const newPath: ReactElement[][] = [];
   path
     .filter((entity) => factoryExistsFilter(entity.name))
@@ -296,7 +294,7 @@ export const getSearchPathElements = (path: SearchBarOption[]) => {
   return newPath;
 };
 
-export const getEntityProperties = (value: SearchBarOption) =>
+export const getEntityProperties = (value: PathElement) =>
   PROPERTY_MAP.get(value.name);
 
 export const getPropertyOperators = (property: string) => {
@@ -308,7 +306,7 @@ export const getPropertyOperators = (property: string) => {
 
 export const createPropertyFilter = (
   name: string
-): BasePropertyFilter | undefined => {
+): BasePropFilter | undefined => {
   if (PROPERTY_MAP.has(name)) {
     const propertyName = (PROPERTY_MAP.get(name) as string[])[0];
 

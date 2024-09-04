@@ -14,12 +14,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { v4 } from "uuid";
 
+import { PathElement, SearchPath } from "@/lib/neo4j/types";
+
 import { ROW_SPACING } from "../../constants/advanced-search";
-import {
-  SchemaSearchPath,
-  SelectedPathElement,
-} from "../../interfaces/schema-search";
-import { SearchBarOption } from "../../types/schema-search";
+import { SelectedPathElement } from "../../interfaces/schema-search";
 import { getSchemaSearchValue } from "../../utils/advanced-search";
 
 import GraphSchemaLink from "../GraphSchemaLink";
@@ -33,7 +31,7 @@ const PATH_LIST_WIDTH = 12;
 export default function SchemaSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [value, setValue] = useState<SchemaSearchPath[]>(
+  const [value, setValue] = useState<SearchPath[]>(
     getSchemaSearchValue(searchParams, () => {
       console.warn("Schema search params are malformed.");
     }) || []
@@ -43,10 +41,23 @@ export default function SchemaSearch() {
 
   const handleSubmit = () => {
     const query = btoa(JSON.stringify(value));
-    router.push(`/data/c2m2/graph/search?schema_q=${query}`);
+    const queryParams: { [key: string]: any } = {};
+    value.forEach((row) => {
+      row.elements.forEach((element) => {
+        element.filters.forEach((filter) => {
+          queryParams[filter.paramName] = filter.value;
+        });
+      });
+    });
+
+    router.push(
+      `/data/c2m2/graph/search?schema_q=${query}&cy_params=${btoa(
+        JSON.stringify(queryParams)
+      )}`
+    );
   };
 
-  const updatePath = (index: number) => (newValue: SchemaSearchPath) => {
+  const updatePath = (index: number) => (newValue: SearchPath) => {
     const updatedValue = [...value];
     updatedValue[index] = newValue;
     setValue(updatedValue);
@@ -68,7 +79,7 @@ export default function SchemaSearch() {
   };
 
   const handleElementSelected = (
-    element: SearchBarOption,
+    element: PathElement,
     elementIdx: number,
     pathIdx: number
   ) => {
@@ -84,7 +95,7 @@ export default function SchemaSearch() {
     setSelectedElement(null);
   };
 
-  const handleElementUpdated = (updatedElement: SearchBarOption) => {
+  const handleElementUpdated = (updatedElement: PathElement) => {
     if (selectedElement !== null) {
       const updatedValue = [...value];
       const updatedPathElements = [

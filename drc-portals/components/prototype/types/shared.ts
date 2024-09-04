@@ -1,6 +1,6 @@
 import { CSSProperties, ReactElement } from "react";
 
-import { Direction } from "../enums/schema-search";
+import { Direction } from "@/lib/neo4j/enums";
 
 export type NodeElementFactory = (
   label: string,

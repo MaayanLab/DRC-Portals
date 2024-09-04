@@ -1,8 +1,5 @@
-/**
- * It is important to note that it makes sense to keep these constants defined on the frontend because the underlying graph model is not
- * expected to change frequently. Should this assumption change, it may be necessary to retrieve the labels/types ad hoc. It should be
- * noted however that this can be a *very* expensive query, particularly when retrieving all connected labels/types for a given type/label.
- */
+import { PredicateFn } from "./types";
+
 // Admin entity labels
 export const DCC_LABEL = "DCC";
 export const ID_NAMESPACE_LABEL = "IDNamespace";
@@ -517,5 +514,89 @@ export const PROPERTY_MAP: ReadonlyMap<string, string[]> = new Map([
     [
       // OBSERVED_PROPERTY
     ],
+  ],
+]);
+
+const STRING_EQUALS = "EQUALS";
+const STRING_CONTAINS = "CONTAINS";
+const STRING_STARTS_WITH = "STARTS WITH";
+const STRING_ENDS_WITH = "ENDS WITH";
+const NUMBER_EQUALS = "=";
+const NUMBER_GREATER_THAN = ">";
+const NUMBER_LESS_THAN = "<";
+const NUMBER_GREATER_THAN_OR_EQUAL = ">=";
+const NUMBER_LESS_THAN_OR_EQUAL = "<=";
+
+export const STRING_OPERATORS: ReadonlyArray<string> = [
+  STRING_EQUALS,
+  STRING_CONTAINS,
+  STRING_STARTS_WITH,
+  STRING_ENDS_WITH,
+];
+
+export const NUMBER_OPERATORS: ReadonlyArray<string> = [
+  NUMBER_EQUALS,
+  NUMBER_GREATER_THAN,
+  NUMBER_LESS_THAN,
+  NUMBER_GREATER_THAN_OR_EQUAL,
+  NUMBER_LESS_THAN_OR_EQUAL,
+];
+
+export const PROPERTY_OPERATORS: ReadonlyMap<string, string[]> = new Map([
+  ...Array.from(STRING_PROPERTIES).map((prop): [string, string[]] => [
+    prop,
+    [...STRING_OPERATORS],
+  ]),
+  // ...Array.from(NUMBER_PROPERTIES).map((prop): [string, string[]] => [
+  //   prop,
+  //   [...NUMBER_OPERATORS],
+  // ]),
+  // TODO: Add array, bool, and date operators
+]);
+export const OPERATOR_FUNCTIONS: ReadonlyMap<string, PredicateFn> = new Map([
+  [
+    STRING_EQUALS,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} = $${paramName}`,
+  ],
+  [
+    STRING_CONTAINS,
+    (variableName, property, paramName) =>
+      `toLower(${variableName}.${property}) CONTAINS toLower($${paramName})`,
+  ],
+  [
+    STRING_STARTS_WITH,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} STARTS WITH $${paramName}`,
+  ],
+  [
+    STRING_ENDS_WITH,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} ENDS WITH $${paramName}`,
+  ],
+  [
+    NUMBER_EQUALS,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} = $${paramName}`,
+  ],
+  [
+    NUMBER_GREATER_THAN,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} > $${paramName}`,
+  ],
+  [
+    NUMBER_LESS_THAN,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} < $${paramName}`,
+  ],
+  [
+    NUMBER_GREATER_THAN_OR_EQUAL,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} >= $${paramName}`,
+  ],
+  [
+    NUMBER_LESS_THAN_OR_EQUAL,
+    (variableName, property, paramName) =>
+      `${variableName}.${property} <= $${paramName}`,
   ],
 ]);

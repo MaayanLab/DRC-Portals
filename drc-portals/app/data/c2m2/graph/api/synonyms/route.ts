@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { getSynonymsCypher } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
-import { SynoynmsResult } from "@/lib/neo4j/interfaces";
+import { SynoynmsResult } from "@/lib/neo4j/types";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

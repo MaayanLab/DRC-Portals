@@ -1,36 +1,7 @@
-import { Direction } from "../enums/schema-search";
-import { PropertyValue, SearchBarOption } from "../types/schema-search";
-
-export interface BasePropertyFilter {
-  name: string;
-  operator: string;
-  value: PropertyValue;
-  paramName: string;
-}
-
-export interface BaseSearchBarOption {
-  name: string;
-  key?: string;
-  filters: BasePropertyFilter[];
-}
-
-export interface NodeOption extends BaseSearchBarOption {
-  limit?: number;
-}
-
-export interface RelationshipOption extends BaseSearchBarOption {
-  direction: Direction;
-}
-
-export interface SchemaSearchPath {
-  id: string;
-  elements: SearchBarOption[];
-  skip: number;
-  limit: number;
-}
+import { PathElement } from "@/lib/neo4j/types";
 
 export interface SelectedPathElement {
-  element: SearchBarOption;
+  element: PathElement;
   pathIdx: number;
   elementIdx: number;
 }

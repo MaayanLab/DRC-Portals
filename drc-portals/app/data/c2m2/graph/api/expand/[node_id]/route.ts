@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { getExpandNodeCypher } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
-import { SubGraph } from "@/lib/neo4j/interfaces";
+import { SubGraph } from "@/lib/neo4j/types";
 
 const MAX_LIMIT = 1000;
 

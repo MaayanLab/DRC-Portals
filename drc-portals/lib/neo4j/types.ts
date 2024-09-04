@@ -1,3 +1,5 @@
+import { Direction } from "./enums";
+
 export interface NodeResult {
   identity: number;
   labels: string[];
@@ -37,3 +39,41 @@ export interface NodeAllRelsResults {
 export interface SynoynmsResult {
   synonym: string;
 }
+
+export interface BasePropFilter {
+  name: string;
+  operator: string;
+  value: PropValue;
+  paramName: string;
+}
+
+export interface BasePathElement {
+  name: string;
+  key?: string;
+  filters: BasePropFilter[];
+}
+
+export interface NodePathElement extends BasePathElement {
+  limit?: number;
+}
+
+export interface RelationshipPathElement extends BasePathElement {
+  direction: Direction;
+}
+
+export interface SearchPath {
+  id: string;
+  elements: PathElement[];
+  skip: number;
+  limit: number;
+}
+
+export type PropValue = string | number;
+
+export type PathElement = NodePathElement | RelationshipPathElement;
+
+export type PredicateFn = (
+  variableName: string,
+  property: string,
+  paramName: string
+) => string;

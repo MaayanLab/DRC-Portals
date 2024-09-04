@@ -11,12 +11,10 @@ import {
 } from "react";
 
 import { fetchSynonyms } from "@/lib/neo4j/api";
-import { SynoynmsResult } from "@/lib/neo4j/interfaces";
-import { inputIsValidLucene } from "@/lib/neo4j/utils";
+import { SynoynmsResult } from "@/lib/neo4j/types";
+import { isValidLucene } from "@/lib/neo4j/utils";
 
 import SearchBarInput from "./SearchBarInput";
-import { getDriver } from "../../neo4j";
-import Neo4jService from "../../services/neo4j";
 
 interface SearchBarProps {
   value: string;
@@ -36,7 +34,6 @@ export default function SearchBar(cmpProps: SearchBarProps) {
   const { error, loading, clearError, onSubmit } = cmpProps;
   const [value, setValue] = useState<string>(cmpProps.value);
   const [options, setOptions] = useState<readonly string[]>([]);
-  const neo4jService = new Neo4jService(getDriver());
 
   const submit = (input: string) => {
     if (input.length > 0) {
@@ -90,7 +87,7 @@ export default function SearchBar(cmpProps: SearchBarProps) {
   const fetchOptions = useMemo(
     () =>
       debounce(async (input: string) => {
-        if (inputIsValidLucene(input)) {
+        if (isValidLucene(input)) {
           await fetchSynonyms(input)
             .then((response) => response.json())
             .then((data: SynoynmsResult[]) => {

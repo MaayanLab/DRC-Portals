@@ -3,8 +3,11 @@ import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
 import { CSSProperties } from "react";
 import { v4 } from "uuid";
 
+import { NODE_LABELS, RELATIONSHIP_TYPES } from "@/lib/neo4j/constants";
+import { Direction } from "@/lib/neo4j/enums";
+import { NodeResult } from "@/lib/neo4j/types";
+
 import { EDGE_COLOR } from "../constants/shared";
-import { NODE_LABELS, RELATIONSHIP_TYPES } from "../constants/neo4j";
 import {
   AnonymousNodeElement,
   DividerContainer,
@@ -17,8 +20,6 @@ import {
   RelationshipElement,
   RelationshipText,
 } from "../constants/shared";
-import { Direction } from "../enums/schema-search";
-import { NodeResult } from "../interfaces/neo4j";
 import {
   NodeElementFactory,
   RelationshipElementFactory,

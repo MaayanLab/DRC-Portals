@@ -13,16 +13,15 @@ import {
   useState,
 } from "react";
 
-import { META_RELATIONSHIP_TYPES } from "@/components/prototype/constants/neo4j";
-import { Direction } from "@/components/prototype/enums/schema-search";
-import { SubGraph } from "@/components/prototype/interfaces/neo4j";
-import { createCytoscapeElementsFromSubGraph } from "@/components/prototype/utils/cy";
+import { createCytoscapeElements } from "@/components/prototype/utils/cy";
 import {
   createDirectedRelationshipElement,
   createNodeElement,
 } from "@/components/prototype/utils/shared";
 import { fetchAllNodeRels, fetchExpandNode } from "@/lib/neo4j/api";
-import { NodeAllRelsResults } from "@/lib/neo4j/interfaces";
+import { META_RELATIONSHIP_TYPES } from "@/lib/neo4j/constants";
+import { Direction } from "@/lib/neo4j/enums";
+import { NodeAllRelsResults, SubGraph } from "@/lib/neo4j/types";
 
 import { ChartCxtMenuContext } from "../ChartCxtMenuContext";
 import ChartCxtMenuItem from "../ChartCxtMenuItem";
@@ -59,7 +58,7 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
       .then((data: SubGraph) =>
         setElements((prevElements) => [
           ...prevElements,
-          ...createCytoscapeElementsFromSubGraph(data),
+          ...createCytoscapeElements(data),
         ])
       )
       .catch((reason) => console.error(reason)); // TODO: Should add some visual indication of failure, perhaps a snackbar?

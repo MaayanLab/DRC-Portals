@@ -4,19 +4,19 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, IconButton, TextField } from "@mui/material";
 import { ChangeEvent } from "react";
 
+import { PathElement, SearchPath } from "@/lib/neo4j/types";
+
 import { SCHEMA_SEARCH_TEXT_FIELD_SX_PROPS } from "../../constants/advanced-search";
-import { SchemaSearchPath } from "../../interfaces/schema-search";
-import { SearchBarOption } from "../../types/schema-search";
 
 import SchemaAutocomplete from "./SchemaAutocomplete";
 
 interface SchemaSearchFormRowProps {
-  value: SchemaSearchPath;
+  value: SearchPath;
   isFirst: boolean;
   isLast: boolean;
-  onChange: (value: SchemaSearchPath) => void;
+  onChange: (value: SearchPath) => void;
   onDelete: () => void;
-  onElementSelected: (element: SearchBarOption, index: number) => void;
+  onElementSelected: (element: PathElement, index: number) => void;
   onShift: (shiftUp: boolean) => void;
 }
 
@@ -33,7 +33,7 @@ export default function SchemaSearchFormRow(
     onShift,
   } = cmpProps;
 
-  const onAutocompleteChange = (newElements: SearchBarOption[]) => {
+  const onAutocompleteChange = (newElements: PathElement[]) => {
     onChange({
       ...value,
       elements: newElements,

@@ -1,5 +1,0 @@
-export enum Direction {
-  OUTGOING = "OUTGOING",
-  INCOMING = "INCOMING",
-  UNDIRECTED = "UNDIRECTED",
-}

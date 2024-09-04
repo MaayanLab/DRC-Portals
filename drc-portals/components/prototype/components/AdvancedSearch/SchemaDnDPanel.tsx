@@ -3,12 +3,13 @@
 import HelpIcon from "@mui/icons-material/Help";
 import { Box, Paper, Tooltip, Typography } from "@mui/material";
 
+import { NODE_LABELS, RELATIONSHIP_TYPES } from "@/lib/neo4j/constants";
+
 import {
   HELPER_TOOLTIP_SLOT_PROPS,
   NODE_HELPER_TEXT,
   RELATIONSHIP_HELPER_TEXT,
 } from "../../constants/advanced-search";
-import { NODE_LABELS, RELATIONSHIP_TYPES } from "../../constants/neo4j";
 import { CFDE_DARK_BLUE } from "../../constants/shared";
 import {
   createNodeElement,

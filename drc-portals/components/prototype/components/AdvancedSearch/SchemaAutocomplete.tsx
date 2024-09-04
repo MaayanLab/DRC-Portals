@@ -2,8 +2,9 @@ import { Autocomplete, Box, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-import { Direction } from "../../enums/schema-search";
-import { SearchBarOption } from "../../types/schema-search";
+import { Direction } from "@/lib/neo4j/enums";
+import { PathElement } from "@/lib/neo4j/types";
+
 import {
   CustomPaper,
   CustomPopper,
@@ -15,9 +16,9 @@ import {
 import SchemaAutocompleteEndAdornment from "./SchemaAutocompleteEndAdornment";
 
 interface SchemaAutocompleteProps {
-  value?: SearchBarOption[];
-  onChange: (value: SearchBarOption[]) => void;
-  onElementSelected: (element: SearchBarOption, index: number) => void;
+  value?: PathElement[];
+  onChange: (value: PathElement[]) => void;
+  onElementSelected: (element: PathElement, index: number) => void;
   // TODO: Could have a prop here for custom options, specifically could be useful for listing elements which exist in all current paths,
   // which are also a valid connection to the last element of this path
 }
@@ -32,12 +33,12 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
   }, [cmpProps.value]);
 
   useEffect(() => {
-    setOptions(getOptions(value.filter(stringFilter) as SearchBarOption[]));
+    setOptions(getOptions(value.filter(stringFilter) as PathElement[]));
   }, [value]);
 
-  const stringFilter = (v: SearchBarOption | string) => typeof v !== "string";
+  const stringFilter = (v: PathElement | string) => typeof v !== "string";
 
-  const getOptionLabel = (option: SearchBarOption | string) => {
+  const getOptionLabel = (option: PathElement | string) => {
     // Note that option *should* never be a string, MUI just requires it be included as an optional type when using `freeSolo`.
     return typeof option === "string" ? option : option.name;
   };
@@ -46,21 +47,17 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
   // strongly consider updating the implementation to do this.
   const handleOnChange = (
     event: SyntheticEvent,
-    newValue: (SearchBarOption | string)[]
+    newValue: (PathElement | string)[]
   ) => {
     // value can be a string due to the `freeSolo` option below. We don't want user input to be part of the current value, so we filter it
     // out. This effectively clears it if the user chooses an option from the dropdown.
-    const filteredValue = newValue.filter(stringFilter) as SearchBarOption[];
+    const filteredValue = newValue.filter(stringFilter) as PathElement[];
     setValue(filteredValue);
     // TODO: Put this in the `value` effect above?
     onChange([...filteredValue]);
   };
 
-  const handleRenderOption = (
-    props: any,
-    option: SearchBarOption,
-    state: any
-  ) => (
+  const handleRenderOption = (props: any, option: PathElement, state: any) => (
     <li
       {...props}
       style={
@@ -80,7 +77,7 @@ export default function SchemaAutocomplete(cmpProps: SchemaAutocompleteProps) {
   );
 
   // TODO: If any element in the value list has filters set, add an asterisk to it
-  const handleRenderTags = (value: SearchBarOption[]) =>
+  const handleRenderTags = (value: PathElement[]) =>
     getSearchPathElements(value).map((elements, index) =>
       elements.map((element) => (
         <Box key={v4()} onClick={() => onElementSelected(value[index], index)}>

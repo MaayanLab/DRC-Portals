@@ -18,10 +18,6 @@ const nextConfig = {
   },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-    NEO4J_URL: process.env.NEO4J_URL,
-    GRAPH_C2M2_DBNAME: process.env.GRAPH_C2M2_DBNAME,
-    GRAPH_C2M2_READER_USERNAME: process.env.GRAPH_C2M2_READER_USERNAME,
-    GRAPH_C2M2_READER_PASSWORD: process.env.GRAPH_C2M2_READER_PASSWORD,
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async rewrites() {

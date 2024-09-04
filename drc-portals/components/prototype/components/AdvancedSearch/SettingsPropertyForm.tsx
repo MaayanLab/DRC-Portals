@@ -18,9 +18,9 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 
-import { PROPERTY_OPERATORS } from "../../constants/schema-search";
-import { BasePropertyFilter } from "../../interfaces/schema-search";
-import { SearchBarOption } from "../../types/schema-search";
+import { PROPERTY_OPERATORS } from "@/lib/neo4j/constants";
+import { BasePropFilter, PathElement } from "@/lib/neo4j/types";
+
 import {
   createPropertyFilter,
   getEntityProperties,
@@ -33,8 +33,8 @@ import {
 } from "../../utils/shared";
 
 interface SettingsPropertyFormProps {
-  value: SearchBarOption;
-  liftValue: (value: SearchBarOption) => void;
+  value: PathElement;
+  liftValue: (value: PathElement) => void;
 }
 
 const KEY_INFO =
@@ -45,7 +45,7 @@ export default function SettingsPropertyForm(
   cmpProps: SettingsPropertyFormProps
 ) {
   const { liftValue } = cmpProps;
-  const [value, setValue] = useState<SearchBarOption>(cmpProps.value);
+  const [value, setValue] = useState<PathElement>(cmpProps.value);
   const [key, setKey] = useState(cmpProps.value.key || "");
   const [keyError, setKeyError] = useState(false);
   const [keyErrorHelpText, setKeyErrorHelpText] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export default function SettingsPropertyForm(
     setValue(updatedValue);
   };
 
-  const updateFilter = (index: number, update: Partial<BasePropertyFilter>) => {
+  const updateFilter = (index: number, update: Partial<BasePropFilter>) => {
     const updatedValue = { ...value };
     updatedValue.filters[index] = {
       ...updatedValue.filters[index],

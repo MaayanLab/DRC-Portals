@@ -6,7 +6,7 @@ import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import {
   NodeIncomingRelsResult,
   NodeOutgoingRelsResult,
-} from "@/lib/neo4j/interfaces";
+} from "@/lib/neo4j/types";
 
 export async function GET(
   request: Request,

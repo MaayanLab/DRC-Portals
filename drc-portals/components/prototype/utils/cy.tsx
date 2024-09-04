@@ -21,8 +21,9 @@ import {
   NodeSingular,
   Position,
 } from "cytoscape";
-import { Record } from "neo4j-driver";
 import { CSSProperties, Fragment, ReactNode } from "react";
+
+import { NodeResult, RelationshipResult, SubGraph } from "@/lib/neo4j/types";
 
 import {
   DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
@@ -38,7 +39,6 @@ import {
   CytoscapeNode,
   CytoscapeNodeData,
 } from "../interfaces/cy";
-import { SubGraph, NodeResult, RelationshipResult } from "../interfaces/neo4j";
 import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
 import { NodeElementFactory } from "../types/shared";
 
@@ -50,9 +50,7 @@ import {
   truncateTextToFitWidth,
 } from "./shared";
 
-export const createCytoscapeNodeFromNeo4j = (
-  node: NodeResult
-): CytoscapeNode => {
+export const createCytoscapeNode = (node: NodeResult): CytoscapeNode => {
   const nodeLabel = node.labels[0];
   const nodeDisplayLabel = getNodeDisplayProperty(nodeLabel, node);
   return {
@@ -68,7 +66,7 @@ export const createCytoscapeNodeFromNeo4j = (
   };
 };
 
-export const createCytoscapeEdgeFromNeo4j = (
+export const createCytoscapeEdge = (
   relationship: RelationshipResult
 ): CytoscapeEdge => {
   return {
@@ -85,37 +83,17 @@ export const createCytoscapeEdgeFromNeo4j = (
   };
 };
 
-export const createCytoscapeElementsFromSubGraph = (subgraph: SubGraph) => {
+export const createCytoscapeElements = (subgraph: SubGraph) => {
   let nodes: CytoscapeNode[] = [];
   let edges: CytoscapeEdge[] = [];
 
   subgraph.nodes.forEach((node) => {
-    nodes.push(createCytoscapeNodeFromNeo4j(node));
+    nodes.push(createCytoscapeNode(node));
   });
 
   subgraph.relationships.forEach((relationship) =>
-    edges.push(createCytoscapeEdgeFromNeo4j(relationship))
+    edges.push(createCytoscapeEdge(relationship))
   );
-
-  return [...nodes, ...edges];
-};
-
-export const createCytoscapeElementsFromNeo4j = (
-  records: Record<SubGraph>[]
-) => {
-  let nodes: CytoscapeNode[] = [];
-  let edges: CytoscapeEdge[] = [];
-
-  records.forEach((record) => {
-    record.get("nodes").forEach((node) => {
-      nodes.push(createCytoscapeNodeFromNeo4j(node));
-    });
-    record
-      .get("relationships")
-      .forEach((relationship) =>
-        edges.push(createCytoscapeEdgeFromNeo4j(relationship))
-      );
-  });
 
   return [...nodes, ...edges];
 };

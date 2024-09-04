@@ -1,6 +1,6 @@
 import { getOutgoingRelsCypher } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
-import { NodeOutgoingRelsResult } from "@/lib/neo4j/interfaces";
+import { NodeOutgoingRelsResult } from "@/lib/neo4j/types";
 
 export async function GET(
   request: Request,

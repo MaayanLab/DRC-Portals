@@ -1,5 +1,6 @@
+import { SearchPathSchema } from "@/lib/neo4j/validation";
+
 import { AdvancedSearchValues } from "../interfaces/advanced-search";
-import { SchemaSearchPathSchema } from "../schemas/schema-search";
 
 export const createTextSearchParams = (
   q?: string,
@@ -124,7 +125,7 @@ export const getSchemaSearchValue = (
     }
 
     // If this succeeds without throwing, then we certainly have a valid schema search value
-    value.forEach((path) => SchemaSearchPathSchema.parse(path));
+    value.forEach((path) => SearchPathSchema.parse(path));
 
     return value;
   } catch (e) {

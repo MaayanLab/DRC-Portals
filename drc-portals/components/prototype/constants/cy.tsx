@@ -3,33 +3,6 @@ import { Box, Paper, TypographyProps, styled } from "@mui/material";
 import { Css, Position } from "cytoscape";
 import { CSSProperties, ReactNode } from "react";
 
-import { CytoscapeNodeData } from "../interfaces/cy";
-
-import {
-  ADMIN_NODE_CLASS,
-  ADMIN_NODE_COLOR,
-  BIOSAMPLE_RELATED_NODE_CLASS,
-  BIOSAMPLE_RELATED_NODE_COLOR,
-  CFDE_DARK_BLUE,
-  CONTAINER_NODE_CLASS,
-  CONTAINER_NODE_COLOR,
-  CORE_NODE_CLASS,
-  CORE_NODE_COLOR,
-  DO_LINK,
-  EDAM_LINK,
-  ENTITY_STYLES_MAP,
-  FILE_RELATED_NODE_CLASS,
-  FILE_RELATED_NODE_COLOR,
-  HPO_LINK,
-  NCBI_TAXONOMY_LINK,
-  NODE_CLASS_MAP,
-  OBI_LINK,
-  SUBJECT_RELATED_NODE_CLASS,
-  SUBJECT_RELATED_NODE_COLOR,
-  TERM_NODE_CLASS,
-  TERM_NODE_COLOR,
-  UBERON_LINK,
-} from "./shared";
 import {
   ANALYSIS_TYPE_LABEL,
   ANATOMY_LABEL,
@@ -73,7 +46,35 @@ import {
   SUBJECT_SEX_LABEL,
   SUBSTANCE_LABEL,
   TESTED_FOR_TYPE,
-} from "./neo4j";
+} from "@/lib/neo4j/constants";
+
+import {
+  ADMIN_NODE_CLASS,
+  ADMIN_NODE_COLOR,
+  BIOSAMPLE_RELATED_NODE_CLASS,
+  BIOSAMPLE_RELATED_NODE_COLOR,
+  CFDE_DARK_BLUE,
+  CONTAINER_NODE_CLASS,
+  CONTAINER_NODE_COLOR,
+  CORE_NODE_CLASS,
+  CORE_NODE_COLOR,
+  DO_LINK,
+  EDAM_LINK,
+  ENTITY_STYLES_MAP,
+  FILE_RELATED_NODE_CLASS,
+  FILE_RELATED_NODE_COLOR,
+  HPO_LINK,
+  NCBI_TAXONOMY_LINK,
+  NODE_CLASS_MAP,
+  OBI_LINK,
+  SUBJECT_RELATED_NODE_CLASS,
+  SUBJECT_RELATED_NODE_COLOR,
+  TERM_NODE_CLASS,
+  TERM_NODE_COLOR,
+  UBERON_LINK,
+} from "./shared";
+
+import { CytoscapeNodeData } from "../interfaces/cy";
 import { createArrowDividerElement } from "../utils/shared";
 
 const getRelativePos = (s: Position, t: Position, c: Position) => {
