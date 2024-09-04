@@ -196,6 +196,8 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
           .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id)) // Filter out already selected options
           .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
         }
+        noOptionsText="" // This will hide the "No options" text
+        freeSolo={options.length > selectedFilters.length} // Disable free text input when all options are selected
         groupBy={(option) => getFirstLetter(option)}
         getOptionLabel={(option) => `${option.name} `} //(${option.count >= maxCount ? `${maxCount}+` : option.count}) put this back for count
         value={selectedFiltersForAutocomplete}
@@ -212,8 +214,9 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
             <Chip
               variant="outlined"
               label={option.name}
-              size="small"
+              size="medium"
               {...getTagProps({ index })}
+              onDelete={undefined}
             />
           ))
         }
@@ -230,6 +233,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
 
           applyFilters();
         }}
+        disabled={options.length === 0}
       // value={selectedFiltersForAutocomplete}
       // onChange={(event, newValue) => {
       //   setSelectedFilters(newValue as FilterObject[]); // Handle selection changes
