@@ -24,11 +24,6 @@ export const initDriver = async (
 };
 
 export const getDriver = () => {
-  console.log(
-    NEO4J_URL,
-    GRAPH_C2M2_READER_USERNAME,
-    GRAPH_C2M2_READER_PASSWORD
-  );
   if (driver === undefined) {
     initDriver(
       NEO4J_URL,
