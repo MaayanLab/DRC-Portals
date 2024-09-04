@@ -12,7 +12,8 @@ const TagComponent = ({
     t?: { type: string; entity_type: string | null; }[] | undefined;
     onReset?: () => void;
 }) => {
-    const router = useRouter()
+    const router = useRouter();
+
     const handleDelete = (tagToDelete: { type: string; entity_type: string | null }) => {
         let baseUrl = window.location.pathname;
         let updatedParams = new URLSearchParams(window.location.search);
@@ -63,7 +64,12 @@ const TagComponent = ({
                     </div>
                 </div>
                 <div>
-                    <Button onClick={handleReset} variant="outlined" color="secondary">
+                    <Button 
+                        onClick={handleReset} 
+                        variant="outlined" 
+                        color="secondary"
+                        disabled={!t || t.length === 0}  // Disable if filters are undefined or empty
+                    >
                         Reset filters
                     </Button>
                 </div>
