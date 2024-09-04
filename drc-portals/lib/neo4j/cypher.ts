@@ -100,7 +100,9 @@ export const getSearchCypher = (coreLabels: string[]) => {
       WITH term, dcc
       MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR|SAMPLED_FROM]-(core:${coreLabels
         .map(escapeCypherString)
-        .join("|")})<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
+        .join(
+          "|"
+        )})<-[:CONTAINS]-(:Project)<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
       WHERE
         core:File OR
         core:Biosample OR
