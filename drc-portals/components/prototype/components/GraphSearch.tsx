@@ -4,7 +4,18 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
 import Rotate90DegreesCcwIcon from "@mui/icons-material/Rotate90DegreesCcw";
-import { Box, Divider, Grid, IconButton, Tooltip } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  Box,
+  Divider,
+  Grid,
+  IconButton,
+  Snackbar,
+  SnackbarCloseReason,
+  Tooltip,
+} from "@mui/material";
+
 import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, ReactNode } from "react";
@@ -71,6 +82,9 @@ export default function GraphSearch() {
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
   >(undefined);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState<string | null>(null);
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>();
   let longRequestTimerId: NodeJS.Timeout | null = null;
 
   const { coreLabels, subjectGenders, subjectRaces, dccAbbrevs } =
@@ -89,6 +103,23 @@ export default function GraphSearch() {
   const handleHideSearchBtnClicked = () => {
     setSearchHidden(!searchHidden);
     setShowSearchHiddenTooltip(false);
+  };
+
+  const handleExpandNodeError = (error: string) => {
+    setSnackbarMsg(error);
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbarOpen(false);
   };
 
   const highlightRenderChildren = (event: EventObject) => [
@@ -146,6 +177,7 @@ export default function GraphSearch() {
     <ExpandNodeMenuItem
       key="chart-cxt-expand"
       setElements={setElements}
+      onError={handleExpandNodeError}
     ></ExpandNodeMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-unlock"
@@ -371,70 +403,87 @@ export default function GraphSearch() {
   }, [searchParams]);
 
   return (
-    <Grid
-      container
-      spacing={1}
-      xs={12}
-      sx={{
-        height: "640px",
-      }}
-    >
+    <>
       <Grid
-        item
-        xs={entityDetails === undefined ? 12 : 9}
-        sx={{ position: "relative", height: "inherit" }}
+        container
+        spacing={1}
+        xs={12}
+        sx={{
+          height: "640px",
+        }}
       >
-        <SearchBarContainer>
-          {searchHidden ? null : (
-            <SearchBar
-              value={searchBarValue}
-              error={error}
-              loading={loading}
-              clearError={clearSearchError}
-              onSubmit={handleSubmit}
-            ></SearchBar>
-          )}
-          <Box sx={{ alignContent: "center" }}>
-            <Tooltip
-              open={showSearchHiddenTooltip}
-              title={searchHidden ? "Show Search" : "Hide Search"}
-              disableHoverListener
-              onMouseEnter={() => setShowSearchHiddenTooltip(true)}
-              onMouseLeave={() => setShowSearchHiddenTooltip(false)}
-              TransitionProps={{ exit: false }}
-              arrow
-            >
-              <IconButton onClick={handleHideSearchBtnClicked}>
-                {searchHidden ? (
-                  <KeyboardDoubleArrowRightIcon />
-                ) : (
-                  <KeyboardDoubleArrowLeftIcon />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </SearchBarContainer>
-        <CytoscapeChart
-          elements={elements}
-          layout={D3_FORCE_LAYOUT}
-          stylesheet={DEFAULT_STYLESHEET}
-          legend={legend}
-          legendPosition={{ bottom: 10, left: 10 }}
-          toolbarPosition={{ top: 10, right: 10 }}
-          customTools={customTools}
-          selectionCxtMenuItems={selectionCxtMenuItems}
-          nodeCxtMenuItems={nodeCxtMenuItems}
-          canvasCxtMenuItems={canvasCxtMenuItems}
-        ></CytoscapeChart>
-      </Grid>
-      {entityDetails !== undefined ? (
-        <Grid item xs={3} sx={{ height: "inherit" }}>
-          <GraphEntityDetails
-            entityDetails={entityDetails}
-            onCloseDetails={() => setEntityDetails(undefined)}
-          />
+        <Grid
+          item
+          xs={entityDetails === undefined ? 12 : 9}
+          sx={{ position: "relative", height: "inherit" }}
+        >
+          <SearchBarContainer>
+            {searchHidden ? null : (
+              <SearchBar
+                value={searchBarValue}
+                error={error}
+                loading={loading}
+                clearError={clearSearchError}
+                onSubmit={handleSubmit}
+              ></SearchBar>
+            )}
+            <Box sx={{ alignContent: "center" }}>
+              <Tooltip
+                open={showSearchHiddenTooltip}
+                title={searchHidden ? "Show Search" : "Hide Search"}
+                disableHoverListener
+                onMouseEnter={() => setShowSearchHiddenTooltip(true)}
+                onMouseLeave={() => setShowSearchHiddenTooltip(false)}
+                TransitionProps={{ exit: false }}
+                arrow
+              >
+                <IconButton onClick={handleHideSearchBtnClicked}>
+                  {searchHidden ? (
+                    <KeyboardDoubleArrowRightIcon />
+                  ) : (
+                    <KeyboardDoubleArrowLeftIcon />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </SearchBarContainer>
+          <CytoscapeChart
+            elements={elements}
+            layout={D3_FORCE_LAYOUT}
+            stylesheet={DEFAULT_STYLESHEET}
+            legend={legend}
+            legendPosition={{ bottom: 10, left: 10 }}
+            toolbarPosition={{ top: 10, right: 10 }}
+            customTools={customTools}
+            selectionCxtMenuItems={selectionCxtMenuItems}
+            nodeCxtMenuItems={nodeCxtMenuItems}
+            canvasCxtMenuItems={canvasCxtMenuItems}
+          ></CytoscapeChart>
         </Grid>
-      ) : null}
-    </Grid>
+        {entityDetails !== undefined ? (
+          <Grid item xs={3} sx={{ height: "inherit" }}>
+            <GraphEntityDetails
+              entityDetails={entityDetails}
+              onCloseDetails={() => setEntityDetails(undefined)}
+            />
+          </Grid>
+        ) : null}
+      </Grid>
+      <Snackbar
+        open={snackbarOpen}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }

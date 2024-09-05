@@ -38,10 +38,11 @@ interface ConnectionMenuItemProps {
 
 interface ExpandNodeMenuItemProps {
   setElements: Dispatch<SetStateAction<ElementDefinition[]>>;
+  onError: (error: string) => void;
 }
 
 export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
-  const { setElements } = cmpProps;
+  const { setElements, onError } = cmpProps;
   const [loading, setLoading] = useState(true);
   const [allRelsError, setAllRelsError] = useState<string | null>(null);
   const [subMenuItems, setSubMenuItems] = useState<ConnectionMenuItemProps[]>(
@@ -61,21 +62,33 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
     }
   };
 
-  const expandNode = (
+  const expandNode = async (
     nodeId: string,
     label: string,
     direction: string,
     type: string
   ) => {
-    fetchExpandNode(nodeId, label, direction, type, EXPAND_LIMIT)
-      .then((response) => response.json())
-      .then((data: SubGraph) =>
-        setElements((prevElements) => [
-          ...prevElements,
-          ...createCytoscapeElements(data),
-        ])
-      )
-      .catch((reason) => console.error(reason)); // TODO: Should add some visual indication of failure, perhaps a snackbar?
+    try {
+      const response = await fetchExpandNode(
+        nodeId,
+        label,
+        direction,
+        type,
+        EXPAND_LIMIT
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data: SubGraph = await response.json();
+      setElements((prevElements) => [
+        ...prevElements,
+        ...createCytoscapeElements(data),
+      ]);
+    } catch (error) {
+      onError("An error occurred expanding the node. Please try again later.");
+    }
   };
 
   const setExpandOptions = (nodeId: string) => {
