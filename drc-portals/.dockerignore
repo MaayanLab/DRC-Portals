@@ -1,4 +1,4 @@
 **/.env
-**/.env_pgcontainer
+.env_pgcontainer
 /data/
 /node_modules/
