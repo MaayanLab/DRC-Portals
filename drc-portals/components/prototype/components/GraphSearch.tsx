@@ -323,7 +323,7 @@ export default function GraphSearch() {
   };
 
   // TODO: Could probably wrap the two search queries in a shared function which does all the state management, since the handling of the result is nearly identical
-  const getSearchResults = (
+  const getSearchResults = async (
     query: string,
     labels: string[],
     dccs: string[],
@@ -333,46 +333,59 @@ export default function GraphSearch() {
     setLoading(true);
     clearNetwork();
     setLongRequestTimer();
-    fetchSearch(query, labels, dccs, genders, races)
-      .then((response) => response.json())
-      .then((data: SubGraph) => {
-        const cytoscapeElements = createCytoscapeElements(data);
+    try {
+      const response = await fetchSearch(query, labels, dccs, genders, races);
 
-        if (cytoscapeElements.length === 0) {
-          setError(NO_RESULTS_ERROR_MSG);
-        } else {
-          clearSearchError();
-          setElements(cytoscapeElements);
-        }
-      })
-      .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
-      .finally(() => {
-        setLoading(false);
-        clearLongRequestTimer();
-      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const cytoscapeElements = createCytoscapeElements(data);
+
+      if (cytoscapeElements.length === 0) {
+        setError(NO_RESULTS_ERROR_MSG);
+      } else {
+        clearSearchError();
+        setElements(cytoscapeElements);
+      }
+    } catch {
+      setError(BASIC_SEARCH_ERROR_MSG);
+    } finally {
+      setLoading(false);
+      clearLongRequestTimer();
+    }
   };
 
-  const getPathSearchResults = (pathQuery: string, queryParams: string) => {
+  const getPathSearchResults = async (
+    pathQuery: string,
+    queryParams: string
+  ) => {
     setLoading(true);
     clearNetwork();
     setLongRequestTimer();
-    fetchPathSearch(pathQuery, queryParams)
-      .then((response) => response.json())
-      .then((data: SubGraph) => {
-        const cytoscapeElements = createCytoscapeElements(data);
 
-        if (cytoscapeElements.length === 0) {
-          setError(NO_RESULTS_ERROR_MSG);
-        } else {
-          clearSearchError();
-          setElements(cytoscapeElements);
-        }
-      })
-      .catch(() => setError(BASIC_SEARCH_ERROR_MSG))
-      .finally(() => {
-        setLoading(false);
-        clearLongRequestTimer();
-      });
+    try {
+      const response = await fetchPathSearch(pathQuery, queryParams);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data: SubGraph = await response.json();
+      const cytoscapeElements = createCytoscapeElements(data);
+      if (cytoscapeElements.length === 0) {
+        setError(NO_RESULTS_ERROR_MSG);
+      } else {
+        clearSearchError();
+        setElements(cytoscapeElements);
+      }
+    } catch {
+      setError(BASIC_SEARCH_ERROR_MSG);
+    } finally {
+      setLoading(false);
+      clearLongRequestTimer();
+    }
   };
 
   useEffect(() => {
