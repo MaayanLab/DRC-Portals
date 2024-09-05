@@ -1,4 +1,5 @@
 set statement_timeout = 0;
+set max_parallel_workers to 4;
 /* DO NOT DELETE ANY OF THE COMMENTS */
 /* run in psql as \i collection_fully_flattened_allin1.sql */
 /* Or on linux command prompt:psql -h localhost -U drc -d drc -p [5432|5433] -a -f collection_fully_flattened_allin1.sql; */
@@ -437,6 +438,8 @@ BEGIN
         compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
+
+set max_parallel_workers to 0;
 --- */
 
 /* To drop existing ffl2_collection and its indexes

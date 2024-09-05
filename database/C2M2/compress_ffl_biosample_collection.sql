@@ -1,4 +1,5 @@
 set statement_timeout = 0;
+/* THIS SCRIPT IS NOT RUN, but it has useful code bits */
 /* DO NOT DELETE ANY OF THE COMMENTS */
 /* run in psql as \i compress_ffl_biosample_collection.sql */
 /* Or on linux command prompt:psql -h localhost|servername -U drc -d drc  -p [5432|5433] -a -f compress_ffl_biosample_collection.sql; */
@@ -78,3 +79,40 @@ drc=> select count(*) from c2m2.ffl_biosample_collection;
 --- liver: 3.5 s, blood: 28 s (10s saved), lincs 2021: 57 s (about 6 s saving)
 
 --- see the sql files with the name ending in _cmp.sql
+
+------------------------------------------------------------------------------------------------------------------
+--- GROUP BY column names for biosample_fully_flattened_allin1_cmp.sql
+searchable, c2m2.project.id_namespace, c2m2.project.local_id, c2m2.biosample.sample_prep_method, 
+c2m2.biosample.anatomy, c2m2.disease_association_type.id, c2m2.disease.id, c2m2.subject.id_namespace, 
+c2m2.subject.local_id, c2m2.biosample_from_subject.age_at_sampling, c2m2.biosample_gene.gene, 
+c2m2.collection.id_namespace, c2m2.collection.local_id, c2m2.biosample_substance.substance, 
+c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, c2m2.anatomy.name,c2m2.gene.name, c2m2.protein.id, 
+c2m2.protein.name, c2m2.disease.name, c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity,
+c2m2.subject.age_at_enrollment, c2m2.substance.name, c2m2.substance.compound, c2m2.compound.name, 
+c2m2.project.persistent_id, c2m2.project.creation_time, c2m2.project.name,  c2m2.project.abbreviation, 
+c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, 
+c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name, 
+c2m2.subject_role_taxonomy.taxonomy_id, c2m2.ncbi_taxonomy.name, c2m2.collection.persistent_id, 
+c2m2.collection.creation_time, c2m2.collection.name, c2m2.collection.abbreviation,
+c2m2.collection.has_time_series_data, c2m2.sample_prep_method.name, c2m2.subject_race.race, 
+c2m2.subject_race_CV.name, c2m2.subject_granularity.name, c2m2.subject_sex.name, c2m2.subject_ethnicity.name,
+c2m2.subject_role_taxonomy.role_id, c2m2.subject_role.name, c2m2.disease_association_type.name,
+c2m2.phenotype_association_type.id, c2m2.phenotype.id, c2m2.phenotype_association_type.name, c2m2.phenotype.name
+
+--- GROUP BY column names for collection_fully_flattened_allin1_cmp.sql
+searchable, c2m2.collection_defined_by_project.project_id_namespace, 
+c2m2.collection_defined_by_project.project_local_id, sample_prep_method, c2m2.collection_anatomy.anatomy, 
+disease_association_type, c2m2.disease.id, subject_id_namespace, subject_local_id, biosample_age_at_sampling, 
+c2m2.collection_gene.gene, c2m2.collection.id_namespace, c2m2.collection.local_id, 
+c2m2.collection_substance.substance, c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, c2m2.anatomy.name,
+c2m2.gene.name, c2m2.protein.id, c2m2.protein.name, c2m2.disease.name, subject_granularity, subject_sex, 
+subject_ethnicity, subject_age_at_enrollment, c2m2.substance.name, c2m2.compound.id, c2m2.compound.name,
+c2m2.project.persistent_id, c2m2.project.creation_time, c2m2.project.name, c2m2.project.abbreviation,
+c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name,
+c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name,
+c2m2.collection_taxonomy.taxon, c2m2.ncbi_taxonomy.name, c2m2.collection.persistent_id, 
+c2m2.collection.creation_time, c2m2.collection.name, c2m2.collection.abbreviation,
+c2m2.collection.has_time_series_data, sample_prep_method_name, subject_race, subject_race_name, 
+subject_granularity_name, subject_sex_name, subject_ethnicity_name, subject_role_taxonomy_role_id, 
+subject_role_name, disease_association_type_name, phenotype_association_type, c2m2.phenotype.id,
+phenotype_association_type_name, c2m2.phenotype.name
