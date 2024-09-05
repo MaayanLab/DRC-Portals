@@ -54,9 +54,10 @@ interface CytoscapeChartProps {
   tooltipBoxStyleProps?: CSSProperties;
   tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
-  staticCxtMenuItems?: ReactNode[];
+  selectionCxtMenuItems?: ReactNode[];
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
+  canvasCxtMenuItems?: ReactNode[];
   legend?: Map<string, ReactNode>;
 }
 
@@ -70,9 +71,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     tooltipBoxStyleProps,
     tooltipContentProps,
     customTools,
-    staticCxtMenuItems,
+    selectionCxtMenuItems,
     nodeCxtMenuItems,
     edgeCxtMenuItems,
+    canvasCxtMenuItems,
     legend,
   } = cmpProps;
 
@@ -132,13 +134,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const getStaticMenuItems = (event: EventObject) => {
-    const items: ReactNode[] = [
-      <ChartCxtMenuItem
-        key="cxt-menu-select-all"
-        renderContent={() => "Select All"}
-        action={selectAll}
-      ></ChartCxtMenuItem>,
-    ];
+    const items: ReactNode[] = [];
 
     if (
       event.cy.elements(".highlight").length > 0 ||
@@ -153,8 +149,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       );
     }
 
-    if (staticCxtMenuItems !== undefined) {
-      items.push(...staticCxtMenuItems);
+    if (
+      selectionCxtMenuItems !== undefined &&
+      event.cy.elements(":selected").length > 0
+    ) {
+      items.push(...selectionCxtMenuItems);
     }
 
     return items;
@@ -278,7 +277,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     };
 
     if (event.target === cyRef.current) {
-      handleContextMenu(event, []);
+      const items: ReactNode[] = [];
+
+      if (canvasCxtMenuItems !== undefined) {
+        items.push(...canvasCxtMenuItems);
+      }
+
+      handleContextMenu(event, items);
     }
   };
 

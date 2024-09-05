@@ -43,6 +43,7 @@ import {
   highlightNodesWithLabel,
   isNodeD3Locked,
   rotateChart,
+  selectAll,
   selectNeighbors,
   selectNodesWithLabel,
   selectionHasLockedNode,
@@ -112,12 +113,11 @@ export default function GraphSearch() {
     ></ChartCxtMenuItem>,
   ];
 
-  const staticCxtMenuItems: ReactNode[] = [
+  const selectionCxtMenuItems: ReactNode[] = [
     <ChartCxtMenuItem
       key="chart-cxt-download-selection"
       renderContent={(event) => "Download Selection"}
       action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
-      showFn={(event) => event.cy.elements(":selected").length > 0}
     ></ChartCxtMenuItem>,
   ];
 
@@ -154,6 +154,14 @@ export default function GraphSearch() {
       renderContent={(event) => "Select"}
       renderChildren={selectRenderChildren}
     ></ChartNestedCxtMenuItem>,
+  ];
+
+  const canvasCxtMenuItems = [
+    <ChartCxtMenuItem
+      key="cxt-menu-select-all"
+      renderContent={() => "Select All"}
+      action={selectAll}
+    ></ChartCxtMenuItem>,
   ];
 
   const customTools: CustomToolbarFnFactory[] = [
@@ -399,8 +407,9 @@ export default function GraphSearch() {
           legendPosition={{ bottom: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
           customTools={customTools}
-          staticCxtMenuItems={staticCxtMenuItems}
+          selectionCxtMenuItems={selectionCxtMenuItems}
           nodeCxtMenuItems={nodeCxtMenuItems}
+          canvasCxtMenuItems={canvasCxtMenuItems}
         ></CytoscapeChart>
       </Grid>
       {entityDetails !== undefined ? (
