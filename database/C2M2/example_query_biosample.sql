@@ -662,3 +662,33 @@ select count(*) from (select distinct project_local_id, data_type from c2m2.file
 ---- substantial increase if add all others from file
 select count(*) from (select distinct project_local_id, file_format, data_type, assay_type, analysis_type from c2m2.file);
 7127
+
+
+------------------ Examples of trying aggregating varchar[] column or , separated strings, get unique elements and count
+--- If bios_array is a varchar[]: WORKED BUT DOES NOT REMOVE DUPLICATES IF ANY across arrays from different rows
+select project_name, disease_name, ncbi_taxonomy_name,
+  array_length(string_to_array(string_agg(ARRAY_TO_STRING(bios_array, ',', null), ','), ','), 1) as count_combined from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587'
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- Use distinct: DID NOT WORK
+select project_name, disease_name, ncbi_taxonomy_name,
+  count(distinct unnest(string_to_array(string_agg(ARRAY_TO_STRING(bios_array, ',', null), ','), ','))) as count_combined from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587'
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- This worked, but seems to take time
+SELECT project_name, disease_name, ncbi_taxonomy_name, COUNT(distinct biosample_local_id) AS unique_element_count
+from (
+  select project_name, disease_name, ncbi_taxonomy_name, unnest(bios_array) as biosample_local_id
+  from c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587') as allres_exp
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- Using CTE:
+WITH unnested_bios AS (
+    SELECT project_name, disease_name, ncbi_taxonomy_name, unnest(bios_array) AS bios_element
+    FROM c2m2.ffl_biosample_collection_cmp    WHERE project_local_id = 'PR000587'
+) 
+SELECT project_name, disease_name, ncbi_taxonomy_name,
+       count(DISTINCT bios_element) AS count_bios_combined
+FROM unnested_bios GROUP BY project_name, disease_name, ncbi_taxonomy_name;
