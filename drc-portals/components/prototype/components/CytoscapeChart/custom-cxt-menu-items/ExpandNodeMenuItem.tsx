@@ -44,7 +44,7 @@ interface ExpandNodeMenuItemProps {
 export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
   const { setElements, onError } = cmpProps;
   const [loading, setLoading] = useState(true);
-  const [allRelsError, setAllRelsError] = useState<string | null>(null);
+  const [allRelsError, setAllRelsError] = useState<boolean>(false);
   const [subMenuItems, setSubMenuItems] = useState<ConnectionMenuItemProps[]>(
     []
   );
@@ -91,52 +91,59 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
     }
   };
 
-  const setExpandOptions = (nodeId: string) => {
-    fetchAllNodeRels(nodeId)
-      .then((response) => response.json())
-      .then((data: NodeAllRelsResults) =>
-        setSubMenuItems(
-          [
-            ...data.outgoing.map((record) => {
-              return {
-                label: record.outgoingLabels[0],
-                type: record.outgoingType,
-                count: record.count,
-                direction: Direction.OUTGOING,
-              };
-            }),
-            ...data.incoming.map((record) => {
-              return {
-                label: record.incomingLabels[0],
-                type: record.incomingType,
-                count: record.count,
-                direction: Direction.INCOMING,
-              };
-            }),
-          ]
-            .sort((a, b) => {
-              if (
-                a.direction === Direction.OUTGOING &&
-                b.direction === Direction.INCOMING
-              ) {
-                return -1;
-              } else if (
-                a.direction === Direction.INCOMING &&
-                b.direction === Direction.OUTGOING
-              ) {
-                return 1;
-              } else {
-                return 0;
-              }
-            })
-            .filter(
-              (result) =>
-                !Array.from(META_RELATIONSHIP_TYPES).includes(result.type)
-            )
-        )
-      )
-      .catch((reason) => setAllRelsError(reason))
-      .finally(() => setLoading(false));
+  const setExpandOptions = async (nodeId: string) => {
+    try {
+      const response = await fetchAllNodeRels(nodeId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data: NodeAllRelsResults = await response.json();
+      setSubMenuItems(
+        [
+          ...data.outgoing.map((record) => {
+            return {
+              label: record.outgoingLabels[0],
+              type: record.outgoingType,
+              count: record.count,
+              direction: Direction.OUTGOING,
+            };
+          }),
+          ...data.incoming.map((record) => {
+            return {
+              label: record.incomingLabels[0],
+              type: record.incomingType,
+              count: record.count,
+              direction: Direction.INCOMING,
+            };
+          }),
+        ]
+          .sort((a, b) => {
+            if (
+              a.direction === Direction.OUTGOING &&
+              b.direction === Direction.INCOMING
+            ) {
+              return -1;
+            } else if (
+              a.direction === Direction.INCOMING &&
+              b.direction === Direction.OUTGOING
+            ) {
+              return 1;
+            } else {
+              return 0;
+            }
+          })
+          .filter(
+            (result) =>
+              !Array.from(META_RELATIONSHIP_TYPES).includes(result.type)
+          )
+      );
+    } catch (error) {
+      setAllRelsError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createConnectionMenuItem = (
