@@ -276,6 +276,27 @@ export const hideElement = (event: EventObjectNode | EventObjectEdge) => {
   event.target.removeClass("highlight hovered").addClass("dimmed");
 };
 
+export const showSelection = (event: EventObject) => {
+  event.cy.elements(":selected").removeClass("dimmed").addClass("highlight");
+};
+
+export const selectionIsAllShown = (event: EventObject) =>
+  Array.from(event.cy.elements(":selected")).every((element) =>
+    element.hasClass("highlight")
+  );
+
+export const hideSelection = (event: EventObject) => {
+  event.cy
+    .elements(":selected")
+    .removeClass("highlight hovered")
+    .addClass("dimmed");
+};
+
+export const selectionIsAllHidden = (event: EventObject) =>
+  Array.from(event.cy.elements(":selected")).every((element) =>
+    element.hasClass("dimmed")
+  );
+
 export const printNodePositions = (
   key: string,
   title: string,
@@ -409,11 +430,11 @@ export const lockD3ForceNodes = (
   );
 };
 
-export const unlockSelection = (selection: cytoscape.NodeCollection) =>
-  selection.forEach((node) => unlockD3ForceNode(node));
+export const unlockSelection = (event: EventObject) =>
+  event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node));
 
-export const selectionHasLockedNode = (selection: cytoscape.NodeCollection) =>
-  Array.from(selection).some(isNodeD3Locked);
+export const selectionHasLockedNode = (event: EventObject) =>
+  Array.from(event.cy.nodes(":selected")).some(isNodeD3Locked);
 
 export const getCyDataForDownload = (cy: cytoscape.Collection) => {
   return {

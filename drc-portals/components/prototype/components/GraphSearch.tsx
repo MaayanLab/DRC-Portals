@@ -39,6 +39,7 @@ import {
   downloadChartData,
   downloadChartPNG,
   downloadCyAsJson,
+  hideSelection,
   highlightNeighbors,
   highlightNodesWithLabel,
   isNodeD3Locked,
@@ -47,6 +48,9 @@ import {
   selectNeighbors,
   selectNodesWithLabel,
   selectionHasLockedNode,
+  selectionIsAllHidden,
+  selectionIsAllShown,
+  showSelection,
   unlockD3ForceNode,
   unlockSelection,
 } from "../utils/cy";
@@ -119,6 +123,18 @@ export default function GraphSearch() {
       renderContent={(event) => "Download Selection"}
       action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
     ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-show-selection"
+      renderContent={(event) => "Show Selection"}
+      action={showSelection}
+      showFn={(event) => !selectionIsAllShown(event)}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-hide-selection"
+      renderContent={(event) => "Hide Selection"}
+      action={hideSelection}
+      showFn={(event) => !selectionIsAllHidden(event)}
+    ></ChartCxtMenuItem>,
   ];
 
   const nodeCxtMenuItems: ReactNode[] = [
@@ -126,7 +142,6 @@ export default function GraphSearch() {
       key="chart-cxt-show-details"
       renderContent={(event) => "Show Details"}
       action={(event) => setEntityDetails(event.target.data())}
-      showFn={(event) => event.cy.elements(":selected").length > 0}
     ></ChartCxtMenuItem>,
     <ExpandNodeMenuItem
       key="chart-cxt-expand"
@@ -141,8 +156,8 @@ export default function GraphSearch() {
     <ChartCxtMenuItem
       key="chart-cxt-unlock-selection"
       renderContent={(event) => "Unlock Selection"}
-      action={(event) => unlockSelection(event.cy.nodes(":selected"))}
-      showFn={(event) => selectionHasLockedNode(event.cy.nodes(":selected"))}
+      action={unlockSelection}
+      showFn={selectionHasLockedNode}
     ></ChartCxtMenuItem>,
     <ChartNestedCxtMenuItem
       key="chart-cxt-highlight"
