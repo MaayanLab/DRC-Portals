@@ -3,7 +3,7 @@ import Header  from '@/components/Header/'
 import Footer  from '@/components/Footer/data'
 import { Metadata } from 'next'
 import Background from '@/components/styled/background'
-import NavBreadcrumbs from '@/components/Header/breadcrumbs'
+// import NavBreadcrumbs from '@/components/Header/breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
@@ -74,7 +74,7 @@ export default function DataLayout({
       <Grid item><Header path={"/data"}/></Grid>
       <Grid item className="flex grow">
         <Background background="#E7F3F5">
-          <NavBreadcrumbs/>
+          {/* <NavBreadcrumbs/> */}
           <div>{children}</div>
         </Background>
       </Grid>
