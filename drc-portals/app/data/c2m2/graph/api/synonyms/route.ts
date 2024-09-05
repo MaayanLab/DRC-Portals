@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { getSynonymsCypher } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import { SynoynmsResult } from "@/lib/neo4j/types";
+import { isValidLucene } from "@/lib/neo4j/utils";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -15,6 +16,16 @@ export async function GET(request: NextRequest) {
         message:
           "The request is missing one or more required search parameters: [q].",
         missingParams: [query === null ? "q" : null].filter((x) => x !== null),
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!isValidLucene(query)) {
+    return Response.json(
+      {
+        error: "Query string is not valid. Query must parse as valid Lucene.",
+        query,
       },
       { status: 400 }
     );

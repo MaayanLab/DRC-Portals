@@ -1,7 +1,10 @@
 "use client";
 
-import Autocomplete from "@mui/material/Autocomplete";
-import { debounce } from "@mui/material";
+import Autocomplete, {
+  AutocompleteOwnerState,
+  AutocompleteRenderOptionState,
+} from "@mui/material/Autocomplete";
+import { debounce, Box, Skeleton } from "@mui/material";
 import {
   KeyboardEvent,
   SyntheticEvent,
@@ -34,6 +37,8 @@ export default function SearchBar(cmpProps: SearchBarProps) {
   const { error, loading, clearError, onSubmit } = cmpProps;
   const [value, setValue] = useState<string>(cmpProps.value);
   const [options, setOptions] = useState<readonly string[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  const PLACEHOLDER_OPTIONS = [80, 110, 145, 170, 240];
 
   const submit = (input: string) => {
     if (input.length > 0) {
@@ -84,22 +89,38 @@ export default function SearchBar(cmpProps: SearchBarProps) {
     />
   );
 
+  const handleRenderOption = (
+    props: any,
+    option: string,
+    state: AutocompleteRenderOptionState,
+    ownerState: AutocompleteOwnerState<string, false, false, true, "div">
+  ) => {
+    const { key, ...optionProps } = props;
+    return (
+      <Box key={key} component="li" sx={{ display: "flex" }} {...optionProps}>
+        {loadingOptions ? (
+          <Skeleton variant="text" width={PLACEHOLDER_OPTIONS[state.index]} />
+        ) : (
+          ownerState.getOptionLabel(option)
+        )}
+      </Box>
+    );
+  };
+
   const fetchOptions = useMemo(
     () =>
       debounce(async (input: string) => {
-        if (isValidLucene(input)) {
-          await fetchSynonyms(input)
-            .then((response) => response.json())
-            .then((data: SynoynmsResult[]) => {
-              setOptions(data.map((row) => row.synonym));
-            })
-            .catch((error) => {
-              console.debug(error);
-              setOptions([]);
-            });
-        } else {
-          // If the input was not Lucene parseable, then don't attempt to run a query and instead reset the options list
+        setLoadingOptions(true);
+        setOptions(PLACEHOLDER_OPTIONS.map((option) => option.toString()));
+
+        try {
+          const response = await fetchSynonyms(input);
+          const data: SynoynmsResult[] = await response.json();
+          setOptions(data.map((row) => row.synonym));
+        } catch (error) {
           setOptions([]);
+        } finally {
+          setLoadingOptions(false);
         }
       }, 400),
     []
@@ -125,6 +146,7 @@ export default function SearchBar(cmpProps: SearchBarProps) {
       onChange={handleOnChange}
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
+      renderOption={handleRenderOption}
       filterOptions={(x) => x}
       sx={{
         borderRadius: "4px",
