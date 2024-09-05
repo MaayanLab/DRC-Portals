@@ -1,5 +1,6 @@
 "use client";
 
+import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import WarningIcon from "@mui/icons-material/Warning";
 import { Box, CircularProgress, Tooltip, Typography } from "@mui/material";
@@ -42,10 +43,23 @@ interface ExpandNodeMenuItemProps {
 export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
   const { setElements } = cmpProps;
   const [loading, setLoading] = useState(true);
+  const [allRelsError, setAllRelsError] = useState<string | null>(null);
   const [subMenuItems, setSubMenuItems] = useState<ConnectionMenuItemProps[]>(
     []
   );
   const context = useContext(ChartCxtMenuContext);
+
+  const getRightIcon = () => {
+    if (loading) {
+      return (
+        <CircularProgress aria-label="loading" color="inherit" size={20} />
+      );
+    } else if (allRelsError) {
+      return <ErrorIcon aria-label="error" color="error" />;
+    } else {
+      return <KeyboardArrowRightIcon aria-label="show-all-rels" />;
+    }
+  };
 
   const expandNode = (
     nodeId: string,
@@ -108,7 +122,7 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
             )
         )
       )
-      .catch((reason) => console.error(reason)) // TODO: Should add some visual indication of failure, perhaps an icon next to the expand option?
+      .catch((reason) => setAllRelsError(reason))
       .finally(() => setLoading(false));
   };
 
@@ -161,13 +175,7 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
   return context !== null ? (
     <NestedMenuItem
       disabled={subMenuItems.length === 0}
-      rightIcon={
-        loading ? (
-          <CircularProgress color="inherit" size={20} />
-        ) : (
-          <KeyboardArrowRightIcon />
-        )
-      }
+      rightIcon={getRightIcon()}
       renderLabel={() => "Expand"}
       parentMenuOpen={context.open}
       sx={{ paddingX: "16px" }}
