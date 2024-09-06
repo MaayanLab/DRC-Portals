@@ -242,7 +242,7 @@ export async function SearchQueryComponent(props: PageProps) {
             <>Project Name</>,
             //<>Description</>,
             <>Attributes</>,
-            <>Assets</>
+            // <>Assets</>
             //<>Rank</>
           ];
           const tableRows = results ? results.records.map((res, index) => ({
@@ -318,13 +318,13 @@ export async function SearchQueryComponent(props: PageProps) {
                 )}
               </>
             ),
-            assets: (
+            /* assets: (
               <>
                 Subjects: {res.count_sub}<br />
                 Biosamples: {res.count_bios}<br />
                 Collections: {res.count_col}<br />
               </>
-            )
+            ) */
           })) : [];
           
           
@@ -377,7 +377,7 @@ export async function SearchQueryComponent(props: PageProps) {
               }
               footer={
                 <>
-                <Link href="/data">
+                {/* <Link href="/data">
                   <Button
                     sx={{ textTransform: "uppercase", marginRight: '16px' }}
                     color="primary"
@@ -385,7 +385,7 @@ export async function SearchQueryComponent(props: PageProps) {
                     startIcon={<Icon path={mdiArrowLeft} size={1} />}>
                     BACK TO SEARCH
                   </Button>
-                </Link>
+                </Link> */}
                 <DownloadAllButton
                   apiEndpoint={apiEndpoint}
                   filename={"CFDEC2M2MainSearchTable_ALL_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
