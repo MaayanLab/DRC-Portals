@@ -206,8 +206,8 @@ def api_fair(row):
         try:
             api_response = requests.get(smartapi_link).json()
             metadata = api_response['info']
-            if 'contact' in metadata and 'email' in metadata['contact']:
-                fairshake_contact = 1 if metadata['contact']['email'] != '' else 0
+            if 'contact' in metadata:
+                fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
             if 'license' in metadata and 'name' in metadata['license']:
                 fairshake_license = 1 if metadata['license']['name'] != '' else 0
                 return {"Documented with OpenAPI": fairshake_openapi,
