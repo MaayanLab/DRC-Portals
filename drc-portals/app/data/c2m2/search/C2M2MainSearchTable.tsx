@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import SearchablePagedTable from '../SearchablePagedTable'; // Adjust the import path as necessary
 import DownloadButton from '../DownloadButton'; // Adjust the import path as necessary
 import { RowType } from '../utils';
+import DownloadAllButton from '../DownloadAllButton';
+import { Box } from '@mui/material'; // If you're using Material-UI
 
 interface C2M2MainSearchTableProps {
     label?: string;
@@ -16,6 +18,7 @@ interface C2M2MainSearchTableProps {
     tablePrefix: string;
     data?: { [key: string]: string | bigint | number; }[];
     downloadFileName: string;
+    apiEndpoint: string;
 }
 
 const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
@@ -36,6 +39,24 @@ const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
 
     return (
         <div>
+            {/* Conditionally render DownloadButton and DownloadAllButton side by side */}
+            {selectedRows.length > 0 && (
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}> {/* Flexbox layout for side-by-side alignment */}
+                    <DownloadButton
+                        data={selectedData}
+                        filename={props.downloadFileName}
+                        name="DOWNLOAD SELECTED"
+                    />
+                    <DownloadAllButton
+                        apiEndpoint={props.apiEndpoint}
+                        filename={props.downloadFileName} // Optional: Specify a filename
+                        name="DOWNLOAD ALL"   // Optional: Specify a button name
+                        q={props.q ?? ''}
+                        t={props.t}
+                    />
+                </Box>
+            )}
+
             <SearchablePagedTable
                 label={props.label}
                 q={props.q}
@@ -47,11 +68,6 @@ const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
                 rows={props.rows}
                 tablePrefix={props.tablePrefix}
                 onRowSelect={handleRowSelect}
-            />
-            <DownloadButton 
-            data={selectedData} 
-            filename={props.downloadFileName}
-            name='DOWNLOAD SELECTED'
             />
         </div>
     );
