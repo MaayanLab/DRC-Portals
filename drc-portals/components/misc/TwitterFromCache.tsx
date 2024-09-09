@@ -12,7 +12,7 @@ const TweetC = z.object({
           screen_name: z.string(),
           profile_image_url_https: z.string(),
         }),
-        profile_image_shape: z.enum(["Circle"]),
+        profile_image_shape: z.string(),//z.enum(["Circle", "Square"]),
       }),
     }),
   }),
@@ -39,22 +39,22 @@ const TweetC = z.object({
           large: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
           medium: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
           small: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
           thumb: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
         }),
       })).optional(),
@@ -159,7 +159,10 @@ export default async function TwitterFromCache(props: { screenName: string }) {
   })
   if (!record?.value) return null
   const tweets = TweetsC.safeParse(record.value)
-  if (!tweets.success) { console.error(JSON.stringify({TwitterFromCacheError: tweets.error})) }
+  if (!tweets.success) {
+    console.error(JSON.stringify({TwitterFromCacheError: tweets.error}))
+    return null
+  }
   return (
     <div className="flex flex-col border rounded-lg overflow-hidden text-sm">
       <div className="flex flex-row border-b my-2 p-2 justify-between items-center">
