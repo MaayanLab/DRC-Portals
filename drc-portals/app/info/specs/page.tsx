@@ -9,7 +9,7 @@ export default function Specs() {
         <Typography variant="body1"  sx={{marginBottom: 2}}>
           The following document lays out the basic web design specifications of the CFDE Workbench.
           The website is built using Next.js, Material UI, and Tailwind CSS.
-          You can accesas the template of this website <Link color="secondary" href="https://github.com/MaayanLab/drc-template">here</Link>.
+          You can access the template of this website <Link color="secondary" href="https://github.com/MaayanLab/drc-template">here</Link>.
         </Typography>
         <Typography variant="h3" sx={{marginBottom: 2}}>Typography Specifications</Typography>
       </Grid>
