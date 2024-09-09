@@ -129,11 +129,11 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
             }
             <Grid item xs={12} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
                 <Stack spacing={1}>
-                    {(props.q || props.t) &&
+                    {/* {(props.q || props.t) &&
                         <Box display="inline-block">
                             <TagComponent q={props.q} t={props.t} />
                         </Box>
-                    }
+                    } */}
                     
                     <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (

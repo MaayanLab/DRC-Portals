@@ -1,7 +1,29 @@
-'use client'
+'use client';
 import React from 'react';
-import { Chip, Typography, Button } from '@mui/material';
+import { Typography, Button, Accordion, AccordionSummary, AccordionDetails, Grid, Chip, styled } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useRouter } from 'next/navigation';
+
+// Common style for text and buttons
+const commonTextStyle = {
+    fontSize: '1.0rem',
+    fontWeight: 700,
+    color: '#0047AB',
+};
+
+// Styled components to remove shadow and apply border styles
+const CustomAccordion = styled(Accordion)(({ theme }) => ({
+    boxShadow: 'none',
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: theme.shape.borderRadius,
+}));
+
+const CustomButton = styled(Button)(({ theme }) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    color: '#0047AB',
+    fontWeight: 700,
+    fontSize: '1.0rem',
+}));
 
 const TagComponent = ({
     q,
@@ -33,7 +55,7 @@ const TagComponent = ({
             }
         }
 
-        router.push(`${baseUrl}?${updatedParams.toString()}`); // Change the URL and reload the page
+        router.push(`${baseUrl}?${updatedParams.toString()}`);
     };
 
     const handleReset = () => {
@@ -46,34 +68,12 @@ const TagComponent = ({
         router.push(`${baseUrl}?${updatedParams.toString()}`);
     };
 
-    const renderQueryChip = () => {
+    const renderQueryText = () => {
         if (!q) return null;
         return (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="subtitle1" style={{ marginRight: '8px', fontWeight: 700 }}>
-                        Query
-                    </Typography>
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        <Chip
-                            key="q"
-                            label={q}
-                            variant="outlined"
-                            style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
-                        />
-                    </div>
-                </div>
-                <div>
-                    <Button 
-                        onClick={handleReset} 
-                        variant="outlined" 
-                        color="secondary"
-                        disabled={!t || t.length === 0}  // Disable if filters are undefined or empty
-                    >
-                        Reset filters
-                    </Button>
-                </div>
-            </div>
+            <Typography variant="body1" style={{ margin: '4px', ...commonTextStyle }}>
+                Query: {q}
+            </Typography>
         );
     };
 
@@ -90,42 +90,79 @@ const TagComponent = ({
         });
 
         const typeDisplayNames: Record<string, string> = {
-            'dcc': 'Common Fund Program',
+            'dcc': 'Program',
             'ncbi_taxonomy': 'Species',
             'anatomy': 'Anatomy',
             'disease': 'Disease',
             'gene': 'Gene',
             'data_type': 'Data Type',
             'compound': 'Compound',
-            'protein': 'Protein'
+            'protein': 'Protein',
+            'assay_type': 'Assay Type'
             // Add more mappings as needed
         };
 
-        // Render tags grouped by type
-        return Object.keys(tagGroups).map((type, index) => (
-            <div key={`tag-group-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="subtitle1" style={{ marginRight: '8px', fontWeight: 700 }}>
-                    {typeDisplayNames[type.toLowerCase()] || type}
-                </Typography>
-                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {tagGroups[type].map((tag, tagIndex) => (
-                        <Chip
-                            key={`tag-${index}-${tagIndex}`}
-                            label={`${tag.entity_type || 'N/A'}`}
-                            onDelete={() => handleDelete(tag)}
-                            style={{ margin: '4px', fontSize: '1.0rem', color: '#0047AB' }}
-                        />
+        // Render tags grouped by type within accordions
+        return (
+            <CustomAccordion defaultExpanded>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1-content"
+                    id="panel1-header"
+                >
+                    <Typography variant="subtitle1" style={commonTextStyle}>
+                        Manage Filters
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails style={{ flexDirection: 'column', padding: 0 }}>
+                    {Object.keys(tagGroups).map((type, index) => (
+                        <Accordion key={`tag-group-${index}`} style={{ width: '100%', marginBottom: '8px' }}>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls={`panel-${index}-content`}
+                                id={`panel-${index}-header`}
+                            >
+                                <Typography variant="subtitle2" style={{ ...commonTextStyle, fontSize: '0.875rem' }}>
+                                    {typeDisplayNames[type.toLowerCase()] || type}
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails style={{ display: 'flex', flexWrap: 'wrap', padding: '8px 0' }}>
+                                {tagGroups[type].map((tag, tagIndex) => (
+                                    <Chip
+                                        key={`tag-${index}-${tagIndex}`}
+                                        label={`${tag.entity_type || 'N/A'}`}
+                                        onDelete={() => handleDelete(tag)}
+                                        style={{ margin: '4px', fontSize: '0.875rem', color: '#0047AB' }}
+                                    />
+                                ))}
+                            </AccordionDetails>
+                        </Accordion>
                     ))}
-                </div>
-            </div>
-        ));
+                </AccordionDetails>
+            </CustomAccordion>
+        );
     };
 
     return (
-        <>
-            {renderQueryChip()}
-            {renderTagsByType()}
-        </>
+        <Grid container spacing={2} alignItems="center" justifyContent="center" style={{ flexWrap: 'nowrap' }}>
+            <Grid item>
+                {renderQueryText()}
+            </Grid>
+            <Grid item>
+                {renderTagsByType()}
+            </Grid>
+            {t && t.length > 0 && (
+                <Grid item>
+                    <CustomButton 
+                        onClick={handleReset} 
+                        variant="outlined" 
+                        color="secondary"
+                    >
+                        Reset Filters
+                    </CustomButton>
+                </Grid>
+            )}
+        </Grid>
     );
 };
 
