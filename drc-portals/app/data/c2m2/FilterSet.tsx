@@ -1,8 +1,9 @@
-'use client';
+'use client'
 import React, { useState, useEffect } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip'; // Import Tooltip
 import { styled, lighten, darken } from '@mui/system';
 import { useRouter } from 'next/navigation';
 
@@ -94,6 +95,25 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
     router.push(newUrl);
   };
 
+  const handleDelete = (filterToDelete: FilterObject) => {
+    const updatedFilters = selectedFilters.filter(filter => filter.id !== filterToDelete.id);
+    setSelectedFilters(updatedFilters);
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentRawFilters = searchParams.get('t');
+    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+
+    const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:${filterToDelete.name}`));
+
+    if (otherFilters.length > 0) {
+      searchParams.set('t', otherFilters.join('|'));
+    } else {
+      searchParams.delete('t');
+    }
+
+    router.push(`${window.location.pathname}?${searchParams.toString()}`);
+  };
+
   const getFilteredOptions = () => {
     if (!selectedLetter) {
       return filterList;
@@ -139,19 +159,21 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
           }}
           renderTags={(value, getTagProps) =>
             value.map((option, index) => (
-              <Chip
-                variant="outlined"
-                label={option.name}
-                size="medium"
-                {...getTagProps({ index })}
-                onDelete={undefined}
-                sx={{
-                  backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
-                  color: 'navy', // Navy blue text
-                  fontWeight: 'bold', // Bold text
-                  borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
-                }}
-              />
+              <Tooltip title={option.name} key={option.id}>
+                <Chip
+                  variant="outlined"
+                  label={option.name}
+                  size="medium"
+                  {...getTagProps({ index })}
+                  onDelete={() => handleDelete(option)}
+                  sx={{
+                    backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
+                    color: 'navy', // Navy blue text
+                    fontWeight: 'bold', // Bold text
+                    borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
+                  }}
+                />
+              </Tooltip>
             ))
           }
           renderInput={(params) => (
@@ -186,21 +208,6 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
           }}
         />
       )}
-      {/* Render selected chips even when the Autocomplete is hidden */}
-      {!options.length && selectedFiltersForAutocomplete.map((option, index) => (
-        <Chip
-          key={option.id}
-          variant="outlined"
-          label={option.name}
-          size="medium"
-          sx={{
-            backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
-            color: 'navy', // Navy blue text
-            fontWeight: 'bold', // Bold text
-            borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
-          }}
-        />
-      ))}
     </>
   );
 }
