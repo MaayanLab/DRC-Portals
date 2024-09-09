@@ -151,7 +151,7 @@ def entity_page_fair(entityPageExample, link):
                 if x.ok:
                     fairshake_head_request_support = 1
         example_term = find_between_r(template_url, '%7B', '%7D' ) 
-        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', '')
+        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', 'thisstringshouldhopefullynotmatchanything')
         if requests.head(missing_element_url).status_code == 404:
             fairshake_return_404 = 1
         check_url_templated = re.search("^.*%7B.*%7D.*$", template_url)
