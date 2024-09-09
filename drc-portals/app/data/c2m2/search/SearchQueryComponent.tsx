@@ -403,7 +403,7 @@ export async function SearchQueryComponent(props: PageProps) {
               }
               footer={
                 <>
-                <Link href="/data">
+                {/* <Link href="/data">
                   <Button
                     sx={{ textTransform: "uppercase", marginRight: '16px' }}
                     color="primary"
@@ -411,14 +411,14 @@ export async function SearchQueryComponent(props: PageProps) {
                     startIcon={<Icon path={mdiArrowLeft} size={1} />}>
                     BACK TO SEARCH
                   </Button>
-                </Link>
-                <DownloadAllButton
+                </Link> */}
+                {/* <DownloadAllButton
                   apiEndpoint={apiEndpoint}
                   filename={"CFDEC2M2MainSearchTable_ALL_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
                   name="DOWNLOAD ALL"   // Optional: Specify a button name
                   q={searchParams.q ?? ''}
                   t={searchParams.t}
-                />
+                /> */}
                 </>
               }
             >
@@ -434,6 +434,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 tablePrefix="C2M2MainSearchTbl"
                 data={results?.records}
                 downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
+                apiEndpoint={apiEndpoint}
               />
 
             </ListingPageLayout>
