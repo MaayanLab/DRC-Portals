@@ -64,21 +64,21 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
                 <Typography variant="h5">Results found: </Typography>
                 <Typography variant="h5">&ge; {`${partial_list_string}`} </Typography>
               </div>
-              
+
               {/* Use a Box to align Filter and Reset All button on the same row */}
               <div>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="subtitle1">Filter</Typography>
-                <Button 
-                  onClick={handleReset} 
-                  variant="outlined" 
-                  color="secondary"
-                  sx={{ marginLeft: 2 }} // Add some margin for spacing
-                  disabled={!filtersPresent} // Disable if no 't' parameters
-                >
-                  Reset All
-                </Button>
-              </Box>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Typography variant="h5">Filters</Typography>
+                  <Button
+                    onClick={handleReset}
+                    variant="outlined"
+                    color="secondary"
+                    sx={{ marginLeft: 2 }} // Add some margin for spacing
+                    disabled={!filtersPresent} // Disable if no 't' parameters
+                  >
+                    Reset All
+                  </Button>
+                </Box>
               </div>
               <div className="flex flex-col text-cyan-700 text-lg">
                 {props.filters}
