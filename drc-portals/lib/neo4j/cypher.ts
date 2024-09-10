@@ -9,7 +9,8 @@ import {
 } from "./utils";
 
 export const getExpandNodeCypher = (
-  nodeLabel: string,
+  hubLabel: string,
+  spokeLabel: string,
   direction: string,
   relType: string
 ) => {
@@ -18,8 +19,10 @@ export const getExpandNodeCypher = (
       ? `<-[r:${relType}]-`
       : `-[r:${relType}]->`;
   return [
-    `MATCH (n)${relMatch}(m:${nodeLabel})`,
-    `WHERE id(n) = $nodeId`,
+    `MATCH (n:${escapeCypherString(
+      hubLabel
+    )})${relMatch}(m:${escapeCypherString(spokeLabel)})`,
+    `WHERE n._uuid = $nodeId`,
     `WITH DISTINCT m, r`,
     "LIMIT $limit",
     `RETURN DISTINCT collect(DISTINCT ${createNodeReprStr(
@@ -28,16 +31,16 @@ export const getExpandNodeCypher = (
   ].join("\n");
 };
 
-export const getOutgoingRelsCypher = () => `
-  MATCH (n)-[outgoingRel]->(m)
-  WHERE id(n) = $nodeId
+export const getOutgoingRelsCypher = (hubLabel: string) => `
+  MATCH (n:${escapeCypherString(hubLabel)})-[outgoingRel]->(m)
+  WHERE n._uuid = $nodeId
   WITH labels(m) AS outgoingLabels, type(outgoingRel) AS outgoingType
   RETURN outgoingLabels, outgoingType, count([outgoingLabels, outgoingType]) AS count
 `;
 
-export const getIncomingRelsCypher = () => `
-  MATCH (n)-[incomingRel]->(m)
-  WHERE id(m) = $nodeId
+export const getIncomingRelsCypher = (hubLabel: string) => `
+  MATCH (n)-[incomingRel]->(m:${escapeCypherString(hubLabel)})
+  WHERE m._uuid = $nodeId
   WITH labels(n) AS incomingLabels, type(incomingRel) AS incomingType
   RETURN incomingLabels, incomingType, count([incomingLabels, incomingType]) AS count
 `;

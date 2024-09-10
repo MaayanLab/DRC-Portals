@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (phenotype:Phenotype {id: row.phenotype})
 	MATCH (collection:Collection {local_id: row.collection_local_id})<-[:CONTAINS]-(collection_id_namespace:IDNamespace {id: row.collection_id_namespace})
-	MERGE (collection)-[:CONTAINS]->(phenotype)
+	MERGE (collection)-[:CONTAINS {_uuid: randomUUID()}]->(phenotype)
 } IN TRANSACTIONS OF 10000 ROWS

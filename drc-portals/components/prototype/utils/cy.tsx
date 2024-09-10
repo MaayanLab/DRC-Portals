@@ -56,7 +56,7 @@ export const createCytoscapeNode = (node: NodeResult): CytoscapeNode => {
   return {
     classes: [NODE_CLASS_MAP.get(nodeLabel) || ""],
     data: {
-      id: node.identity.toString(),
+      id: node.uuid,
       label: truncateLabelToFitNode(nodeDisplayLabel),
       neo4j: {
         labels: node.labels,
@@ -71,9 +71,9 @@ export const createCytoscapeEdge = (
 ): CytoscapeEdge => {
   return {
     data: {
-      id: relationship.identity.toString(),
-      source: relationship.start.toString(),
-      target: relationship.end.toString(),
+      id: relationship.uuid,
+      source: relationship.startUUID,
+      target: relationship.endUUID,
       label: relationship.type,
       neo4j: {
         type: relationship.type,
@@ -96,6 +96,17 @@ export const createCytoscapeElements = (subgraph: SubGraph) => {
   );
 
   return [...nodes, ...edges];
+};
+
+export const getNeo4jLabelFromCyNode = (event: EventObjectNode) => {
+  const nodeNeo4jData = event.target.data("neo4j");
+  let nodeLabel = "Unknown";
+
+  if (nodeNeo4jData !== undefined && Array.isArray(nodeNeo4jData.labels)) {
+    nodeLabel = nodeNeo4jData.labels[0] || "Unknown";
+  }
+
+  return nodeLabel;
 };
 
 export const truncateLabelToFitNode = (label: string) => {

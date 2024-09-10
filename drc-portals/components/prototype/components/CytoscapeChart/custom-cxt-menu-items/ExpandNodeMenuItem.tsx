@@ -14,7 +14,10 @@ import {
   useState,
 } from "react";
 
-import { createCytoscapeElements } from "@/components/prototype/utils/cy";
+import {
+  createCytoscapeElements,
+  getNeo4jLabelFromCyNode,
+} from "@/components/prototype/utils/cy";
 import {
   createDirectedRelationshipElement,
   createNodeElement,
@@ -64,14 +67,16 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
 
   const expandNode = async (
     nodeId: string,
-    label: string,
+    hubLabel: string,
+    spokeLabel: string,
     direction: string,
     type: string
   ) => {
     try {
       const response = await fetchExpandNode(
         nodeId,
-        label,
+        hubLabel,
+        spokeLabel,
         direction,
         type,
         EXPAND_LIMIT
@@ -91,9 +96,9 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
     }
   };
 
-  const setExpandOptions = async (nodeId: string) => {
+  const setExpandOptions = async (nodeId: string, nodeLabel: string) => {
     try {
-      const response = await fetchAllNodeRels(nodeId);
+      const response = await fetchAllNodeRels(nodeId, nodeLabel);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -181,14 +186,23 @@ export default function ExpandNodeMenuItem(cmpProps: ExpandNodeMenuItemProps) {
         </Box>
       )}
       action={(event) =>
-        expandNode(event.target.data("id"), label, direction, type)
+        expandNode(
+          event.target.data("id"),
+          getNeo4jLabelFromCyNode(event),
+          label,
+          direction,
+          type
+        )
       }
     ></ChartCxtMenuItem>
   );
 
   useEffect(() => {
     if (context !== null) {
-      setExpandOptions(context.event.target.data("id"));
+      setExpandOptions(
+        context.event.target.data("id"),
+        getNeo4jLabelFromCyNode(context.event)
+      );
     }
   }, []);
 

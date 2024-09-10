@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (protein:Protein {id: row.protein})
 	MATCH (gene:Gene {id: row.gene})
-	MERGE (protein)-[:ASSOCIATED_WITH]-(gene)
+	MERGE (protein)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(gene)
 } IN TRANSACTIONS OF 10000 ROWS

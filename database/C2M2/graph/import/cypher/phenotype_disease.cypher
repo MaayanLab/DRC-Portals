@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (phenotype:Phenotype {id: row.phenotype})
 	MATCH (disease:Disease {id: row.disease})
-	MERGE (phenotype)-[:ASSOCIATED_WITH]-(disease)
+	MERGE (phenotype)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(disease)
 } IN TRANSACTIONS OF 10000 ROWS

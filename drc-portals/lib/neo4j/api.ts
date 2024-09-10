@@ -1,22 +1,26 @@
 const GRAPH_API_PREFIX = "/data/c2m2/graph/api";
 
-export const fetchAllNodeRels = (nodeId: string) =>
-  fetch(`${GRAPH_API_PREFIX}/all-rels/${nodeId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const fetchAllNodeRels = (nodeId: string, hubLabel: string) =>
+  fetch(
+    `${GRAPH_API_PREFIX}/all-rels?node_id=${nodeId}&hub_label=${hubLabel}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
 export const fetchExpandNode = (
   nodeId: string,
-  label: string,
+  hubLabel: string,
+  spokeLabel: string,
   direction: string,
   type: string,
   limit: number
 ) =>
   fetch(
-    `${GRAPH_API_PREFIX}/expand/${nodeId}?node_label=${label}&direction=${direction}&rel_type=${type}&limit=${limit}`,
+    `${GRAPH_API_PREFIX}/expand?node_id=${nodeId}&hub_label=${hubLabel}&spoke_label=${spokeLabel}&direction=${direction}&rel_type=${type}&limit=${limit}`,
     {
       method: "GET",
       headers: {

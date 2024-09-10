@@ -33,7 +33,7 @@ export const neo4jSafeUUID = () => {
 
 export const createNodeReprStr = (varName: string) => {
   return `{
-    identity: id(${varName}),
+    uuid: ${varName}._uuid,
     labels: labels(${varName}),
     properties: properties(${varName})
   }`;
@@ -41,11 +41,11 @@ export const createNodeReprStr = (varName: string) => {
 
 export const createRelReprStr = (varName: string) => {
   return `{
-    identity: id(${varName}),
+    uuid: ${varName}._uuid,
     type: type(${varName}),
     properties: properties(${varName}),
-    start: id(startNode(${varName})),
-    end: id(endNode(${varName}))
+    startUUID: startNode(${varName})._uuid,
+    endUUID: endNode(${varName})._uuid
   }`;
 };
 

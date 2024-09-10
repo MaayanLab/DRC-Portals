@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (subject:Subject {local_id: row.subject_local_id})<-[:CONTAINS]-(subject_id_namespace:IDNamespace {id: row.subject_id_namespace})
 	MATCH (substance:Substance {id: row.substance})
-	MERGE (subject)-[:ASSOCIATED_WITH]-(substance)
+	MERGE (subject)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(substance)
 } IN TRANSACTIONS OF 10000 ROWS

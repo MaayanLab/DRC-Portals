@@ -6,24 +6,24 @@ import { SubGraph } from "@/lib/neo4j/types";
 
 const MAX_LIMIT = 1000;
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { node_id: string } }
-) {
+export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const nodeLabel = searchParams.get("node_label");
+  const nodeId = searchParams.get("node_id");
+  const hubLabel = searchParams.get("hub_label");
+  const spokeLabel = searchParams.get("spoke_label");
   const direction = searchParams.get("direction");
   const relType = searchParams.get("rel_type");
   const limit = searchParams.get("limit");
 
-  if (!nodeLabel || !direction || !relType || !limit) {
+  if (!hubLabel || !spokeLabel || !direction || !relType || !limit) {
     return Response.json(
       {
         error: "Missing required search parameters",
         message:
           "The request is missing one or more required search parameters: [node_label, direction, rel_type, limit].",
         missingParams: [
-          nodeLabel === null ? "node_label" : null,
+          hubLabel === null ? "hub_label" : null,
+          spokeLabel === null ? "spoke_label" : null,
           direction === null ? "direction" : null,
           relType === null ? "rel_type" : null,
           limit === null ? "limit" : null,
@@ -47,9 +47,9 @@ export async function GET(
   try {
     const result = await executeReadOne<SubGraph>(
       getDriver(),
-      getExpandNodeCypher(nodeLabel, direction, relType),
+      getExpandNodeCypher(hubLabel, spokeLabel, direction, relType),
       {
-        nodeId: Number(params.node_id),
+        nodeId,
         limit: Number(limit),
       }
     );
@@ -58,11 +58,12 @@ export async function GET(
     return Response.json(
       {
         message:
-          "An error occured trying to expand the node. Please try again later.",
+          "An error occurred trying to expand the node. Please try again later.",
         error,
         params: {
-          nodeId: params.node_id,
-          nodeLabel,
+          nodeId,
+          hubLabel,
+          spokeLabel,
           direction,
           relType,
           limit,

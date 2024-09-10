@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (file:File {local_id: row.file_local_id})<-[:CONTAINS]-(file_id_namespace:IDNamespace {id: row.file_id_namespace})
 	MATCH (subject:Subject {local_id: row.subject_local_id})<-[:CONTAINS]-(subject_id_namespace:IDNamespace {id: row.subject_id_namespace})
-	MERGE (file)-[:DESCRIBES]->(subject)
+	MERGE (file)-[:DESCRIBES {_uuid: randomUUID()}]->(subject)
 } IN TRANSACTIONS OF 10000 ROWS

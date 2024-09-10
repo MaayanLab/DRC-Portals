@@ -1,17 +1,17 @@
 import { Direction } from "./enums";
 
 export interface NodeResult {
-  identity: number;
+  uuid: string;
   labels: string[];
   properties: { [key: string]: any };
 }
 
 export interface RelationshipResult {
-  identity: number;
+  uuid: string;
   type: string;
   properties: { [key: string]: any };
-  start: number;
-  end: number;
+  startUUID: string;
+  endUUID: string;
 }
 
 export interface SubGraph {
