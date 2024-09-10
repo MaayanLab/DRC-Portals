@@ -14,6 +14,7 @@ import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFile
 import SQL from '@/lib/prisma/raw';
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 import { FancyTab } from '@/components/misc/FancyTabs';
+import AssayTypeFilterComponent from './AssayTypeFilterComponent';
 import DCCFilterComponent from './DCCFilterComponent';
 import DataTypeFilterComponent from './DataTypeFilterComponent';
 import CompoundFilterComponent from './CompoundFilterComponent';
@@ -24,9 +25,19 @@ import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
 import React from "react";
 import { safeAsync } from '@/utils/safe';
-import DownloadButton from '../DownloadButton';
+import DownloadAllButton from '../DownloadAllButton';
+import c2m2 from '@/lib/prisma/c2m2';
 
-const allres_filtered_maxrow_limit = 200000;
+//------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
+// Do not delete the abive comment line
+
+const allres_filtered_maxrow_limit = 500000; // Not in use after Aug 15
+var super_offset = 0;
+const super_limit = 500000;
+
+const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
+
+const main_table = 'ffl_biosample_collection_cmp'; // 'ffl_biosample_collection' or 'ffl_biosample_collection_cmp'
 
 type PageProps = { search: string, searchParams: Record<string, string> }
 
@@ -37,7 +48,9 @@ const doQuery = React.cache(async (props: PageProps) => {
   const offset = (currentPage - 1) * searchParams.r;
   const limit = searchParams.r;
 
-  const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
+  //const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
+  // 2024/08/09: Tried to combine allres_full and allres codes, so, pass allres_full below
+  const filterClause = generateFilterQueryString(searchParams, "allres_full");
   // To measure time taken by different parts
   const t0: number = performance.now();
   const [results] = await prisma.$queryRaw<Array<{
@@ -60,36 +73,10 @@ const doQuery = React.cache(async (props: PageProps) => {
       compound: string,
       data_type_name: string,
       data_type: string,
+      assay_type_name: string,
+      assay_type: string,
       project_name: string,
-      project_description: string,
-      project_persistent_id: string,
-      count: number, // this is based on across all-columns of ffl_biosample
-      count_bios: number,
-      count_sub: number,
-      count_col: number,
-      record_info_url: string,
-    }[],
-    records_full: {
-      //rank: number,
-      dcc_name: string,
-      dcc_abbreviation: string,
-      dcc_short_label: string,
-      taxonomy_name: string,
-      taxonomy_id: string,
-      disease_name: string,
-      disease: string,
-      anatomy_name: string,
-      anatomy: string,
-      gene_name: string,
-      gene: string,
-      protein_name: string,
-      protein: string,
-      compound_name: string,
-      compound: string,
-      data_type_name: string,
-      data_type: string,
-      project_name: string,
-      project_description: string,
+      //project_description: string,
       project_persistent_id: string,
       count: number, // this is based on across all-columns of ffl_biosample
       count_bios: number,
@@ -102,7 +89,8 @@ const doQuery = React.cache(async (props: PageProps) => {
     // Mano: The count in filters below id w.r.t. rows in allres on which DISTINCT 
     // is already applied (indirectly via GROUP BY), so, these counts are much much lower than the count in allres
   }>>(SQL.template`
-    WITH allres_full AS (
+    WITH 
+    /**** allres_full AS (
       SELECT  c2m2.ffl_biosample_collection.*,
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
         FROM c2m2.ffl_biosample_collection
@@ -111,24 +99,20 @@ const doQuery = React.cache(async (props: PageProps) => {
         ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
         protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
         LIMIT ${allres_filtered_maxrow_limit}     
-    ),
-    allres AS (
-      SELECT 
-        allres_full.rank AS rank,
+    ), ****/
+    allres_exp AS (
+      SELECT /* No DISTINCT */
+        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
         SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, /* added Unspecified as needed in record_info_col */
-        /* CASE WHEN allres_full.ncbi_taxonomy_name IS NULL THEN 'Unspecified' ELSE allres_full.ncbi_taxonomy_name END AS taxonomy_name, */
+        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
         COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
         SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-        /* CASE WHEN allres_full.disease_name IS NULL THEN 'Unspecified' ELSE allres_full.disease_name END AS disease_name, */
         COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
         REPLACE(allres_full.disease, ':', '_') AS disease,
-        /* CASE WHEN allres_full.anatomy_name IS NULL THEN 'Unspecified' ELSE allres_full.anatomy_name END AS anatomy_name, */
         COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
         REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-        /* CASE WHEN allres_full.gene_name IS NULL THEN 'Unspecified' ELSE allres_full.gene_name END AS gene_name, */
         COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
         allres_full.gene AS gene,
         COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -137,26 +121,68 @@ const doQuery = React.cache(async (props: PageProps) => {
         allres_full.substance_compound AS compound,
         COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
         REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-        /* allres_full.project_name AS project_name, */
-        COALESCE(allres_full.project_name, 
-          concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-        c2m2.project.description AS project_description,
-        allres_full.project_persistent_id as project_persistent_id,
-        COUNT(*)::INT AS count,
-        COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
-        COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
-        COUNT(DISTINCT collection_local_id)::INT AS count_col
-      FROM allres_full 
-      LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
-        allres_full.project_local_id = c2m2.project.local_id) 
-      /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
-        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
-      GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
-        disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
-        data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id 
-      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-        protein_name, compound_name, data_type_name
+        COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
+        REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
+        COALESCE(allres_full.project_name,    concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
+          SPLIT_PART(allres_full.dcc_abbreviation, '_', 1)) ) AS project_name,
+        /**** c2m2.project.description AS project_description, ****/
+        allres_full.project_persistent_id as project_persistent_id
+        /**** UNNEST(allres_full.bios_array) as biosample_local_id, ****/ /**** SLOWER BUT ACCURATE ****/
+        /**** allres_full.bios_array as bios_array, ****/ /**** FASTER but later, count incorrect if biosample in several collection; See matching line in allres CTE ****/
+        /**** allres_full.subject_local_id as subject_local_id, ****/
+        /**** allres_full.collection_local_id as collection_local_id ****/
+      /**** FROM c2m2.ffl_biosample_collection_cmp as allres_full ****/
+      FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} as allres_full 
+      
+      /**** Mano: 2024/08/09: Trying to combine allres_full and allres into one CTE ****/  
+      WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        
+      /* OFFSET ${super_offset} */
+      /* LIMIT ${super_limit} */ /* ${allres_filtered_maxrow_limit}      */
     ),
+
+    allres AS (
+      SELECT DISTINCT 
+        rank,
+        dcc_name,
+        dcc_abbreviation,
+        dcc_short_label,
+        project_local_id,
+        taxonomy_name,
+        taxonomy_id,
+        disease_name,
+        disease,
+        anatomy_name,
+        anatomy,
+        gene_name,
+        gene,
+        protein_name,
+        protein,
+        compound_name,
+        compound,
+        data_type_name,
+        data_type,
+        assay_type_name,
+        assay_type,
+        project_name,
+        project_persistent_id,
+        /**** COUNT(*)::INT ****/ -99 AS count,
+        /**** COUNT(DISTINCT biosample_local_id)::INT AS count_bios, ****/ /**** SLOWER BUT ACCURATE ****/
+        /**** SUM(ARRAY_LENGTH(bios_array,1 ))::INT ****/ -99 AS count_bios, /**** Wrong count if same bios in several collections, e.g., for HMP ****/
+        /**** COUNT(DISTINCT subject_local_id)::INT ****/ -99 AS count_sub, 
+        /**** COUNT(DISTINCT collection_local_id)::INT ****/ -99 AS count_col
+      FROM allres_exp 
+              
+      /**** GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+        disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
+        data_type_name, data_type, assay_type_name, assay_type, project_name, project_persistent_id ****/
+      ORDER BY rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name, assay_type_name
+      OFFSET ${super_offset}
+      LIMIT ${super_limit} /* ${allres_filtered_maxrow_limit}      */
+    ),
+
     allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres /*${filterClause}*/),
     allres_filtered AS (
       SELECT allres.*, 
@@ -164,7 +190,7 @@ const doQuery = React.cache(async (props: PageProps) => {
       '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name, 
       '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name, 
       '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
-      '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
+      '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name, '|', 'assay_type_name:', allres.assay_type_name) AS record_info_url
       FROM allres
       /*${filterClause}*/
       /*LIMIT ${allres_filtered_maxrow_limit}*/
@@ -181,7 +207,6 @@ const doQuery = React.cache(async (props: PageProps) => {
     )
     
     SELECT
-    (SELECT COALESCE(jsonb_agg(allres_filtered.*), '[]'::jsonb) AS records_full FROM allres_filtered ), 
     (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited ), 
     (SELECT count FROM total_count) as count,
     (SELECT filtered_count FROM allres_filtered_count) as all_count
@@ -189,18 +214,26 @@ const doQuery = React.cache(async (props: PageProps) => {
   return results
 })
 
-export async function SearchQueryComponentTab(props: { search: string }) {
+/* export async function SearchQueryComponentTab(props: { search: string }) {
   const results = await safeAsync(() => doQuery({ ...props, searchParams: {} }))
   if (results.error) console.error(results.error)
   if (!results.data) return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata</>} hidden />
-  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null}</>} hidden={results.data.all_count === 0} />
+  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br />{results.data.all_count ? BigInt(results.data.all_count).toLocaleString() : null }</>} hidden={results.data.all_count === 0} />
+} */
+
+export async function SearchQueryComponentTab(props: { search: string }) {
+  //const results = await safeAsync(() => doQuery({ ...props, searchParams: {} }))
+  //if (results.error) console.error(results.error)
+  //if (!results.data) return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata</>} hidden />
+  return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata<br /></>}  />
 }
 
 export async function SearchQueryComponent(props: PageProps) {
     const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
 
-    const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
-    
+    //const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
+    const filterClause = generateFilterQueryString(searchParams, main_table);
+
     // this is for filters count limit, passed to various filters for lazy loading
     const maxCount = 1000; 
     try {
@@ -223,7 +256,8 @@ export async function SearchQueryComponent(props: PageProps) {
           const SearchHashFileName = generateMD5Hash(concatenatedString);
           const qString_clean = sanitizeFilename(qString, '__');
           
-          console.log("Total count of results (after filterclause but before allres_filtered_maxrow_limit): ", results?.all_count);
+          console.log("Total count of results (after filterclause but before allres_filtered_maxrow_limit): all_count: ", results?.all_count);
+          console.log("Count: count: ", results?.count);
           console.log("Elapsed time for DB queries: ", t1 - t0, " milliseconds");
           
           // const t4: number = performance.now();
@@ -234,7 +268,7 @@ export async function SearchQueryComponent(props: PageProps) {
             <>Project Name</>,
             //<>Description</>,
             <>Attributes</>,
-            <>Assets</>
+            //<>Assets</>
             //<>Rank</>
           ];
           const tableRows = results ? results.records.map((res, index) => ({
@@ -289,21 +323,34 @@ export async function SearchQueryComponent(props: PageProps) {
                   </>
                 )}
                 {res.data_type_name !== "Unspecified" && (
+                <>
+                <span>Data type: </span>
+                <Link href={res.data_type.startsWith("ILX") || res.data_type.startsWith("ILX_")
+                      ? `https://scicrunch.org/scicrunch/interlex/view/${res.data_type}`
+                      : `http://edamontology.org/${res.data_type}`
+                 } target="_blank">
+                 <i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i>
+                 </Link>
+                 <br />
+                 </>
+                )}
+
+                {res.assay_type_name !== "Unspecified" && (
                   <>
-                    <span>Data type: </span>
-                    <Link href={`http://edamontology.org/${res.data_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.data_type_name)}</u></i></Link>
+                    <span>Assay type: </span>
+                    <Link href={`http://purl.obolibrary.org/obo/${res.assay_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.assay_type_name)}</u></i></Link>
                     <br />
                   </>
                 )}
               </>
             ),
-            assets: (
+            /* assets: (
               <>
                 Subjects: {res.count_sub}<br />
                 Biosamples: {res.count_bios}<br />
                 Collections: {res.count_col}<br />
               </>
-            )
+            ) */
           })) : [];
           
           
@@ -316,35 +363,39 @@ export async function SearchQueryComponent(props: PageProps) {
               filters={
                 <>
                   <React.Suspense fallback={<>Loading..</>}>
-                    <DiseaseFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <DiseaseFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <TaxonomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <TaxonomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <AnatomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <AnatomyFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <GeneFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <GeneFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <ProteinFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <ProteinFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <CompoundFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <CompoundFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <DataTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount}/>
+                    <DataTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   <React.Suspense fallback={<>Loading..</>}>
-                    <DCCFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} />
+                    <AssayTypeFilterComponent q={searchParams.q ??''} filterClause={filterClause}  maxCount = {maxCount} main_table = {main_table} />
+                  </React.Suspense>
+                  <hr className="m-2" />
+                  <React.Suspense fallback={<>Loading..</>}>
+                    <DCCFilterComponent q={searchParams.q ??''} filterClause={filterClause} maxCount = {maxCount} main_table = {main_table} />
                   </React.Suspense>
                   <hr className="m-2" />
                   
@@ -352,7 +403,7 @@ export async function SearchQueryComponent(props: PageProps) {
               }
               footer={
                 <>
-                <Link href="/data">
+                {/* <Link href="/data">
                   <Button
                     sx={{ textTransform: "uppercase", marginRight: '16px' }}
                     color="primary"
@@ -360,16 +411,16 @@ export async function SearchQueryComponent(props: PageProps) {
                     startIcon={<Icon path={mdiArrowLeft} size={1} />}>
                     BACK TO SEARCH
                   </Button>
-                </Link>
-                <DownloadButton 
-                data={results?.records_full} 
-                filename={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
-                name='DOWNLOAD ALL' 
-                />
+                </Link> */}
+                {/* <DownloadAllButton
+                  apiEndpoint={apiEndpoint}
+                  filename={"CFDEC2M2MainSearchTable_ALL_" + qString_clean + "_" + SearchHashFileName + ".json"} // Optional: Specify a filename
+                  name="DOWNLOAD ALL"   // Optional: Specify a button name
+                  q={searchParams.q ?? ''}
+                  t={searchParams.t}
+                /> */}
                 </>
               }
-              data={results?.records_full}
-              downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
             >
               {/* Search tags are part of SearchablePagedTable. No need to send the selectedFilters as string instead we send searchParams.t*/}
               <C2M2MainSearchTable
@@ -383,6 +434,7 @@ export async function SearchQueryComponent(props: PageProps) {
                 tablePrefix="C2M2MainSearchTbl"
                 data={results?.records}
                 downloadFileName={"CFDEC2M2MainSearchTable_" + qString_clean + "_" + SearchHashFileName + ".json"}
+                apiEndpoint={apiEndpoint}
               />
 
             </ListingPageLayout>
@@ -420,3 +472,144 @@ export async function SearchQueryComponent(props: PageProps) {
   // https://ucsd-sslab.ngrok.app/data/processed/search?q=parkinson&p=1&s=c2m2&t=taxonomy%3AHomo+sapiens
   // Issue fixed by changing ncbi_taxonomy to taxonomy in utils.ts in function generateFilterQueryString
   //
+
+/*
+// Keeping a copy of original CTE parts for allres_full and allres
+    WITH allres_full AS (
+      SELECT  c2m2.ffl_biosample_collection.*,
+        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) as "rank"
+        FROM c2m2.ffl_biosample_collection
+        WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        ORDER BY rank DESC,  dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name  , subject_local_id, biosample_local_id, collection_local_id
+        LIMIT ${allres_filtered_maxrow_limit}     
+    ),
+    allres AS (
+      SELECT 
+        allres_full.rank AS rank,
+        allres_full.dcc_name AS dcc_name,
+        allres_full.dcc_abbreviation AS dcc_abbreviation,
+        SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
+        COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+        COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+        REPLACE(allres_full.disease, ':', '_') AS disease,
+        COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+        REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+        COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+        allres_full.gene AS gene,
+        COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+        allres_full.protein AS protein,
+        COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+        allres_full.substance_compound AS compound,
+        COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+        REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+        COALESCE(allres_full.project_name, 
+          concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+        c2m2.project.description AS project_description,
+        allres_full.project_persistent_id as project_persistent_id,
+        COUNT(*)::INT AS count,
+        COUNT(DISTINCT biosample_local_id)::INT AS count_bios, 
+        COUNT(DISTINCT subject_local_id)::INT AS count_sub, 
+        COUNT(DISTINCT collection_local_id)::INT AS count_col
+      FROM allres_full 
+      LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
+        allres_full.project_local_id = c2m2.project.local_id) 
+      /* LEFT JOIN c2m2.project_data_type ON (allres_full.project_id_namespace = c2m2.project_data_type.project_id_namespace AND 
+        allres_full.project_local_id = c2m2.project_data_type.project_local_id) keep for some time */
+      /*** GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id, 
+        disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
+        data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id 
+      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+        protein_name, compound_name, data_type_name
+    ),
+
+*/  
+
+/*
+--- Write script to generate count_bios by aggregating bios_array which is varchar[]
+
+ChatGPT questions:
+  In postgres, how to convert array of varchar to set of varchar to remove duplicates.
+  In postgres, how to aggregate over varchar[] to produce another varchar[] without duplicates.
+
+select project_name, disease_name, ncbi_taxonomy_name, anatomy_name, assay_type_name, bios_array from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587';
+
+SELECT group_id, ARRAY_AGG(DISTINCT element ORDER BY element) AS unique_names_array
+FROM (
+    SELECT group_id, unnest(names_array) AS element
+    FROM my_table
+) AS unnested_elements
+GROUP BY group_id;
+
+SELECT group_column, string_agg(name, ',,') AS concatenated_names
+FROM my_table
+GROUP BY group_column;
+
+SELECT array_to_string(name_array, ',,') AS concatenated_names
+FROM my_table;
+
+
+select project_name, disease_name, ncbi_taxonomy_name, anatomy_name, assay_type_name, 
+  string_agg(array_to_string(bios_array, ',,'), ',,') as bios_array_combined from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587'
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name, anatomy_name, assay_type_name;
+
+--- Exclude anatomy_name
+select project_name, disease_name, ncbi_taxonomy_name,
+  string_agg(array_to_string(bios_array, ',,'), ',,') as bios_array_combined from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587'
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- Operate on the array directly: DID NOT WORK
+  SELECT group_column, array_agg(DISTINCT unnest(name_array)) AS aggregated_array
+FROM my_table
+GROUP BY group_column;
+--- did not work, needs a subquery
+select project_name, disease_name, ncbi_taxonomy_name,
+  array_agg(DISTINCT unnest(bios_array)) as bios_array_combined from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587'
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+Corrected code by ChatGPT:
+WITH unnested_bios AS (
+    SELECT project_name, disease_name, ncbi_taxonomy_name, unnest(bios_array) AS bios_element
+    FROM c2m2.ffl_biosample_collection_cmp
+    WHERE project_local_id = 'PR000587'
+)
+SELECT project_name, disease_name, ncbi_taxonomy_name,
+       array_agg(DISTINCT bios_element) AS bios_array_combined
+FROM unnested_bios
+GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- count
+WITH unnested_bios AS (
+    SELECT project_name, disease_name, ncbi_taxonomy_name, unnest(bios_array) AS bios_element
+    FROM c2m2.ffl_biosample_collection_cmp    WHERE project_local_id = 'PR000587'
+) 
+SELECT project_name, disease_name, ncbi_taxonomy_name,
+       count(DISTINCT bios_element) AS count_bios_combined
+FROM unnested_bios GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+
+
+
+array_length(string_to_array(my_string, ','), 1)
+
+select project_name, disease_name, ncbi_taxonomy_name,
+  array_length(string_to_array(string_agg(bios_array, ',')','), 1) as bios_array_combined from 
+  c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587'
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- This worked, but seems to take time
+SELECT project_name, disease_name, ncbi_taxonomy_name, COUNT(distinct biosample_local_id) AS unique_element_count
+from (
+  select project_name, disease_name, ncbi_taxonomy_name, unnest(bios_array) as biosample_local_id
+  from c2m2.ffl_biosample_collection_cmp where project_local_id = 'PR000587') as allres_exp
+  GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+
+*/

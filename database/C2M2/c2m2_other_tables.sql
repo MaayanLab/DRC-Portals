@@ -8,22 +8,23 @@ psql -h localhost -U drc -d drc -p [5432|5433] -a -f c2m2_other_tables.sql
 --- This script generates other tables from the basic c2m2 tables (or other tables)
 
 -------------------------------------------------------------------------------
---- project_data_type
+--- project_data_type: include assay_type as well since both data_type and assay_type are coming from the
+--- c2m2.file table.
 DROP TABLE IF EXISTS c2m2.project_data_type;
 CREATE TABLE c2m2.project_data_type as (
 select distinct
-    tmp.project_id_namespace, tmp.project_local_id, c2m2.data_type.id as data_type_id, 
-    c2m2.data_type.name as data_type_name, c2m2.data_type.description as data_type_description
+    tmp.project_id_namespace, tmp.project_local_id, 
+    c2m2.data_type.id as data_type_id, c2m2.data_type.name as data_type_name, 
+    c2m2.data_type.description as data_type_description,
+    c2m2.assay_type.id as assay_type_id, c2m2.assay_type.name as assay_type_name, 
+    c2m2.assay_type.description as assay_type_description
 from 
-    (select distinct c2m2.file.project_id_namespace, c2m2.file.project_local_id,
-    c2m2.file.data_type from 
-    c2m2.project 
-    left join c2m2.file
-        on (c2m2.project.local_id = c2m2.file.project_local_id and
-        c2m2.project.id_namespace = c2m2.file.project_id_namespace)
+    (select distinct project_id_namespace, project_local_id, data_type, assay_type from c2m2.file
     ) tmp
     left join c2m2.data_type
         on (tmp.data_type = c2m2.data_type.id)
+    left join c2m2.assay_type
+        on (tmp.assay_type = c2m2.assay_type.id)
 );
 
 DO $$ 
@@ -37,6 +38,7 @@ select count(*) from c2m2.project_data_type;
 -------------------------------------------------------------------------------
 --- Union of file_describes_collection and file_in_collection for ease of a single query
 --- Specify column names explicitly
+
 
 DROP TABLE IF EXISTS c2m2.file_describes_in_collection;
 CREATE TABLE c2m2.file_describes_in_collection as (

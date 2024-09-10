@@ -130,10 +130,10 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
         const category = categories[0];
 
         return (
-            <Grid container spacing={2} direction="column">
+            <Grid container spacing={0} direction="column">
                 {category && (
                     <Grid item xs={12}>
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ mb: 0 , borderBottom: "none" }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
                                     {category.title + " (Uniform Columns) Count: " + countCol}

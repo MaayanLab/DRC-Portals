@@ -90,10 +90,10 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     const [selectedRows, setSelectedRows] = useState<RowType[]>([]); // Use the RowType
 
 
-    useEffect(() => {
-        // Clear the selectedRows state whenever the page or rows change
-        setSelectedRows([]);
-    }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
+    // useEffect(() => {
+    //     // Clear the selectedRows state whenever the page or rows change
+    //     setSelectedRows([]);
+    // }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
     
 
     const handleCheckboxChange = (row: RowType) => { // Use the RowType
@@ -129,13 +129,12 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
             }
             <Grid item xs={12} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
                 <Stack spacing={1}>
-                    {(props.q || props.t) &&
+                    {/* {(props.q || props.t) &&
                         <Box display="inline-block">
                             <TagComponent q={props.q} t={props.t} />
                         </Box>
-                    }
-                    <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
-
+                    } */}
+                    
                     <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
                             <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
@@ -206,6 +205,8 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             </Table>
                         )}
                     </TableContainer>
+                    <FormPagination p={props.p} r={props.r} count={props.count} tablePrefix={props.tablePrefix} />
+
                 </Stack>
             </Grid>
         </Grid>

@@ -278,7 +278,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
                 // ${t.entity_type.replace(/'/g, "''")} is not needed: ${t.entity_type} is enough.
                 const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name', 
                 'ncbi_taxonomy_name', 'anatomy_name', 'gene_name', 'protein_name', 'compound_name', 
-                'data_type_name'];
+                'data_type_name', 'assay_type_name'];
                 //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
                 if (t.entity_type !== "Unspecified") { // was using "null"
                     //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
@@ -324,7 +324,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
             
             const valid_colnames: string[] = ['dcc', 'disease', 
                 'taxonomy', 'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
-                'data_type'];
+                'data_type', 'assay_type'];
                 
           if (t.entity_type !== "Unspecified") { // was using "null"
             //typeFilters[t.type].push(`"${tablename}"."${t.type}_name" = '${t.entity_type}'`);
@@ -356,8 +356,60 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
     return filterConditionStr;
   }
 
-  
 
+
+export function generateFilterClauseFromtParam(t: { type: string; entity_type: string | null; }[] | undefined, tablename: string): SQL {
+    let filters = [] as SQL[];
+  
+    if (t) {
+      const typeFilters: { [key: string]: SQL[] } = {};
+  
+      t.forEach((item) => {
+        if (!typeFilters[item.type]) {
+          typeFilters[item.type] = [];
+        }
+        if (item.entity_type) {
+  
+            const valid_colnames: string[] = ['dcc', 'disease', 
+                'taxonomy', 'ncbi_taxonomy', 'anatomy', 'gene', 'protein', 'compound', 
+                'data_type', 'assay_type'];
+                
+            if (item.entity_type !== "Unspecified") {
+                typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" = ${item.entity_type}`);
+            } else {
+                if(tablename == 'allres'){
+                    typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" = 'Unspecified'`);
+                } else{
+                    typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" is null`);
+                }
+            }
+        }
+      });
+  
+      for (const type in typeFilters) {
+        if (Object.prototype.hasOwnProperty.call(typeFilters, type)) {
+          filters.push(SQL.template`(${SQL.join(' OR ', ...typeFilters[type])})`);
+        }
+      }
+    }
+    
+    const filterConditionStr = filters.length ? SQL.join(' AND ', ...filters) : SQL.empty();
+  
+    return filterConditionStr;
+}
+
+  
+  // Define your Zod schema
+  export const searchParamsSchema = z.object({
+    q: z.union([z.array(z.string()).transform(arr => arr.join(' ')), z.string(), z.undefined()]),
+    t: z.string().optional(),
+    et: z.string().optional(),
+    // Define other fields based on your requirements
+  });
+  
+  // Create a type from the schema
+  export type SearchParamsType = z.infer<typeof searchParamsSchema>;
+  
 
 const dccAbbrTable: { [key: string]: string } = {
     "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
