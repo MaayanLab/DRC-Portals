@@ -48,13 +48,10 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   };
 
   return (
-    <Grid container justifyContent={"center"} sx={{ paddingTop: 5, paddingBottom: 5 }} spacing={2}>
+    <Grid container justifyContent={"center"} spacing={2}>
       <Grid item container xs={12} spacing={2}>
         <Grid item xs={12} sm={props.filters ? 9 : 12}>
           {props.children}
-          <Grid item xs={12}>
-            {/*<DownloadButton data={props.data} filename={props.downloadFileName}/>*/}
-          </Grid>
         </Grid>
 
         {props.filters && (
