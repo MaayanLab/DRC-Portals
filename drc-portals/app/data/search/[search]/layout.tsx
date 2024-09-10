@@ -1,7 +1,7 @@
 import React from "react";
 import SearchTabs from "../tabs";
 import { redirect } from "next/navigation";
-import AllSearchPages from '@/app/data/processed/search/AllSearchPages'
+import AllSearchPages from '@/app/data/search/AllSearchPages'
 import { SearchQueryComponentTab as C2M2SearchQueryComponentTab} from '@/app/data/c2m2/search/SearchQueryComponent'
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
@@ -21,7 +21,7 @@ export default function Page(props: React.PropsWithChildren<{ params: { search: 
       <React.Suspense fallback={<FancyTab id='c2m2' label={<>Cross-Cut Metadata Model</>} priority={Infinity} loading />}>
         <C2M2SearchQueryComponentTab search={decodeURIComponent(props.params.search)} />
       </React.Suspense>
-      <React.Suspense fallback={<FancyTab id='all' label={<>Processed Data</>} loading />}>
+      <React.Suspense fallback={<FancyTab id='processed' label={<>Processed Data</>} loading />}>
         <AllSearchPages search={decodeURIComponent(props.params.search)} />
       </React.Suspense>
       {props.children}

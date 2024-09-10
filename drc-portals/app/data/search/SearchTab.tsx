@@ -3,14 +3,14 @@
 import React from 'react'
 import { useSearchParams } from "next/navigation"
 import { NodeType } from '@prisma/client'
-import { pluralize, type_to_string } from '../utils'
+import { pluralize, type_to_string } from '@/app/data/processed/utils'
 import { useRouter } from 'next/navigation'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 
 export default function SearchTabs(props: React.PropsWithChildren<{
   type_counts: {
-    type: NodeType | 'all' | 'c2m2';
+    type: NodeType | 'processed' | 'c2m2';
     entity_type: string | null;
     count: number;
   }[],

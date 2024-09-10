@@ -12,7 +12,7 @@ const TweetC = z.object({
           screen_name: z.string(),
           profile_image_url_https: z.string(),
         }),
-        profile_image_shape: z.enum(["Circle"]),
+        profile_image_shape: z.string(),//z.enum(["Circle", "Square"]),
       }),
     }),
   }),
@@ -39,22 +39,22 @@ const TweetC = z.object({
           large: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
           medium: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
           small: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
           thumb: z.object({
             h: z.number(),
             w: z.number(),
-            resize: z.enum(['fit', 'crop']),
+            resize: z.string(),//z.enum(['fit', 'crop']),
           }),
         }),
       })).optional(),
@@ -145,7 +145,7 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
   }
   elements.sort((a, b) => a.start - b.start)
   // display it all
-  return <div>{elements.map(el => <React.Fragment key={el.start}>{el.element}</React.Fragment>)}</div>
+  return <div>{elements.map((el, i) => <React.Fragment key={i}>{el.element}</React.Fragment>)}</div>
 }
 
 export default async function TwitterFromCache(props: { screenName: string }) {
@@ -159,7 +159,10 @@ export default async function TwitterFromCache(props: { screenName: string }) {
   })
   if (!record?.value) return null
   const tweets = TweetsC.safeParse(record.value)
-  if (!tweets.success) { console.error(JSON.stringify({TwitterFromCacheError: tweets.error})) }
+  if (!tweets.success) {
+    console.error(JSON.stringify({TwitterFromCacheError: tweets.error}))
+    return null
+  }
   return (
     <div className="flex flex-col border rounded-lg overflow-hidden text-sm">
       <div className="flex flex-row border-b my-2 p-2 justify-between items-center">
@@ -171,10 +174,10 @@ export default async function TwitterFromCache(props: { screenName: string }) {
       <div className="flex flex-col overflow-y-auto">
         {!tweets.success ? (
           <div>Couldn't load twitter feed at this time, try again later.</div>
-        ) : tweets.data.map(tweet => {
+        ) : tweets.data.map((tweet, i) => {
           const actual_tweet = tweet.retweeted_tweet ? tweet.retweeted_tweet : tweet
           return (
-            <div key={tweet.legacy.id_str} className="flex flex-col">
+            <div key={i} className="flex flex-col">
               {tweet.retweeted_tweet ?
                 <div className="flex flex-row gap-2 ml-8">
                   <svg viewBox="0 0 24 24" aria-hidden="true" className="w-4 stroke-gray-300"><g><path d="M4.75 3.79l4.603 4.3-1.706 1.82L6 8.38v7.37c0 .97.784 1.75 1.75 1.75H13V20H7.75c-2.347 0-4.25-1.9-4.25-4.25V8.38L1.853 9.91.147 8.09l4.603-4.3zm11.5 2.71H11V4h5.25c2.347 0 4.25 1.9 4.25 4.25v7.37l1.647-1.53 1.706 1.82-4.603 4.3-4.603-4.3 1.706-1.82L18 15.62V8.25c0-.97-.784-1.75-1.75-1.75z"></path></g></svg>

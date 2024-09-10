@@ -151,7 +151,7 @@ def entity_page_fair(entityPageExample, link):
                 if x.ok:
                     fairshake_head_request_support = 1
         example_term = find_between_r(template_url, '%7B', '%7D' ) 
-        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', '')
+        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', 'thisstringshouldhopefullynotmatchanything')
         if requests.head(missing_element_url).status_code == 404:
             fairshake_return_404 = 1
         check_url_templated = re.search("^.*%7B.*%7D.*$", template_url)
@@ -206,8 +206,8 @@ def api_fair(row):
         try:
             api_response = requests.get(smartapi_link).json()
             metadata = api_response['info']
-            if 'contact' in metadata and 'email' in metadata['contact']:
-                fairshake_contact = 1 if metadata['contact']['email'] != '' else 0
+            if 'contact' in metadata:
+                fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
             if 'license' in metadata and 'name' in metadata['license']:
                 fairshake_license = 1 if metadata['license']['name'] != '' else 0
                 return {"Documented with OpenAPI": fairshake_openapi,
@@ -405,6 +405,7 @@ def c2m2_fair(directory):
     
 
 def xmt_fair(xmt_path, row):
+    """Run FAIR Assessment for a XMT file asset given its filepath and database row"""
     # initialize fairshake variables
     fairshake_drs = 1
     fairshake_persistent = 0
@@ -438,6 +439,7 @@ def xmt_fair(xmt_path, row):
           
 
 def attribute_tables_fair(attr_table_path, row):
+    """Run FAIR Assessment for an Attribute table file asset given its filepath and database row"""
     # initialize fairshake variables
     fairshake_drs = 1
     fairshake_persistent = 0
@@ -469,6 +471,7 @@ def attribute_tables_fair(attr_table_path, row):
 
 
 def kg_assertions_fair(assertions_extract_path):
+    """Run FAIR Assessment for a KG Assertions file asset given its filepath and database row"""
     # initialize fairshake metric variables
     fairshake_drs = 1
     fairshake_persistent = 0
