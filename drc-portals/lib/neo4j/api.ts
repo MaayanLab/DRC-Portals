@@ -2,7 +2,7 @@ const GRAPH_API_PREFIX = "/data/c2m2/graph/api";
 
 export const fetchAllNodeRels = (nodeId: string, hubLabel: string) =>
   fetch(
-    `${GRAPH_API_PREFIX}/all-rels?node_id=${nodeId}&hub_label=${hubLabel}`,
+    `${GRAPH_API_PREFIX}/rels/all?node_id=${nodeId}&hub_label=${hubLabel}`,
     {
       method: "GET",
       headers: {
@@ -60,7 +60,7 @@ export const fetchSearch = (
 
 export const fetchPathSearch = (query: string, cypherParams: string) =>
   fetch(
-    `${GRAPH_API_PREFIX}/path-search?q=${query}&cy_params=${cypherParams}`,
+    `${GRAPH_API_PREFIX}/search/path?q=${query}&cy_params=${cypherParams}`,
     {
       method: "GET",
       headers: {
