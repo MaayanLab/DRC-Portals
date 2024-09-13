@@ -1,4 +1,3 @@
-version: '3'
 services:
   neo4j:
     image: neo4j:5.22.0-enterprise-bullseye
@@ -8,13 +7,13 @@ services:
       - 7474:7474
       - 7687:7687
     volumes:
-      - ./import:/import
+      - ./data:/data
       - ./logs:/logs
       - ./plugins:/plugins
-      - ./data:/data
     environment:
       - USERNAME
       - PASSWORD
+      - DB_ADDRESS
       - NEO4J_AUTH
       - GRAPH_C2M2_DBNAME
       - GRAPH_C2M2_READER_USERNAME

@@ -1,0 +1,41 @@
+services:
+  neo4j:
+    image: neo4j:5.22.0-enterprise-bullseye
+    container_name: drc-portals-neo4j-prod
+    restart: unless-stopped
+    ports:
+      - 7473:7473
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./data:/data
+      - ./logs:/logs
+      - ./plugins:/plugins
+      - ./certificates:/certificates
+    environment:
+      - USERNAME
+      - PASSWORD
+      - DB_ADDRESS
+      - NEO4J_AUTH
+      - GRAPH_C2M2_DBNAME
+      - GRAPH_C2M2_READER_USERNAME
+      - GRAPH_C2M2_READER_PASSWORD
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_dbms_cypher_lenient__create__relationship=true
+      - NEO4J_db_transaction_timeout=30s
+      - NEO4J_db_lock_acquisition_timeout=30s
+      - NEO4J_db_memory_transaction_max=25mB
+      - NEO4J_dbms_ssl_policy_bolt_enabled=true
+      - NEO4J_dbms_ssl_policy_bolt_base__directory=/certificates/bolt
+      - NEO4J_dbms_ssl_policy_bolt_private__key=neo4j.key
+      - NEO4J_dbms_ssl_policy_bolt_public__certificate=neo4j.cert
+      - NEO4J_dbms_ssl_policy_bolt_client_auth=NONE
+      - NEO4J_server_bolt_tls__level=REQUIRED
+      - NEO4J_server_https_enabled=true
+      - NEO4J_server_http_enabled=false
+      - NEO4J_dbms_ssl_policy_https_enabled=true
+      - NEO4J_dbms_ssl_policy_https_base__directory=/certificates/https
+      - NEO4J_dbms_ssl_policy_https_private__key=neo4j.key
+      - NEO4J_dbms_ssl_policy_https_public__certificate=neo4j.cert
+      - NEO4J_dbms_ssl_policy_https_client_auth=NONE
+      - NEO4JLABS_PLUGINS=["apoc"]

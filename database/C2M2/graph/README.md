@@ -12,7 +12,7 @@
 - [Import the Data Into Neo4j](#import-the-data-into-neo4j)
   - [Optional Read: The `/import` Volume](#optional-read-the-import-volume)
   - [Run the Load Process](#run-the-load-process)
-  - [Optional: Run Graph Revisions](#optional-run-graph-revisions)
+  - [Stop the Load Container and Start Dev/Prod](#stop-the-load-container-and-start-devprod)
 
 ## Prerequisites
 
@@ -41,6 +41,7 @@ In case the example file does not exist, refer to the following to create a new 
 USERNAME=
 PASSWORD=
 NEO4J_AUTH=
+DB_ADDRESS=
 GRAPH_C2M2_DBNAME=
 GRAPH_C2M2_READER_USERNAME=
 GRAPH_C2M2_READER_PASSWORD=
@@ -76,17 +77,15 @@ Note that this script _will_ fail if:
 
 ## Create the Neo4j Container
 
-After you have created the Cypher scripts and exported the C2M2 data from Postgres, you can start the Neo4j container and begin the import process. To start the container, simply run:
+After you have created the Cypher scripts and exported the C2M2 data from Postgres, you can start the Neo4j container and begin the import process. There is a docker-compose file specifically for running the import process, called `docker-compose.load.yaml`. To start the container, simply run:
 
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.load.yaml up -d
 ```
 
 The `-d` in the command above means to run the container in "detached" mode, essentially meaning the container will run in the background.
 
-Note that the current docker-compose file attempts to use a named volume called `drc-portals-neo4j-data`. If this volume does not exist, it will be created. Otherwise it will be mounted to the `/var/lib/neo4j/data` directory inside the container.
-
-Also keep in mind that the docker-compose file requires the presence of an `.env` file in the same directoryu containing the Neo4j user auth details.
+Also keep in mind that the docker-compose file requires the presence of an `.env` file in the same directory containing the Neo4j user auth details.
 
 To check the status of the container after starting it, use:
 
@@ -97,34 +96,23 @@ docker ps
 If you'd like to check the logs of the container, you can run:
 
 ```bash
-docker logs --follow drc-portals-neo4j
+docker logs --follow drc-portals-neo4j-load
 ```
 
 ## Import the Data Into Neo4j
 
 ### Optional Read: The `/import` Volume
 
-It is important to note that the container has a second volume mount: `/import`. We mount the `./import` directory located in this project to the `/import` directory in the Neo4j container. This allows us to easily "copy" the Postgres data and import scripts into the container, while simultaneously allowing us to edit those files in the host and have changes mirrored in the container. This can be handy for debugging or ad-hoc adjustments.
+It is important to note that the container has a volume mount: `/import`. We mount the `./import` directory located in this project to the `/import` directory in the Neo4j container. This allows us to easily "copy" the Postgres data and import scripts into the container, while simultaneously allowing us to edit those files in the host and have changes mirrored in the container. This can be handy for debugging or ad-hoc adjustments.
 
 It is _highly_ recommended that you do not set any volume mount to the default Neo4j home directories. Suffice to say, the Neo4j container does some strange things with file permissions when host directories are mounted to the default container directories. If you want to create additional volumes (e.g., for logs or configs), it is strongly recommended to mount those directories to the root of the container, e.g. `/logs`, `/config` etc.
-
-### Temporarily Unset Transaction Timeouts
-
-In the `docker-compose.yml` file, note the following two configurations for Neo4j:
-
-```yaml
-- NEO4J_db_transaction_timeout=2m
-- NEO4J_db_lock_acquisition_timeout=2m
-```
-
-Before continuing, you will need to temporarily comment out these configurations, or increase the timeout. Several of the import transactions take longer than the current setting of two minutes, which will result in the transaction prematurely terminating. Once the load is finished you can stop the container with `docker-compose down`, reset the configurations, and start it again with `docker-compose up -d`. This will restart the container with the reset configuration values.
 
 ### Run the Load Process
 
 To begin the process of loading the C2M2 data we exported from Postgres into Neo4j, simply run:
 
 ```bash
-docker exec drc-portals-neo4j /import/load.sh
+docker exec drc-portals-neo4j-load /import/load.sh
 ```
 
 This will run the `load.sh` script _inside_ the Neo4j container. You should see some output detailing the progress of the script. Be aware that this process may take a while.
@@ -133,20 +121,22 @@ Once the script has finished, you will have a fully loaded C2M2 graph! The Neo4j
 
 ```bash
 $ source .env
-$ docker exec -it drc-portals-neo4j cypher-shell -p $PASSWORD -u $USERNAME
+$ docker exec -it drc-portals-neo4j-load cypher-shell -p $PASSWORD -u $USERNAME
 neo4j@neo4j> MATCH (p:Project) RETURN p.name LIMIT 25;
 ```
 
 To exit `cypher-shell`, simply enter the `:quit` command.
 
-### Optional: Run Graph Revisions
+### Stop the Load Container and Start Dev/Prod
 
-The `apply_revisions.sh` script executes several Cypher files which update the graph with supplementary nodes/relationships which do not naturally exist in the C2M2 model. The current revisions are:
-
-- The addition of Synonym nodes and HAS_SYNONYM relationships, and a full text index for searching them. This is incredibly useful for implementing efficient and accurate term-based search.
-
-To run the revisions script, simply run:
+Once the load process is complete, you may stop the container. You can do so by running:
 
 ```bash
-docker exec drc-portals-neo4j /import/apply-revisions.sh
+docker-compose -f docker-compose.load.yaml down
+```
+
+There are two docker-compose files specifically for local development and production, `docker-compose.dev.yaml` and `docker-compose.prod.yaml` respectively. They both contain several configurations which should always be enabled, e.g. transaction timeouts and maximum memory. The production compose file has several more configurations related to enabling SSL. You can start the services described in either by running:
+
+```bash
+docker-compose -f <filename> up -d
 ```
