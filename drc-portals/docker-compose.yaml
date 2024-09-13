@@ -3,21 +3,28 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.7.12
+    image: maayanlab/drc-portal:0.10.27
+    deploy:
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 512M
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30
+      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30
       - PUBLIC_URL=https://cfde.cloud
       - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
-      - NEXTAUTH_GITHUB
-      - NEXTAUTH_GOOGLE
-      - NEXTAUTH_ORCID
-      - NEXTAUTH_GLOBUS
+      # - NEXTAUTH_GITHUB
+      # - NEXTAUTH_GOOGLE
+      # - NEXTAUTH_ORCID
+      # - NEXTAUTH_GLOBUS
+      - NEXTAUTH_KEYCLOAK
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT
@@ -30,7 +37,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:1.0.0-4
+    image: maayanlab/drc-portal-dev:0.10.0-17
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -38,12 +45,15 @@ services:
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
-      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30
+      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30
       - PUBLIC_URL=https://dev.cfde.cloud
       - NEXTAUTH_URL=https://dev.cfde.cloud/auth
       - NEXTAUTH_SECRET
       - NEXTAUTH_EMAIL
+      # - NEXTAUTH_GITHUB
+      # - NEXTAUTH_GOOGLE
+      # - NEXTAUTH_GLOBUS
       - NEXTAUTH_KEYCLOAK
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
@@ -85,7 +95,7 @@ services:
       annotations:
         maayanlab.cloud/ingress: https://cfde.cloud
         nginx.ingress.kubernetes.io/enable-cors: 'true'
-        nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,Accept,X-CSRF-Token,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc,'
         nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
     ports:
       - 80:80
@@ -111,6 +121,12 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 512M
+    shm_size: 1Gb
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
@@ -124,6 +140,7 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+    shm_size: 1Gb
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
@@ -136,7 +153,7 @@ services:
   drc-portal-backup:
     build: ../database/backup
     platform: linux/amd64
-    image: maayanlab/drc-portal-postgres-backup:0.1.1
+    image: maayanlab/drc-portal-postgres-backup:0.2.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       restartPolicy: Never
@@ -192,10 +209,16 @@ services:
     # volumes:
     #   - ../auth/themes/drc-portal:/opt/keycloak/themes/drc-portal/
 
+  # drc-portal-ingest:
+  #   build: ../database
+  #   image: maayanlab/drc-portal-ingest:0.9.0
+  #   deploy:
+  #     replicas: 0
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:
-      size: 40Gi
+      size: 100Gi
       class: gp2
 
   drc-portal-postgres-2:

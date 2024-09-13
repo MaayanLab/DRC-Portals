@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import {pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon, Description } from "@/app/data/processed/SearchablePagedTable";
@@ -38,12 +38,22 @@ export default async function Page(props: PageProps) {
     count: number,
   }>>`
     with items as (
+      select *
+      from ${searchParams.q ? Prisma.sql`websearch_to_tsquery('english', ${searchParams.q}) q,` : Prisma.empty} "node"
+      where "node"."type" = 'gene_set'
+      ${searchParams.q ? Prisma.sql`
+      and q @@ "node"."searchable"
+      ` : Prisma.empty}
+      order by "node"."pagerank" desc
+      offset ${offset}
+      limit 100
+    ), paginated_items as (
       select
         "gene_set_node"."id",
         jsonb_build_object(
-          'type', node."type",
-          'label', node."label",
-          'description', node."description",
+          'type', items."type",
+          'label', items."label",
+          'description', items."description",
           'dcc', (
             select jsonb_build_object(
               'short_label', short_label,
@@ -51,21 +61,11 @@ export default async function Page(props: PageProps) {
               'icon', icon
             )
             from "dccs"
-            where "node"."dcc_id" = "dccs"."id"
+            where "items"."dcc_id" = "dccs"."id"
           )
         ) as node
-      from "gene_set_node"
-      inner join "node" on "node"."id" = "gene_set_node"."id"
-      ${searchParams.q ? Prisma.sql`
-        where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
-      ` : Prisma.sql`
-        order by "gene_set_node"."id"
-      `}
-    ), paginated_items as (
-      select *
       from items
-      offset ${offset}
+      inner join "gene_set_node" on "items"."id" = "gene_set_node"."id"
       limit ${limit}
     )
     select
@@ -80,14 +80,15 @@ export default async function Page(props: PageProps) {
   if (error) console.error(error)
   return (
     <ListingPageLayout
-      count={results?.count ?? 0}
+      count={results?.count??0}
+      maxCount={100}
     >
       <SearchablePagedTable
         label={`${type_to_string('gene_set', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.count ?? 0}
+        count={(results?.count??0)+offset}
         columns={[
           <>&nbsp;</>,
           <>Label</>,

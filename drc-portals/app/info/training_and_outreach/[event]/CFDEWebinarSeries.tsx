@@ -13,7 +13,7 @@ import { Grid,
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import prisma from "@/lib/prisma";
 import { OutreachWithDCC } from "@/components/misc/Outreach";
-import Link from "next/link";
+import Link from "@/utils/link";
 
 import Icon from '@mdi/react';
 import { mdiYoutube, mdiClipboardEditOutline } from "@mdi/js"
@@ -90,6 +90,9 @@ const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 							REGISTER FOR WEBINAR
 						</Button>
 					</Link>
+					<Typography  sx={{marginTop: 2}}>
+						{webinar.short_description}
+					</Typography>
 				</Stack>
 			</Grid>
 			<Grid item xs={12} sm={6}>

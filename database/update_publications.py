@@ -76,30 +76,30 @@ for i, val in df.iterrows():
             partnership_id = partnership_mapper[partnership]
             partnership_publication_df.loc[pind] = [uid, partnership_mapper[partnership]]
             pind += 1
-publication_file = "publication_files/%s_publication.tsv"%now
-dcc_publication_file = "publication_files/%s_dcc_publication.tsv"%now
-partnership_publication_file = "publication_files/%s_partnership_publication.tsv"%now
+publication_file = "publication_files/%s_publications.tsv"%now
+dcc_publication_file = "publication_files/%s_dcc_publications.tsv"%now
+partnership_publication_file = "publication_files/%s_partnership_publications.tsv"%now
 publication_df[[i for i in publication_df.columns if i != "id"]].to_csv(publication_file, sep="\t", header=True, quoting=csv.QUOTE_NONE, index_label="id")
 dcc_publication_df.to_csv(dcc_publication_file, sep="\t", header=True, index=None)
 partnership_publication_df.to_csv(partnership_publication_file, sep="\t", header=True, index=None)
 
 print("Uploading to s3")
 
-filename = publication_file.replace('publication_files', 'database/publication_files')
+filename = publication_file.replace('publication_files', 'database/files')
 print(filename)
 upload_file(publication_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(publication_file, bucket, filename)
 
-filename = dcc_publication_file.replace('publication_files', 'database/publication_files')
+filename = dcc_publication_file.replace('publication_files', 'database/files')
 print(filename)
 upload_file(dcc_publication_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(dcc_publication_file, bucket, filename)
 
-filename = partnership_publication_file.replace('publication_files', 'database/publication_files')
+filename = partnership_publication_file.replace('publication_files', 'database/files')
 print(filename)
 upload_file(partnership_publication_file, bucket, filename)
 filename = filename.replace(now, "current")

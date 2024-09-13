@@ -1,18 +1,27 @@
 'use client'
 import React from 'react'
-import Link from 'next/link'
+import Link from '@/utils/link'
 import Typography from '@mui/material/Typography'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 
-import {usePathname} from 'next/navigation'
+import usePathname from '@/utils/pathname'
 import { type_to_string } from '@/app/data/processed/utils'
 
 export default function NavBreadcrumbs() {
     const path = usePathname()
-    const {path_split, format_path_split} = React.useMemo(() => {
-        const path_split = path.replace("/", "").split("/")
+    const { path_split, format_path_split } = React.useMemo(() => {
+        let path_split = path.replace("/", "").split("/")
         const format_path_split = path_split.map(p => decodeURIComponent(p).replace('_', ' '))
         if (path_split[0] === 'data' && path_split[1] === 'processed') {
+            format_path_split[1] = type_to_string(decodeURIComponent(path_split[1]), null)
+            if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', decodeURIComponent(path_split[3]))
+            if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), null)
+        }
+        if (path_split[0] === 'data' && path_split[1] === 'search') {
+            if (path_split[3] === 'entity' && path_split[4]) format_path_split[4] = type_to_string('entity', decodeURIComponent(path_split[4]))
+            if (path_split[3]) format_path_split[3] = type_to_string(decodeURIComponent(path_split[3]), null)
+        }
+        if (path_split[0] === 'search') {
             if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', decodeURIComponent(path_split[3]))
             if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), null)
         }
@@ -30,13 +39,17 @@ export default function NavBreadcrumbs() {
     if (path_split.length < 2) return null
     return (
         <Breadcrumbs aria-label="breadcrumb" separator="›">
-            {format_path_split.map((p,i)=>(
-                <Link 
-                    key={i}
-                    href={`/${path_split.slice(0, i+1).join("/")}`}
-                >
-                    <Typography variant='caption' sx={{textTransform: 'uppercase'}} color={i===path_split.length-1 ? 'secondary': 'inherit'}>{p}</Typography>
-                </Link>
+            {format_path_split.map((p, i) => (
+                i === path_split.length - 1 ? (
+                    <Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p}</Typography> // leaf node breadcrumb not clickable
+                ) : (
+                    <Link
+                        key={i}
+                        href={`/${path_split.slice(0, i + 1).join("/")}`}
+                    >
+                        <Typography variant='caption' sx={{ textTransform: 'uppercase' }} color='inherit'>{p}</Typography>
+                    </Link>
+                )
             ))}
         </Breadcrumbs>
     )

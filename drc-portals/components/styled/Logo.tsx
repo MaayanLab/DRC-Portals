@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/utils/link';
 import Typography from '@mui/material/Typography'
 import { ElevatedIconButton } from "./Buttons";
 export const Logo = ({title, color, size, href}: {title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large", href:"/info"|"/data"}) => (

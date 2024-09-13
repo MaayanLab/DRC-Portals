@@ -4,15 +4,15 @@
  */
 import PWBButton from "@/app/data/processed/PWBButton";
 import G2SGButton from "./G2SGButton";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { cache } from "react";
 
 const getGeneSet = cache(async (id: string) => (
-  await prisma.geneSetNode.findUniqueOrThrow({
+  await prisma.geneSetNode.findUnique({
     where: { id },
     select: { genes: { select: { entity: { select: { node: { select: { label: true } } } } } } }
   })
-).genes.map(r => r.entity.node.label))
+)?.genes.map(r => r.entity.node.label))
 
 const modules: {
   compatible: (item: { id: string, node: { label: string; description: string; } }) => boolean,

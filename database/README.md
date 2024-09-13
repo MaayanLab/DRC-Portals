@@ -6,6 +6,10 @@ You must first start and migrate the database (see [DRC Portal Dev Guide](../drc
 
 ```bash
 # provision the primary database, mandatory and required before all other scripts
+# May have to get updated file/folders for migrations if files on S3 have a different set of columns (see ingest_common.py)
+
+# Be in the folder database
+
 python ingestion.py
 
 # much slower, for production or when developing with those features, can be omitted until necessary
@@ -28,6 +32,16 @@ python ingestion.py
 
 # for more extensive cache removal (i.e. with the processed data portal files), typically shouldn't be necessary
 rm -r ingest
-pyhon ingestion.py
-# .. and other scripts above
+python ingestion.py
+```
+
+### To populate C2M2 related tables, go to the subfolder C2M2 (database/C2M2) and follow through the README.md file there.
+
+## Running FAIR Assessment 
+
+Update the DCCAssets.tsv, FileAssets.tsv and CodeAssets.tsv file paths in the ingest_commmon.py script to contain all the currently uploaded assets. Running these files should perform the fair assessments:
+```bash
+# FAIR assessment of current code and file assets
+python fair_assessment/assess_fair.py
+
 ```

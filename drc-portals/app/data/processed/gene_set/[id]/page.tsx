@@ -1,6 +1,6 @@
 import React from 'react'
-import prisma from "@/lib/prisma"
-import Link from "next/link"
+import prisma from "@/lib/prisma/slow"
+import Link from "@/utils/link"
 import { format_description, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
@@ -9,10 +9,11 @@ import { cache } from "react";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import modules from "./modules";
+import { notFound } from 'next/navigation';
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
+const getItem = cache((id: string) => prisma.geneSetNode.findUnique({
   where: {
     id,
   },
@@ -54,6 +55,7 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUniqueOrThrow({
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('gene_set', null)
   const item = await getItem(props.params.id)
+  if (!item) return {}
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
@@ -72,7 +74,8 @@ export default async function Page(props: PageProps) {
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const gene_set = await getItem(props.params.id)
-  const genes = await prisma.geneSetNode.findUniqueOrThrow({
+  if (!gene_set) return notFound()
+  const genes = await prisma.geneSetNode.findUnique({
     where: {
       id: props.params.id,
     },
@@ -117,6 +120,7 @@ export default async function Page(props: PageProps) {
       },
     }
   })
+  if (!genes) return notFound()
   return (
     <LandingPageLayout
       icon={gene_set.node.dcc?.icon ? { href: `/info/dcc/${gene_set.node.dcc.short_label}`, src: gene_set.node.dcc.icon, alt: gene_set.node.dcc.label } : undefined}

@@ -14,6 +14,7 @@ from ingest_common import (
   tools_path,
   dcc_usecase_path,
   usecase_path,
+  news_path,
 )
 
 cur = connection.cursor()
@@ -175,9 +176,9 @@ with open(outreach_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into outreach (id, title, short_description, description, tags, featured,active,
+    insert into outreach (id, title, short_description, description, tags, agenda, featured,active,
        start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer)
-      select id, title, short_description, description, tags, featured,active,
+      select id, title, short_description, description, tags, agenda, featured,active,
        start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer
       from outreach_tmp
       on conflict (id)
@@ -187,6 +188,7 @@ cur.execute('''
             short_description = excluded.short_description,
             description = excluded.description,
             tags = excluded.tags,
+            agenda = excluded.agenda,
             featured = excluded.featured,
             active = excluded.active,
             start_date = excluded.start_date,
@@ -202,6 +204,7 @@ cur.execute('''
   ''')
 cur.execute('drop table outreach_tmp;')
 connection.commit()
+
 
 cur = connection.cursor()
 cur.execute('''
@@ -464,5 +467,36 @@ cur.execute('''
 cur.execute('drop table code_assets_tmp;')
 connection.commit()
 
+## news
+
+cur.execute('''
+  create table news_tmp
+  as table news
+  with no data;
+''')
+
+with open(news_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
+    cur.copy_from(fr, 'news_tmp',
+      columns=columns,
+      null='',
+      sep='\t',
+    )
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+    insert into news (%s)
+      select %s
+      from news_tmp
+      on conflict (id)
+        do update
+        set %s
+    ;
+  '''%(column_string, column_string, set_string))
+cur.execute('drop table news_tmp;')
+
+
 cur.close()
 connection.close()
+
+print("Done")

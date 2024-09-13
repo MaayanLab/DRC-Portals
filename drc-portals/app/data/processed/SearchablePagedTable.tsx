@@ -1,8 +1,8 @@
 import React from "react"
 import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
 import FormPagination from "./FormPagination"
-import SearchField from "./SearchField"
-import Link from "next/link"
+import { SearchForm, SearchField } from './SearchField'
+import Link from "@/utils/link"
 import Image, { StaticImageData } from "next/image"
 import { NodeType } from "@prisma/client"
 import { type_to_color, type_to_string } from "./utils"
@@ -53,6 +53,7 @@ export function SearchablePagedTableCellIcon(props: {
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
   q: string, p: number, r: number, count?: number,
+  loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
@@ -62,9 +63,9 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <form action="" method="GET">
+          <SearchForm>
             <SearchField q={props.q} placeholder={`Search ${props.label}`} />
-          </form>
+          </SearchForm>
         </Stack>
       </Grid>
       }
@@ -85,7 +86,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 <TableBody>
                   {props.rows.length === 0 ? <TableRow>
                     <TableCell colSpan={props.columns.length} align="center">
-                      No results satisfy the query and filters
+                      {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
                     </TableCell>
                   </TableRow> :
                     props.rows.map((row, i) => (

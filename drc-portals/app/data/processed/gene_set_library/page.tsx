@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { pluralize, type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon, Description } from "@/app/data/processed/SearchablePagedTable";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
@@ -49,6 +49,11 @@ export default async function Page(props: PageProps) {
               },
             },
           },
+        },
+      },
+      orderBy: {
+        node: {
+          pagerank: 'desc',
         },
       },
       skip: offset,

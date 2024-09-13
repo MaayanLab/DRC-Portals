@@ -11,7 +11,7 @@ import { Box, TableFooter, TablePagination, TableSortLabel } from '@mui/material
 import ApprovalBtn from './ApprovalBtn';
 import { FileRow } from './collapsibleFileInfo';
 import CurrentBtn from './CurrentBtn';
-import type { DccAsset, FileAsset, CodeAsset } from '@prisma/client'
+import type { DccAsset, FileAsset, CodeAsset, FairAssessment } from '@prisma/client'
 import { visuallyHidden } from '@mui/utils';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
@@ -160,6 +160,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         <TableHead>
             <TableRow>
                 <TableCell></TableCell>
+                <TableCell></TableCell>
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
@@ -267,10 +268,10 @@ export function PaginatedTable({ userFiles, role }: {
         } | null;
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
+        fairAssessments: FairAssessment[];
         assetType: string | null;
-    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY"
+    } & DccAsset)[], role: "DCC_APPROVER" | "UPLOADER" | "DRC_APPROVER" | "ADMIN" | "READONLY", 
 }) {
-
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [order, setOrder] = React.useState<Order>('desc');
@@ -283,6 +284,7 @@ export function PaginatedTable({ userFiles, role }: {
         } | null;
         fileAsset: FileAsset | null;
         codeAsset: CodeAsset | null;
+        fairAssessments: FairAssessment[];
         assetType: string | null;
     } & DccAsset)[]>([])
 
@@ -351,8 +353,12 @@ export function PaginatedTable({ userFiles, role }: {
             if (userFile.dccapproved) {
                 approvedSymboldcc = <ApprovedSymbol />
             }
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments[0]
+            }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} />
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment} />
             )
         })
     } else if (role === 'DCC_APPROVER') {
@@ -363,7 +369,10 @@ export function PaginatedTable({ userFiles, role }: {
             if (userFile.drcapproved) {
                 approvedSymbol = <ApprovedSymbol />
             }
-            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role}/>)
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments[0]
+            }            return (<FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>)
         })
     } else { // if readonly role or uploader
         symbolUserFiles = debouncedSortedData.map((userFile) => {
@@ -379,8 +388,12 @@ export function PaginatedTable({ userFiles, role }: {
             if (userFile.current) {
                 currentSymbol =  <ApprovedSymbol />
             }
+            let fairAssessment; 
+            if (userFile.fairAssessments.length > 0) {
+                fairAssessment = userFile.fairAssessments[0]
+            }
             return (
-                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role}/>
+                <FileRow userFile={userFile} approvedSymboldcc={approvedSymboldcc} approvedSymbol={approvedSymbol} currentSymbol={currentSymbol} role={role} fairAssessment={fairAssessment}/>
             )
         })
     }
@@ -398,7 +411,7 @@ export function PaginatedTable({ userFiles, role }: {
                     onInput={(e) => setQueryString((e.target as HTMLFormElement).value)}
                 />
             </Search>
-            <Table sx={{ minWidth: 650}} aria-label="uploaded files">
+            <Table sx={{ maxWidth: '100%'}} aria-label="uploaded files">
                 <EnhancedTableHead
                     order={order}
                     orderBy={orderBy}
@@ -411,7 +424,7 @@ export function PaginatedTable({ userFiles, role }: {
                     <TableRow>
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={8}
+                            colSpan={10}
                             count={copyUserFiles.length}
                             rowsPerPage={rowsPerPage}
                             page={page}

@@ -2,13 +2,39 @@ import Image from "next/image"
 import Typography from "@mui/material/Typography"
 import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
-import Link from "next/link"
+import Link from "@/utils/link"
 import prisma from "@/lib/prisma"
 export default async function ServerCarousel () {
+    const now = new Date()
     const outreach = await prisma.outreach.findMany({
         where: {
           active: true,
-          carousel: true
+          carousel: true,
+          AND: [
+            // date filters
+            {
+              OR: [
+                {
+                  end_date: {
+                    gte: now
+                  }
+                },
+                {
+                  end_date: null,
+                  start_date: {
+                    gte: now
+                  }
+                },
+                {
+                  application_start: {
+                    gte: now
+                  },
+                  end_date: null,
+                  start_date: null,
+                },
+              ]
+            },
+          ]
         },
         orderBy: {
           start_date: { sort: 'asc', nulls: 'last' },

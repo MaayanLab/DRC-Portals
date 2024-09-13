@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import Link from 'next/link';
+import Link from '@/utils/link';
 import Image from 'next/image';
 import { Button } from '@mui/material';
 

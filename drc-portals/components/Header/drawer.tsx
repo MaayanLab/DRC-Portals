@@ -1,6 +1,6 @@
 'use client'
 import { useState } from "react"
-import Link from "next/link";
+import Link from "@/utils/link";
 import { Button, Stack, Divider, Typography } from "@mui/material"
 import Drawer from '@mui/material/Drawer';
 import { useTheme } from '@mui/material/styles';
@@ -14,7 +14,6 @@ export const DRCDrawer = ({path, nav, session}: {path: "/info"| "/data", nav: Ar
 	const [open, setOpen] = useState(false)
 	const theme = useTheme();
   	const matches = useMediaQuery(theme.breakpoints.up('sm'));
-	console.log(open, "open")
 	return (
 		<>
 			<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>

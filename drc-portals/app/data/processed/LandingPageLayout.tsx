@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react"
 import { Grid, Stack, Typography } from "@mui/material"
-import Link from "next/link"
+import Link from "@/utils/link"
 import Image from "next/image"
 
 export default function LandingPageLayout(props: React.PropsWithChildren<{

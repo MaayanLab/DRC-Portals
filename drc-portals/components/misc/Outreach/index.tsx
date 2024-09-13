@@ -1,5 +1,5 @@
 import React from "react"
-import Link from "next/link"
+import Link from "@/utils/link"
 import Image from "next/image"
 import Divider from '@mui/material/Divider'
 import Card from '@mui/material/Card'
@@ -206,7 +206,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
 
 const type_tags = (type: string) => {
   if (type === "training") return ["fellowship", "workshop", "internship", "course", "training program"]
-  else if (type === "outreach") return ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon"]
+  else if (type === "outreach") return ["webinar", "office hours", "face to face meeting", "competition", "conference", "use-a-thon", "hackathon", "symposium"]
   else return []
 }
 
@@ -223,7 +223,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
 }) {
     const now = new Date()
     
-    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: true, status: ['active', 'recurring', 'past'], cfde_specific: true})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
     const {tags, type, expand_filter, status=[], cfde_specific} = parsedParams
     let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]): [...type_tags('outreach'), ...type_tags('training')]

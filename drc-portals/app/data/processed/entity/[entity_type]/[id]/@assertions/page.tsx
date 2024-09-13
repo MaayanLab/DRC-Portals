@@ -1,13 +1,14 @@
-import prisma from "@/lib/prisma"
-import { useSanitizedSearchParams } from "@/app/data/processed/utils";
+import prisma from "@/lib/prisma/slow"
+import { human_readable, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
+import { safeAsync } from "@/utils/safe";
 
 export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const [results] = await prisma.$queryRaw<Array<{
+  const { data: [results] = [], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     assertions: {
       id: string,
       evidence: Prisma.JsonValue,
@@ -35,10 +36,11 @@ export default async function Page(props: { params: { entity_type: string, id: s
       select *
       from kg_assertion_f
     ${searchParams.q ? Prisma.sql`
+        , websearch_to_tsquery('english', ${searchParams.q}) q
       where
-      "kg_assertion_f"."source_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
-      or "kg_assertion_f"."target_id" in (select id from "node" where "node"."type" = 'entity' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
-      or "kg_assertion_f"."relation_id" in (select id from "node" where "node"."type" = 'kg_relation' and "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q}))
+      "kg_assertion_f"."source_id" in (select id from "node" where "node"."type" = 'entity' and q @@ "node"."searchable")
+      or "kg_assertion_f"."target_id" in (select id from "node" where "node"."type" = 'entity' and q @@ "node"."searchable")
+      or "kg_assertion_f"."relation_id" in (select id from "node" where "node"."type" = 'kg_relation' and q @@ "node"."searchable")
     ` : Prisma.empty}
     ), kg_assertion_fsp as (
       select
@@ -91,8 +93,9 @@ export default async function Page(props: { params: { entity_type: string, id: s
       (select coalesce(jsonb_agg(kg_assertion_fsp.*), '[]'::jsonb) from kg_assertion_fsp) as assertions,
       (select coalesce(count(kg_assertion_fs.*), 0)::int as count from kg_assertion_fs) as n_filtered_assertions,
       (select coalesce(count(kg_assertion_f.*), 0)::int as count from kg_assertion_f) as n_assertions
-  `
-  if (results.n_assertions === 0) return null
+  `)
+  if (error) console.error(error)
+  if (!results?.n_assertions) return null
   return (
     <SearchablePagedTable
       label="Knowledge Graph Assertions"
@@ -110,7 +113,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
       rows={results.assertions.map(assertion => [
         assertion.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
         <LinkedTypedNode type="entity" entity_type={assertion.source.type} id={assertion.source.id} focus={assertion.source.id === props.params.id} label={assertion.source.label} />,
-        <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={assertion.relation.label} search={searchParams.q ?? ''} />,
+        <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={human_readable(assertion.relation.label)} search={searchParams.q ?? ''} />,
         <LinkedTypedNode type="entity" entity_type={assertion.target.type} id={assertion.target.id} focus={assertion.target.id === props.params.id} label={assertion.target.label} />,
         assertion.evidence?.toString(),
       ])}

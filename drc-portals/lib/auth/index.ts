@@ -9,8 +9,10 @@ import ORCIDProvider from '@/lib/auth/providers/orcid'
 import GlobusProvider from '@/lib/auth/providers/globus'
 import type { OAuthConfig } from 'next-auth/providers/index'
 import PrismaAdapterEx from './adapters/prisma'
+import { Adapter } from 'next-auth/adapters'
 import { Role } from '@prisma/client'
-
+import { z } from 'zod'
+import { keycloak_pull } from './keycloak'
 
 declare module 'next-auth' {
   interface Session {
@@ -88,7 +90,7 @@ const providers = [
   process.env.NEXTAUTH_GOOGLE ? GoogleProvider(JSON.parse(process.env.NEXTAUTH_GOOGLE)) : undefined,
   process.env.NEXTAUTH_ORCID ? ORCIDProvider(JSON.parse(process.env.NEXTAUTH_ORCID)) : undefined,
   process.env.NEXTAUTH_GLOBUS ? GlobusProvider(JSON.parse(process.env.NEXTAUTH_GLOBUS)) : undefined,
-  process.env.NEXTAUTH_EMAIL ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
+  process.env.NEXTAUTH_EMAIL && !process.env.NEXTAUTH_KEYCLOAK ? EmailProvider(JSON.parse(process.env.NEXTAUTH_EMAIL)) : undefined,
 ].filter((v): v is OAuthConfig<any> => v !== undefined)
 
 const useSecureCookies = !!process.env.NEXTAUTH_URL?.startsWith("https://")
@@ -96,7 +98,7 @@ const cookiePrefix = useSecureCookies ? "__Secure-" : ""
 const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'cfde.cloud'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapterEx(),
+  adapter: PrismaAdapterEx() as Adapter,
   providers,
   session: { strategy: 'jwt' },
   callbacks: {
@@ -104,27 +106,48 @@ export const authOptions: NextAuthOptions = {
       if (account) {
         // Persist the OAuth access_token and or the user id to the token right after signin
         token.id = user?.id
+        token.provider = account.provider
+        token.accessToken = account.access_token
+        if (![
+          process.env.NODE_ENV === 'development' ? 'credentials' : '_',
+          process.env.NEXTAUTH_KEYCLOAK ? 'keycloak' : '_',
+          process.env.NEXTAUTH_GITHUB ? 'github' : '_',
+          process.env.NEXTAUTH_GOOGLE ? 'google' : '_',
+          process.env.NEXTAUTH_ORCID ? 'orcid' : '_',
+          process.env.NEXTAUTH_GLOBUS ? 'globus' : '_',
+          process.env.NEXTAUTH_EMAIL && !process.env.NEXTAUTH_KEYCLOAK ? 'email' : '_',
+        ].includes(token.provider as string)) return {}
       }
       return token
     },
     async session({ session, token }) {
-      // session.accessToken = token.accessToken
       const id = token.sub ?? token.id
       if (typeof id !== 'string') throw new Error('Missing user id')
       session.user.id = id
-      const userInfo = await prisma.user.findUniqueOrThrow({
-        where: { id },
-        select: {
-          name: true,
-          email: true,
-          role: true,
-          dccs: {
-            select: {
-              short_label: true,
+      if (![
+        process.env.NODE_ENV === 'development' ? 'credentials' : '_',
+        process.env.NEXTAUTH_KEYCLOAK ? 'keycloak' : '_',
+        process.env.NEXTAUTH_GITHUB ? 'github' : '_',
+        process.env.NEXTAUTH_GOOGLE ? 'google' : '_',
+        process.env.NEXTAUTH_ORCID ? 'orcid' : '_',
+        process.env.NEXTAUTH_GLOBUS ? 'globus' : '_',
+        process.env.NEXTAUTH_EMAIL && !process.env.NEXTAUTH_KEYCLOAK ? 'email' : '_',
+      ].includes(token.provider as string)) throw new Error('Unsupported provider')
+      const userInfo = token.provider === 'keycloak' ?
+        await keycloak_pull({ id, userAccessToken: z.string().parse(token.accessToken) })
+        : await prisma.user.findUniqueOrThrow({
+          where: { id },
+          select: {
+            name: true,
+            email: true,
+            role: true,
+            dccs: {
+              select: {
+                short_label: true,
+              },
             },
           },
-        },
-      })
+        })
       session.user.name = userInfo.name
       session.user.role = userInfo.role
       session.user.email = userInfo.email

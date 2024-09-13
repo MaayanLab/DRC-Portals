@@ -8,8 +8,11 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   footer?: React.ReactNode,
 }>) {
   return (
-    <Grid container justifyContent={"center"} sx={{paddingTop: 5, paddingBottom: 5}} spacing={2}>
+    <Grid container justifyContent={"center"} spacing={2}>
       <Grid item container xs={12} spacing={2}>
+        <Grid item xs={12} sm={props.filters ? 9 : 12}>
+          {props.children}
+        </Grid>
         { props.filters &&
           <Grid item xs={12} sm={3}>
             <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px" }} elevation={0}>
@@ -25,9 +28,6 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
             </Paper>
           </Grid>
         }
-        <Grid item xs={12} sm={props.filters ? 9 : 12}>
-          {props.children}
-        </Grid>
       </Grid>
       <Grid item xs={12}>
         {props.footer}

@@ -2,6 +2,7 @@ import React from "react"
 import { format_description, type_to_string } from "@/app/data/processed/utils";
 import LandingPageLayout from "@/app/data/processed/LandingPageLayout";
 import { getItem } from './item'
+import { notFound } from "next/navigation";
 
 export default async function Layout(props: {
   children: React.ReactNode,
@@ -11,6 +12,7 @@ export default async function Layout(props: {
   params: { entity_type: string, id: string },
 }) {
   const item = await getItem(props.params.id)
+  if (!item) return notFound()
   return (
     <LandingPageLayout
       title={item.node.label}

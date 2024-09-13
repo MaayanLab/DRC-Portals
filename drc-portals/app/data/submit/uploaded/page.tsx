@@ -35,6 +35,12 @@ export default async function UserFiles() {
                     },
                     fileAsset: true,
                     codeAsset: true,
+                    fairAssessments: {
+                        orderBy: {
+                            timestamp: 'desc',
+                        },
+                        take: 1,
+                    }
                 }
             },
             dccs: true
@@ -93,6 +99,12 @@ export default async function UserFiles() {
             },
             fileAsset: true,
             codeAsset: true,
+            fairAssessments: {
+                orderBy: {
+                    timestamp: 'desc',
+                },
+                take: 1,
+            }
         },
         where: {
             ...((user.role === 'DCC_APPROVER') || (user.role === 'READONLY')  ? {
@@ -154,7 +166,7 @@ export default async function UserFiles() {
                     <Container className="justify-content-center">
                         <Typography variant="h3" color="secondary.dark" className='p-5'>UPLOADED ASSETS</Typography>
                         {headerText}
-                        <PaginatedTable userFiles={userFiles} role={user.role} />
+                        <PaginatedTable userFiles={userFiles} role={user.role}/>
                     </Container>
                 </Grid>
             </Grid>

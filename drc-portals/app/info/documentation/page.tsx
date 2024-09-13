@@ -158,6 +158,17 @@ export default function Standards() {
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
+          <StyledAccordion >
+            <StyledAccordionSummary >
+                <Typography fontWeight="bold">Web Specifications</Typography>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails >
+              <Typography sx={{m:2}} color="#666666">
+                The CFDE Workbench is built using Next.js, Material UI, and Tailwind CSS. Design Specifications for this site's user interface can be found <Link
+                href="/info/specs" rel="noopener" color="#3470e5">here</Link>.
+              </Typography>
+            </StyledAccordionDetails>
+          </StyledAccordion>
       </Grid>
     </Grid>   
   )

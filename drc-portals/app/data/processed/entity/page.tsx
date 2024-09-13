@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma/slow";
 import { type_to_string, pluralize, useSanitizedSearchParams } from "@/app/data/processed/utils";
 import { NodeType, Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
@@ -34,26 +34,27 @@ export default async function Page(props: PageProps) {
     count: number,
   }>>`
     with items as (
-      select
-        "entity_node"."id",
-        "entity_node"."type",
-        jsonb_build_object(
-          'type', node."type",
-          'label', node."label",
-          'description', node."description"
-        ) as node
-      from "entity_node"
-      inner join "node" on "node"."id" = "entity_node"."id"
-      ${searchParams.q ? Prisma.sql`
-        where "node"."searchable" @@ websearch_to_tsquery('english', ${searchParams.q})
-        order by ts_rank_cd("node"."searchable", websearch_to_tsquery('english', ${searchParams.q})) desc
-      ` : Prisma.sql`
-        order by "entity_node"."id"
-      `}
-    ), paginated_items as (
       select *
-      from items
+      from 
+        ${searchParams.q ? Prisma.sql`websearch_to_tsquery('english', ${searchParams.q}) q,` : Prisma.empty}
+        "node"
+      where "node"."type" = 'entity'
+      ${searchParams.q ? Prisma.sql`
+      and q @@ "node"."searchable"
+      ` : Prisma.empty}
+      order by "node"."pagerank" desc
       offset ${offset}
+      limit 100
+    ), paginated_items as (
+      select
+        "items"."id",
+        "items"."entity_type",
+        jsonb_build_object(
+          'type', items."type",
+          'label', items."label",
+          'description', items."description"
+        ) as node
+      from "items"
       limit ${limit}
     )
     select
@@ -69,13 +70,14 @@ export default async function Page(props: PageProps) {
   return (
     <ListingPageLayout
       count={results?.count ?? 0}
+      maxCount={100}
     >
       <SearchablePagedTable
         label={`${type_to_string('entity', null)} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
-        count={results?.count ?? 0}
+        count={(results?.count??0)+offset}
         columns={[
           <>Label</>,
           <>Description</>,
