@@ -89,7 +89,7 @@ for filename in "${files[@]}"; do
     # Check if it's a file
     if [ -f "/import/cypher/$filename" ]; then
         printf '%s\n' "[$(date)] Loading file $filename..."
-        cypher-shell -p $PASSWORD -u $USERNAME -d $GRAPH_C2M2_DBNAME -f "/import/cypher/$filename"
+        cypher-shell -p $PASSWORD -u $USERNAME -d $GRAPH_C2M2_DBNAME -a $DB_ADDRESS -f "/import/cypher/$filename"
     fi
 done
 
@@ -98,7 +98,7 @@ printf '%s\n' "[$(date)] Applying revisions..."
 
 # Make sure the C2M2 database is read-only once the data has been written
 printf '%s\n' "[$(date)] Setting C2M2 database as read only..."
-cypher-shell -p $PASSWORD -u $USERNAME "ALTER DATABASE $GRAPH_C2M2_DBNAME SET ACCESS READ ONLY"
+cypher-shell -p $PASSWORD -u $USERNAME -a $DB_ADDRESS "ALTER DATABASE $GRAPH_C2M2_DBNAME SET ACCESS READ ONLY"
 
 # Create a read only user for the C2M2 database if it doesn't already exist
 printf '%s\n' "[$(date)] Creating C2M2 readonly user..."
