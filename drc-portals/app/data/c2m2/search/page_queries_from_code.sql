@@ -1,13 +1,13 @@
 WITH 
     allres AS (
-      SELECT /* No DISTINCT */
+      SELECT  DISTINCT 
         ts_rank_cd(searchable, websearch_to_tsquery('english', 'parkinson')) AS rank,
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
         SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
         COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
         COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) AS taxonomy_id,
+        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
         COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
         REPLACE(allres_full.disease, ':', '_') AS disease,
         COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
@@ -27,11 +27,13 @@ WITH
         allres_full.project_persistent_id AS project_persistent_id
       FROM c2m2."ffl_biosample_collection_cmp" AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', 'parkinson')
+      AND ("ffl_biosample_collection_cmp"."dcc_name" = "UCSD Metabolomics Workbench")
       ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
         protein_name, compound_name, data_type_name, assay_type_name
-      OFFSET 140
+      OFFSET 0
       LIMIT 100
     ),
+
     allres_filtered AS (
       SELECT allres.*, 
       concat_ws('', '/data/c2m2/record_info?q=', 'parkinson', '&t=', 'dcc_name:', allres.dcc_name, 
@@ -55,7 +57,6 @@ WITH
       FROM allres_filtered
       LIMIT 10
     )
+
 SELECT allres_limited.*, (SELECT count FROM filtered_count) AS filtered_count
 FROM allres_limited;
-
-
