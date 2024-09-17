@@ -7,8 +7,6 @@ localhost:3000/data if testing from your local instance
 
 Search: liver, filter: DCC/CF program: SPARC
 
-## Temporary note: All the URLs below need to be updated to reflect the latest change in the URL/folder structure around 07/18/2024
-
 http://localhost:3001/data/search/liver/c2m2?p=1&t=dcc%3AStimulating+Peripheral+Activity+to+Relieve+Conditions
 
 Select a row:
@@ -99,3 +97,42 @@ http://localhost:3000/data/search/atorvastatin/c2m2?p=1
 http://localhost:3000/data/c2m2/record_info?q=atorvastatin&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:Drugmonizome|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Unspecified|assay_type_name:Unspecified
 
 http://localhost:3000/data/c2m2/record_info?q=atorvastatin&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:kidney|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Unspecified|assay_type_name:Unspecified
+
+### Search: myeloid cell
+
+http://localhost:3000/data/search/myeloid%20cell/c2m2
+
+#### Apply filters anatomy: blood
+http://localhost:3000/data/search/myeloid%20cell/c2m2?t=anatomy%3Ablood&p=1
+
+#### Apply filter taxonomy Homo sapiens
+http://localhost:3000/data/search/myeloid%20cell/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens
+
+#### then disease cancer
+http://localhost:3000/data/search/myeloid%20cell/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cdisease%3Acancer
+
+#### Another set of filters:
+http://localhost:3000/data/search/myeloid%20cell/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cdisease%3Acancer%7Cdcc%3AThe+Gabriella+Miller+Kids+First+Pediatric+Research+Program
+
+#### Record info page:
+http://localhost:3000/data/c2m2/record_info?q=myeloid%20cell&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_46RR9ZR6|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Alignment|assay_type_name:exome%20sequencing%20assay
+
+
+### Search: COVID
+http://localhost:3000/data/search/covid/c2m2
+
+#### Apply species and DCC flter
+http://localhost:3000/data/search/covid/c2m2?t=ncbi_taxonomy%3AHomo+sapiens%7Cdcc%3AThe+Gabriella+Miller+Kids+First+Pediatric+Research+Program&p=1
+
+#### Record Info page:
+http://localhost:3000/data/c2m2/record_info?q=covid&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_FFVQ3T38|disease_name:COVID-19|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Data|assay_type_name:Unspecified
+
+### Search: throat cancer
+http://localhost:3000/data/search/throat%20cancer/c2m2
+
+### Filters and then Record Info  page:
+http://localhost:3000/data/search/throat%20cancer/c2m2?t=anatomy%3Asaliva&p=1
+
+http://localhost:3000/data/c2m2/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+
