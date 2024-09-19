@@ -15,7 +15,7 @@ python ingestion.py
 # much slower, for production or when developing with those features, can be omitted until necessary
 python ingest_dcc_assets.py
 python ingest_gmts.py
-python ingest_c2m2_files.py
+#python ingest_c2m2_files.py
 python ingest_kg.py
 ```
 
@@ -35,7 +35,9 @@ rm -r ingest
 python ingestion.py
 ```
 
-### To populate C2M2 related tables, go to the subfolder C2M2 (database/C2M2) and follow through the README.md file there.
+## Ingesting C2M2
+
+To populate C2M2 related tables, see [the C2M2 README.md](C2M2/README.md).
 
 ## Running FAIR Assessment 
 
