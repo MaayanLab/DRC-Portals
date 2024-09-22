@@ -26,9 +26,11 @@ with c2m2_file_helper.writer() as c2m2_file:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
+        print("c2m2['link'] object:"); print(c2m2['link']); ##
+
         if not c2m2_path.exists():
           import urllib.request
-          urllib.request.urlretrieve(c2m2['link'], c2m2_path)
+          urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path); # quote to handle space etc in the URL
         c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
         if not c2m2_extract_path.exists():
           with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:

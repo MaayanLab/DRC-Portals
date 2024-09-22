@@ -301,11 +301,11 @@ for dummy_x in [1]:
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
           import urllib.request
-          urllib.request.urlretrieve(c2m2['link'], c2m2_path)
+          urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path)
         c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
         if not c2m2_extract_path.exists():
           with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
-            print(f"Unpack zip file: c2m2_extract_path: {c2m2_extract_path}"); # Mano
+            print(f"Unpack zip file: c2m2_extract_path: <{c2m2_extract_path}>"); # Mano
             c2m2_zip.extractall(c2m2_extract_path)
 
         cqf.write(f"/* =============== DCC short label: {c2m2['dcc_short_label']} =============== */{newline}");
@@ -342,7 +342,7 @@ for dummy_x in [1]:
                     # Use subprocess to count lines in the file to cross-check
                     #numlines_in_file = int(subprocess.check_output("/usr/bin/wc -l " + table_str, shell=True).split()[0]);
                     gc.collect();
-                    numlines_in_file = int(subprocess.check_output("grep -c '' " + table_str, shell=True).split()[0]);
+                    numlines_in_file = int(subprocess.check_output("grep -c '' " + f'"{table_str}"', shell=True).split()[0]);
                     if(debug > 0): print(f"#Lines in file {table_str}: {numlines_in_file}");
 
                     if(numlines_in_file - df.shape[0] != 1):

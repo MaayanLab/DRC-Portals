@@ -7,6 +7,8 @@ from tqdm.auto import tqdm
 from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
+debug = 1;
+
 #%%
 dcc_assets = current_dcc_assets()
 
@@ -88,23 +90,38 @@ with kg_assertion_helper.writer() as kg_assertion:
           for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
             # assemble the full file path for the DCC's asset
             file_path = assertions_path/file['dcc_short_label']/file['filename']
+            if(debug >0):
+              print(f"file_path:{file_path}");
             file_path.parent.mkdir(parents=True, exist_ok=True)
             if not file_path.exists():
               import urllib.request
+              if(debug > 0):
+                print("file link:"); print(file['link']);
               urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
             # extract the KG Assertion bundle
-            assertions_extract_path = file_path.parent / file_path.stem
-            if not assertions_extract_path.exists():
-              with zipfile.ZipFile(file_path, 'r') as assertions_zip:
-                assertions_zip.extractall(assertions_extract_path)
+            if(debug > 0):
+              print(f'file_path.parent:{file_path.parent}, stem:{file_path.stem}, suffix:{file_path.suffix}');
+
+            # Process on zip files
+            if(file_path.suffix == '.zip'):
+              assertions_extract_path = file_path.parent / file_path.stem
+              if not assertions_extract_path.exists():
+                with zipfile.ZipFile(file_path, 'r') as assertions_zip:
+                  assertions_zip.extractall(assertions_extract_path)
+            else:
+              import pathlib;
+              assertions_extract_path = pathlib.Path('');
+              print("  Warning: not a zip file, will skip!");
+
             # capture all the nodes
             assertion_nodes = {}
+            # To list all tsv files: tsvf = [f for f in assertions_extract_path.glob("*.tsv")]
             for assertion_node_file in assertions_extract_path.glob('*.nodes.csv'):
               with assertion_node_file.open('r') as fr:
                 columns = next(fr).strip().split(',')
                 columns[0] = 'id'
                 assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
-                for assertion_node in tqdm(assertion_node_reader, desc=f"Processing {assertion_node_file.name}..."):
+                for assertion_node in tqdm(assertion_node_reader, desc=f"  Processing {assertion_node_file.name}..."):
                   # TODO: capture other metdata
                   assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
             # register all of the edges
@@ -112,7 +129,7 @@ with kg_assertion_helper.writer() as kg_assertion:
               with assertion_edge_file.open('r') as fr:
                 columns = next(fr).strip().split(',')
                 assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
-                for assertion in tqdm(assertion_edge_reader, desc=f"Processing {assertion_edge_file.name}..."):
+                for assertion in tqdm(assertion_edge_reader, desc=f"  Processing {assertion_edge_file.name}..."):
                   for ensure_source_id in assertion_nodes.get(assertion['source'], []):
                     for ensure_target_id in assertion_nodes.get(assertion['target'], []):
                       relation_id = str(uuid5(uuid0, '\t'.join((assertion['relation'],))))

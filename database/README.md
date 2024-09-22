@@ -35,9 +35,7 @@ rm -r ingest
 python ingestion.py
 ```
 
-## Ingesting C2M2
-
-To populate C2M2 related tables, see [the C2M2 README.md](C2M2/README.md).
+### To populate C2M2 related tables, see [the C2M2 README.md](C2M2/README.md).
 
 ## Running FAIR Assessment 
 

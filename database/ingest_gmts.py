@@ -34,7 +34,7 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                 gmt_path.parent.mkdir(parents=True, exist_ok=True)
                 if not gmt_path.exists():
                   import urllib.request
-                  urllib.request.urlretrieve(gmt['link'], gmt_path)
+                  urllib.request.urlretrieve(gmt['link'].replace(' ', '%20'), gmt_path)
                 #
                 gene_set_library_id = str(uuid5(uuid0, gmt['link']))
                 library_genes = set()
