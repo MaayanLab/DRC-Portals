@@ -127,7 +127,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         const t0: number = performance.now();
         const results = await prisma.$queryRaw<C2M2SearchResult[]>(query);
         const t1: number = performance.now();
-        console.log("Elapsed time for C2M2MainTableComponent queries: ", t1 - t0, " milliseconds");
+        console.log("------------- Elapsed time for C2M2MainTableComponent DB queries: ", t1 - t0, " milliseconds");
 
 
 
