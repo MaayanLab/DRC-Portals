@@ -202,8 +202,14 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
 } */
 
 export async function SearchQueryComponentTab(props: { search: string }) {
+
+  const t0: number = performance.now();
+
   // Call doQueryCount to get the count of records
   const results = await safeAsync(() => doQueryCount({ ...props, searchParams: {} }));
+
+  const t1: number = performance.now();
+  console.log("---- Elapsed time for C2M2 Tab count DB queries: ", t1 - t0, " milliseconds");
 
   // Error handling
   if (results.error) {
@@ -258,10 +264,14 @@ export async function SearchQueryComponent(props: PageProps) {
   const maxCount = 1000;
   try {
 
+    const t0: number = performance.now();
+
     // Call the doQueryTotalFilteredCount function and handle the result
     const qryCnt_res = await doQueryTotalFilteredCount(searchParams);
 
-
+    const t1: number = performance.now();
+    console.log("---- Elapsed time for filtered count DB queries: ", t1 - t0, " milliseconds");
+  
     console.log("LP filtered_count = " + qryCnt_res?.filtered_count);
 
 
