@@ -22,8 +22,9 @@ line2="Generated sql script ${opf} and made it executable for owner and group. T
 line3="\\i ${opf}"
 line4="OR, directly specify the sql file name in psql command:"
 line5="psql -h localhost -U drc -d drc -p 5432 -a -f ${opf}"
+line6="OR equivalwnt command if ingesting it is a DB on another server."
 
-all_lines="${line1}\n${line2}\n${line3}\n${line4}\n${line5}\n"
+all_lines="${line1}\n${line2}\n${line3}\n${line4}\n${line5}\n${line6}\n"
 echo -e "/*\n${all_lines}*/\n" > $opf;
 
 # /* \COPY biosample FROM '/home/mano/C2M2/latest/biosample_fromall.tsv' DELIMITER E'\t' CSV HEADER; */

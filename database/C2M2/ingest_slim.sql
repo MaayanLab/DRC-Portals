@@ -4,6 +4,7 @@ Generated sql script ingest_slim.sql and made it executable for owner and group.
 \i ingest_slim.sql
 OR, directly specify the sql file name in psql command:
 psql -h localhost -U drc -d drc -p 5432 -a -f ingest_slim.sql
+OR equivalwnt command if ingesting it is a DB on another server.
 */
 
 DROP SCHEMA IF EXISTS slim CASCADE;
