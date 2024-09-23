@@ -46,26 +46,16 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
     dcc_id: string,
     type: string,
     link: string,
-    rubric: Record<string, number>,
+    rubric: string,
     timestamp: string, // isoformat
   } = await python('assess_fair.assess_dcc_asset', {
     kargs: [
-      {
-        ...{...asset, created: asset.created.toISOString(), lastmodified: asset.lastmodified.toISOString()},
-        ...(fileAsset ? {...fileAsset, size: fileAsset.size?.toString()} : codeAsset ?? {})
-      },
+      {...asset, ...(fileAsset ?? codeAsset ?? {})},
     ],
   }, msg => {helpers.logger.debug(msg)})
   helpers.abortSignal?.throwIfAborted()
   helpers.logger.info(`Registering FAIR assessment for ${payload.link}...`)
   await prisma.fairAssessment.create({
-    data: {
-      id: assessment.id,
-      dcc_id: assessment.dcc_id,
-      type: assessment.type,
-      link: assessment.link,
-      rubric: assessment.rubric,
-      timestamp: new Date(assessment.timestamp),
-    },
+    data: assessment,
   })
 }

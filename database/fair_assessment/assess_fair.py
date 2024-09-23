@@ -94,7 +94,7 @@ def assess_dcc_asset(row):
         dcc_id=row['dcc_id'],
         type=asset_type,
         link=row['link'],
-        rubric=rubric,
+        rubric=json.dumps(rubric),
         timestamp=fair_timestamp.isoformat(),
     )
 
