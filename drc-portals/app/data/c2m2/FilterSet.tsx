@@ -137,7 +137,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
 
   return (
     <>
-      <Typography color="secondary" variant="h6">{filter_title}</Typography>
+      <Typography color="secondary" variant="body1">{filter_title}</Typography>
       {options.length > 0 && (
         <Autocomplete
           multiple
