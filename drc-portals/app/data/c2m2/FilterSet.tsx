@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip'; // Import Tooltip
 import { styled, lighten, darken } from '@mui/system';
 import { useRouter } from 'next/navigation';
+import { Typography } from '@mui/material';
 
 export type FilterObject = {
   id: string;
@@ -136,7 +137,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
 
   return (
     <>
-      <div>{filter_title}</div>
+      <Typography color="secondary" variant="h6">{filter_title}</Typography>
       {options.length > 0 && (
         <Autocomplete
           multiple
