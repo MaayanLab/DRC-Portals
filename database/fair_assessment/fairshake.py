@@ -26,6 +26,7 @@ from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
 from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
+import traceback
 import logging; logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
 
@@ -49,7 +50,7 @@ def check_repo_public(github_url):
         x = requests.head(github_url)
         return x.status_code == 200
     except KeyboardInterrupt: raise
-    except: pass
+    except: traceback.print_exc(file=sys.stderr)
     return False
   
 def get_repo_license(github_url):
@@ -64,7 +65,7 @@ def get_repo_license(github_url):
         data = response.json()
         return data['license']['name']
     except KeyboardInterrupt: raise
-    except: pass
+    except: traceback.print_exc(file=sys.stderr)
 
 def assess_metanode(metanode_name):
     """Run FAIR Assessment for a given PWB metanode given its name using the PWB components API endpoint."""
@@ -94,7 +95,7 @@ def assess_metanode(metanode_name):
             fairshake_cite_methods = None
         return  [fairshake_description, fairshake_cite_methods, fairshake_contact_info, fairshake_license, fairshake_persistent_url]
     except KeyboardInterrupt: raise
-    except: pass
+    except: traceback.print_exc(file=sys.stderr)
 
 
 def format_PWB_results(result):
@@ -159,14 +160,14 @@ def entity_page_fair(entityPageExample, link):
                 x.raise_for_status()
                 fairshake_head_request_support = 1
             except KeyboardInterrupt: raise
-            except: pass
+            except: traceback.print_exc(file=sys.stderr)
         example_term = find_between_r(template_url, '%7B', '%7D' ) 
         missing_element_url = template_url.replace('%7B' +example_term+ '%7D', 'thisstringshouldhopefullynotmatchanything')
         try:
             if requests.head(missing_element_url).status_code == 404:
                 fairshake_return_404 = 1
         except KeyboardInterrupt: raise
-        except: pass
+        except: traceback.print_exc(file=sys.stderr)
         check_url_templated = re.search("^.*%7B.*%7D.*$", template_url)
         if not(check_url_templated):
             check_url_templated = re.search("^.*{.*}.*$", template_url)
@@ -265,7 +266,7 @@ def apps_urls_fair(apps_url):
                     if 'description' in webpageObject: 
                         fairshake_description = 1
     except KeyboardInterrupt: raise
-    except: pass
+    except: traceback.print_exc(file=sys.stderr)
     rubric = {"Resource discovery through web search": fairshake_description,
             "Digital resource license": fairshake_license,
             "Persistent URL": fairshake_persistent_url}
@@ -297,7 +298,7 @@ def chatbot_specs_fair(chatbot_specs_url):
             else: fairshake_valid_openapi_link = 1
         fairshake_contact = 1 if 'contact_email' in chatbot_specs else 0
     except KeyboardInterrupt: raise
-    except: pass
+    except: traceback.print_exc(file=sys.stderr)
     split_url = urlsplit(chatbot_specs_url)
     try:
         webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
@@ -313,7 +314,7 @@ def chatbot_specs_fair(chatbot_specs_url):
             if ogp_req:
                 fairshake_ogp[index] = 1
     except KeyboardInterrupt: raise
-    except: pass
+    except: traceback.print_exc(file=sys.stderr)
     rubric = {"Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
               "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_valid_openapi_link, 
               "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
