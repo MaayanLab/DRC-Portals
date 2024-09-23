@@ -54,3 +54,27 @@ export const isRelationshipElement = (
 ): option is RelationshipPathElement => {
   return (option as RelationshipPathElement).direction !== undefined;
 };
+
+export const getParamsForBrowser = (params: Object) => {
+  return `:param [{${Object.keys(params).join(
+    ", "
+  )}}] => { RETURN ${Object.entries(params)
+    .map(([key, value]) => {
+      if (typeof value === "number") {
+        return `${value} AS ${key}`;
+      } else if (typeof value === "string") {
+        return `"${value}" AS ${key}`;
+      } else if (Array.isArray(value)) {
+        return `[${value
+          .map((v) => {
+            if (typeof v === "number") {
+              return `${v}`;
+            } else if (typeof v === "string") {
+              return `"${value}"`;
+            }
+          })
+          .join(", ")}] AS ${key}`;
+      }
+    })
+    .join(", ")} }`;
+};
