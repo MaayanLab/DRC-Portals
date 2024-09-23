@@ -158,7 +158,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             previewButton: <PreviewButton href={res.record_info_url} alt="More details about this result" />,
             dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
             projectName: (res.project_persistent_id && isURL(res.project_persistent_id))
-                ? <Link href={`${res.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank"><u>{res.project_name}</u></Link>
+                ? <Typography color="secondary"><Link href={`${res.project_persistent_id}`} className="underline cursor-pointer" target="_blank"><u>{res.project_name}</u></Link></Typography>
                 : <Description description={res.project_name} />,
             attributes: (
                 <>
