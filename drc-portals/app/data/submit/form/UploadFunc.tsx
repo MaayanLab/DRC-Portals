@@ -12,6 +12,7 @@ import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
+import { queue_fairshake } from '@/tasks/fairshake';
 
 
 
@@ -148,9 +149,10 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     }
     if (dcc === null) throw new Error('Failed to find DCC')
 
+    const link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
     const savedUpload = await prisma.dccAsset.create({
         data: {
-            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
+            link,
             creator: session.user.email,
             current: true,
             dcc_id: dcc.id,
@@ -167,7 +169,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             fileAsset: true,
         },
     })
-
+    await queue_fairshake({ link })
     const receipt = await sendUploadReceipt(session.user, savedUpload);
     const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedUpload)
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);

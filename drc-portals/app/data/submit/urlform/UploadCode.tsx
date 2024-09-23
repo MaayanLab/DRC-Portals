@@ -8,6 +8,7 @@ import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
+import { queue_fairshake } from '@/tasks/fairshake';
 
 
 
@@ -79,7 +80,7 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
             codeAsset: true
         }
     })
-
+    await queue_fairshake({ link: url })
     const receipt = await sendUploadReceipt(session.user, savedCode);
     const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedCode);
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedCode);
