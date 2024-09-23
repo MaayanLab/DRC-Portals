@@ -5,8 +5,8 @@ import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import { getServerSession } from "next-auth";
 import { redirect } from 'next/navigation';
-import { Link } from '@mui/material';
 import { AccountForm } from './AccountForm';
+import { MailToLink } from "@/utils/mailto";
 
 export default async function AccountPage() {
     const session = await getServerSession(authOptions)
@@ -30,7 +30,7 @@ export default async function AccountPage() {
                 Please complete account email information before approving or the uploading forms.
                 If the email field is empty, this information can only be saved once. For all
                 other information updates to your user account (role or DCC), please contact
-                the DRC to update your information at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+                the DRC to update your information at <MailToLink email="help@cfde.cloud" color='secondary' />.
             </Typography>
             <AccountForm user={user} />
         </Container>

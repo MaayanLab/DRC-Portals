@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import {Typography, Link, Button } from '@mui/material';
 import { StyledAccordionComponent } from './StyledAccordion';
 import dynamic from 'next/dynamic';
+import { MailToLink } from '@/utils/mailto';
 
 const YoutubeVideo = dynamic(() => import('./YoutubeVideo'))
 
@@ -71,7 +72,7 @@ export default function Documentation() {
                     We are collecting file and code assets from Common Fund programs to make them
                     Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
                     To submit assets, you must be logged in and registered. Registration involves being assigned a
-                    role by an administrator. To register, please send us an email at <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>. 
+                    role by an administrator. To register, please send us an email at <MailToLink email="help@cfde.cloud" color='secondary' />.
                     Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024). 
                 </Typography>
             </Grid>
