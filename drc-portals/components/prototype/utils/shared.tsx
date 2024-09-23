@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
 import { CSSProperties } from "react";
 import { v4 } from "uuid";
@@ -104,6 +104,10 @@ export const LABEL_TO_FACTORY_MAP: ReadonlyMap<string, NodeElementFactory> =
       createNodeElement,
     ]),
   ]);
+
+export const createVerticalDividerElement = (key: string) => (
+  <Divider key={key} orientation="vertical" variant="middle" flexItem />
+);
 
 export const TYPE_TO_FACTORY_MAP: ReadonlyMap<
   string,

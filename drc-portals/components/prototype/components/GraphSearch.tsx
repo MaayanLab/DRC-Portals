@@ -2,6 +2,7 @@
 
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
 import Rotate90DegreesCcwIcon from "@mui/icons-material/Rotate90DegreesCcw";
 import {
@@ -17,8 +18,8 @@ import {
 } from "@mui/material";
 
 import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, ReactNode } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useEffect, useState, ReactNode, Fragment } from "react";
 
 import { fetchPathSearch, fetchSearch } from "@/lib/neo4j/api";
 import { SubGraph } from "@/lib/neo4j/types";
@@ -65,6 +66,7 @@ import {
   unlockD3ForceNode,
   unlockSelection,
 } from "../utils/cy";
+import { createVerticalDividerElement } from "../utils/shared";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "./GraphEntityDetails";
@@ -75,6 +77,7 @@ import SearchBar from "./SearchBar/SearchBar";
 export default function GraphSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [elements, setElements] = useState<ElementDefinition[]>([]);
@@ -122,140 +125,11 @@ export default function GraphSearch() {
     setSnackbarOpen(false);
   };
 
-  const highlightRenderChildren = (event: EventObject) => [
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-neighbors"
-      renderContent={(event) => "Neighbors"}
-      action={highlightNeighbors}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-nodes-with-label"
-      renderContent={(event) => "Nodes with this Label"}
-      action={highlightNodesWithLabel}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const selectRenderChildren = (event: EventObject) => [
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-neighbors"
-      renderContent={(event) => "Select Neighbors"}
-      action={selectNeighbors}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-nodes-with-label"
-      renderContent={(event) => "Select Nodes with this Label"}
-      action={selectNodesWithLabel}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const selectionCxtMenuItems: ReactNode[] = [
-    <ChartCxtMenuItem
-      key="chart-cxt-download-selection"
-      renderContent={(event) => "Download Selection"}
-      action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-show-selection"
-      renderContent={(event) => "Show Selection"}
-      action={showSelection}
-      showFn={(event) => !selectionIsAllShown(event)}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-hide-selection"
-      renderContent={(event) => "Hide Selection"}
-      action={hideSelection}
-      showFn={(event) => !selectionIsAllHidden(event)}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const nodeCxtMenuItems: ReactNode[] = [
-    <ChartCxtMenuItem
-      key="chart-cxt-show-details"
-      renderContent={(event) => "Show Details"}
-      action={(event) => setEntityDetails(event.target.data())}
-    ></ChartCxtMenuItem>,
-    <ExpandNodeMenuItem
-      key="chart-cxt-expand"
-      setElements={setElements}
-      onError={handleExpandNodeError}
-    ></ExpandNodeMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-unlock"
-      renderContent={(event) => "Unlock"}
-      action={(event) => unlockD3ForceNode(event.target)}
-      showFn={(event) => isNodeD3Locked(event.target)}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-unlock-selection"
-      renderContent={(event) => "Unlock Selection"}
-      action={unlockSelection}
-      showFn={selectionHasLockedNode}
-    ></ChartCxtMenuItem>,
-    <ChartNestedCxtMenuItem
-      key="chart-cxt-highlight"
-      renderContent={(event) => "Highlight"}
-      renderChildren={highlightRenderChildren}
-    ></ChartNestedCxtMenuItem>,
-    <ChartNestedCxtMenuItem
-      key="chart-cxt-select"
-      renderContent={(event) => "Select"}
-      renderChildren={selectRenderChildren}
-    ></ChartNestedCxtMenuItem>,
-  ];
-
-  const canvasCxtMenuItems = [
-    <ChartCxtMenuItem
-      key="cxt-menu-select-all"
-      renderContent={() => "Select All"}
-      action={selectAll}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const customTools: CustomToolbarFnFactory[] = [
-    ...D3_FORCE_TOOLS,
-    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
-      rotateChart(
-        "search-chart-toolbar-rotate-cw",
-        "Rotate Clockwise",
-        "rotate-cw",
-        <Rotate90DegreesCwIcon />,
-        90,
-        cyRef,
-        layout
-      ),
-    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
-      rotateChart(
-        "search-chart-toolbar-rotate-ccw",
-        "Rotate Counter-Clockwise",
-        "rotate-ccw",
-        <Rotate90DegreesCcwIcon />,
-        -90,
-        cyRef,
-        layout
-      ),
-    () => {
-      return (
-        <Divider
-          key="graph-search-d3-force-tools-toolbar-divider"
-          orientation="vertical"
-          variant="middle"
-          flexItem
-        />
-      );
-    },
-    (cyRef: CytoscapeReference) =>
-      downloadChartData(
-        "search-chart-toolbar-download-data",
-        "Download Data",
-        cyRef
-      ),
-    (cyRef: CytoscapeReference) =>
-      downloadChartPNG(
-        "search-chart-toolbar-download-png",
-        "Download PNG",
-        cyRef
-      ),
-  ];
+  const resetSearch = () => {
+    router.push(pathname);
+    clearNetwork();
+    setSearchBarValue("");
+  };
 
   const clearSearchError = () => {
     setError(null);
@@ -388,6 +262,149 @@ export default function GraphSearch() {
     }
   };
 
+  const highlightRenderChildren = (event: EventObject) => [
+    <ChartCxtMenuItem
+      key="chart-cxt-highlight-neighbors"
+      renderContent={(event) => "Neighbors"}
+      action={highlightNeighbors}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-highlight-nodes-with-label"
+      renderContent={(event) => "Nodes with this Label"}
+      action={highlightNodesWithLabel}
+    ></ChartCxtMenuItem>,
+  ];
+
+  const selectRenderChildren = (event: EventObject) => [
+    <ChartCxtMenuItem
+      key="chart-cxt-highlight-neighbors"
+      renderContent={(event) => "Select Neighbors"}
+      action={selectNeighbors}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-highlight-nodes-with-label"
+      renderContent={(event) => "Select Nodes with this Label"}
+      action={selectNodesWithLabel}
+    ></ChartCxtMenuItem>,
+  ];
+
+  const selectionCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-download-selection"
+      renderContent={(event) => "Download Selection"}
+      action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-show-selection"
+      renderContent={(event) => "Show Selection"}
+      action={showSelection}
+      showFn={(event) => !selectionIsAllShown(event)}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-hide-selection"
+      renderContent={(event) => "Hide Selection"}
+      action={hideSelection}
+      showFn={(event) => !selectionIsAllHidden(event)}
+    ></ChartCxtMenuItem>,
+  ];
+
+  const nodeCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="chart-cxt-show-details"
+      renderContent={(event) => "Show Details"}
+      action={(event) => setEntityDetails(event.target.data())}
+    ></ChartCxtMenuItem>,
+    <ExpandNodeMenuItem
+      key="chart-cxt-expand"
+      setElements={setElements}
+      onError={handleExpandNodeError}
+    ></ExpandNodeMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-unlock"
+      renderContent={(event) => "Unlock"}
+      action={(event) => unlockD3ForceNode(event.target)}
+      showFn={(event) => isNodeD3Locked(event.target)}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="chart-cxt-unlock-selection"
+      renderContent={(event) => "Unlock Selection"}
+      action={unlockSelection}
+      showFn={selectionHasLockedNode}
+    ></ChartCxtMenuItem>,
+    <ChartNestedCxtMenuItem
+      key="chart-cxt-highlight"
+      renderContent={(event) => "Highlight"}
+      renderChildren={highlightRenderChildren}
+    ></ChartNestedCxtMenuItem>,
+    <ChartNestedCxtMenuItem
+      key="chart-cxt-select"
+      renderContent={(event) => "Select"}
+      renderChildren={selectRenderChildren}
+    ></ChartNestedCxtMenuItem>,
+  ];
+
+  const canvasCxtMenuItems = [
+    <ChartCxtMenuItem
+      key="cxt-menu-select-all"
+      renderContent={() => "Select All"}
+      action={selectAll}
+    ></ChartCxtMenuItem>,
+  ];
+
+  // TODO: We could probably reduce some of the repetition in these function definitions...also would be nice to move this to another file
+  const customTools: CustomToolbarFnFactory[] = [
+    () => {
+      return (
+        <Fragment key="search-chart-toolbar-reset-search">
+          <Tooltip title="Reset Search" arrow>
+            <IconButton aria-label="reset-search" onClick={resetSearch}>
+              <RestartAltIcon />
+            </IconButton>
+          </Tooltip>
+        </Fragment>
+      );
+    },
+    () =>
+      createVerticalDividerElement("graph-search-reset-search-toolbar-divider"),
+    ...D3_FORCE_TOOLS,
+    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
+      rotateChart(
+        "search-chart-toolbar-rotate-cw",
+        "Rotate Clockwise",
+        "rotate-cw",
+        <Rotate90DegreesCwIcon />,
+        90,
+        cyRef,
+        layout
+      ),
+    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
+      rotateChart(
+        "search-chart-toolbar-rotate-ccw",
+        "Rotate Counter-Clockwise",
+        "rotate-ccw",
+        <Rotate90DegreesCcwIcon />,
+        -90,
+        cyRef,
+        layout
+      ),
+    () =>
+      createVerticalDividerElement(
+        "graph-search-d3-force-tools-toolbar-divider"
+      ),
+    (cyRef: CytoscapeReference) =>
+      downloadChartData(
+        "search-chart-toolbar-download-data",
+        "Download Data",
+        cyRef
+      ),
+    (cyRef: CytoscapeReference) =>
+      downloadChartPNG(
+        "search-chart-toolbar-download-png",
+        "Download PNG",
+        cyRef
+      ),
+  ];
+
   useEffect(() => {
     resetLegend();
   }, [elements]);
@@ -412,6 +429,9 @@ export default function GraphSearch() {
       const queryParams = searchParams.get("cy_params") || "";
 
       getPathSearchResults(pathQuery, queryParams);
+    } else if (searchParams.size === 0) {
+      // If search params are empty, clear the search regardless of how the user arrived, e.g. url, browser back/forward, etc...
+      resetSearch();
     }
   }, [searchParams]);
 
