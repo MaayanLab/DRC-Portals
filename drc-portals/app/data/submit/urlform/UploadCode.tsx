@@ -149,6 +149,7 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
             }
         }
     });
+    await queue_fairshake({ link: url })
 }
 
 
