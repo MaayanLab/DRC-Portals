@@ -50,7 +50,10 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
     timestamp: string, // isoformat
   } = await python('assess_fair.assess_dcc_asset', {
     kargs: [
-      {...asset, ...(fileAsset ?? codeAsset ?? {})},
+      {
+        ...{...asset, created: asset.created.toISOString(), lastmodified: asset.lastmodified.toISOString()},
+        ...(fileAsset ? {...fileAsset, size: fileAsset.size?.toString()} : codeAsset ?? {})
+      },
     ],
   }, msg => {helpers.logger.debug(msg)})
   helpers.abortSignal?.throwIfAborted()
