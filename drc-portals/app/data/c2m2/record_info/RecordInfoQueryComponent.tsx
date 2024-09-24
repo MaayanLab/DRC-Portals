@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma/c2m2";
 import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
-import { MetadataItem, getDCCIcon, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
+import { MetadataItem, getDCCIcon, getdccCFlink, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
 import ExpandableTable from "../ExpandableTable";
@@ -283,7 +283,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     return (
       <LandingPageLayout
         icon={{
-          href: resultsRec?.dcc_short_label ? `/info/dcc/${resultsRec?.dcc_short_label}` : "",
+          //href: resultsRec?.dcc_short_label ? `/info/dcc/${resultsRec?.dcc_short_label}` : "",
+          href: resultsRec?.dcc_short_label ? `/info/dcc/${getdccCFlink(resultsRec?.dcc_short_label)}` : "",
           //src: getDCCIcon(results ? resultsRec?.dcc_short_label : ""), // Till 2024/05/30 9:50AM PST
           src: getDCCIcon(resultsRec ? resultsRec?.dcc_short_label : ""),
           alt: resultsRec?.dcc_short_label ? resultsRec?.dcc_short_label : ""

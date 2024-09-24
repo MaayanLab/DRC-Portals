@@ -66,6 +66,22 @@ dccIconTable["LINCS"] = "/img/lincs.png";
 dccIconTable["MW"] = "/img/Metabolomics.png";
 dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
 dccIconTable["SPARC"] = "/img/SPARC.svg";
+dccIconTable["SenNet"] = "/img/SenNet.png";
+
+const dccCFlinkTable: HashTable = {};
+dccCFlinkTable["4DN"] = "4DN";
+dccCFlinkTable["ERCC"] = "ExRNA";
+dccCFlinkTable["GTEx"] = "GTEx";
+dccCFlinkTable["GlyGen"] = "GlyGen";
+dccCFlinkTable["HMP"] = "HMP";
+dccCFlinkTable["HuBMAP"] = "HuBMAP";
+dccCFlinkTable["IDG"] = "IDG";
+dccCFlinkTable["KFDRC"] = "Kids First";
+dccCFlinkTable["LINCS"] = "LINCS";
+dccCFlinkTable["MW"] = "Metabolomics";
+dccCFlinkTable["MoTrPAC"] = "MoTrPAC";
+dccCFlinkTable["SPARC"] = "SPARC";
+dccCFlinkTable["SenNet"] = "SenNet";
 
 // For C2M2 schematic: neo4j-based and postgres ERD
 const C2M2_neo4j_level0_img = "/img/C2M2_NEO4J_level0.jpg";
@@ -78,6 +94,14 @@ export function getDCCIcon(iconKey: string): string {
     } else {
         return "";
     }
+}
+
+export function getdccCFlink(iconKey: string): string {
+  if (iconKey && dccCFlinkTable.hasOwnProperty(iconKey)) {
+      return dccCFlinkTable[iconKey];
+  } else {
+      return "";
+  }
 }
 
 // Function to prune and get column names
