@@ -94,7 +94,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     //     // Clear the selectedRows state whenever the page or rows change
     //     setSelectedRows([]);
     // }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
-    
+
 
     const handleCheckboxChange = (row: RowType) => { // Use the RowType
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
@@ -134,8 +134,8 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             <TagComponent q={props.q} t={props.t} />
                         </Box>
                     } */}
-                    
-                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+
+                    <TableContainer component={Paper} elevation={0} variant="rounded-top" sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
                             <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
                                 No results found
@@ -158,14 +158,14 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                                 sx={{
                                                     padding: '8px',
                                                     textAlign: 'left',
-                                                    backgroundColor: '#F0F8FF',
+                                                    backgroundColor: '#CAD2E9',
                                                     fontWeight: 'bold',
                                                     whiteSpace: 'nowrap',
                                                     overflowX: 'hidden',
                                                     textOverflow: 'ellipsis',
                                                 }}
                                             >
-                                                <Typography variant='h6' color="secondary">{column}</Typography>
+                                                <Typography variant='body1' color="secondary">{column}</Typography>
                                             </TableCell>
                                         ))}
                                     </TableRow>

@@ -7,7 +7,7 @@ import { get_partial_list_string } from "@/app/data/c2m2/utils";
 
 export default function ListingPageLayout(props: React.PropsWithChildren<{
   count?: number,
-  all_count?: number,
+  filtered_count?: number,
   all_count_limit?: number,
   searchText?: string,
   filters?: React.ReactNode,
@@ -17,7 +17,8 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
 }>) {
   const router = useRouter(); // Initialize useRouter
   const searchParams = useSearchParams(); // Initialize useSearchParams
-  const partial_list_string = get_partial_list_string(props.all_count ?? 0, props.count ?? 0, props.all_count_limit ?? 0);
+  // const partial_list_string = get_partial_list_string(props.filtered_count ?? 0, props.count ?? 0, props.all_count_limit ?? 0);
+  const partial_list_string = props.filtered_count;
 
   // Track if there are filters in the URL
   const [filtersPresent, setFiltersPresent] = useState(false);
@@ -48,13 +49,10 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   };
 
   return (
-    <Grid container justifyContent={"center"} sx={{ paddingTop: 5, paddingBottom: 5 }} spacing={2}>
+    <Grid container justifyContent={"center"} spacing={2}>
       <Grid item container xs={12} spacing={2}>
         <Grid item xs={12} sm={props.filters ? 9 : 12}>
           {props.children}
-          <Grid item xs={12}>
-            {/*<DownloadButton data={props.data} filename={props.downloadFileName}/>*/}
-          </Grid>
         </Grid>
 
         {props.filters && (
@@ -62,7 +60,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
             <Paper sx={{ background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px" }} elevation={0}>
               <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
                 <Typography variant="h5">Results found: </Typography>
-                <Typography variant="h5">&ge; {`${partial_list_string}`} </Typography>
+                <Typography variant="h5"> {`${partial_list_string}`} </Typography>
               </div>
 
               {/* Use a Box to align Filter and Reset All button on the same row */}
