@@ -29,6 +29,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { CheckCircle, Error } from '@mui/icons-material'
 import Status, { StatusType } from '../Status';
+import { MailToLink } from '@/utils/mailto';
 
 const OtherCodeData = z.object({
     name: z.string(),
@@ -340,7 +341,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                     <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Tooltip title='Click here for more information on code asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
                 </Stack>
                 <Typography variant="subtitle1" color="#666666" sx={{ mb: 2, ml: 2 }}>
-                    This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC at  <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+                    This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC at <MailToLink email="help@cfde.cloud" color='secondary' />.
                     See the {' '}
                     <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to submit code assets.
                 </Typography>
