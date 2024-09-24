@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.10.29
+    image: maayanlab/drc-portal:0.10.30
     deploy:
       resources:
         reservations:
@@ -70,7 +70,7 @@ services:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.10.29
+    image: maayanlab/drc-portal-worker:0.10.30
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:
