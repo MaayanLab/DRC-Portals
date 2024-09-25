@@ -2,7 +2,11 @@
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
-    }
+    },
+    "require": [
+      "dotenv/config",
+      "tsconfig-paths/register"
+    ]
   },
   "compilerOptions": {
     "target": "es5",
