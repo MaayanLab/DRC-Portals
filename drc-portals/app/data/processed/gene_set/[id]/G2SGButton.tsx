@@ -8,7 +8,7 @@ import * as React from 'react';
 
 export default function G2SGButton(props: React.PropsWithChildren<{ title: React.ReactNode, description: React.ReactNode, body: any }>) {
     return <CardButton
-        icon={<Image src={G2SGIcon} alt="Get-Gene-Set-Go" height={64} />}
+        icon={<Image src={G2SGIcon} alt="GeneSetCart" height={64} />}
         title={props.title}
         description={props.description}
     >
