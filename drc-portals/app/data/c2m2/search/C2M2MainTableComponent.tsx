@@ -5,7 +5,7 @@ import SQL from '@/lib/prisma/raw';
 import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import { Typography } from '@mui/material'; // Add CircularProgress for loading state
 import Link from "@/utils/link";
-import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
+import { getDCCIcon, getdccCFlink, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
 import { RowType } from '../utils';
 import { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import C2M2MainSearchTable from './C2M2MainSearchTable';
@@ -156,7 +156,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         const tableRows: RowType[] = records.map((res, index) => ({
             id: `row-${index}`, // Generate an ID using the index, prefixed for clarity
             previewButton: <PreviewButton href={res.record_info_url} alt="More details about this result" />,
-            dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
+            //dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
+            dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${getdccCFlink(res.dcc_short_label)}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
             projectName: (res.project_persistent_id && isURL(res.project_persistent_id))
                 ? <Typography color="secondary"><Link href={`${res.project_persistent_id}`} className="underline cursor-pointer" target="_blank"><u>{res.project_name}</u></Link></Typography>
                 : <Description description={res.project_name} />,

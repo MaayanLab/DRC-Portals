@@ -108,5 +108,8 @@ psql "$(python3 dburl.py)" -a -f ingest_slim.sql -o ${logdir}/log_ingest_slim.lo
 # In the table c2m2.file, add the column access_url
 psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logdir}/log_create_access_urls.log
 
+# *ONLY* After the tables c2m2.ffl_biosample_collection and c2m2.ffl_biosample_collection_cmp are generated and well tested, the intermediate ffl tables can be dropped.
+#psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_tables.sql
+
 # .. and other scripts above
 ```
