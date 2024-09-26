@@ -2,6 +2,15 @@
 
 XMT files are text based files which contain a collection of sets of a given entity type. The 'X' in XMT stands for the entity that the sets contain For example, .gmt files are XMT files that contain a collection of gene sets while .dmt files are XMT files that contain a collection of drug sets. On each row of the XMT file, the first column contains the Term associated with the set while all other columns contain the set entities.
 
+XMT file format is as follows:
+```
+<set_label>	<description (optional, can be left blank)> <tab separated entities>
+
+# example
+(S)-Methylmalonate Semialdehyde		ALDH3A2	ALDH7A1	ALDH6A1	HIBADH	ALDH1B1	ALDH2	AOX1	EHHADH	ALDH9A1	HADH
+```
+
+<br/>Note that if description is left blank, the set label and entities are separated by two tabs.
 
 
 ### C2M2
