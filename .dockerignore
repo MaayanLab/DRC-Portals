@@ -1,11 +1,11 @@
-__pycache__
-.DS_Store
-.env
+.git
+**/__pycache__/
+**/.DS_Store
+**/.env
 .env_pgcontainer
-# Keep environment variables out of version control
 current/
 kub/
-node_modules
+**/node_modules/
 output/
 outreach_files/
 package-lock.json
@@ -15,3 +15,8 @@ publication_files/
 tool_files/
 usecase_files/
 venv
+**/.venv/
+**/.next/
+drc-portals/public/**
+database/C2M2/ingest/**
+database/ingest/**
