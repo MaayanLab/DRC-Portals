@@ -3,7 +3,7 @@ import SQL from '@/lib/prisma/raw';
 import React from 'react';
 import Link from "@/utils/link";
 import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
-import ExpandableTable from "../ExpandableTable";
+import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 
 interface FileColTableResult {
@@ -184,7 +184,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
 
         // Assuming you want to process the first result in the array
         const firstResult = results[0];
-        const countFileCol = firstResult.count_file_col ?? 0;    
+        const countFileCol = firstResult.count_file_col ?? 0;
         const filesColTable = firstResult.file_col_table ?? [];
         const filesColTableFull = firstResult.file_col_table_full ?? [];
 
@@ -193,14 +193,14 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
         }
 
         const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
-        const { 
-            prunedData: fileColPrunedData, 
-            columnNames: fileColColNames, 
+        const {
+            prunedData: fileColPrunedData,
+            columnNames: fileColColNames,
             dynamicColumns: dynamicFileColColumns,
-            staticColumns: staticFileColColumns 
+            staticColumns: staticFileColColumns
         } = pruneAndRetrieveColumnNames(
             filesColTable ?? [],
-            filesColTableFull ?? [], 
+            filesColTableFull ?? [],
             filesCol_table_columnsToIgnore
         );
         // Add 'id' column with 'row-<index>' format
@@ -211,24 +211,24 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
 
         const priorityFileCols = ['filename', 'local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes'];
 
-        const newFileColColumns = priorityFileCols.filter(item => dynamicFileColColumns.includes(item)); 
+        const newFileColColumns = priorityFileCols.filter(item => dynamicFileColColumns.includes(item));
         const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileColColumns.includes(item)); // priority columns that are static, don't change with 
 
-        const remainingDynamicCols = dynamicFileColColumns.filter(item => !newFileColColumns.includes(item)); 
+        const remainingDynamicCols = dynamicFileColColumns.filter(item => !newFileColColumns.includes(item));
         const finalNewFileColColumns = newFileColColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
-        
+
         const reorderedFileColStaticCols = reorderStaticCols(staticFileColColumns, staticPriorityFileCols);
-    
+
         const fileCol_table_label_base = "Files that describe OR are in collection";
         const downloadFilename = generateHashedJSONFilename("FilesCollectionTable_", searchParams);
-        
+
         const categories: Category[] = [];
-    
-    
+
+
         const count_file_col_table_withlimit = filesColTableFull.length ?? 0;
 
         addCategoryColumns(reorderedFileColStaticCols, getNameFromFileProjTable, fileCol_table_label_base, categories);
-    
+
         const fileColTableTitle = fileCol_table_label_base + ": " + get_partial_list_string(countFileCol, count_file_col_table_withlimit, file_count_limit_col);
         const category = categories[0];
         return (
@@ -238,7 +238,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                         <Card variant="outlined" sx={{ mb: 0, borderBottom: "none" }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: "+ countFileCol}
+                                    {category.title + " (Uniform Columns) Count: " + countFileCol}
                                 </Typography>
                                 {category.metadata.map((item, i) => (
                                     item && item.value ? (
@@ -253,23 +253,23 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                     </Grid>
                 )}
                 <Grid item xs={12} sx={{ maxWidth: '100%' }}>
-                {(count_file_col_table_withlimit > 0 ) && (
-                    <ExpandableTable
-                        data={fileColPrunedDataWithId}
-                        full_data={fileCol_table_full_withId}
-                        downloadFileName={downloadFilename}
-                        drsBundle
-                        tableTitle={fileColTableTitle}
-                        searchParams={searchParams}
-                        count={count_file_col_table_withlimit}
-                        colNames={finalNewFileColColumns}
-                        dynamicColumns={finalNewFileColColumns}
-                        tablePrefix="fileColTbl"
-                    />
-                )}
+                    {(count_file_col_table_withlimit > 0) && (
+                        <ExpandableTable
+                            data={fileColPrunedDataWithId}
+                            full_data={fileCol_table_full_withId}
+                            downloadFileName={downloadFilename}
+                            drsBundle
+                            tableTitle={fileColTableTitle}
+                            searchParams={searchParams}
+                            count={count_file_col_table_withlimit}
+                            colNames={finalNewFileColColumns}
+                            dynamicColumns={finalNewFileColColumns}
+                            tablePrefix="fileColTbl"
+                        />
+                    )}
                 </Grid>
             </Grid>
-        );       
+        );
 
     } catch (error) {
         console.error("Error fetching FilesCol table:", error);
