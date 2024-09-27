@@ -39,8 +39,8 @@ const modules: {
         "genes": await getGeneSet(item.id),
         "description": item.node.description
       }}
-      title="Get-Gene-Set-Go"
-      description={<>Get-Gene-Set-Go helps you to fetch gene sets from various data sources, augment, combine with set operations, visualize and analyze these gene sets in a single session. Start a new session with {item.node.label}.</>}
+      title="GeneSetCart"
+      description={<>GeneSetCart helps you to fetch gene sets from various data sources, augment, combine with set operations, visualize and analyze these gene sets in a single session. Start a new session with {item.node.label}.</>}
     />,
   },
 ]
