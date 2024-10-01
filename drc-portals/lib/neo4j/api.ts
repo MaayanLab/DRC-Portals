@@ -37,6 +37,14 @@ export const fetchSynonyms = (query: string) =>
     },
   });
 
+export const fetchCVTerms = (query: string) =>
+  fetch(`${GRAPH_API_PREFIX}/terms?q=${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
 export const fetchSearch = (
   query: string,
   coreLabels: string[],

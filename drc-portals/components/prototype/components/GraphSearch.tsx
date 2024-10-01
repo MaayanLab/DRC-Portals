@@ -9,7 +9,6 @@ import {
   Alert,
   AlertColor,
   Box,
-  Divider,
   Grid,
   IconButton,
   Snackbar,
@@ -485,6 +484,7 @@ export default function GraphSearch() {
             layout={D3_FORCE_LAYOUT}
             stylesheet={DEFAULT_STYLESHEET}
             legend={legend}
+            cxtMenuEnabled={true}
             legendPosition={{ bottom: 10, left: 10 }}
             toolbarPosition={{ top: 10, right: 10 }}
             customTools={customTools}

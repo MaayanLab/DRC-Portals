@@ -40,6 +40,11 @@ export interface SynoynmsResult {
   synonym: string;
 }
 
+export interface CVTermsResult {
+  synonym: string;
+  cvTerm: NodeResult;
+}
+
 export interface BasePropFilter {
   name: string;
   operator: string;

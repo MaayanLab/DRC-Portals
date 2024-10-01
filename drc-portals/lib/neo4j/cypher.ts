@@ -62,6 +62,24 @@ export const getSynonymsCypher = () => `
   ORDER BY size(synonym)
   `;
 
+export const getTermsCypher = () => `
+    CALL {
+      CALL db.index.fulltext.queryNodes('synonymIdx', $query)
+      YIELD node AS s
+      MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
+      RETURN s.name AS synonym, cvTerm AS cvTerm
+      ORDER BY size(s.name)
+      LIMIT $limit
+      UNION ALL
+      MATCH (s:Synonym)<-[:HAS_SYNONYM]-(cvTerm)
+      WHERE s.name STARTS WITH $query
+      RETURN s.name AS synonym, cvTerm AS cvTerm
+      ORDER BY size(s.name)
+      LIMIT $limit
+    }
+    RETURN DISTINCT synonym AS synonym, ${createNodeReprStr("cvTerm")} AS cvTerm
+  `;
+
 export const getSearchCypher = (coreLabels: string[]) => {
   if (coreLabels.length === 0) {
     coreLabels = Array.from(CORE_LABELS);

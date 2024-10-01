@@ -19,6 +19,7 @@ import {
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
@@ -32,7 +33,6 @@ import {
   createNodeTooltip,
   hideElement,
   resetHighlights,
-  selectAll,
   showElement,
 } from "../../utils/cy";
 
@@ -44,11 +44,13 @@ import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
 
 cytoscape.use(d3Force);
+cytoscape.use(dagre);
 
 interface CytoscapeChartProps {
   elements: ElementDefinition[];
   layout: LayoutOptions;
   stylesheet: string | Stylesheet | Stylesheet[];
+  cxtMenuEnabled: boolean;
   legendPosition?: PositionOffsets;
   toolbarPosition?: PositionOffsets;
   tooltipBoxStyleProps?: CSSProperties;
@@ -66,6 +68,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     elements,
     layout,
     stylesheet,
+    cxtMenuEnabled,
     legendPosition,
     toolbarPosition,
     tooltipBoxStyleProps,
@@ -133,6 +136,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     return items;
   };
 
+  // TODO: Consider refactoring this as "sharedMenuItems" and make it an optional prop to the component. Ultimately, it should probably be
+  // up to the parent what context menu items are avaialable, and if they provide none, don't show a context menu at all.
   const getStaticMenuItems = (event: EventObject) => {
     const items: ReactNode[] = [];
 
@@ -364,7 +369,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       </ClickAwayListener>
       <ClickAwayListener onClickAway={handleContextMenuClose}>
         <ChartCxtMenu
-          open={contextMenuOpen && contextMenuItems.length > 0}
+          open={
+            cxtMenuEnabled && contextMenuOpen && contextMenuItems.length > 0
+          }
           position={contextMenuPosRef.current}
           event={contextMenuEvent}
           onClose={handleContextMenuClose}

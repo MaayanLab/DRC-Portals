@@ -211,6 +211,11 @@ export const D3_FORCE_LAYOUT = {
   manyBodyStrength: -300,
 };
 
+export const DAGRE_LAYOUT = {
+  name: "dagre",
+  animate: true,
+};
+
 export const DEFAULT_STYLESHEET: any[] = [
   {
     selector: "node",
