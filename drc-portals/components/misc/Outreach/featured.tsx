@@ -28,9 +28,10 @@ export const shuffle = (array: OutreachType[]) => {
 }; 
 
 
-const OutreachComponent = ({outreach, now}: {
+export const OutreachComponent = ({outreach, now, size="large"}: {
   outreach: OutreachType[], 
   now: Date,
+  size?: 'large' | 'small'
 }) =>(
   <Box sx={{ minHeight: 100 }}>
     <Grid container>
@@ -43,17 +44,17 @@ const OutreachComponent = ({outreach, now}: {
 			<Card elevation={0}>
 				<CardContent>
 					<Stack spacing={1}>
-						<Typography color="secondary" variant="h5">{e.title}</Typography>
+						<Typography color="secondary" variant={size === "large" ? "h5": "body1"}>{e.title}</Typography>
 						<Markdown markdown={e.short_description}/>
 					{ (e.application_end && e.application_end > now) ? 
-						<Typography variant="body2" color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
+						<Typography variant={size == "large" ? "body2": "subtitle2"} color="secondary"><b>Application deadline</b>: {`${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
 							year: 'numeric',
 							month: 'long',
 							day: 'numeric',
 						}): "Passed"}`}
 						</Typography> :
 						e.start_date &&
-							<Typography variant="body2" color="secondary"><b>Starts</b>: {`${e.start_date.toLocaleDateString("en-US", {
+							<Typography variant={size == "large" ? "body2": "subtitle2"} color="secondary"><b>Starts</b>: {`${e.start_date.toLocaleDateString("en-US", {
 							year: 'numeric',
 							month: 'long',
 							day: 'numeric',

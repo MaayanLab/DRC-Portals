@@ -144,7 +144,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%' }}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell padding="checkbox">
+                                        <TableCell padding="checkbox" sx={{ backgroundColor: '#CAD2E9' }} >
                                             <Checkbox
                                                 indeterminate={selectedRows.length > 0 && selectedRows.length < props.rows.length}
                                                 checked={props.rows.length > 0 && selectedRows.length === props.rows.length}

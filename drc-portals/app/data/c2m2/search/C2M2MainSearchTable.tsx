@@ -46,13 +46,13 @@ const C2M2MainSearchTable: React.FC<C2M2MainSearchTableProps> = (props) => {
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                     <DownloadButton
                         data={selectedData}
-                        filename={props.downloadFileName}
+                        filename={props.downloadFileName+"_SELECTED.json"}
                         name="DOWNLOAD SELECTED"
                     />
                     {isSelectAll && ( // Show Download All only when "Select All" is selected
                         <DownloadAllButton
                             apiEndpoint={props.apiEndpoint}
-                            filename={props.downloadFileName}
+                            filename={props.downloadFileName+"_ALL.json"}
                             name="DOWNLOAD ALL"
                             q={props.q ?? ''}
                             t={props.t}

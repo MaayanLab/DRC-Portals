@@ -18,7 +18,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   const router = useRouter(); // Initialize useRouter
   const searchParams = useSearchParams(); // Initialize useSearchParams
   // const partial_list_string = get_partial_list_string(props.filtered_count ?? 0, props.count ?? 0, props.all_count_limit ?? 0);
-  const partial_list_string = props.filtered_count;
+  const partial_list_string = props.filtered_count?.toLocaleString();
 
   // Track if there are filters in the URL
   const [filtersPresent, setFiltersPresent] = useState(false);

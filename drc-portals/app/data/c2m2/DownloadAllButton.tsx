@@ -44,7 +44,7 @@ const DownloadAllButton: React.FC<DownloadAllButtonProps> = ({ apiEndpoint, file
       // Create a link and trigger the download
       const a = document.createElement('a');
       a.href = url;
-      a.download = filename;
+      a.download = filename ;
       document.body.appendChild(a); // Append the link to the body
       a.click(); // Trigger the download
       document.body.removeChild(a); // Clean up
