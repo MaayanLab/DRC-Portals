@@ -108,8 +108,20 @@ psql "$(python3 dburl.py)" -a -f ingest_slim.sql -o ${logdir}/log_ingest_slim.lo
 # In the table c2m2.file, add the column access_url
 psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logdir}/log_create_access_urls.log
 
+#-------------------------------------------------------------------------------------------------------
 # *ONLY* After the tables c2m2.ffl_biosample_collection and c2m2.ffl_biosample_collection_cmp are generated and well tested, the intermediate ffl tables can be dropped.
 #psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_tables.sql
+
+#-------------------------------------------------------------------------------------------------------
+# *ONLY* to copy the updated tables (e.g. after new ingest) to another server
+# As of now, user1 and user2 on the two hosts, respectively are hard-coded as drcadmin and drc or drcadmin and drcadmin, so only intended for use by Mano. Others can run after altering these values suitably.
+# Also, these will work only if ~/.pgpass has suitable lines for psql auth added.
+host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
+# Example of 
+ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh ${host1} ${host2} ${dbname} ${logdir} ${sch} > \
+main_pg_dump_log_${ymd}.log 2>&1
+#-------------------------------------------------------------------------------------------------------
+
 
 # .. and other scripts above
 ```
