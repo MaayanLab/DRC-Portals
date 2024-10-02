@@ -195,6 +195,9 @@ export const FONT_SIZE = "4px";
 export const MAX_NODE_LINES = 3;
 export const MAX_NODE_LABEL_WIDTH = 24;
 export const MIN_ZOOMED_FONT_SIZE = 8;
+export const SOLID_OPACITY = 1;
+export const TRANSPARENT_OPACITY = 0.33;
+export const HIGH_Z_INDEX = 999;
 
 // Schema-specific Properties
 export const PATH_COLOR = "#c634eb";
@@ -211,12 +214,7 @@ export const D3_FORCE_LAYOUT = {
   manyBodyStrength: -300,
 };
 
-export const DAGRE_LAYOUT = {
-  name: "dagre",
-  animate: true,
-};
-
-export const DEFAULT_STYLESHEET: any[] = [
+export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   {
     selector: "node",
     style: {
@@ -251,6 +249,9 @@ export const DEFAULT_STYLESHEET: any[] = [
       "overlay-shape": "ellipse",
     },
   },
+];
+
+export const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
   {
     selector: "edge",
     style: {
@@ -268,7 +269,7 @@ export const DEFAULT_STYLESHEET: any[] = [
       "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
       "text-background-color": "#f2f2f2",
-      "text-background-opacity": 1,
+      "text-background-opacity": SOLID_OPACITY,
       // so the transition is selected when its label/name is selected
       "text-events": "yes",
     },
@@ -278,61 +279,75 @@ export const DEFAULT_STYLESHEET: any[] = [
     style: {
       "target-arrow-color": CFDE_DARK_BLUE,
       "line-color": CFDE_DARK_BLUE,
+      "z-index": HIGH_Z_INDEX,
+    },
+  },
+];
+
+export const STYLESHEET_CLASSES = [
+  // Element agnostic classes
+  {
+    selector: ".transparent",
+    style: {
+      opacity: TRANSPARENT_OPACITY,
     },
   },
   {
-    selector: ".minus-90-loop-edge",
+    selector: ".solid",
     style: {
-      "loop-direction": "-90deg",
-    },
-  },
-  {
-    selector: ".minus-30-loop-edge",
-    style: {
-      "loop-direction": "-30deg",
-    },
-  },
-  {
-    selector: ".30-loop-edge",
-    style: {
-      "loop-direction": "30deg",
-    },
-  },
-  {
-    selector: ".90-loop-edge",
-    style: {
-      "loop-direction": "90deg",
-    },
-  },
-  {
-    selector: ".dimmed",
-    style: {
-      opacity: 0.1,
+      opacity: SOLID_OPACITY,
     },
   },
   {
     selector: ".hovered",
     style: {
-      opacity: 1,
+      opacity: SOLID_OPACITY,
+      "z-index": HIGH_Z_INDEX,
+    },
+  },
+  // Node specific classes
+  {
+    selector: "node.dashed",
+    style: {
+      "border-style": "dashed",
+    },
+  },
+  // Edge specific classes
+  {
+    selector: "edge.minus-90-loop",
+    style: {
+      "loop-direction": "-90deg",
     },
   },
   {
-    selector: ".horizontal-text",
+    selector: "edge.minus-30-loop",
+    style: {
+      "loop-direction": "-30deg",
+    },
+  },
+  {
+    selector: "edge.30-loop",
+    style: {
+      "loop-direction": "30deg",
+    },
+  },
+  {
+    selector: "edge.90-loop",
+    style: {
+      "loop-direction": "90deg",
+    },
+  },
+  {
+    selector: "edge.horizontal-text",
     style: {
       "text-rotation": "0deg",
     },
   },
   {
-    selector: ".no-arrows",
+    selector: "edge.no-arrows",
     style: {
       "source-arrow-shape": "none",
       "target-arrow-shape": "none",
-    },
-  },
-  {
-    selector: "node.dashed",
-    style: {
-      "border-style": "dashed",
     },
   },
   {
@@ -341,12 +356,57 @@ export const DEFAULT_STYLESHEET: any[] = [
       "line-style": "dashed",
     },
   },
+  {
+    selector: "edge.source-arrow-only",
+    style: {
+      "source-arrow-shape": "triangle",
+      "target-arrow-shape": "none",
+    },
+  },
+  // C2M2 entity classes
   ...Array.from(ENTITY_STYLES_MAP.entries()).map(([className, style]) => {
     return {
       selector: `.${className}`,
       style: style as Css.Node,
     };
   }),
+];
+
+export const DEFAULT_STYLESHEET: any[] = [
+  ...DEFAULT_NODE_SELECTOR_STYLES,
+  ...DEFAULT_EDGE_SELECTOR_STYLES,
+  ...STYLESHEET_CLASSES,
+];
+
+export const DAGRE_LAYOUT = {
+  name: "dagre",
+  animate: true,
+};
+
+export const DAGRE_STYLESHEET: any[] = [
+  ...DEFAULT_NODE_SELECTOR_STYLES,
+  {
+    selector: "node",
+    style: {
+      opacity: TRANSPARENT_OPACITY,
+    },
+  },
+  ...DEFAULT_EDGE_SELECTOR_STYLES,
+  {
+    selector: "edge",
+    style: {
+      "curve-style": "taxi",
+      opacity: TRANSPARENT_OPACITY,
+    },
+  },
+  ...STYLESHEET_CLASSES, // Classes must be last so they are not overwritten by selector styles!
+  {
+    selector: ".path-element",
+    style: {
+      opacity: SOLID_OPACITY,
+      "z-index": HIGH_Z_INDEX,
+    },
+  },
 ];
 
 // Neo4j Schema Represented as a Cytoscape Chart:
@@ -2633,7 +2693,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     style: {
       "border-color": PATH_COLOR,
       "border-width": NODE_BORDER_WIDTH,
-      opacity: 1,
+      opacity: SOLID_OPACITY,
     },
   },
   {
@@ -2641,7 +2701,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     style: {
       "line-color": PATH_COLOR,
       "target-arrow-color": PATH_COLOR,
-      opacity: 1,
+      opacity: SOLID_OPACITY,
     },
   },
 ];

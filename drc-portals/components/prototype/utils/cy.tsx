@@ -50,11 +50,14 @@ import {
   truncateTextToFitWidth,
 } from "./shared";
 
-export const createCytoscapeNode = (node: NodeResult): CytoscapeNode => {
+export const createCytoscapeNode = (
+  node: NodeResult,
+  classes?: string[]
+): CytoscapeNode => {
   const nodeLabel = node.labels[0];
   const nodeDisplayLabel = getNodeDisplayProperty(nodeLabel, node);
   return {
-    classes: [NODE_CLASS_MAP.get(nodeLabel) || ""],
+    classes: [NODE_CLASS_MAP.get(nodeLabel) || "", ...(classes || [])],
     data: {
       id: node.uuid,
       label: truncateLabelToFitNode(nodeDisplayLabel),
@@ -67,9 +70,11 @@ export const createCytoscapeNode = (node: NodeResult): CytoscapeNode => {
 };
 
 export const createCytoscapeEdge = (
-  relationship: RelationshipResult
+  relationship: RelationshipResult,
+  classes?: string[]
 ): CytoscapeEdge => {
   return {
+    classes,
     data: {
       id: relationship.uuid,
       source: relationship.startUUID,
@@ -222,9 +227,12 @@ export const createNodeTooltip = (
 
 export const highlightNeighbors = (event: EventObjectNode) => {
   event.cy.batch(() => {
-    event.target.removeClass("dimmed").addClass("highlight");
-    event.target.neighborhood().removeClass("dimmed").addClass("highlight");
-    event.cy.elements().not(".highlight").addClass("dimmed");
+    event.target.removeClass("transparent").addClass("highlight");
+    event.target
+      .neighborhood()
+      .removeClass("transparent")
+      .addClass("highlight");
+    event.cy.elements().not(".highlight").addClass("transparent");
   });
 };
 
@@ -249,9 +257,9 @@ export const highlightNodesWithLabel = (event: EventObjectNode) => {
           [...eventNodeLabels].filter((x) => candidateLabels.has(x)).length > 0
         );
       })
-      .removeClass("dimmed")
+      .removeClass("transparent")
       .addClass("highlight");
-    event.cy.elements().not(".highlight").addClass("dimmed");
+    event.cy.elements().not(".highlight").addClass("transparent");
   });
 };
 
@@ -274,21 +282,24 @@ export const selectNodesWithLabel = (event: EventObjectNode) => {
 
 export const resetHighlights = (event: EventObject) => {
   event.cy.batch(() => {
-    event.cy.elements().removeClass("dimmed").removeClass("highlight");
+    event.cy.elements().removeClass("transparent").removeClass("highlight");
   });
 };
 
 export const showElement = (event: EventObjectNode | EventObjectEdge) => {
-  event.target.removeClass("dimmed").addClass("highlight");
+  event.target.removeClass("transparent").addClass("highlight");
 };
 
 export const hideElement = (event: EventObjectNode | EventObjectEdge) => {
   // We remove hovered here because the node is necessarily hovered when a context menu is opened for it
-  event.target.removeClass("highlight hovered").addClass("dimmed");
+  event.target.removeClass("highlight hovered").addClass("transparent");
 };
 
 export const showSelection = (event: EventObject) => {
-  event.cy.elements(":selected").removeClass("dimmed").addClass("highlight");
+  event.cy
+    .elements(":selected")
+    .removeClass("transparent")
+    .addClass("highlight");
 };
 
 export const selectionIsAllShown = (event: EventObject) =>
@@ -300,12 +311,12 @@ export const hideSelection = (event: EventObject) => {
   event.cy
     .elements(":selected")
     .removeClass("highlight hovered")
-    .addClass("dimmed");
+    .addClass("transparent");
 };
 
 export const selectionIsAllHidden = (event: EventObject) =>
   Array.from(event.cy.elements(":selected")).every((element) =>
-    element.hasClass("dimmed")
+    element.hasClass("transparent")
   );
 
 export const printNodePositions = (
@@ -348,7 +359,7 @@ export const resetChart = (
         });
 
         // Reset styles
-        cy.elements().removeClass("highlight dimmed");
+        cy.elements().removeClass("highlight transparent");
       });
     }
   };

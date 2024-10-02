@@ -26,7 +26,7 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
-import { CytoscapeNodeData } from "../../interfaces/cy";
+import { CytoscapeEvent, CytoscapeNodeData } from "../../interfaces/cy";
 import { PositionOffsets } from "../../interfaces/shared";
 import { CustomToolbarFnFactory } from "../../types/cy";
 import {
@@ -62,6 +62,8 @@ interface CytoscapeChartProps {
   edgeCxtMenuItems?: ReactNode[];
   canvasCxtMenuItems?: ReactNode[];
   legend?: Map<string, ReactNode>;
+  autoungrabify?: boolean;
+  customEventHandlers?: CytoscapeEvent[];
 }
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
@@ -81,6 +83,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     edgeCxtMenuItems,
     canvasCxtMenuItems,
     legend,
+    autoungrabify,
+    customEventHandlers,
   } = cmpProps;
 
   const cyRef = useRef<cytoscape.Core>();
@@ -117,7 +121,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const getSharedMenuItems = (event: EventObjectNode | EventObjectEdge) => {
     const items: ReactNode[] = [];
 
-    if (event.target.hasClass("dimmed")) {
+    if (event.target.hasClass("transparent")) {
       items.push(
         <ChartCxtMenuItem
           key="cxt-menu-show"
@@ -145,7 +149,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
     if (
       event.cy.elements(".highlight").length > 0 ||
-      event.cy.elements(".dimmed").length > 0
+      event.cy.elements(".transparent").length > 0
     ) {
       items.push(
         <ChartCxtMenuItem
@@ -314,6 +318,12 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       cy.bind("cxttap", handleCxtTapCanvas);
       cy.bind("cxttap", "node", handleCxtTapNode);
       cy.bind("cxttap", "edge", handleCxtTapEdge);
+
+      // TODO: Ideally, the above bindings would be defined by the parent exclusively, but for now keeping them separate because they are
+      // core to the interaction with the component and would be tricky to refactor out.
+      customEventHandlers?.forEach((interaction) => {
+        cy.bind(interaction.event, interaction.target, interaction.callback);
+      });
     }
   }, []);
 
@@ -365,6 +375,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
               elements={elements}
               layout={layout}
               stylesheet={stylesheet}
+              autoungrabify={autoungrabify}
             />
           </ChartContainer>
         </ChartTooltip>

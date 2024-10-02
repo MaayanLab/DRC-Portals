@@ -1,11 +1,14 @@
 import {
   EdgeDataDefinition,
   EdgeDefinition,
+  EventHandler,
+  EventNames,
   EventObject,
   EventObjectEdge,
   EventObjectNode,
   NodeDataDefinition,
   NodeDefinition,
+  Selector,
 } from "cytoscape";
 import { ReactNode } from "react";
 
@@ -55,4 +58,11 @@ export interface CytoscapeEdgeData extends EdgeDataDefinition {
 
 export interface CytoscapeEdge extends EdgeDefinition {
   data: CytoscapeEdgeData;
+}
+
+export interface CytoscapeEvent {
+  event: EventNames;
+  target: Selector;
+  // TODO: Could require additional params here for the CytoscapeChart component objects (e.g. the tooltipPositionRef, popperRef, etc.)
+  callback: EventHandler;
 }
