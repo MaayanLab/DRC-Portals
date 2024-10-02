@@ -29,6 +29,7 @@ export default function GraphSchema() {
           stylesheet={SCHEMA_STYLESHEET}
           legend={SCHEMA_LEGEND}
           cxtMenuEnabled={true}
+          tooltipEnabled={true}
           legendPosition={{ top: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
           tooltipContentProps={{ noWrap: false }}

@@ -485,6 +485,7 @@ export default function GraphSearch() {
             stylesheet={DEFAULT_STYLESHEET}
             legend={legend}
             cxtMenuEnabled={true}
+            tooltipEnabled={true}
             legendPosition={{ bottom: 10, left: 10 }}
             toolbarPosition={{ top: 10, right: 10 }}
             customTools={customTools}

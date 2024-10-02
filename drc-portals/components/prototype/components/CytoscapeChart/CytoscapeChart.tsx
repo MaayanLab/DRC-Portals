@@ -51,6 +51,7 @@ interface CytoscapeChartProps {
   layout: LayoutOptions;
   stylesheet: string | Stylesheet | Stylesheet[];
   cxtMenuEnabled: boolean;
+  tooltipEnabled: boolean;
   legendPosition?: PositionOffsets;
   toolbarPosition?: PositionOffsets;
   tooltipBoxStyleProps?: CSSProperties;
@@ -69,6 +70,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     layout,
     stylesheet,
     cxtMenuEnabled,
+    tooltipEnabled,
     legendPosition,
     toolbarPosition,
     tooltipBoxStyleProps,
@@ -352,7 +354,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       <ClickAwayListener onClickAway={hideTooltip}>
         <ChartTooltip
           title={tooltipTitle}
-          open={tooltipOpen}
+          open={tooltipEnabled && tooltipOpen}
           position={tooltipPositionRef.current}
           popperRef={popperRef}
         >
