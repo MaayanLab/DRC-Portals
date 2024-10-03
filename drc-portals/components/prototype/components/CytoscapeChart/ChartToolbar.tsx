@@ -52,12 +52,12 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
         },
       }}
     >
-      {customTools === undefined
-        ? null
-        : [
-            ...customTools.map((factoryFn) => factoryFn(cyRef, layout)),
-            <Divider orientation="vertical" variant="middle" flexItem />,
-          ]}
+      {customTools === undefined ? null : (
+        <>
+          {[...customTools.map((factoryFn) => factoryFn(cyRef, layout))]}
+          <Divider orientation="vertical" variant="middle" flexItem />
+        </>
+      )}
       <Tooltip title="Zoom In" arrow>
         <IconButton aria-label="zoom-in" onClick={() => handleZoom(false)}>
           <ZoomInIcon />
