@@ -322,7 +322,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       // TODO: Ideally, the above bindings would be defined by the parent exclusively, but for now keeping them separate because they are
       // core to the interaction with the component and would be tricky to refactor out.
       customEventHandlers?.forEach((interaction) => {
-        cy.bind(interaction.event, interaction.target, interaction.callback);
+        if (interaction.target !== undefined) {
+          cy.bind(interaction.event, interaction.target, interaction.callback);
+        } else {
+          cy.bind(interaction.event, interaction.callback);
+        }
       });
     }
   }, []);

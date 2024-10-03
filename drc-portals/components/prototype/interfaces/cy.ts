@@ -62,7 +62,7 @@ export interface CytoscapeEdge extends EdgeDefinition {
 
 export interface CytoscapeEvent {
   event: EventNames;
-  target: Selector;
+  target?: Selector;
   // TODO: Could require additional params here for the CytoscapeChart component objects (e.g. the tooltipPositionRef, popperRef, etc.)
   callback: EventHandler;
 }
