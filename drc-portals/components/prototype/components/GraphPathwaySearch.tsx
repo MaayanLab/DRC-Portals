@@ -2,7 +2,12 @@
 
 import { Grid } from "@mui/material";
 
-import { ElementDefinition, EventObjectEdge, EventObjectNode } from "cytoscape";
+import cytoscape, {
+  ElementDefinition,
+  EventObjectEdge,
+  EventObjectNode,
+  NodeSingular,
+} from "cytoscape";
 import { useRef, useState } from "react";
 import { v4 } from "uuid";
 
@@ -26,14 +31,8 @@ import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
 
 export default function GraphPathwaySearch() {
+  // TODO: Use immer for better immutable state management?
   const [elements, setElements] = useState<ElementDefinition[]>([]);
-
-  // TODO: Would be very interesting to implement this as a tree rather than an array...could enable branching queries. Basically, we could
-  // break the tree down into a single MATCH per path down the tree from the root to each leaf, then union the results of the distinct
-  // nodes and relationships found. Could be a very powerful way to create complicated queries, though it would need benchmarking. Would
-  // probably need to run the queries in parallel or the request would be too slow, but running too many at the same time could be a
-  // problem if we have many users accessing the db at once...
-  // - How would we encapsulate edge data in the tree? Non-root nodes in the tree have an edge/direction property?
   const pathRef = useRef<string[]>([]); // May want to useState here instead for loading/unloading the search bar, filters, etc.
 
   const getConnectedElements = (
@@ -42,12 +41,6 @@ export default function GraphPathwaySearch() {
   ): { nodes: CytoscapeNode[]; edges: CytoscapeEdge[] } => {
     const nodes: CytoscapeNode[] = [];
     const edges: CytoscapeEdge[] = [];
-
-    // TODO: Create a subset of outgoing/incoming connections with only the choices we care about for this view
-    // - I.e., remove file-related nodes, biosample related nodes, etc.
-    // - I.e. i.e., term nodes can be sources, but they cannot be targets
-    // - Admin nodes are neither sources nor targets
-    // - Also, the core/container nodes have their own subset of connections because their term relationships are instead expressed as filters...complicated!
 
     Array.from(
       PATHWAY_OUTGOING_CONNECTIONS.get(label)?.entries() || []
@@ -116,8 +109,8 @@ export default function GraphPathwaySearch() {
     ]);
   };
 
-  const addNodeToPathFromEventV1 = (event: EventObjectNode) => {
-    if (event.target.hasClass("path-element")) {
+  const addNodeToPathV1 = (node: NodeSingular, cy: cytoscape.Core) => {
+    if (node.hasClass("path-element")) {
       // TODO: May want to enable some behavior when an element already in the path is selected, but for now, do nothing.
       return;
     }
@@ -125,22 +118,18 @@ export default function GraphPathwaySearch() {
     const path = pathRef.current;
     if (path !== undefined) {
       // Get selected node data, and get new data for its connected nodes and relationships
-      const selectedNode: CytoscapeNodeData = event.target.data();
-      const selectedNodeLabels = selectedNode.neo4j?.labels || [];
+      const selectedNodeData: CytoscapeNodeData = node.data();
+      const selectedNodeLabels = selectedNodeData.neo4j?.labels || [];
       const { nodes, edges } =
         selectedNodeLabels.length > 0
-          ? getConnectedElements(selectedNodeLabels[0], selectedNode.id)
+          ? getConnectedElements(selectedNodeLabels[0], selectedNodeData.id)
           : { nodes: [], edges: [] };
       const newElements: ElementDefinition[] = [...nodes, ...edges];
 
       // Then, add the selected node and the edge connecting it to the previous head of the path
-      path.push(
-        // Note that this *should* be a single value array, TODO: enforce that this is a singular edge?
-        ...event.target.connectedEdges().map((edge) => edge.data("id"))
-      );
-      path.push(selectedNode.id);
+      path.push(node.connectedEdges().first().id(), selectedNodeData.id);
       path.forEach((id) => {
-        const element = event.cy.getElementById(id);
+        const element = cy.getElementById(id);
         if (element.isNode()) {
           newElements.unshift({
             classes: [...element.classes(), "path-element"],
@@ -163,8 +152,8 @@ export default function GraphPathwaySearch() {
     }
   };
 
-  const addNodeToPathFromEventV2 = (event: EventObjectNode) => {
-    if (event.target.hasClass("path-element")) {
+  const addNodeToPathV2 = (node: NodeSingular, cy: cytoscape.Core) => {
+    if (node.hasClass("path-element")) {
       // TODO: May want to enable some behavior when an element already in the path is selected, but for now, do nothing.
       return;
     }
@@ -172,24 +161,23 @@ export default function GraphPathwaySearch() {
     const path = pathRef.current;
     if (path !== undefined) {
       // Get selected node data, and get new data for its connected nodes and relationships
-      const selectedNode: CytoscapeNodeData = event.target.data();
-      const selectedNodeLabels = selectedNode.neo4j?.labels || [];
+      const selectedNodeData: CytoscapeNodeData = node.data();
+      const selectedNodeLabels = selectedNodeData.neo4j?.labels || [];
       const { nodes, edges } =
         selectedNodeLabels.length > 0
-          ? getConnectedElements(selectedNodeLabels[0], selectedNode.id)
+          ? getConnectedElements(selectedNodeLabels[0], selectedNodeData.id)
           : { nodes: [], edges: [] };
 
       // Then, add the selected node and the edge connecting it to the previous head of the path
-      path.push(event.target.connectedEdges().first().id());
-      path.push(selectedNode.id);
+      path.push(node.connectedEdges().first().id(), selectedNodeData.id);
       path.forEach((id) => {
-        event.cy.getElementById(id).addClass("path-element");
+        cy.getElementById(id).addClass("path-element");
       });
 
       // Finally, update state
       setElements([
         ...nodes,
-        ...event.cy.elements().map((element) => {
+        ...cy.elements().map((element) => {
           return { classes: element.classes(), data: element.data() };
         }),
         ...edges,
@@ -202,8 +190,24 @@ export default function GraphPathwaySearch() {
       event: "tap",
       target: "node",
       callback: (event: EventObjectNode) => {
-        addNodeToPathFromEventV1(event);
-        // addNodeToPathFromEventV2(event);
+        addNodeToPathV1(event.target, event.cy);
+        // addNodeToPathV2(event.target, event.cy);
+      },
+    },
+    {
+      event: "tap",
+      target: "edge",
+      callback: (event: EventObjectEdge) => {
+        if (pathRef.current !== undefined) {
+          const path = pathRef.current;
+          const sourceInPath = path.includes(event.target.source().data("id"));
+          const targetNode = sourceInPath
+            ? event.target.target()
+            : event.target.source();
+
+          addNodeToPathV1(targetNode, event.cy);
+          // addNodeToPathV2(targetNode, event.cy);
+        }
       },
     },
     {
