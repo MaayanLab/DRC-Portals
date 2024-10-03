@@ -351,7 +351,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       <ClientExpander>
         <Grid container spacing={1} sx={{marginTop: 2}}>
           {expand_filter && <Grid item xs={12} sm={3}>
-            <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+            <Link href={`/info/training_and_outreach?filter=${JSON.stringify({...parsedParams, expand_filter: !(expand_filter)})}`}>
               <Button variant="outlined" color="secondary">
                 Collapse Filter
               </Button>
