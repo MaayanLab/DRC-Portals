@@ -3,6 +3,7 @@ WORKDIR /app
 
 # fix "sharp-missing-in-production" warning
 RUN npm i -g sharp
+ENV NEXT_SHARP_PATH=/usr/local/lib/node_modules/sharp
 
 ADD .next/standalone ./
 ADD .next/static ./.next/static
