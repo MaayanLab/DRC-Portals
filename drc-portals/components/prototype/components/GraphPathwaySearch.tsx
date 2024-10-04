@@ -1,5 +1,6 @@
 "use client";
 
+import PublishIcon from "@mui/icons-material/Publish";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { Grid, IconButton, Tooltip } from "@mui/material";
 
@@ -10,6 +11,7 @@ import cytoscape, {
   NodeSingular,
 } from "cytoscape";
 import { produce } from "immer";
+import { useRouter } from "next/navigation";
 import { Fragment, useCallback, useState } from "react";
 import { v4 } from "uuid";
 
@@ -17,7 +19,8 @@ import {
   PATHWAY_INCOMING_CONNECTIONS,
   PATHWAY_OUTGOING_CONNECTIONS,
 } from "@/lib/neo4j/constants";
-import { NodeResult } from "@/lib/neo4j/types";
+import { Direction } from "@/lib/neo4j/enums";
+import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
 
 import { DAGRE_LAYOUT, DAGRE_STYLESHEET } from "../constants/cy";
 import { SearchBarContainer } from "../constants/search-bar";
@@ -27,21 +30,29 @@ import {
   CytoscapeNode,
   CytoscapeNodeData,
 } from "../interfaces/cy";
-import { PathNode } from "../interfaces/pathway-search";
 import { CustomToolbarFnFactory } from "../types/cy";
 import { createCytoscapeEdge, createCytoscapeNode } from "../utils/cy";
-import { findNode } from "../utils/pathway-search";
+import { findNode, traverseTree } from "../utils/pathway-search";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
+import { createVerticalDividerElement } from "../utils/shared";
 
 export default function GraphPathwaySearch() {
+  const router = useRouter();
   const [elements, setElements] = useState<ElementDefinition[]>([]);
-  const [tree, setTree] = useState<PathNode>();
+  const [tree, setTree] = useState<PathwayNode>();
 
   const reset = () => {
     setElements([]);
     setTree(undefined);
+  };
+
+  const getResults = () => {
+    if (tree !== undefined) {
+      const query = btoa(JSON.stringify(traverseTree(tree)));
+      router.push(`/data/c2m2/graph/search/pathway/results?q=${query}`);
+    }
   };
 
   const handleAddElements = useCallback((elements: ElementDefinition[]) => {
@@ -52,9 +63,9 @@ export default function GraphPathwaySearch() {
     );
   }, []);
 
-  // TODO: Just pass an entire PathNode object here?
+  // TODO: Just pass an entire PathwayNode object here?
   const handleUpdateTreeNodeProp = useCallback(
-    (nodeId: string, update: Partial<PathNode>) => {
+    (nodeId: string, update: Partial<PathwayNode>) => {
       setTree(
         produce((draft) => {
           if (draft !== undefined) {
@@ -69,18 +80,21 @@ export default function GraphPathwaySearch() {
     []
   );
 
-  const handleAddNodeChild = useCallback((nodeId: string, child: PathNode) => {
-    setTree(
-      produce((draft) => {
-        if (draft !== undefined) {
-          const node = findNode(nodeId, draft);
-          if (node !== undefined) {
-            node.children.push(child);
+  const handleAddNodeChild = useCallback(
+    (nodeId: string, child: PathwayNode) => {
+      setTree(
+        produce((draft) => {
+          if (draft !== undefined) {
+            const node = findNode(nodeId, draft);
+            if (node !== undefined) {
+              node.children.push(child);
+            }
           }
-        }
-      })
-    );
-  }, []);
+        })
+      );
+    },
+    []
+  );
 
   const getConnectedElements = (
     label: string,
@@ -178,10 +192,8 @@ export default function GraphPathwaySearch() {
     const nodeLabels = nodeData.neo4j?.labels;
     if (nodeLabels !== undefined && nodeLabels.length > 0) {
       const edge = node.connectedEdges().first();
-      const nodeParentId =
-        edge.source().id() === node.id()
-          ? edge.target().id()
-          : edge.source().id();
+      // "Parent" is always the source node (i.e., the one higher in the tree), even if the edge is visually going "up" the tree
+      const nodeParentId = edge.source().id();
       const { nodes, edges } = getConnectedElements(nodeLabels[0], nodeData.id);
       // TODO: Should probably have a constant for this style class, and the other classes for that matter
       edge.addClass("path-element");
@@ -204,9 +216,12 @@ export default function GraphPathwaySearch() {
         relationshipToParent: {
           id: edge.id(),
           type: edge.data("neo4j").type,
+          direction: edge.hasClass("source-arrow-only")
+            ? Direction.INCOMING
+            : Direction.OUTGOING,
           props: edge.data("neo4j").properties,
         },
-        props: nodeData,
+        props: nodeData.neo4j?.properties,
       });
       // TODO: Use an immer handler here instead?
       setElements([...pathNodes, ...nodes, ...pathEdges, ...edges]);
@@ -228,10 +243,8 @@ export default function GraphPathwaySearch() {
     const nodeLabels = nodeData.neo4j?.labels;
     if (nodeLabels !== undefined && nodeLabels.length > 0) {
       const edge = node.connectedEdges().first();
-      const nodeParentId =
-        edge.source().id() === node.id()
-          ? edge.target().id()
-          : edge.source().id();
+      // "Parent" is always the source node (i.e., the one higher in the tree), even if the edge is visually going "up" the tree
+      const nodeParentId = edge.source().id();
       const { nodes, edges } = getConnectedElements(nodeLabels[0], nodeData.id);
 
       // TODO: Should probably have a constant for this style class, and the other classes for that matter
@@ -244,9 +257,12 @@ export default function GraphPathwaySearch() {
         relationshipToParent: {
           id: edge.id(),
           type: edge.data("neo4j").type,
+          direction: edge.hasClass("source-arrow-only")
+            ? Direction.INCOMING
+            : Direction.OUTGOING,
           props: edge.data("neo4j").properties,
         },
-        props: nodeData,
+        props: nodeData.neo4j?.properties,
       });
       handleAddElements([...nodes, ...edges]);
     } else {
@@ -263,6 +279,24 @@ export default function GraphPathwaySearch() {
             <IconButton aria-label="start-over" onClick={reset}>
               <RestartAltIcon />
             </IconButton>
+          </Tooltip>
+        </Fragment>
+      );
+    },
+    () => createVerticalDividerElement("pathway-search-reset-toolbar-divider"),
+    () => {
+      return (
+        <Fragment key="pathway-search-chart-toolbar-find-results">
+          <Tooltip title="Find Results" arrow>
+            <span>
+              <IconButton
+                aria-label="find-results"
+                onClick={getResults}
+                disabled={tree === undefined}
+              >
+                <PublishIcon />
+              </IconButton>
+            </span>
           </Tooltip>
         </Fragment>
       );

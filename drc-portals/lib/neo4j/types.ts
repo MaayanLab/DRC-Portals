@@ -73,6 +73,21 @@ export interface SearchPath {
   limit: number;
 }
 
+export interface PathwayRelationship {
+  id: string;
+  type: string;
+  direction: Direction;
+  props?: { [key: string]: any };
+}
+
+export interface PathwayNode {
+  id: string;
+  label: string;
+  children: PathwayNode[];
+  props?: { [key: string]: any };
+  relationshipToParent?: PathwayRelationship;
+}
+
 export type PropValue = string | number;
 
 export type PathElement = NodePathElement | RelationshipPathElement;

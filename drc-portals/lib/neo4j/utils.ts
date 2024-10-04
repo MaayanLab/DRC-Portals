@@ -2,7 +2,12 @@
 import parser from "lucene-query-parser";
 import { v4 } from "uuid";
 
-import { PathElement, RelationshipPathElement } from "./types";
+import {
+  PathElement,
+  PathwayNode,
+  PathwayRelationship,
+  RelationshipPathElement,
+} from "./types";
 
 export const escapeCypherString = (input: string) => {
   // convert any \u0060 to literal backtick, then escape backticks, and finally wrap in single quotes and backticks
@@ -49,6 +54,14 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
+export const createPropReprStr = (props: { [key: string]: any }) => {
+  const propStrs: string[] = [];
+  Object.entries(props).forEach(([key, value]) => {
+    propStrs.push(`${key}: ${JSON.stringify(value)}`);
+  });
+  return `{${propStrs.join(", ")}}`;
+};
+
 export const isRelationshipElement = (
   option: PathElement
 ): option is RelationshipPathElement => {
@@ -77,4 +90,10 @@ export const getParamsForBrowser = (params: Object) => {
       }
     })
     .join(", ")} }`;
+};
+
+export const isPathwayRelationshipElement = (
+  element: PathwayNode | PathwayRelationship
+): element is PathwayRelationship => {
+  return (element as PathwayRelationship).direction !== undefined;
 };

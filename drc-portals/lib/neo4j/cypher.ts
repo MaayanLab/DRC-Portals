@@ -1,10 +1,19 @@
 import { CORE_LABELS, OPERATOR_FUNCTIONS } from "./constants";
 import { Direction } from "./enums";
-import { BasePropFilter, PathElement, PredicateFn, SearchPath } from "./types";
+import {
+  BasePropFilter,
+  PathElement,
+  PathwayNode,
+  PathwayRelationship,
+  PredicateFn,
+  SearchPath,
+} from "./types";
 import {
   createNodeReprStr,
+  createPropReprStr,
   createRelReprStr,
   escapeCypherString,
+  isPathwayRelationshipElement,
   isRelationshipElement,
 } from "./utils";
 
@@ -446,6 +455,60 @@ export const createSchemaSearchCypher = (paths: SearchPath[]) => {
     .join(", ")}])) AS nodes, apoc.coll.toSet(apoc.coll.flatten([${Array.from(
     relationshipKeys
   )
+    .map((key) => `collect(${createRelReprStr(key)})`)
+    .join(", ")}])) AS relationships
+  `;
+};
+
+// TODO: Need to make sure everything is cypher-escaped!
+export const createPathwaySearchCypher = (
+  paths: (PathwayNode | PathwayRelationship)[][]
+) => {
+  const nodeKeys = new Set<string>();
+  const relationshipKeys = new Set<string>();
+  const matchStmts: string[] = [];
+
+  paths.forEach((path) => {
+    let matchStmt = "\tMATCH ";
+    path.forEach((element) => {
+      if (isPathwayRelationshipElement(element)) {
+        const relKey = `\`${element.id}\``;
+        relationshipKeys.add(relKey);
+        matchStmt += `${
+          element.direction === Direction.INCOMING ? "<" : ""
+        }-[${relKey}:${element.type}${
+          element.props !== undefined && Object.keys(element.props).length > 0
+            ? " " + createPropReprStr(element.props)
+            : ""
+        }]-${element.direction === Direction.OUTGOING ? ">" : ""}`;
+      } else {
+        const nodeKey = `\`${element.id}\``;
+        nodeKeys.add(nodeKey);
+        matchStmt += `(${nodeKey}:${element.label}${
+          element.props !== undefined && Object.keys(element.props).length > 0
+            ? " " + createPropReprStr(element.props)
+            : ""
+        })`;
+      }
+    });
+    matchStmts.push(matchStmt);
+  });
+
+  const nodeKeyArray = Array.from(nodeKeys);
+  const relKeyArray = Array.from(relationshipKeys);
+  const queryVarsStr = `${nodeKeyArray.join(", ")}${
+    relKeyArray.length > 0 ? ", " + relKeyArray.join(", ") : ""
+  }`;
+  return `
+  CALL {
+    ${matchStmts.join("\n")}
+    \tRETURN ${queryVarsStr}
+    \tLIMIT 1
+  }
+  WITH ${queryVarsStr}
+  RETURN apoc.coll.toSet(apoc.coll.flatten([${nodeKeyArray
+    .map((key) => `collect(${createNodeReprStr(key)})`)
+    .join(", ")}])) AS nodes, apoc.coll.toSet(apoc.coll.flatten([${relKeyArray
     .map((key) => `collect(${createRelReprStr(key)})`)
     .join(", ")}])) AS relationships
   `;

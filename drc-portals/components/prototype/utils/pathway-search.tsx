@@ -1,11 +1,15 @@
-import { PathNode, PathRelationship } from "../interfaces/pathway-search";
+import { PathwayNode, PathwayRelationship } from "@/lib/neo4j/types";
 
+// TODO: This needs to be a little smarter about what it adds to the tree, we don't need to include children
 export function traverseTree(
-  root: PathNode
-): (PathNode | PathRelationship)[][] {
-  const paths: (PathNode | PathRelationship)[][] = [];
+  root: PathwayNode
+): (PathwayNode | PathwayRelationship)[][] {
+  const paths: (PathwayNode | PathwayRelationship)[][] = [];
 
-  function dfs(node: PathNode, currentPath: (PathNode | PathRelationship)[]) {
+  function dfs(
+    node: PathwayNode,
+    currentPath: (PathwayNode | PathwayRelationship)[]
+  ) {
     // Add the current node's relationship back to its parent to the path
     if (node.relationshipToParent !== undefined) {
       currentPath.push(node.relationshipToParent);
@@ -33,8 +37,11 @@ export function traverseTree(
   return paths;
 }
 
-export function findNode(id: string, root: PathNode): PathNode | undefined {
-  function dfs(node: PathNode): PathNode | undefined {
+export function findNode(
+  id: string,
+  root: PathwayNode
+): PathwayNode | undefined {
+  function dfs(node: PathwayNode): PathwayNode | undefined {
     if (node.id === id) {
       return node;
     }

@@ -76,3 +76,11 @@ export const fetchPathSearch = (query: string, cypherParams: string) =>
       },
     }
   );
+
+export const fetchPathwaySearch = (query: string) =>
+  fetch(`${GRAPH_API_PREFIX}/search/pathway?q=${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
