@@ -228,7 +228,7 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
 }) {
     const now = new Date()
     
-    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: false, status: ['active', 'recurring', 'past'], cfde_specific: true, past_limit: 5})
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: false, status: ['active', 'recurring', 'past'], cfde_specific: false, past_limit: 5})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
     const {tags, type, expand_filter, status=['active', 'recurring', 'past'], cfde_specific, past_limit=5} = parsedParams
     let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]): [...type_tags('outreach'), ...type_tags('training')]
@@ -440,7 +440,7 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
               <Grid item xs={12}>
                 <Grid container justifyContent={"space-between"}>
                   <Grid item sx={{height: 50}}>
-                    { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+                    { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({...parsedParams, expand_filter: !(expand_filter)})}`}>
                       <Button variant="outlined" color="secondary">
                         Expand Filter
                       </Button>
