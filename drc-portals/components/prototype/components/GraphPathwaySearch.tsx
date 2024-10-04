@@ -1,6 +1,7 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { Grid, IconButton, Tooltip } from "@mui/material";
 
 import cytoscape, {
   ElementDefinition,
@@ -9,7 +10,7 @@ import cytoscape, {
   NodeSingular,
 } from "cytoscape";
 import { produce } from "immer";
-import { useCallback, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { v4 } from "uuid";
 
 import {
@@ -27,6 +28,7 @@ import {
   CytoscapeNodeData,
 } from "../interfaces/cy";
 import { PathNode } from "../interfaces/pathway-search";
+import { CustomToolbarFnFactory } from "../types/cy";
 import { createCytoscapeEdge, createCytoscapeNode } from "../utils/cy";
 import { findNode } from "../utils/pathway-search";
 
@@ -36,6 +38,11 @@ import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
 export default function GraphPathwaySearch() {
   const [elements, setElements] = useState<ElementDefinition[]>([]);
   const [tree, setTree] = useState<PathNode>();
+
+  const reset = () => {
+    setElements([]);
+    setTree(undefined);
+  };
 
   const handleAddElements = useCallback((elements: ElementDefinition[]) => {
     setElements(
@@ -248,6 +255,20 @@ export default function GraphPathwaySearch() {
     }
   };
 
+  const customTools: CustomToolbarFnFactory[] = [
+    () => {
+      return (
+        <Fragment key="pathway-search-chart-toolbar-reset-search">
+          <Tooltip title="Start Over" arrow>
+            <IconButton aria-label="start-over" onClick={reset}>
+              <RestartAltIcon />
+            </IconButton>
+          </Tooltip>
+        </Fragment>
+      );
+    },
+  ];
+
   const customEventHandlers: CytoscapeEvent[] = [
     {
       event: "tap",
@@ -310,10 +331,11 @@ export default function GraphPathwaySearch() {
         }}
       >
         <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
-          {/* TODO: This needs to disappear after the initial load, which I suppose could be achieved by looking at the path length */}
-          <SearchBarContainer>
-            <PathwaySearchBar onSubmit={handleSubmit}></PathwaySearchBar>
-          </SearchBarContainer>
+          {tree === undefined ? (
+            <SearchBarContainer>
+              <PathwaySearchBar onSubmit={handleSubmit}></PathwaySearchBar>
+            </SearchBarContainer>
+          ) : null}
           <CytoscapeChart
             elements={elements}
             layout={DAGRE_LAYOUT}
@@ -321,6 +343,7 @@ export default function GraphPathwaySearch() {
             cxtMenuEnabled={false}
             tooltipEnabled={false}
             toolbarPosition={{ top: 10, right: 10 }}
+            customTools={customTools}
             autoungrabify={true}
             customEventHandlers={customEventHandlers}
           ></CytoscapeChart>
