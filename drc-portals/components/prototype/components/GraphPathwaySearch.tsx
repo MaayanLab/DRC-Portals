@@ -8,7 +8,8 @@ import cytoscape, {
   EventObjectNode,
   NodeSingular,
 } from "cytoscape";
-import { useRef, useState } from "react";
+import { produce } from "immer";
+import { useCallback, useState } from "react";
 import { v4 } from "uuid";
 
 import {
@@ -25,15 +26,54 @@ import {
   CytoscapeNode,
   CytoscapeNodeData,
 } from "../interfaces/cy";
+import { PathNode } from "../interfaces/pathway-search";
 import { createCytoscapeEdge, createCytoscapeNode } from "../utils/cy";
+import { findNode } from "../utils/pathway-search";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
 
 export default function GraphPathwaySearch() {
-  // TODO: Use immer for better immutable state management?
   const [elements, setElements] = useState<ElementDefinition[]>([]);
-  const pathRef = useRef<string[]>([]); // May want to useState here instead for loading/unloading the search bar, filters, etc.
+  const [tree, setTree] = useState<PathNode>();
+
+  const handleAddElements = useCallback((elements: ElementDefinition[]) => {
+    setElements(
+      produce((draft) => {
+        draft.push(...elements);
+      })
+    );
+  }, []);
+
+  // TODO: Just pass an entire PathNode object here?
+  const handleUpdateTreeNodeProp = useCallback(
+    (nodeId: string, update: Partial<PathNode>) => {
+      setTree(
+        produce((draft) => {
+          if (draft !== undefined) {
+            let node = findNode(nodeId, draft);
+            if (node !== undefined) {
+              node = { ...node, ...update };
+            }
+          }
+        })
+      );
+    },
+    []
+  );
+
+  const handleAddNodeChild = useCallback((nodeId: string, child: PathNode) => {
+    setTree(
+      produce((draft) => {
+        if (draft !== undefined) {
+          const node = findNode(nodeId, draft);
+          if (node !== undefined) {
+            node.children.push(child);
+          }
+        }
+      })
+    );
+  }, []);
 
   const getConnectedElements = (
     label: string,
@@ -92,9 +132,11 @@ export default function GraphPathwaySearch() {
   };
 
   const handleSubmit = (cvTerm: NodeResult) => {
-    const path = pathRef.current;
-    if (path !== undefined) {
-      path.push(cvTerm.uuid);
+    // TODO: Direct node results *should* always have at least one label since they are required on all Neo4j nodes, so maybe this check
+    // isn't necessary? If we had validation on the search request response we could throw an error before reaching this point...
+    if (cvTerm.labels === undefined || cvTerm.labels.length === 0) {
+      console.warn("CV term search returned node with no labels! Aborting.");
+      return;
     }
 
     // TODO: It's worth noting we do not set a selected node upon initial load, but it's possible there is a reason to do it
@@ -103,85 +145,106 @@ export default function GraphPathwaySearch() {
       cvTerm.uuid
     );
     setElements([
+      // TODO: Should probably have a constant for this style class, and the other classes for that matter
       createCytoscapeNode(cvTerm, ["path-element"]),
       ...nodes,
       ...edges,
     ]);
+    setTree({
+      id: cvTerm.uuid,
+      label: cvTerm.labels[0],
+      props: cvTerm.properties,
+      children: [],
+    });
   };
 
+  // TODO: As time permits, need to simplify the logic here, it's fairly straightforward on paper but the implementation is too verbose...
   const addNodeToPathV1 = (node: NodeSingular, cy: cytoscape.Core) => {
+    // TODO: Should probably have a constant for this style class, and the other classes for that matter
     if (node.hasClass("path-element")) {
       // TODO: May want to enable some behavior when an element already in the path is selected, but for now, do nothing.
       return;
     }
 
-    const path = pathRef.current;
-    if (path !== undefined) {
-      // Get selected node data, and get new data for its connected nodes and relationships
-      const selectedNodeData: CytoscapeNodeData = node.data();
-      const selectedNodeLabels = selectedNodeData.neo4j?.labels || [];
-      const { nodes, edges } =
-        selectedNodeLabels.length > 0
-          ? getConnectedElements(selectedNodeLabels[0], selectedNodeData.id)
-          : { nodes: [], edges: [] };
-      const newElements: ElementDefinition[] = [...nodes, ...edges];
-
-      // Then, add the selected node and the edge connecting it to the previous head of the path
-      path.push(node.connectedEdges().first().id(), selectedNodeData.id);
-      path.forEach((id) => {
-        const element = cy.getElementById(id);
-        if (element.isNode()) {
-          newElements.unshift({
-            classes: [...element.classes(), "path-element"],
-            data: element.data(),
-          });
+    // Get selected node data, and get new data for its connected nodes and relationships
+    const nodeData: CytoscapeNodeData = node.data();
+    const nodeLabels = nodeData.neo4j?.labels;
+    if (nodeLabels !== undefined && nodeLabels.length > 0) {
+      const edge = node.connectedEdges().first();
+      const nodeParentId =
+        edge.source().id() === node.id()
+          ? edge.target().id()
+          : edge.source().id();
+      const { nodes, edges } = getConnectedElements(nodeLabels[0], nodeData.id);
+      // TODO: Should probably have a constant for this style class, and the other classes for that matter
+      edge.addClass("path-element");
+      node.addClass("path-element");
+      const pathNodes = [node, ...Array.from(cy.nodes(".path-element"))].map(
+        (n) => {
+          return { classes: [...n.classes(), "path-element"], data: n.data() };
         }
-
-        // Typing is odd here for some reason, hence the extra `if` rather than an `else` or `else if`
-        if (element.isEdge()) {
-          // Edges must appear AFTER all nodes or Cytoscape will throw an error complaining about missing nodes
-          newElements.push({
-            classes: [...element.classes(), "path-element"],
-            data: element.data(),
-          });
+      );
+      const pathEdges = [edge, ...Array.from(cy.edges(".path-element"))].map(
+        (e) => {
+          return { classes: [...e.classes(), "path-element"], data: e.data() };
         }
+      );
+
+      handleAddNodeChild(nodeParentId, {
+        id: node.id(),
+        label: nodeLabels[0],
+        children: [],
+        relationshipToParent: {
+          id: edge.id(),
+          type: edge.data("neo4j").type,
+          props: edge.data("neo4j").properties,
+        },
+        props: nodeData,
       });
-
-      // Finally, update state
-      setElements(newElements);
+      // TODO: Use an immer handler here instead?
+      setElements([...pathNodes, ...nodes, ...pathEdges, ...edges]);
+    } else {
+      // TODO: Need to have better handling of this error even if it *should* never happen, but logging the issue should suffice for now
+      console.error("Attempted to add node to path with no labels! Aborting.");
     }
   };
 
   const addNodeToPathV2 = (node: NodeSingular, cy: cytoscape.Core) => {
+    // TODO: Should probably have a constant for this style class, and the other classes for that matter
     if (node.hasClass("path-element")) {
       // TODO: May want to enable some behavior when an element already in the path is selected, but for now, do nothing.
       return;
     }
 
-    const path = pathRef.current;
-    if (path !== undefined) {
-      // Get selected node data, and get new data for its connected nodes and relationships
-      const selectedNodeData: CytoscapeNodeData = node.data();
-      const selectedNodeLabels = selectedNodeData.neo4j?.labels || [];
-      const { nodes, edges } =
-        selectedNodeLabels.length > 0
-          ? getConnectedElements(selectedNodeLabels[0], selectedNodeData.id)
-          : { nodes: [], edges: [] };
+    // Get selected node data, and get new data for its connected nodes and relationships
+    const nodeData: CytoscapeNodeData = node.data();
+    const nodeLabels = nodeData.neo4j?.labels;
+    if (nodeLabels !== undefined && nodeLabels.length > 0) {
+      const edge = node.connectedEdges().first();
+      const nodeParentId =
+        edge.source().id() === node.id()
+          ? edge.target().id()
+          : edge.source().id();
+      const { nodes, edges } = getConnectedElements(nodeLabels[0], nodeData.id);
 
-      // Then, add the selected node and the edge connecting it to the previous head of the path
-      path.push(node.connectedEdges().first().id(), selectedNodeData.id);
-      path.forEach((id) => {
-        cy.getElementById(id).addClass("path-element");
+      // TODO: Should probably have a constant for this style class, and the other classes for that matter
+      edge.addClass("path-element");
+      node.addClass("path-element");
+      handleAddNodeChild(nodeParentId, {
+        id: node.id(),
+        label: nodeLabels[0],
+        children: [],
+        relationshipToParent: {
+          id: edge.id(),
+          type: edge.data("neo4j").type,
+          props: edge.data("neo4j").properties,
+        },
+        props: nodeData,
       });
-
-      // Finally, update state
-      setElements([
-        ...nodes,
-        ...cy.elements().map((element) => {
-          return { classes: element.classes(), data: element.data() };
-        }),
-        ...edges,
-      ]);
+      handleAddElements([...nodes, ...edges]);
+    } else {
+      // TODO: Need to have better handling of this error even if it *should* never happen, but logging the issue should suffice for now
+      console.error("Attempted to add node to path with no labels! Aborting.");
     }
   };
 
@@ -198,16 +261,11 @@ export default function GraphPathwaySearch() {
       event: "tap",
       target: "edge",
       callback: (event: EventObjectEdge) => {
-        if (pathRef.current !== undefined) {
-          const path = pathRef.current;
-          const sourceInPath = path.includes(event.target.source().data("id"));
-          const targetNode = sourceInPath
-            ? event.target.target()
-            : event.target.source();
-
-          addNodeToPathV1(targetNode, event.cy);
-          // addNodeToPathV2(targetNode, event.cy);
-        }
+        const targetNode = event.target.source().hasClass("path-element")
+          ? event.target.target()
+          : event.target.source();
+        addNodeToPathV1(targetNode, event.cy);
+        // addNodeToPathV2(targetNode, event.cy);
       },
     },
     {

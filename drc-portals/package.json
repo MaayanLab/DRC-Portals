@@ -54,6 +54,7 @@
     "fairshakeinsignia": "^1.0.3",
     "fs": "^0.0.1-security",
     "html-entities": "^2.5.2",
+    "immer": "^10.1.1",
     "js-cookie": "^3.0.5",
     "js-file-download": "^0.4.12",
     "jssha": "^3.3.1",
