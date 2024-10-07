@@ -47,12 +47,14 @@ function formatBytes(bytes: number, decimals: number) {
 type FileAssetInfo = {
     open: boolean;
     fileInfo: FileAsset;
+    fairAssessment: FairAssessment | undefined;
     type: 'FileAsset'
 }
 
 type CodeAssetInfo = {
     open: boolean;
     fileInfo: CodeAsset;
+    fairAssessment: FairAssessment | undefined;
     type: 'CodeAsset'
 }
 
@@ -75,6 +77,10 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                     <TableRow>
                         <TableCell variant="head" style={{ width: 200 }}>Checksum (SHA256)</TableCell>
                         <TableCell>{props.fileInfo.sha256checksum ? Buffer.from(props.fileInfo.sha256checksum, 'base64').toString('hex') : ''}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell variant="head" align="left" style={{ width: 200 }}>FAIR Assessment</TableCell>
+                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'}</TableCell>
                     </TableRow>
                 </Table>
             </Box>}
@@ -121,6 +127,10 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                                 <TableCell >{props.fileInfo.description}</TableCell>
                             </TableRow>}
                         </>}
+                    <TableRow>
+                        <TableCell variant="head" align="left" style={{ width: 200 }}>Date FAIR Assessed</TableCell>
+                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'}</TableCell>
+                    </TableRow>
                 </Table>
             </Box>}
         </Collapse>
@@ -233,8 +243,8 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
-                    {assetInfoType === 'FileAsset' && <FileInfo open={open} fileInfo={fileInfo as FileAsset} type='FileAsset' />}
-                    {assetInfoType === 'CodeAsset' && <FileInfo open={open} fileInfo={fileInfo as CodeAsset} type='CodeAsset' />}
+                    {assetInfoType === 'FileAsset' && <FileInfo open={open} fileInfo={fileInfo as FileAsset} type='FileAsset' fairAssessment={fairAssessment} />}
+                    {assetInfoType === 'CodeAsset' && <FileInfo open={open} fileInfo={fileInfo as CodeAsset} type='CodeAsset' fairAssessment={fairAssessment} />}
                 </TableCell>
             </TableRow>
         </>
