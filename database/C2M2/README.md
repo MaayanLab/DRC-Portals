@@ -119,7 +119,7 @@ psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logdir}/log_create_
 host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 # Example of 
 ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh ${host1} ${host2} ${dbname} ${logdir} ${sch} > \
-main_pg_dump_log_${ymd}.log 2>&1
+${logdir}/main_pg_dump_log_${ymd}.log 2>&1
 #-------------------------------------------------------------------------------------------------------
 
 
