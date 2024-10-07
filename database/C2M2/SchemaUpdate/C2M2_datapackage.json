@@ -88,7 +88,7 @@
                   "description": "A filename with no prepended PATH information",
                   "type": "string",
                   "constraints": {
-                     "required": true, 
+                     "required": true,
                      "pattern": "^[^\/\\:]+$"
                   }
                },
@@ -138,8 +138,13 @@
                   "type": "string"
                }
             ],
-            "missingValues": [ "" ],
-            "primaryKey": [ "id_namespace", "local_id" ],
+            "missingValues": [
+               ""
+            ],
+            "primaryKey": [
+               "id_namespace",
+               "local_id"
+            ],
             "foreignKeys": [
                {
                   "fields": "id_namespace",
@@ -149,10 +154,16 @@
                   }
                },
                {
-                  "fields": [ "project_id_namespace", "project_local_id" ],
+                  "fields": [
+                     "project_id_namespace",
+                     "project_local_id"
+                  ],
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -191,10 +202,16 @@
                   }
                },
                {
-                  "fields": [ "bundle_collection_id_namespace", "bundle_collection_local_id" ],
+                  "fields": [
+                     "bundle_collection_id_namespace",
+                     "bundle_collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -269,8 +286,13 @@
                   "type": "string"
                }
             ],
-            "missingValues": [ "" ],
-            "primaryKey": [ "id_namespace", "local_id" ],
+            "missingValues": [
+               ""
+            ],
+            "primaryKey": [
+               "id_namespace",
+               "local_id"
+            ],
             "foreignKeys": [
                {
                   "fields": "id_namespace",
@@ -280,10 +302,16 @@
                   }
                },
                {
-                  "fields": [ "project_id_namespace", "project_local_id" ],
+                  "fields": [
+                     "project_id_namespace",
+                     "project_local_id"
+                  ],
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -403,8 +431,13 @@
                   "type": "number"
                }
             ],
-            "missingValues": [ "" ],
-            "primaryKey": [ "id_namespace", "local_id" ],
+            "missingValues": [
+               ""
+            ],
+            "primaryKey": [
+               "id_namespace",
+               "local_id"
+            ],
             "foreignKeys": [
                {
                   "fields": "id_namespace",
@@ -414,10 +447,16 @@
                   }
                },
                {
-                  "fields": [ "project_id_namespace", "project_local_id" ],
+                  "fields": [
+                     "project_id_namespace",
+                     "project_local_id"
+                  ],
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -512,15 +551,25 @@
                   }
                }
             ],
-            "missingValues": [ "" ],
-            "primaryKey": [ "id" ],
+            "missingValues": [
+               ""
+            ],
+            "primaryKey": [
+               "id"
+            ],
             "foreignKeys": [
                {
-                  "fields": [ "project_id_namespace", "project_local_id" ],
+                  "fields": [
+                     "project_id_namespace",
+                     "project_local_id"
+                  ],
                   "constraint_name": "dcc_project_fkey",
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -583,7 +632,7 @@
                   "constraints": {
                      "required": true,
                      "unique": true
-                  }                  
+                  }
                },
                {
                   "name": "description",
@@ -591,8 +640,13 @@
                   "type": "string"
                }
             ],
-            "missingValues": [ "" ],
-            "primaryKey": [ "id_namespace", "local_id" ],
+            "missingValues": [
+               ""
+            ],
+            "primaryKey": [
+               "id_namespace",
+               "local_id"
+            ],
             "foreignKeys": [
                {
                   "fields": "id_namespace",
@@ -660,17 +714,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "parent_project_id_namespace", "parent_project_local_id" ],
+                  "fields": [
+                     "parent_project_id_namespace",
+                     "parent_project_local_id"
+                  ],
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "child_project_id_namespace", "child_project_local_id" ],
+                  "fields": [
+                     "child_project_id_namespace",
+                     "child_project_local_id"
+                  ],
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -746,8 +812,13 @@
                   "type": "boolean"
                }
             ],
-            "missingValues": [ "" ],
-            "primaryKey": [ "id_namespace", "local_id" ],
+            "missingValues": [
+               ""
+            ],
+            "primaryKey": [
+               "id_namespace",
+               "local_id"
+            ],
             "foreignKeys": [
                {
                   "fields": "id_namespace",
@@ -815,17 +886,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "superset_collection_id_namespace", "superset_collection_local_id" ],
+                  "fields": [
+                     "superset_collection_id_namespace",
+                     "superset_collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "subset_collection_id_namespace", "subset_collection_local_id" ],
+                  "fields": [
+                     "subset_collection_id_namespace",
+                     "subset_collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -887,17 +970,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "file_id_namespace", "file_local_id" ],
+                  "fields": [
+                     "file_id_namespace",
+                     "file_local_id"
+                  ],
                   "reference": {
                      "resource": "file",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -959,17 +1054,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "project_id_namespace", "project_local_id" ],
+                  "fields": [
+                     "project_id_namespace",
+                     "project_local_id"
+                  ],
                   "reference": {
                      "resource": "project",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1031,17 +1138,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "file_id_namespace", "file_local_id" ],
+                  "fields": [
+                     "file_id_namespace",
+                     "file_local_id"
+                  ],
                   "reference": {
                      "resource": "file",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1103,17 +1222,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "biosample_id_namespace", "biosample_local_id" ],
+                  "fields": [
+                     "biosample_id_namespace",
+                     "biosample_local_id"
+                  ],
                   "reference": {
                      "resource": "biosample",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1175,17 +1306,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1247,17 +1390,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "file_id_namespace", "file_local_id" ],
+                  "fields": [
+                     "file_id_namespace",
+                     "file_local_id"
+                  ],
                   "reference": {
                      "resource": "file",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "biosample_id_namespace", "biosample_local_id" ],
+                  "fields": [
+                     "biosample_id_namespace",
+                     "biosample_local_id"
+                  ],
                   "reference": {
                      "resource": "biosample",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1319,17 +1474,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "file_id_namespace", "file_local_id" ],
+                  "fields": [
+                     "file_id_namespace",
+                     "file_local_id"
+                  ],
                   "reference": {
                      "resource": "file",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1386,9 +1553,11 @@
                   "name": "age_at_sampling",
                   "description": "The age in years (with a fixed precision of two digits past the decimal point) of this subject when this biosample was taken",
                   "type": "number"
-               }   
+               }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": [
                "biosample_id_namespace",
                "biosample_local_id",
@@ -1397,17 +1566,29 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "biosample_id_namespace", "biosample_local_id" ],
+                  "fields": [
+                     "biosample_id_namespace",
+                     "biosample_local_id"
+                  ],
                   "reference": {
                      "resource": "biosample",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -1473,10 +1654,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "biosample_id_namespace", "biosample_local_id" ],
+                  "fields": [
+                     "biosample_id_namespace",
+                     "biosample_local_id"
+                  ],
                   "reference": {
                      "resource": "biosample",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1549,10 +1736,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1612,10 +1805,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1675,10 +1874,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1738,10 +1943,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1801,10 +2012,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1864,10 +2081,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1927,10 +2150,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -1990,10 +2219,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2053,10 +2288,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "collection_id_namespace", "collection_local_id" ],
+                  "fields": [
+                     "collection_id_namespace",
+                     "collection_local_id"
+                  ],
                   "reference": {
                      "resource": "collection",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2129,10 +2370,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2192,10 +2439,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "biosample_id_namespace", "biosample_local_id" ],
+                  "fields": [
+                     "biosample_id_namespace",
+                     "biosample_local_id"
+                  ],
                   "reference": {
                      "resource": "biosample",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2255,10 +2508,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2318,10 +2577,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "biosample_id_namespace", "biosample_local_id" ],
+                  "fields": [
+                     "biosample_id_namespace",
+                     "biosample_local_id"
+                  ],
                   "reference": {
                      "resource": "biosample",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2495,10 +2760,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                }
             ]
@@ -2570,10 +2841,16 @@
             ],
             "foreignKeys": [
                {
-                  "fields": [ "subject_id_namespace", "subject_local_id" ],
+                  "fields": [
+                     "subject_id_namespace",
+                     "subject_local_id"
+                  ],
                   "reference": {
                      "resource": "subject",
-                     "fields": [ "id_namespace", "local_id" ]
+                     "fields": [
+                        "id_namespace",
+                        "local_id"
+                     ]
                   }
                },
                {
@@ -2629,7 +2906,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2676,7 +2955,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2732,7 +3013,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2779,7 +3062,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2826,7 +3111,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2873,7 +3160,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2920,7 +3209,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -2967,7 +3258,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -3014,7 +3307,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -3069,7 +3364,9 @@
                   }
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id",
             "foreignKeys": [
                {
@@ -3134,7 +3431,9 @@
                   }
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id",
             "foreignKeys": [
                {
@@ -3198,7 +3497,9 @@
                   }
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id",
             "foreignKeys": [
                {
@@ -3308,7 +3609,9 @@
                   "type": "array"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       },
@@ -3359,10 +3662,11 @@
                   "type": "string"
                }
             ],
-            "missingValues": [ "" ],
+            "missingValues": [
+               ""
+            ],
             "primaryKey": "id"
          }
       }
    ]
 }
-
