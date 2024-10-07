@@ -29,7 +29,7 @@ function ensureSanitaryFiletype(filetype: string) {
         'Attribute Table',
         'C2M2',
         'KG Assertions',
-    ].includes('filetype')) {
+    ].includes(filetype)) {
         throw new Error(`Unrecognized filetype ${filetype}`)
     }
     return filetype
