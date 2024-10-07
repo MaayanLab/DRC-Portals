@@ -86,7 +86,6 @@ export default async function InfoFooter() {
                 </div>
               </Link>
               <Divider sx={{borderColor: "#FFF"}}/>
-              <Typography variant="subtitle1">Contact</Typography>  
               <SocialMedia/>
             </Stack>
           </Grid>
