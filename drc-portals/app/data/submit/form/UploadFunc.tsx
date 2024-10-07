@@ -16,20 +16,39 @@ import { queue_fairshake } from '@/tasks/fairshake';
 
 
 
-async function verifyUser() {
+async function verifyUser({ dcc }: { dcc?: string } = {}) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
     if (!(session.user.role === 'ADMIN' || session.user.role === 'UPLOADER' || session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER')) throw new Error('not authorized')
+    if (dcc && !session.user.dccs.includes(dcc)) throw new Error('not authorized')
 }
 
+function ensureSanitaryFiletype(filetype: string) {
+    if (![
+        'XMT',
+        'Attribute Table',
+        'C2M2',
+        'KG Assertions',
+    ].includes('filetype')) {
+        throw new Error(`Unrecognized filetype ${filetype}`)
+    }
+    return filetype
+}
 
-export const createPresignedUrl = async (filepath: string, checksumHash: string) => {
+function ensureSanitaryFilename(filename: string) {
+    return filename.replaceAll(/\.{2,}/g, '.').replaceAll(/\//g, '-')
+}
+
+export const createPresignedUrl = async (props: { dcc: string, filetype: string, filename: string, checksumHash: string }) => {
     if (!process.env.S3_ACCESS_KEY) throw new Error('s3 access key not defined')
     if (!process.env.S3_SECRET_KEY) throw new Error('s3 access key not defined')
     if (!process.env.S3_REGION) throw new Error('S3 region not configured')
     if (!process.env.S3_BUCKET) throw new Error('S3 bucket not configured')
 
-    await verifyUser();
+    await verifyUser({ dcc: props.dcc });
+
+    let date = new Date().toJSON().slice(0, 10)
+    let filepath = props.dcc.replace(' ', '') + '/' + ensureSanitaryFiletype(props.filetype) + '/' + date + '/' + ensureSanitaryFilename(props.filename)
 
     const s3Configuration: S3ClientConfig = {
         credentials: {
@@ -42,7 +61,7 @@ export const createPresignedUrl = async (filepath: string, checksumHash: string)
     const command = new PutObjectCommand({
         Bucket: process.env.S3_BUCKET,
         Key: filepath,
-        ChecksumSHA256: checksumHash
+        ChecksumSHA256: props.checksumHash
     });
     return getSignedUrl(s3, command, { expiresIn: 3600, unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
 };

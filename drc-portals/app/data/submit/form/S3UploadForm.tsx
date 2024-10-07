@@ -149,9 +149,12 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
       })
     }
     const checksumHash = hash.getHash('B64')
-    let date = new Date().toJSON().slice(0, 10)
-    let filepath = dcc.replace(' ', '') + '/' + filetype + '/' + date + '/' + file.name
-    const presignedurl = await createPresignedUrl(filepath, checksumHash)
+    const presignedurl = await createPresignedUrl({
+      dcc,
+      filetype,
+      filename: file.name,
+      checksumHash,
+    })
 
     setStatus(() => ({ loading: { selected: true, message: 'Uploading File to S3...' } }))
     await axios.put(presignedurl, file, {
