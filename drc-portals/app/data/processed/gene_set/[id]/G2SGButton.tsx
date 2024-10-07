@@ -6,7 +6,13 @@ import G2SGIcon from '@/public/img/icons/g2sg-logo.png'
 import CardButton from "@/app/data/processed/CardButton"
 import * as React from 'react';
 
-export default function G2SGButton(props: React.PropsWithChildren<{ title: React.ReactNode, description: React.ReactNode, body: any }>) {
+export default function G2SGButton(props: React.PropsWithChildren<{ title: React.ReactNode, description: React.ReactNode,
+    body: {
+        term: string,
+        genes?: string[],
+        description: string,
+    }
+}>) {
     return <CardButton
         icon={<Image src={G2SGIcon} alt="GeneSetCart" height={64} />}
         title={props.title}
@@ -15,6 +21,7 @@ export default function G2SGButton(props: React.PropsWithChildren<{ title: React
         <Button
             color="secondary"
             size="small"
+            disabled={!props.body.genes}
             onClick={async () => {
                     const req = await fetch('https://genesetcart.cfde.cloud/api/addUserGeneset', {
                         method: 'POST',
