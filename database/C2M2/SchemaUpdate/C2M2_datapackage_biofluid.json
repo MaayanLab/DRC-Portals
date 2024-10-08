@@ -2264,8 +2264,8 @@
             "lineTerminator": "\n",
             "skipInitialSpace": true,
             "header": true
-         },
-         "description": "Association between an UBERON anatomical term and a C2M2 collection containing experimental resources directly related to the study of the anatomical concept described by that term",
+         },         
+         "description": "Association between an UBERON/InterLex biofluid term and a C2M2 collection containing experimental resources directly related to the study of the biofluid concept described by that term",         
          "schema": {
             "fields": [
                {
