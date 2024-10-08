@@ -13,6 +13,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "@/utils/link";
 import ProgramFilters from "./ProgramFilters";
+import NodeLinks from "./NodeLinks";
 
 
 /**
@@ -129,6 +130,7 @@ export default async function Page(props: { search: string, type: string, entity
           <>&nbsp;</>,
           <>Label</>,
           <>Description</>,
+          <>Links</>,
         ]}
         rows={results?.items.map(item => {
           const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${item.id}`
@@ -142,6 +144,7 @@ export default async function Page(props: { search: string, type: string, entity
               : null,
             <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
             <Description description={item.description} search={searchParams.q ?? ''} />,
+            <NodeLinks item={item} />,
           ]
         }) ?? []}
       />

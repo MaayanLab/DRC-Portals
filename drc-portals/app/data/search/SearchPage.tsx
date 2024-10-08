@@ -15,6 +15,7 @@ import Link from "@/utils/link";
 import { Prisma_join } from '@/utils/prisma';
 import ProgramFilters from './ProgramFilters';
 import { safeAsync } from '@/utils/safe';
+import NodeLinks from './NodeLinks';
 
 export default async function Page(props: {
   search: string,
@@ -119,6 +120,7 @@ export default async function Page(props: {
             <>&nbsp;</>,
             <>Label</>,
             <>Description</>,
+            <>Links</>,
           ]}
           rows={results?.items.map(item => {
             const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${item.id}`
@@ -132,6 +134,7 @@ export default async function Page(props: {
                 : null,
               <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.type === 'kg_relation' ? human_readable(item.label) : item.label} search={searchParams.q ?? ''} />,
               <Description description={item.description} search={searchParams.q ?? ''} />,
+              <NodeLinks item={item} />
             ]
           }) ?? []}
         />
