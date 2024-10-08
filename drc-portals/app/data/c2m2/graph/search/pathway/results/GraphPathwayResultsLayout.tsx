@@ -1,7 +1,7 @@
 import { Box, Grid } from "@mui/material";
 
 import GraphSchemaLink from "@/components/prototype/components/GraphSchemaLink";
-import GraphPathwayResults from "@/components/prototype/components/GraphPathwayResults";
+import GraphPathwayResults from "@/components/prototype/components/PathwaySearch/GraphPathwayResults";
 
 export default function GraphPathwayResultsLayout() {
   return (

@@ -12,17 +12,35 @@ import cytoscape, {
 } from "cytoscape";
 import { produce } from "immer";
 import { useRouter } from "next/navigation";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { v4 } from "uuid";
 
 import {
+  ANATOMY_LABEL,
+  ASSAY_TYPE_LABEL,
+  ASSOCIATED_WITH_TYPE,
+  COMPOUND_LABEL,
+  CONTAINS_TYPE,
+  DCC_LABEL,
+  DISEASE_LABEL,
+  GENERATED_BY_ASSAY_TYPE_TYPE,
+  IS_RACE_TYPE,
+  NCBI_TAXONOMY_LABEL,
   PATHWAY_INCOMING_CONNECTIONS,
   PATHWAY_OUTGOING_CONNECTIONS,
+  SAMPLED_FROM_TYPE,
+  SUBJECT_RACE_LABEL,
+  SUBJECT_SEX_LABEL,
 } from "@/lib/neo4j/constants";
 import { Direction } from "@/lib/neo4j/enums";
-import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
+import {
+  NodeResult,
+  PathwayNode,
+  PathwayRelationship,
+} from "@/lib/neo4j/types";
 
 import { DAGRE_LAYOUT, DAGRE_STYLESHEET } from "../constants/cy";
+import { NodeFiltersContainer } from "../constants/pathway-search";
 import { SearchBarContainer } from "../constants/search-bar";
 import {
   CytoscapeEdge,
@@ -33,15 +51,18 @@ import {
 import { CustomToolbarFnFactory } from "../types/cy";
 import { createCytoscapeEdge, createCytoscapeNode } from "../utils/cy";
 import { findNode, traverseTree } from "../utils/pathway-search";
+import { createVerticalDividerElement } from "../utils/shared";
 
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
+import PathwayNodeFilters from "./PathwaySearch/PathwayNodeFilters";
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
-import { createVerticalDividerElement } from "../utils/shared";
 
 export default function GraphPathwaySearch() {
   const router = useRouter();
   const [elements, setElements] = useState<ElementDefinition[]>([]);
   const [tree, setTree] = useState<PathwayNode>();
+  const [selectedNodeId, setSelectedNodeId] = useState<string>();
+  const [selectedNode, setSelectedNode] = useState<PathwayNode>();
 
   const reset = () => {
     setElements([]);
@@ -63,23 +84,6 @@ export default function GraphPathwaySearch() {
     );
   }, []);
 
-  // TODO: Just pass an entire PathwayNode object here?
-  const handleUpdateTreeNodeProp = useCallback(
-    (nodeId: string, update: Partial<PathwayNode>) => {
-      setTree(
-        produce((draft) => {
-          if (draft !== undefined) {
-            let node = findNode(nodeId, draft);
-            if (node !== undefined) {
-              node = { ...node, ...update };
-            }
-          }
-        })
-      );
-    },
-    []
-  );
-
   const handleAddNodeChild = useCallback(
     (nodeId: string, child: PathwayNode) => {
       setTree(
@@ -88,6 +92,114 @@ export default function GraphPathwaySearch() {
             const node = findNode(nodeId, draft);
             if (node !== undefined) {
               node.children.push(child);
+            }
+          }
+        })
+      );
+    },
+    []
+  );
+
+  // TODO: Should consolidate these updates, need to make sure we're not repeating code more than necessary
+  const handleAddOrUpdateNodeFilter = useCallback(
+    (nodeId: string, label: string, value: string) => {
+      setTree(
+        produce((draft) => {
+          if (draft !== undefined) {
+            const node = findNode(nodeId, draft);
+            if (node !== undefined) {
+              const existingFilter = node.children.find(
+                (child) => child.label === label
+              );
+
+              // If the node already had a filter for this label, update it with the new value
+              if (existingFilter !== undefined) {
+                existingFilter.props = { ...existingFilter.props, name: value };
+              } else {
+                // TODO: This is a hack. Since these artificial filter pathways don't actually exist on the canvas, we have to somehow map
+                // the node label to the corresponding relationship, otherwise we wouldn't be able to add it to the match statement on the
+                // backend. Refactoring the implementation to take advantage of literal filter nodes on both the canvas and in the tree
+                // would solve this problem, because the relationship would actually exist on the canvas and we could pull both the type
+                // and the direction from it.
+                const LABEL_TO_REL_OBJ_MAP: ReadonlyMap<
+                  string,
+                  PathwayRelationship
+                > = new Map([
+                  [
+                    SUBJECT_SEX_LABEL,
+                    {
+                      id: v4(),
+                      type: ASSOCIATED_WITH_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    NCBI_TAXONOMY_LABEL,
+                    {
+                      id: v4(),
+                      type: ASSOCIATED_WITH_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    DISEASE_LABEL,
+                    {
+                      id: v4(),
+                      type: ASSOCIATED_WITH_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    COMPOUND_LABEL,
+                    {
+                      id: v4(),
+                      type: ASSOCIATED_WITH_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    ASSAY_TYPE_LABEL,
+                    {
+                      id: v4(),
+                      type: GENERATED_BY_ASSAY_TYPE_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    SUBJECT_RACE_LABEL,
+                    {
+                      id: v4(),
+                      type: IS_RACE_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    DCC_LABEL,
+                    {
+                      id: v4(),
+                      type: CONTAINS_TYPE,
+                      direction: Direction.INCOMING,
+                    },
+                  ],
+                  [
+                    ANATOMY_LABEL,
+                    {
+                      id: v4(),
+                      type: SAMPLED_FROM_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                ]);
+
+                // Otherwise add the filter as a new child
+                node.children.push({
+                  id: v4(),
+                  label: label,
+                  props: { name: value },
+                  relationshipToParent: LABEL_TO_REL_OBJ_MAP.get(label),
+                  children: [],
+                });
+              }
             }
           }
         })
@@ -181,12 +293,6 @@ export default function GraphPathwaySearch() {
 
   // TODO: As time permits, need to simplify the logic here, it's fairly straightforward on paper but the implementation is too verbose...
   const addNodeToPathV1 = (node: NodeSingular, cy: cytoscape.Core) => {
-    // TODO: Should probably have a constant for this style class, and the other classes for that matter
-    if (node.hasClass("path-element")) {
-      // TODO: May want to enable some behavior when an element already in the path is selected, but for now, do nothing.
-      return;
-    }
-
     // Get selected node data, and get new data for its connected nodes and relationships
     const nodeData: CytoscapeNodeData = node.data();
     const nodeLabels = nodeData.neo4j?.labels;
@@ -232,12 +338,6 @@ export default function GraphPathwaySearch() {
   };
 
   const addNodeToPathV2 = (node: NodeSingular, cy: cytoscape.Core) => {
-    // TODO: Should probably have a constant for this style class, and the other classes for that matter
-    if (node.hasClass("path-element")) {
-      // TODO: May want to enable some behavior when an element already in the path is selected, but for now, do nothing.
-      return;
-    }
-
     // Get selected node data, and get new data for its connected nodes and relationships
     const nodeData: CytoscapeNodeData = node.data();
     const nodeLabels = nodeData.neo4j?.labels;
@@ -308,8 +408,20 @@ export default function GraphPathwaySearch() {
       event: "tap",
       target: "node",
       callback: (event: EventObjectNode) => {
-        addNodeToPathV1(event.target, event.cy);
-        // addNodeToPathV2(event.target, event.cy);
+        // TODO: Should probably have a constant for this style class, and the other classes for that matter
+        if (!event.target.hasClass("path-element")) {
+          addNodeToPathV1(event.target, event.cy);
+          // addNodeToPathV2(event.target, event.cy);
+        }
+        setSelectedNodeId(event.target.id());
+      },
+    },
+    {
+      event: "unselect",
+      callback: (event) => {
+        // TODO: A little bit hacky...but it does make sure that selectedNodeId is reset. Look into setting "unselectify" on the chart, that
+        // way we can have precise control over selections
+        setSelectedNodeId(undefined);
       },
     },
     {
@@ -319,8 +431,11 @@ export default function GraphPathwaySearch() {
         const targetNode = event.target.source().hasClass("path-element")
           ? event.target.target()
           : event.target.source();
-        addNodeToPathV1(targetNode, event.cy);
-        // addNodeToPathV2(targetNode, event.cy);
+
+        if (!targetNode.hasClass("path-element")) {
+          addNodeToPathV1(targetNode, event.cy);
+          // addNodeToPathV2(targetNode, event.cy);
+        }
       },
     },
     {
@@ -354,6 +469,21 @@ export default function GraphPathwaySearch() {
     },
   ];
 
+  useEffect(() => {
+    if (selectedNodeId === undefined) {
+      console.log("setSelectedNode");
+      setSelectedNode(undefined);
+    } else if (tree !== undefined) {
+      console.log("setSelectedNode");
+      console.log(findNode(selectedNodeId, tree));
+      setSelectedNode(findNode(selectedNodeId, tree));
+    }
+  }, [selectedNodeId]);
+
+  useEffect(() => {
+    console.log(tree);
+  }, [tree]);
+
   return (
     <>
       <Grid
@@ -370,6 +500,16 @@ export default function GraphPathwaySearch() {
               <PathwaySearchBar onSubmit={handleSubmit}></PathwaySearchBar>
             </SearchBarContainer>
           ) : null}
+          {selectedNode === undefined ? null : (
+            <NodeFiltersContainer>
+              <PathwayNodeFilters
+                node={selectedNode}
+                onChange={(label, value) =>
+                  handleAddOrUpdateNodeFilter(selectedNode.id, label, value)
+                }
+              ></PathwayNodeFilters>
+            </NodeFiltersContainer>
+          )}
           <CytoscapeChart
             elements={elements}
             layout={DAGRE_LAYOUT}

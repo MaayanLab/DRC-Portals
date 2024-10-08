@@ -15,7 +15,6 @@ import {
 
 import { fetchSynonyms } from "@/lib/neo4j/api";
 import { SynoynmsResult } from "@/lib/neo4j/types";
-import { isValidLucene } from "@/lib/neo4j/utils";
 
 import SearchBarInput from "./SearchBarInput";
 

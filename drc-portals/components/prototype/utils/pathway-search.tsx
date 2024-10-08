@@ -28,8 +28,9 @@ export function traverseTree(
       }
     }
 
-    // Backtrack: remove the current node from the path
-    currentPath.pop();
+    // Backtrack: remove the current node and the relationship to its parent from the path
+    currentPath.pop(); // Pop node
+    currentPath.pop(); // Pop relationship
   }
 
   // Start DFS from the root node with an empty path
@@ -49,7 +50,11 @@ export function findNode(
     // keep traversing the children
     if (node.children.length > 0) {
       for (const child of node.children) {
-        return dfs(child);
+        const found = dfs(child);
+
+        if (found !== undefined) {
+          return found;
+        }
       }
     }
   }

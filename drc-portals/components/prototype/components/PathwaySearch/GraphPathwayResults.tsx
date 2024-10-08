@@ -16,19 +16,19 @@ import { useEffect, useState, ReactNode } from "react";
 
 import { fetchPathwaySearch } from "@/lib/neo4j/api";
 
-import ExpandNodeMenuItem from "../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
-import ChartCxtMenuItem from "../components/CytoscapeChart/ChartCxtMenuItem";
-import ChartNestedCxtMenuItem from "../components/CytoscapeChart/NestedChartCxtMenuItem";
+import ExpandNodeMenuItem from "../../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
+import ChartCxtMenuItem from "../../components/CytoscapeChart/ChartCxtMenuItem";
+import ChartNestedCxtMenuItem from "../../components/CytoscapeChart/NestedChartCxtMenuItem";
 import {
   D3_FORCE_LAYOUT,
   DEFAULT_STYLESHEET,
   SCHEMA_LEGEND,
   SCHEMA_RELATIONSHIP_ITEM,
   STYLE_CLASS_TO_LEGEND_KEY_MAP,
-} from "../constants/cy";
-import { NO_RESULTS_ERROR_MSG } from "../constants/search-bar";
-import { CytoscapeNodeData } from "../interfaces/cy";
-import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
+} from "../../constants/cy";
+import { NO_RESULTS_ERROR_MSG } from "../../constants/search-bar";
+import { CytoscapeNodeData } from "../../interfaces/cy";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 import {
   D3_FORCE_TOOLS,
   createCytoscapeElements,
@@ -49,11 +49,11 @@ import {
   showSelection,
   unlockD3ForceNode,
   unlockSelection,
-} from "../utils/cy";
-import { createVerticalDividerElement } from "../utils/shared";
+} from "../../utils/cy";
+import { createVerticalDividerElement } from "../../utils/shared";
 
-import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
-import GraphEntityDetails from "./GraphEntityDetails";
+import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
+import GraphEntityDetails from "../GraphEntityDetails";
 
 export default function GraphPathwayResults() {
   const searchParams = useSearchParams();
