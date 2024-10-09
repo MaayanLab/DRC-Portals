@@ -1,13 +1,16 @@
 "use client";
 
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
 import Rotate90DegreesCcwIcon from "@mui/icons-material/Rotate90DegreesCcw";
 import {
   Alert,
   AlertColor,
+  Button,
   Grid,
   Snackbar,
   SnackbarCloseReason,
+  Tooltip,
 } from "@mui/material";
 
 import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
@@ -23,6 +26,7 @@ import {
   SCHEMA_RELATIONSHIP_ITEM,
   STYLE_CLASS_TO_LEGEND_KEY_MAP,
 } from "../../constants/cy";
+import { PathwayModeBtnContainer } from "../../constants/pathway-search";
 import { CytoscapeNodeData } from "../../interfaces/cy";
 import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 import {
@@ -52,11 +56,13 @@ import GraphEntityDetails from "../GraphEntityDetails";
 
 interface GraphPathwayResultsProps {
   elements: ElementDefinition[];
+  onReturnClick: () => void;
 }
 
 export default function GraphPathwayResults(
   cmpProps: GraphPathwayResultsProps
 ) {
+  const { onReturnClick } = cmpProps;
   const [elements, setElements] = useState<ElementDefinition[]>(
     cmpProps.elements
   );
@@ -264,42 +270,47 @@ export default function GraphPathwayResults(
   return (
     <>
       <Grid
-        container
-        spacing={1}
-        xs={12}
-        sx={{
-          height: "640px",
-        }}
+        item
+        xs={entityDetails === undefined ? 12 : 9}
+        sx={{ position: "relative", height: "inherit" }}
       >
-        <Grid
-          item
-          xs={entityDetails === undefined ? 12 : 9}
-          sx={{ position: "relative", height: "inherit" }}
-        >
-          <CytoscapeChart
-            elements={elements}
-            layout={D3_FORCE_LAYOUT}
-            stylesheet={DEFAULT_STYLESHEET}
-            legend={legend}
-            cxtMenuEnabled={true}
-            tooltipEnabled={true}
-            legendPosition={{ bottom: 10, left: 10 }}
-            toolbarPosition={{ top: 10, right: 10 }}
-            customTools={customTools}
-            selectionCxtMenuItems={selectionCxtMenuItems}
-            nodeCxtMenuItems={nodeCxtMenuItems}
-            canvasCxtMenuItems={canvasCxtMenuItems}
-          ></CytoscapeChart>
-        </Grid>
-        {entityDetails !== undefined ? (
-          <Grid item xs={3} sx={{ height: "inherit" }}>
-            <GraphEntityDetails
-              entityDetails={entityDetails}
-              onCloseDetails={() => setEntityDetails(undefined)}
-            />
-          </Grid>
-        ) : null}
+        <CytoscapeChart
+          elements={elements}
+          layout={D3_FORCE_LAYOUT}
+          stylesheet={DEFAULT_STYLESHEET}
+          legend={legend}
+          cxtMenuEnabled={true}
+          tooltipEnabled={true}
+          legendPosition={{ bottom: 10, left: 10 }}
+          toolbarPosition={{ top: 10, right: 10 }}
+          customTools={customTools}
+          selectionCxtMenuItems={selectionCxtMenuItems}
+          nodeCxtMenuItems={nodeCxtMenuItems}
+          canvasCxtMenuItems={canvasCxtMenuItems}
+        ></CytoscapeChart>
+        <PathwayModeBtnContainer>
+          <Tooltip title="Return to Path Search" arrow placement="left">
+            <Button
+              aria-label="return-to-search"
+              color="secondary"
+              variant="contained"
+              size="large"
+              sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
+              onClick={onReturnClick}
+            >
+              <KeyboardReturnIcon />
+            </Button>
+          </Tooltip>
+        </PathwayModeBtnContainer>
       </Grid>
+      {entityDetails !== undefined ? (
+        <Grid item xs={3} sx={{ height: "inherit" }}>
+          <GraphEntityDetails
+            entityDetails={entityDetails}
+            onCloseDetails={() => setEntityDetails(undefined)}
+          />
+        </Grid>
+      ) : null}
       <Snackbar
         open={snackbarOpen}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

@@ -1,6 +1,5 @@
 "use client";
 
-import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import SearchIcon from "@mui/icons-material/Search";
 import { Grid, Tooltip } from "@mui/material";
 
@@ -436,23 +435,10 @@ export default function GraphPathway() {
       }}
     >
       {showResults ? (
-        <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
-          <GraphPathwayResults elements={resultElements} />
-          <PathwayModeBtnContainer>
-            <Tooltip title="Return to Path Search" arrow placement="left">
-              <Button
-                aria-label="return-to-search"
-                color="secondary"
-                variant="contained"
-                size="large"
-                sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
-                onClick={returnToSearch}
-              >
-                <KeyboardReturnIcon />
-              </Button>
-            </Tooltip>
-          </PathwayModeBtnContainer>
-        </Grid>
+        <GraphPathwayResults
+          elements={resultElements}
+          onReturnClick={returnToSearch}
+        />
       ) : (
         <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
           {tree === undefined ? (
