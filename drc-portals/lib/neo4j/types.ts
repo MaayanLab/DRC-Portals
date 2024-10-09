@@ -45,6 +45,10 @@ export interface CVTermsResult {
   cvTerm: NodeResult;
 }
 
+export interface CVTermsWithLabelResult {
+  names: string[];
+}
+
 export interface BasePropFilter {
   name: string;
   operator: string;

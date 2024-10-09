@@ -15,9 +15,9 @@ import {
   ASSOCIATED_WITH_TYPE,
   COMPOUND_LABEL,
   CONTAINS_TYPE,
-  DCC_LABEL,
   DISEASE_LABEL,
   GENERATED_BY_ASSAY_TYPE_TYPE,
+  ID_NAMESPACE_LABEL,
   IS_RACE_TYPE,
   NCBI_TAXONOMY_LABEL,
   PATHWAY_INCOMING_CONNECTIONS,
@@ -70,6 +70,7 @@ export default function GraphPathway() {
     setResultElements([]);
     setSearchElements([]);
     setTree(undefined);
+    setSelectedNode(undefined);
   }, []);
 
   const onSelectedNodeChange = useCallback(
@@ -226,7 +227,7 @@ export default function GraphPathway() {
                     },
                   ],
                   [
-                    DCC_LABEL,
+                    ID_NAMESPACE_LABEL,
                     {
                       id: v4(),
                       type: CONTAINS_TYPE,

@@ -89,6 +89,13 @@ export const getTermsCypher = () => `
     RETURN DISTINCT synonym AS synonym, ${createNodeReprStr("cvTerm")} AS cvTerm
   `;
 
+export const getTermsFromLabelCypher = (label: string) => `
+  MATCH (term:${escapeCypherString(label)})
+  WITH term.name AS name
+  ORDER BY name
+  RETURN collect(name) AS names
+`;
+
 export const getSearchCypher = (coreLabels: string[]) => {
   if (coreLabels.length === 0) {
     coreLabels = Array.from(CORE_LABELS);

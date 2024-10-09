@@ -45,6 +45,14 @@ export const fetchCVTerms = (query: string) =>
     },
   });
 
+export const fetchTermsByLabel = (label: string) =>
+  fetch(`${GRAPH_API_PREFIX}/terms/${label}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
 export const fetchSearch = (
   query: string,
   coreLabels: string[],

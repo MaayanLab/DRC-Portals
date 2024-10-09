@@ -19,3 +19,7 @@ export const PathwayModeBtnContainer = styled(Box)({
   zIndex: 1,
   padding: "inherit",
 });
+
+export const filterCarouselContainerWidth = 475;
+export const filterCarouselItemWidth = 225;
+export const filterCarouselItemPaddingX = 4;

@@ -1,42 +1,47 @@
-import { Box } from "@mui/material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { Box, IconButton } from "@mui/material";
+
+import { useRef, useState } from "react";
 
 import {
   ANATOMY_LABEL,
-  ASSAY_TYPE_LABEL,
   BIOSAMPLE_LABEL,
+  BIOSAMPLE_RELATED_LABELS,
   COLLECTION_LABEL,
   COMPOUND_LABEL,
-  DCC_LABEL,
   DISEASE_LABEL,
   FILE_LABEL,
+  FILE_RELATED_LABELS,
+  ID_NAMESPACE_LABEL,
   NCBI_TAXONOMY_LABEL,
   PROJECT_LABEL,
   SUBJECT_LABEL,
-  SUBJECT_RACE_LABEL,
-  SUBJECT_SEX_LABEL,
+  SUBJECT_RELATED_LABELS,
 } from "@/lib/neo4j/constants";
 import { PathwayNode } from "@/lib/neo4j/types";
 
 import NodeFilterSelect from "./NodeFilterSelect";
+import {
+  filterCarouselContainerWidth,
+  filterCarouselItemPaddingX,
+  filterCarouselItemWidth,
+} from "../../constants/pathway-search";
 
-const NODE_LABEL_MAP: ReadonlyMap<string, string[]> = new Map([
-  [FILE_LABEL, [ASSAY_TYPE_LABEL]],
-  [
-    SUBJECT_LABEL,
-    [
-      DISEASE_LABEL,
-      NCBI_TAXONOMY_LABEL,
-      COMPOUND_LABEL,
-      SUBJECT_RACE_LABEL,
-      SUBJECT_SEX_LABEL,
-    ],
-  ],
+const NODE_SELECT_LABEL_MAP: ReadonlyMap<string, string[]> = new Map([
+  [FILE_LABEL, [...FILE_RELATED_LABELS, ID_NAMESPACE_LABEL]],
+  [SUBJECT_LABEL, [...SUBJECT_RELATED_LABELS, ID_NAMESPACE_LABEL]],
+  [BIOSAMPLE_LABEL, [...BIOSAMPLE_RELATED_LABELS, ID_NAMESPACE_LABEL]],
+  [PROJECT_LABEL, [ID_NAMESPACE_LABEL]],
+  [COLLECTION_LABEL, [ID_NAMESPACE_LABEL]],
+]);
+
+const NODE_SEARCH_LABEL_MAP: ReadonlyMap<string, string[]> = new Map([
+  [SUBJECT_LABEL, [DISEASE_LABEL, NCBI_TAXONOMY_LABEL, COMPOUND_LABEL]],
   [
     BIOSAMPLE_LABEL,
     [ANATOMY_LABEL, COMPOUND_LABEL, DISEASE_LABEL, NCBI_TAXONOMY_LABEL],
   ],
-  [PROJECT_LABEL, [DCC_LABEL]],
-  [COLLECTION_LABEL, [DCC_LABEL]],
 ]);
 
 // TODO: I think yet another justification for showing filter nodes directly on the canvas is we can show only those nodes which are
@@ -59,26 +64,94 @@ interface PathwayNodeFiltersProps {
 
 export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
   const { node, onChange } = cmpProps;
-  const filterLabels = NODE_LABEL_MAP.get(node.label);
+  const [carouselScrollLeft, setCarouselScrollLeft] = useState<number>(0);
+  const carouselRef = useRef<HTMLElement>(null);
   const nodeChildValueMap = new Map<string, string | undefined>(
     node.children.map((child) => [child.label, child.props?.name])
   );
+  const filters = [
+    ...(NODE_SELECT_LABEL_MAP.get(node.label) || []).map((label) => (
+      <Box
+        key={`${node.label}-node-${label}-filter`}
+        sx={{ paddingX: `${filterCarouselItemPaddingX}px` }}
+      >
+        <NodeFilterSelect
+          label={label}
+          value={nodeChildValueMap.get(label)}
+          onChange={(value: string) => onChange(label, value)}
+        />
+      </Box>
+    )),
+  ];
+  const MIN_CAROUSEL_SCROLL_LEFT = 0;
+  const MAX_CAROUSEL_SCROLL_LEFT =
+    (filters?.length || 0) * filterCarouselItemWidth +
+    (filters?.length || 0) * 2 * filterCarouselItemPaddingX;
+
+  const prevHandler = () => {
+    if (carouselRef.current != null) {
+      carouselRef.current.scrollLeft = Math.max(
+        MIN_CAROUSEL_SCROLL_LEFT,
+        carouselRef.current.scrollLeft - carouselRef.current.offsetWidth
+      );
+      setCarouselScrollLeft(
+        Math.max(
+          MIN_CAROUSEL_SCROLL_LEFT,
+          carouselScrollLeft - carouselRef.current.offsetWidth
+        )
+      );
+    }
+  };
+
+  const nextHandler = () => {
+    if (carouselRef.current != null) {
+      carouselRef.current.scrollLeft = Math.min(
+        MAX_CAROUSEL_SCROLL_LEFT,
+        carouselRef.current.scrollLeft + carouselRef.current.offsetWidth
+      );
+      setCarouselScrollLeft(
+        Math.min(
+          MAX_CAROUSEL_SCROLL_LEFT,
+          carouselScrollLeft + carouselRef.current.offsetWidth
+        )
+      );
+    }
+  };
 
   return (
     <>
-      {/* TODO: Could have a loading indicator here while we fetch the possible filters for the node...meaning the possible connected nodes
-    and the options for each dropdown if applicable*/}
-      {filterLabels !== undefined && filterLabels.length > 0 ? (
+      {filters !== undefined && filters.length > 0 ? (
         <Box sx={{ display: "flex" }}>
-          {filterLabels.map((label) => (
-            <Box key={`${node.label}-node-${label}-filter`}>
-              <NodeFilterSelect
-                label={label}
-                value={nodeChildValueMap.get(label)}
-                onChange={(value: string) => onChange(label, value)}
-              />
-            </Box>
-          ))}
+          <Box sx={{ alignContent: "center" }}>
+            <IconButton
+              onClick={prevHandler}
+              disabled={carouselScrollLeft < filterCarouselContainerWidth}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+          </Box>
+          <Box
+            ref={carouselRef}
+            sx={{
+              display: "flex",
+              maxWidth: `${filterCarouselContainerWidth}px`,
+              overflowX: "hidden",
+              scrollBehavior: "smooth",
+            }}
+          >
+            {filters}
+          </Box>
+          <Box sx={{ alignContent: "center" }}>
+            <IconButton
+              onClick={nextHandler}
+              disabled={
+                carouselScrollLeft >=
+                MAX_CAROUSEL_SCROLL_LEFT - filterCarouselContainerWidth
+              }
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          </Box>
         </Box>
       ) : null}
     </>
