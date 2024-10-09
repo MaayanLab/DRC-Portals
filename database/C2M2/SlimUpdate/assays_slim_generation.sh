@@ -4,12 +4,14 @@
 #1)assay_slim_nodes with two columns. One with OBI slim ids and other one with OBI slim labels
 #2)assayid_label.rq which is needed to generate csv file from owl file with OBI term ids and labels 
 
+outf=out/assay
 
 cat assay_slim_nodes | while read assayid assaylabel ; do
      robot filter -I http://purl.obolibrary.org/obo/obi.owl --term "$assayid" --select "annotations self descendants" --signature true  --output "$assaylabel"_slim.owl
      robot query --input "$assaylabel"_slim.owl --query assayid_label.rq  "$assaylabel"_slim.csv
-     sed -i -e 's///g' "$assaylabel"_slim.csv #removes ^M characters at the end of the line
-     sed "s/$/,$assayid,$assaylabel/g" "$assaylabel"_slim.csv > test1.csv
+     sed -i -e 's/
+//g' "$assaylabel"_slim.csv #removes ^M characters at the end of the line
+     sed "s/$/,$assayid,$assaylabel/g" "$assaylabel"_slim.csv > $outf/test1.csv
      mv test1.csv "$assaylabel"_slim.csv
      rm "$assaylabel"_slim.csv-e
 done
@@ -52,7 +54,8 @@ echo OBI:0003087,autofluorescence assay,OBI:0003087,autofluorescence assay >>mer
 # extracting full list of OBI terms under assay node
 robot filter -I http://purl.obolibrary.org/obo/obi.owl --term OBI:0000070 --select "annotations self descendants" --signature true  --output assay.owl
 robot query --input assay.owl --query assayid_label.rq  assay_draft.csv
-sed -i -e 's///g' assay_draft.csv #(to remove ^M characters)
+sed -i -e 's/
+//g' assay_draft.csv #(to remove ^M characters)
 sed -i '' '/Id,labels/d' assay_draft.csv   #removes all lines with headers
 echo OBI_id,OBI_label >header2.csv # makes a header file
 cat header2.csv assay_draft.csv >assay.csv #concatenating headers to merged_disease slim file
