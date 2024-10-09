@@ -2,7 +2,7 @@
 
 import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import SearchIcon from "@mui/icons-material/Search";
-import { Grid, IconButton, Tooltip } from "@mui/material";
+import { Grid, Tooltip } from "@mui/material";
 
 import cytoscape, { ElementDefinition, NodeSingular } from "cytoscape";
 import { produce } from "immer";
@@ -94,7 +94,6 @@ export default function GraphPathway() {
   );
 
   const getResults = async () => {
-    console.log("getResults");
     if (tree !== undefined) {
       const query = btoa(JSON.stringify(traverseTree(tree)));
 
@@ -112,7 +111,6 @@ export default function GraphPathway() {
           console.warn(NO_RESULTS_ERROR_MSG);
         } else {
           setShowResults(true);
-          console.log(cytoscapeElements);
           setResultElements(cytoscapeElements);
         }
       } catch (e) {

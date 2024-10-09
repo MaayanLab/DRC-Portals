@@ -67,7 +67,6 @@ interface CytoscapeChartProps {
 }
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
-  console.log("CytoscapeChart");
   const {
     elements,
     layout,
@@ -112,6 +111,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     y: 0,
   });
   const popperRef = useRef<Instance>(null);
+  const prevCustomEventHandlersRef = useRef<CytoscapeEvent[]>(
+    customEventHandlers || []
+  );
   let nodeHoverTimerId: NodeJS.Timeout | null = null;
 
   const handleContextMenuClose = () => {
@@ -345,8 +347,18 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   useEffect(() => {
     const cy = cyRef.current;
     if (cy) {
-      // `cy.bind` adds listeners, it does not replace them. Any time the parent updates the custom listeners, reset and rebind them all.
-      cy.removeAllListeners();
+      // Need to make sure the handlers set by the previous prop are unbound, otherwise all previous handlers will also be triggered
+      const prevCustomEventHandlers = prevCustomEventHandlersRef.current;
+      if (prevCustomEventHandlers !== undefined) {
+        prevCustomEventHandlers.forEach((handler) => {
+          if (handler.target !== undefined) {
+            cy.unbind(handler.event, handler.target, handler.callback);
+          } else {
+            cy.unbind(handler.event, handler.callback);
+          }
+        });
+      }
+
       [...defaultEvents, ...(customEventHandlers || [])].forEach(
         (interaction) => {
           if (interaction.target !== undefined) {
@@ -361,6 +373,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         }
       );
     }
+
+    prevCustomEventHandlersRef.current = customEventHandlers || [];
   }, [customEventHandlers]);
 
   useEffect(() => {
