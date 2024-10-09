@@ -1,9 +1,9 @@
 import { Box, Grid } from "@mui/material";
 
 import GraphSchemaLink from "@/components/prototype/components/GraphSchemaLink";
-import GraphPathwayResults from "@/components/prototype/components/PathwaySearch/GraphPathwayResults";
+import GraphPathway from "@/components/prototype/components/GraphPathway";
 
-export default function GraphPathwayResultsLayout() {
+export default function GraphPathwayLayout() {
   return (
     <Grid container justifyContent={"center"} rowSpacing={1}>
       <Grid item xs={12}>
@@ -12,7 +12,7 @@ export default function GraphPathwayResultsLayout() {
         </Box>
       </Grid>
       <Grid item xs={12}>
-        <GraphPathwayResults></GraphPathwayResults>
+        <GraphPathway></GraphPathway>
       </Grid>
     </Grid>
   );

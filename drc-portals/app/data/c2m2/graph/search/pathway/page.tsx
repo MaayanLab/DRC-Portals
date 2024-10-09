@@ -1,5 +1,5 @@
-import GraphPathwaySearchLayout from "./GraphPathwaySearchLayout";
+import GraphPathwayLayout from "./GraphPathwayLayout";
 
 export default async function Page() {
-  return <GraphPathwaySearchLayout />;
+  return <GraphPathwayLayout />;
 }

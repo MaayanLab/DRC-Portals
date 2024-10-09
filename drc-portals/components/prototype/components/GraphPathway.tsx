@@ -1,20 +1,15 @@
 "use client";
 
-import PublishIcon from "@mui/icons-material/Publish";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
+import SearchIcon from "@mui/icons-material/Search";
 import { Grid, IconButton, Tooltip } from "@mui/material";
 
-import cytoscape, {
-  ElementDefinition,
-  EventObjectEdge,
-  EventObjectNode,
-  NodeSingular,
-} from "cytoscape";
+import cytoscape, { ElementDefinition, NodeSingular } from "cytoscape";
 import { produce } from "immer";
-import { useRouter } from "next/navigation";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { v4 } from "uuid";
 
+import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
   ANATOMY_LABEL,
   ASSAY_TYPE_LABEL,
@@ -39,66 +34,118 @@ import {
   PathwayRelationship,
 } from "@/lib/neo4j/types";
 
-import { DAGRE_LAYOUT, DAGRE_STYLESHEET } from "../constants/cy";
-import { NodeFiltersContainer } from "../constants/pathway-search";
-import { SearchBarContainer } from "../constants/search-bar";
+import {
+  NodeFiltersContainer,
+  PathwayModeBtnContainer,
+} from "../constants/pathway-search";
+import {
+  NO_RESULTS_ERROR_MSG,
+  SearchBarContainer,
+} from "../constants/search-bar";
 import {
   CytoscapeEdge,
-  CytoscapeEvent,
   CytoscapeNode,
   CytoscapeNodeData,
 } from "../interfaces/cy";
-import { CustomToolbarFnFactory } from "../types/cy";
-import { createCytoscapeEdge, createCytoscapeNode } from "../utils/cy";
+import {
+  createCytoscapeEdge,
+  createCytoscapeElements,
+  createCytoscapeNode,
+} from "../utils/cy";
 import { findNode, traverseTree } from "../utils/pathway-search";
-import { createVerticalDividerElement } from "../utils/shared";
 
-import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 import PathwayNodeFilters from "./PathwaySearch/PathwayNodeFilters";
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
+import GraphPathwayResults from "./PathwaySearch/GraphPathwayResults";
+import GraphPathwaySearch from "./PathwaySearch/GraphPathwaySearch";
+import { Button } from "@mui/material";
 
-export default function GraphPathwaySearch() {
-  const router = useRouter();
-  const [elements, setElements] = useState<ElementDefinition[]>([]);
+export default function GraphPathway() {
+  const [resultElements, setResultElements] = useState<ElementDefinition[]>([]);
+  const [searchElements, setSearchElements] = useState<ElementDefinition[]>([]);
   const [tree, setTree] = useState<PathwayNode>();
-  const [selectedNodeId, setSelectedNodeId] = useState<string>();
+  const [showResults, setShowResults] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PathwayNode>();
 
-  const reset = () => {
-    setElements([]);
+  const onReset = useCallback(() => {
+    setResultElements([]);
+    setSearchElements([]);
     setTree(undefined);
-  };
+  }, []);
 
-  const getResults = () => {
+  const onSelectedNodeChange = useCallback(
+    (id: string | undefined, cy: cytoscape.Core) => {
+      if (id === undefined) {
+        setSelectedNode(undefined);
+      } else if (tree !== undefined) {
+        const cyNode = cy.getElementById(id);
+        let selectedNode: PathwayNode | undefined;
+
+        if (!cyNode.hasClass("path-element")) {
+          selectedNode = addNodeToPathV1(cyNode, cy);
+        } else {
+          selectedNode = findNode(id, tree);
+        }
+
+        setSelectedNode(selectedNode);
+      }
+    },
+    [tree]
+  );
+
+  const getResults = async () => {
+    console.log("getResults");
     if (tree !== undefined) {
       const query = btoa(JSON.stringify(traverseTree(tree)));
-      router.push(`/data/c2m2/graph/search/pathway/results?q=${query}`);
+
+      try {
+        const response = await fetchPathwaySearch(query);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const cytoscapeElements = createCytoscapeElements(data);
+
+        if (cytoscapeElements.length === 0) {
+          console.warn(NO_RESULTS_ERROR_MSG);
+        } else {
+          setShowResults(true);
+          console.log(cytoscapeElements);
+          setResultElements(cytoscapeElements);
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
+  const returnToSearch = () => {
+    setShowResults(false);
+    setResultElements([]);
+  };
+
   const handleAddElements = useCallback((elements: ElementDefinition[]) => {
-    setElements(
+    setSearchElements(
       produce((draft) => {
         draft.push(...elements);
       })
     );
   }, []);
 
-  const handleAddNodeChild = useCallback(
-    (nodeId: string, child: PathwayNode) => {
-      setTree(
-        produce((draft) => {
-          if (draft !== undefined) {
-            const node = findNode(nodeId, draft);
-            if (node !== undefined) {
-              node.children.push(child);
-            }
+  const handleAddNode = useCallback((nodeId: string, child: PathwayNode) => {
+    setTree(
+      produce((draft) => {
+        if (draft !== undefined) {
+          const node = findNode(nodeId, draft);
+          if (node !== undefined) {
+            node.children.push(child);
           }
-        })
-      );
-    },
-    []
-  );
+        }
+      })
+    );
+  }, []);
 
   // TODO: Should consolidate these updates, need to make sure we're not repeating code more than necessary
   const handleAddOrUpdateNodeFilter = useCallback(
@@ -277,7 +324,7 @@ export default function GraphPathwaySearch() {
       cvTerm.labels[0],
       cvTerm.uuid
     );
-    setElements([
+    setSearchElements([
       // TODO: Should probably have a constant for this style class, and the other classes for that matter
       createCytoscapeNode(cvTerm, ["path-element"]),
       ...nodes,
@@ -315,7 +362,7 @@ export default function GraphPathwaySearch() {
         }
       );
 
-      handleAddNodeChild(nodeParentId, {
+      const newNode: PathwayNode = {
         id: node.id(),
         label: nodeLabels[0],
         children: [],
@@ -328,9 +375,11 @@ export default function GraphPathwaySearch() {
           props: edge.data("neo4j").properties,
         },
         props: nodeData.neo4j?.properties,
-      });
+      };
+      handleAddNode(nodeParentId, newNode);
       // TODO: Use an immer handler here instead?
-      setElements([...pathNodes, ...nodes, ...pathEdges, ...edges]);
+      setSearchElements([...pathNodes, ...nodes, ...pathEdges, ...edges]);
+      return newNode;
     } else {
       // TODO: Need to have better handling of this error even if it *should* never happen, but logging the issue should suffice for now
       console.error("Attempted to add node to path with no labels! Aborting.");
@@ -350,7 +399,7 @@ export default function GraphPathwaySearch() {
       // TODO: Should probably have a constant for this style class, and the other classes for that matter
       edge.addClass("path-element");
       node.addClass("path-element");
-      handleAddNodeChild(nodeParentId, {
+      handleAddNode(nodeParentId, {
         id: node.id(),
         label: nodeLabels[0],
         children: [],
@@ -371,135 +420,55 @@ export default function GraphPathwaySearch() {
     }
   };
 
-  const customTools: CustomToolbarFnFactory[] = [
-    () => {
-      return (
-        <Fragment key="pathway-search-chart-toolbar-reset-search">
-          <Tooltip title="Start Over" arrow>
-            <IconButton aria-label="start-over" onClick={reset}>
-              <RestartAltIcon />
-            </IconButton>
-          </Tooltip>
-        </Fragment>
-      );
-    },
-    () => createVerticalDividerElement("pathway-search-reset-toolbar-divider"),
-    () => {
-      return (
-        <Fragment key="pathway-search-chart-toolbar-find-results">
-          <Tooltip title="Find Results" arrow>
-            <span>
-              <IconButton
-                aria-label="find-results"
-                onClick={getResults}
-                disabled={tree === undefined}
-              >
-                <PublishIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-        </Fragment>
-      );
-    },
-  ];
-
-  const customEventHandlers: CytoscapeEvent[] = [
-    {
-      event: "tap",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        // TODO: Should probably have a constant for this style class, and the other classes for that matter
-        if (!event.target.hasClass("path-element")) {
-          addNodeToPathV1(event.target, event.cy);
-          // addNodeToPathV2(event.target, event.cy);
-        }
-        setSelectedNodeId(event.target.id());
-      },
-    },
-    {
-      event: "unselect",
-      callback: (event) => {
-        // TODO: A little bit hacky...but it does make sure that selectedNodeId is reset. Look into setting "unselectify" on the chart, that
-        // way we can have precise control over selections
-        setSelectedNodeId(undefined);
-      },
-    },
-    {
-      event: "tap",
-      target: "edge",
-      callback: (event: EventObjectEdge) => {
-        const targetNode = event.target.source().hasClass("path-element")
-          ? event.target.target()
-          : event.target.source();
-
-        if (!targetNode.hasClass("path-element")) {
-          addNodeToPathV1(targetNode, event.cy);
-          // addNodeToPathV2(targetNode, event.cy);
-        }
-      },
-    },
-    {
-      event: "mouseover",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        // TODO: try prevent default, that might be a way to avoid unnecessary bindings
-        event.target.connectedEdges().addClass("solid");
-      },
-    },
-    {
-      event: "mouseout",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        event.target.connectedEdges().removeClass("solid");
-      },
-    },
-    {
-      event: "mouseover",
-      target: "edge",
-      callback: (event: EventObjectEdge) => {
-        event.target.connectedNodes().addClass("solid");
-      },
-    },
-    {
-      event: "mouseout",
-      target: "edge",
-      callback: (event: EventObjectEdge) => {
-        event.target.connectedNodes().removeClass("solid");
-      },
-    },
-  ];
-
-  useEffect(() => {
-    if (selectedNodeId === undefined) {
-      console.log("setSelectedNode");
-      setSelectedNode(undefined);
-    } else if (tree !== undefined) {
-      console.log("setSelectedNode");
-      console.log(findNode(selectedNodeId, tree));
-      setSelectedNode(findNode(selectedNodeId, tree));
-    }
-  }, [selectedNodeId]);
-
-  useEffect(() => {
-    console.log(tree);
-  }, [tree]);
-
   return (
-    <>
-      <Grid
-        container
-        spacing={1}
-        xs={12}
-        sx={{
-          height: "640px",
-        }}
-      >
+    <Grid
+      container
+      spacing={1}
+      xs={12}
+      sx={{
+        height: "640px",
+      }}
+    >
+      {showResults ? (
+        <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
+          <GraphPathwayResults elements={resultElements} />
+          <PathwayModeBtnContainer>
+            <Tooltip title="Return to Path Search" arrow placement="left">
+              <Button
+                aria-label="return-to-search"
+                color="secondary"
+                variant="contained"
+                size="large"
+                sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
+                onClick={returnToSearch}
+              >
+                <KeyboardReturnIcon />
+              </Button>
+            </Tooltip>
+          </PathwayModeBtnContainer>
+        </Grid>
+      ) : (
         <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
           {tree === undefined ? (
             <SearchBarContainer>
               <PathwaySearchBar onSubmit={handleSubmit}></PathwaySearchBar>
             </SearchBarContainer>
-          ) : null}
+          ) : (
+            <PathwayModeBtnContainer>
+              <Tooltip title="Search Path" arrow placement="left">
+                <Button
+                  aria-label="search-path"
+                  color="secondary"
+                  variant="contained"
+                  size="large"
+                  sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
+                  onClick={getResults}
+                >
+                  <SearchIcon />
+                </Button>
+              </Tooltip>
+            </PathwayModeBtnContainer>
+          )}
           {selectedNode === undefined ? null : (
             <NodeFiltersContainer>
               <PathwayNodeFilters
@@ -510,19 +479,13 @@ export default function GraphPathwaySearch() {
               ></PathwayNodeFilters>
             </NodeFiltersContainer>
           )}
-          <CytoscapeChart
-            elements={elements}
-            layout={DAGRE_LAYOUT}
-            stylesheet={DAGRE_STYLESHEET}
-            cxtMenuEnabled={false}
-            tooltipEnabled={false}
-            toolbarPosition={{ top: 10, right: 10 }}
-            customTools={customTools}
-            autoungrabify={true}
-            customEventHandlers={customEventHandlers}
-          ></CytoscapeChart>
+          <GraphPathwaySearch
+            elements={searchElements}
+            onSelectedNodeChange={onSelectedNodeChange}
+            onReset={onReset}
+          />
         </Grid>
-      </Grid>
-    </>
+      )}
+    </Grid>
   );
 }

@@ -67,6 +67,7 @@ interface CytoscapeChartProps {
 }
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
+  console.log("CytoscapeChart");
   const {
     elements,
     layout,
@@ -298,6 +299,42 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     }
   };
 
+  const defaultEvents: CytoscapeEvent[] = [
+    {
+      event: "mouseover",
+      target: "node",
+      callback: handleHoverNode,
+    },
+    {
+      event: "mouseout",
+      target: "node",
+      callback: handleBlurNode,
+    },
+    {
+      event: "mouseover",
+      target: "edge",
+      callback: handleHoverEdge,
+    },
+    {
+      event: "mouseout",
+      target: "edge",
+      callback: handleBlurEdge,
+    },
+    {
+      event: "grab",
+      target: "node",
+      callback: handleGrabNode,
+    },
+    {
+      event: "drag",
+      target: "node",
+      callback: handleDragNode,
+    },
+    { event: "cxttap", callback: handleCxtTapCanvas },
+    { event: "cxttap", target: "node", callback: handleCxtTapNode },
+    { event: "cxttap", target: "edge", callback: handleCxtTapEdge },
+  ];
+
   const runLayout = () => {
     const cy = cyRef.current;
     if (cy) {
@@ -308,28 +345,23 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   useEffect(() => {
     const cy = cyRef.current;
     if (cy) {
-      // Interaction callbacks
-      cy.bind("mouseover", "node", handleHoverNode);
-      cy.bind("mouseout", "node", handleBlurNode);
-      cy.bind("mouseover", "edge", handleHoverEdge);
-      cy.bind("mouseout", "edge", handleBlurEdge);
-      cy.bind("grab", "node", handleGrabNode);
-      cy.bind("drag", "node", handleDragNode);
-      cy.bind("cxttap", handleCxtTapCanvas);
-      cy.bind("cxttap", "node", handleCxtTapNode);
-      cy.bind("cxttap", "edge", handleCxtTapEdge);
-
-      // TODO: Ideally, the above bindings would be defined by the parent exclusively, but for now keeping them separate because they are
-      // core to the interaction with the component and would be tricky to refactor out.
-      customEventHandlers?.forEach((interaction) => {
-        if (interaction.target !== undefined) {
-          cy.bind(interaction.event, interaction.target, interaction.callback);
-        } else {
-          cy.bind(interaction.event, interaction.callback);
+      // `cy.bind` adds listeners, it does not replace them. Any time the parent updates the custom listeners, reset and rebind them all.
+      cy.removeAllListeners();
+      [...defaultEvents, ...(customEventHandlers || [])].forEach(
+        (interaction) => {
+          if (interaction.target !== undefined) {
+            cy.bind(
+              interaction.event,
+              interaction.target,
+              interaction.callback
+            );
+          } else {
+            cy.bind(interaction.event, interaction.callback);
+          }
         }
-      });
+      );
     }
-  }, []);
+  }, [customEventHandlers]);
 
   useEffect(() => {
     // We need to rerun the layout when the elements change, otherwise they won't be drawn properly

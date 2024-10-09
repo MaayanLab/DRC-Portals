@@ -4,27 +4,21 @@ import { createPathwaySearchCypher } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import { SubGraph } from "@/lib/neo4j/types";
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const pathsRepr = searchParams.get("q");
+export async function POST(request: NextRequest) {
+  const body: { paths: string } = await request.json();
   let paths = [];
 
-  if (!pathsRepr) {
+  if (body === null) {
     return Response.json(
       {
-        error: "Missing required search parameters",
-        message:
-          "The request is missing one or more required search parameters: [q].",
-        missingParams: [pathsRepr === null ? "q" : null].filter(
-          (x) => x !== null
-        ),
+        error: "Request body is empty",
       },
       { status: 400 }
     );
   }
 
   try {
-    paths = JSON.parse(atob(pathsRepr));
+    paths = JSON.parse(atob(body.paths));
 
     if (!Array.isArray(paths)) {
       throw TypeError("Decoded pathway search value was not an array.");

@@ -9,3 +9,13 @@ export const NodeFiltersContainer = styled(Box)({
   zIndex: 1,
   padding: "inherit",
 });
+
+export const PathwayModeBtnContainer = styled(Box)({
+  flexGrow: 1,
+  display: "flex",
+  position: "absolute",
+  bottom: 10,
+  right: 10,
+  zIndex: 1,
+  padding: "inherit",
+});
