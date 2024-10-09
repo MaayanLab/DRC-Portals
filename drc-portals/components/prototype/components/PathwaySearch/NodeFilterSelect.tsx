@@ -78,6 +78,9 @@ export default function NodeFilterSelect(cmpProps: NodeFilterSelectProps) {
         label={label}
         onChange={handleSelectChange}
       >
+        <MenuItem key="None" value={""}>
+          --
+        </MenuItem>
         {items.map((item) => (
           <MenuItem key={item} value={item}>
             {item}

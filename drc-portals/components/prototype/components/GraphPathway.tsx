@@ -153,6 +153,14 @@ export default function GraphPathway() {
           if (draft !== undefined) {
             const node = findNode(nodeId, draft);
             if (node !== undefined) {
+              // Treat "" as removing the filter; Set children as everything but the edited label and return
+              if (value === "") {
+                node.children = node.children.filter(
+                  (child) => child.label !== label
+                );
+                return;
+              }
+
               const existingFilter = node.children.find(
                 (child) => child.label === label
               );
