@@ -35,7 +35,6 @@ export async function GET(
       { status: 400 }
     );
   } else {
-    console.log(getTermsFromLabelCypher(cypherLabel));
     try {
       const result = await executeReadOne<CVTermsWithLabelResult>(
         getDriver(),

@@ -21,8 +21,17 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   const [value, setValue] = useState<string>("");
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loading, setLoading] = useState(false);
+  const abortControllerRef = useRef(new AbortController());
   const cvTermsMap = useRef(new Map<string, NodeResult>());
   const PLACEHOLDER_OPTIONS = [80, 110, 145, 170, 240];
+
+  const abortCVTermRequest = () => {
+    const abortController = abortControllerRef.current;
+    if (abortController !== undefined) {
+      abortController.abort("Cancelling previous CV terms request (if any).");
+      abortControllerRef.current = new AbortController();
+    }
+  };
 
   const submit = (cvTerm: NodeResult | undefined) => {
     if (cvTerm !== undefined) {
@@ -30,14 +39,19 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
     }
   };
 
-  // OnChange fires when an option is chosen from the autocomplete
-  const handleOnChange = (event: SyntheticEvent, option: string | null) => {
+  const handleOnChange = (
+    event: SyntheticEvent,
+    option: string | null,
+    reason: string
+  ) => {
     if (option === null) {
       setValue("");
     } else {
-      if (cvTermsMap.current !== undefined) {
+      setValue(option);
+
+      // Only emit to the parent when an option is selected from the dropdown
+      if (reason === "selectOption" && cvTermsMap.current !== undefined) {
         const cvTerm = cvTermsMap.current.get(option);
-        setValue(option);
         submit(cvTerm);
       }
     }
@@ -49,9 +63,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
     option: string,
     reason: string
   ) => {
-    if (cvTermsMap.current !== undefined) {
-      setValue(option);
-    }
+    setValue(option);
   };
 
   const handleRenderInput = (params: any) => (
@@ -79,13 +91,21 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   const fetchOptions = useMemo(
     () =>
       debounce(async (input: string) => {
+        if (input.length === 0) {
+          setOptions([]);
+          return;
+        }
+
         setLoading(true);
         setOptions(PLACEHOLDER_OPTIONS.map((option) => option.toString()));
 
         try {
-          const response = await fetchCVTerms(`"${input}"`);
+          const response = await fetchCVTerms(`"${input}"`, {
+            signal: abortControllerRef.current?.signal,
+          });
           const data: CVTermsResult[] = await response.json();
           if (cvTermsMap.current !== undefined) {
+            cvTermsMap.current.clear();
             data.forEach((row) => {
               cvTermsMap.current.set(row.synonym, row.cvTerm);
             });
@@ -98,15 +118,12 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
           setLoading(false);
         }
       }, 400),
-    []
+    [cvTermsMap, abortControllerRef]
   );
 
   useEffect(() => {
-    if (value.length > 0) {
-      fetchOptions(value);
-    } else {
-      setOptions([]);
-    }
+    abortCVTermRequest(); // Any time value changes, abort any pending request
+    fetchOptions(value);
   }, [fetchOptions, value]);
 
   return (
@@ -115,6 +132,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
       value={value}
       options={options}
       onChange={handleOnChange}
+      onSelect={() => console.log("Autocomplete -> onSelect")}
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
       renderOption={handleRenderOption}

@@ -1,9 +1,14 @@
 const GRAPH_API_PREFIX = "/data/c2m2/graph/api";
 
-export const fetchAllNodeRels = (nodeId: string, hubLabel: string) =>
+export const fetchAllNodeRels = (
+  nodeId: string,
+  hubLabel: string,
+  fetchProps?: RequestInit
+) =>
   fetch(
     `${GRAPH_API_PREFIX}/rels/all?node_id=${nodeId}&hub_label=${hubLabel}`,
     {
+      ...fetchProps,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -17,11 +22,13 @@ export const fetchExpandNode = (
   spokeLabel: string,
   direction: string,
   type: string,
-  limit: number
+  limit: number,
+  fetchProps?: RequestInit
 ) =>
   fetch(
     `${GRAPH_API_PREFIX}/expand?node_id=${nodeId}&hub_label=${hubLabel}&spoke_label=${spokeLabel}&direction=${direction}&rel_type=${type}&limit=${limit}`,
     {
+      ...fetchProps,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -29,24 +36,27 @@ export const fetchExpandNode = (
     }
   );
 
-export const fetchSynonyms = (query: string) =>
+export const fetchSynonyms = (query: string, fetchProps?: RequestInit) =>
   fetch(`${GRAPH_API_PREFIX}/synonyms?q=${query}`, {
+    ...fetchProps,
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-export const fetchCVTerms = (query: string) =>
+export const fetchCVTerms = (query: string, fetchProps?: RequestInit) =>
   fetch(`${GRAPH_API_PREFIX}/terms?q=${query}`, {
+    ...fetchProps,
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-export const fetchTermsByLabel = (label: string) =>
+export const fetchTermsByLabel = (label: string, fetchProps?: RequestInit) =>
   fetch(`${GRAPH_API_PREFIX}/terms/${label}`, {
+    ...fetchProps,
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -58,7 +68,8 @@ export const fetchSearch = (
   coreLabels: string[],
   dccAbbrevs: string[],
   subjectGenders: string[],
-  subjectRaces: string[]
+  subjectRaces: string[],
+  fetchProps?: RequestInit
 ) =>
   fetch(
     `${GRAPH_API_PREFIX}/search?q=${query}&as_core_labels=${coreLabels.join(
@@ -67,6 +78,7 @@ export const fetchSearch = (
       ","
     )}&as_subr=${subjectRaces.join(",")}`,
     {
+      ...fetchProps,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -74,10 +86,15 @@ export const fetchSearch = (
     }
   );
 
-export const fetchPathSearch = (query: string, cypherParams: string) =>
+export const fetchPathSearch = (
+  query: string,
+  cypherParams: string,
+  fetchProps?: RequestInit
+) =>
   fetch(
     `${GRAPH_API_PREFIX}/search/path?q=${query}&cy_params=${cypherParams}`,
     {
+      ...fetchProps,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -85,8 +102,9 @@ export const fetchPathSearch = (query: string, cypherParams: string) =>
     }
   );
 
-export const fetchPathwaySearch = (query: string) =>
+export const fetchPathwaySearch = (query: string, fetchProps?: RequestInit) =>
   fetch(`${GRAPH_API_PREFIX}/search/pathway`, {
+    ...fetchProps,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
