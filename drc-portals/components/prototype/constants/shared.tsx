@@ -277,3 +277,5 @@ export const NODE_CLASS_MAP: ReadonlyMap<string, string> = new Map([
     BIOSAMPLE_RELATED_NODE_CLASS,
   ]),
 ]);
+
+export const SEARCH_PLACEHOLDER_OPTIONS = [80, 110, 145, 170, 240];

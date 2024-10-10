@@ -10,21 +10,35 @@ import { v4 } from "uuid";
 
 import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
+  ANALYSIS_TYPE_LABEL,
   ANATOMY_LABEL,
   ASSAY_TYPE_LABEL,
   ASSOCIATED_WITH_TYPE,
   COMPOUND_LABEL,
   CONTAINS_TYPE,
+  DATA_TYPE_LABEL,
   DISEASE_LABEL,
+  FILE_FORMAT_LABEL,
+  GENERATED_BY_ANALYSIS_TYPE_TYPE,
   GENERATED_BY_ASSAY_TYPE_TYPE,
   ID_NAMESPACE_LABEL,
+  IS_DATA_TYPE_TYPE,
+  IS_ETHNICITY_TYPE,
+  IS_FILE_FORMAT_TYPE,
+  IS_GRANULARITY_TYPE,
   IS_RACE_TYPE,
+  IS_SEX_TYPE,
   NCBI_TAXONOMY_LABEL,
   PATHWAY_INCOMING_CONNECTIONS,
   PATHWAY_OUTGOING_CONNECTIONS,
+  PREPPED_VIA_TYPE,
+  SAMPLE_PREP_METHOD_LABEL,
   SAMPLED_FROM_TYPE,
+  SUBJECT_ETHNICITY_LABEL,
+  SUBJECT_GRANULARITY_LABEL,
   SUBJECT_RACE_LABEL,
   SUBJECT_SEX_LABEL,
+  TESTED_FOR_TYPE,
 } from "@/lib/neo4j/constants";
 import { Direction } from "@/lib/neo4j/enums";
 import {
@@ -178,43 +192,45 @@ export default function GraphPathway() {
                   string,
                   PathwayRelationship
                 > = new Map([
-                  [
-                    SUBJECT_SEX_LABEL,
-                    {
-                      id: v4(),
-                      type: ASSOCIATED_WITH_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    NCBI_TAXONOMY_LABEL,
-                    {
-                      id: v4(),
-                      type: ASSOCIATED_WITH_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    DISEASE_LABEL,
-                    {
-                      id: v4(),
-                      type: ASSOCIATED_WITH_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    COMPOUND_LABEL,
-                    {
-                      id: v4(),
-                      type: ASSOCIATED_WITH_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
+                  // File related nodes
                   [
                     ASSAY_TYPE_LABEL,
                     {
                       id: v4(),
                       type: GENERATED_BY_ASSAY_TYPE_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    DATA_TYPE_LABEL,
+                    {
+                      id: v4(),
+                      type: IS_DATA_TYPE_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    FILE_FORMAT_LABEL,
+                    {
+                      id: v4(),
+                      type: IS_FILE_FORMAT_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    ANALYSIS_TYPE_LABEL,
+                    {
+                      id: v4(),
+                      type: GENERATED_BY_ANALYSIS_TYPE_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  // Subject related nodes
+                  [
+                    SUBJECT_SEX_LABEL,
+                    {
+                      id: v4(),
+                      type: IS_SEX_TYPE,
                       direction: Direction.OUTGOING,
                     },
                   ],
@@ -227,11 +243,53 @@ export default function GraphPathway() {
                     },
                   ],
                   [
-                    ID_NAMESPACE_LABEL,
+                    SUBJECT_GRANULARITY_LABEL,
                     {
                       id: v4(),
-                      type: CONTAINS_TYPE,
-                      direction: Direction.INCOMING,
+                      type: IS_GRANULARITY_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    SUBJECT_ETHNICITY_LABEL,
+                    {
+                      id: v4(),
+                      type: IS_ETHNICITY_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  // Biosample related nodes
+                  [
+                    SAMPLE_PREP_METHOD_LABEL,
+                    {
+                      id: v4(),
+                      type: PREPPED_VIA_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  // Term nodes
+                  [
+                    NCBI_TAXONOMY_LABEL,
+                    {
+                      id: v4(),
+                      type: ASSOCIATED_WITH_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    DISEASE_LABEL,
+                    {
+                      id: v4(),
+                      type: TESTED_FOR_TYPE,
+                      direction: Direction.OUTGOING,
+                    },
+                  ],
+                  [
+                    COMPOUND_LABEL,
+                    {
+                      id: v4(),
+                      type: ASSOCIATED_WITH_TYPE,
+                      direction: Direction.OUTGOING,
                     },
                   ],
                   [
@@ -240,6 +298,15 @@ export default function GraphPathway() {
                       id: v4(),
                       type: SAMPLED_FROM_TYPE,
                       direction: Direction.OUTGOING,
+                    },
+                  ],
+                  // Admin nodes
+                  [
+                    ID_NAMESPACE_LABEL,
+                    {
+                      id: v4(),
+                      type: CONTAINS_TYPE,
+                      direction: Direction.INCOMING,
                     },
                   ],
                 ]);

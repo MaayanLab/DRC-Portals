@@ -16,6 +16,8 @@ import {
 import { fetchSynonyms } from "@/lib/neo4j/api";
 import { SynoynmsResult } from "@/lib/neo4j/types";
 
+import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
+
 import SearchBarInput from "./SearchBarInput";
 
 interface SearchBarProps {
@@ -37,7 +39,6 @@ export default function SearchBar(cmpProps: SearchBarProps) {
   const [value, setValue] = useState<string>(cmpProps.value);
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
-  const PLACEHOLDER_OPTIONS = [80, 110, 145, 170, 240];
 
   const submit = (input: string) => {
     if (input.length > 0) {
@@ -98,7 +99,10 @@ export default function SearchBar(cmpProps: SearchBarProps) {
     return (
       <Box key={key} component="li" sx={{ display: "flex" }} {...optionProps}>
         {loadingOptions ? (
-          <Skeleton variant="text" width={PLACEHOLDER_OPTIONS[state.index]} />
+          <Skeleton
+            variant="text"
+            width={SEARCH_PLACEHOLDER_OPTIONS[state.index]}
+          />
         ) : (
           ownerState.getOptionLabel(option)
         )}
@@ -110,7 +114,9 @@ export default function SearchBar(cmpProps: SearchBarProps) {
     () =>
       debounce(async (input: string) => {
         setLoadingOptions(true);
-        setOptions(PLACEHOLDER_OPTIONS.map((option) => option.toString()));
+        setOptions(
+          SEARCH_PLACEHOLDER_OPTIONS.map((option) => option.toString())
+        );
 
         try {
           const response = await fetchSynonyms(input);

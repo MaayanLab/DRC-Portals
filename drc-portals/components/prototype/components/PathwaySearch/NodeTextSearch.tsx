@@ -1,30 +1,36 @@
-"use client";
-
-import Autocomplete, {
+import {
+  Autocomplete,
+  AutocompleteChangeReason,
   AutocompleteOwnerState,
+  AutocompleteRenderInputParams,
   AutocompleteRenderOptionState,
-} from "@mui/material/Autocomplete";
-import { debounce, Box, Skeleton } from "@mui/material";
+  Box,
+  CircularProgress,
+  debounce,
+  Skeleton,
+  TextField,
+} from "@mui/material";
+
 import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { fetchCVTerms } from "@/lib/neo4j/api";
-import { CVTermsResult, NodeResult } from "@/lib/neo4j/types";
+import { fetchTermsByLabelAndName } from "@/lib/neo4j/api";
 
+import { filterCarouselItemWidth } from "../../constants/pathway-search";
 import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
 
-import PathwaySearchBarInput from "./PathwaySearchBarInput";
-
-interface PathwaySearchBarProps {
-  onSubmit: (cvTerm: NodeResult) => void;
+interface NodeTextSearchProps {
+  label: string;
+  value?: string;
+  onChange: (value: string) => void;
 }
 
-export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
-  const { onSubmit } = cmpProps;
-  const [value, setValue] = useState<string>("");
+export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
+  const { label, onChange } = cmpProps;
+  const [value, setValue] = useState<string | null>(cmpProps.value || null);
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef(new AbortController());
-  const cvTermsMap = useRef(new Map<string, NodeResult>());
 
   const abortCVTermRequest = () => {
     const abortController = abortControllerRef.current;
@@ -34,25 +40,19 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
     }
   };
 
-  const submit = (cvTerm: NodeResult | undefined) => {
-    if (cvTerm !== undefined) {
-      onSubmit(cvTerm);
-    }
-  };
-
   const handleOnChange = (
     event: SyntheticEvent,
-    option: string | null,
-    reason: string
+    value: string | null,
+    reason: AutocompleteChangeReason
   ) => {
-    if (option === null) {
-      setValue("");
-    } else {
-      setValue(option);
+    setValue(value);
+
+    // Only emit to the parent when an option is selected from the dropdown
+    if (reason === "selectOption") {
+      onChange(value || "");
     }
   };
 
-  // OnInputChange fires anytime the text value of the autocomplete changes
   const handleOnInputChange = (
     event: SyntheticEvent,
     option: string,
@@ -61,8 +61,25 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
     setValue(option);
   };
 
-  const handleRenderInput = (params: any) => (
-    <PathwaySearchBarInput inputParams={params} />
+  const handleRenderInput = (params: AutocompleteRenderInputParams) => (
+    <TextField
+      {...params}
+      label={label}
+      helperText={error}
+      error={error !== null}
+      InputProps={{
+        ...params.InputProps,
+        sx: {
+          backgroundColor: "#FFF",
+        },
+        endAdornment: (
+          <>
+            {loading ? <CircularProgress color="inherit" size={20} /> : null}
+            {params.InputProps.endAdornment}
+          </>
+        ),
+      }}
+    />
   );
 
   const handleRenderOption = (
@@ -79,10 +96,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
         sx={{ display: "flex" }}
         {...optionProps}
         onClick={(event: MouseEvent) => {
-          if (cvTermsMap.current !== undefined) {
-            const cvTerm = cvTermsMap.current.get(option);
-            submit(cvTerm);
-          }
+          onChange(option);
           optionProps.onClick(event);
         }}
       >
@@ -100,8 +114,8 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
 
   const fetchOptions = useMemo(
     () =>
-      debounce(async (input: string) => {
-        if (input.length === 0) {
+      debounce(async (input: string | null) => {
+        if (input === null || input.length === 0) {
           setOptions([]);
           return;
         }
@@ -112,25 +126,22 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
         );
 
         try {
-          const response = await fetchCVTerms(`"${input}"`, {
+          const response = await fetchTermsByLabelAndName(label, input, {
             signal: abortControllerRef.current?.signal,
           });
-          const data: CVTermsResult[] = await response.json();
-          if (cvTermsMap.current !== undefined) {
-            cvTermsMap.current.clear();
-            data.forEach((row) => {
-              cvTermsMap.current.set(row.synonym, row.cvTerm);
-            });
-            setOptions(Array.from(cvTermsMap.current.keys()));
-          }
+          const data: string[] = await response.json();
+          setOptions(data);
         } catch (error) {
           console.error(error);
+          setError(
+            `An error occurred fetching options for ${label}. Please try again later.`
+          );
           setOptions([]);
         } finally {
           setLoading(false);
         }
       }, 400),
-    [cvTermsMap, abortControllerRef]
+    [abortControllerRef]
   );
 
   useEffect(() => {
@@ -140,6 +151,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
 
   return (
     <Autocomplete
+      sx={{ width: `${filterCarouselItemWidth}px` }}
       freeSolo
       value={value}
       options={options}
@@ -148,15 +160,6 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
       renderInput={handleRenderInput}
       renderOption={handleRenderOption}
       filterOptions={(x) => x}
-      sx={{
-        borderRadius: "4px",
-        width: "auto",
-        minWidth: "480px",
-        backgroundColor: "transparent",
-        "& .MuiOutlinedInput-root": {
-          paddingRight: "120px!important",
-        },
-      }}
     />
   );
 }

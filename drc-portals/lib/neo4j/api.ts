@@ -63,6 +63,20 @@ export const fetchTermsByLabel = (label: string, fetchProps?: RequestInit) =>
     },
   });
 
+// TODO: Need to consolidate this and the above two APIs, it's a little ridiculous the way it is now...
+export const fetchTermsByLabelAndName = (
+  label: string,
+  name: string,
+  fetchProps?: RequestInit
+) =>
+  fetch(`${GRAPH_API_PREFIX}/terms/${label}/${name}`, {
+    ...fetchProps,
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
 export const fetchSearch = (
   query: string,
   coreLabels: string[],

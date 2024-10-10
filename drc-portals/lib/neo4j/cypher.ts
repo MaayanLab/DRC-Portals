@@ -96,6 +96,24 @@ export const getTermsFromLabelCypher = (label: string) => `
   RETURN collect(name) AS names
 `;
 
+export const getTermsFromLabelAndNameCypher = (label: string) => `
+    CALL {
+      CALL db.index.fulltext.queryNodes('synonymIdx', $name)
+      YIELD node AS s
+      MATCH (s)<-[:HAS_SYNONYM]-(cvTerm:${escapeCypherString(label)})
+      RETURN DISTINCT cvTerm.name AS name
+      ORDER BY size(cvTerm.name)
+      LIMIT $limit
+      UNION ALL
+      MATCH (s:Synonym)<-[:HAS_SYNONYM]-(cvTerm:${escapeCypherString(label)})
+      WHERE s.name STARTS WITH $name
+      RETURN DISTINCT cvTerm.name AS name
+      ORDER BY size(cvTerm.name)
+      LIMIT $limit
+    }
+    RETURN collect(DISTINCT name) AS names
+  `;
+
 export const getSearchCypher = (coreLabels: string[]) => {
   if (coreLabels.length === 0) {
     coreLabels = Array.from(CORE_LABELS);

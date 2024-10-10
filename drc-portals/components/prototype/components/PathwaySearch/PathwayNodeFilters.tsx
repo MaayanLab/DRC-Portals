@@ -21,12 +21,14 @@ import {
 } from "@/lib/neo4j/constants";
 import { PathwayNode } from "@/lib/neo4j/types";
 
-import NodeFilterSelect from "./NodeFilterSelect";
 import {
   filterCarouselContainerWidth,
   filterCarouselItemPaddingX,
   filterCarouselItemWidth,
 } from "../../constants/pathway-search";
+
+import NodeFilterSelect from "./NodeFilterSelect";
+import NodeTextSearch from "./NodeTextSearch";
 
 const NODE_SELECT_LABEL_MAP: ReadonlyMap<string, string[]> = new Map([
   [FILE_LABEL, [...FILE_RELATED_LABELS, ID_NAMESPACE_LABEL]],
@@ -70,6 +72,18 @@ export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
     node.children.map((child) => [child.label, child.props?.name])
   );
   const filters = [
+    ...(NODE_SEARCH_LABEL_MAP.get(node.label) || []).map((label) => (
+      <Box
+        key={`${node.label}-node-${label}-filter`}
+        sx={{ paddingX: `${filterCarouselItemPaddingX}px` }}
+      >
+        <NodeTextSearch
+          label={label}
+          value={nodeChildValueMap.get(label)}
+          onChange={(value: string) => onChange(label, value)}
+        />
+      </Box>
+    )),
     ...(NODE_SELECT_LABEL_MAP.get(node.label) || []).map((label) => (
       <Box
         key={`${node.label}-node-${label}-filter`}
