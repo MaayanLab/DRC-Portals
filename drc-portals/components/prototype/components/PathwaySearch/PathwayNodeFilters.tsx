@@ -40,10 +40,7 @@ const NODE_SELECT_LABEL_MAP: ReadonlyMap<string, string[]> = new Map([
 
 const NODE_SEARCH_LABEL_MAP: ReadonlyMap<string, string[]> = new Map([
   [SUBJECT_LABEL, [DISEASE_LABEL, NCBI_TAXONOMY_LABEL, COMPOUND_LABEL]],
-  [
-    BIOSAMPLE_LABEL,
-    [ANATOMY_LABEL, COMPOUND_LABEL, DISEASE_LABEL, NCBI_TAXONOMY_LABEL],
-  ],
+  [BIOSAMPLE_LABEL, [ANATOMY_LABEL, COMPOUND_LABEL, DISEASE_LABEL]],
 ]);
 
 // TODO: I think yet another justification for showing filter nodes directly on the canvas is we can show only those nodes which are
