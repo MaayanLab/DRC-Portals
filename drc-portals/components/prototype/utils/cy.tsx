@@ -52,15 +52,17 @@ import {
 
 export const createCytoscapeNode = (
   node: NodeResult,
-  classes?: string[]
+  classes?: string[],
+  usePropForLabel = false
 ): CytoscapeNode => {
   const nodeLabel = node.labels[0];
-  const nodeDisplayLabel = getNodeDisplayProperty(nodeLabel, node);
   return {
     classes: [NODE_CLASS_MAP.get(nodeLabel) || "", ...(classes || [])],
     data: {
       id: node.uuid,
-      label: truncateLabelToFitNode(nodeDisplayLabel),
+      label: usePropForLabel
+        ? getNodeDisplayProperty(nodeLabel, node)
+        : nodeLabel,
       neo4j: {
         labels: node.labels,
         properties: node.properties,

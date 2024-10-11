@@ -399,7 +399,7 @@ export default function GraphPathway() {
     );
     setSearchElements([
       // TODO: Should probably have a constant for this style class, and the other classes for that matter
-      createCytoscapeNode(cvTerm, ["path-element"]),
+      createCytoscapeNode(cvTerm, ["path-element"], true),
       ...nodes,
       ...edges,
     ]);
