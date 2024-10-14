@@ -9,8 +9,6 @@ import { SyntheticEvent, useState } from "react";
 
 import { fetchTermsByLabel } from "@/lib/neo4j/api";
 
-import { filterCarouselItemWidth } from "../../constants/pathway-search";
-
 interface NodeFilterSelectProps {
   label: string;
   value?: string;
@@ -76,7 +74,7 @@ export default function NodeFilterSelect(cmpProps: NodeFilterSelectProps) {
 
   return (
     <Autocomplete
-      sx={{ width: `${filterCarouselItemWidth}px` }}
+      size="small"
       value={value}
       open={open}
       onOpen={handleOpen}

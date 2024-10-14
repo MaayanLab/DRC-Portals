@@ -15,7 +15,6 @@ import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchTermsByLabelAndName } from "@/lib/neo4j/api";
 
-import { filterCarouselItemWidth } from "../../constants/pathway-search";
 import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
 
 interface NodeTextSearchProps {
@@ -151,7 +150,7 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
 
   return (
     <Autocomplete
-      sx={{ width: `${filterCarouselItemWidth}px` }}
+      size="small"
       freeSolo
       value={value}
       options={options}

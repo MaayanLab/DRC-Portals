@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, IconButton, styled } from "@mui/material";
 
 export const NodeFiltersContainer = styled(Box)({
   flexGrow: 1,
@@ -20,6 +20,26 @@ export const PathwayModeBtnContainer = styled(Box)({
   padding: "inherit",
 });
 
-export const filterCarouselContainerWidth = 475;
-export const filterCarouselItemWidth = 225;
-export const filterCarouselItemPaddingX = 4;
+export const NodeFilterCarousel = styled(Box)(() => ({
+  maxWidth: "475px",
+  display: "flex",
+  overflowX: "scroll",
+  overflowY: "hidden",
+  scrollBehavior: "smooth",
+  scrollbarWidth: "none",
+  overscrollBehavior: "contain",
+}));
+
+export const NodeFilterBox = styled(Box)(() => ({
+  minWidth: "225px",
+  paddingRight: "2px",
+  paddingLeft: "2px",
+}));
+
+export const NodeFilterButton = styled(IconButton)(({ theme }) => ({
+  color: "white",
+  backgroundColor: theme.palette.secondary.main,
+  "&:hover, &.Mui-focusVisible": {
+    backgroundColor: theme.palette.secondary.dark,
+  },
+}));

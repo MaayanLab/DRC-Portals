@@ -1,8 +1,8 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { Box, IconButton } from "@mui/material";
+import { Box, debounce } from "@mui/material";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ANATOMY_LABEL,
@@ -22,9 +22,9 @@ import {
 import { PathwayNode } from "@/lib/neo4j/types";
 
 import {
-  filterCarouselContainerWidth,
-  filterCarouselItemPaddingX,
-  filterCarouselItemWidth,
+  NodeFilterBox,
+  NodeFilterButton,
+  NodeFilterCarousel,
 } from "../../constants/pathway-search";
 
 import NodeFilterSelect from "./NodeFilterSelect";
@@ -64,107 +64,91 @@ interface PathwayNodeFiltersProps {
 export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
   const { node, onChange } = cmpProps;
   const [carouselScrollLeft, setCarouselScrollLeft] = useState<number>(0);
+  const [maxCarouselScrollLeft, setMaxCarouselScrollLeft] = useState<number>(0);
   const carouselRef = useRef<HTMLElement>(null);
   const nodeChildValueMap = new Map<string, string | undefined>(
     node.children.map((child) => [child.label, child.props?.name])
   );
   const filters = [
     ...(NODE_SEARCH_LABEL_MAP.get(node.label) || []).map((label) => (
-      <Box
-        key={`${node.label}-node-${label}-filter`}
-        sx={{ paddingX: `${filterCarouselItemPaddingX}px` }}
-      >
+      <NodeFilterBox key={`${node.label}-node-${label}-filter`}>
         <NodeTextSearch
           label={label}
           value={nodeChildValueMap.get(label)}
           onChange={(value: string) => onChange(label, value)}
         />
-      </Box>
+      </NodeFilterBox>
     )),
     ...(NODE_SELECT_LABEL_MAP.get(node.label) || []).map((label) => (
-      <Box
-        key={`${node.label}-node-${label}-filter`}
-        sx={{ paddingX: `${filterCarouselItemPaddingX}px` }}
-      >
+      <NodeFilterBox key={`${node.label}-node-${label}-filter`}>
         <NodeFilterSelect
           label={label}
           value={nodeChildValueMap.get(label)}
           onChange={(value: string) => onChange(label, value)}
         />
-      </Box>
+      </NodeFilterBox>
     )),
   ];
-  const MIN_CAROUSEL_SCROLL_LEFT = 0;
-  const MAX_CAROUSEL_SCROLL_LEFT =
-    (filters?.length || 0) * filterCarouselItemWidth +
-    (filters?.length || 0) * 2 * filterCarouselItemPaddingX;
 
   const prevHandler = () => {
-    if (carouselRef.current != null) {
-      carouselRef.current.scrollLeft = Math.max(
-        MIN_CAROUSEL_SCROLL_LEFT,
-        carouselRef.current.scrollLeft - carouselRef.current.offsetWidth
-      );
-      setCarouselScrollLeft(
-        Math.max(
-          MIN_CAROUSEL_SCROLL_LEFT,
-          carouselScrollLeft - carouselRef.current.offsetWidth
-        )
+    const carousel = carouselRef.current;
+    if (carousel != null) {
+      carousel.scrollLeft = Math.max(
+        0,
+        carousel.scrollLeft - carousel.offsetWidth
       );
     }
   };
 
   const nextHandler = () => {
-    if (carouselRef.current != null) {
-      carouselRef.current.scrollLeft = Math.min(
-        MAX_CAROUSEL_SCROLL_LEFT,
-        carouselRef.current.scrollLeft + carouselRef.current.offsetWidth
-      );
-      setCarouselScrollLeft(
-        Math.min(
-          MAX_CAROUSEL_SCROLL_LEFT,
-          carouselScrollLeft + carouselRef.current.offsetWidth
-        )
+    const carousel = carouselRef.current;
+    if (carousel !== null) {
+      carousel.scrollLeft = Math.min(
+        maxCarouselScrollLeft, // Maximum scrollLeft value for the ref
+        carousel.scrollLeft + carousel.offsetWidth
       );
     }
   };
 
-  return (
-    <>
-      {filters !== undefined && filters.length > 0 ? (
-        <Box sx={{ display: "flex" }}>
-          <Box sx={{ alignContent: "center" }}>
-            <IconButton
-              onClick={prevHandler}
-              disabled={carouselScrollLeft < filterCarouselContainerWidth}
-            >
-              <ChevronLeftIcon />
-            </IconButton>
-          </Box>
-          <Box
-            ref={carouselRef}
-            sx={{
-              display: "flex",
-              maxWidth: `${filterCarouselContainerWidth}px`,
-              overflowX: "hidden",
-              scrollBehavior: "smooth",
-            }}
-          >
-            {filters}
-          </Box>
-          <Box sx={{ alignContent: "center" }}>
-            <IconButton
-              onClick={nextHandler}
-              disabled={
-                carouselScrollLeft >=
-                MAX_CAROUSEL_SCROLL_LEFT - filterCarouselContainerWidth
-              }
-            >
-              <ChevronRightIcon />
-            </IconButton>
-          </Box>
-        </Box>
-      ) : null}
-    </>
+  const handleScroll = useMemo(
+    () =>
+      debounce(() => {
+        const carousel = carouselRef.current;
+        if (carousel !== null) {
+          setCarouselScrollLeft(carousel.scrollLeft);
+        }
+      }, 100),
+    [carouselRef]
   );
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (carousel !== null) {
+      setMaxCarouselScrollLeft(carousel.scrollWidth - carousel.clientWidth); // Maximum scrollLeft value for the ref
+    }
+  }, [carouselRef]);
+
+  return filters !== undefined && filters.length > 0 ? (
+    <>
+      <Box sx={{ alignContent: "center" }}>
+        <NodeFilterButton
+          onClick={prevHandler}
+          disabled={carouselScrollLeft === 0}
+        >
+          <ChevronLeftIcon />
+        </NodeFilterButton>
+      </Box>
+      <NodeFilterCarousel ref={carouselRef} onScroll={handleScroll}>
+        {filters}
+      </NodeFilterCarousel>
+      <Box sx={{ alignContent: "center" }}>
+        <NodeFilterButton
+          onClick={nextHandler}
+          disabled={carouselScrollLeft >= maxCarouselScrollLeft}
+        >
+          <ChevronRightIcon />
+        </NodeFilterButton>
+      </Box>
+    </>
+  ) : null;
 }
