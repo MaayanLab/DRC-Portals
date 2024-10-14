@@ -381,6 +381,7 @@ export const DEFAULT_STYLESHEET: any[] = [
 export const DAGRE_LAYOUT = {
   name: "dagre",
   animate: true,
+  spacingFactor: 0.75,
 };
 
 export const DAGRE_STYLESHEET: any[] = [
@@ -395,7 +396,6 @@ export const DAGRE_STYLESHEET: any[] = [
   {
     selector: "edge",
     style: {
-      "curve-style": "taxi",
       opacity: TRANSPARENT_OPACITY,
     },
   },

@@ -96,7 +96,7 @@ export default function GraphPathway() {
         let selectedNode: PathwayNode | undefined;
 
         if (!cyNode.hasClass("path-element")) {
-          selectedNode = addNodeToPathV1(cyNode, cy);
+          selectedNode = addNodeToPath(cyNode, cy);
         } else {
           selectedNode = findNode(id, tree);
         }
@@ -138,26 +138,21 @@ export default function GraphPathway() {
     setResultElements([]);
   };
 
-  const handleAddElements = useCallback((elements: ElementDefinition[]) => {
-    setSearchElements(
-      produce((draft) => {
-        draft.push(...elements);
-      })
-    );
-  }, []);
-
-  const handleAddNode = useCallback((nodeId: string, child: PathwayNode) => {
-    setTree(
-      produce((draft) => {
-        if (draft !== undefined) {
-          const node = findNode(nodeId, draft);
-          if (node !== undefined) {
-            node.children.push(child);
+  const handleAddNodeToTree = useCallback(
+    (nodeId: string, child: PathwayNode) => {
+      setTree(
+        produce((draft) => {
+          if (draft !== undefined) {
+            const node = findNode(nodeId, draft);
+            if (node !== undefined) {
+              node.children.push(child);
+            }
           }
-        }
-      })
-    );
-  }, []);
+        })
+      );
+    },
+    []
+  );
 
   // TODO: Should consolidate these updates, need to make sure we're not repeating code more than necessary
   const handleAddOrUpdateNodeFilter = useCallback(
@@ -412,7 +407,7 @@ export default function GraphPathway() {
   };
 
   // TODO: As time permits, need to simplify the logic here, it's fairly straightforward on paper but the implementation is too verbose...
-  const addNodeToPathV1 = (node: NodeSingular, cy: cytoscape.Core) => {
+  const addNodeToPath = (node: NodeSingular, cy: cytoscape.Core) => {
     // Get selected node data, and get new data for its connected nodes and relationships
     const nodeData: CytoscapeNodeData = node.data();
     const nodeLabels = nodeData.neo4j?.labels;
@@ -421,21 +416,21 @@ export default function GraphPathway() {
       // "Parent" is always the source node (i.e., the one higher in the tree), even if the edge is visually going "up" the tree
       const nodeParentId = edge.source().id();
       const { nodes, edges } = getConnectedElements(nodeLabels[0], nodeData.id);
+
       // TODO: Should probably have a constant for this style class, and the other classes for that matter
       edge.addClass("path-element");
       node.addClass("path-element");
-      const pathNodes = [node, ...Array.from(cy.nodes(".path-element"))].map(
-        (n) => {
-          return { classes: [...n.classes(), "path-element"], data: n.data() };
-        }
-      );
-      const pathEdges = [edge, ...Array.from(cy.edges(".path-element"))].map(
-        (e) => {
-          return { classes: [...e.classes(), "path-element"], data: e.data() };
-        }
-      );
 
-      const newNode: PathwayNode = {
+      const prevNodes = [node, ...Array.from(cy.nodes())].map((n) => ({
+        classes: [...n.classes()],
+        data: n.data(),
+      }));
+      const prevEdges = [edge, ...Array.from(cy.edges())].map((e) => ({
+        classes: [...e.classes()],
+        data: e.data(),
+      }));
+
+      const newTreeNode: PathwayNode = {
         id: node.id(),
         label: nodeLabels[0],
         children: [],
@@ -449,44 +444,9 @@ export default function GraphPathway() {
         },
         props: nodeData.neo4j?.properties,
       };
-      handleAddNode(nodeParentId, newNode);
-      // TODO: Use an immer handler here instead?
-      setSearchElements([...pathNodes, ...nodes, ...pathEdges, ...edges]);
-      return newNode;
-    } else {
-      // TODO: Need to have better handling of this error even if it *should* never happen, but logging the issue should suffice for now
-      console.error("Attempted to add node to path with no labels! Aborting.");
-    }
-  };
-
-  const addNodeToPathV2 = (node: NodeSingular, cy: cytoscape.Core) => {
-    // Get selected node data, and get new data for its connected nodes and relationships
-    const nodeData: CytoscapeNodeData = node.data();
-    const nodeLabels = nodeData.neo4j?.labels;
-    if (nodeLabels !== undefined && nodeLabels.length > 0) {
-      const edge = node.connectedEdges().first();
-      // "Parent" is always the source node (i.e., the one higher in the tree), even if the edge is visually going "up" the tree
-      const nodeParentId = edge.source().id();
-      const { nodes, edges } = getConnectedElements(nodeLabels[0], nodeData.id);
-
-      // TODO: Should probably have a constant for this style class, and the other classes for that matter
-      edge.addClass("path-element");
-      node.addClass("path-element");
-      handleAddNode(nodeParentId, {
-        id: node.id(),
-        label: nodeLabels[0],
-        children: [],
-        relationshipToParent: {
-          id: edge.id(),
-          type: edge.data("neo4j").type,
-          direction: edge.hasClass("source-arrow-only")
-            ? Direction.INCOMING
-            : Direction.OUTGOING,
-          props: edge.data("neo4j").properties,
-        },
-        props: nodeData.neo4j?.properties,
-      });
-      handleAddElements([...nodes, ...edges]);
+      handleAddNodeToTree(nodeParentId, newTreeNode);
+      setSearchElements([...prevNodes, ...nodes, ...prevEdges, ...edges]);
+      return newTreeNode;
     } else {
       // TODO: Need to have better handling of this error even if it *should* never happen, but logging the issue should suffice for now
       console.error("Attempted to add node to path with no labels! Aborting.");
