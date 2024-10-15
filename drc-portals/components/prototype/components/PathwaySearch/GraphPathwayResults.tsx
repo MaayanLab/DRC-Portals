@@ -20,8 +20,8 @@ import ExpandNodeMenuItem from "../../components/CytoscapeChart/custom-cxt-menu-
 import ChartCxtMenuItem from "../../components/CytoscapeChart/ChartCxtMenuItem";
 import ChartNestedCxtMenuItem from "../../components/CytoscapeChart/NestedChartCxtMenuItem";
 import {
-  D3_FORCE_LAYOUT,
   DEFAULT_STYLESHEET,
+  EULER_LAYOUT,
   SCHEMA_LEGEND,
   SCHEMA_RELATIONSHIP_ITEM,
   STYLE_CLASS_TO_LEGEND_KEY_MAP,
@@ -30,7 +30,6 @@ import { PathwayModeBtnContainer } from "../../constants/pathway-search";
 import { CytoscapeNodeData } from "../../interfaces/cy";
 import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 import {
-  D3_FORCE_TOOLS,
   downloadChartData,
   downloadChartPNG,
   downloadCyAsJson,
@@ -38,7 +37,6 @@ import {
   highlightNeighbors,
   highlightNodesWithLabel,
   isNodeD3Locked,
-  rotateChart,
   selectAll,
   selectNeighbors,
   selectNodesWithLabel,
@@ -49,7 +47,6 @@ import {
   unlockD3ForceNode,
   unlockSelection,
 } from "../../utils/cy";
-import { createVerticalDividerElement } from "../../utils/shared";
 
 import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
 import GraphEntityDetails from "../GraphEntityDetails";
@@ -224,31 +221,6 @@ export default function GraphPathwayResults(
 
   // TODO: We could probably reduce some of the repetition in these function definitions...also would be nice to move this to another file
   const customTools: CustomToolbarFnFactory[] = [
-    ...D3_FORCE_TOOLS,
-    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
-      rotateChart(
-        "search-chart-toolbar-rotate-cw",
-        "Rotate Clockwise",
-        "rotate-cw",
-        <Rotate90DegreesCwIcon />,
-        90,
-        cyRef,
-        layout
-      ),
-    (cyRef: CytoscapeReference, layout: LayoutOptions) =>
-      rotateChart(
-        "search-chart-toolbar-rotate-ccw",
-        "Rotate Counter-Clockwise",
-        "rotate-ccw",
-        <Rotate90DegreesCcwIcon />,
-        -90,
-        cyRef,
-        layout
-      ),
-    () =>
-      createVerticalDividerElement(
-        "graph-search-d3-force-tools-toolbar-divider"
-      ),
     (cyRef: CytoscapeReference) =>
       downloadChartData(
         "search-chart-toolbar-download-data",
@@ -276,7 +248,7 @@ export default function GraphPathwayResults(
       >
         <CytoscapeChart
           elements={elements}
-          layout={D3_FORCE_LAYOUT}
+          layout={EULER_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}
           legend={legend}
           cxtMenuEnabled={true}

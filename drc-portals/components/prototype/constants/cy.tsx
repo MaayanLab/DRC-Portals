@@ -214,6 +214,19 @@ export const D3_FORCE_LAYOUT = {
   manyBodyStrength: -300,
 };
 
+export const EULER_LAYOUT = {
+  name: "euler",
+  springLength: () => 80,
+  mass: () => 4,
+  randomize: true,
+  animate: "end",
+  animationDuration: 1000,
+  animationEasing: "ease-out",
+  gravity: -1.2,
+  maxIterations: 1000,
+  maxSimulationTime: 4000,
+};
+
 export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   {
     selector: "node",
@@ -383,7 +396,7 @@ export const DAGRE_LAYOUT = {
   animate: true,
 };
 
-export const DAGRE_STYLESHEET: any[] = [
+export const PATHWAY_SEARCH_STYLESHEET: any[] = [
   ...DEFAULT_NODE_SELECTOR_STYLES,
   {
     selector: "node",
@@ -395,7 +408,6 @@ export const DAGRE_STYLESHEET: any[] = [
   {
     selector: "edge",
     style: {
-      "curve-style": "taxi",
       opacity: TRANSPARENT_OPACITY,
     },
   },
