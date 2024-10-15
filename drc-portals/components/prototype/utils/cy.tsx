@@ -23,6 +23,14 @@ import {
 } from "cytoscape";
 import { CSSProperties, Fragment, ReactNode } from "react";
 
+import {
+  BIOSAMPLE_RELATED_LABELS,
+  DCC_LABEL,
+  FILE_RELATED_LABELS,
+  ID_NAMESPACE_LABEL,
+  SUBJECT_RELATED_LABELS,
+  TERM_LABELS,
+} from "@/lib/neo4j/constants";
 import { NodeResult, RelationshipResult, SubGraph } from "@/lib/neo4j/types";
 
 import {
@@ -95,7 +103,16 @@ export const createCytoscapeElements = (subgraph: SubGraph) => {
   let edges: CytoscapeEdge[] = [];
 
   subgraph.nodes.forEach((node) => {
-    nodes.push(createCytoscapeNode(node));
+    const nodeLabel = node.labels[0];
+    const usePropForLabel = [
+      ...TERM_LABELS,
+      ...FILE_RELATED_LABELS,
+      ...BIOSAMPLE_RELATED_LABELS,
+      ...SUBJECT_RELATED_LABELS,
+      ID_NAMESPACE_LABEL,
+      DCC_LABEL,
+    ].includes(nodeLabel);
+    nodes.push(createCytoscapeNode(node, [], usePropForLabel));
   });
 
   subgraph.relationships.forEach((relationship) =>
