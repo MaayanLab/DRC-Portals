@@ -10,42 +10,11 @@ import { v4 } from "uuid";
 
 import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
-  ANALYSIS_TYPE_LABEL,
-  ANATOMY_LABEL,
-  ASSAY_TYPE_LABEL,
-  ASSOCIATED_WITH_TYPE,
-  COMPOUND_LABEL,
-  CONTAINS_TYPE,
-  DATA_TYPE_LABEL,
-  DISEASE_LABEL,
-  FILE_FORMAT_LABEL,
-  GENERATED_BY_ANALYSIS_TYPE_TYPE,
-  GENERATED_BY_ASSAY_TYPE_TYPE,
-  ID_NAMESPACE_LABEL,
-  IS_DATA_TYPE_TYPE,
-  IS_ETHNICITY_TYPE,
-  IS_FILE_FORMAT_TYPE,
-  IS_GRANULARITY_TYPE,
-  IS_RACE_TYPE,
-  IS_SEX_TYPE,
-  NCBI_TAXONOMY_LABEL,
-  PATHWAY_INCOMING_CONNECTIONS,
-  PATHWAY_OUTGOING_CONNECTIONS,
-  PREPPED_VIA_TYPE,
-  SAMPLE_PREP_METHOD_LABEL,
-  SAMPLED_FROM_TYPE,
-  SUBJECT_ETHNICITY_LABEL,
-  SUBJECT_GRANULARITY_LABEL,
-  SUBJECT_RACE_LABEL,
-  SUBJECT_SEX_LABEL,
-  TESTED_FOR_TYPE,
+  INCOMING_CONNECTIONS,
+  OUTGOING_CONNECTIONS,
 } from "@/lib/neo4j/constants";
 import { Direction } from "@/lib/neo4j/enums";
-import {
-  NodeResult,
-  PathwayNode,
-  PathwayRelationship,
-} from "@/lib/neo4j/types";
+import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
 
 import {
   NodeFiltersContainer,
@@ -154,167 +123,21 @@ export default function GraphPathway() {
     []
   );
 
-  // TODO: Should consolidate these updates, need to make sure we're not repeating code more than necessary
   const handleAddOrUpdateNodeFilter = useCallback(
-    (nodeId: string, label: string, value: string) => {
+    (nodeId: string, value: string) => {
       setTree(
         produce((draft) => {
           if (draft !== undefined) {
             const node = findNode(nodeId, draft);
             if (node !== undefined) {
-              // Treat "" as removing the filter; Set children as everything but the edited label and return
+              // Treat "" as removing the filter
               if (value === "") {
-                node.children = node.children.filter(
-                  (child) => child.label !== label
-                );
+                delete node.props?.name;
                 return;
               }
 
-              const existingFilter = node.children.find(
-                (child) => child.label === label
-              );
-
-              // If the node already had a filter for this label, update it with the new value
-              if (existingFilter !== undefined) {
-                existingFilter.props = { ...existingFilter.props, name: value };
-              } else {
-                // TODO: This is a hack. Since these artificial filter pathways don't actually exist on the canvas, we have to somehow map
-                // the node label to the corresponding relationship, otherwise we wouldn't be able to add it to the match statement on the
-                // backend. Refactoring the implementation to take advantage of literal filter nodes on both the canvas and in the tree
-                // would solve this problem, because the relationship would actually exist on the canvas and we could pull both the type
-                // and the direction from it.
-                const LABEL_TO_REL_OBJ_MAP: ReadonlyMap<
-                  string,
-                  PathwayRelationship
-                > = new Map([
-                  // File related nodes
-                  [
-                    ASSAY_TYPE_LABEL,
-                    {
-                      id: v4(),
-                      type: GENERATED_BY_ASSAY_TYPE_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    DATA_TYPE_LABEL,
-                    {
-                      id: v4(),
-                      type: IS_DATA_TYPE_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    FILE_FORMAT_LABEL,
-                    {
-                      id: v4(),
-                      type: IS_FILE_FORMAT_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    ANALYSIS_TYPE_LABEL,
-                    {
-                      id: v4(),
-                      type: GENERATED_BY_ANALYSIS_TYPE_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  // Subject related nodes
-                  [
-                    SUBJECT_SEX_LABEL,
-                    {
-                      id: v4(),
-                      type: IS_SEX_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    SUBJECT_RACE_LABEL,
-                    {
-                      id: v4(),
-                      type: IS_RACE_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    SUBJECT_GRANULARITY_LABEL,
-                    {
-                      id: v4(),
-                      type: IS_GRANULARITY_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    SUBJECT_ETHNICITY_LABEL,
-                    {
-                      id: v4(),
-                      type: IS_ETHNICITY_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  // Biosample related nodes
-                  [
-                    SAMPLE_PREP_METHOD_LABEL,
-                    {
-                      id: v4(),
-                      type: PREPPED_VIA_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  // Term nodes
-                  [
-                    NCBI_TAXONOMY_LABEL,
-                    {
-                      id: v4(),
-                      type: ASSOCIATED_WITH_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    DISEASE_LABEL,
-                    {
-                      id: v4(),
-                      type: TESTED_FOR_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    COMPOUND_LABEL,
-                    {
-                      id: v4(),
-                      type: ASSOCIATED_WITH_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  [
-                    ANATOMY_LABEL,
-                    {
-                      id: v4(),
-                      type: SAMPLED_FROM_TYPE,
-                      direction: Direction.OUTGOING,
-                    },
-                  ],
-                  // Admin nodes
-                  [
-                    ID_NAMESPACE_LABEL,
-                    {
-                      id: v4(),
-                      type: CONTAINS_TYPE,
-                      direction: Direction.INCOMING,
-                    },
-                  ],
-                ]);
-
-                // Otherwise add the filter as a new child
-                node.children.push({
-                  id: v4(),
-                  label: label,
-                  props: { name: value },
-                  relationshipToParent: LABEL_TO_REL_OBJ_MAP.get(label),
-                  children: [],
-                });
-              }
+              // Otherwise, update props with the new name
+              node.props = { ...node.props, name: value };
             }
           }
         })
@@ -330,51 +153,52 @@ export default function GraphPathway() {
     const nodes: CytoscapeNode[] = [];
     const edges: CytoscapeEdge[] = [];
 
-    Array.from(
-      PATHWAY_OUTGOING_CONNECTIONS.get(label)?.entries() || []
-    ).forEach(([relationship, labels]) => {
-      labels.forEach((label) => {
-        const node = {
-          uuid: v4(),
-          labels: [label],
-          properties: {},
-        };
-        nodes.push(createCytoscapeNode(node));
-        edges.push(
-          createCytoscapeEdge({
+    // TODO: In the future we should dynamically load the connections of the specified node based on the current state of the tree
+    Array.from(OUTGOING_CONNECTIONS.get(label)?.entries() || []).forEach(
+      ([relationship, labels]) => {
+        labels.forEach((label) => {
+          const node = {
             uuid: v4(),
-            type: relationship,
+            labels: [label],
             properties: {},
-            startUUID: id,
-            endUUID: node.uuid,
-          })
-        );
-      });
-    });
-    Array.from(
-      PATHWAY_INCOMING_CONNECTIONS.get(label)?.entries() || []
-    ).forEach(([relationship, labels]) => {
-      labels.forEach((label) => {
-        const node = {
-          uuid: v4(),
-          labels: [label],
-          properties: {},
-        };
-        nodes.push(createCytoscapeNode(node));
-        edges.push(
-          createCytoscapeEdge(
-            {
+          };
+          nodes.push(createCytoscapeNode(node));
+          edges.push(
+            createCytoscapeEdge({
               uuid: v4(),
               type: relationship,
               properties: {},
               startUUID: id,
               endUUID: node.uuid,
-            },
-            ["source-arrow-only"]
-          )
-        );
-      });
-    });
+            })
+          );
+        });
+      }
+    );
+    Array.from(INCOMING_CONNECTIONS.get(label)?.entries() || []).forEach(
+      ([relationship, labels]) => {
+        labels.forEach((label) => {
+          const node = {
+            uuid: v4(),
+            labels: [label],
+            properties: {},
+          };
+          nodes.push(createCytoscapeNode(node));
+          edges.push(
+            createCytoscapeEdge(
+              {
+                uuid: v4(),
+                type: relationship,
+                properties: {},
+                startUUID: id,
+                endUUID: node.uuid,
+              },
+              ["source-arrow-only"]
+            )
+          );
+        });
+      }
+    );
 
     return { nodes, edges };
   };
@@ -406,7 +230,6 @@ export default function GraphPathway() {
     });
   };
 
-  // TODO: As time permits, need to simplify the logic here, it's fairly straightforward on paper but the implementation is too verbose...
   const addNodeToPath = (node: NodeSingular, cy: cytoscape.Core) => {
     // Get selected node data, and get new data for its connected nodes and relationships
     const nodeData: CytoscapeNodeData = node.data();
@@ -493,8 +316,8 @@ export default function GraphPathway() {
             <NodeFiltersContainer>
               <PathwayNodeFilters
                 node={selectedNode}
-                onChange={(label, value) =>
-                  handleAddOrUpdateNodeFilter(selectedNode.id, label, value)
+                onChange={(value) =>
+                  handleAddOrUpdateNodeFilter(selectedNode.id, value)
                 }
               ></PathwayNodeFilters>
             </NodeFiltersContainer>

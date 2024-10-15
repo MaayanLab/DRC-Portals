@@ -216,15 +216,13 @@ export const D3_FORCE_LAYOUT = {
 
 export const EULER_LAYOUT = {
   name: "euler",
-  springLength: () => 80,
-  mass: () => 4,
   randomize: true,
   animate: "end",
   animationDuration: 1000,
   animationEasing: "ease-out",
   gravity: -1.2,
-  maxIterations: 1000,
-  maxSimulationTime: 4000,
+  maxIterations: 2000,
+  maxSimulationTime: 8000,
 };
 
 export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
