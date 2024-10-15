@@ -4,7 +4,7 @@ export const NodeFiltersContainer = styled(Box)({
   flexGrow: 1,
   display: "flex",
   position: "absolute",
-  top: 10,
+  top: 2,
   left: 10,
   zIndex: 1,
   padding: "inherit",
@@ -32,6 +32,7 @@ export const NodeFilterCarousel = styled(Box)(() => ({
 
 export const NodeFilterBox = styled(Box)(() => ({
   minWidth: "225px",
+  paddingTop: "8px",
   paddingRight: "2px",
   paddingLeft: "2px",
 }));

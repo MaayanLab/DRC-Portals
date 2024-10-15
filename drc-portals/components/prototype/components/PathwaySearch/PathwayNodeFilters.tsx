@@ -130,7 +130,7 @@ export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
 
   return filters !== undefined && filters.length > 0 ? (
     <>
-      <Box sx={{ alignContent: "center" }}>
+      <Box sx={{ alignContent: "center", paddingTop: "8px" }}>
         <NodeFilterButton
           onClick={prevHandler}
           disabled={carouselScrollLeft === 0}
@@ -141,7 +141,7 @@ export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
       <NodeFilterCarousel ref={carouselRef} onScroll={handleScroll}>
         {filters}
       </NodeFilterCarousel>
-      <Box sx={{ alignContent: "center" }}>
+      <Box sx={{ alignContent: "center", paddingTop: "8px" }}>
         <NodeFilterButton
           onClick={nextHandler}
           disabled={carouselScrollLeft >= maxCarouselScrollLeft}
