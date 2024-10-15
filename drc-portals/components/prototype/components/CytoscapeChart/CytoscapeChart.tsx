@@ -19,9 +19,9 @@ import {
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
-import dagre from "cytoscape-dagre";
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
+import euler from "cytoscape-euler";
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
@@ -44,7 +44,7 @@ import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
 
 cytoscape.use(d3Force);
-cytoscape.use(dagre);
+cytoscape.use(euler);
 
 interface CytoscapeChartProps {
   elements: ElementDefinition[];

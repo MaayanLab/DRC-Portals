@@ -10,7 +10,7 @@ import cytoscape, {
 } from "cytoscape";
 import { Fragment } from "react";
 
-import { DAGRE_LAYOUT, DAGRE_STYLESHEET } from "../../constants/cy";
+import { PATHWAY_SEARCH_STYLESHEET, EULER_LAYOUT } from "../../constants/cy";
 
 import { CytoscapeEvent } from "../../interfaces/cy";
 import { CustomToolbarFnFactory } from "../../types/cy";
@@ -99,8 +99,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   return (
     <CytoscapeChart
       elements={elements}
-      layout={DAGRE_LAYOUT}
-      stylesheet={DAGRE_STYLESHEET}
+      layout={EULER_LAYOUT}
+      stylesheet={PATHWAY_SEARCH_STYLESHEET}
       cxtMenuEnabled={false}
       tooltipEnabled={false}
       toolbarPosition={{ top: 10, right: 10 }}
