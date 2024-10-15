@@ -114,6 +114,8 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
   const fetchOptions = useMemo(
     () =>
       debounce(async (input: string | null) => {
+        setError(null);
+
         if (input === null || input.length === 0) {
           setOptions([]);
           return;
@@ -124,17 +126,21 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
           SEARCH_PLACEHOLDER_OPTIONS.map((option) => option.toString())
         );
 
+        const abortController = abortControllerRef.current;
         try {
           const response = await fetchTermsByLabelAndName(label, input, {
-            signal: abortControllerRef.current?.signal,
+            signal: abortController.signal,
           });
           const data: string[] = await response.json();
           setOptions(data);
         } catch (error) {
-          console.error(error);
-          setError(
-            `An error occurred fetching options for ${label}. Please try again later.`
-          );
+          // Only set an error if it wasn't because we manually aborted the request
+          if (!abortController.signal.aborted) {
+            console.error(error);
+            setError(
+              `An error occurred fetching options for ${label}. Please try again later.`
+            );
+          }
           setOptions([]);
         } finally {
           setLoading(false);

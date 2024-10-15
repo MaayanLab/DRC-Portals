@@ -35,6 +35,7 @@ export default function NodeFilterSelect(cmpProps: NodeFilterSelectProps) {
 
   const handleOpen = () => {
     setOpen(true);
+    setError(null);
 
     // If we already fetched the options, we don't need to do it again
     if (options.length > 0) {
