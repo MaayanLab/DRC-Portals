@@ -75,24 +75,25 @@ model DCCPublication {
 }
 
 model Outreach {
-  id                String        @id @default(uuid())
+  id                String           @id @default(uuid())
   title             String
   short_description String
   description       String
   tags              Json
   agenda            Json?
-  featured          Boolean       @default(false)
-  active            Boolean       @default(false)
-  carousel          Boolean       @default(false)
-  start_date        DateTime?     @db.Timestamptz(3)
-  end_date          DateTime?     @db.Timestamptz(3)
-  application_start DateTime?     @db.Timestamptz(3)
-  application_end   DateTime?     @db.Timestamptz(3)
+  featured          Boolean          @default(false)
+  active            Boolean          @default(false)
+  carousel          Boolean          @default(false)
+  start_date        DateTime?        @db.Timestamptz(3)
+  end_date          DateTime?        @db.Timestamptz(3)
+  application_start DateTime?        @db.Timestamptz(3)
+  application_end   DateTime?        @db.Timestamptz(3)
   link              String?
   flyer             String?
   image             String?
-  cfde_specific     Boolean       @default(false)
+  cfde_specific     Boolean          @default(false)
   dccs              DCCOutreach[]
+  centers           CenterOutreach[]
 
   @@map("outreach")
 }
@@ -489,5 +490,30 @@ model News {
   link             String?
   prod             Boolean
 
-    @@map("news")
+  @@map("news")
+}
+
+model Center {
+  id          String           @id @default(uuid())
+  label       String
+  short_label String?
+  short_description String?
+  description String
+  homepage    String?
+  icon        String?
+  grant_num   String?
+  active      Boolean          @default(true)
+  outreach    CenterOutreach[]
+
+  @@map("centers")
+}
+
+model CenterOutreach {
+  outreach    Outreach @relation(fields: [outreach_id], references: [id])
+  outreach_id String
+  center      Center   @relation(fields: [center_id], references: [id])
+  center_id   String
+
+  @@id([outreach_id, center_id])
+  @@map("center_outreach")
 }
