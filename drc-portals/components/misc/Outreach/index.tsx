@@ -448,6 +448,13 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
                     }
                   </Grid>
                   <Grid item>
+                    <Box display="flex" justifyContent="flex-end" className="mb-2">
+                      <Link href="/info/training_and_outreach/submit" passHref>
+                        <Button variant="contained" color="primary" component="a">
+                          Submit Event
+                        </Button>
+                      </Link>
+                    </Box>
                     <Typography>Showing {current.length + recurring.length + past.length} results.</Typography>
                   </Grid>
                 </Grid>
