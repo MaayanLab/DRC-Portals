@@ -143,6 +143,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
         multiple
         autoComplete
         disableCloseOnSelect
+        fullWidth
         limitTags={3}
         id="filterSet"
         options={options
@@ -160,11 +161,15 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
         }}
         renderTags={(value, getTagProps) =>
           value.map((option, index) => (
-            <Tooltip title={option.name} key={option.id}>
+            <Tooltip title={option.name} key={option.id} 
+            sx={{
+              padding: '0px'
+            }}
+            >
               <Chip
                 variant="outlined"
                 label={option.name}
-                size="medium"
+                size="small"
                 {...getTagProps({ index })}
                 onDelete={() => handleDelete(option)}
                 sx={{
@@ -172,7 +177,9 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
                   color: 'navy', // Navy blue text
                   fontWeight: 'bold', // Bold text
                   borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
+                  padding: '0px'
                 }}
+                
               />
             </Tooltip>
           ))
@@ -181,6 +188,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
           <TextField
             {...params}
             size="small"
+            margin="none"
             placeholder={example_query}
             disabled={disableAutocomplete} // Disable input if disableAutocomplete is true
             InputProps={{
@@ -203,8 +211,22 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
                 display: disableAutocomplete ? 'none' : 'flex', // Hide arrow if no options or all selected
                 color: theme => theme.palette.text.primary,
                 fontWeight: 'bold', // Increase prominence of downward arrow
-              },
+              }
             }}
+            // sx={{
+            //   '.MuiInputBase-root': {
+            //     paddingRight: '4px',  // Reduce padding around the input box, especially on the right side
+            //   },
+            //   '.MuiAutocomplete-inputRoot': {
+            //     padding: '4px',  // Reduce the internal padding for input + chips area
+            //   },
+            //   '.MuiAutocomplete-clearIndicator': {
+            //     paddingRight: '2px',  // Adjust padding around the clear button to bring it closer
+            //   },
+            //   '.MuiAutocomplete-endAdornment': {
+            //     right: '0px',  // Adjust right positioning to bring the clear button closer to the text field
+            //   }
+            // }}
           />
         )}
         renderGroup={(params) => (
@@ -213,7 +235,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
             <GroupItems>{params.children}</GroupItems>
           </li>
         )}
-        sx={{ width: 'auto' }}
+        sx={{ width: 'auto', margin: '0px' }}
         onBlur={() => {
           applyFilters();
         }}
