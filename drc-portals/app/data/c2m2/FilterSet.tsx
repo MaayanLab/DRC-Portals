@@ -134,7 +134,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
   const indexRows = chunkArray(filterIndex, 8);
 
   const disableAutocomplete = options.length === 0 || selectedFilters.length === filterList.length;
-
+  
   return (
     <>
     <Typography color="secondary" variant="h6">{filter_title}</Typography>
@@ -186,12 +186,12 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
             InputProps={{
               ...params.InputProps,
               // Conditionally hide the input field's text entry area (not the tags or the full Autocomplete)
-              inputProps: {
+              /* inputProps: {
                 ...params.inputProps,
                 style: { 
-                  display: selectedFiltersForAutocomplete.length > 0 || disableAutocomplete ? 'none' : 'block'
+                  display: selectedFiltersForAutocomplete.length > 0 || disableAutocomplete ? 'none' : 'block' 
                 },
-              },
+              }, */
             }}
             sx={{
               backgroundColor: theme => theme.palette.mode === 'light' ? '#f7f7f7' : '#424242', // Lighter background for input field
