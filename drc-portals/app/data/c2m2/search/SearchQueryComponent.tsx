@@ -299,39 +299,39 @@ export async function SearchQueryComponent(props: PageProps) {
             <React.Suspense fallback={<>Loading..</>}>
               <DiseaseFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <TaxonomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <AnatomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <GeneFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <ProteinFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <CompoundFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <DataTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <AssayTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
 
           </>
         }

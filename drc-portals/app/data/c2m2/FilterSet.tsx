@@ -137,7 +137,9 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
   
   return (
     <>
-    <Typography color="secondary" variant="h6">{filter_title}</Typography>
+    {options.length > 0 && ( 
+      <Typography color="secondary" variant="h6">{filter_title}</Typography>
+    )}
     {options.length > 0 && (
       <Autocomplete
         multiple
@@ -174,7 +176,7 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
                 onDelete={() => handleDelete(option)}
                 sx={{
                   backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
-                  color: 'navy', // Navy blue text
+                  color: '#3a577c', // Navy blue text
                   fontWeight: 'bold', // Bold text
                   borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
                   padding: '0px'
@@ -213,20 +215,6 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
                 fontWeight: 'bold', // Increase prominence of downward arrow
               }
             }}
-            // sx={{
-            //   '.MuiInputBase-root': {
-            //     paddingRight: '4px',  // Reduce padding around the input box, especially on the right side
-            //   },
-            //   '.MuiAutocomplete-inputRoot': {
-            //     padding: '4px',  // Reduce the internal padding for input + chips area
-            //   },
-            //   '.MuiAutocomplete-clearIndicator': {
-            //     paddingRight: '2px',  // Adjust padding around the clear button to bring it closer
-            //   },
-            //   '.MuiAutocomplete-endAdornment': {
-            //     right: '0px',  // Adjust right positioning to bring the clear button closer to the text field
-            //   }
-            // }}
           />
         )}
         renderGroup={(params) => (
@@ -235,13 +223,13 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
             <GroupItems>{params.children}</GroupItems>
           </li>
         )}
-        sx={{ width: 'auto', margin: '0px' }}
+        sx={{ width: 'auto', marginBottom: '20px'  }}
         onBlur={() => {
           applyFilters();
         }}
       />
+      
     )}
   </>
-  
   );
 }
