@@ -11,6 +11,7 @@ export default async function GeneFilterComponent({ q, filterClause, maxCount, m
         FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        AND (COALESCE(gene_name, '') != '')
         /*LIMIT ${maxCount}*/
       ),
       gene_name_count AS (

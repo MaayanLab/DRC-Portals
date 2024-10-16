@@ -15,6 +15,7 @@ export default async function AnatomyFilterComponent({ q, filterClause, maxCount
         FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        AND (COALESCE(anatomy_name, '') != '')
         /*LIMIT ${maxCount}*/
       ),
       anatomy_name_count AS (

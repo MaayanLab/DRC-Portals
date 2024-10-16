@@ -692,3 +692,19 @@ WITH unnested_bios AS (
 SELECT project_name, disease_name, ncbi_taxonomy_name,
        count(DISTINCT bios_element) AS count_bios_combined
 FROM unnested_bios GROUP BY project_name, disease_name, ncbi_taxonomy_name;
+
+--- Testing filters
+WITH disres_full AS (
+        SELECT DISTINCT COALESCE(disease_name, 'Unspecified') AS disease_name
+        FROM c2m2."ffl_biosample_collection_cmp" /* c2m2.ffl_biosample_collection */
+        WHERE searchable @@ websearch_to_tsquery('english', 'liver')
+        and ("ffl_biosample_collection_cmp"."dcc_name" = 'Library of Integrated Network-based Cellular Signatures')
+        AND (COALESCE(disease_name, '') != '')
+        /*LIMIT $3*/
+      ),
+      disease_name_count AS (
+        SELECT disease_name, COUNT(*) AS count 
+        FROM disres_full
+        GROUP BY disease_name
+      )
+      SELECT * FROM disease_name_count;
