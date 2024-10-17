@@ -1,0 +1,25 @@
+OBI:0600047	sequencing assay
+OBI:0001977	cytometry assay
+OBI:0600045	3D structure determination assay
+OBI:0002119	microscopy assay
+OBI:0000424	transcription profiling assay
+OBI:0002761	lipid profiling assay
+OBI:0002953	protein state assay
+OBI:0002962	kinase inhibitor assay
+OBI:0000470	mass spectrometry assay
+OBI:0000615	protein expression profiling assay
+OBI:0000443	analyte assay
+OBI:0000366	metabolite profiling assay
+OBI:0002020	epigenetic modification assay
+OBI:0600020	histological assay
+OBI:0000185	imaging assay
+OBI:0002039	assay for transposase accessible chromatin using sequencing
+OBI:0002176	electrophysiology assay
+OBI:0002692	polymerase chain reaction assay
+OBI:0001954	ChIP assay
+OBI:0001146	binding assay
+OBI:0000623	NMR spectroscopy assay
+OBI:0002440	Hi-C assay
+OBI:0003087	autofluorescence assay
+
+

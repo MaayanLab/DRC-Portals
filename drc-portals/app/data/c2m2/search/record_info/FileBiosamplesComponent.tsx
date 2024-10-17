@@ -3,7 +3,7 @@ import SQL from '@/lib/prisma/raw';
 import React from 'react';
 import Link from "@/utils/link";
 import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
-import ExpandableTable from "../ExpandableTable";
+import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 
 interface FileBiosTableResult {
@@ -212,10 +212,10 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
 
         const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
-        const newFileBiosColumns = priorityFileCols.filter(item => dynamicFileBiosColumns.includes(item)); 
+        const newFileBiosColumns = priorityFileCols.filter(item => dynamicFileBiosColumns.includes(item));
         const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileBiosColumns.includes(item)); // priority columns that are static, don't change with 
 
-        const remainingDynamicCols = dynamicFileBiosColumns.filter(item => !newFileBiosColumns.includes(item)); 
+        const remainingDynamicCols = dynamicFileBiosColumns.filter(item => !newFileBiosColumns.includes(item));
         const finalNewFileBiosColumns = newFileBiosColumns.concat(remainingDynamicCols); // concatenate remaining dynamic columns to the final list
 
         const reorderedFileBiosStaticCols = reorderStaticCols(staticFileBiosColumns, staticPriorityFileCols);

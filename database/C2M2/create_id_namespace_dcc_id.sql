@@ -12,32 +12,33 @@ psql -h localhost -U drc -d drc -p [5432|5433] -a -f create_id_namespace_dcc_id.
 */
 
 DROP TABLE IF EXISTS c2m2.id_namespace_dcc_id RESTRICT;
-CREATE TABLE c2m2.id_namespace_dcc_id (id_namespace_id varchar NOT NULL, dcc_id varchar NOT NULL, PRIMARY KEY(id_namespace_id));
+CREATE TABLE c2m2.id_namespace_dcc_id (id_namespace_id varchar NOT NULL, dcc_id varchar NOT NULL, 
+    dcc_short_label varchar NOT NULL, PRIMARY KEY(id_namespace_id));
 
-INSERT INTO c2m2.id_namespace_dcc_id (id_namespace_id, dcc_id)
+INSERT INTO c2m2.id_namespace_dcc_id (id_namespace_id, dcc_id, dcc_short_label)
 VALUES 
- ('https://data.4dnucleome.org', 'cfde_registry_dcc:4dn'),
- ('ERCC-exRNA', 'cfde_registry_dcc:exrna'),
- ('adult_gtex', 'cfde_registry_dcc:gtex'),
- ('egtex', 'cfde_registry_dcc:gtex'),
- ('gtex', 'cfde_registry_dcc:gtex'),
- ('https://www.data.glygen.org/', 'cfde_registry_dcc:glygen'),
- ('tag:hmpdacc.org,2022-04-04:', 'cfde_registry_dcc:hmp'),
- ('tag:hubmapconsortium.org,2023:', 'cfde_registry_dcc:hubmap'),
- ('https://druggablegenome.net/cfde_idg_drugcentral_drugs', 'cfde_registry_dcc:idg'),
- ('https://druggablegenome.net/cfde_idg_tcrd_diseases', 'cfde_registry_dcc:idg'),
- ('https://druggablegenome.net/cfde_idg_tcrd_targets', 'cfde_registry_dcc:idg'),
- ('https://www.druggablegenome.net/', 'cfde_registry_dcc:idg'),
- ('kidsfirst:', 'cfde_registry_dcc:kidsfirst'),
- ('https://www.lincsproject.org/', 'cfde_registry_dcc:lincs'),
- ('https://www.metabolomicsworkbench.org/', 'cfde_registry_dcc:metabolomics'),
- ('tag:motrpac-data.org,2023:', 'cfde_registry_dcc:motrpac'),
- ('SPARC.collection:', 'cfde_registry_dcc:sparc'),
- ('SPARC.file:', 'cfde_registry_dcc:sparc'),
- ('SPARC.project:', 'cfde_registry_dcc:sparc'),
- ('SPARC.sample:', 'cfde_registry_dcc:sparc'),
- ('SPARC.subject:', 'cfde_registry_dcc:sparc'),
- ('SPARC:', 'cfde_registry_dcc:sparc')
+ ('https://data.4dnucleome.org', 'cfde_registry_dcc:4dn', '4DN'),
+ ('ERCC-exRNA', 'cfde_registry_dcc:exrna', 'ExRNA'),
+ ('adult_gtex', 'cfde_registry_dcc:gtex', 'GTEx'),
+ ('egtex', 'cfde_registry_dcc:gtex', 'GTEx'),
+ ('gtex', 'cfde_registry_dcc:gtex', 'GTEx'),
+ ('https://www.data.glygen.org/', 'cfde_registry_dcc:glygen', 'GlyGen'),
+ ('tag:hmpdacc.org,2022-04-04:', 'cfde_registry_dcc:hmp', 'HMP'),
+ ('tag:hubmapconsortium.org,2023:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
+ ('https://druggablegenome.net/cfde_idg_drugcentral_drugs', 'cfde_registry_dcc:idg', 'IDG'),
+ ('https://druggablegenome.net/cfde_idg_tcrd_diseases', 'cfde_registry_dcc:idg', 'IDG'),
+ ('https://druggablegenome.net/cfde_idg_tcrd_targets', 'cfde_registry_dcc:idg', 'IDG'),
+ ('https://www.druggablegenome.net/', 'cfde_registry_dcc:idg', 'IDG'),
+ ('kidsfirst:', 'cfde_registry_dcc:kidsfirst', 'KidsFirst'),
+ ('https://www.lincsproject.org/', 'cfde_registry_dcc:lincs', 'LINCS'),
+ ('https://www.metabolomicsworkbench.org/', 'cfde_registry_dcc:metabolomics', 'Metabolomics'),
+ ('tag:motrpac-data.org,2023:', 'cfde_registry_dcc:motrpac', 'MoTrPAC'),
+ ('SPARC.collection:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('SPARC.file:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('SPARC.project:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('SPARC.sample:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('SPARC.subject:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC')
 ;
 
 /* add the constraint */
@@ -46,6 +47,11 @@ ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_d
 ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_id_namespace_1 FOREIGN KEY (id_namespace_id) REFERENCES c2m2.id_namespace (id);
 ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_dcc_id_dcc_1;
 ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_dcc_1 FOREIGN KEY (dcc_id) REFERENCES c2m2.dcc (id);
+--- Added after adding column dcc_short_label. Based on: 
+--- select id,label,short_label,cf_site from public.dccs;
+--- select id,dcc_name,dcc_abbreviation,project_local_id from c2m2.dcc;
+ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_dcc_id_short_label_1;
+ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_short_label_1 FOREIGN KEY (dcc_short_label) REFERENCES public.dccs (short_label);
 
 
 /*  select id from c2m2.dcc;

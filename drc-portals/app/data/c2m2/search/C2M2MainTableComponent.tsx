@@ -95,7 +95,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
             allres_filtered AS (
                 SELECT allres.*, 
-                concat_ws('', '/data/c2m2/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
+                concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
                 '|project_local_id:', allres.project_local_id, 
                 '|disease_name:', allres.disease_name, 
                 '|ncbi_taxonomy_name:', allres.taxonomy_name, 
@@ -149,7 +149,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         const searchHashFileName = generateMD5Hash(concatenatedString);
         const qStringClean = sanitizeFilename(qString, '__');
 
-        const downloadFileName = "CFDEC2M2MainSearchTable_" + qStringClean + "_" + searchHashFileName + ".json";
+        const downloadFileName = "CFDEC2M2MainSearchTable_" + qStringClean + "_" + searchHashFileName ;
 
 
 

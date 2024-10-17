@@ -79,3 +79,8 @@ echo -e "${exec_sql_codestr}\n${mismatch_cmdstr}";
 echo -e "# Next, you can check the file ${mismatchf} by opening it, or by running:\n";
 echo -e "wc -l ${mismatchf} #Count of lines in the file\n";
 echo -e "cat ${mismatchf} |more\n";
+
+# Tentative commands to further cross-check file counts
+#[mano@sc-cfdewebdev log_dbserver]$ egrep -e "Lines in file.*file.tsv" C2M2_ingestion_240920.log|cut -d':' -f2|awk '{sum += $1} END {print sum}'
+#[mano@sc-cfdewebdev log_dbserver]$ egrep -e "*.file:" CountQuery_Crosscheck_output.log|cut -d'|' -f1|awk '{sum += $1} END {print sum}'
+# The difference should be equal to the number of DCCs (one header row in each)

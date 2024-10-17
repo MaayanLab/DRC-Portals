@@ -11,6 +11,7 @@ export default async function DataTypeFilterComponent({ q, filterClause, maxCoun
         FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        AND (COALESCE(data_type_name, '') != '')
         /*LIMIT ${maxCount}*/
       ),
       data_type_name_count AS (

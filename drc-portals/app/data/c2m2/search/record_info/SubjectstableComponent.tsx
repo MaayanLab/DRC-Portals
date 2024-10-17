@@ -3,7 +3,7 @@ import SQL from '@/lib/prisma/raw';
 import React from 'react';
 import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromSubjectTable, Category } from "@/app/data/c2m2/utils";
-import ExpandableTable from "../ExpandableTable";
+import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 
 interface SubjectTableResult {
@@ -133,7 +133,7 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
             <Grid container spacing={0} direction="column">
                 {category && (
                     <Grid item xs={12}>
-                        <Card variant="outlined" sx={{ mb: 0,  borderBottom: "none" }}>
+                        <Card variant="outlined" sx={{ mb: 0, borderBottom: "none" }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
                                     {category.title + " (Uniform Columns) Count: " + countSub}
