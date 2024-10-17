@@ -46,8 +46,8 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
   ) => {
     setValue(value);
 
-    // Only emit to the parent when an option is selected from the dropdown
-    if (reason === "selectOption") {
+    // Only emit to the parent when an option is selected from the dropdown, or the field is cleared
+    if (reason === "selectOption" || reason === "clear") {
       onChange(value || "");
     }
   };

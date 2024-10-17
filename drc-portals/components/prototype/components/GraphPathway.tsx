@@ -104,7 +104,7 @@ export default function GraphPathway() {
           classes: selectedNode.classes,
           data: {
             ...selectedNode.data,
-            displayLabel: value,
+            displayLabel: value || selectedNode.data.dbLabel,
           },
         };
         setSelectedNode(newSelectedNode);

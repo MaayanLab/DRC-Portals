@@ -1,8 +1,6 @@
 "use client";
 
 import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
-import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
-import Rotate90DegreesCcwIcon from "@mui/icons-material/Rotate90DegreesCcw";
 import {
   Alert,
   AlertColor,
@@ -13,7 +11,7 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import { ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
+import { ElementDefinition, EventObject } from "cytoscape";
 import { useEffect, useState, ReactNode } from "react";
 
 import ExpandNodeMenuItem from "../../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
