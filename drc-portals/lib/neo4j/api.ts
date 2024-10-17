@@ -123,5 +123,5 @@ export const fetchPathwaySearch = (query: string, fetchProps?: RequestInit) =>
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ paths: query }),
+    body: JSON.stringify({ tree: query }),
   });

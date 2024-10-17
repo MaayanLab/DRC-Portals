@@ -230,15 +230,10 @@ export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   {
     selector: "node",
     style: {
+      label: "data(label)",
       height: NODE_DIAMETER,
       width: NODE_DIAMETER,
       shape: "ellipse",
-    },
-  },
-  {
-    selector: "node[label]",
-    style: {
-      label: "data(label)",
       "font-family": NODE_FONT_FAMILY,
       "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
@@ -267,17 +262,12 @@ export const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
   {
     selector: "edge",
     style: {
+      label: "data(label)",
       "arrow-scale": ARROW_SCALE,
       "curve-style": "bezier",
       "target-arrow-shape": "triangle",
       "text-rotation": "autorotate",
       width: EDGE_WIDTH,
-    },
-  },
-  {
-    selector: "edge[label]",
-    style: {
-      label: "data(label)",
       "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
       "text-background-color": "#f2f2f2",
@@ -395,6 +385,7 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
   {
     selector: "node",
     style: {
+      label: "data(displayLabel)",
       opacity: TRANSPARENT_OPACITY,
     },
   },
@@ -402,6 +393,7 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
   {
     selector: "edge",
     style: {
+      label: "data(displayLabel)",
       opacity: TRANSPARENT_OPACITY,
     },
   },

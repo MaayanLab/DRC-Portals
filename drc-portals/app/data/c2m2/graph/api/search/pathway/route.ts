@@ -2,11 +2,15 @@ import { NextRequest } from "next/server";
 
 import { createPathwaySearchCypher } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
-import { SubGraph } from "@/lib/neo4j/types";
+import { PathwayNode, PathwayRelationship, SubGraph } from "@/lib/neo4j/types";
+
+// TODO: This is probably indicative of bad organization, need to consider a re-org across all of the graph search code
+import { traverseTree } from "@/components/prototype/utils/pathway-search";
 
 export async function POST(request: NextRequest) {
-  const body: { paths: string } = await request.json();
-  let paths = [];
+  const body: { tree: string } = await request.json();
+  let paths: (PathwayNode | PathwayRelationship)[][];
+  let tree: PathwayNode;
 
   if (body === null) {
     return Response.json(
@@ -18,11 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    paths = JSON.parse(atob(body.paths));
-
-    if (!Array.isArray(paths)) {
-      throw TypeError("Decoded pathway search value was not an array.");
-    }
+    tree = JSON.parse(atob(body.tree));
 
     // TODO: Add a schema for the pathway search query object (see /search/path/route.ts for zod example usage)
   } catch (e) {
@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+
+  paths = traverseTree(tree);
 
   try {
     const result = await executeReadOne<SubGraph>(

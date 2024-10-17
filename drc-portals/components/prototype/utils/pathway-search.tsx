@@ -1,4 +1,8 @@
 import { PathwayNode, PathwayRelationship } from "@/lib/neo4j/types";
+import {
+  PathwaySearchEdge,
+  PathwaySearchNode,
+} from "../interfaces/pathway-search";
 
 // TODO: This needs to be a little smarter about what it adds to the tree, we don't need to include children
 export function traverseTree(
@@ -62,3 +66,9 @@ export function findNode(
   // Start DFS from the root node
   return dfs(root);
 }
+
+export const isPathwaySearchEdgeElement = (
+  element: PathwaySearchNode | PathwaySearchEdge
+): element is PathwaySearchEdge => {
+  return (element as PathwaySearchEdge).data.type !== undefined;
+};

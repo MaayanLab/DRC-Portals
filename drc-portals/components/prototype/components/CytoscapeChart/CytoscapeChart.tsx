@@ -22,7 +22,14 @@ import cytoscape from "cytoscape";
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
 import euler from "cytoscape-euler";
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
@@ -42,6 +49,7 @@ import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
 import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
+import { CytoscapeContext } from "./CytoscapeContext";
 
 cytoscape.use(d3Force);
 cytoscape.use(euler);
@@ -87,7 +95,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     customEventHandlers,
   } = cmpProps;
 
-  const cyRef = useRef<cytoscape.Core>();
   const [hoveredNode, setHoveredNode] = useState<CytoscapeNodeData | null>(
     null
   );
@@ -99,6 +106,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
+  const cyContext = useContext(CytoscapeContext);
+  const cyRef = cyContext === null ? useRef<cytoscape.Core>() : cyContext.cyRef;
   const contextMenuPosRef = useRef<{
     x: number;
     y: number;
