@@ -24,9 +24,12 @@ from dotenv import load_dotenv
 
 # debug
 debug = 1
-actually_ingest_tables = 1
+actually_create_schema = 0
+actually_ingest_tables = 0
 write_empty_tsvs = 1
 exit_after_creating_empty_tsvs = 1
+
+actually_ingest_tables = actually_create_schema * actually_ingest_tables
 
 newline = '\n'
 tabchar = '\t'
@@ -170,10 +173,12 @@ t0 = time.time();
 # Create the schema if it doesn't exist
 drop_schema_sql = f'DROP SCHEMA IF EXISTS {schema_name} CASCADE;'
 print(drop_schema_sql)
-cursor.execute(drop_schema_sql)
+if(actually_create_schema==1):
+    cursor.execute(drop_schema_sql)
 print("Creating "+ schema_name)
 create_schema_str = f"CREATE SCHEMA IF NOT EXISTS {schema_name};"
-cursor.execute(create_schema_str)
+if(actually_create_schema==1):
+    cursor.execute(create_schema_str)
 
 qf.write(drop_schema_sql); qf.write(newline);
 qf.write(create_schema_str)
@@ -205,6 +210,11 @@ for resource in package.resources:
 
     #if(debug > 0): print(f"type of fields: {type(fields)}");
     headerRow=tabchar.join([f"{field.name}" for field in table_fields]);
+
+    empty_table_path = empty_tsvs_folder + '/' + table_name + '.tsv';
+    ef = open(empty_table_path, "w");
+    ef.write(f'{headerRow}{newline}');
+    ef.close();
 
     for field in table_fields:
         str1 = f"{field.name} VARCHAR "
@@ -243,11 +253,13 @@ for resource in package.resources:
     if(debug >1): input("Press Enter to continue... Will execute the query")
     # Execute the SQL statement to create the table
     
-    cursor.execute(create_table_query)
+    if(actually_create_schema==1):
+        cursor.execute(create_table_query)
     qf.write(create_table_query)
     qf.write("\n\n")
 
 # # Commit the changes 
+#if(actually_create_schema==1):
 conn.commit()
 
 if(debug >0): print("================== Defined all tables ======================")
@@ -548,7 +560,8 @@ for resource in package.resources:
         fk_query = f"{fkstr0_frop}{fkstr0} {fkname} FOREIGN KEY ({cl1_str}) REFERENCES {schema_name}.{table2_name} ({cl2_str});"
         if(debug > 0): print(fk_query)
         # Execute the SQL statement to create the table
-        cursor.execute(fk_query)
+        if(actually_ingest_tables == 1):
+            cursor.execute(fk_query)
         qf.write(fk_query);     qf.write("\n")
     
     qf.write("\n")
