@@ -14,6 +14,7 @@ import {
   CONTAINS_TYPE,
   DATA_TYPE_LABEL,
   DCC_LABEL,
+  DEFINED_BY_TYPE,
   DESCRIBES_TYPE,
   DISEASE_LABEL,
   FILE_FORMAT_LABEL,
@@ -415,7 +416,8 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
 ];
 
 // Neo4j Schema Represented as a Cytoscape Chart:
-const TERM_NODE_Y_SPACING = 65;
+const TERM_NODE_X_SPACING = 180;
+const TERM_NODE_Y_SPACING = 66;
 const SCHEMA_EDGE_SPACING = 15;
 const SCHEMA_FONT_SIZE = "10";
 const SCHEMA_NODE_DIAMETER = 50;
@@ -446,6 +448,7 @@ const PHENOTYPE_NODE_ID = "phenotype-label";
 const DISEASE_NODE_ID = "disease-label";
 const ANATOMY_NODE_ID = "anatomy-label";
 const ALL_TERM_NODES_NODE_ID = "all-term-nodes";
+const ARTIFICIAL_COLLECTION_NODE_ID = "artificial-collection-node";
 
 const DCC_REGISTERED_ID_NAMESPACE_EDGE_ID = "dcc-registered-id-namespace";
 const DCC_PRODUCED_PROJECT_EDGE_ID = "dcc-produced-project";
@@ -466,6 +469,7 @@ const COLLECTION_CONTAINS_FILE_EDGE_ID = "collection-contains-file";
 const COLLECTION_CONTAINS_BIOSAMPLE_EDGE_ID = "collection-contains-biosample";
 const COLLECTION_CONTAINS_SUBJECT_EDGE_ID = "collection-contains-subject";
 const COLLECTION_CONTAINS_TERMS_EDGE_ID = "collection-contains-terms";
+const COLLECTION_DEFINED_BY_PROJECT_EDGE_ID = "collection-defined-by-project";
 const FILE_IS_FILE_FORMAT_EDGE_ID = "file-is-file-format";
 const FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID = "file-generated-by-assay-type";
 const FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID =
@@ -479,8 +483,8 @@ const SUBJECT_IS_RACE_EDGE_ID = "subject-is-race";
 const SUBJECT_IS_SEX_EDGE_ID = "subject-is-sex";
 const SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID =
   "subject-associated-with-taxonomy";
-const SUBJECT_ASSOCIATED_WITH_COMPOUND_EDGE_ID =
-  "subject-associated-with-compound";
+const SUBJECT_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID =
+  "subject-associated-with-substance";
 const SUBJECT_TESTED_FOR_PHENOTYPE_EDGE_ID = "subject-tested-for-phenotype";
 const SUBJECT_TESTED_FOR_DISEASE_EDGE_ID = "subject-tested-for-disease";
 const BIOSAMPLE_TESTED_FOR_PHENOTYPE_EDGE_ID = "biosample-tested-for-phenotype";
@@ -504,7 +508,7 @@ const FILE_POS = { x: 0, y: 0 };
 const ID_NAMESPACE_POS = { x: FILE_POS.x, y: -120 };
 const DCC_POS = { x: 0, y: -220 };
 const COLLECTION_POS = { x: 300, y: 250 };
-const PROJECT_POS = { x: -1 * COLLECTION_POS.x, y: 250 };
+const PROJECT_POS = { x: -1 * COLLECTION_POS.x, y: COLLECTION_POS.y };
 const ANALYSIS_TYPE_POS = { x: 215, y: -38 };
 const ASSAY_TYPE_POS = { x: -1 * ANALYSIS_TYPE_POS.x, y: ANALYSIS_TYPE_POS.y };
 const FILE_FORMAT_POS = { x: 150, y: -70 };
@@ -525,15 +529,35 @@ const SAMPLE_PREP_METHOD_POS = {
   x: COLLECTION_POS.x,
   y: SUBJECT_SEX_POS.y,
 };
-const COMPOUND_POS = { x: 0, y: TERM_NODE_Y_SPACING * 0.8 };
-const SUBSTANCE_POS = { x: COMPOUND_POS.x + 180, y: COMPOUND_POS.y };
-const PROTEIN_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 1.7 };
-const NCBI_TAXONOMY_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 2.9 };
-const GENE_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 4.1 };
-const PHENOTYPE_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 5.3 };
-const DISEASE_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 6.2 };
-const ANATOMY_POS = { x: COMPOUND_POS.x, y: TERM_NODE_Y_SPACING * 7.1 };
+
+const DISEASE_POS = { x: 0, y: COLLECTION_POS.y };
+const NCBI_TAXONOMY_POS = { x: 0, y: DISEASE_POS.y - TERM_NODE_Y_SPACING * 3 };
+const PROTEIN_POS = { x: DISEASE_POS.x + 180, y: NCBI_TAXONOMY_POS.y };
+const GENE_POS = {
+  x: DISEASE_POS.x,
+  y: DISEASE_POS.y - TERM_NODE_Y_SPACING * 2,
+};
+const PHENOTYPE_POS = {
+  x: DISEASE_POS.x,
+  y: DISEASE_POS.y - TERM_NODE_Y_SPACING,
+};
+const COMPOUND_POS = {
+  x: DISEASE_POS.x,
+  y: DISEASE_POS.y + TERM_NODE_Y_SPACING,
+};
+const SUBSTANCE_POS = {
+  x: DISEASE_POS.x,
+  y: DISEASE_POS.y + TERM_NODE_Y_SPACING * 2,
+};
+const ANATOMY_POS = {
+  x: NCBI_TAXONOMY_POS.x,
+  y: DISEASE_POS.y + TERM_NODE_Y_SPACING * 3,
+};
 const ALL_TERMS_NODE_POS = { x: 450, y: 250 };
+const ARTIFICIAL_COLLECTION_NODE_POS = {
+  x: -1 * ALL_TERMS_NODE_POS.x,
+  y: ALL_TERMS_NODE_POS.y,
+};
 
 const ID_NAMESPACE_CONTAINS_PROJECT_SOURCE_DEG = -90;
 const ID_NAMESPACE_CONTAINS_PROJECT_TARGET_DEG = 0;
@@ -873,21 +897,21 @@ const SUBJECT_ASSOCIATED_WITH_TAXONOMY_TARGET_POS = getEdgePoint(
   SCHEMA_NODE_RADIUS
 );
 
-const SUBJECT_ASSOCIATED_WITH_COMPOUND_SOURCE_DEG = 90;
-const SUBJECT_ASSOCIATED_WITH_COMPOUND_TARGET_DEG = -90;
-const SUBJECT_ASSOCIATED_WITH_COMPOUND_SOURCE_POS = getEdgePoint(
+const SUBJECT_ASSOCIATED_WITH_SUBSTANCE_SOURCE_DEG = 90;
+const SUBJECT_ASSOCIATED_WITH_SUBSTANCE_TARGET_DEG = -90;
+const SUBJECT_ASSOCIATED_WITH_SUBSTANCE_SOURCE_POS = getEdgePoint(
   SUBJECT_POS,
-  SUBJECT_ASSOCIATED_WITH_COMPOUND_SOURCE_DEG,
+  SUBJECT_ASSOCIATED_WITH_SUBSTANCE_SOURCE_DEG,
   SCHEMA_NODE_RADIUS
 );
-const SUBJECT_ASSOCIATED_WITH_COMPOUND_TARGET_POS = getEdgePoint(
-  COMPOUND_POS,
-  SUBJECT_ASSOCIATED_WITH_COMPOUND_TARGET_DEG,
+const SUBJECT_ASSOCIATED_WITH_SUBSTANCE_TARGET_POS = getEdgePoint(
+  SUBSTANCE_POS,
+  SUBJECT_ASSOCIATED_WITH_SUBSTANCE_TARGET_DEG,
   SCHEMA_NODE_RADIUS
 );
 
 const BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_SOURCE_DEG = -90;
-const BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_TARGET_DEG = 180;
+const BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_TARGET_DEG = 90;
 const BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_SOURCE_POS = getEdgePoint(
   BIOSAMPLE_POS,
   BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_SOURCE_DEG,
@@ -1312,6 +1336,15 @@ export const SCHEMA_NODES = [
       label: "All Term Nodes",
     },
   },
+  {
+    classes: ["artificial-collection-node", "dashed"],
+    position: ARTIFICIAL_COLLECTION_NODE_POS,
+    locked: true,
+    data: {
+      id: ARTIFICIAL_COLLECTION_NODE_ID,
+      label: "Collection",
+    },
+  },
 ];
 
 export const SCHEMA_EDGES = [
@@ -1442,6 +1475,15 @@ export const SCHEMA_EDGES = [
     },
   },
   {
+    classes: ["container-relationship", "dashed"],
+    data: {
+      id: COLLECTION_DEFINED_BY_PROJECT_EDGE_ID,
+      source: ARTIFICIAL_COLLECTION_NODE_ID,
+      target: PROJECT_NODE_ID,
+      label: DEFINED_BY_TYPE,
+    },
+  },
+  {
     classes: ["term-relationship", "dashed"],
     data: {
       id: COLLECTION_CONTAINS_TERMS_EDGE_ID,
@@ -1451,7 +1493,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["file-related-relationship"],
+    classes: ["term-relationship"],
     data: {
       id: FILE_IS_FILE_FORMAT_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1460,7 +1502,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["file-related-relationship"],
+    classes: ["term-relationship"],
     data: {
       id: FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1469,7 +1511,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["file-related-relationship"],
+    classes: ["term-relationship"],
     data: {
       id: FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1478,7 +1520,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["file-related-relationship"],
+    classes: ["term-relationship"],
     data: {
       id: FILE_IS_DATA_TYPE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1550,15 +1592,6 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["term-relationship", "no-arrows"],
-    data: {
-      id: SUBJECT_ASSOCIATED_WITH_COMPOUND_EDGE_ID,
-      source: SUBJECT_NODE_ID,
-      target: COMPOUND_NODE_ID,
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
     classes: ["term-relationship"],
     data: {
       id: SUBJECT_TESTED_FOR_DISEASE_EDGE_ID,
@@ -1581,6 +1614,15 @@ export const SCHEMA_EDGES = [
     data: {
       id: BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID,
       source: BIOSAMPLE_NODE_ID,
+      target: SUBSTANCE_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship", "no-arrows"],
+    data: {
+      id: SUBJECT_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID,
+      source: SUBJECT_NODE_ID,
       target: SUBSTANCE_NODE_ID,
       label: ASSOCIATED_WITH_TYPE,
     },
@@ -1640,16 +1682,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["term-relationship", "no-arrows"],
-    data: {
-      id: SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_EDGE_ID,
-      source: SUBSTANCE_NODE_ID,
-      target: NCBI_TAXONOMY_NODE_ID,
-      label: ASSOCIATED_WITH_TYPE,
-    },
-  },
-  {
-    classes: ["term-relationship", "no-arrows"],
+    classes: ["term-relationship", "no-arrows", "horizontal-text"],
     data: {
       id: SUBSTANCE_ASSOCIATED_WITH_COMPOUND_EDGE_ID,
       source: SUBSTANCE_NODE_ID,
@@ -1777,6 +1810,14 @@ export const SCHEMA_STYLESHEET: any[] = [
       "background-color": "#f2f2f2",
       "border-width": 1,
       "border-color": TERM_NODE_COLOR,
+    },
+  },
+  {
+    selector: "node.artificial-collection-node",
+    style: {
+      "background-color": "#f2f2f2",
+      "border-width": 1,
+      "border-color": CONTAINER_NODE_COLOR,
     },
   },
   {
@@ -2169,6 +2210,12 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
+    selector: `edge#${COLLECTION_DEFINED_BY_PROJECT_EDGE_ID}`,
+    style: {
+      label: "data(label)",
+    },
+  },
+  {
     selector: `edge#${FILE_IS_FILE_FORMAT_EDGE_ID}`,
     style: {
       label: "",
@@ -2428,11 +2475,11 @@ export const SCHEMA_STYLESHEET: any[] = [
         SUBJECT_ASSOCIATED_WITH_TAXONOMY_SOURCE_POS,
         [
           {
-            x: -1 * SUBSTANCE_POS.x,
+            x: -1 * TERM_NODE_X_SPACING,
             y: SUBJECT_ASSOCIATED_WITH_TAXONOMY_SOURCE_POS.y,
           },
           {
-            x: -1 * SUBSTANCE_POS.x,
+            x: -1 * TERM_NODE_X_SPACING,
             y: SUBJECT_ASSOCIATED_WITH_TAXONOMY_TARGET_POS.y,
           },
         ],
@@ -2443,7 +2490,7 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: `edge#${SUBJECT_ASSOCIATED_WITH_COMPOUND_EDGE_ID}`,
+    selector: `edge#${SUBJECT_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID}`,
     style: {
       label: "",
       "target-label": "data(label)",
@@ -2451,21 +2498,21 @@ export const SCHEMA_STYLESHEET: any[] = [
       "curve-style": "round-segments",
       "radius-type": "arc-radius",
       "edge-distances": "endpoints",
-      "source-endpoint": `${SUBJECT_ASSOCIATED_WITH_COMPOUND_SOURCE_DEG}deg`,
-      "target-endpoint": `${SUBJECT_ASSOCIATED_WITH_COMPOUND_TARGET_DEG}deg`,
+      "source-endpoint": `${SUBJECT_ASSOCIATED_WITH_SUBSTANCE_SOURCE_DEG}deg`,
+      "target-endpoint": `${SUBJECT_ASSOCIATED_WITH_SUBSTANCE_TARGET_DEG}deg`,
       ...getSegmentPropsWithPoints(
-        SUBJECT_ASSOCIATED_WITH_COMPOUND_SOURCE_POS,
+        SUBJECT_ASSOCIATED_WITH_SUBSTANCE_SOURCE_POS,
         [
           {
-            x: -1 * SUBSTANCE_POS.x,
-            y: SUBJECT_ASSOCIATED_WITH_COMPOUND_SOURCE_POS.y,
+            x: -1 * TERM_NODE_X_SPACING,
+            y: SUBJECT_ASSOCIATED_WITH_SUBSTANCE_SOURCE_POS.y,
           },
           {
-            x: -1 * SUBSTANCE_POS.x,
-            y: SUBJECT_ASSOCIATED_WITH_COMPOUND_TARGET_POS.y,
+            x: -1 * TERM_NODE_X_SPACING,
+            y: SUBJECT_ASSOCIATED_WITH_SUBSTANCE_TARGET_POS.y,
           },
         ],
-        SUBJECT_ASSOCIATED_WITH_COMPOUND_TARGET_POS,
+        SUBJECT_ASSOCIATED_WITH_SUBSTANCE_TARGET_POS,
         [false, true]
       ),
       "segment-radii": 20,
@@ -2486,11 +2533,11 @@ export const SCHEMA_STYLESHEET: any[] = [
         SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_POS,
         [
           {
-            x: -1 * SUBSTANCE_POS.x,
+            x: -1 * TERM_NODE_X_SPACING,
             y: SUBJECT_TESTED_FOR_PHENOTYPE_SOURCE_POS.y,
           },
           {
-            x: -1 * SUBSTANCE_POS.x,
+            x: -1 * TERM_NODE_X_SPACING,
             y: SUBJECT_TESTED_FOR_PHENOTYPE_TARGET_POS.y,
           },
         ],
@@ -2515,11 +2562,11 @@ export const SCHEMA_STYLESHEET: any[] = [
         SUBJECT_TESTED_FOR_DISEASE_SOURCE_POS,
         [
           {
-            x: -1 * SUBSTANCE_POS.x,
+            x: -1 * TERM_NODE_X_SPACING,
             y: SUBJECT_TESTED_FOR_DISEASE_SOURCE_POS.y,
           },
           {
-            x: -1 * SUBSTANCE_POS.x,
+            x: -1 * TERM_NODE_X_SPACING,
             y: SUBJECT_TESTED_FOR_DISEASE_TARGET_POS.y,
           },
         ],
@@ -2544,11 +2591,11 @@ export const SCHEMA_STYLESHEET: any[] = [
         BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS,
         [
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_TESTED_FOR_PHENOTYPE_SOURCE_POS.y,
           },
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_TESTED_FOR_PHENOTYPE_TARGET_POS.y,
           },
         ],
@@ -2572,8 +2619,14 @@ export const SCHEMA_STYLESHEET: any[] = [
       ...getSegmentPropsWithPoints(
         BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS,
         [
-          { x: SUBSTANCE_POS.x, y: BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS.y },
-          { x: SUBSTANCE_POS.x, y: BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS.y },
+          {
+            x: TERM_NODE_X_SPACING,
+            y: BIOSAMPLE_TESTED_FOR_DISEASE_SOURCE_POS.y,
+          },
+          {
+            x: TERM_NODE_X_SPACING,
+            y: BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS.y,
+          },
         ],
         BIOSAMPLE_TESTED_FOR_DISEASE_TARGET_POS,
         [true, false]
@@ -2596,11 +2649,11 @@ export const SCHEMA_STYLESHEET: any[] = [
         BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS,
         [
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS.y,
           },
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS.y,
           },
         ],
@@ -2635,12 +2688,16 @@ export const SCHEMA_STYLESHEET: any[] = [
         BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_SOURCE_POS,
         [
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_SOURCE_POS.y,
+          },
+          {
+            x: TERM_NODE_X_SPACING,
+            y: BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_TARGET_POS.y,
           },
         ],
         BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_TARGET_POS,
-        [true]
+        [true, false]
       ),
       "segment-radii": 20,
     },
@@ -2660,11 +2717,11 @@ export const SCHEMA_STYLESHEET: any[] = [
         BIOSAMPLE_ASSOCIATED_WITH_GENE_SOURCE_POS,
         [
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_ASSOCIATED_WITH_GENE_SOURCE_POS.y,
           },
           {
-            x: SUBSTANCE_POS.x,
+            x: TERM_NODE_X_SPACING,
             y: BIOSAMPLE_ASSOCIATED_WITH_GENE_TARGET_POS.y,
           },
         ],

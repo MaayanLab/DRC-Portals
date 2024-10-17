@@ -236,7 +236,7 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
     FILE_RELATED_NODE_CLASS,
     {
       color: "#000",
-      backgroundColor: FILE_RELATED_NODE_COLOR,
+      backgroundColor: TERM_NODE_COLOR,
     },
   ],
   [
