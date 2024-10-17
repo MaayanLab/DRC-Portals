@@ -134,102 +134,105 @@ export default function FilterSet({ id, filterList, filter_title, example_query,
   const indexRows = chunkArray(filterIndex, 8);
 
   const disableAutocomplete = options.length === 0 || selectedFilters.length === filterList.length;
-  
+
   return (
     <>
-    {options.length > 0 && ( 
-      <Typography color="secondary" variant="h6">{filter_title}</Typography>
-    )}
-    {options.length > 0 && (
-      <Autocomplete
-        multiple
-        autoComplete
-        disableCloseOnSelect
-        fullWidth
-        limitTags={3}
-        id="filterSet"
-        options={options
-          .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id))
-          .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
-        }
-        noOptionsText="" // Empty text to avoid showing "No more options"
-        freeSolo={false} // Disable free text input
-        groupBy={(option) => getFirstLetter(option)}
-        getOptionLabel={(option) => `${option.name}`}
-        value={selectedFiltersForAutocomplete}
-        onChange={(event, newValue) => {
-          const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
-          setSelectedFilters(validNewValue);
-        }}
-        renderTags={(value, getTagProps) =>
-          value.map((option, index) => (
-            <Tooltip title={option.name} key={option.id} 
-            sx={{
-              padding: '0px'
-            }}
-            >
-              <Chip
-                variant="outlined"
-                label={option.name}
-                size="small"
-                {...getTagProps({ index })}
-                onDelete={() => handleDelete(option)}
-                sx={{
-                  backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
-                  color: '#3a577c', // Navy blue text
-                  fontWeight: 'bold', // Bold text
-                  borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
-                  padding: '0px'
-                }}
-                
-              />
-            </Tooltip>
-          ))
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            size="small"
-            margin="none"
-            placeholder={example_query}
-            disabled={disableAutocomplete} // Disable input if disableAutocomplete is true
-            InputProps={{
-              ...params.InputProps,
-              // Conditionally hide the input field's text entry area (not the tags or the full Autocomplete)
-              /* inputProps: {
-                ...params.inputProps,
-                style: { 
-                  display: selectedFiltersForAutocomplete.length > 0 || disableAutocomplete ? 'none' : 'block' 
+      {options.length > 0 && (
+        <Typography color="secondary" variant="h6">{filter_title}</Typography>
+      )}
+      {options.length > 0 && (
+        <Autocomplete
+          multiple
+          autoComplete
+          disableCloseOnSelect
+          limitTags={3}
+          id="filterSet"
+          options={options
+            .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id))
+            .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
+          }
+          noOptionsText="" // Empty text to avoid showing "No more options"
+          freeSolo={false} // Disable free text input
+          groupBy={(option) => getFirstLetter(option)}
+          getOptionLabel={(option) => `${option.name}`}
+          value={selectedFiltersForAutocomplete}
+          onChange={(event, newValue) => {
+            const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
+            setSelectedFilters(validNewValue);
+          }}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Tooltip title={option.name} key={option.id}>
+                <Chip
+                  variant="outlined"
+                  label={option.name}
+                  size="small"
+                  {...getTagProps({ index })}
+                  onDelete={() => handleDelete(option)}
+                  sx={{
+                    backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
+                    color: '#3a577c', // Navy blue text
+                    fontWeight: 'bold', // Bold text
+                    borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
+                    padding: '0px',
+                    height: 'auto',
+                    // '& .MuiChip-label': {
+                    //   display: 'block',
+                    //   whiteSpace: 'normal',
+                    // },
+                  }}
+
+                />
+              </Tooltip>
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              margin="none"
+              placeholder={example_query}
+              disabled={disableAutocomplete} // Disable input if disableAutocomplete is true
+              InputProps={{
+                ...params.InputProps,
+                // Conditionally hide the input field's text entry area (not the tags or the full Autocomplete)
+                /* inputProps: {
+                  ...params.inputProps,
+                  style: { 
+                    display: selectedFiltersForAutocomplete.length > 0 || disableAutocomplete ? 'none' : 'block' 
+                  },
+                }, */
+              }}
+              sx={{
+                backgroundColor: theme => theme.palette.mode === 'light' ? '#f7f7f7' : '#424242', // Lighter background for input field
+                '& .MuiInputBase-input::placeholder': {
+                  color: theme => theme.palette.text.primary, // Darker example text
+                  opacity: 0.8,
                 },
-              }, */
-            }}
-            sx={{
-              backgroundColor: theme => theme.palette.mode === 'light' ? '#f7f7f7' : '#424242', // Lighter background for input field
-              '& .MuiInputBase-input::placeholder': {
-                color: theme => theme.palette.text.primary, // Darker example text
-                opacity: 0.8,
-              },
-              '& .MuiAutocomplete-popupIndicator': {
-                display: disableAutocomplete ? 'none' : 'flex', // Hide arrow if no options or all selected
-                color: theme => theme.palette.text.primary,
-                fontWeight: 'bold', // Increase prominence of downward arrow
-              }
-            }}
-          />
-        )}
-        renderGroup={(params) => (
-          <li key={params.key}>
-            <GroupHeader>{params.group}</GroupHeader>
-            <GroupItems>{params.children}</GroupItems>
-          </li>
-        )}
-        sx={{ width: 'auto', marginBottom: '20px'  }}
-        onBlur={() => {
-          applyFilters();
-        }}
-      />
-      
-    )}
-  </>
+                '& .MuiAutocomplete-popupIndicator': {
+                  display: disableAutocomplete ? 'none' : 'flex', // Hide arrow if no options or all selected
+                  color: theme => theme.palette.text.primary,
+                  fontWeight: 'bold', // Increase prominence of downward arrow
+                },
+                '.MuiOutlinedInput-root': {
+                  paddingRight: '20px !important', // Adjust padding to reduce the space between filter tags and the clear button
+                },
+              }}
+            />
+          )}
+          renderGroup={(params) => (
+            <li key={params.key}>
+              <GroupHeader>{params.group}</GroupHeader>
+              <GroupItems>{params.children}</GroupItems>
+            </li>
+          )}
+          sx={{ width: 'auto', marginBottom: '20px' }}
+          onBlur={() => {
+            applyFilters();
+          }}
+        />
+
+      )}
+    </>
   );
 }
