@@ -1,5 +1,4 @@
 BeautifulSoup4
-c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment@v0.0.4
 h5py
 numpy
 pandas

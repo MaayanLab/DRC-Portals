@@ -63,7 +63,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
     WITH 
     allres AS (
       SELECT DISTINCT
-          ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
+          /* ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
           allres_full.dcc_name AS dcc_name,
           allres_full.dcc_abbreviation AS dcc_abbreviation,
           SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -90,7 +90,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+      ORDER BY /* rank DESC, */ dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
           protein_name, compound_name, data_type_name, assay_type_name
   ),
     
@@ -126,7 +126,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
     WITH 
     allres_exp AS (
       SELECT /* No DISTINCT */
-        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
+        /* ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
         SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -165,7 +165,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
 
     allres AS (
       SELECT DISTINCT 
-        rank,
+        /* rank, */
         dcc_name,
         dcc_abbreviation,
         dcc_short_label,
@@ -189,7 +189,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         project_name,
         project_persistent_id
       FROM allres_exp 
-      ORDER BY rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, gene_name, 
+      ORDER BY /* rank DESC, */ dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, gene_name, 
         protein_name, compound_name, data_type_name, assay_type_name
       OFFSET ${super_offset}
       LIMIT ${super_limit} 
@@ -299,39 +299,39 @@ export async function SearchQueryComponent(props: PageProps) {
             <React.Suspense fallback={<>Loading..</>}>
               <DiseaseFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <TaxonomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <AnatomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <GeneFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <ProteinFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <CompoundFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <DataTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <AssayTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
             <React.Suspense fallback={<>Loading..</>}>
               <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            <hr className="m-2" />
+            
 
           </>
         }
