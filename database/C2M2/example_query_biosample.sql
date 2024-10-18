@@ -708,3 +708,49 @@ WITH disres_full AS (
         GROUP BY disease_name
       )
       SELECT * FROM disease_name_count;
+
+--- testing results for synonyms, e.g., do you get very similar set of results for 'breast carcinoma' and 'breast cancer'
+\set myq 'breast cancer'
+--- 45739
+/* \set myq 'breast carcinoma'; */ --- 44473; both: 44420 ; the difference is due to other records not directly related to breast cancer
+\set myq2 'breast carcinoma'; 
+--- 44473; both:
+/* myq AND (NOT myq2): 1319 rows; myq2 AND (myq): 53 rows ; 45739 + 44473 - (2*44420 + 1319 + 53  )  */
+
+SELECT count(*) FROM
+  (
+      SELECT DISTINCT
+          /* ts_rank_cd(searchable, websearch_to_tsquery('english', :'myq')) AS rank, */
+          allres_full.dcc_name AS dcc_name,
+          allres_full.dcc_abbreviation AS dcc_abbreviation,
+          SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
+          COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
+          COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
+          SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
+          COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
+          REPLACE(allres_full.disease, ':', '_') AS disease,
+          COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+          REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+          COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
+          allres_full.gene AS gene,
+          COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
+          allres_full.protein AS protein,
+          COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
+          allres_full.substance_compound AS compound,
+          COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
+          REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
+          COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
+          REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
+          COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
+              SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+          allres_full.project_persistent_id AS project_persistent_id
+      FROM c2m2.ffl_biosample_collection_cmp AS allres_full 
+      WHERE (
+        (searchable @@ websearch_to_tsquery('english', :'myq'))
+        AND (searchable @@ websearch_to_tsquery('english', :'myq2'))
+      )
+      ORDER BY 
+      /* rank DESC, */
+      dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+          protein_name, compound_name, data_type_name, assay_type_name
+  );
