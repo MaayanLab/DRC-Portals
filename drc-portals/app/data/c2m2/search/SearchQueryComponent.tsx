@@ -90,8 +90,8 @@ const doQueryCount = React.cache(async (props: PageProps) => {
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      /* ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
-          protein_name, compound_name, data_type_name, assay_type_name */
+      ORDER BY /* rank DESC, */ dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+          protein_name, compound_name, data_type_name, assay_type_name
   ),
     
     
