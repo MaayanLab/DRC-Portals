@@ -379,7 +379,7 @@ def c2m2_fair(directory):
             ),
             cachedir=directory,
         )
-        result = assess(CFDE, rubric='amanda2022', full=False)
+        result = assess(CFDE, rubric='drc2024', full=False)
         rubric = {}
         for index, row in result.iterrows():
             if math.isnan(row['value']):

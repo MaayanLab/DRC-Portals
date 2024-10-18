@@ -13,6 +13,7 @@ export default function MasonryClient ({children, defaultHeight, columns=3}:
         <Masonry columns={['xs', 'sm'].indexOf(width) > -1 ? 1: columns} 
             defaultHeight={defaultHeight}
             defaultSpacing={1}
+            sx={{textAlign: "left"}}
         >
             {children}
         </Masonry>
