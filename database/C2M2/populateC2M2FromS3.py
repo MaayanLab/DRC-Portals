@@ -278,6 +278,8 @@ print(f"{newline}********* c2m2s dataframe is: **********");
 print(f"{c2m2s}"); 
 #print(f"{str(c2m2s['link'])}");  wait_str = input("Press Enter to continue.");
 
+if not ingest_path.exists():
+  ingest_path.mkdir()  # This gets created inside the folder that contains this file
 
 c2m2s_path = ingest_path / 'c2m2s'
 
