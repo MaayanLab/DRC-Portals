@@ -51,7 +51,6 @@ interface Option {
     label: string;
 }
 const dccOptions: Option[] = [
-    { value: '19', label: 'NIH' },
     { value: '20', label: 'ICC' },
     { value: '21', label: 'DRC' },
     { value: '22', label: 'KC' },
