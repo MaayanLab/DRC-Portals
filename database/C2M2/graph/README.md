@@ -13,6 +13,12 @@
   - [Optional Read: The `/import` Volume](#optional-read-the-import-volume)
   - [Run the Load Process](#run-the-load-process)
   - [Stop the Load Container and Start Dev/Prod](#stop-the-load-container-and-start-devprod)
+- [Setup SSL](#setup-ssl)
+  - [Create a Neo4j Group and User](#create-a-neo4j-group-and-user)
+  - [Optional: Install certbot](#optional-install-certbot)
+  - [Create First Time Certs](#create-first-time-certs)
+  - [Copy Certs Into Neo4j Volume Directories](#copy-certs-into-neo4j-volume-directories)
+  - [Optional: Setup a Cron Job](#optional-setup-a-cron-job)
 
 ## Prerequisites
 
@@ -139,4 +145,80 @@ There are two docker-compose files specifically for local development and produc
 
 ```bash
 docker-compose -f <filename> up -d
+```
+
+## Setup SSL
+
+For production environments, it is highly recommended to enable SSL policies for the bolt and https connectors to the Neo4j database. The prod docker-compose file already contains the required configurations for SSL, but there are several additional setup steps.
+
+### Create a Neo4j Group and User
+
+The Neo4j container will expect the SSL certificate files to be owned by the "neo4j" user and group created during the container image build. If the files _do not_ have these permissions, the container _will fail_ to start with a file read access error. Thankfully, the UID and GID are well known for the container "neo4j" user and group, so we can create them on the host using the respective ids, and then give add permissions to the files accordingly.
+
+To create a "neo4j" user and group on the _host_, run the following script, included in the same directory as these instructions:
+
+```bash
+sh neo4j_system_setup.sh
+```
+
+This will do two things:
+
+- Create a group on the host named "neo4j" with GID 7474
+- Create a user on the host named "neo4j" with UID 7474, belonging to the "neo4j" group
+
+### Optional: Install certbot
+
+The following instructions assume that [certbot](https://certbot.eff.org/) is installed on the host machine. If it is not, you can install it by following the [official instructions](https://certbot.eff.org/instructions).
+
+### Create First Time Certs
+
+The next step is to generate the certs for the first time. Run the following command:
+
+```bash
+sudo certbot certonly
+```
+
+When prompted to specify an authentication option, choose option 1 (create a temporary webserver on port 80). Then, when prompted to provide the domain name(s), provide the domain you've registered and and created DNS records for.
+
+Note that by choosing option 1 above, you _must_ open port 80 on the host for the above to succeed. If port 80 is not open, certbot will not be able to complete the certificate registration! Verify that the host does not have a firewall on port 80 if you are encountering any issues generating the certificate, as this is a common issue.
+
+Registering the domain name, reserving IP addresses, and configuring DNS records is outside of the scope of these instructions, but there are a variety of DNS providers available, and most cloud service providers allow reserving static IP addresses.
+
+### Copy Certs Into Neo4j Volume Directories
+
+Once the certs have been generated, we can copy them into the `ssl` directory, which is mounted to the directory of the same name in the Neo4j container.
+
+To create the ssl directory and copy the certs into it, run the following script, included in the same directory as these instructions:
+
+```bash
+sh renew_certs.sh
+```
+
+This will perform a handful of tasks:
+
+- Renewing the certificates
+  - You may be prompted to skip this step on the command line if the existing certs are still valid
+- Creating the `ssl` directory, if it doesn't already exist
+- Creating the `ssl/bak` directory (for storing backups of the certificate files), it it doesn't already exist
+- Creating backups of the contents of the `ssl/https` and `ssl/bolt` folders
+- Copying certs into the `ssl/https` and `ssl/bolt` folders
+- Changing group ownership of the contents of `ssl` to the "neo4j" group
+- Updating permissions on the contents of `ssl` to ensure they are group readable
+
+Once completed, you can start the Neo4j container using the prod docker-compose file, which is configured to use the certificates stored in the `ssl` directory.
+
+### Optional: Setup a Cron Job
+
+While not strictly necessary, you will likely want to setup automatic renewal of the certificates. To do so, you can add a cron job using `crontab`.
+
+To edit your crontab, simply run:
+
+```bash
+crontab -e
+```
+
+For example, if you want to renew the certificates on the first day of the month at midnight, you can add the following line to your crontab:
+
+```bash
+0 0 1 * * sh /path/to/renew_certs.sh
 ```
