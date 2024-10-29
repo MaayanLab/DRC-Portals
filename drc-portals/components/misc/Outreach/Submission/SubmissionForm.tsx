@@ -56,7 +56,7 @@ const dccOptions: Option[] = [
     { value: '21', label: 'DRC' },
     { value: '22', label: 'KC' },
     { value: '23', label: 'CWIC' },
-    { value: '24', label: 'CT' },
+    { value: '24', label: 'TC' },
     { value: '1', label: '4DN' },
     { value: '2', label: 'A2CPS' },
     { value: '3', label: 'Bridge2AI' },
