@@ -110,7 +110,8 @@ targetTSVs = (
     'collection_phenotype.tsv',
     'collection_protein.tsv',
     'collection_substance.tsv',
-    'collection_taxonomy.tsv'
+    'collection_taxonomy.tsv',
+    'collection_biofluid.tsv'
 )
 
 ##########################################################################################
@@ -119,6 +120,7 @@ targetTSVs = (
 termsUsed = {
     
     'anatomy': {},
+    'biofluid': {},
     'assay_type': {},
     'analysis_type': {},
     'compound': {},
@@ -739,7 +741,7 @@ def decorateTermsUsed(  ):
 
                 # end with open( [protein reference TSV], 'r' ) as IN
 
-        elif categoryID == 'anatomy' or categoryID == 'assay_type' or categoryID == 'analysis_type' or categoryID == 'disease' or categoryID == 'sample_prep_method':
+        elif categoryID == 'anatomy' or categoryID == 'assay_type' or categoryID == 'analysis_type' or categoryID == 'disease' or categoryID == 'sample_prep_method' or categoryID == 'biofluid':
             
             cv = ''
 
@@ -784,6 +786,12 @@ def decorateTermsUsed(  ):
                 progressReport("   Disease Ontology... [" + subprocess.check_output(['date']).decode(sys.stdout.encoding).rstrip('\r\n') + "]")
 
                 cv = 'DO'
+            
+            elif categoryID == 'biofluid':
+                
+                progressReport("   Uber-biofluid ontology... [" + subprocess.check_output(['date']).decode(sys.stdout.encoding).rstrip('\r\n') + "]")
+
+                cv = 'Uberon'
 
             # end if ( categoryID type check )
 
