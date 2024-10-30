@@ -4,14 +4,8 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import { Button, Grid, IconButton, Tooltip } from "@mui/material";
 
-import {
-  Core,
-  ElementDefinition,
-  EventObject,
-  EventObjectEdge,
-  EventObjectNode,
-} from "cytoscape";
-import { Fragment, useCallback, useState } from "react";
+import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
+import { Fragment, useCallback, useEffect, useState } from "react";
 
 import { NodeResult } from "@/lib/neo4j/types";
 
@@ -26,11 +20,13 @@ import { SearchBarContainer } from "../../constants/search-bar";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
 import { CustomToolbarFnFactory } from "../../types/cy";
+import { PathwaySearchElement } from "../../types/pathway-search";
+import { isPathwaySearchEdgeElement } from "../../utils/pathway-search";
 
 import PathwayNodeFilters from "./PathwayNodeFilters";
 
 interface GraphPathwaySearchProps {
-  elements: ElementDefinition[];
+  elements: PathwaySearchElement[];
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
   onReset: () => void;
@@ -156,7 +152,25 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     },
   ];
 
-  // TODO: if elements changes, need to make sure the selected node is updated to reflect whatever the new data is for that node (if any)
+  useEffect(() => {
+    // If the source elements have changed, make sure the selectedNode is updated with any new data
+    if (selectedNode !== undefined) {
+      const newSelectedNode = elements.find(
+        (el) =>
+          !isPathwaySearchEdgeElement(el) && el.data.id === selectedNode.data.id
+      ) as PathwaySearchNode | undefined;
+
+      if (newSelectedNode !== undefined) {
+        setSelectedNode({
+          classes: [...(newSelectedNode.classes || [])],
+          data: { ...newSelectedNode.data },
+        });
+      } else {
+        // TODO: This should currently never happen, but it might be possible if/when we allow removing nodes from the pathway
+        console.warn("Selected node does not exist in current elements list!");
+      }
+    }
+  }, [elements]);
 
   return (
     <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
