@@ -7,6 +7,7 @@ import { Button, Grid, IconButton, Tooltip } from "@mui/material";
 import {
   Core,
   ElementDefinition,
+  EventObject,
   EventObjectEdge,
   EventObjectNode,
 } from "cytoscape";
@@ -101,17 +102,18 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const customEventHandlers: CytoscapeEvent[] = [
     {
       event: "tap",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        handleSelectedNodeChange(event.target.id(), event.cy);
+      callback: (event: EventObject) => {
+        console.log(`tap`);
+        if (event.target === event.cy) {
+          handleSelectedNodeChange(undefined, event.cy);
+        }
       },
     },
     {
-      event: "unselect",
-      callback: (event) => {
-        // TODO: Using "unselect" is a little bit hacky...but it does make sure that the selected node is reset. Look into setting "
-        // unselectify" on the chart, that way we can have precise control over selections
-        handleSelectedNodeChange(undefined, event.cy);
+      event: "tap",
+      target: "node",
+      callback: (event: EventObjectNode) => {
+        handleSelectedNodeChange(event.target.id(), event.cy);
       },
     },
     {
@@ -153,6 +155,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       },
     },
   ];
+
+  // TODO: if elements changes, need to make sure the selected node is updated to reflect whatever the new data is for that node (if any)
 
   return (
     <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>

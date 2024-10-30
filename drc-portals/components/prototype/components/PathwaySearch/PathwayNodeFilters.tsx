@@ -9,10 +9,10 @@ import {
 } from "@/lib/neo4j/constants";
 
 import { NodeFilterBox } from "../../constants/pathway-search";
+import { PathwaySearchNode } from "../../interfaces/pathway-search";
 
 import NodeFilterSelect from "./NodeFilterSelect";
 import NodeTextSearch from "./NodeTextSearch";
-import { PathwaySearchNode } from "../../interfaces/pathway-search";
 
 const NODE_SELECT_LABELS: ReadonlySet<string> = new Set([
   ...FILE_RELATED_LABELS,
