@@ -51,13 +51,13 @@ import GraphEntityDetails from "../GraphEntityDetails";
 
 interface GraphPathwayResultsProps {
   elements: ElementDefinition[];
-  onReturnClick: () => void;
+  onReturnBtnClick: () => void;
 }
 
 export default function GraphPathwayResults(
   cmpProps: GraphPathwayResultsProps
 ) {
-  const { onReturnClick } = cmpProps;
+  const { onReturnBtnClick } = cmpProps;
   const [elements, setElements] = useState<ElementDefinition[]>(
     cmpProps.elements
   );
@@ -266,7 +266,7 @@ export default function GraphPathwayResults(
               variant="contained"
               size="large"
               sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
-              onClick={onReturnClick}
+              onClick={onReturnBtnClick}
             >
               <KeyboardReturnIcon />
             </Button>

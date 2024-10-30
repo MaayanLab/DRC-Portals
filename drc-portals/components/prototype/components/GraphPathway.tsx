@@ -1,10 +1,8 @@
 "use client";
 
-import SearchIcon from "@mui/icons-material/Search";
-import { Button, Grid, Tooltip } from "@mui/material";
+import { Grid } from "@mui/material";
 
 import { Core, ElementDefinition, NodeSingular } from "cytoscape";
-import { produce } from "immer";
 import { useCallback, useRef, useState } from "react";
 import { v4 } from "uuid";
 
@@ -16,14 +14,7 @@ import {
 import { Direction } from "@/lib/neo4j/enums";
 import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
 
-import {
-  NodeFiltersContainer,
-  PathwayModeBtnContainer,
-} from "../constants/pathway-search";
-import {
-  NO_RESULTS_ERROR_MSG,
-  SearchBarContainer,
-} from "../constants/search-bar";
+import { NO_RESULTS_ERROR_MSG } from "../constants/search-bar";
 import { NODE_CLASS_MAP } from "../constants/shared";
 import {
   PathwaySearchEdge,
@@ -32,13 +23,11 @@ import {
   PathwaySearchNodeData,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
-import { getNodeDisplayProperty } from "../utils/shared";
-import { isPathwaySearchEdgeElement } from "../utils/pathway-search";
 import { createCytoscapeElements } from "../utils/cy";
+import { isPathwaySearchEdgeElement } from "../utils/pathway-search";
+import { getNodeDisplayProperty } from "../utils/shared";
 
 import { CytoscapeContext } from "./CytoscapeChart/CytoscapeContext";
-import PathwayNodeFilters from "./PathwaySearch/PathwayNodeFilters";
-import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
 import GraphPathwayResults from "./PathwaySearch/GraphPathwayResults";
 import GraphPathwaySearch from "./PathwaySearch/GraphPathwaySearch";
 
@@ -48,99 +37,11 @@ export default function GraphPathway() {
     []
   );
   const [showResults, setShowResults] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<PathwaySearchNode>();
-  const pathwaySearchContext = { cyRef: useRef<Core>() };
-
-  const createPathwaySearchNode = (
-    data: PathwaySearchNodeData,
-    classes?: string[]
-  ): PathwaySearchNode => {
-    return {
-      data,
-      classes: [NODE_CLASS_MAP.get(data.dbLabel) || "", ...(classes || [])],
-    };
-  };
-
-  const createPathwaySearchEdge = (
-    data: PathwaySearchEdgeData,
-    classes?: string[]
-  ): PathwaySearchEdge => {
-    return {
-      data,
-      classes,
-    };
-  };
-
-  const onReset = useCallback(() => {
-    setResultElements([]);
-    setSearchElements([]);
-    setSelectedNode(undefined);
-  }, []);
-
-  const onSelectedNodeChange = useCallback(
-    (id: string | undefined, cy: Core) => {
-      if (id === undefined) {
-        setSelectedNode(undefined);
-      } else {
-        const node = cy.nodes().$id(id);
-
-        if (!node.hasClass("path-element")) {
-          addPathNode(node, cy);
-        }
-
-        setSelectedNode({
-          classes: node.classes(),
-          data: node.data(),
-        });
-      }
-    },
-    []
-  );
-
-  const handleNodeFilterChange = useCallback(
-    (value: string) => {
-      if (selectedNode !== undefined) {
-        const newSelectedNode: PathwaySearchNode = {
-          classes: selectedNode.classes,
-          data: {
-            ...selectedNode.data,
-            displayLabel: value || selectedNode.data.dbLabel,
-          },
-        };
-        setSelectedNode(newSelectedNode);
-        handleUpdateSearchElements([newSelectedNode]);
-      }
-    },
-    [selectedNode]
-  );
-
-  const handleUpdateSearchElements = useCallback(
-    (elements: PathwaySearchElement[]) => {
-      setSearchElements(
-        produce((draft) => {
-          elements.forEach((element) => {
-            const existingElementIdx = draft.findIndex(
-              (el) => el.data.id === element.data.id
-            );
-
-            if (existingElementIdx === -1) {
-              if (isPathwaySearchEdgeElement(element)) {
-                draft.push(element);
-              } else {
-                draft.unshift(element);
-              }
-            } else {
-              draft.splice(existingElementIdx, 1, element);
-            }
-          });
-        })
-      );
-    },
-    []
-  );
+  const pathwaySearchCyRef = useRef<Core>();
+  const pathwaySearchContext = { cyRef: pathwaySearchCyRef };
 
   const createTree = () => {
-    const pathwaySearchCy = pathwaySearchContext.cyRef.current;
+    const pathwaySearchCy = pathwaySearchCyRef.current;
 
     if (pathwaySearchCy !== undefined) {
       const roots = pathwaySearchCy.nodes().roots();
@@ -200,33 +101,24 @@ export default function GraphPathway() {
     }
   };
 
-  const getResults = async () => {
-    const tree = createTree();
-    try {
-      const query = btoa(JSON.stringify(tree));
-      const response = await fetchPathwaySearch(query);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const elements = createCytoscapeElements(data);
-
-      if (elements.length === 0) {
-        console.warn(NO_RESULTS_ERROR_MSG);
-      } else {
-        setShowResults(true);
-        setResultElements(elements);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+  const createPathwaySearchNode = (
+    data: PathwaySearchNodeData,
+    classes?: string[]
+  ): PathwaySearchNode => {
+    return {
+      data,
+      classes: [NODE_CLASS_MAP.get(data.dbLabel) || "", ...(classes || [])],
+    };
   };
 
-  const returnToSearch = () => {
-    setShowResults(false);
-    setResultElements([]);
+  const createPathwaySearchEdge = (
+    data: PathwaySearchEdgeData,
+    classes?: string[]
+  ): PathwaySearchEdge => {
+    return {
+      data,
+      classes,
+    };
   };
 
   const getConnectedElements = (
@@ -290,7 +182,133 @@ export default function GraphPathway() {
     return { nodes, edges };
   };
 
-  const handleSubmit = (cvTerm: NodeResult) => {
+  const deepCopyPathwaySearchNode = (
+    node: PathwaySearchNode
+  ): PathwaySearchNode => ({
+    classes: [...(node.classes || [])],
+    data: { ...node.data },
+  });
+
+  const deepCopyPathwaySearchEdge = (
+    edge: PathwaySearchEdge
+  ): PathwaySearchEdge => ({
+    classes: [...(edge.classes || [])],
+    data: { ...edge.data },
+  });
+
+  const handleReset = useCallback(() => {
+    setResultElements([]);
+    setSearchElements([]);
+  }, []);
+
+  const addNodeToPath = useCallback(
+    (node: PathwaySearchNode) => {
+      const connectedEdge = searchElements.filter(
+        (element) =>
+          isPathwaySearchEdgeElement(element) &&
+          element.data.target === node.data.id
+      )[0] as PathwaySearchEdge | undefined;
+
+      // This should never happen, but log an error just in case...
+      if (connectedEdge === undefined) {
+        console.error(
+          `GraphPathway Error: No incoming edge for node ${node.data.id}. Aborting.`
+        );
+        return;
+      }
+
+      const { nodes: newNodes, edges: newEdges } = getConnectedElements(
+        node.data.dbLabel,
+        node.data.id
+      );
+
+      setSearchElements([
+        {
+          data: { ...node.data },
+          classes: [...(node.classes || []), "path-element"],
+        },
+        ...newNodes,
+        ...searchElements
+          .filter(
+            (element) =>
+              element.data.id !== node.data.id &&
+              element.data.id !== connectedEdge.data.id
+          )
+          .map((element) =>
+            isPathwaySearchEdgeElement(element)
+              ? deepCopyPathwaySearchEdge(element)
+              : deepCopyPathwaySearchNode(element)
+          ),
+        {
+          data: { ...connectedEdge.data },
+          classes: [...(connectedEdge.classes || []), "path-element"],
+        },
+        ...newEdges,
+      ]);
+    },
+    [searchElements]
+  );
+
+  const updatePathNode = useCallback(
+    (node: PathwaySearchNode) => {
+      setSearchElements([
+        deepCopyPathwaySearchNode(node),
+        ...searchElements
+          .filter((element) => element.data.id !== node.data.id)
+          .map((element) =>
+            isPathwaySearchEdgeElement(element)
+              ? deepCopyPathwaySearchEdge(element)
+              : deepCopyPathwaySearchNode(element)
+          ),
+      ]);
+    },
+    [searchElements]
+  );
+
+  const handleSelectedNodeChange = useCallback(
+    (node: PathwaySearchNode | undefined, reason: string) => {
+      if (node !== undefined) {
+        // Node was selected, but is not already in the path
+        if (reason === "select" && !node.classes?.includes("path-element")) {
+          addNodeToPath(node);
+        } else if (reason === "update") {
+          updatePathNode(node);
+        }
+      }
+    },
+    [addNodeToPath, updatePathNode]
+  );
+
+  const handleSearchBtnClick = async () => {
+    const tree = createTree();
+    try {
+      const query = btoa(JSON.stringify(tree));
+      const response = await fetchPathwaySearch(query);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const elements = createCytoscapeElements(data);
+
+      if (elements.length === 0) {
+        console.warn(NO_RESULTS_ERROR_MSG);
+      } else {
+        setShowResults(true);
+        setResultElements(elements);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleReturnBtnClick = () => {
+    setShowResults(false);
+    setResultElements([]);
+  };
+
+  const handleSearchBarSubmit = (cvTerm: NodeResult) => {
     // TODO: Direct node results *should* always have at least one label since they are required on all Neo4j nodes, so maybe this check
     // isn't necessary? If we had validation on the search request response we could throw an error before reaching this point...
     if (cvTerm.labels === undefined || cvTerm.labels.length === 0) {
@@ -301,43 +319,18 @@ export default function GraphPathway() {
     const cvTermDBLabel = cvTerm.labels[0];
     const { nodes, edges } = getConnectedElements(cvTermDBLabel, cvTerm.uuid);
     setSearchElements([
-      // TODO: Should probably have a constant for this style class, and the other classes for that matter
       createPathwaySearchNode(
         {
           id: cvTerm.uuid,
           displayLabel: getNodeDisplayProperty(cvTermDBLabel, cvTerm),
           dbLabel: cvTermDBLabel,
         },
+        // TODO: Should probably have a constant for this style class, and the other classes for that matter
         ["path-element"]
       ),
       ...nodes,
       ...edges,
     ]);
-  };
-
-  const addPathNode = (node: NodeSingular, cy: cytoscape.Core) => {
-    // Get selected node data, and get new data for its connected nodes and relationships
-    const data: PathwaySearchNodeData = node.data();
-    const edge = node.connectedEdges().first();
-    const { nodes: newNodes, edges: newEdges } = getConnectedElements(
-      data.dbLabel,
-      data.id
-    );
-
-    // TODO: Should probably have a constant for this style class, and the other classes for that matter
-    edge.addClass("path-element");
-    node.addClass("path-element");
-
-    const prevNodes = [...Array.from(cy.nodes())].map((n) => ({
-      classes: [...n.classes()],
-      data: n.data(),
-    }));
-    const prevEdges = [...Array.from(cy.edges())].map((e) => ({
-      classes: [...e.classes()],
-      data: e.data(),
-    }));
-
-    setSearchElements([...prevNodes, ...newNodes, ...prevEdges, ...newEdges]);
   };
 
   return (
@@ -352,46 +345,18 @@ export default function GraphPathway() {
       {showResults ? (
         <GraphPathwayResults
           elements={resultElements}
-          onReturnClick={returnToSearch}
+          onReturnBtnClick={handleReturnBtnClick}
         />
       ) : (
-        <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
-          {searchElements.length === 0 ? (
-            <SearchBarContainer>
-              <PathwaySearchBar onSubmit={handleSubmit}></PathwaySearchBar>
-            </SearchBarContainer>
-          ) : (
-            <PathwayModeBtnContainer>
-              <Tooltip title="Search Path" arrow placement="left">
-                <Button
-                  aria-label="search-path"
-                  color="secondary"
-                  variant="contained"
-                  size="large"
-                  sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
-                  onClick={getResults}
-                >
-                  <SearchIcon />
-                </Button>
-              </Tooltip>
-            </PathwayModeBtnContainer>
-          )}
-          {selectedNode === undefined ? null : (
-            <NodeFiltersContainer>
-              <PathwayNodeFilters
-                node={selectedNode}
-                onChange={handleNodeFilterChange}
-              ></PathwayNodeFilters>
-            </NodeFiltersContainer>
-          )}
-          <CytoscapeContext.Provider value={pathwaySearchContext}>
-            <GraphPathwaySearch
-              elements={searchElements}
-              onSelectedNodeChange={onSelectedNodeChange}
-              onReset={onReset}
-            />
-          </CytoscapeContext.Provider>
-        </Grid>
+        <CytoscapeContext.Provider value={pathwaySearchContext}>
+          <GraphPathwaySearch
+            elements={searchElements}
+            onSearchBarSubmit={handleSearchBarSubmit}
+            onSearchBtnClick={handleSearchBtnClick}
+            onSelectedNodeChange={handleSelectedNodeChange}
+            onReset={handleReset}
+          />
+        </CytoscapeContext.Provider>
       )}
     </Grid>
   );
