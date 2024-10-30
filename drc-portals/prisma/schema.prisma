@@ -182,6 +182,7 @@ model Tool {
   url               String
   icon              String?
   image             String?
+  tutorial          Json?
   featured          Boolean?      @default(false)
   publications      Publication[]
 
