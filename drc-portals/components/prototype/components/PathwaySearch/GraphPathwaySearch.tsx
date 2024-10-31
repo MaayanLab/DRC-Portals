@@ -2,7 +2,14 @@
 
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
-import { Button, Grid, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Fab,
+  Grid,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 
 import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
 import { Fragment, useCallback, useEffect, useState } from "react";
@@ -27,6 +34,7 @@ import PathwayNodeFilters from "./PathwayNodeFilters";
 
 interface GraphPathwaySearchProps {
   elements: PathwaySearchElement[];
+  loading: boolean;
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
   onReset: () => void;
@@ -39,6 +47,7 @@ interface GraphPathwaySearchProps {
 export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const {
     elements,
+    loading,
     onReset,
     onSearchBarSubmit,
     onSearchBtnClick,
@@ -99,7 +108,6 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     {
       event: "tap",
       callback: (event: EventObject) => {
-        console.log(`tap`);
         if (event.target === event.cy) {
           handleSelectedNodeChange(undefined, event.cy);
         }
@@ -181,16 +189,28 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       ) : (
         <PathwayModeBtnContainer>
           <Tooltip title="Search Path" arrow placement="left">
-            <Button
-              aria-label="search-path"
-              color="secondary"
-              variant="contained"
-              size="large"
-              sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
-              onClick={onSearchBtnClick}
-            >
-              <SearchIcon />
-            </Button>
+            <Box sx={{ position: "relative" }}>
+              <Fab
+                aria-label="search-path"
+                color="secondary"
+                size="large"
+                onClick={onSearchBtnClick}
+              >
+                <SearchIcon />
+              </Fab>
+              {loading && (
+                <CircularProgress
+                  color="primary"
+                  size={68} // This should be the FAB diameter + 4
+                  sx={{
+                    position: "absolute",
+                    top: -6,
+                    left: -6,
+                    zIndex: 1,
+                  }}
+                />
+              )}
+            </Box>
           </Tooltip>
         </PathwayModeBtnContainer>
       )}

@@ -4,7 +4,7 @@ import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import {
   Alert,
   AlertColor,
-  Button,
+  Fab,
   Grid,
   Snackbar,
   SnackbarCloseReason,
@@ -260,16 +260,14 @@ export default function GraphPathwayResults(
         ></CytoscapeChart>
         <PathwayModeBtnContainer>
           <Tooltip title="Return to Path Search" arrow placement="left">
-            <Button
+            <Fab
               aria-label="return-to-search"
               color="secondary"
-              variant="contained"
               size="large"
-              sx={{ height: "64px", width: "64px", borderRadius: "50%" }}
               onClick={onReturnBtnClick}
             >
               <KeyboardReturnIcon />
-            </Button>
+            </Fab>
           </Tooltip>
         </PathwayModeBtnContainer>
       </Grid>

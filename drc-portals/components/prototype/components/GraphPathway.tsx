@@ -41,6 +41,7 @@ export default function GraphPathway() {
     []
   );
   const [showResults, setShowResults] = useState(false);
+  const [loadingSearchResults, setLoadingSearchResults] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
@@ -287,6 +288,7 @@ export default function GraphPathway() {
   );
 
   const handleSearchBtnClick = async () => {
+    setLoadingSearchResults(true);
     const tree = createTree();
     try {
       const query = btoa(JSON.stringify(tree));
@@ -296,22 +298,23 @@ export default function GraphPathway() {
         setSnackbarMsg(BASIC_SEARCH_ERROR_MSG);
         setSnackbarOpen(true);
         setSnackbarSeverity("error");
-        return;
-      }
-
-      const data = await response.json();
-      const elements = createCytoscapeElements(data);
-
-      if (elements.length === 0) {
-        setSnackbarMsg(NO_RESULTS_ERROR_MSG);
-        setSnackbarOpen(true);
-        setSnackbarSeverity("warning");
       } else {
-        setShowResults(true);
-        setResultElements(elements);
+        const data = await response.json();
+        const elements = createCytoscapeElements(data);
+
+        if (elements.length === 0) {
+          setSnackbarMsg(NO_RESULTS_ERROR_MSG);
+          setSnackbarOpen(true);
+          setSnackbarSeverity("warning");
+        } else {
+          setShowResults(true);
+          setResultElements(elements);
+        }
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoadingSearchResults(false);
     }
   };
 
@@ -363,6 +366,7 @@ export default function GraphPathway() {
         <CytoscapeContext.Provider value={pathwaySearchContext}>
           <GraphPathwaySearch
             elements={searchElements}
+            loading={loadingSearchResults}
             onSearchBarSubmit={handleSearchBarSubmit}
             onSearchBtnClick={handleSearchBtnClick}
             onSelectedNodeChange={handleSelectedNodeChange}
