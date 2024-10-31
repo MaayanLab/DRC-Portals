@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import { AlertColor, Grid } from "@mui/material";
 
 import { Core, ElementDefinition, NodeSingular } from "cytoscape";
 import { useCallback, useRef, useState } from "react";
@@ -30,6 +30,7 @@ import { getNodeDisplayProperty } from "../utils/shared";
 import { CytoscapeContext } from "./CytoscapeChart/CytoscapeContext";
 import GraphPathwayResults from "./PathwaySearch/GraphPathwayResults";
 import GraphPathwaySearch from "./PathwaySearch/GraphPathwaySearch";
+import AlertSnackbar from "./shared/AlertSnackbar";
 
 export default function GraphPathway() {
   const [resultElements, setResultElements] = useState<ElementDefinition[]>([]);
@@ -37,6 +38,9 @@ export default function GraphPathway() {
     []
   );
   const [showResults, setShowResults] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
   const pathwaySearchCyRef = useRef<Core>();
   const pathwaySearchContext = { cyRef: pathwaySearchCyRef };
 
@@ -293,7 +297,9 @@ export default function GraphPathway() {
       const elements = createCytoscapeElements(data);
 
       if (elements.length === 0) {
-        console.warn(NO_RESULTS_ERROR_MSG);
+        setSnackbarMsg(NO_RESULTS_ERROR_MSG);
+        setSnackbarOpen(true);
+        setSnackbarSeverity("warning");
       } else {
         setShowResults(true);
         setResultElements(elements);
@@ -358,6 +364,15 @@ export default function GraphPathway() {
           />
         </CytoscapeContext.Provider>
       )}
+      <AlertSnackbar
+        open={snackbarOpen}
+        message={snackbarMsg}
+        autoHideDuration={5000}
+        severity={snackbarSeverity}
+        vertical={"bottom"}
+        horizontal={"center"}
+        handleClose={() => setSnackbarOpen(false)}
+      />
     </Grid>
   );
 }
