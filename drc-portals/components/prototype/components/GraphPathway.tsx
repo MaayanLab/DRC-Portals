@@ -14,7 +14,10 @@ import {
 import { Direction } from "@/lib/neo4j/enums";
 import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
 
-import { NO_RESULTS_ERROR_MSG } from "../constants/search-bar";
+import {
+  BASIC_SEARCH_ERROR_MSG,
+  NO_RESULTS_ERROR_MSG,
+} from "../constants/search-bar";
 import { NODE_CLASS_MAP } from "../constants/shared";
 import {
   PathwaySearchEdge,
@@ -290,7 +293,10 @@ export default function GraphPathway() {
       const response = await fetchPathwaySearch(query);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        setSnackbarMsg(BASIC_SEARCH_ERROR_MSG);
+        setSnackbarOpen(true);
+        setSnackbarSeverity("error");
+        return;
       }
 
       const data = await response.json();
