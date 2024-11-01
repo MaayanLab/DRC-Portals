@@ -1,5 +1,7 @@
 "use client";
 
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -12,7 +14,7 @@ import {
 } from "@mui/material";
 
 import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
 
 import { NodeResult } from "@/lib/neo4j/types";
 
@@ -24,6 +26,7 @@ import {
   PathwayModeBtnContainer,
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
+import { VisuallyHiddenInput } from "../../constants/shared";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
 import { CustomToolbarFnFactory } from "../../types/cy";
@@ -38,6 +41,8 @@ interface GraphPathwaySearchProps {
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
   onReset: () => void;
+  onExport: () => void;
+  onImport: (files: ChangeEvent<HTMLInputElement>) => void;
   onSelectedNodeChange: (
     node: PathwaySearchNode | undefined,
     reason: string
@@ -49,6 +54,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     elements,
     loading,
     onReset,
+    onExport,
+    onImport,
     onSearchBarSubmit,
     onSearchBtnClick,
     onSelectedNodeChange,
@@ -97,6 +104,39 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           <Tooltip title="Start Over" arrow>
             <IconButton aria-label="start-over" onClick={onReset}>
               <RestartAltIcon />
+            </IconButton>
+          </Tooltip>
+        </Fragment>
+      );
+    },
+    () => {
+      return (
+        <Fragment key="pathway-search-chart-toolbar-export-pathway">
+          <Tooltip title="Export Pathway" arrow>
+            <IconButton aria-label="export-pathway" onClick={onExport}>
+              <FileDownloadIcon />
+            </IconButton>
+          </Tooltip>
+        </Fragment>
+      );
+    },
+    () => {
+      return (
+        <Fragment key="pathway-search-chart-toolbar-import-pathway">
+          <Tooltip title="Import Pathway" arrow>
+            <IconButton aria-label="export-pathway" component="label">
+              <FileUploadIcon />
+              <VisuallyHiddenInput
+                accept=".json,application/json"
+                id="pathway-import-input"
+                type="file"
+                onClick={(event) => {
+                  // Reset value on each click, this allows the user to submit the same file multiple times
+                  const target = event.target as HTMLInputElement;
+                  target.value = "";
+                }}
+                onChange={onImport}
+              />
             </IconButton>
           </Tooltip>
         </Fragment>

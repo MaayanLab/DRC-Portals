@@ -124,6 +124,18 @@ export const StyledLink = styled(Link)(({ theme }) => ({
   },
 }));
 
+export const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
 export const ExternalLink = ({ children, ...props }: LinkProps) => (
   <StyledLink {...props} target="_blank" rel="noopener">
     <Box component="span" mr={0.5}>

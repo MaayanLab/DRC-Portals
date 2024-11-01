@@ -3,8 +3,9 @@
 import { AlertColor, Grid } from "@mui/material";
 
 import { Core, ElementDefinition, NodeSingular } from "cytoscape";
-import { useCallback, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useRef, useState } from "react";
 import { v4 } from "uuid";
+import { z } from "zod";
 
 import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
@@ -28,7 +29,8 @@ import {
 import { PathwaySearchElement } from "../types/pathway-search";
 import { createCytoscapeElements } from "../utils/cy";
 import { isPathwaySearchEdgeElement } from "../utils/pathway-search";
-import { getNodeDisplayProperty } from "../utils/shared";
+import { downloadBlob, getNodeDisplayProperty } from "../utils/shared";
+import { PathwaySearchElementSchema } from "../validation/pathway-search";
 
 import { CytoscapeContext } from "./CytoscapeChart/CytoscapeContext";
 import GraphPathwayResults from "./PathwaySearch/GraphPathwayResults";
@@ -47,6 +49,15 @@ export default function GraphPathway() {
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
   const pathwaySearchCyRef = useRef<Core>();
   const pathwaySearchContext = { cyRef: pathwaySearchCyRef };
+  const PATHWAY_DATA_PARSE_ERROR =
+    "Failed to parse pathway data import. Please check the data format.";
+  const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
+
+  const updateSnackbar = (open: boolean, msg: string, severity: AlertColor) => {
+    setSnackbarMsg(msg);
+    setSnackbarOpen(open);
+    setSnackbarSeverity(severity);
+  };
 
   const createTree = () => {
     const pathwaySearchCy = pathwaySearchCyRef.current;
@@ -295,24 +306,20 @@ export default function GraphPathway() {
       const response = await fetchPathwaySearch(query);
 
       if (!response.ok) {
-        setSnackbarMsg(BASIC_SEARCH_ERROR_MSG);
-        setSnackbarOpen(true);
-        setSnackbarSeverity("error");
+        updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
       } else {
         const data = await response.json();
         const elements = createCytoscapeElements(data);
 
         if (elements.length === 0) {
-          setSnackbarMsg(NO_RESULTS_ERROR_MSG);
-          setSnackbarOpen(true);
-          setSnackbarSeverity("warning");
+          updateSnackbar(true, NO_RESULTS_ERROR_MSG, "warning");
         } else {
           setShowResults(true);
           setResultElements(elements);
         }
       }
     } catch (e) {
-      console.error(e);
+      updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
     } finally {
       setLoadingSearchResults(false);
     }
@@ -348,6 +355,43 @@ export default function GraphPathway() {
     ]);
   };
 
+  const handleExport = () => {
+    const pathwaySearchCy = pathwaySearchCyRef.current;
+    if (pathwaySearchCy !== undefined) {
+      const data = pathwaySearchCy
+        .elements()
+        .map((el) => ({ data: el.data(), classes: el.classes() }));
+      const jsonString = JSON.stringify(data);
+      downloadBlob(jsonString, "application/json", "c2m2-pathway-data.json");
+    }
+  };
+
+  const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files !== null && event.target.files.length > 0) {
+      const file = event.target.files[0];
+
+      if (file.type === "application/json") {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          try {
+            if (e.target !== null && typeof e.target.result === "string") {
+              const json: PathwaySearchElement[] = JSON.parse(e.target.result);
+
+              // Make sure the parsed json conforms to the expected PathwaySearchElement[] shape before setting the new searchElements
+              z.array(PathwaySearchElementSchema).parse(json);
+              setSearchElements(json);
+              updateSnackbar(true, PATHWAY_DATA_PARSE_SUCCESS, "success");
+            }
+          } catch (parseError) {
+            updateSnackbar(true, PATHWAY_DATA_PARSE_ERROR, "error");
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+  };
+
   return (
     <Grid
       container
@@ -367,6 +411,8 @@ export default function GraphPathway() {
           <GraphPathwaySearch
             elements={searchElements}
             loading={loadingSearchResults}
+            onExport={handleExport}
+            onImport={handleImport}
             onSearchBarSubmit={handleSearchBarSubmit}
             onSearchBtnClick={handleSearchBtnClick}
             onSelectedNodeChange={handleSelectedNodeChange}
