@@ -27,6 +27,14 @@ Much of the site is driven by contents of the database, see [Provisioning the Da
 
 As the site evolves, changes may be made to the database. For the most part you can update your code base like so:
 ```bash
+# If the drc db and public schema already exist, to apply the migrations a fresh and do a clean ingest 
+# into the public schema, [without deleting the public schema since that is generally owned by the 
+# postgres use4r] delete the existing tables, functions and Types in the public schema
+# Below, select the correct server/port/user or use dburl.py
+psql -h [localhost|server] -U [drc|drcadmin] -d drc  -p [5432|5433|5434] -a -f drop_drc_tables_from_public_schema.sql; 
+#or, assuming ../database/C2M2 exists
+psql "$(python3 ../database/C2M2/dburl.py)" -a -f drop_drc_tables_from_public_schema.sql; 
+
 # get the latest changes
 git pull
 # update your database to match any added fields/tables
