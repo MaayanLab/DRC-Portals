@@ -94,7 +94,7 @@ export default async function DataFooter() {
                 <Link href="/"><Typography variant="caption">Privacy Policy</Typography></Link>
               </div> */}
               <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
-              <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This work is support by the NIH Common Fund CFDE program (Grant # OT2OD036435)</Typography></Link>
+              <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This website was developed by the CFDE Data Resource Center (DRC) (NIH Common Fund Grant #OT2OD036435).</Typography></Link>
           </Stack>
         </Grid>
       </Container>
@@ -121,7 +121,7 @@ export default async function DataFooter() {
             </div>
           </Stack>
           <Stack spacing={1} direction={"column"}>
-            <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This work is support by the NIH Common Fund CFDE program (Grant # OT2OD036435)</Typography></Link>
+            <Link href="https://reporter.nih.gov/project-details/10851224"><Typography variant="caption">This website was developed by the CFDE Data Resource Center (DRC) (NIH Common Fund Grant #OT2OD036435).</Typography></Link>
             <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
           </Stack>
         </Stack>
