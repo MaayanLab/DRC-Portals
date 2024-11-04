@@ -115,6 +115,7 @@ model Partnerships {
   website      String?
   image        String?
   priority     Int?
+  grant_num    String?
   dccs         DCCPartnerships[]
   publications PartnershipPublications[]
 
