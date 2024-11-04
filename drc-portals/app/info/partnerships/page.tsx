@@ -140,7 +140,7 @@ export default async function PartnershipPage() {
                 include: {
                     publication: true
                 }
-            }
+            },
         },
         orderBy: [
             { priority: 'asc' },
@@ -165,7 +165,7 @@ export default async function PartnershipPage() {
         },
         orderBy: [{ dccs: { _count: 'desc' } }, { title: 'asc' }, { id: 'asc' }],
     })
-
+    console.log(active_partnerships)
     return (
         <Grid container spacing={2} sx={{ marginTop: 2 }}>
             <Grid item xs={12}>
@@ -182,7 +182,7 @@ export default async function PartnershipPage() {
             <Grid item xs={12}>
                 <MasonryClient defaultHeight={1500}>
                     {active_partnerships.map(partnership => (
-                        <PartnershipCard partnership={partnership} />
+                        <PartnershipCard key={partnership.id} partnership={partnership} />
                     ))}
                 </MasonryClient>
             </Grid>
@@ -192,7 +192,7 @@ export default async function PartnershipPage() {
             <Grid item xs={12}>
                 <MasonryClient defaultHeight={1500}>
                     {completed_partnerships.map(partnership => (
-                        <PartnershipCard partnership={partnership} />
+                        <PartnershipCard key={partnership.id} partnership={partnership} />
                     ))}
                 </MasonryClient>
             </Grid>
