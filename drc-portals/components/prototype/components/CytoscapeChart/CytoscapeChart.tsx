@@ -49,7 +49,6 @@ import ChartLegend from "./ChartLegend";
 import ChartToolbar from "./ChartToolbar";
 import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
-import { CytoscapeContext } from "./CytoscapeContext";
 
 cytoscape.use(d3Force);
 cytoscape.use(euler);
@@ -106,8 +105,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
-  const cyContext = useContext(CytoscapeContext);
-  const cyRef = cyContext === null ? useRef<cytoscape.Core>() : cyContext.cyRef;
+  const cyRef = useRef<cytoscape.Core>();
   const contextMenuPosRef = useRef<{
     x: number;
     y: number;

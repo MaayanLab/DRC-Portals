@@ -2,8 +2,8 @@
 
 import { AlertColor, Grid } from "@mui/material";
 
-import { Core, ElementDefinition, NodeSingular } from "cytoscape";
-import { ChangeEvent, useCallback, useRef, useState } from "react";
+import { ElementDefinition } from "cytoscape";
+import { ChangeEvent, useCallback, useState } from "react";
 import { v4 } from "uuid";
 import { z } from "zod";
 
@@ -32,7 +32,6 @@ import { isPathwaySearchEdgeElement } from "../utils/pathway-search";
 import { downloadBlob, getNodeDisplayProperty } from "../utils/shared";
 import { PathwaySearchElementSchema } from "../validation/pathway-search";
 
-import { CytoscapeContext } from "./CytoscapeChart/CytoscapeContext";
 import GraphPathwayResults from "./PathwaySearch/GraphPathwayResults";
 import GraphPathwaySearch from "./PathwaySearch/GraphPathwaySearch";
 import AlertSnackbar from "./shared/AlertSnackbar";
@@ -47,8 +46,6 @@ export default function GraphPathway() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
-  const pathwaySearchCyRef = useRef<Core>();
-  const pathwaySearchContext = { cyRef: pathwaySearchCyRef };
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
@@ -59,65 +56,84 @@ export default function GraphPathway() {
     setSnackbarSeverity(severity);
   };
 
-  const createTree = () => {
-    const pathwaySearchCy = pathwaySearchCyRef.current;
+  const createTree = (elements: PathwaySearchElement[]) => {
+    const sources = new Set<string>();
+    const targets = new Set<string>();
+    elements
+      .filter((el) => isPathwaySearchEdgeElement(el))
+      .forEach((edge) => {
+        sources.add(edge.data.source);
+        targets.add(edge.data.target);
+      });
+    const rootNodes = sources.difference(targets);
 
-    if (pathwaySearchCy !== undefined) {
-      const roots = pathwaySearchCy.nodes().roots();
+    if (rootNodes.size !== 1) {
+      console.error(
+        "GraphPathway Error: Could not find root node of the pathway."
+      );
+      return undefined;
+    }
 
-      if (roots.length !== 1) {
-        console.error(
-          "GraphPathway Error: Could not find root node of the pathway."
-        );
-        return undefined;
+    const root = elements.find(
+      (el) => el.data.id === Array.from(rootNodes)[0]
+    ) as PathwaySearchNode | undefined;
+
+    if (root === undefined) {
+      console.error(
+        "GraphPathway Error: Could not find root node of the pathway."
+      );
+      return undefined;
+    }
+
+    const createTreeFromRoot = (root: PathwaySearchNode): PathwayNode => {
+      let parentEdge: PathwaySearchEdge | undefined = undefined;
+      const childIds = new Set<string>();
+
+      for (const edge of elements.filter((el) =>
+        isPathwaySearchEdgeElement(el)
+      )) {
+        if (edge.data.target === root.data.id) {
+          parentEdge = edge;
+        }
+        if (edge.data.source === root.data.id) {
+          childIds.add(edge.data.target);
+        }
       }
 
-      const root = roots.first();
-
-      const createTreeFromRoot = (
-        node: NodeSingular
-      ): PathwayNode | undefined => {
-        const nodeData: PathwaySearchNodeData = node.data();
-        const edgesToParent = node.incomers().edges();
-
-        if (edgesToParent.length > 1) {
-          console.warn(
-            "GraphPathway Warning: Found node with more than one parent. Skipping."
-          );
-          return undefined;
-        }
-
-        const parentEdge =
-          edgesToParent.length === 0 ? undefined : edgesToParent.first();
-
-        return {
-          id: nodeData.id,
-          label: nodeData.dbLabel,
-          props:
-            nodeData.displayLabel === nodeData.dbLabel
-              ? undefined
-              : {
-                  name: nodeData.displayLabel,
-                },
-          relationshipToParent:
-            parentEdge === undefined
-              ? undefined
-              : {
-                  id: parentEdge.id(),
-                  type: parentEdge.data("type"),
-                  direction: parentEdge.hasClass("source-arrow-only")
-                    ? Direction.INCOMING
-                    : Direction.OUTGOING,
-                },
-          children: node
-            .outgoers(".path-element")
-            .nodes()
-            .map((node) => createTreeFromRoot(node))
-            .filter((tree) => tree !== undefined),
-        };
+      return {
+        id: root.data.id,
+        label: root.data.dbLabel,
+        props:
+          root.data.displayLabel === root.data.dbLabel
+            ? undefined
+            : {
+                name: root.data.displayLabel,
+              },
+        relationshipToParent:
+          parentEdge === undefined
+            ? undefined
+            : {
+                id: parentEdge.data.id,
+                type: parentEdge.data.type,
+                direction: (parentEdge.classes || []).includes(
+                  "source-arrow-only"
+                )
+                  ? Direction.INCOMING
+                  : Direction.OUTGOING,
+              },
+        children: (
+          elements.filter(
+            (el) =>
+              childIds.has(el.data.id) && // el is a child of the root
+              !isPathwaySearchEdgeElement(el) && // el is not an edge
+              el.classes?.includes("path-element") // el is part of the path
+          ) as PathwaySearchNode[]
+        )
+          .map((node) => createTreeFromRoot(node))
+          .filter((tree) => tree !== undefined),
       };
-      return createTreeFromRoot(root);
-    }
+    };
+    return createTreeFromRoot(root);
   };
 
   const createPathwaySearchNode = (
@@ -298,9 +314,9 @@ export default function GraphPathway() {
     [addNodeToPath, updatePathNode]
   );
 
-  const handleSearchBtnClick = async () => {
+  const handleSearchBtnClick = useCallback(async () => {
     setLoadingSearchResults(true);
-    const tree = createTree();
+    const tree = createTree(searchElements);
     try {
       const query = btoa(JSON.stringify(tree));
       const response = await fetchPathwaySearch(query);
@@ -323,7 +339,7 @@ export default function GraphPathway() {
     } finally {
       setLoadingSearchResults(false);
     }
-  };
+  }, [searchElements]);
 
   const handleReturnBtnClick = () => {
     setShowResults(false);
@@ -355,16 +371,14 @@ export default function GraphPathway() {
     ]);
   };
 
-  const handleExport = () => {
-    const pathwaySearchCy = pathwaySearchCyRef.current;
-    if (pathwaySearchCy !== undefined) {
-      const data = pathwaySearchCy
-        .elements()
-        .map((el) => ({ data: el.data(), classes: el.classes() }));
-      const jsonString = JSON.stringify(data);
-      downloadBlob(jsonString, "application/json", "c2m2-pathway-data.json");
-    }
-  };
+  const handleExport = useCallback(() => {
+    const data = searchElements.map((el) => ({
+      data: el.data,
+      classes: el.classes,
+    }));
+    const jsonString = JSON.stringify(data);
+    downloadBlob(jsonString, "application/json", "c2m2-pathway-data.json");
+  }, [searchElements]);
 
   const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files !== null && event.target.files.length > 0) {
@@ -407,18 +421,16 @@ export default function GraphPathway() {
           onReturnBtnClick={handleReturnBtnClick}
         />
       ) : (
-        <CytoscapeContext.Provider value={pathwaySearchContext}>
-          <GraphPathwaySearch
-            elements={searchElements}
-            loading={loadingSearchResults}
-            onExport={handleExport}
-            onImport={handleImport}
-            onSearchBarSubmit={handleSearchBarSubmit}
-            onSearchBtnClick={handleSearchBtnClick}
-            onSelectedNodeChange={handleSelectedNodeChange}
-            onReset={handleReset}
-          />
-        </CytoscapeContext.Provider>
+        <GraphPathwaySearch
+          elements={searchElements}
+          loading={loadingSearchResults}
+          onExport={handleExport}
+          onImport={handleImport}
+          onSearchBarSubmit={handleSearchBarSubmit}
+          onSearchBtnClick={handleSearchBtnClick}
+          onSelectedNodeChange={handleSelectedNodeChange}
+          onReset={handleReset}
+        />
       )}
       <AlertSnackbar
         open={snackbarOpen}
