@@ -11,25 +11,20 @@ import {
 } from "@mui/material";
 import { Instance } from "@popperjs/core";
 import {
+  Core,
   ElementDefinition,
   EventObject,
   EventObjectEdge,
   EventObjectNode,
   LayoutOptions,
+  Layouts,
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
 import euler from "cytoscape-euler";
-import {
-  CSSProperties,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
@@ -70,6 +65,8 @@ interface CytoscapeChartProps {
   canvasCxtMenuItems?: ReactNode[];
   legend?: Map<string, ReactNode>;
   autoungrabify?: boolean;
+  zoom?: number;
+  maxZoom?: number;
   customEventHandlers?: CytoscapeEvent[];
 }
 
@@ -91,6 +88,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     canvasCxtMenuItems,
     legend,
     autoungrabify,
+    zoom,
+    maxZoom,
     customEventHandlers,
   } = cmpProps;
 
@@ -105,7 +104,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
-  const cyRef = useRef<cytoscape.Core>();
+  const cyRef = useRef<Core>();
+  const cyLayoutRef = useRef<Layouts>();
   const contextMenuPosRef = useRef<{
     x: number;
     y: number;
@@ -346,8 +346,21 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const runLayout = () => {
     const cy = cyRef.current;
-    if (cy) {
-      cy.layout(layout).run();
+    if (cy !== undefined) {
+      // We haven't started the first layout yet
+      if (cyLayoutRef.current === undefined) {
+        // Create a new layout and set the ref
+        cyLayoutRef.current = cy.layout(layout);
+        // Run the layout
+        cyLayoutRef.current.run();
+      } else {
+        // Stop the existing layout (it may already be stopped)
+        cyLayoutRef.current.stop();
+        // Reset the ref
+        cyLayoutRef.current = cy.layout(layout);
+        // Start the new layout
+        cyLayoutRef.current.run();
+      }
     }
   };
 
@@ -432,6 +445,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
               elements={elements}
               layout={layout}
               stylesheet={stylesheet}
+              zoom={zoom}
+              maxZoom={maxZoom}
               autoungrabify={autoungrabify}
             />
           </ChartContainer>

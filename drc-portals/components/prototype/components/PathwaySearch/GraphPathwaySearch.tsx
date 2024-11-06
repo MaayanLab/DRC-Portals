@@ -61,6 +61,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onSelectedNodeChange,
   } = cmpProps;
   const [selectedNode, setSelectedNode] = useState<PathwaySearchNode>();
+  const PATHWAY_SEARCH_ZOOM = 4;
+  const PATHWAY_SEARCH_MAX_ZOOM = 4;
 
   const handleSelectedNodeChange = useCallback(
     (id: string | undefined, cy: Core) => {
@@ -271,6 +273,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
         autoungrabify={true}
+        zoom={PATHWAY_SEARCH_ZOOM}
+        maxZoom={PATHWAY_SEARCH_MAX_ZOOM}
         customEventHandlers={customEventHandlers}
       ></CytoscapeChart>
     </Grid>
