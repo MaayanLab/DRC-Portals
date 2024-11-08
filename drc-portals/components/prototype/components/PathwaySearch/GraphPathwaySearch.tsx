@@ -99,12 +99,18 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     [selectedNode]
   );
 
+  const handleReset = useCallback(() => {
+    setSelectedNode(undefined);
+    onSelectedNodeChange(undefined, "update");
+    onReset();
+  }, [onSelectedNodeChange, onReset]);
+
   const customTools: CustomToolbarFnFactory[] = [
     () => {
       return (
         <Fragment key="pathway-search-chart-toolbar-reset-search">
           <Tooltip title="Start Over" arrow>
-            <IconButton aria-label="start-over" onClick={onReset}>
+            <IconButton aria-label="start-over" onClick={handleReset}>
               <RestartAltIcon />
             </IconButton>
           </Tooltip>
