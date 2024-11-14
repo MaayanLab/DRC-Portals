@@ -36,11 +36,12 @@ newline = '\n'
 tabchar = '\t'
 
 # Lines copied from dburl.py and modified
-if (add_missing_columns_for_SchemaUpdate == 0):
+if (add_missing_columns_for_SchemaUpdate >= 0):
     # Original line if were to use ..../drc-portals/.env
     load_dotenv(pathlib.Path(__file__).parent.parent.parent.parent/'drc-portals'/'.env') 
     print(f"Loading from ..../drc-portals/.env")
 else:
+    # This .env doesn't seem to get loaded or DB connection has some issue likely due to Prisma
     load_dotenv(pathlib.Path(__file__).parent/'.env') # Note that .env from this folder itself is used
     print(f"Loading from .env in the current folder")
 
@@ -92,7 +93,8 @@ dcc_short_labels = list(np.unique(c2m2s[['dcc_short_label']].values));
 if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 
 # Load C2M2 schema from JSON file
-c2m2Schema = 'C2M2_datapackage.json'
+#c2m2Schema = 'C2M2_datapackage.json'
+c2m2Schema = 'C2M2_datapackage_biofluid.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
 
@@ -414,7 +416,7 @@ for dummy_x in [1]:
                     if(debug > 0): print(f"{c2m2['dcc_short_label']}: {table_name}: Read from file: df: #rows = {df.shape[0]}, #cols: {df.shape[1]}{newline}");
                     
                     column_names_in_df = list(df.columns.values);
-                    # Warn in the columns are not the same in the two lists
+                    # Warn if the columns are not the same in the two lists
                     if ((column_names_in_schema != column_names_in_df) or (debug > 1)):
                         if(column_names_in_schema != column_names_in_df):
                             print(f"! WARNING   !{newline}dcc_short_label: {c2m2['dcc_short_label']}")
@@ -428,7 +430,7 @@ for dummy_x in [1]:
                     missing_columns = [(index, col) for index, col in enumerate(column_names_in_schema) if col not in column_names_in_df]
                     if(len(missing_columns) > 0):
                         for index, col in missing_columns:
-                            df2.insert(index, col, None); # use '' or None for the default value ?
+                            df.insert(index, col, ''); # use '' (for '' in DB) or None for Null in the DB
 
                     #if(debug > 0): print(f"For cross-check:{c2m2['dcc_short_label']}: {df.shape[0]} {table_name}.tsv{newline}");
                     # Use subprocess to count lines in the file to cross-check
