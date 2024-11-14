@@ -54,6 +54,7 @@ const info_nav = [
   {title: "Home", href: "/info"},
   {title: "CF Programs", href: "/info/dcc"},
   {title: "Partnerships", href: "/info/partnerships"},
+  {title: "R03s", href: "/info/r03"},
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},
   {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
