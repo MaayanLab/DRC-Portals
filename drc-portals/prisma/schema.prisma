@@ -59,6 +59,7 @@ model Publication {
   image                String?
   dccs                 DCCPublication[]
   partnertships        PartnershipPublications[]
+  r03s                 R03Publications[]
   tool                 Tool?                     @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
@@ -72,6 +73,16 @@ model DCCPublication {
 
   @@id([publication_id, dcc_id])
   @@map("dcc_publications")
+}
+
+model R03Publications {
+  publication    Publication @relation(fields: [publication_id], references: [id])
+  publication_id String
+  r03            R03         @relation(fields: [r03_id], references: [id])
+  r03_id         String
+
+  @@id([publication_id, r03_id])
+  @@map("r03_publications")
 }
 
 model Outreach {
@@ -93,6 +104,7 @@ model Outreach {
   image             String?
   cfde_specific     Boolean       @default(false)
   dccs              DCCOutreach[]
+  centers           CenterOutreach[]
 
   @@map("outreach")
 }
@@ -492,4 +504,45 @@ model News {
   prod             Boolean
 
     @@map("news")
+}
+
+model R03 {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  rfa              String?
+  end_date         DateTime?
+  grant_num        String?
+  website          String?
+  video            String?
+  pi               String?
+  affilliation     String?
+  publications     R03Publications[]
+
+    @@map("r03")
+}
+
+
+model Center {
+  id                String    @id @default(cuid())
+  label             String    
+  short_label       String?
+  short_description String?   @db.Text
+  description       String?   @db.Text
+  homepage          String?
+  icon              String?
+  grant_num         String?
+  active            Boolean   @default(true)
+  outreach          CenterOutreach[]
+
+  @@map("centers")
+}
+
+model CenterOutreach {
+  outreach_id  String    @id
+  center_id    String
+  center       Center    @relation(fields: [center_id], references: [id])
+  outreach     Outreach  @relation(fields: [outreach_id], references: [id])
+
+  @@map("center_outreach")
 }
