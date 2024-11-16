@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client"
 import prisma from '@/lib/prisma'
 import PublicationsClient from "./PublicationsClient"
 import PublicationComponent from "@/components/misc/Publication/PublicationComponent"
+import { Grid } from '@mui/material'
 export interface queryJson {
   order?: {
       field: Prisma.PublicationScalarFieldEnum, 
@@ -52,16 +53,19 @@ export default async function PublicationsServer({
             dcc: true
           }
         },
+        r03s: {
+          include: {
+            r03: true
+          }
+        },
       },
     })
+    console.log("publications", publications)
     return (
         <div>
-            <Typography variant="h2" color="secondary">CFDE Associated and CF Programs Landmark Publications</Typography>
-            <div className="mb-5 mt-10">
-              <Typography variant="subtitle1" color="secondary">
-                The publications listed here are automatically extracted from PubMed based on grants awarded to the Common Fund Data Ecosystem (CFDE) Participating Common Fund programs’ DCCs and CFDE awarded R03s.
-              </Typography>
-            </div>
+          <Grid sx={{marginBottom:4}}>
+            <Typography variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Landmark Publications</Typography>
+          </Grid> 
             <PublicationsClient count={count} q={q} dccs={dccs.map(i=>i.short_label || '')}>
               <PublicationComponent publications={publications}/>
             </PublicationsClient>

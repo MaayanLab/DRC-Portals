@@ -99,10 +99,24 @@ export default async function InfoFooter() {
               <Assets />
           </Grid>
         </Grid>
-        <Grid item xs={12} sx={{marginTop: 5, marginRight: 5, marginLeft: 6}}>
-          <Stack spacing={2} direction={"row"} justifyContent="space-between">
-              <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
-              <Link target="_blank" rel="noopener noreferrer" href="https://reporter.nih.gov/search/SdeFoZSP2U2zRTjMZKFHlQ/project-details/11080094"><Typography variant="caption">This website was developed by the CFDE Data Resource Center (DRC) (NIH Common Fund Grant #OT2OD036435).</Typography></Link>
+        <Grid item xs={12} sx={{ marginTop: 5, marginRight: 5, marginLeft: 6 }}>
+          <Stack 
+            direction="row" 
+            justifyContent="space-between" 
+            alignItems="flex-end"
+          >
+            <Typography variant="caption">@CFDE Workbench {new Date().getFullYear()}</Typography>
+            <Stack direction="column" alignItems="flex-end" spacing={0.5}>
+              <Typography variant="caption" sx={{  lineHeight: 1 }}>
+              The CFDE Workbench is actively being developed and maintained by the CFDE Data Resource Center (DRC).
+              </Typography>
+              <Typography variant="caption" sx={{  lineHeight: 1 }}>
+              The DRC is funded by <Link href="https://reporter.nih.gov/search/SdeFoZSP2U2zRTjMZKFHlQ/project-details/11080094" target="_blank" rel="noopener noreferrer">
+              <Typography variant="caption" component="span" sx={{ fontWeight: 'bold' }}>OT2OD036435 </Typography></Link> 
+              from the <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer">
+              <Typography variant="caption" component="span" sx={{ fontWeight: 'bold' }}>Common Fund at the National Institutes of Health</Typography></Link>.
+              </Typography>
+            </Stack>
           </Stack>
         </Grid>
       </Container>
@@ -129,8 +143,18 @@ export default async function InfoFooter() {
             </div>
           </Stack>
           <Stack spacing={1} direction={"column"}>
-          <Link target="_blank" rel="noopener noreferrer" href="https://reporter.nih.gov/search/SdeFoZSP2U2zRTjMZKFHlQ/project-details/11080094"><Typography variant="caption">This website was developed by the CFDE Data Resource Center (DRC) (NIH Common Fund Grant #OT2OD036435).</Typography></Link>
-            <Typography variant="caption">©CFDE Workbench {new Date().getFullYear()}</Typography>
+            <Stack direction="column" alignItems="flex-end" spacing={0.5}>
+              <Typography variant="caption" sx={{  lineHeight: 1 }}>
+              The CFDE Workbench is actively being developed and maintained by the CFDE Data Resource Center (DRC).
+              </Typography>
+              <Typography variant="caption" sx={{  lineHeight: 1 }}>
+              The DRC is funded by <Link href="https://reporter.nih.gov/search/SdeFoZSP2U2zRTjMZKFHlQ/project-details/11080094" target="_blank" rel="noopener noreferrer">
+              <Typography variant="caption" component="span" sx={{ fontWeight: 'bold' }}>OT2OD036435 </Typography></Link> 
+              from the <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer">
+              <Typography variant="caption" component="span" sx={{ fontWeight: 'bold' }}>Common Fund at the National Institutes of Health</Typography></Link>.
+              </Typography>
+            </Stack>
+            <Typography variant="caption">@CFDE Workbench {new Date().getFullYear()}</Typography>
           </Stack>
         </Stack>
       </Container>
