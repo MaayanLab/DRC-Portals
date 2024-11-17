@@ -54,6 +54,17 @@ for row in conflicted_rows:
 final_data = filtered_rows + conflicted_rows
 final_data.sort(key=lambda x: x['id'])
 
+for row in final_data:
+    # Clean synonyms to the desired format
+    if 'synonyms' in row:
+        # Convert to desired list format with properly quoted values
+        synonyms = row['synonyms']
+        clean_synonyms = [f'"{syn.strip()}"' for syn in re.split(r',\s*', synonyms.strip('[]"'))]
+        row['synonyms'] = f"[{', '.join(clean_synonyms)}]"
+
+    # Drop the synonym_count column
+    row.pop('synonym_count', None)
+
 # Write the final data back to a TSV file
 with open('output.tsv', mode='w', newline='') as file:
     writer = csv.DictWriter(file, fieldnames=final_data[0].keys(), delimiter='\t')
