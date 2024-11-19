@@ -673,6 +673,12 @@ def create_term_constraints_cypher():
     return term_id_constraints
 
 
+def create_term_name_indexes_cypher():
+    return '\n'.join([
+        f"CREATE TEXT INDEX node_text_index_{label}_name FOR (n:{label}) ON (n.name);" for label in TERM_NODES
+    ])
+
+
 def create_node_uuid_constraints_cypher():
     uuid_constraints = '\n'.join([create_node_unique_constraint(label, '_uuid') for label in ALL_NODES])
     return uuid_constraints
@@ -724,6 +730,7 @@ def main():
       ('container_indexes.tsv', 'container_indexes.cypher', create_container_indexes_cypher),
       ('dcc_constraints.tsv', 'dcc_constraints.cypher', create_dcc_constraints_cypher),
       ('term_constraints.tsv', 'term_constraints.cypher', create_term_constraints_cypher),
+      ('term_name_indexes.tsv', 'term_name_indexes.cypher', create_term_name_indexes_cypher),
       ('core_indexes.tsv', 'core_indexes.cypher', create_core_indexes_cypher),
       ('node_uuid_constraints.tsv', 'node_uuid_constraints.cypher', create_node_uuid_constraints_cypher),
       # Add relationships last:
