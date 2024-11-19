@@ -92,6 +92,34 @@ export interface PathwayNode {
   relationshipToParent?: PathwayRelationship;
 }
 
+export interface NodeConnection {
+  id: string;
+  label: string;
+}
+
+export interface EdgeConnection {
+  id: string;
+  type: string;
+  source: string;
+  target: string;
+  direction: Direction;
+}
+
+export interface TreeParseResult {
+  patterns: string[];
+  nodeIds: Set<string>;
+  relIds: Set<string>;
+  nodes: PathwayNode[];
+}
+
+export interface CountsResult {
+  pathwayCounts: {
+    [key: string]: number;
+  };
+  connectedNodes: NodeConnection[];
+  connectedEdges: EdgeConnection[];
+}
+
 export type PropValue = string | number;
 
 export type PathElement = NodePathElement | RelationshipPathElement;

@@ -2,6 +2,7 @@ export interface PathwaySearchNodeData {
   id: string;
   displayLabel: string;
   dbLabel: string;
+  count?: number;
 }
 
 export interface PathwaySearchNode {
@@ -15,6 +16,7 @@ export interface PathwaySearchEdgeData {
   target: string;
   displayLabel: string;
   type: string;
+  count?: number;
 }
 
 export interface PathwaySearchEdge {

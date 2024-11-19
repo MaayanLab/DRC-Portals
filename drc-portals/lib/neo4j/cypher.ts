@@ -7,6 +7,7 @@ import {
   PathwayRelationship,
   PredicateFn,
   SearchPath,
+  TreeParseResult,
 } from "./types";
 import {
   createNodeReprStr,
@@ -485,21 +486,62 @@ export const createSchemaSearchCypher = (paths: SearchPath[]) => {
   `;
 };
 
-// TODO: Need to make sure everything is cypher-escaped!
-export const createPathwaySearchCypher = (
+export const createPathwaySearchCypher = (treeParseResult: TreeParseResult) => {
+  const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
+  const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
+  const allIds = nodeIds.concat(relIds);
+  return `
+  CALL {
+    MATCH
+    ${treeParseResult.patterns.join(",\n")}
+    RETURN ${allIds.join(", ")}
+    LIMIT 1
+  }
+  WITH ${allIds.join(", ")}
+  RETURN
+    apoc.coll.toSet(apoc.coll.flatten([
+      ${nodeIds
+        .map(
+          (id) =>
+            `collect({uuid: ${id}._uuid, labels: labels(${id}), properties: properties(${id})})`
+        )
+        .join(", ")}
+    ])) AS nodes,
+    apoc.coll.toSet(apoc.coll.flatten([
+      ${relIds.map(
+        (id) =>
+          `collect({uuid: ${id}._uuid, type: type(${id}), properties: properties(${id}), startUUID: startNode(${id})._uuid, endUUID: endNode(${id})._uuid})`
+      )}
+    ])) AS relationships`;
+};
+
+export const createConnectionPattern = (
+  refNodeId: string,
+  label: string,
+  type: string,
+  direction: Direction
+) => {
+  return `(${escapeCypherString(refNodeId)})${
+    direction === Direction.INCOMING ? "<" : ""
+  }-[r:${escapeCypherString(type)}]-${
+    direction === Direction.OUTGOING ? ">" : ""
+  }(:${escapeCypherString(label)})`;
+};
+
+export const getPatternsFromPaths = (
   paths: (PathwayNode | PathwayRelationship)[][]
 ) => {
   const nodeKeys = new Set<string>();
   const relationshipKeys = new Set<string>();
-  const matchStmts: string[] = [];
+  const patterns: string[] = [];
 
   paths.forEach((path) => {
-    let matchStmt = "\tMATCH ";
+    let pattern = "\t";
     path.forEach((element) => {
       if (isPathwayRelationshipElement(element)) {
-        const relKey = `\`${element.id}\``;
+        const relKey = escapeCypherString(element.id);
         relationshipKeys.add(relKey);
-        matchStmt += `${
+        pattern += `${
           element.direction === Direction.INCOMING ? "<" : ""
         }-[${relKey}:${element.type}${
           element.props !== undefined && Object.keys(element.props).length > 0
@@ -507,34 +549,114 @@ export const createPathwaySearchCypher = (
             : ""
         }]-${element.direction === Direction.OUTGOING ? ">" : ""}`;
       } else {
-        const nodeKey = `\`${element.id}\``;
+        const nodeKey = escapeCypherString(element.id);
         nodeKeys.add(nodeKey);
-        matchStmt += `(${nodeKey}:${element.label}${
+        pattern += `(${nodeKey}:${element.label}${
           element.props !== undefined && Object.keys(element.props).length > 0
             ? " " + createPropReprStr(element.props)
             : ""
         })`;
       }
     });
-    matchStmts.push(matchStmt);
+    patterns.push(pattern);
   });
 
-  const nodeKeyArray = Array.from(nodeKeys);
-  const relKeyArray = Array.from(relationshipKeys);
-  const queryVarsStr = `${nodeKeyArray.join(", ")}${
-    relKeyArray.length > 0 ? ", " + relKeyArray.join(", ") : ""
-  }`;
-  return `
-  CALL {
-    ${matchStmts.join("\n")}
-    \tRETURN ${queryVarsStr}
-    \tLIMIT 1
-  }
-  WITH ${queryVarsStr}
-  RETURN apoc.coll.toSet(apoc.coll.flatten([${nodeKeyArray
-    .map((key) => `collect(${createNodeReprStr(key)})`)
-    .join(", ")}])) AS nodes, apoc.coll.toSet(apoc.coll.flatten([${relKeyArray
-    .map((key) => `collect(${createRelReprStr(key)})`)
-    .join(", ")}])) AS relationships
-  `;
+  return {
+    nodeKeys: Array.from(nodeKeys),
+    relationshipKeys: Array.from(relationshipKeys),
+    patterns,
+  };
+};
+
+export const createPathwaySearchCountCypher = (
+  paths: (PathwayNode | PathwayRelationship)[][]
+) => {
+  const { nodeKeys, relationshipKeys, patterns } = getPatternsFromPaths(paths);
+
+  return [
+    "MATCH",
+    patterns.join(",\n"),
+    `RETURN ${nodeKeys
+      .concat(relationshipKeys)
+      .map((key) => `count(DISTINCT ${key}) AS ${key}`)
+      .join(", ")}`,
+  ].join("\n");
+};
+
+export const createPathwaySearchConnectionsCountCypher = (
+  paths: (PathwayNode | PathwayRelationship)[][],
+  key: string,
+  label: string,
+  type: string,
+  direction: Direction
+) => {
+  const { patterns } = getPatternsFromPaths(paths);
+
+  return [
+    "MATCH",
+    ...patterns,
+    `(${escapeCypherString(key)})${
+      direction === Direction.INCOMING ? "<" : ""
+    }-[relConnection:${escapeCypherString(type)}]-${
+      direction === Direction.OUTGOING ? ">" : ""
+    }(nodeConnection:${escapeCypherString(label)})`,
+    "RETURN count(DISTINCT nodeConnection) AS nodeCount, count(DISTINCT relConnection) AS relCount",
+  ].join("\n");
+};
+
+export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
+  const patterns: string[] = [];
+  const nodeIds = new Set<string>();
+  const relIds = new Set<string>();
+  const nodes: PathwayNode[] = [];
+
+  const getQueryFromTree = (node: PathwayNode, currentPattern: string) => {
+    if (!nodeIds.has(node.id)) {
+      nodeIds.add(node.id);
+      nodes.push(node);
+    }
+
+    if (node.relationshipToParent !== undefined) {
+      const escapedRelId = escapeCypherString(node.relationshipToParent.id);
+      relIds.add(node.relationshipToParent.id);
+
+      currentPattern += `${
+        node.relationshipToParent.direction === Direction.INCOMING ? "<" : ""
+      }-[${escapedRelId}:${node.relationshipToParent.type}${
+        node.relationshipToParent.props !== undefined &&
+        Object.keys(node.relationshipToParent.props).length > 0
+          ? " " + createPropReprStr(node.relationshipToParent.props)
+          : ""
+      }]-${
+        node.relationshipToParent.direction === Direction.OUTGOING ? ">" : ""
+      }`;
+    }
+
+    const escapedNodeId = escapeCypherString(node.id);
+    currentPattern += `(${escapedNodeId}:${node.label}${
+      node.props !== undefined && Object.keys(node.props).length > 0
+        ? " " + createPropReprStr(node.props)
+        : ""
+    })`;
+
+    if (node.children.length === 0) {
+      patterns.push(currentPattern);
+    } else if (node.children.length === 1) {
+      getQueryFromTree(node.children[0], currentPattern);
+    } else {
+      patterns.push(currentPattern);
+      node.children.forEach((child) => {
+        getQueryFromTree(child, `\t\t(${escapedNodeId})`);
+      });
+    }
+  };
+
+  getQueryFromTree(tree, "");
+
+  return {
+    patterns,
+    nodeIds,
+    relIds,
+    nodes,
+  };
 };

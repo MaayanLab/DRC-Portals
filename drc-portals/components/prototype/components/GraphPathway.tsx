@@ -4,16 +4,19 @@ import { AlertColor, Grid } from "@mui/material";
 
 import { ElementDefinition } from "cytoscape";
 import { ChangeEvent, useCallback, useState } from "react";
-import { v4 } from "uuid";
 import { z } from "zod";
 
-import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
-  INCOMING_CONNECTIONS,
-  OUTGOING_CONNECTIONS,
-} from "@/lib/neo4j/constants";
+  fetchPathwaySearch,
+  fetchPathwaySearchConnections,
+} from "@/lib/neo4j/api";
 import { Direction } from "@/lib/neo4j/enums";
-import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
+import {
+  CountsResult,
+  NodeResult,
+  PathwayNode,
+  SubGraph,
+} from "@/lib/neo4j/types";
 
 import {
   BASIC_SEARCH_ERROR_MSG,
@@ -57,6 +60,29 @@ export default function GraphPathway() {
   };
 
   const createTree = (elements: PathwaySearchElement[]) => {
+    if (elements.length === 1) {
+      if (isPathwaySearchEdgeElement(elements[0])) {
+        console.error(
+          "GraphPathway Error: Could not find root node of the pathway."
+        );
+        return undefined;
+      } else {
+        const root = elements[0];
+        return {
+          id: root.data.id,
+          label: root.data.dbLabel,
+          props:
+            root.data.displayLabel === root.data.dbLabel
+              ? undefined
+              : {
+                  name: root.data.displayLabel,
+                },
+          relationshipToParent: undefined,
+          children: [],
+        };
+      }
+    }
+
     const sources = new Set<string>();
     const targets = new Set<string>();
     elements
@@ -136,6 +162,34 @@ export default function GraphPathway() {
     return createTreeFromRoot(root);
   };
 
+  const getPathwayConnections = async (
+    tree: PathwayNode
+  ): Promise<CountsResult> => {
+    const query = btoa(JSON.stringify(tree));
+    const response = await fetchPathwaySearchConnections(query);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
+    }
+
+    return response.json();
+  };
+
+  const getPathwaySearchResults = async (
+    tree: PathwayNode
+  ): Promise<SubGraph> => {
+    const query = btoa(JSON.stringify(tree));
+    const response = await fetchPathwaySearch(query);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
+    }
+
+    return await response.json();
+  };
+
   const createPathwaySearchNode = (
     data: PathwaySearchNodeData,
     classes?: string[]
@@ -156,79 +210,22 @@ export default function GraphPathway() {
     };
   };
 
-  const getConnectedElements = (
-    sourceLabel: string,
-    sourceId: string
-  ): { nodes: PathwaySearchNode[]; edges: PathwaySearchEdge[] } => {
-    const nodes: PathwaySearchNode[] = [];
-    const edges: PathwaySearchEdge[] = [];
-
-    // TODO: In the future we should dynamically load the connections of the specified node based on the current state of the tree
-    Array.from(OUTGOING_CONNECTIONS.get(sourceLabel)?.entries() || []).forEach(
-      ([relationship, labels]) => {
-        labels.forEach((label) => {
-          const targetId = v4();
-          nodes.push(
-            createPathwaySearchNode({
-              id: targetId,
-              displayLabel: label,
-              dbLabel: label,
-            })
-          );
-          edges.push(
-            createPathwaySearchEdge({
-              id: v4(),
-              displayLabel: relationship,
-              type: relationship,
-              source: sourceId,
-              target: targetId,
-            })
-          );
-        });
-      }
-    );
-    Array.from(INCOMING_CONNECTIONS.get(sourceLabel)?.entries() || []).forEach(
-      ([relationship, labels]) => {
-        labels.forEach((label) => {
-          const targetId = v4();
-          nodes.push(
-            createPathwaySearchNode({
-              id: targetId,
-              displayLabel: label,
-              dbLabel: label,
-            })
-          );
-          edges.push(
-            createPathwaySearchEdge(
-              {
-                id: v4(),
-                displayLabel: relationship,
-                type: relationship,
-                source: sourceId,
-                target: targetId,
-              },
-              ["source-arrow-only"]
-            )
-          );
-        });
-      }
-    );
-
-    return { nodes, edges };
-  };
-
   const deepCopyPathwaySearchNode = (
-    node: PathwaySearchNode
+    node: PathwaySearchNode,
+    data?: Partial<PathwaySearchNodeData>,
+    classes?: string[]
   ): PathwaySearchNode => ({
-    classes: [...(node.classes || [])],
-    data: { ...node.data },
+    classes: [...(node.classes || []), ...(classes || [])],
+    data: { ...node.data, ...data },
   });
 
   const deepCopyPathwaySearchEdge = (
-    edge: PathwaySearchEdge
+    edge: PathwaySearchEdge,
+    data?: Partial<PathwaySearchEdgeData>,
+    classes?: string[]
   ): PathwaySearchEdge => ({
-    classes: [...(edge.classes || [])],
-    data: { ...edge.data },
+    classes: [...(edge.classes || []), ...(classes || [])],
+    data: { ...edge.data, ...data },
   });
 
   const handleReset = useCallback(() => {
@@ -238,11 +235,12 @@ export default function GraphPathway() {
 
   const addNodeToPath = useCallback(
     (node: PathwaySearchNode) => {
-      const connectedEdge = searchElements.filter(
+      // There should be exactly one edge where this node is the target
+      const connectedEdge = searchElements.find(
         (element) =>
           isPathwaySearchEdgeElement(element) &&
           element.data.target === node.data.id
-      )[0] as PathwaySearchEdge | undefined;
+      ) as PathwaySearchEdge | undefined;
 
       // This should never happen, but log an error just in case...
       if (connectedEdge === undefined) {
@@ -252,34 +250,103 @@ export default function GraphPathway() {
         return;
       }
 
-      const { nodes: newNodes, edges: newEdges } = getConnectedElements(
-        node.data.dbLabel,
-        node.data.id
-      );
-
-      setSearchElements([
+      // Take a snapshot of the original state in case the API request fails for any reason
+      const fallbackElements = [
+        ...searchElements.map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element)
+            : deepCopyPathwaySearchNode(element)
+        ),
+      ];
+      const tempElements = [
         {
           data: { ...node.data },
+          // TODO: Add an animation to the node indicating results are loading
           classes: [...(node.classes || []), "path-element"],
         },
-        ...newNodes,
         ...searchElements
           .filter(
             (element) =>
               element.data.id !== node.data.id &&
-              element.data.id !== connectedEdge.data.id
+              element.data.id !== connectedEdge.data.id &&
+              element.classes?.includes("path-element")
           )
           .map((element) =>
             isPathwaySearchEdgeElement(element)
-              ? deepCopyPathwaySearchEdge(element)
-              : deepCopyPathwaySearchNode(element)
+              ? // Temporarily remove the counts; Consider the counts as "indeterminate" at this loading stage
+                deepCopyPathwaySearchEdge(element, { count: undefined })
+              : deepCopyPathwaySearchNode(element, { count: undefined })
           ),
         {
           data: { ...connectedEdge.data },
           classes: [...(connectedEdge.classes || []), "path-element"],
         },
-        ...newEdges,
-      ]);
+      ];
+      const tree = createTree(tempElements);
+
+      if (tree !== undefined) {
+        setSearchElements(tempElements);
+        getPathwayConnections(tree)
+          .then((response) => {
+            setSearchElements([
+              ...response.connectedNodes.map((node) =>
+                createPathwaySearchNode({
+                  id: node.id,
+                  displayLabel: node.label,
+                  dbLabel: node.label,
+                })
+              ),
+              ...tempElements.map((element) => {
+                if (isPathwaySearchEdgeElement(element)) {
+                  const matched = Object.hasOwn(
+                    response.pathwayCounts,
+                    element.data.id
+                  );
+                  return deepCopyPathwaySearchEdge(element, {
+                    count: matched
+                      ? response.pathwayCounts[element.data.id]
+                      : 0,
+                  });
+                } else {
+                  const matched = Object.hasOwn(
+                    response.pathwayCounts,
+                    element.data.id
+                  );
+                  return deepCopyPathwaySearchNode(element, {
+                    count: matched
+                      ? response.pathwayCounts[element.data.id]
+                      : 0,
+                  });
+                }
+              }),
+              ...response.connectedEdges.map((edge) =>
+                createPathwaySearchEdge(
+                  {
+                    id: edge.id,
+                    source:
+                      edge.direction === Direction.OUTGOING
+                        ? edge.source
+                        : edge.target,
+                    target:
+                      edge.direction === Direction.OUTGOING
+                        ? edge.target
+                        : edge.source,
+                    displayLabel: edge.type,
+                    type: edge.type,
+                  },
+                  edge.direction === Direction.INCOMING
+                    ? ["source-arrow-only"]
+                    : []
+                )
+              ),
+            ]);
+          })
+          .catch((e) => {
+            console.error(e);
+            setSearchElements(fallbackElements);
+            updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
+          });
+      }
     },
     [searchElements]
   );
@@ -317,22 +384,22 @@ export default function GraphPathway() {
   const handleSearchBtnClick = useCallback(async () => {
     setLoadingSearchResults(true);
     const tree = createTree(searchElements);
+
+    if (tree === undefined) {
+      updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
+      setLoadingSearchResults(false);
+      return;
+    }
+
     try {
-      const query = btoa(JSON.stringify(tree));
-      const response = await fetchPathwaySearch(query);
+      const data = await getPathwaySearchResults(tree);
+      const elements = createCytoscapeElements(data);
 
-      if (!response.ok) {
-        updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
+      if (elements.length === 0) {
+        updateSnackbar(true, NO_RESULTS_ERROR_MSG, "warning");
       } else {
-        const data = await response.json();
-        const elements = createCytoscapeElements(data);
-
-        if (elements.length === 0) {
-          updateSnackbar(true, NO_RESULTS_ERROR_MSG, "warning");
-        } else {
-          setShowResults(true);
-          setResultElements(elements);
-        }
+        setShowResults(true);
+        setResultElements(elements);
       }
     } catch (e) {
       updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
@@ -354,21 +421,57 @@ export default function GraphPathway() {
       return;
     }
 
-    const cvTermDBLabel = cvTerm.labels[0];
-    const { nodes, edges } = getConnectedElements(cvTermDBLabel, cvTerm.uuid);
-    setSearchElements([
-      createPathwaySearchNode(
-        {
-          id: cvTerm.uuid,
-          displayLabel: getNodeDisplayProperty(cvTermDBLabel, cvTerm),
-          dbLabel: cvTermDBLabel,
-        },
-        // TODO: Should probably have a constant for this style class, and the other classes for that matter
-        ["path-element"]
-      ),
-      ...nodes,
-      ...edges,
-    ]);
+    const initialNode = createPathwaySearchNode(
+      {
+        id: cvTerm.uuid,
+        displayLabel: getNodeDisplayProperty(cvTerm.labels[0], cvTerm),
+        dbLabel: cvTerm.labels[0],
+      },
+      ["path-element"]
+    );
+    const tree = createTree([initialNode]);
+
+    if (tree !== undefined) {
+      setSearchElements([initialNode]);
+      getPathwayConnections(tree).then((response) => {
+        setSearchElements([
+          createPathwaySearchNode(
+            {
+              ...initialNode.data,
+              count: Object.hasOwn(response.pathwayCounts, initialNode.data.id)
+                ? response.pathwayCounts[initialNode.data.id]
+                : undefined,
+            },
+            ["path-element"]
+          ),
+          ...response.connectedNodes.map((node) =>
+            createPathwaySearchNode({
+              id: node.id,
+              displayLabel: node.label,
+              dbLabel: node.label,
+            })
+          ),
+          ...response.connectedEdges.map((edge) =>
+            createPathwaySearchEdge(
+              {
+                id: edge.id,
+                source:
+                  edge.direction === Direction.OUTGOING
+                    ? edge.source
+                    : edge.target,
+                target:
+                  edge.direction === Direction.OUTGOING
+                    ? edge.target
+                    : edge.source,
+                displayLabel: edge.type,
+                type: edge.type,
+              },
+              edge.direction === Direction.INCOMING ? ["source-arrow-only"] : []
+            )
+          ),
+        ]);
+      });
+    }
   };
 
   const handleExport = useCallback(() => {

@@ -1,6 +1,6 @@
 import CircleIcon from "@mui/icons-material/Circle";
 import { Box, Paper, TypographyProps, styled } from "@mui/material";
-import { Css, Position } from "cytoscape";
+import { Css, EdgeSingular, NodeSingular, Position } from "cytoscape";
 import { CSSProperties, ReactNode } from "react";
 
 import {
@@ -385,7 +385,12 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
   {
     selector: "node",
     style: {
-      label: "data(displayLabel)",
+      label: (element: NodeSingular) =>
+        `${element.data("displayLabel")}${
+          element.data("count") === undefined
+            ? ""
+            : ` (${element.data("count")})`
+        }`,
       opacity: TRANSPARENT_OPACITY,
     },
   },
@@ -393,7 +398,12 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
   {
     selector: "edge",
     style: {
-      label: "data(displayLabel)",
+      label: (element: EdgeSingular) =>
+        `${element.data("displayLabel")}${
+          element.data("count") === undefined
+            ? ""
+            : ` (${element.data("count")})`
+        }`,
       opacity: TRANSPARENT_OPACITY,
     },
   },
