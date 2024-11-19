@@ -10,6 +10,7 @@ services:
       - ./data:/data
       - ./logs:/logs
       - ./plugins:/plugins
+      - ./backups:/backups
     environment:
       - USERNAME
       - PASSWORD

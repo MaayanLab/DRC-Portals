@@ -11,6 +11,7 @@ services:
       - ./import:/import
       - ./logs:/logs
       - ./plugins:/plugins
+      - ./backups:/backups
     environment:
       - USERNAME
       - PASSWORD
