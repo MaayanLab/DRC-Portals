@@ -113,7 +113,7 @@ export interface TreeParseResult {
 }
 
 export interface PathwayConnectionsResult {
-  pathwayCounts: {
+  counts: {
     [key: string]: number;
   };
   connectedNodes: NodeConnection[];

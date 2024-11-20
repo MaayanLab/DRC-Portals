@@ -52,6 +52,8 @@ export default function GraphPathway() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
+  const PATHWAY_COUNTS_ERROR =
+    "An error occurred while retrieving counts for the current pathway.";
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
@@ -133,6 +135,66 @@ export default function GraphPathway() {
     setSearchElements([]);
   }, []);
 
+  const updatePathwayCounts = (
+    pathwayElements: PathwaySearchElement[],
+    fallbackElements: PathwaySearchElement[]
+  ) => {
+    const tree = createTree(pathwayElements);
+    if (tree !== undefined) {
+      setSearchElements(pathwayElements);
+      getPathwayConnections(tree)
+        .then((response) => {
+          setSearchElements([
+            ...response.connectedNodes.map((node) =>
+              createPathwaySearchNode({
+                id: node.id,
+                displayLabel: node.label,
+                dbLabel: node.label,
+              })
+            ),
+            ...pathwayElements.map((element) => {
+              if (isPathwaySearchEdgeElement(element)) {
+                const matched = Object.hasOwn(response.counts, element.data.id);
+                return deepCopyPathwaySearchEdge(element, {
+                  count: matched ? response.counts[element.data.id] : 0,
+                });
+              } else {
+                const matched = Object.hasOwn(response.counts, element.data.id);
+                return deepCopyPathwaySearchNode(element, {
+                  count: matched ? response.counts[element.data.id] : 0,
+                });
+              }
+            }),
+            ...response.connectedEdges.map((edge) =>
+              createPathwaySearchEdge(
+                {
+                  id: edge.id,
+                  source:
+                    edge.direction === Direction.OUTGOING
+                      ? edge.source
+                      : edge.target,
+                  target:
+                    edge.direction === Direction.OUTGOING
+                      ? edge.target
+                      : edge.source,
+                  displayLabel: edge.type,
+                  type: edge.type,
+                },
+                edge.direction === Direction.INCOMING
+                  ? ["source-arrow-only"]
+                  : []
+              )
+            ),
+          ]);
+        })
+        .catch((e) => {
+          console.error(e);
+          setSearchElements(fallbackElements);
+          updateSnackbar(true, PATHWAY_COUNTS_ERROR, "error");
+        });
+    }
+  };
+
   const addNodeToPath = useCallback(
     (node: PathwaySearchNode) => {
       // There should be exactly one edge where this node is the target
@@ -151,13 +213,11 @@ export default function GraphPathway() {
       }
 
       // Take a snapshot of the original state in case the API request fails for any reason
-      const fallbackElements = [
-        ...searchElements.map((element) =>
-          isPathwaySearchEdgeElement(element)
-            ? deepCopyPathwaySearchEdge(element)
-            : deepCopyPathwaySearchNode(element)
-        ),
-      ];
+      const fallbackElements = searchElements.map((element) =>
+        isPathwaySearchEdgeElement(element)
+          ? deepCopyPathwaySearchEdge(element)
+          : deepCopyPathwaySearchNode(element)
+      );
       const tempElements = [
         {
           data: { ...node.data },
@@ -172,9 +232,9 @@ export default function GraphPathway() {
               element.classes?.includes("path-element")
           )
           .map((element) =>
+            // Temporarily remove the counts; Consider the counts as "indeterminate" at this loading stage
             isPathwaySearchEdgeElement(element)
-              ? // Temporarily remove the counts; Consider the counts as "indeterminate" at this loading stage
-                deepCopyPathwaySearchEdge(element, { count: undefined })
+              ? deepCopyPathwaySearchEdge(element, { count: undefined })
               : deepCopyPathwaySearchNode(element, { count: undefined })
           ),
         {
@@ -182,87 +242,35 @@ export default function GraphPathway() {
           classes: [...(connectedEdge.classes || []), "path-element"],
         },
       ];
-      const tree = createTree(tempElements);
 
-      if (tree !== undefined) {
-        setSearchElements(tempElements);
-        getPathwayConnections(tree)
-          .then((response) => {
-            setSearchElements([
-              ...response.connectedNodes.map((node) =>
-                createPathwaySearchNode({
-                  id: node.id,
-                  displayLabel: node.label,
-                  dbLabel: node.label,
-                })
-              ),
-              ...tempElements.map((element) => {
-                if (isPathwaySearchEdgeElement(element)) {
-                  const matched = Object.hasOwn(
-                    response.pathwayCounts,
-                    element.data.id
-                  );
-                  return deepCopyPathwaySearchEdge(element, {
-                    count: matched
-                      ? response.pathwayCounts[element.data.id]
-                      : 0,
-                  });
-                } else {
-                  const matched = Object.hasOwn(
-                    response.pathwayCounts,
-                    element.data.id
-                  );
-                  return deepCopyPathwaySearchNode(element, {
-                    count: matched
-                      ? response.pathwayCounts[element.data.id]
-                      : 0,
-                  });
-                }
-              }),
-              ...response.connectedEdges.map((edge) =>
-                createPathwaySearchEdge(
-                  {
-                    id: edge.id,
-                    source:
-                      edge.direction === Direction.OUTGOING
-                        ? edge.source
-                        : edge.target,
-                    target:
-                      edge.direction === Direction.OUTGOING
-                        ? edge.target
-                        : edge.source,
-                    displayLabel: edge.type,
-                    type: edge.type,
-                  },
-                  edge.direction === Direction.INCOMING
-                    ? ["source-arrow-only"]
-                    : []
-                )
-              ),
-            ]);
-          })
-          .catch((e) => {
-            console.error(e);
-            setSearchElements(fallbackElements);
-            updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
-          });
-      }
+      updatePathwayCounts(tempElements, fallbackElements);
     },
     [searchElements]
   );
 
   const updatePathNode = useCallback(
     (node: PathwaySearchNode) => {
-      setSearchElements([
-        deepCopyPathwaySearchNode(node),
+      const fallbackElements = searchElements.map((element) =>
+        isPathwaySearchEdgeElement(element)
+          ? deepCopyPathwaySearchEdge(element)
+          : deepCopyPathwaySearchNode(element)
+      );
+      const tempElements = [
+        deepCopyPathwaySearchNode(node, { count: undefined }), // TODO: Add an animation to the node indicating results are loading
         ...searchElements
-          .filter((element) => element.data.id !== node.data.id)
+          .filter(
+            (element) =>
+              element.classes?.includes("path-element") &&
+              element.data.id !== node.data.id
+          )
           .map((element) =>
+            // Temporarily remove the counts; Consider the counts as "indeterminate" at this loading stage
             isPathwaySearchEdgeElement(element)
-              ? deepCopyPathwaySearchEdge(element)
-              : deepCopyPathwaySearchNode(element)
+              ? deepCopyPathwaySearchEdge(element, { count: undefined })
+              : deepCopyPathwaySearchNode(element, { count: undefined })
           ),
-      ]);
+      ];
+      updatePathwayCounts(tempElements, fallbackElements);
     },
     [searchElements]
   );
@@ -346,8 +354,8 @@ export default function GraphPathway() {
           createPathwaySearchNode(
             {
               ...initialNode.data,
-              count: Object.hasOwn(response.pathwayCounts, initialNode.data.id)
-                ? response.pathwayCounts[initialNode.data.id]
+              count: Object.hasOwn(response.counts, initialNode.data.id)
+                ? response.counts[initialNode.data.id]
                 : undefined,
             },
             ["path-element"]

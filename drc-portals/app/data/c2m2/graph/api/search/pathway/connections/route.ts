@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   try {
     treeParseResult = parsePathwayTree(tree);
 
-    const connectionColumns = [];
+    const connectionProps = [];
     for (const node of treeParseResult.nodes) {
       for (const [relationship, labels] of Array.from(
         OUTGOING_CONNECTIONS.get(node.label)?.entries() || []
@@ -79,15 +79,15 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          connectionColumns.push(
-            `any(v IN collect(EXISTS {${createConnectionPattern(
+          connectionProps.push(
+            `\`${connectedNodeId}\`: any(v IN collect(EXISTS {${createConnectionPattern(
               node.id,
               label,
               relationship,
               Direction.OUTGOING
             )} WHERE NOT r IN [${Array.from(treeParseResult.relIds)
               .map(escapeCypherString)
-              .join(", ")}]}) WHERE v) AS \`${connectedNodeId}\``
+              .join(", ")}]}) WHERE v)`
           );
         }
       }
@@ -113,15 +113,15 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          connectionColumns.push(
-            `any(v IN collect(EXISTS {${createConnectionPattern(
+          connectionProps.push(
+            `\`${connectedNodeId}\`: any(v IN collect(EXISTS {${createConnectionPattern(
               node.id,
               label,
               relationship,
               Direction.INCOMING
             )} WHERE NOT r IN [${Array.from(treeParseResult.relIds)
               .map(escapeCypherString)
-              .join(", ")}]}) WHERE v) AS \`${connectedNodeId}\``
+              .join(", ")}]}) WHERE v)`
           );
         }
       }
@@ -129,13 +129,15 @@ export async function POST(request: NextRequest) {
 
     pathwayElementsCountQuery = `
   MATCH
-  ${treeParseResult.patterns.join(",\n")}
-  RETURN\n\t${Array.from(treeParseResult.nodeIds)
-    .map(escapeCypherString)
-    .concat(Array.from(treeParseResult.relIds).map(escapeCypherString))
-    .map((id) => `count(DISTINCT ${id}) AS ${id}`)
-    .concat(connectionColumns)
-    .join(",\n\t")}
+    ${treeParseResult.patterns.join(",\n\t")}
+  RETURN
+    {\n\t${Array.from(treeParseResult.nodeIds)
+      .map(escapeCypherString)
+      .concat(Array.from(treeParseResult.relIds).map(escapeCypherString))
+      .map((id) => `${id}: count(DISTINCT ${id})`)
+      .join(",\n\t")}
+    } AS counts,
+    {\n\t${connectionProps.join(",\n\t")}\n} AS exists
   `;
   } catch (e) {
     return Response.json(
@@ -147,28 +149,31 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let pathwayCounts: { [key: string]: number } = {};
   const connectedNodes: NodeConnection[] = [];
   const connectedEdges: EdgeConnection[] = [];
   try {
-    const result = (
-      await executeReadOne<{ [key: string]: number | boolean }>(
-        getDriver(),
-        pathwayElementsCountQuery
-      )
+    const { counts, exists } = (
+      await executeReadOne<{
+        counts: { [key: string]: number };
+        exists: { [key: string]: boolean };
+      }>(getDriver(), pathwayElementsCountQuery)
     ).toObject();
 
-    Array.from(Object.entries(result)).forEach(([id, countOrExists]) => {
-      if (treeParseResult.nodeIds.has(id) || treeParseResult.relIds.has(id)) {
-        pathwayCounts[id] = countOrExists as number;
-      } else {
-        const connection = connections.get(id);
-        if (connection !== undefined && countOrExists) {
-          connectedNodes.push(connection.node);
-          connectedEdges.push(connection.edge);
-        }
+    Array.from(Object.entries(exists)).forEach(([id, exists]) => {
+      const connection = connections.get(id);
+      if (connection !== undefined && exists) {
+        connectedNodes.push(connection.node);
+        connectedEdges.push(connection.edge);
       }
     });
+    return Response.json(
+      {
+        counts,
+        connectedNodes,
+        connectedEdges,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return Response.json(
       {
@@ -181,13 +186,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-
-  return Response.json(
-    {
-      pathwayCounts,
-      connectedNodes: connectedNodes,
-      connectedEdges: connectedEdges,
-    },
-    { status: 200 }
-  );
 }
