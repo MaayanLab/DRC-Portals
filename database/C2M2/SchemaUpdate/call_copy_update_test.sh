@@ -1,15 +1,17 @@
 #!/bin/bash
 #
+# First be in folder ${HOME}/CFDE/C2M2_sub since other needed resources are there.
 # Assuming this script will be operated from the folder ~/CFDE/C2M2_sub, it takes the arguments:
 # name of the first script to be called
 # name of the second script to to be called by the first script
 # folder path for schemaupdate_dir
+# onlyTest: 0 or 1
 #
 # Call syntax:
 #./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh \
-# append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate
+# append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
 # OR, in one line:
-# ./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate
+# ./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
 
 # The above command started many copies of the above command, printing:
 # /bin/bash: warning: shell level (1000) too high, resetting to 1
@@ -35,6 +37,14 @@ f4=file.tsv
 scriptfile_for_copy_update_test="$1"
 scriptfile_for_update="$2" # script to run to make changes in the seelect tsv files: e.g., append_random_biofluid_to_bios_col_biof.sh
 schemaupdate_dir="$3" # ....../DRC-Portals/database/C2M2/SchemaUpdate
+
+# Set below, onlyTest to 0 if want to copy and update the C2M2 files, 1 if already updated
+# Usually, 1 if only testing prepare_C2M2_submission.py (with updated master ontology files) and frictionless
+if [[ $# -lt 4 ]]; then
+	onlyTest=0
+else
+	onlyTest=$4
+fi
 
 curdir="$PWD"
 ingest_c2m2s="${schemaupdate_dir}/ingest/c2m2s"
@@ -101,7 +111,7 @@ do
   vlogf="${tdir}/validation-logs"/validation_result-${dcc_name}.log
   echo "vlogf: ${vlogf}"
   # Execute the command
-  ${scriptfile_for_copy_update_test} "${dirx}" "${tdir}" "${vlogf}" "${scriptfile_for_update}" "${schemaupdate_dir}"
+  ${scriptfile_for_copy_update_test} "${dirx}" "${tdir}" "${vlogf}" "${scriptfile_for_update}" "${schemaupdate_dir}" "${onlyTest}"
 done
 
 # An example of the command run in the for loop above

@@ -22,6 +22,11 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_PrepEmpty_UpdateTSVs_${ymd}.log
 dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_PrepEmpty_UpdateTSVs_${dcc_short}_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 
+# Example of another DCC
+dcc_short=KidsFirst; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_PrepEmpty_UpdateTSVs_${dcc_short}_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
+
+
 # To list the empty files created: example command
 #$ pwd
 #/SOMEPATH/DRC-Portals/database/C2M2/SchemaUpdate/empty_tsvs
@@ -36,6 +41,24 @@ psql "$(python3 ../dburl.py)" -a -f SomeSQLScript.sql -o ${logdir}/log_SomeSQLSc
 
 # Example of bash/shell script
 ymd=$(date +%y%m%d); logf=${logdir}/SOMEFILEforShellScript_${ymd}.log; ./SomeShellScript.sh OTHER-ARGS 2>&1 | tee ${logf}
+
+# Scripts to test updated json schema with prepare_C2M2_submission.py and frictionless
+# Assuming this script will be operated from the folder ~/CFDE/C2M2_sub, it takes the arguments:
+# name of the first script to be called
+# name of the second script to to be called by the first script
+# folder path for schemaupdate_dir
+# onlyTest: 0 or 1
+#
+# Call syntax: First be in folder ${HOME}/CFDE/C2M2_sub since other needed resources are there.
+# Please change SchemaUpdateFolder and C2M2_sub_folder as needed
+SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
+C2M2_sub_folder="${HOME}/CFDE/C2M2_sub"
+cd "$SchemaUpdateFolder"
+cp *.sh "$C2M2_sub_folder"/.
+cd "$C2M2_sub_folder"
+./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh "$SchemaUpdateFolder" 0 2>&1 | tee schema_update_test.log
+# To get back to SchemaUpdateFolder
+cd "$SchemaUpdateFolder"
 
 # .. and other scripts above
 ```

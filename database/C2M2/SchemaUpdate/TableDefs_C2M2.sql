@@ -34,7 +34,8 @@ project_local_id VARCHAR NOT NULL,
 persistent_id VARCHAR DEFAULT '', 
 creation_time VARCHAR DEFAULT '', 
 sample_prep_method VARCHAR DEFAULT '', 
-anatomy VARCHAR DEFAULT '',
+anatomy VARCHAR DEFAULT '', 
+biofluid VARCHAR DEFAULT '',
 PRIMARY KEY(id_namespace, local_id)
 );
 
@@ -234,6 +235,13 @@ anatomy VARCHAR NOT NULL,
 PRIMARY KEY(collection_id_namespace, collection_local_id, anatomy)
 );
 
+CREATE TABLE c2m2.collection_biofluid (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+biofluid VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, biofluid)
+);
+
 CREATE TABLE c2m2.collection_protein (
 collection_id_namespace VARCHAR NOT NULL, 
 collection_local_id VARCHAR NOT NULL, 
@@ -323,6 +331,14 @@ PRIMARY KEY(id)
 );
 
 CREATE TABLE c2m2.anatomy (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+
+CREATE TABLE c2m2.biofluid (
 id VARCHAR NOT NULL, 
 name VARCHAR NOT NULL, 
 description VARCHAR DEFAULT '', 
@@ -446,6 +462,8 @@ ALTER TABLE c2m2.biosample DROP CONSTRAINT IF EXISTS fk_biosample_sample_prep_me
 ALTER TABLE c2m2.biosample ADD CONSTRAINT  fk_biosample_sample_prep_method_3 FOREIGN KEY (sample_prep_method) REFERENCES c2m2.sample_prep_method (id);
 ALTER TABLE c2m2.biosample DROP CONSTRAINT IF EXISTS fk_biosample_anatomy_4;
 ALTER TABLE c2m2.biosample ADD CONSTRAINT  fk_biosample_anatomy_4 FOREIGN KEY (anatomy) REFERENCES c2m2.anatomy (id);
+ALTER TABLE c2m2.biosample DROP CONSTRAINT IF EXISTS fk_biosample_biofluid_5;
+ALTER TABLE c2m2.biosample ADD CONSTRAINT  fk_biosample_biofluid_5 FOREIGN KEY (biofluid) REFERENCES c2m2.biofluid (id);
 
 ALTER TABLE c2m2.subject DROP CONSTRAINT IF EXISTS fk_subject_id_namespace_1;
 ALTER TABLE c2m2.subject ADD CONSTRAINT  fk_subject_id_namespace_1 FOREIGN KEY (id_namespace) REFERENCES c2m2.id_namespace (id);
@@ -556,6 +574,11 @@ ALTER TABLE c2m2.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_collec
 ALTER TABLE c2m2.collection_anatomy DROP CONSTRAINT IF EXISTS fk_collection_anatomy_anatomy_2;
 ALTER TABLE c2m2.collection_anatomy ADD CONSTRAINT  fk_collection_anatomy_anatomy_2 FOREIGN KEY (anatomy) REFERENCES c2m2.anatomy (id);
 
+ALTER TABLE c2m2.collection_biofluid DROP CONSTRAINT IF EXISTS fk_collection_biofluid_collection_1;
+ALTER TABLE c2m2.collection_biofluid ADD CONSTRAINT  fk_collection_biofluid_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES c2m2.collection (id_namespace, local_id);
+ALTER TABLE c2m2.collection_biofluid DROP CONSTRAINT IF EXISTS fk_collection_biofluid_biofluid_2;
+ALTER TABLE c2m2.collection_biofluid ADD CONSTRAINT  fk_collection_biofluid_biofluid_2 FOREIGN KEY (biofluid) REFERENCES c2m2.biofluid (id);
+
 ALTER TABLE c2m2.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_collection_1;
 ALTER TABLE c2m2.collection_protein ADD CONSTRAINT  fk_collection_protein_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES c2m2.collection (id_namespace, local_id);
 ALTER TABLE c2m2.collection_protein DROP CONSTRAINT IF EXISTS fk_collection_protein_protein_2;
@@ -598,6 +621,7 @@ ALTER TABLE c2m2.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role
 ALTER TABLE c2m2.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_subject_1 FOREIGN KEY (subject_id_namespace, subject_local_id) REFERENCES c2m2.subject (id_namespace, local_id);
 ALTER TABLE c2m2.subject_role_taxonomy DROP CONSTRAINT IF EXISTS fk_subject_role_taxonomy_ncbi_taxonomy_2;
 ALTER TABLE c2m2.subject_role_taxonomy ADD CONSTRAINT  fk_subject_role_taxonomy_ncbi_taxonomy_2 FOREIGN KEY (taxonomy_id) REFERENCES c2m2.ncbi_taxonomy (id);
+
 
 
 
