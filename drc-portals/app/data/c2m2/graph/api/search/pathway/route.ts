@@ -2,10 +2,13 @@ import { NextRequest } from "next/server";
 
 import {
   createPathwaySearchCypher,
+  createPathwaySearchPathsCountCypher,
   parsePathwayTree,
 } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import { PathwayNode, SubGraph, TreeParseResult } from "@/lib/neo4j/types";
+
+const PATHWAY_SEARCH_LIMIT = 100;
 
 export async function POST(request: NextRequest) {
   const body: { tree: string } = await request.json();
@@ -37,14 +40,29 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const [allPathsCountResult, pathwaySearchResult] = await Promise.all([
+      executeReadOne<{ count: number }>(
+        getDriver(),
+        createPathwaySearchPathsCountCypher(treeParseResult)
+      ),
+      executeReadOne<SubGraph>(
+        getDriver(),
+        createPathwaySearchCypher(treeParseResult),
+        { limit: PATHWAY_SEARCH_LIMIT }
+      ),
+    ]);
+    const allPathsCount = allPathsCountResult.toObject().count;
+
     return Response.json(
-      (
-        await executeReadOne<SubGraph>(
-          getDriver(),
-          createPathwaySearchCypher(treeParseResult)
-        )
-      ).toObject(),
-      { status: 200 }
+      {
+        graph: pathwaySearchResult.toObject(),
+        returnedPathsCount:
+          allPathsCount <= PATHWAY_SEARCH_LIMIT
+            ? allPathsCount
+            : PATHWAY_SEARCH_LIMIT,
+        allPathsCount: allPathsCount,
+      },
+      { status: allPathsCount <= PATHWAY_SEARCH_LIMIT ? 200 : 206 }
     );
   } catch (error) {
     return Response.json(

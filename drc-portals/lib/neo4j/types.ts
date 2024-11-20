@@ -112,12 +112,18 @@ export interface TreeParseResult {
   nodes: PathwayNode[];
 }
 
-export interface CountsResult {
+export interface PathwayConnectionsResult {
   pathwayCounts: {
     [key: string]: number;
   };
   connectedNodes: NodeConnection[];
   connectedEdges: EdgeConnection[];
+}
+
+export interface PathwaySearchResult {
+  graph: SubGraph;
+  returnedPathsCount: number;
+  allPathsCount: number;
 }
 
 export type PropValue = string | number;

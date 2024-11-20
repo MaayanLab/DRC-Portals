@@ -12,10 +12,10 @@ import {
 } from "@/lib/neo4j/api";
 import { Direction } from "@/lib/neo4j/enums";
 import {
-  CountsResult,
   NodeResult,
   PathwayNode,
-  SubGraph,
+  PathwayConnectionsResult,
+  PathwaySearchResult,
 } from "@/lib/neo4j/types";
 
 import {
@@ -64,7 +64,7 @@ export default function GraphPathway() {
 
   const getPathwayConnections = async (
     tree: PathwayNode
-  ): Promise<CountsResult> => {
+  ): Promise<PathwayConnectionsResult> => {
     const query = btoa(JSON.stringify(tree));
     const response = await fetchPathwaySearchConnections(query);
 
@@ -78,7 +78,7 @@ export default function GraphPathway() {
 
   const getPathwaySearchResults = async (
     tree: PathwayNode
-  ): Promise<SubGraph> => {
+  ): Promise<{ data: PathwaySearchResult; status: number }> => {
     const query = btoa(JSON.stringify(tree));
     const response = await fetchPathwaySearch(query);
 
@@ -87,7 +87,7 @@ export default function GraphPathway() {
       throw new Error(`Request failed: ${errorText}`);
     }
 
-    return await response.json();
+    return { data: await response.json(), status: response.status };
   };
 
   const createPathwaySearchNode = (
@@ -292,14 +292,22 @@ export default function GraphPathway() {
     }
 
     try {
-      const data = await getPathwaySearchResults(tree);
-      const elements = createCytoscapeElements(data);
+      const { data, status } = await getPathwaySearchResults(tree);
+      const elements = createCytoscapeElements(data.graph);
 
       if (elements.length === 0) {
         updateSnackbar(true, NO_RESULTS_ERROR_MSG, "warning");
       } else {
         setShowResults(true);
         setResultElements(elements);
+
+        if (status === 206) {
+          updateSnackbar(
+            true,
+            `Not all paths are being displayed due to result volume. Only first ${data.returnedPathsCount} paths of ${data.allPathsCount} are displayed.`,
+            "warning"
+          );
+        }
       }
     } catch (e) {
       updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");

@@ -486,6 +486,15 @@ export const createSchemaSearchCypher = (paths: SearchPath[]) => {
   `;
 };
 
+export const createPathwaySearchPathsCountCypher = (
+  treeParseResult: TreeParseResult
+) => {
+  return `
+  MATCH
+  ${treeParseResult.patterns.join(",\n")}
+  RETURN count(*) AS count`;
+};
+
 export const createPathwaySearchCypher = (treeParseResult: TreeParseResult) => {
   const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
   const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
@@ -495,7 +504,7 @@ export const createPathwaySearchCypher = (treeParseResult: TreeParseResult) => {
     MATCH
     ${treeParseResult.patterns.join(",\n")}
     RETURN ${allIds.join(", ")}
-    LIMIT 1
+    LIMIT $limit
   }
   WITH ${allIds.join(", ")}
   RETURN
