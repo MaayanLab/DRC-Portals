@@ -182,14 +182,14 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       event: "mouseover",
       target: "node",
       callback: (event: EventObjectNode) => {
-        event.target.connectedEdges().addClass("solid");
+        event.target.neighborhood().addClass("solid");
       },
     },
     {
       event: "mouseout",
       target: "node",
       callback: (event: EventObjectNode) => {
-        event.target.connectedEdges().removeClass("solid");
+        event.target.neighborhood().removeClass("solid");
       },
     },
     {
