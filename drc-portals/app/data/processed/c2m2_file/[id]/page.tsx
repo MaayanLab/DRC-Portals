@@ -70,7 +70,7 @@ export default async function Page(props: PageProps) {
           item.persistent_id ? {
             label: 'Persistent ID',
             value: /^https?:\/\//.exec(item.persistent_id) !== null ?
-              <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600">{item.persistent_id}</Link>
+              <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600" target="_blank">{item.persistent_id}</Link>
               : item.persistent_id,
           } : null,
           process.env.PUBLIC_URL && item.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
