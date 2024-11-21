@@ -409,7 +409,7 @@ for dummy_x in [1]:
                 # is missing, then it could be the newly added column corresponding to the schema update. In 
                 # this case, during the schema update phase, add the column with appropriate type, default 
                 # values e.g., empty string, etc., at the appropriate location (order must match) in the 
-                # pandas dataframe and save the file in the same folder by the current file name tablr_name.tsv 
+                # pandas dataframe and save the file in the same folder by the current file name table_name.tsv 
                 # after renaming the existing file as table_name.tsv.orig.
                 # This updated file will serve as the new test file. Print enough warning lines 
                 # and messages to copy the file to elsewhere. There, the dev team can prepare the package 
@@ -608,7 +608,7 @@ for dummy_x in [1]:
             gc.collect();
         #for table in c2m2_extract_path.rglob('*.tsv'):
         ###############################################################################################
-        # Cross-check tha we are inside the correct for loop
+        # Cross-check that we are inside the correct for loop
         print(f"{tabchar}=============== DCC short label: {c2m2['dcc_short_label']} ==============={newline}");
 
         # Check if any elements of table_exists_dict are 0: these tables are not in the DCC's package, 
