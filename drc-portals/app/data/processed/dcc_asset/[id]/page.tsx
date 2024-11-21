@@ -92,6 +92,11 @@ export default async function Page(props: { params: { id: string } }) {
             item.node.dcc?.short_label,
             item.dcc_asset.fileAsset?.filetype,
           ].join(', '),
+          "includedInDataCatalog": {
+            "@type": "DataCatalog",
+            "name": "Common Fund Data Ecosystem (CFDE) Data Portal",
+            "url": "https://data.cfde.cloud"
+          },
           "funder":{
              "@type": "Organization",
              "sameAs": "https://commonfund.nih.gov/dataecosystem",
@@ -118,7 +123,6 @@ export default async function Page(props: { params: { id: string } }) {
               contentSize: item.dcc_asset.fileAsset?.size ? BigInt(item.dcc_asset.fileAsset.size).toString() : undefined,
             },
           ] : undefined,
-          "citation":undefined
         }) }}
       />
     </>

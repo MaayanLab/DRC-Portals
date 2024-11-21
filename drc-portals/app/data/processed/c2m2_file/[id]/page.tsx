@@ -97,6 +97,11 @@ export default async function Page(props: PageProps) {
             item.data_type,
             item.file_format,
           ].join(', '),
+          "includedInDataCatalog": {
+            "@type": "DataCatalog",
+            "name": "Common Fund Data Ecosystem (CFDE) Data Portal",
+            "url": "https://data.cfde.cloud"
+          },
           "funder":{
             "@type": "Organization",
             "sameAs": "https://commonfund.nih.gov/dataecosystem",
@@ -122,7 +127,6 @@ export default async function Page(props: PageProps) {
               contentSize: item.size_in_bytes ? BigInt(item.size_in_bytes).toString() : undefined,
             },
           ] : undefined,
-          "citation":undefined
         }) }}
       />
     </>
