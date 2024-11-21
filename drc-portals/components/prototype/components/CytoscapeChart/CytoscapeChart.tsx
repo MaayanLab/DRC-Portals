@@ -30,7 +30,7 @@ import CytoscapeComponent from "react-cytoscapejs";
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
 import { CytoscapeEvent, CytoscapeNodeData } from "../../interfaces/cy";
 import { PositionOffsets } from "../../interfaces/shared";
-import { CustomToolbarFnFactory } from "../../types/cy";
+import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import {
   createNodeTooltip,
   hideElement,
@@ -59,6 +59,7 @@ interface CytoscapeChartProps {
   tooltipBoxStyleProps?: CSSProperties;
   tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
+  customAnimations?: AnimationFn[];
   selectionCxtMenuItems?: ReactNode[];
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
@@ -82,6 +83,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     tooltipBoxStyleProps,
     tooltipContentProps,
     customTools,
+    customAnimations,
     selectionCxtMenuItems,
     nodeCxtMenuItems,
     edgeCxtMenuItems,
@@ -347,19 +349,30 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const runLayout = () => {
     const cy = cyRef.current;
     if (cy !== undefined) {
+      // Stop any existing animations
+      cy.stop();
+
       // We haven't started the first layout yet
       if (cyLayoutRef.current === undefined) {
         // Create a new layout and set the ref
         cyLayoutRef.current = cy.layout(layout);
+
         // Run the layout
         cyLayoutRef.current.run();
       } else {
         // Stop the existing layout (it may already be stopped)
         cyLayoutRef.current.stop();
+
         // Reset the ref
         cyLayoutRef.current = cy.layout(layout);
+
         // Start the new layout
         cyLayoutRef.current.run();
+      }
+
+      // Run the custom animations
+      if (customAnimations !== undefined) {
+        customAnimations.forEach((fn) => fn(cy));
       }
     }
   };

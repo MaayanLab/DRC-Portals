@@ -20,16 +20,20 @@ import { NodeResult } from "@/lib/neo4j/types";
 
 import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
 import PathwaySearchBar from "../SearchBar/PathwaySearchBar";
-import { PATHWAY_SEARCH_STYLESHEET, EULER_LAYOUT } from "../../constants/cy";
+import {
+  PATHWAY_SEARCH_STYLESHEET,
+  EULER_LAYOUT,
+  NODE_BORDER_WIDTH,
+} from "../../constants/cy";
 import {
   NodeFiltersContainer,
   PathwayModeBtnContainer,
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
-import { VisuallyHiddenInput } from "../../constants/shared";
+import { CFDE_DARK_BLUE, VisuallyHiddenInput } from "../../constants/shared";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
-import { CustomToolbarFnFactory } from "../../types/cy";
+import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import { PathwaySearchElement } from "../../types/pathway-search";
 import { isPathwaySearchEdgeElement } from "../../utils/pathway-search";
 
@@ -208,6 +212,38 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     },
   ];
 
+  const customAnimations: AnimationFn[] = [
+    // Node loading animation
+    (cy: cytoscape.Core) => {
+      const loop = () => {
+        const loadingNodes = cy.elements("node.loading");
+
+        // Cytoscape breaks down if you try to animate empty collections
+        if (loadingNodes.size() > 0) {
+          loadingNodes.style({
+            "border-color": CFDE_DARK_BLUE,
+            "border-opacity": 1,
+            "border-width": 0,
+          });
+
+          // For some reason the position props are non-optional in the argument type definition for `animation`, but they are actually
+          // optional. This ignore suppresses that warning.
+          // @ts-ignore
+          const ani = loadingNodes.animation({
+            style: {
+              "border-opacity": 0,
+              "border-width": NODE_BORDER_WIDTH * 2,
+            },
+            easing: "ease-out-cubic",
+            duration: 1000,
+          });
+          ani.play().promise("complete").then(loop);
+        }
+      };
+      loop();
+    },
+  ];
+
   useEffect(() => {
     // If the source elements have changed, make sure the selectedNode is updated with any new data
     if (selectedNode !== undefined) {
@@ -278,6 +314,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         tooltipEnabled={false}
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
+        customAnimations={customAnimations}
         autoungrabify={true}
         zoom={PATHWAY_SEARCH_ZOOM}
         maxZoom={PATHWAY_SEARCH_MAX_ZOOM}

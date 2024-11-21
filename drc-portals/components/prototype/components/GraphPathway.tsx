@@ -115,18 +115,28 @@ export default function GraphPathway() {
   const deepCopyPathwaySearchNode = (
     node: PathwaySearchNode,
     data?: Partial<PathwaySearchNodeData>,
-    classes?: string[]
+    classesToAdd?: string[],
+    classesToRemove?: string[]
   ): PathwaySearchNode => ({
-    classes: [...(node.classes || []), ...(classes || [])],
+    classes: Array.from(
+      new Set([...(node.classes || []), ...(classesToAdd || [])])
+    ).filter((c) => {
+      return classesToRemove === undefined || !classesToRemove.includes(c);
+    }),
     data: { ...node.data, ...data },
   });
 
   const deepCopyPathwaySearchEdge = (
     edge: PathwaySearchEdge,
     data?: Partial<PathwaySearchEdgeData>,
-    classes?: string[]
+    classesToAdd?: string[],
+    classesToRemove?: string[]
   ): PathwaySearchEdge => ({
-    classes: [...(edge.classes || []), ...(classes || [])],
+    classes: Array.from(
+      new Set([...(edge.classes || []), ...(classesToAdd || [])])
+    ).filter(
+      (c) => classesToRemove === undefined || !classesToRemove.includes(c)
+    ),
     data: { ...edge.data, ...data },
   });
 
@@ -160,9 +170,14 @@ export default function GraphPathway() {
                 });
               } else {
                 const matched = Object.hasOwn(response.counts, element.data.id);
-                return deepCopyPathwaySearchNode(element, {
-                  count: matched ? response.counts[element.data.id] : 0,
-                });
+                return deepCopyPathwaySearchNode(
+                  element,
+                  {
+                    count: matched ? response.counts[element.data.id] : 0,
+                  },
+                  [],
+                  ["loading"]
+                );
               }
             }),
             ...response.connectedEdges.map((edge) =>
@@ -219,11 +234,7 @@ export default function GraphPathway() {
           : deepCopyPathwaySearchNode(element)
       );
       const tempElements = [
-        {
-          data: { ...node.data },
-          // TODO: Add an animation to the node indicating results are loading
-          classes: [...(node.classes || []), "path-element"],
-        },
+        deepCopyPathwaySearchNode(node, undefined, ["loading", "path-element"]),
         ...searchElements
           .filter(
             (element) =>
@@ -232,17 +243,13 @@ export default function GraphPathway() {
               element.classes?.includes("path-element")
           )
           .map((element) =>
-            // Temporarily remove the counts; Consider the counts as "indeterminate" at this loading stage
+            // Remove the counts from the temporary elements; Consider the counts as "indeterminate" at this loading stage
             isPathwaySearchEdgeElement(element)
               ? deepCopyPathwaySearchEdge(element, { count: undefined })
               : deepCopyPathwaySearchNode(element, { count: undefined })
           ),
-        {
-          data: { ...connectedEdge.data },
-          classes: [...(connectedEdge.classes || []), "path-element"],
-        },
+        deepCopyPathwaySearchEdge(connectedEdge, undefined, ["path-element"]),
       ];
-
       updatePathwayCounts(tempElements, fallbackElements);
     },
     [searchElements]
@@ -256,7 +263,7 @@ export default function GraphPathway() {
           : deepCopyPathwaySearchNode(element)
       );
       const tempElements = [
-        deepCopyPathwaySearchNode(node, { count: undefined }), // TODO: Add an animation to the node indicating results are loading
+        deepCopyPathwaySearchNode(node, { count: undefined }, ["loading"]),
         ...searchElements
           .filter(
             (element) =>
@@ -343,7 +350,7 @@ export default function GraphPathway() {
         displayLabel: getNodeDisplayProperty(cvTerm.labels[0], cvTerm),
         dbLabel: cvTerm.labels[0],
       },
-      ["path-element"]
+      ["path-element", "loading"]
     );
     const tree = createTree([initialNode]);
 
