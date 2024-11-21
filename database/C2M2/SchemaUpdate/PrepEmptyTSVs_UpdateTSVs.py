@@ -180,6 +180,18 @@ def get_count_match_query(default_schema_name, table_name, schema_name, first_id
     return count_match_query
 
 #==========================================================================================
+# Function to warn if the columns are not the same in the two lists
+def warn_column_names_different(column_names_in_schema, column_names_in_df, debug, newline, c2m2, table_name, extralineText):
+    if ((column_names_in_schema != column_names_in_df) or (debug > 0)):
+        print(f"{extralineText}");
+        if(column_names_in_schema != column_names_in_df):
+            print(f"! WARNING   !{newline}dcc_short_label: {c2m2['dcc_short_label']}")
+            print(f"Table: {table_name}: The columns in the schema and in the tsv file/Pandas dataframe are not the same.");
+        print(f"Columns names of the table <{table_name}> as listed in the json schema:");
+        print(column_names_in_schema);
+        print(f"Columns names of the table <{table_name}> as listed in tsv file/Pandas dataframe:");
+        print(column_names_in_df);
+#==========================================================================================
 
 t0 = time.time();
 
@@ -339,6 +351,7 @@ for dummy_x in [1]:
   for dummy_y in [1]:
     for dummy_z in [1]:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+        cur_dcc_short_label = c2m2['dcc_short_label'];
         print(f"\n================================== DCC short label: {c2m2['dcc_short_label']} =============================================");
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
@@ -409,29 +422,13 @@ for dummy_x in [1]:
                     # Columns in this table as listed in the schema
                     ind = table_names.index(table_name); # 0-based index
                     resource = package.resources[ind];
-                    column_names_in_schema = [field["name"] for field in resource["schema"]["fields"]]
+                    #column_names_in_schema = [field["name"] for field in resource["schema"]["fields"]]
+                    column_names_in_schema = [field.name for field in resource.schema.fields]
                     # If needed, try: column_names = [field.name for field in resource.schema.fields]
 
                     df = pd.read_csv(table_str, delimiter='\t');
                     if(debug > 0): print(f"{c2m2['dcc_short_label']}: {table_name}: Read from file: df: #rows = {df.shape[0]}, #cols: {df.shape[1]}{newline}");
                     
-                    column_names_in_df = list(df.columns.values);
-                    # Warn if the columns are not the same in the two lists
-                    if ((column_names_in_schema != column_names_in_df) or (debug > 1)):
-                        if(column_names_in_schema != column_names_in_df):
-                            print(f"! WARNING   !{newline}dcc_short_label: {c2m2['dcc_short_label']}")
-                            print(f"Table: {table_name}: The columns in the schema and in the tsv file/Pandas dataframe are not the same.");
-                        print(f"Columns names of the table <{table_name}> as listed in the json schema:");
-                        print(column_names_in_schema);
-                        print(f"Columns names of the table <{table_name}> as listed in tsv file/Pandas dataframe:");
-                        print(column_names_in_df);
-                    
-                    # Add any missing columns in correct position, with default value of '' or null
-                    missing_columns = [(index, col) for index, col in enumerate(column_names_in_schema) if col not in column_names_in_df]
-                    if(len(missing_columns) > 0):
-                        for index, col in missing_columns:
-                            df.insert(index, col, ''); # use '' (for '' in DB) or None for Null in the DB
-
                     #if(debug > 0): print(f"For cross-check:{c2m2['dcc_short_label']}: {df.shape[0]} {table_name}.tsv{newline}");
                     # Use subprocess to count lines in the file to cross-check
                     #numlines_in_file = int(subprocess.check_output("/usr/bin/wc -l " + table_str, shell=True).split()[0]);
@@ -448,12 +445,35 @@ for dummy_x in [1]:
                         df = df.drop_duplicates();
                         if(debug > 0): print(f"df: #rows = {df.shape[0]}, #cols: {df.shape[1]}");
 
+                        # Better to take care of such things in the C2M2 package TSV files themselves, 
+                        # so that the burden is on the submitter as this is not scalable for future changes.
                         # Mano: For HMP and SPARC, for the table biosample replace the column name 'assay_type' with 'sample_prep_method'
                         # These DCCs don't have the table sample_prep_method.tsv in their set of files, but that is OK as far as ingestion goes.
-                        cur_dcc_short_label = c2m2['dcc_short_label'];
+                        # cur_dcc_short_label = c2m2['dcc_short_label']; # defined near top of: for _, c2m2 loop
                         if((table_name == 'biosample') and ((cur_dcc_short_label == 'HMP') or (cur_dcc_short_label == 'SPARC'))):
                             df.rename(columns={'assay_type': 'sample_prep_method'}, inplace=True);
                             print(f"{cur_dcc_short_label}: biosample table: changed column name assay_type to sample_prep_method");
+
+                        #++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                        # Better to handle in the C2M2 package itself, but keep it for now
+                        # This should be after, in biosample, column name assay_type has been replaced with sample_prep_method
+                        column_names_in_df = list(df.columns.values);
+                        # Warn if the columns are not the same in the two lists
+                        extralineText = "Before insertion of any missing columns";
+                        warn_column_names_different(column_names_in_schema, column_names_in_df, debug, newline, c2m2, table_name, extralineText);
+                        
+                        # Add any missing columns in correct position, with default value of '' or null
+                        missing_columns = [(index, col) for index, col in enumerate(column_names_in_schema) if col not in column_names_in_df]
+                        if((add_missing_columns_for_SchemaUpdate > 0) and (len(missing_columns) > 0)):
+                            for index, col in missing_columns:
+                                # Put a strict condition that col should be biofluid
+                                if(col == 'biofluid'):
+                                    df.insert(index, col, None); # use '' (for '' in DB) or None for Null in the DB
+                                    column_names_in_df = list(df.columns.values);
+                                    extralineText = f"After insertion of column <{col}>";
+                                    warn_column_names_different(column_names_in_schema, column_names_in_df, debug, newline, c2m2, table_name, extralineText);
+
+                        #++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
                         #-----------------------------------------------------------------------------------------
                         # Mano: Look into "on conflict ignore": https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
@@ -595,7 +615,7 @@ for dummy_x in [1]:
         # so, print a warning
         tables_not_in_DCC_package = [key for key, value in table_exists_dict.items() if value == 0]
         for table in tables_not_in_DCC_package:
-            print(f"{tabchar}Table file for the table {table} is missing from the C2M2 package{newline}")
+            print(f"{tabchar}Warning: Table file for the table {table} is missing from the C2M2 package{newline}")
         #
       #for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
     #for dummy_z in [1]:
@@ -680,7 +700,7 @@ if (schema_name == 'c2m2'):
     ncbi_tax_human_str_2 = f"WHERE id = 'NCBI:txid9606' AND name = 'Homo sapiens';";
     ncbi_tax_human_update_query = ncbi_tax_human_str_1 + ncbi_tax_human_str_2; 
     # Execute the UPDATE query
-    print(f"{newline}>>>>>>>> Attempting update of description and synonym for Homo sapiens in table {schema_name}.file successful.{newline}");
+    print(f"{newline}>>>>>>>> Attempting update of description and synonym for Homo sapiens in table {schema_name}.ncbi_taxonomy successful.{newline}");
     try:
         cursor.execute(ncbi_tax_human_update_query)
         print(f"Update successful.{newline}");

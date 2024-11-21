@@ -97,6 +97,7 @@ select count(*) from c2m2.project_in_project where parent_project_id_namespace I
 /* =============== DCC short label: Metabolomics =============== */
 select count(*) from c2m2.biosample_from_subject where biosample_id_namespace IN ('https://www.metabolomicsworkbench.org/');
 select count(*) from c2m2.biosample where id_namespace IN ('https://www.metabolomicsworkbench.org/');
+select count(*) from c2m2.collection where id_namespace IN ('https://www.metabolomicsworkbench.org/');
 select count(*) from c2m2.file where id_namespace IN ('https://www.metabolomicsworkbench.org/');
 select count(*) from c2m2.project_in_project where parent_project_id_namespace IN ('https://www.metabolomicsworkbench.org/');
 select count(*) from c2m2.project where id_namespace IN ('https://www.metabolomicsworkbench.org/');
@@ -104,6 +105,7 @@ select count(*) from c2m2.subject_disease where subject_id_namespace IN ('https:
 select count(*) from c2m2.subject_phenotype where subject_id_namespace IN ('https://www.metabolomicsworkbench.org/');
 select count(*) from c2m2.subject_role_taxonomy where subject_id_namespace IN ('https://www.metabolomicsworkbench.org/');
 select count(*) from c2m2.subject where id_namespace IN ('https://www.metabolomicsworkbench.org/');
+select count(*) from c2m2.collection_biofluid where collection_id_namespace IN ('https://www.metabolomicsworkbench.org/');
 /* =============== DCC short label: SPARC =============== */
 select count(*) from c2m2.file_in_collection where file_id_namespace IN ('SPARC.file:');
 select count(*) from c2m2.subject_role_taxonomy where subject_id_namespace IN ('SPARC.subject:');

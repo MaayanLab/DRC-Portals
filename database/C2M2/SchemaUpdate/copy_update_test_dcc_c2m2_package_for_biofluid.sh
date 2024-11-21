@@ -7,7 +7,7 @@
 # KidsFirst \
 # validation-logs/202412/validation_result-KidsFirst.log \
 # append_random_biofluid_to_bios_col_biof.sh \
-# ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate
+# ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate [0|1]
 
 echo "              --------------------- Script $0: Started   ---------------------"
 
@@ -16,6 +16,12 @@ tdir="$2" # target dir, e.g., keeping it outside DRC-Portals for now, e.g., bein
 vlogf="$3" # validation log file, e.g., validation-logs/202412/validation_result-KidsFirst.log 
 scriptfile_for_update="$4" # script to run to make changes in the seelect tsv files: e.g., append_random_biofluid_to_bios_col_biof.sh
 schemaupdate_dir="$5" # ....../DRC-Portals/database/C2M2/SchemaUpdate
+
+if [[ $# -lt 6 ]]; then
+	onlyTest=0
+else
+	onlyTest=$6
+fi
 
 curdir="$PWD"
 
@@ -30,23 +36,27 @@ curdir="$PWD"
 # Also have dummy info in collection.tsv and collection_biofluid.tsv (take some IDs from anatomy column).
 #<<<<<<<<<<<<<<<<<<<
 # Assuming this script will be operated from the folder ~/CFDE/C2M2_sub, create folder KidsFirst (this is outside DRC-Portals)
-mkdir -p "${tdir}"
-echo "Created directory if did not exist: ${tdir}";
-#cp -R ${sdir}/* ${tdir}/.
-cp -R "${sdir}"/* "${tdir}"/. # ChatGPT said * should be outside quotes, but . can be inside
-echo "Copied files from directory ${sdir} to ${tdir}";
-cd "${tdir}" &&	dos2unix *.tsv
-echo "Applied command dos2unix to tsv files inside ${tdir}";
-cp "${schemaupdate_dir}/empty_tsvs"/*biofluid* .
-cp "${schemaupdate_dir}"/C2M2_datapackage_biofluid.json ./C2M2_datapackage.json
-echo "Copied biofluid related empty files and updated c2m2 json schema file to ${tdir}";
-cd "${curdir}"
-cp "${schemaupdate_dir}"/"${scriptfile_for_update}" .
-./${scriptfile_for_update} "${tdir}"
-echo "Copied ${scriptfile_for_update} to current folder and ran the script";
-# inspect biosample.tsv to check if biofluid column with some random entries got added
-echo "------ Inspect the top few lines of the file biosample.tsv below if the desired update seems successful ------";
-head "${tdir}"/biosample.tsv
+if [[ "$onlyTest" == "0" ]]; then
+	mkdir -p "${tdir}"
+	echo "Created directory if did not exist: ${tdir}";
+	#cp -R ${sdir}/* ${tdir}/.
+	cp -R "${sdir}"/* "${tdir}"/. # ChatGPT said * should be outside quotes, but . can be inside
+	echo "Copied files from directory ${sdir} to ${tdir}";
+	cd "${tdir}" &&	dos2unix *.tsv
+	echo "Applied command dos2unix to tsv files inside ${tdir}";
+	cp "${schemaupdate_dir}/empty_tsvs"/*biofluid* .
+	cp "${schemaupdate_dir}"/C2M2_datapackage_biofluid.json ./C2M2_datapackage.json
+	echo "Copied biofluid related empty files and updated c2m2 json schema file to ${tdir}";
+	cd "${curdir}"
+	cp "${schemaupdate_dir}"/"${scriptfile_for_update}" .
+	./${scriptfile_for_update} "${tdir}"
+	echo "Copied ${scriptfile_for_update} to current folder and ran the script";
+	# inspect biosample.tsv to check if biofluid column with some random entries got added
+	echo "------ Inspect the top few lines of the file biosample.tsv below if the desired update seems successful ------";
+	head "${tdir}"/biosample.tsv
+else
+	echo "onlyTest = ${onlyTest}, so, it assumes that the files are already present at ${tdir}";
+fi
 echo "--------------------------------------------------------------------------------------------------------------";
 
 #------------------------------------------------------------------------------------
