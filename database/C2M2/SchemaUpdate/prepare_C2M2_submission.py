@@ -67,12 +67,17 @@ cvFile = {
     'Interlex_file_format' : '%s/Interlex_file_format.2022-11-01.tsv' % cvRefDir,
     'Interlex_data_type' : '%s/Interlex_data_type.2023-03-02.tsv' % cvRefDir,
     'NCBI' : '%s/ncbi_taxonomy.tsv.gz' % cvRefDir,
-    'OBI' : '%s/OBI.version_2022-12-14.obo' % cvRefDir,
+    #'OBI' : '%s/OBI.version_2022-12-14.obo' % cvRefDir,
+    'OBI' : '%s/OBI.version_2024-10-25.obo' % cvRefDir,
     'OBI_provisional' : '%s/OBI.provisional_terms.2024-08-22.tsv' % cvRefDir,
-    'Uberon' : '%s/uberon.version_2023-04-19.obo' % cvRefDir,
-    'DO' : '%s/doid.version_2023-03-31.obo' % cvRefDir,
-    'HPO' : '%s/hp.2023-04-05.obo' % cvRefDir,
-    'MPO' : '%s/mp.2023-04-11.obo' % cvRefDir,
+    #'Uberon' : '%s/uberon.version_2023-04-19.obo' % cvRefDir,
+    'Uberon' : '%s/uberon.version_2024-09-03.obo' % cvRefDir,
+    #'DO' : '%s/doid.version_2023-03-31.obo' % cvRefDir,
+    'DO' : '%s/doid.version_2024-11-01.obo' % cvRefDir,
+    #'HPO' : '%s/hp.2023-04-05.obo' % cvRefDir,
+    'HPO' : '%s/hp.2024-08-13.obo' % cvRefDir,
+    #'MPO' : '%s/mp.2023-04-11.obo' % cvRefDir,
+    'MPO' : '%s/mp.2024-10-17.obo' % cvRefDir,
     'Ensembl' : '%s/ensembl_genes.tsv' % cvRefDir,
     # Reduced-size (sample) PubChem reference DB for debugging and fast testing (if you enable this, you must also comment out the line after it):
     #'PubChem_and_GlyTouCan_compound' : '%s/sample_pubchem_reference_data/compound.first_5000_records.max_100_synonyms_per_term.tsv.gz' % cvRefDir,
@@ -110,7 +115,8 @@ targetTSVs = (
     'collection_phenotype.tsv',
     'collection_protein.tsv',
     'collection_substance.tsv',
-    'collection_taxonomy.tsv'
+    'collection_taxonomy.tsv',
+    'collection_biofluid.tsv'
 )
 
 ##########################################################################################
@@ -119,6 +125,7 @@ targetTSVs = (
 termsUsed = {
     
     'anatomy': {},
+    'biofluid': {},
     'assay_type': {},
     'analysis_type': {},
     'compound': {},
@@ -739,7 +746,7 @@ def decorateTermsUsed(  ):
 
                 # end with open( [protein reference TSV], 'r' ) as IN
 
-        elif categoryID == 'anatomy' or categoryID == 'assay_type' or categoryID == 'analysis_type' or categoryID == 'disease' or categoryID == 'sample_prep_method':
+        elif categoryID == 'anatomy' or categoryID == 'assay_type' or categoryID == 'analysis_type' or categoryID == 'disease' or categoryID == 'sample_prep_method' or categoryID == 'biofluid':
             
             cv = ''
 
@@ -784,6 +791,12 @@ def decorateTermsUsed(  ):
                 progressReport("   Disease Ontology... [" + subprocess.check_output(['date']).decode(sys.stdout.encoding).rstrip('\r\n') + "]")
 
                 cv = 'DO'
+            
+            elif categoryID == 'biofluid':
+                
+                progressReport("   Uber-biofluid ontology... [" + subprocess.check_output(['date']).decode(sys.stdout.encoding).rstrip('\r\n') + "]")
+
+                cv = 'Uberon'
 
             # end if ( categoryID type check )
 

@@ -13,10 +13,24 @@ mkdir -p ${logdir}
 
 # Use this file to record the commands that need to be executed for updating one or more schema-related files
 # Some generic syntax examples
-python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/SOMEFILE_${ymd}.log; ${python_cmd} SomePyScript.py 2>&1 | tee ${logf}
+python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/PrepEmpty_UpdateTSVs_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py 2>&1 | tee ${logf}
 # Check for any warning or errors
-egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_SOMEFILE_${ymd}.log; 
-egrep -i -e "Error" ${logf} > ${logdir}/error_in_SOMEFILE_${ymd}.log;
+egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_PrepEmpty_UpdateTSVs_${ymd}.log; 
+egrep -i -e "Error" ${logf} > ${logdir}/error_in_PrepEmpty_UpdateTSVs_${ymd}.log;
+
+# If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
+dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_PrepEmpty_UpdateTSVs_${dcc_short}_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
+
+# Example of another DCC
+dcc_short=KidsFirst; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_PrepEmpty_UpdateTSVs_${dcc_short}_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
+
+
+# To list the empty files created: example command
+#$ pwd
+#/SOMEPATH/DRC-Portals/database/C2M2/SchemaUpdate/empty_tsvs
+#[USER@SERVER empty_tsvs]$ for f in `ls *.tsv` ; do echo "----$f----";cat $f;done;
 
 # Example of calling a sql script
 # This script can be run as (upon starting psql shell, or equivalent command):
@@ -26,7 +40,25 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_SOMEFILE_${ymd}.log;
 psql "$(python3 ../dburl.py)" -a -f SomeSQLScript.sql -o ${logdir}/log_SomeSQLScript.log
 
 # Example of bash/shell script
-python_cmd=python3; logf=${logdir}/SOMEFILEforShellScript_${ymd}.log; ./SomeShellScript.sh OTHER-ARGS 2>&1 | tee ${logf}
+ymd=$(date +%y%m%d); logf=${logdir}/SOMEFILEforShellScript_${ymd}.log; ./SomeShellScript.sh OTHER-ARGS 2>&1 | tee ${logf}
+
+# Scripts to test updated json schema with prepare_C2M2_submission.py and frictionless
+# Assuming this script will be operated from the folder ~/CFDE/C2M2_sub, it takes the arguments:
+# name of the first script to be called
+# name of the second script to to be called by the first script
+# folder path for schemaupdate_dir
+# onlyTest: 0 or 1
+#
+# Call syntax: First be in folder ${HOME}/CFDE/C2M2_sub since other needed resources are there.
+# Please change SchemaUpdateFolder and C2M2_sub_folder as needed
+SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
+C2M2_sub_folder="${HOME}/CFDE/C2M2_sub"
+cd "$SchemaUpdateFolder"
+cp *.sh "$C2M2_sub_folder"/.
+cd "$C2M2_sub_folder"
+./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh "$SchemaUpdateFolder" 0 2>&1 | tee schema_update_test.log
+# To get back to SchemaUpdateFolder
+cd "$SchemaUpdateFolder"
 
 # .. and other scripts above
 ```
