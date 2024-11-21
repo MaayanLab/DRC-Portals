@@ -90,18 +90,18 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     link={dcc.cf_site}
                                 /> */}
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description} {dcc.cf_site && <>(Retrieved from the <Link href={dcc.cf_site} className="underline">NIH Common Fund site</Link>)</>}
+                                    {dcc.description} {dcc.cf_site && <>(Retrieved from the <Link href={dcc.cf_site} target="_blank" className="underline">NIH Common Fund site</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
                         <CardActions>
                             <Stack sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
-                                <Link href={dcc.homepage}>
+                                <Link href={dcc.homepage} target="_blank">
                                     <Button color="secondary"  sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} DCC Portal
                                     </Button>
                                 </Link>
-                                {dcc.cf_site && <Link href={dcc.cf_site}>
+                                {dcc.cf_site && <Link href={dcc.cf_site} target="_blank">
                                     <Button color="secondary" sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} Program on the NIH Common Fund Website
                                     </Button>
@@ -109,12 +109,12 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                 }
                             </Stack>
                             <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
-                                <Link href={dcc.homepage}>
+                                <Link href={dcc.homepage} target="_blank">
                                     <Button color="secondary"  sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} DCC Portal
                                     </Button>
                                 </Link>
-                                {dcc.cf_site && <Link href={dcc.cf_site}>
+                                {dcc.cf_site && <Link href={dcc.cf_site} target="_blank">
                                     <Button color="secondary" sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} Program on the NIH Common Fund Website
                                     </Button>
