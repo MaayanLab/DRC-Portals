@@ -8,7 +8,7 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   if (pathname === '/data' || pathname === '/') return null
   const q = React.useMemo(() => {
     const m = /^(\/data)?\/search\/(.+?)\//.exec(pathname)
-    if (m) return m[2]
+    if (m) return decodeURIComponent(m[2])
     return ''
   }, [pathname])
   return (
