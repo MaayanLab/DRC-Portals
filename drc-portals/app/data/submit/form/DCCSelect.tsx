@@ -6,14 +6,13 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import React from 'react';
 
-export function DCCSelect(props: { dccOptions: string }) {
-  const [dcc, setDCC] = React.useState('');
+export function DCCSelect({dccOptions, dcc, setDCC}: { dccOptions: string, dcc:string, setDCC: Function}) {
 
   const handleChange = (event: SelectChangeEvent) => {
     setDCC(event.target.value);
   };
 
-  const dccArray = props.dccOptions.split(',')
+  const dccArray = dccOptions.split(',')
   return (
     <div>
       <FormControl sx={{ minWidth: 80 }}>
@@ -48,8 +47,8 @@ const fileTypeArray : string[] = [
   'XMT'
 ]
 
-export function FileTypeSelect() {
-  const [filetype, setFiletype] = React.useState('');
+export function FileTypeSelect({filetype='', setFiletype}: {filetype: string, setFiletype: Function}) {
+  // const [filetype, setFiletype] = React.useState('');
 
   const handleChange = (event: SelectChangeEvent) => {
     setFiletype(event.target.value);

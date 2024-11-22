@@ -13,7 +13,7 @@ import ThemedStack from './ThemedStack';
 import Status from './Status';
 import { DCCSelect, FileTypeSelect } from './DCCSelect';
 import { Role } from '@prisma/client';
-import { Box, Link, List, ListItem, Stack, Tooltip } from '@mui/material';
+import { Box, FormGroup, FormControlLabel, Checkbox, Link, List, ListItem, Stack, Tooltip } from '@mui/material';
 import { ProgressBar } from './ProgressBar';
 import jsSHA256 from 'jssha/sha256'
 import { createPresignedUrl } from './UploadFunc'
@@ -25,7 +25,20 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { Prisma } from "@prisma/client"
 
+export type DCCAssetWithFileAsset = Prisma.DccAssetGetPayload<{
+    include: {
+        fileAsset: true,
+        dcc: true
+    }
+  }>
+
+  type DCCAssetWithCodeAsset = Prisma.DccAssetGetPayload<{
+    include: {
+        codeAsset: true
+    }
+  }>
 export const metaDataAssetOptions = [
   {
     asset: 'XMT',
@@ -115,7 +128,7 @@ export function useS3UploadStatus() {
   return React.useContext(S3UploadStatusContext)
 }
 
-export function S3UploadForm(user: { name?: string | null, email?: string | null, role: Role, dccs: string[] }
+export function S3UploadForm(user: { name?: string | null, email?: string | null, role: Role, dccs: string[], file_assets: DCCAssetWithFileAsset[] }
 ) {
 
   const [status, setStatus] = React.useState<S3UploadStatus>({})
@@ -123,9 +136,10 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
   const [progress, setProgress] = React.useState(0);
   const [popOpen, setPopOpen] = React.useState(false)
   const [fileTypeMatch, setFileTypeMatch] = React.useState({ 'dcc': '', 'filetype': '', 'expected': '', 'parsed': '' })
-
-
-
+  const [dcc, setDCC] = React.useState('')
+  const [filetype, setFiletype] = React.useState('')
+  const [archive, setArchive] = React.useState<{[key:string]: DCCAssetWithFileAsset}>({})
+  const [assets, setAssets] = React.useState<DCCAssetWithFileAsset[]>([])
   const uploadAndComputeSha256 = React.useCallback(async (file: File, filetype: string, dcc: string, setProgress: React.Dispatch<React.SetStateAction<number>>) => {
     const hash = new jsSHA256("SHA-256", "UINT8ARRAY")
     const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
@@ -187,7 +201,8 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
     if (!uploadedfile) return setStatus(({ error: { selected: true, message: 'No files selected!' } }))
     try {
       let digest = await uploadAndComputeSha256(uploadedfile, fileTypeMatch.filetype, fileTypeMatch.dcc, setProgress)
-      await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, fileTypeMatch.filetype, fileTypeMatch.dcc)
+      const new_assets = await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, fileTypeMatch.filetype, fileTypeMatch.dcc, Object.values(archive))
+      // setAssets(new_assets)
     }
     catch (error) {
       console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
@@ -197,7 +212,10 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
     setProgress(0)
   }, [uploadedfile, fileTypeMatch]);
 
-
+  React.useEffect(()=>{
+    const assets = user.file_assets.filter(asset=>asset.dcc?.short_label == dcc && asset.fileAsset?.filetype == filetype && asset.current && !asset.deleted)
+    setAssets(assets)
+  }, [dcc, filetype])
   return (
     <form onSubmit={async (evt) => {
       evt.preventDefault()
@@ -229,7 +247,8 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
         setStatus(() => ({ loading: { selected: true, message: 'File Upload in Progress' } }))
         try {
           let digest = await uploadAndComputeSha256(uploadedfile, filetype, dcc, setProgress)
-          await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, filetype, dcc)
+          const new_assets = await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, filetype, dcc, Object.values(archive))
+          // setAssets(new_assets)
         }
         catch (error) {
           console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
@@ -244,46 +263,51 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
     }}>
       <S3UploadStatusContext.Provider value={status}>
         <Container>
-          <Stack direction="row" alignItems="center" gap={1}>
-            <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }} >DATA AND METADATA UPLOAD FORM</Typography>
-            <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Tooltip title='Click here for more information on data/metadata asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
-          </Stack>
-          <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
-            This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the
-            asset type of the file. Then drop your file in the upload box or click on the 'Choose File' to select file for upload. Please do not refresh
-            your browser during the upload process.
-            <br></br>
-            The recommended extensions for each file asset type are:
-            <List sx={{ listStyleType: 'disc', pl: 3 }}>
-              <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                C2M2: .zip
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                KG Assertions: .zip
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                Attribute Table: .h5 or .hdf5
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                XMT: .(x)mt e.g .gmt or .dmt
-              </ListItem>
-            </List>
-            See the {' '}
-            <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to upload files.
-            <br></br>
-          </Typography>
-          <Grid container spacing={2} justifyContent="center" sx={{ marginBottom: 2 }}>
-            <Grid item>
-              <TextField
+          <Grid container spacing={2} justifyContent="flex-start" sx={{ marginBottom: 2 }} alignItems={"center"}>
+            <Grid item xs={12}>
+              <Stack direction="row" alignItems="center" gap={1}>
+                <Typography variant="h3" color="secondary.dark" sx={{ mb: 2, ml: 2, mt: 2 }} >DATA AND METADATA UPLOAD FORM</Typography>
+                <AssetInfoDrawer assetOptions={metaDataAssetOptions} buttonText={<Tooltip title='Click here for more information on data/metadata asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
+              </Stack>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" color="#666666" className='' sx={{ mb: 3, ml: 2 }}>
+                This is the form to upload the data/metadata files for your DCC. Select the DCC for which the file belongs and the
+                asset type of the file. Then drop your file in the upload box or click on the 'Choose File' to select file for upload. Please do not refresh
+                your browser during the upload process.
+                <br></br>
+                The recommended extensions for each file asset type are:
+                <List sx={{ listStyleType: 'disc', pl: 3 }}>
+                  <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                    C2M2: .zip
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                    KG Assertions: .zip
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                    Attribute Table: .h5 or .hdf5
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', padding: 0 }}>
+                    XMT: .(x)mt e.g .gmt or .dmt
+                  </ListItem>
+                </List>
+                See the {' '}
+                <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to upload files.
+                <br></br>
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              {/* <TextField
                 label="Uploader Name"
                 name='name'
                 disabled
                 defaultValue={user.name}
                 inputProps={{ style: { fontSize: 16 } }} // font size of input text
                 InputLabelProps={{ style: { fontSize: 16 } }} // font size of input label
-              />
+              /> */}
+              <Typography variant="subtitle1"><b>Submitter:</b> {user.name} ({user.email})</Typography>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
               <TextField
                 label="Email"
                 name='email'
@@ -292,51 +316,76 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
                 inputProps={{ style: { fontSize: 16 } }}
                 InputLabelProps={{ style: { fontSize: 16 } }}
               />
+            </Grid> */}
+            <Grid item>
+              <DCCSelect dcc={dcc} setDCC={setDCC} dccOptions={user.dccs.join(',')} />
             </Grid>
             <Grid item>
-              <DCCSelect dccOptions={user.dccs.join(',')} />
+              <FileTypeSelect filetype={filetype} setFiletype={setFiletype}/>
             </Grid>
-            <Grid item>
-              <FileTypeSelect />
+            <Grid item xs={12}>
+              {
+                (dcc !== '' && filetype !== '') && 
+                <Stack>
+                  <Typography>Archive Previous Submissions</Typography>
+                  <FormGroup>
+                  {assets.map((asset:DCCAssetWithFileAsset)=>(
+                    <FormControlLabel key={asset.link} control={<Checkbox checked={archive[`${asset.dcc_id}${asset.link}${asset.lastmodified}`] !== undefined} onClick={()=>{
+                      const key = `${asset.dcc_id}${asset.link}${asset.lastmodified}`
+                      if (archive[key] !== undefined) {
+                        const new_archive: {[key:string]: DCCAssetWithFileAsset} = {}
+                        for (const [k, v] of Object.entries(archive)) {
+                          if (k!==key) new_archive[k] = v
+                        }
+                        setArchive(new_archive)
+                      }
+                      else setArchive({...archive, [key]: asset})
+                    }}/>} label={asset.fileAsset?.filename} />
+                  ))}
+                  </FormGroup>
+                </Stack>
+              }
+            </Grid>
+            <Grid item xs={12}>
+              <ThemedStack>
+                <FileDrop name="currentData" setUploadedFile={setUploadedfile} />
+              </ThemedStack>
+              <Status />
+              <div className='flex justify-center'>
+                <Box sx={{ width: '50%' }}>
+                  {status.loading && <ProgressBar value={progress} />}
+                </Box>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
+                <FormControl>
+                  <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }} disabled={user.role === 'READONLY'}>
+                    Submit Form
+                  </Button>
+                </FormControl>
+              </div>
+              <Dialog
+                open={popOpen}
+                onClose={handlePopClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">
+                  {"Unexpected File Type"}
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    The expected file extension for {fileTypeMatch.filetype} file is {fileTypeMatch.expected} but received {fileTypeMatch.parsed} file. Would you still like to proceed with the upload?
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button color="secondary" onClick={handlePopClose}>No</Button>
+                  <Button color="secondary" autoFocus onClick={handleContinue}>
+                    Yes, Continue
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </Grid>
           </Grid>
-          <ThemedStack>
-            <FileDrop name="currentData" setUploadedFile={setUploadedfile} />
-          </ThemedStack>
-          <Status />
-          <div className='flex justify-center'>
-            <Box sx={{ width: '50%' }}>
-              {status.loading && <ProgressBar value={progress} />}
-            </Box>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center' }} className='p-5'>
-            <FormControl>
-              <Button variant="contained" color="tertiary" style={{ minWidth: '200px', maxHeight: '100px' }} type="submit" sx={{ marginTop: 2, marginBottom: 10 }} disabled={user.role === 'READONLY'}>
-                Submit Form
-              </Button>
-            </FormControl>
-          </div>
-          <Dialog
-            open={popOpen}
-            onClose={handlePopClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Unexpected File Type"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                The expected file extension for {fileTypeMatch.filetype} file is {fileTypeMatch.expected} but received {fileTypeMatch.parsed} file. Would you still like to proceed with the upload?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={handlePopClose}>No</Button>
-              <Button color="secondary" autoFocus onClick={handleContinue}>
-                Yes, Continue
-              </Button>
-            </DialogActions>
-          </Dialog>
         </Container>
       </S3UploadStatusContext.Provider>
     </form>
