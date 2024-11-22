@@ -13,7 +13,7 @@ import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
 import { queue_fairshake } from '@/tasks/fairshake';
-
+import { DCCAssetWithFileAsset } from './S3UploadForm';
 
 
 async function verifyUser({ dcc }: { dcc?: string } = {}) {
@@ -125,7 +125,7 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
     return fileAsset
 }
 
-export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
+export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string, archive: DCCAssetWithFileAsset[]) => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
     if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
@@ -169,6 +169,16 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     if (dcc === null) throw new Error('Failed to find DCC')
 
     const link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
+    await prisma.dccAsset.updateMany({
+        where: {
+            dcc_id: {in: archive.map(i=>i.dcc_id)},
+            link: {in: archive.map(i=>i.link)},
+            lastmodified: {in: archive.map(i=>i.lastmodified)},
+        },
+        data: {
+            current: false
+        }
+    })
     const savedUpload = await prisma.dccAsset.create({
         data: {
             link,
@@ -192,7 +202,19 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     const receipt = await sendUploadReceipt(session.user, savedUpload);
     const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedUpload)
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);
-    return savedUpload
+
+    const file_assets = await prisma.dccAsset.findMany({
+        where: {
+          dcc: {
+            short_label: {in: session.user.dccs}
+          }
+        },
+        include: {
+          fileAsset: true,
+          dcc:true
+        }
+    })
+    return file_assets
 }
 
 export async function sendUploadReceipt(user: { name?: string | null, email?: string | null }, assetInfo: { fileAsset: FileAsset | null }) {

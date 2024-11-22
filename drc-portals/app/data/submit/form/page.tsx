@@ -5,6 +5,7 @@ import { S3UploadForm } from './S3UploadForm';
 import { redirect } from 'next/navigation';
 import { Alert, Button, Grid } from '@mui/material';
 import Nav from '../Nav';
+import prisma from '@/lib/prisma';
 
 export default async function UploadForm() {
   const session = await getServerSession(authOptions)
@@ -37,6 +38,29 @@ export default async function UploadForm() {
     </Grid>
   );
 
+  const file_assets = await prisma.dccAsset.findMany({
+    where: {
+      dcc: {
+        short_label: {in: session.user.dccs}
+      }
+    },
+    include: {
+      fileAsset: true,
+      dcc:true
+    }
+  })
+
+  // const code_assets = await prisma.dccAsset.findMany({
+  //   where: {
+  //     dcc: {
+  //       short_label: {in: session.user.dccs}
+  //     }
+  //   },
+  //   include: {
+  //     codeAsset: true,
+  //   }
+  // })
+
   if (session.user.dccs.length === 0) return (
     <Grid container spacing={2} sx={{ mt: 2 }}>
       <Grid md={2} xs={12}>
@@ -54,8 +78,7 @@ export default async function UploadForm() {
           <Nav />
         </Grid>
         <Grid md={10} xs={12}>
-          <S3UploadForm {...session.user}>
-          </S3UploadForm>
+          <S3UploadForm file_assets={file_assets} {...session.user}/>
         </Grid>
       </Grid>
     </>
