@@ -1,6 +1,6 @@
 import sys
 import pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
 import csv
 import re
@@ -24,35 +24,18 @@ from dotenv import load_dotenv
 
 # debug
 debug = 1
-actually_create_schema = 1
 actually_ingest_tables = 1
-write_empty_tsvs = 0
-add_missing_columns_for_SchemaUpdate = 1
-exit_after_creating_empty_tsvs = 0
-
-actually_ingest_tables = actually_create_schema * actually_ingest_tables
 
 newline = '\n'
-tabchar = '\t'
 
 # Lines copied from dburl.py and modified
-if (add_missing_columns_for_SchemaUpdate >= 0):
-    # Original line if were to use ..../drc-portals/.env
-    load_dotenv(pathlib.Path(__file__).parent.parent.parent.parent/'drc-portals'/'.env') 
-    print(f"Loading from ..../drc-portals/.env")
-else:
-    # This .env doesn't seem to get loaded or DB connection has some issue likely due to Prisma
-    load_dotenv(pathlib.Path(__file__).parent/'.env') # Note that .env from this folder itself is used
-    print(f"Loading from .env in the current folder")
-
+load_dotenv(pathlib.Path(__file__).parent.parent.parent/'drc-portals'/'.env')
 ########## DB ADMIN INFO: BEGIN ############
 # Comment the line below with .env.dbadmin if not ingesting, almost always ingesting if running these scripts
-#load_dotenv(pathlib.Path(__file__).parent.parent.parent.parent.parent/'DB_ADMIN_INFO'/'.env.dbadmin')
+#load_dotenv(pathlib.Path(__file__).parent.parent.parent/'DB_ADMIN_INFO'/'.env.dbadmin')
 ########## DB ADMIN INFO: END   ############
 c2m2_database_url = urllib.parse.urlparse(os.getenv('C2M2_DATABASE_URL'))
-if(debug> 1):
-    ####print(f"{c2m2_database_url.scheme}://{c2m2_database_url.username}:{c2m2_database_url.password}@{c2m2_database_url.hostname}:{c2m2_database_url.port}{c2m2_database_url.path}")
-    print(f"Printed debug info on DB");
+#print(f"{c2m2_database_url.scheme}://{c2m2_database_url.username}:{c2m2_database_url.password}@{c2m2_database_url.hostname}:{c2m2_database_url.port}{c2m2_database_url.path}")
 
 # PostgreSQL connection details
 database_name = "drc" # c2m2_database_url.path is /drc, don't want the / part, so fixed here
@@ -62,9 +45,7 @@ host = c2m2_database_url.hostname # "localhost"
 port = c2m2_database_url.port # "5433" # "5432" (default) or "5433"
 
 ##### Line below is for debug only, always keep commented otherwise
-if(debug> 1):
-    ####print(f"user: {user}, password: {password}, database_name: {database_name}, host: {host}, port: {port}")
-    print(f"Printed debug info on DB");
+##### print(f"user: {user}, password: {password}, database_name: {database_name}, host: {host}, port: {port}")
 
 # Connection parameters
 conn_params = {
@@ -93,8 +74,7 @@ dcc_short_labels = list(np.unique(c2m2s[['dcc_short_label']].values));
 if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 
 # Load C2M2 schema from JSON file
-#c2m2Schema = 'C2M2_datapackage.json'
-c2m2Schema = 'C2M2_datapackage_biofluid.json'
+c2m2Schema = 'C2M2_datapackage.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
 
@@ -135,9 +115,9 @@ else:
 qf_name = qf_folder + 'TableDefs_' + dcc_short_label + '.sql'
 qf = open(qf_name, "w")
 
-# folder for writing empty tsv files
-empty_tsvs_folder = 'empty_tsvs';
-pathlib.Path(empty_tsvs_folder).mkdir(parents=True, exist_ok=True);
+# write a count query to a file
+count_qf_name = qf_folder + 'CountQuery_Crosscheck_' + dcc_short_label + '.sql'
+cqf = open(count_qf_name, "w")
 
 # Create a cursor for executing SQL statements
 cursor = conn.cursor()
@@ -180,18 +160,6 @@ def get_count_match_query(default_schema_name, table_name, schema_name, first_id
     return count_match_query
 
 #==========================================================================================
-# Function to warn if the columns are not the same in the two lists
-def warn_column_names_different(column_names_in_schema, column_names_in_df, debug, newline, c2m2, table_name, extralineText):
-    if ((column_names_in_schema != column_names_in_df) or (debug > 0)):
-        print(f"{extralineText}");
-        if(column_names_in_schema != column_names_in_df):
-            print(f"! WARNING   !{newline}dcc_short_label: {c2m2['dcc_short_label']}")
-            print(f"Table: {table_name}: The columns in the schema and in the tsv file/Pandas dataframe are not the same.");
-        print(f"Columns names of the table <{table_name}> as listed in the json schema:");
-        print(column_names_in_schema);
-        print(f"Columns names of the table <{table_name}> as listed in tsv file/Pandas dataframe:");
-        print(column_names_in_df);
-#==========================================================================================
 
 t0 = time.time();
 
@@ -199,12 +167,10 @@ t0 = time.time();
 # Create the schema if it doesn't exist
 drop_schema_sql = f'DROP SCHEMA IF EXISTS {schema_name} CASCADE;'
 print(drop_schema_sql)
-if(actually_create_schema==1):
-    cursor.execute(drop_schema_sql)
+cursor.execute(drop_schema_sql)
 print("Creating "+ schema_name)
 create_schema_str = f"CREATE SCHEMA IF NOT EXISTS {schema_name};"
-if(actually_create_schema==1):
-    cursor.execute(create_schema_str)
+cursor.execute(create_schema_str)
 
 qf.write(drop_schema_sql); qf.write(newline);
 qf.write(create_schema_str)
@@ -214,11 +180,9 @@ if(debug> 1): print(f"Type of package: {type(package)}")
 
 # Iterate over resources in the package
 table_names = []; # collect the list from schema
-table_exists_dict = {}; # to keep track if this table is in the package submitted by the DCC
 for resource in package.resources:
     table_name = resource.name
     table_names.append(table_name)
-    table_exists_dict[table_name] = 0
     if(debug >0): print(f"=================== table_name: {table_name} ===========================");
     
     table_fields = resource.schema.fields
@@ -237,11 +201,6 @@ for resource in package.resources:
     coldef_strs =[]
 
     #if(debug > 0): print(f"type of fields: {type(fields)}");
-    headerRow=tabchar.join([f"{field.name}" for field in table_fields]);
-
-    empty_table_path = empty_tsvs_folder + '/' + table_name + '.tsv';
-    if (write_empty_tsvs == 1):
-        ef = open(empty_table_path, "w");    ef.write(f'{headerRow}{newline}');    ef.close();
 
     for field in table_fields:
         str1 = f"{field.name} VARCHAR "
@@ -277,16 +236,14 @@ for resource in package.resources:
 
     if(debug >0): print(f"create_table_query:{newline}{create_table_query}")
 
-    if(debug >2): input("Press Enter to continue... Will execute the query")
+    if(debug >1): input("Press Enter to continue... Will execute the query")
     # Execute the SQL statement to create the table
     
-    if(actually_create_schema==1):
-        cursor.execute(create_table_query)
+    cursor.execute(create_table_query)
     qf.write(create_table_query)
     qf.write("\n\n")
 
 # # Commit the changes 
-#if(actually_create_schema==1):
 conn.commit()
 
 if(debug >0): print("================== Defined all tables ======================")
@@ -300,12 +257,6 @@ t1 = time.time();
 print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to define table: {t1-t0} seconds.{newline}");
 
 print("Names of all tables:"); print(f"{table_names}{newline}")
-
-if exit_after_creating_empty_tsvs:    
-    conn.close()
-    sys.exit(); # exit
-#-----------------------------------------------------------------------------
-
 print(f"Going to ingest metadata from files{newline}");
 
 # #%%
@@ -327,12 +278,8 @@ print(f"{newline}********* c2m2s dataframe is: **********");
 print(f"{c2m2s}"); 
 #print(f"{str(c2m2s['link'])}");  wait_str = input("Press Enter to continue.");
 
-# write a count query to a file
-count_qf_name = qf_folder + 'CountQuery_Crosscheck_' + dcc_short_label + '.sql'
-cqf = open(count_qf_name, "w")
-
 if not ingest_path.exists():
-  ingest_path.mkdir() # This gets created inside the folder that contains this file
+  ingest_path.mkdir()  # This gets created inside the folder that contains this file
 
 c2m2s_path = ingest_path / 'c2m2s'
 
@@ -351,7 +298,6 @@ for dummy_x in [1]:
   for dummy_y in [1]:
     for dummy_z in [1]:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-        cur_dcc_short_label = c2m2['dcc_short_label'];
         print(f"\n================================== DCC short label: {c2m2['dcc_short_label']} =============================================");
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
@@ -366,10 +312,6 @@ for dummy_x in [1]:
 
         cqf.write(f"/* =============== DCC short label: {c2m2['dcc_short_label']} =============== */{newline}");
 
-        # Reset all values in table_exists_dict to all 0
-        table_exists_dict = {key: 0 for key in table_exists_dict}
-
-        ###############################################################################################
         for table in c2m2_extract_path.rglob('*.tsv'):
             t01 = time.time();
 
@@ -395,40 +337,9 @@ for dummy_x in [1]:
                 if(debug > 0): print(f"table_name:{table_name}");
 
                 # Mano: added the if condition: table_names was defined when schema was read
-                #
-                # Mano: 2024/10/29: For schema update, if a table from table_names is not in the package
-                # submitted by the DCC, one option is to copy it from the empty_tsvs and put in that 
-                # DCC's folder inside ingest/c2m2s, but since it will have only header row, there is 
-                # no impact of doing this. So, let us not do this. Applying/checking the FK constraints 
-                # will ensure that a CV ID/value is a colummn of one of the core-tables, then it is also 
-                # there in the corresponding CV term table such as anatomy or disease. However, if the 
-                # file was not found, then print a warning so that the concerned DCC can be informed.
-                #
-                # Mano: 2024/10/29: Related to schema update, if table_name is in table_names, then the 
-                # column name and order should match between the table and that in the schema. If a column 
-                # is missing, then it could be the newly added column corresponding to the schema update. In 
-                # this case, during the schema update phase, add the column with appropriate type, default 
-                # values e.g., empty string, etc., at the appropriate location (order must match) in the 
-                # pandas dataframe and save the file in the same folder by the current file name table_name.tsv 
-                # after renaming the existing file as table_name.tsv.orig.
-                # This updated file will serve as the new test file. Print enough warning lines 
-                # and messages to copy the file to elsewhere. There, the dev team can prepare the package 
-                # again, put back in the folder ingest/c2m2s/{c2m2['dcc_short_label']} and try to reingest.
-                # Now, the warnings should not be displayed. If multiple columns needed to be inserted, 
-                # then ensure the correct order of the columns.
                 if (table_name in table_names):
-                    # Mark that key in table_exists_dict
-                    table_exists_dict[table_name] = 1
-                    # Columns in this table as listed in the schema
-                    ind = table_names.index(table_name); # 0-based index
-                    resource = package.resources[ind];
-                    #column_names_in_schema = [field["name"] for field in resource["schema"]["fields"]]
-                    column_names_in_schema = [field.name for field in resource.schema.fields]
-                    # If needed, try: column_names = [field.name for field in resource.schema.fields]
-
                     df = pd.read_csv(table_str, delimiter='\t');
                     if(debug > 0): print(f"{c2m2['dcc_short_label']}: {table_name}: Read from file: df: #rows = {df.shape[0]}, #cols: {df.shape[1]}{newline}");
-                    
                     #if(debug > 0): print(f"For cross-check:{c2m2['dcc_short_label']}: {df.shape[0]} {table_name}.tsv{newline}");
                     # Use subprocess to count lines in the file to cross-check
                     #numlines_in_file = int(subprocess.check_output("/usr/bin/wc -l " + table_str, shell=True).split()[0]);
@@ -445,35 +356,12 @@ for dummy_x in [1]:
                         df = df.drop_duplicates();
                         if(debug > 0): print(f"df: #rows = {df.shape[0]}, #cols: {df.shape[1]}");
 
-                        # Better to take care of such things in the C2M2 package TSV files themselves, 
-                        # so that the burden is on the submitter as this is not scalable for future changes.
                         # Mano: For HMP and SPARC, for the table biosample replace the column name 'assay_type' with 'sample_prep_method'
                         # These DCCs don't have the table sample_prep_method.tsv in their set of files, but that is OK as far as ingestion goes.
-                        # cur_dcc_short_label = c2m2['dcc_short_label']; # defined near top of: for _, c2m2 loop
+                        cur_dcc_short_label = c2m2['dcc_short_label'];
                         if((table_name == 'biosample') and ((cur_dcc_short_label == 'HMP') or (cur_dcc_short_label == 'SPARC'))):
                             df.rename(columns={'assay_type': 'sample_prep_method'}, inplace=True);
                             print(f"{cur_dcc_short_label}: biosample table: changed column name assay_type to sample_prep_method");
-
-                        #++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                        # Better to handle in the C2M2 package itself, but keep it for now
-                        # This should be after, in biosample, column name assay_type has been replaced with sample_prep_method
-                        column_names_in_df = list(df.columns.values);
-                        # Warn if the columns are not the same in the two lists
-                        extralineText = "Before insertion of any missing columns";
-                        warn_column_names_different(column_names_in_schema, column_names_in_df, debug, newline, c2m2, table_name, extralineText);
-                        
-                        # Add any missing columns in correct position, with default value of '' or null
-                        missing_columns = [(index, col) for index, col in enumerate(column_names_in_schema) if col not in column_names_in_df]
-                        if((add_missing_columns_for_SchemaUpdate > 0) and (len(missing_columns) > 0)):
-                            for index, col in missing_columns:
-                                # Put a strict condition that col should be biofluid
-                                if(col == 'biofluid'):
-                                    df.insert(index, col, None); # use '' (for '' in DB) or None for Null in the DB
-                                    column_names_in_df = list(df.columns.values);
-                                    extralineText = f"After insertion of column <{col}>";
-                                    warn_column_names_different(column_names_in_schema, column_names_in_df, debug, newline, c2m2, table_name, extralineText);
-
-                        #++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
                         #-----------------------------------------------------------------------------------------
                         # Mano: Look into "on conflict ignore": https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
@@ -606,21 +494,6 @@ for dummy_x in [1]:
             t02 = time.time();
             print(f">>>>>>>> Time taken to ingest the metadata from this file: {t02-t01} seconds.{newline}");
             gc.collect();
-        #for table in c2m2_extract_path.rglob('*.tsv'):
-        ###############################################################################################
-        # Cross-check that we are inside the correct for loop
-        print(f"{tabchar}=============== DCC short label: {c2m2['dcc_short_label']} ==============={newline}");
-
-        # Check if any elements of table_exists_dict are 0: these tables are not in the DCC's package, 
-        # so, print a warning
-        tables_not_in_DCC_package = [key for key, value in table_exists_dict.items() if value == 0]
-        for table in tables_not_in_DCC_package:
-            print(f"{tabchar}Warning: Table file for the table {table} is missing from the C2M2 package{newline}")
-        #
-      #for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-    #for dummy_z in [1]:
-  #for dummy_y in [1]:
-#for dummy_x in [1]:
 
 #input("Press Enter to continue, to add foreign key constraints...")
 
@@ -664,8 +537,7 @@ for resource in package.resources:
         fk_query = f"{fkstr0_frop}{fkstr0} {fkname} FOREIGN KEY ({cl1_str}) REFERENCES {schema_name}.{table2_name} ({cl2_str});"
         if(debug > 0): print(fk_query)
         # Execute the SQL statement to create the table
-        if(actually_ingest_tables == 1):
-            cursor.execute(fk_query)
+        cursor.execute(fk_query)
         qf.write(fk_query);     qf.write("\n")
     
     qf.write("\n")
@@ -700,7 +572,7 @@ if (schema_name == 'c2m2'):
     ncbi_tax_human_str_2 = f"WHERE id = 'NCBI:txid9606' AND name = 'Homo sapiens';";
     ncbi_tax_human_update_query = ncbi_tax_human_str_1 + ncbi_tax_human_str_2; 
     # Execute the UPDATE query
-    print(f"{newline}>>>>>>>> Attempting update of description and synonym for Homo sapiens in table {schema_name}.ncbi_taxonomy successful.{newline}");
+    print(f"{newline}>>>>>>>> Attempting update of description and synonym for Homo sapiens in table {schema_name}.file successful.{newline}");
     try:
         cursor.execute(ncbi_tax_human_update_query)
         print(f"Update successful.{newline}");
