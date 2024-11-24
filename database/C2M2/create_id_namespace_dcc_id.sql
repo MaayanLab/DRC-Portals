@@ -50,9 +50,12 @@ ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_dcc_
 --- Added after adding column dcc_short_label. Based on: 
 --- select id,label,short_label,cf_site from public.dccs;
 --- select id,dcc_name,dcc_abbreviation,project_local_id from c2m2.dcc;
-ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_dcc_id_short_label_1;
+--- This gives error: there is no unique constraint matching given keys for referenced table "dccs"
+--- Solution: ALTER TABLE public.dccs ADD CONSTRAINT unique_short_label UNIQUE (short_label);
+--- Do not impose for now.
+/* ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_dcc_id_short_label_1;
 ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_short_label_1 FOREIGN KEY (dcc_short_label) REFERENCES public.dccs (short_label);
-
+*/
 
 /*  select id from c2m2.dcc;
  cfde_registry_dcc:4dn

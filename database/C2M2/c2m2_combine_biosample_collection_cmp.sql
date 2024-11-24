@@ -20,7 +20,7 @@ CREATE TABLE c2m2.ffl_biosample_collection_cmp as (
     (select * from c2m2.ffl_collection_cmp /* limit 100000000 */ )
     )
     --- Mano: 2024/08/27: May be, preordering might make the query a bit faster
-    ORDER BY dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, 
+    ORDER BY dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, 
     protein_name, compound_name, data_type_name, assay_type_name    
 );
 
@@ -47,7 +47,7 @@ BEGIN
         CREATE INDEX ffl_biosample_collection_cmp_idx_many_cols ON c2m2.ffl_biosample_collection_cmp USING 
         --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, 
         ---    gene_name, protein_name, compound_name, data_type_name, assay_type_name);
-        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, 
+        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
         compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;

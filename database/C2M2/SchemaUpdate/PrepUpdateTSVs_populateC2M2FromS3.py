@@ -1,7 +1,9 @@
 import sys
 import pathlib
 
-inside_C2M2_SchemaUpdate = 1; # set it to 0 if inside C2M2 (SchemaUpdate is a subfolder inside C2M2)
+#inside_C2M2_SchemaUpdate = 1; # set it to 0 if inside C2M2 (SchemaUpdate is a subfolder inside C2M2)
+from set_inside_C2M2_SchemaUpdate import inside_C2M2_SchemaUpdate
+
 if(inside_C2M2_SchemaUpdate==1):
     sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 else:
