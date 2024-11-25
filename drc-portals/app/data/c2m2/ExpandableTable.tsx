@@ -8,6 +8,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import SearchablePagedTable, { Description } from './SearchablePagedTable';
 import DownloadButton from './DownloadButton';
 import DRSBundleButton from './DRSBundleButton';
+import DRSBundleCartButton from './DRSBundleCartButton';
 import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
 import Link from '@/utils/link';
 import { RowType } from './utils';
@@ -142,6 +143,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                             onRowSelect={handleRowSelect}
                         />
                         <div className="flex flex-row gap-4">
+                            {drsBundle && <DRSBundleCartButton data={dataToSend} />}
                             {drsBundle && <DRSBundleButton data={dataToSend} />}
                             <DownloadButton data={dataToSend} filename={downloadFileName} name={"Download Selected"} />
                             <DownloadButton data={full_data} filename={downloadFileName+"_ALL.json"} name={"Download All"} />
