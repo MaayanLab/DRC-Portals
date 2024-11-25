@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import Button from '@mui/material/Button';
-import DownloadIcon from '@mui/icons-material/Download'; // Ensure you have @mui/icons-material installed
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'; // Ensure you have @mui/icons-material installed
 
 interface DRSBundleButtonProps {
   data?: { [key: string]: string | bigint | number }[];
@@ -33,7 +33,7 @@ const DRSBundleButton: React.FC<DRSBundleButtonProps> = ({ data }) => {
       <Button
         variant="contained"
         color="primary"
-        startIcon={<DownloadIcon />}
+        startIcon={<ContentCopyIcon />}
         onClick={handleDRSBundle}
         disabled={!access_urls?.length}
       >
