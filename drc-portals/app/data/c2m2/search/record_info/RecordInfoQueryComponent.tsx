@@ -183,7 +183,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
               anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
               data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-              allres_full.project_local_id, project_description, anatomy_description, biofluid_description,, disease_description, gene_description, 
+              allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
             /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, biofluid_name, project_name, project_description, rank*/
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
