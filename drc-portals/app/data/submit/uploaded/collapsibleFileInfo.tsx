@@ -9,6 +9,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
 import type { CodeAsset, DccAsset, FairAssessment, FileAsset } from '@prisma/client'
+import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteAsset } from './getDCCAsset';
 import Button from '@mui/material/Button';
@@ -137,6 +138,25 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
     )
 }
 
+export function EditButton({ userFile, userRole }: { userFile: {
+    dcc: {
+        label: string;
+        short_label: string | null
+    } | null;
+    fileAsset: FileAsset | null;
+    codeAsset: CodeAsset | null;
+    assetType: string | null;
+} & DccAsset, userRole: string }) {
+    if (userFile.codeAsset) {
+        return (
+            <IconButton color='inherit' href={`/data/submit/urlform?url=${encodeURIComponent(userFile.codeAsset.link)}`}>
+                <EditIcon />
+            </IconButton>
+        )
+    } else {
+        return <></>
+    }
+}
 export function DeleteDialogButton({ userFile, userRole }: { userFile: DccAsset, userRole: string }) {
     const [open, setOpen] = React.useState(false);
 
@@ -158,9 +178,9 @@ export function DeleteDialogButton({ userFile, userRole }: { userFile: DccAsset,
     } else {
         return (
             <React.Fragment>
-                <button onClick={handleClickOpen}>
+                <IconButton color='inherit' onClick={handleClickOpen}>
                     <DeleteIcon />
-                </button>
+                </IconButton>
                 <Dialog
                     open={open}
                     onClose={handleClose}
@@ -238,7 +258,10 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
                 <TableCell sx={{ fontSize: 14 }} align="right"  style={{width: 100,maxWidth: 100,overflow: "hidden",borderStyle: "border-box"}}> <div className='flex justify-center'>{approvedSymboldcc}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{currentSymbol}</div></TableCell>
-                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'><DeleteDialogButton userFile={userFile}  userRole={role}/></div></TableCell>
+                <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>
+                    <EditButton userFile={userFile} userRole={role} />
+                    <DeleteDialogButton userFile={userFile}  userRole={role} />
+                </div></TableCell>
                 
             </TableRow>
             <TableRow>
