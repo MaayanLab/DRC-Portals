@@ -147,7 +147,8 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
                     smartAPIURL: smartAPIURL === '' ? null : smartAPIURL,
                     entityPageExample: entityPageExample === '' ? null : entityPageExample
                 }
-            }
+            },
+            deleted: false,
         }
     });
     await queue_fairshake({ link: url })
