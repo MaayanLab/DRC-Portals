@@ -161,7 +161,13 @@ export const OUTGOING_CONNECTIONS: ReadonlyMap<
       [DEFINED_BY_TYPE, [PROJECT_LABEL]],
     ]),
   ],
-  [DCC_LABEL, new Map([[REGISTERED_TYPE, [ID_NAMESPACE_LABEL]]])],
+  [
+    DCC_LABEL,
+    new Map([
+      [CONTAINS_TYPE, [...CORE_LABELS, ...CONTAINER_LABELS]],
+      [REGISTERED_TYPE, [ID_NAMESPACE_LABEL]],
+    ]),
+  ],
   [
     FILE_LABEL,
     new Map([

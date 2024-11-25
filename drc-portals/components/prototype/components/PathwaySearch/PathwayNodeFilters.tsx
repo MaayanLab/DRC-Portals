@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 
 import {
   BIOSAMPLE_RELATED_LABELS,
+  DCC_LABEL,
   FILE_RELATED_LABELS,
   ID_NAMESPACE_LABEL,
   SUBJECT_RELATED_LABELS,
@@ -19,6 +20,7 @@ const NODE_SELECT_LABELS: ReadonlySet<string> = new Set([
   ...SUBJECT_RELATED_LABELS,
   ...BIOSAMPLE_RELATED_LABELS,
   ID_NAMESPACE_LABEL,
+  DCC_LABEL,
 ]);
 
 const NODE_SEARCH_LABELS: ReadonlySet<string> = new Set([...TERM_LABELS]);
