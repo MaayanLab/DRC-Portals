@@ -35,6 +35,7 @@ export default function CurrentBtn(userFile: {
 
     }, [userFile])
 
+    if (userFile.deleted === true) return <Button variant="contained" color="error"> Deleted </Button>
     return (
         <>
         {status &&  <Button variant="contained" color="tertiary" onClick={handleClick(userFile)}> Current </Button> }
