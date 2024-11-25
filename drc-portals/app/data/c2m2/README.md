@@ -1,7 +1,61 @@
+# Prisma Setup for C2M2 Database
 
-## Example URLs to test C2M2 search after any updates
+This guide walks you through the steps to set up Prisma with your PostgreSQL database for the C2M2 schema.
 
-### Main page
+## Prerequisites
+
+Ensure you have the following installed before proceeding:
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [Prisma CLI](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch) installed globally or use `npx`
+- PostgreSQL database with the C2M2 schema
+
+## Steps
+
+### 1. Pull the Schema from the Database
+To fetch the current database schema and update your Prisma schema, use the following command:
+
+```bash
+npx prisma db pull --schema=prisma/c2m2/schema.prisma --url "postgresql://drc:drcpass@localhost:5434/drc?schema=c2m2"
+```
+This command will:
+	•	Fetch the database schema from the PostgreSQL database.
+	•	Update the prisma/c2m2/schema.prisma file with the current schema of your database.
+
+Make sure to replace the connection string with your own credentials if necessary.
+
+2. Generate Prisma Client
+
+After pulling the schema, you need to generate the Prisma client to interact with your database. Run the following command:
+```bash
+npx prisma generate --schema=prisma/c2m2/schema.prisma
+```
+
+This command will:
+	•	Generate the Prisma client based on the schema defined in prisma/c2m2/schema.prisma.
+	•	The generated Prisma client will be used to query the database in your application.
+
+### 3. Update Database URL to Use Environment Variable
+
+To avoid hardcoding the database URL in your Prisma schema, update the datasource block in your prisma/c2m2/schema.prisma file to use an environment variable. Replace the URL section with:
+```json
+datasource db {
+  provider = "postgresql"
+  url      = env("C2M2_DATABASE_URL")
+}
+```
+
+This change ensures that the database URL is stored securely in an environment variable (C2M2_DATABASE_URL).
+
+### 4. Set the Environment Variable
+
+To set the C2M2_DATABASE_URL environment variable, add it to your .env file in the root of your project. The .env file should contain:
+```bash
+C2M2_DATABASE_URL=postgresql://drc:drcpass@localhost:5434/drc?schema=c2m2
+```
+Make sure to replace the value of C2M2_DATABASE_URL with the correct connection string for your PostgreSQL database.
+
+
+# Example URLs for testing
 
 https://data.cfde.cloud
 
