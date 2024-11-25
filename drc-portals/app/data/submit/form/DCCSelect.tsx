@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import React from 'react';
 
-export function DCCSelect(props: { value: string, onChange: (evt: SelectChangeEvent<string>) => void, dccOptions: string }) {
+export function DCCSelect(props: { value?: string, onChange?: (evt: SelectChangeEvent<string>) => void, dccOptions: string }) {
   const dccArray = props.dccOptions.split(',')
   return (
     <div>
