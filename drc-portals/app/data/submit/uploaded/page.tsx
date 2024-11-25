@@ -114,8 +114,8 @@ export default async function UserFiles() {
                     }
                 }
             } : {}),
-            deleted: false
-        }
+            ...(user.role !== 'ADMIN' ? { deleted: false } : {}),
+        },
 
     })
 
