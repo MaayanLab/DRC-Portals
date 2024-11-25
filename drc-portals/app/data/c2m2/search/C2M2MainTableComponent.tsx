@@ -21,6 +21,8 @@ interface C2M2SearchResult {
         disease: string,
         anatomy_name: string,
         anatomy: string,
+        biofluid_name: string,
+        biofluid: string,
         gene_name: string,
         gene: string,
         protein_name: string,
@@ -71,6 +73,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                     REPLACE(allres_full.disease, ':', '_') AS disease,
                     COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
                     REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+                    COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+                    REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
                     COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
                     allres_full.gene AS gene,
                     COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -87,7 +91,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                 FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                     ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-                ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+                ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
                     protein_name, compound_name, data_type_name, assay_type_name
                 OFFSET ${offset} 
                 LIMIT 100
@@ -100,6 +104,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                 '|disease_name:', allres.disease_name, 
                 '|ncbi_taxonomy_name:', allres.taxonomy_name, 
                 '|anatomy_name:', allres.anatomy_name, 
+                '|biofluid_name:', allres.biofluid_name,
                 '|gene_name:', allres.gene_name, 
                 '|protein_name:', allres.protein_name,
                 '|compound_name:', allres.compound_name, 
@@ -149,7 +154,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         const searchHashFileName = generateMD5Hash(concatenatedString);
         const qStringClean = sanitizeFilename(qString, '__');
 
-        const downloadFileName = "CFDEC2M2MainSearchTable_" + qStringClean + "_" + searchHashFileName ;
+        const downloadFileName = "CFDEC2M2MainSearchTable_" + qStringClean + "_" + searchHashFileName;
 
 
 
@@ -181,6 +186,13 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                         <>
                             <span>Sample source: </span>
                             <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`} target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
+                            <br />
+                        </>
+                    )}
+                    {res.biofluid_name !== "Unspecified" && (
+                        <>
+                            <span>Biofluid: </span>
+                            <Link href={`http://purl.obolibrary.org/obo/${res.biofluid}`} target="_blank"><i><u>{capitalizeFirstLetter(res.biofluid_name)}</u></i></Link>
                             <br />
                         </>
                     )}
