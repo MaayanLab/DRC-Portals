@@ -63,7 +63,7 @@ select distinct
     /**? null, null, ?**/ /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
     c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 
     /**? null, null, ?**/ /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
-    null, /* c2m2.biosample.sample_prep_method */ c2m2.collection_anatomy.anatomy,
+    null, /* c2m2.biosample.sample_prep_method */ c2m2.collection_anatomy.anatomy, c2m2.collection_biofluid.biofluid,
     null, /* c2m2.disease_association_type.id, */ /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
     null, null, /** c2m2.subject.id_namespace, c2m2.subject.local_id, **/ /** c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id, **/
@@ -77,6 +77,7 @@ select distinct
     c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, /* no need to include c2m2.dcc.dcc_description, */
 
     c2m2.anatomy.name, c2m2.anatomy.description, c2m2.anatomy.synonyms,
+    c2m2.biofluid.name, c2m2.biofluid.description, c2m2.biofluid.synonyms,
     c2m2.gene.name, c2m2.gene.description, c2m2.gene.synonyms,
 
     c2m2.protein.id, c2m2.protein.name, c2m2.protein.description, 
@@ -131,7 +132,7 @@ select distinct
     ---? null /* c2m2.biosample.id_namespace */ as biosample_id_namespace, null /* c2m2.biosample.local_id */ as biosample_local_id, 
     c2m2.collection_defined_by_project.project_id_namespace as project_id_namespace, c2m2.collection_defined_by_project.project_local_id as project_local_id, 
     ---? null /* c2m2.biosample.persistent_id */ as biosample_persistent_id, null /* c2m2.biosample.creation_time */ as biosample_creation_time, 
-    null /* c2m2.biosample.sample_prep_method */ as sample_prep_method, c2m2.collection_anatomy.anatomy as anatomy, 
+    null /* c2m2.biosample.sample_prep_method */ as sample_prep_method, c2m2.collection_anatomy.anatomy as anatomy, c2m2.collection_biofluid.biofluid as biofluid,
     null /* c2m2.disease_association_type.id */ AS disease_association_type, /* c2m2.disease_association_type.id is c2m2.biosample_disease.association_type or c2m2.subject_disease.association_type */
     c2m2.disease.id as disease, /* c2m2.disease.id is c2m2.biosample_disease.disease or c2m2.subject_disease.disease */
     null /* c2m2.subject.id_namespace */ as subject_id_namespace, null /* c2m2.subject.local_id */ as subject_local_id, /* was from c2m2.biosample_from_subject*/
@@ -143,7 +144,7 @@ select distinct
 
     c2m2.dcc.dcc_name as dcc_name, c2m2.dcc.dcc_abbreviation as dcc_abbreviation,
 
-    c2m2.anatomy.name as anatomy_name,    c2m2.gene.name as gene_name,    
+    c2m2.anatomy.name as anatomy_name,    c2m2.biofluid.name as biofluid_name,  c2m2.gene.name as gene_name,    
 
     c2m2.protein.id as protein, c2m2.protein.name as protein_name,
 
@@ -212,6 +213,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     on (c2m2.collection.local_id = c2m2.collection_anatomy.collection_local_id and
         c2m2.collection.id_namespace = c2m2.collection_anatomy.collection_id_namespace)
 
+    left join c2m2.collection_biofluid
+    on (c2m2.collection.local_id = c2m2.collection_biofluid.collection_local_id and
+        c2m2.collection.id_namespace = c2m2.collection_biofluid.collection_id_namespace)
+
     left join c2m2.collection_substance /* even if empty now; may have data in future */
     on (c2m2.collection.local_id = c2m2.collection_substance.collection_local_id and
         c2m2.collection.id_namespace = c2m2.collection_substance.collection_id_namespace)
@@ -252,6 +257,9 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
     left join c2m2.anatomy
         on (c2m2.collection_anatomy.anatomy = c2m2.anatomy.id)
+
+    left join c2m2.biofluid
+        on (c2m2.collection_biofluid.biofluid = c2m2.biofluid.id)
 
     --- Moved c2m2.disease to after c2m2.subject_disease
 
@@ -434,10 +442,10 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     /*
     GROUP BY 
     searchable, c2m2.collection_defined_by_project.project_id_namespace, 
-    c2m2.collection_defined_by_project.project_local_id, sample_prep_method, c2m2.collection_anatomy.anatomy, 
+    c2m2.collection_defined_by_project.project_local_id, sample_prep_method, c2m2.collection_anatomy.anatomy, c2m2.collection_biofluid.biofluid, 
     disease_association_type, c2m2.disease.id, subject_id_namespace, subject_local_id, biosample_age_at_sampling, 
     c2m2.collection_gene.gene, c2m2.collection.id_namespace, c2m2.collection.local_id, 
-    c2m2.collection_substance.substance, c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, c2m2.anatomy.name,
+    c2m2.collection_substance.substance, c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, c2m2.anatomy.name, c2m2.biofluid.name, 
     c2m2.gene.name, c2m2.protein.id, c2m2.protein.name, c2m2.disease.name, subject_granularity, subject_sex, 
     subject_ethnicity, subject_age_at_enrollment, c2m2.substance.name, c2m2.compound.id, c2m2.compound.name,
     c2m2.project.persistent_id, c2m2.project.creation_time, c2m2.project.name, c2m2.project.abbreviation,
@@ -478,7 +486,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_collection_cmp' 
     AND indexname = 'ffl_collection_cmp_idx_dcc_sp_dis_ana') THEN
         CREATE INDEX ffl_collection_cmp_idx_dcc_sp_dis_ana ON c2m2.ffl_collection_cmp USING 
-        btree(dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name);
+        btree(dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name, biofluid_name);
     END IF;
 END $$;
 
@@ -491,7 +499,7 @@ BEGIN
     AND indexname = 'ffl_collection_cmp_idx_dcc_proj_sp_dis_ana_gene_data') THEN
         CREATE INDEX ffl_collection_cmp_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_collection_cmp USING 
         --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name, assay_type_name);
-        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, 
+        btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
         compound_name, data_type_name, assay_type_name);
     END IF;
 END $$;
