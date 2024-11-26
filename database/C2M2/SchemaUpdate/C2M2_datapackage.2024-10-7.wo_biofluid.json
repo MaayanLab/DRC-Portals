@@ -284,11 +284,6 @@
                   "name": "anatomy",
                   "description": "An UBERON CV term ID used to locate the origin of this biosample within the physiology of its source or host organism",
                   "type": "string"
-               },
-               {
-                  "name": "biofluid",
-                  "description": "An UBERON CV term or InterLex term used to locate the origin of this biosample within the fluid compartment of its source or host organism",
-                  "type": "string"
                }
             ],
             "missingValues": [
@@ -330,13 +325,6 @@
                   "fields": "anatomy",
                   "reference": {
                      "resource": "anatomy",
-                     "fields": "id"
-                  }
-               },
-               {
-                  "fields": "biofluid",
-                  "reference": {
-                     "resource": "biofluid",
                      "fields": "id"
                   }
                }
@@ -2255,75 +2243,6 @@
       },
       {
          "profile": "tabular-data-resource",
-         "name": "collection_biofluid",
-         "title": "collection_biofluid",
-         "path": "collection_biofluid.tsv",
-         "dialect": {
-            "delimiter": "\t",
-            "doubleQuote": false,
-            "lineTerminator": "\n",
-            "skipInitialSpace": true,
-            "header": true
-         },         
-         "description": "Association between an UBERON/InterLex biofluid term and a C2M2 collection containing experimental resources directly related to the study of the biofluid concept described by that term",         
-         "schema": {
-            "fields": [
-               {
-                  "name": "collection_id_namespace",
-                  "description": "Identifier namespace for this collection",
-                  "type": "string",
-                  "constraints": {
-                     "required": true
-                  }
-               },
-               {
-                  "name": "collection_local_id",
-                  "description": "The ID of this collection",
-                  "type": "string",
-                  "constraints": {
-                     "required": true
-                  }
-               },
-               {
-                  "name": "biofluid",
-                  "description": "An UBERON term ID",
-                  "type": "string",
-                  "constraints": {
-                     "required": true
-                  }
-               }
-            ],
-            "primaryKey": [
-               "collection_id_namespace",
-               "collection_local_id",
-               "biofluid"
-            ],
-            "foreignKeys": [
-               {
-                  "fields": [
-                     "collection_id_namespace",
-                     "collection_local_id"
-                  ],
-                  "reference": {
-                     "resource": "collection",
-                     "fields": [
-                        "id_namespace",
-                        "local_id"
-                     ]
-                  }
-               },
-               {
-                  "fields": "biofluid",
-                  "reference": {
-                     "resource": "biofluid",
-                     "fields": "id"
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "profile": "tabular-data-resource",
          "name": "collection_protein",
          "title": "collection_protein",
          "path": "collection_protein.tsv",
@@ -3113,55 +3032,6 @@
             "header": true
          },
          "description": "List of Uber-anatomy ontology (UBERON) CV terms used to locate the origin of a C2M2 biosample within the physiology of its source or host organism",
-         "schema": {
-            "fields": [
-               {
-                  "name": "id",
-                  "description": "An UBERON CV term",
-                  "type": "string",
-                  "constraints": {
-                     "required": true,
-                     "unique": true
-                  }
-               },
-               {
-                  "name": "name",
-                  "description": "A short, human-readable, machine-read-friendly label for this UBERON term",
-                  "type": "string",
-                  "constraints": {
-                     "required": true
-                  }
-               },
-               {
-                  "name": "description",
-                  "description": "A human-readable description of this UBERON term",
-                  "type": "string"
-               },
-               {
-                  "name": "synonyms",
-                  "description": "A list of synonyms for this term as identified by the UBERON metadata",
-                  "type": "array"
-               }
-            ],
-            "missingValues": [
-               ""
-            ],
-            "primaryKey": "id"
-         }
-      },
-      {
-         "profile": "tabular-data-resource",
-         "name": "biofluid",
-         "title": "biofluid",
-         "path": "biofluid.tsv",
-         "dialect": {
-            "delimiter": "\t",
-            "doubleQuote": false,
-            "lineTerminator": "\n",
-            "skipInitialSpace": true,
-            "header": true
-         },
-         "description": "An UBERON CV term or InterLex term used to locate the origin of this biosample within the fluid compartment of its source or host organism",
          "schema": {
             "fields": [
                {

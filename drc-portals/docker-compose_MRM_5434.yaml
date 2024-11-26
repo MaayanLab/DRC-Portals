@@ -150,12 +150,12 @@ services:
 volumes:
   drc-portal-postgres34:
     x-kubernetes:
-      size: 60Gi
+      size: 100Gi
       class: gp2
 
   drc-portal-postgres34-2:
     x-kubernetes:
-      size: 60Gi
+      size: 100Gi
       class: gp2
 
 x-kubernetes:
