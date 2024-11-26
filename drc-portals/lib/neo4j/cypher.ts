@@ -617,7 +617,28 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
   const patterns: string[] = [];
   const nodeIds = new Set<string>();
   const relIds = new Set<string>();
+  const outgoingCnxns = new Map<string, Map<string, string[]>>();
+  const incomingCnxns = new Map<string, Map<string, string[]>>();
   const nodes: PathwayNode[] = [];
+
+  const updateCnxns = (
+    key: string,
+    label: string,
+    type: string,
+    allCnxns: Map<string, Map<string, string[]>>
+  ) => {
+    const keyCnxns = allCnxns.get(key);
+    if (keyCnxns !== undefined) {
+      const parentCnxnOnType = keyCnxns.get(type);
+      if (parentCnxnOnType !== undefined) {
+        parentCnxnOnType.push(label);
+      } else {
+        keyCnxns.set(type, [label]);
+      }
+    } else {
+      allCnxns.set(key, new Map<string, string[]>([[type, [label]]]));
+    }
+  };
 
   const getQueryFromTree = (node: PathwayNode, currentPattern: string) => {
     if (!nodeIds.has(node.id)) {
@@ -648,6 +669,38 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
         : ""
     })`;
 
+    node.children.forEach((childNode) => {
+      if (childNode.relationshipToParent?.direction === Direction.OUTGOING) {
+        updateCnxns(
+          node.id,
+          childNode.label,
+          childNode.relationshipToParent.type,
+          outgoingCnxns
+        );
+        updateCnxns(
+          childNode.id,
+          node.label,
+          childNode.relationshipToParent.type,
+          incomingCnxns
+        );
+      } else if (
+        childNode.relationshipToParent?.direction === Direction.INCOMING
+      ) {
+        updateCnxns(
+          node.id,
+          childNode.label,
+          childNode.relationshipToParent.type,
+          incomingCnxns
+        );
+        updateCnxns(
+          childNode.id,
+          node.label,
+          childNode.relationshipToParent.type,
+          outgoingCnxns
+        );
+      }
+    });
+
     if (node.children.length === 0) {
       patterns.push(currentPattern);
     } else if (node.children.length === 1) {
@@ -667,5 +720,7 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
     nodeIds,
     relIds,
     nodes,
+    outgoingCnxns,
+    incomingCnxns,
   };
 };

@@ -56,75 +56,60 @@ export async function POST(request: NextRequest) {
   try {
     treeParseResult = parsePathwayTree(tree);
 
-    const connectionProps = [];
+    const connectionProps: string[] = [];
+    const addConnections = (node: PathwayNode, direction: Direction) => {
+      const CONNECTIONS =
+        direction === Direction.INCOMING
+          ? INCOMING_CONNECTIONS
+          : OUTGOING_CONNECTIONS;
+      const filteredCnxns =
+        direction === Direction.INCOMING
+          ? treeParseResult.incomingCnxns
+          : treeParseResult.outgoingCnxns;
+      for (const [relationship, labels] of Array.from(
+        CONNECTIONS.get(node.label)?.entries() || []
+      )) {
+        for (const label of labels) {
+          // Skip this connection if it already exists for this node
+          if (filteredCnxns.get(node.id)?.get(relationship)?.includes(label)) {
+            continue;
+          }
+
+          const connectedNodeId = v4();
+          const connectedEdgeId = v4();
+          connections.set(connectedNodeId, {
+            node: {
+              id: connectedNodeId,
+              label: label,
+            },
+            edge: {
+              id: connectedEdgeId,
+              type: relationship,
+              source:
+                direction === Direction.INCOMING ? connectedNodeId : node.id,
+              target:
+                direction === Direction.INCOMING ? node.id : connectedNodeId,
+              direction: direction,
+            },
+          });
+
+          connectionProps.push(
+            `\`${connectedNodeId}\`: any(v IN collect(EXISTS {${createConnectionPattern(
+              node.id,
+              label,
+              relationship,
+              direction
+            )} WHERE NOT r IN [${Array.from(treeParseResult.relIds)
+              .map(escapeCypherString)
+              .join(", ")}]}) WHERE v)`
+          );
+        }
+      }
+    };
+
     for (const node of treeParseResult.nodes) {
-      for (const [relationship, labels] of Array.from(
-        OUTGOING_CONNECTIONS.get(node.label)?.entries() || []
-      )) {
-        for (const label of labels) {
-          const connectedNodeId = v4();
-          const connectedEdgeId = v4();
-
-          connections.set(connectedNodeId, {
-            node: {
-              id: connectedNodeId,
-              label: label,
-            },
-            edge: {
-              id: connectedEdgeId,
-              type: relationship,
-              source: node.id,
-              target: connectedNodeId,
-              direction: Direction.OUTGOING,
-            },
-          });
-
-          connectionProps.push(
-            `\`${connectedNodeId}\`: any(v IN collect(EXISTS {${createConnectionPattern(
-              node.id,
-              label,
-              relationship,
-              Direction.OUTGOING
-            )} WHERE NOT r IN [${Array.from(treeParseResult.relIds)
-              .map(escapeCypherString)
-              .join(", ")}]}) WHERE v)`
-          );
-        }
-      }
-
-      for (const [relationship, labels] of Array.from(
-        INCOMING_CONNECTIONS.get(node.label)?.entries() || []
-      )) {
-        for (const label of labels) {
-          const connectedNodeId = v4();
-          const connectedEdgeId = v4();
-
-          connections.set(connectedNodeId, {
-            node: {
-              id: connectedNodeId,
-              label: label,
-            },
-            edge: {
-              id: connectedEdgeId,
-              type: relationship,
-              source: connectedNodeId,
-              target: node.id,
-              direction: Direction.INCOMING,
-            },
-          });
-
-          connectionProps.push(
-            `\`${connectedNodeId}\`: any(v IN collect(EXISTS {${createConnectionPattern(
-              node.id,
-              label,
-              relationship,
-              Direction.INCOMING
-            )} WHERE NOT r IN [${Array.from(treeParseResult.relIds)
-              .map(escapeCypherString)
-              .join(", ")}]}) WHERE v)`
-          );
-        }
-      }
+      addConnections(node, Direction.OUTGOING);
+      addConnections(node, Direction.INCOMING);
     }
 
     pathwayElementsCountQuery = `

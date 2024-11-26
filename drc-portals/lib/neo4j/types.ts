@@ -110,6 +110,8 @@ export interface TreeParseResult {
   nodeIds: Set<string>;
   relIds: Set<string>;
   nodes: PathwayNode[];
+  outgoingCnxns: Map<string, Map<string, string[]>>;
+  incomingCnxns: Map<string, Map<string, string[]>>;
 }
 
 export interface PathwayConnectionsResult {
