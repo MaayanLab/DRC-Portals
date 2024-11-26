@@ -51,12 +51,14 @@ ymd=$(date +%y%m%d); logf=${logdir}/SOMEFILEforShellScript_${ymd}.log; ./SomeShe
 #
 # Call syntax: First be in folder ${HOME}/CFDE/C2M2_sub since other needed resources are there.
 # Please change SchemaUpdateFolder and C2M2_sub_folder as needed
+# The last argiment to ./call_copy_update_test.sh should be 1 if onlyTesting and 0 if adding 
+# mock biofluid related data to the relevant files.
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
 C2M2_sub_folder="${HOME}/CFDE/C2M2_sub"
 cd "$SchemaUpdateFolder"
 cp *.sh "$C2M2_sub_folder"/.
 cd "$C2M2_sub_folder"
-./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh "$SchemaUpdateFolder" 0 2>&1 | tee schema_update_test.log
+./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh "$SchemaUpdateFolder" 1 2>&1 | tee schema_update_test.log
 # To get back to SchemaUpdateFolder
 cd "$SchemaUpdateFolder"
 
