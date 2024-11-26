@@ -13,17 +13,17 @@ mkdir -p ${logdir}
 
 # Use this file to record the commands that need to be executed for updating one or more schema-related files
 # Some generic syntax examples
-python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/PrepEmpty_UpdateTSVs_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py 2>&1 | tee ${logf}
+python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/populateC2M2FromS3_${ymd}.log; ${python_cmd} PrepUpdateTSVs_populateC2M2FromS3.py 2>&1 | tee ${logf}
 # Check for any warning or errors
-egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_PrepEmpty_UpdateTSVs_${ymd}.log; 
-egrep -i -e "Error" ${logf} > ${logdir}/error_in_PrepEmpty_UpdateTSVs_${ymd}.log;
+egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_populateC2M2FromS3_${ymd}.log; 
+egrep -i -e "Error" ${logf} > ${logdir}/error_in_populateC2M2FromS3_${ymd}.log;
 
 # If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_PrepEmpty_UpdateTSVs_${dcc_short}_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_populateC2M2FromS3_${dcc_short}_${ymd}.log; ${python_cmd} PrepUpdateTSVs_populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 
 # Example of another DCC
-dcc_short=KidsFirst; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_PrepEmpty_UpdateTSVs_${dcc_short}_${ymd}.log; ${python_cmd} PrepEmptyTSVs_UpdateTSVs.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+dcc_short=KidsFirst; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_populateC2M2FromS3_${dcc_short}_${ymd}.log; ${python_cmd} PrepUpdateTSVs_populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 
 
@@ -51,12 +51,14 @@ ymd=$(date +%y%m%d); logf=${logdir}/SOMEFILEforShellScript_${ymd}.log; ./SomeShe
 #
 # Call syntax: First be in folder ${HOME}/CFDE/C2M2_sub since other needed resources are there.
 # Please change SchemaUpdateFolder and C2M2_sub_folder as needed
+# The last argiment to ./call_copy_update_test.sh should be 1 if onlyTesting and 0 if adding 
+# mock biofluid related data to the relevant files.
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
 C2M2_sub_folder="${HOME}/CFDE/C2M2_sub"
 cd "$SchemaUpdateFolder"
 cp *.sh "$C2M2_sub_folder"/.
 cd "$C2M2_sub_folder"
-./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh "$SchemaUpdateFolder" 0 2>&1 | tee schema_update_test.log
+./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh "$SchemaUpdateFolder" 1 2>&1 | tee schema_update_test.log
 # To get back to SchemaUpdateFolder
 cd "$SchemaUpdateFolder"
 
