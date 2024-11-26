@@ -21,6 +21,7 @@ import CompoundFilterComponent from './CompoundFilterComponent';
 import ProteinFilterComponent from './ProteinFilterComponent';
 import GeneFilterComponent from './GeneFilterComponent';
 import AnatomyFilterComponent from './AnatomyFilterComponent';
+import BiofluidFilterComponent from './BiofluidFilterComponent';
 import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
 import React from "react";
@@ -74,6 +75,8 @@ const doQueryCount = React.cache(async (props: PageProps) => {
           REPLACE(allres_full.disease, ':', '_') AS disease,
           COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
           REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+          COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+          REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
           COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
           allres_full.gene AS gene,
           COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -90,7 +93,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      ORDER BY /* rank DESC, */ dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+      ORDER BY /* rank DESC, */ dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
           protein_name, compound_name, data_type_name, assay_type_name
   ),
     
@@ -137,6 +140,8 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         REPLACE(allres_full.disease, ':', '_') AS disease,
         COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
         REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+        COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+        REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
         COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
         allres_full.gene AS gene,
         COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -176,6 +181,8 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         disease,
         anatomy_name,
         anatomy,
+        biofluid_name,
+        biofluid,
         gene_name,
         gene,
         protein_name,
@@ -189,7 +196,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         project_name,
         project_persistent_id
       FROM allres_exp 
-      ORDER BY /* rank DESC, */ dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, gene_name, 
+      ORDER BY /* rank DESC, */ dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
         protein_name, compound_name, data_type_name, assay_type_name
       OFFSET ${super_offset}
       LIMIT ${super_limit} 
@@ -284,7 +291,7 @@ export async function SearchQueryComponent(props: PageProps) {
 
     const t1: number = performance.now();
     console.log("---- Elapsed time for filtered count DB queries: ", t1 - t0, " milliseconds");
-  
+
     console.log("LP filtered_count = " + qryCnt_res?.filtered_count);
 
 
@@ -299,39 +306,43 @@ export async function SearchQueryComponent(props: PageProps) {
             <React.Suspense fallback={<>Loading..</>}>
               <DiseaseFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <TaxonomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <AnatomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <BiofluidFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
             <React.Suspense fallback={<>Loading..</>}>
               <GeneFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <ProteinFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <CompoundFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <DataTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <AssayTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
             <React.Suspense fallback={<>Loading..</>}>
               <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
-            
+
 
           </>
         }
