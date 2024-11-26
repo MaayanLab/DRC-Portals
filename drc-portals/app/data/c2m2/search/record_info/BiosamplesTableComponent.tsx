@@ -17,6 +17,7 @@ interface BiosampleTableResult {
         biosample_creation_time: string,
         sample_prep_method_name: string,
         anatomy_name: string,
+        biofluid_name: string,
         disease_name: string,
         disease_association_type_name: string,
         subject_id_namespace: string,
@@ -34,6 +35,7 @@ interface BiosampleTableResult {
         biosample_creation_time: string,
         sample_prep_method_name: string,
         anatomy_name: string,
+        biofluid_name: string,
         disease_name: string,
         disease_association_type_name: string,
         subject_id_namespace: string,
@@ -74,6 +76,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 SELECT DISTINCT
                     COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
                     COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
+                    COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
                     COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
                     allres_full.project_local_id AS project_local_id,
                     c2m2.project.persistent_id AS project_persistent_id,
@@ -83,10 +86,11 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
                     allres_full.project_local_id = c2m2.project.local_id) 
                 LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
+                LEFT JOIN c2m2.biofluid ON (allres_full.biofluid = c2m2.biofluid.id)
                 LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
                 LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
-                GROUP BY disease_name, anatomy_name, gene_name, allres_full.project_local_id, c2m2.project.persistent_id
-                ORDER BY disease_name, anatomy_name, gene_name
+                GROUP BY disease_name, anatomy_name, biofluid_name, gene_name, allres_full.project_local_id, c2m2.project.persistent_id
+                ORDER BY disease_name, anatomy_name, biofluid_name, gene_name
             ), ****/
             biosamples_table AS (
                 SELECT DISTINCT
@@ -98,6 +102,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                     allres_full.biosample_creation_time,
                     allres_full.sample_prep_method_name,
                     allres_full.anatomy_name,
+                    allres_full.biofluid_name,
                     allres_full.disease_name,
                     allres_full.disease_association_type_name,
                     allres_full.subject_id_namespace,
@@ -144,7 +149,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         }
 
         const biosample_table_columnsToIgnore: string[] = [
-            'anatomy_name', 'disease_name', 'project_local_id',
+            'anatomy_name', 'biofluid_name', 'disease_name', 'project_local_id',
             'project_id_namespace', 'subject_local_id',
             'subject_id_namespace', 'biosample_id_namespace'
         ];

@@ -103,6 +103,8 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                 allres_full.disease,
                 allres_full.anatomy_name,
                 allres_full.anatomy,
+                allres_full.biofluid_name,
+                allres_full.biofluid,
                 allres_full.gene, 
                 allres_full.gene_name,
                 allres_full.protein, 
