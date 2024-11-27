@@ -16,6 +16,23 @@ import {
 } from "@/lib/neo4j/types";
 import { escapeCypherString } from "@/lib/neo4j/utils";
 
+interface CountsQueryRecord {
+  counts: {
+    [key: string]: number;
+  };
+}
+
+interface ConnectionQueryRecord {
+  exists: boolean;
+  nodeId: string;
+  label: string;
+  edgeId: string;
+  type: string;
+  source: string;
+  target: string;
+  direction: Direction;
+}
+
 // TODO: Would be awesome if we could somehow guarantee that the ids passed in for a given pathway will be exactly the same every time
 // that pathway is sent in the request. This would allow us to leverage the Neo4j query cache much more effectively.
 export async function POST(request: NextRequest) {
@@ -23,10 +40,7 @@ export async function POST(request: NextRequest) {
   let tree: PathwayNode;
   let treeParseResult: TreeParseResult;
   let pathwayElementsCountQuery: string;
-  const connections = new Map<
-    string,
-    { node: NodeConnection; edge: EdgeConnection }
-  >();
+  const connectionQueries: string[] = [];
 
   if (body === null) {
     return Response.json(
@@ -56,7 +70,6 @@ export async function POST(request: NextRequest) {
   try {
     treeParseResult = parsePathwayTree(tree);
 
-    const connectionProps: string[] = [];
     const addConnections = (node: PathwayNode, direction: Direction) => {
       const CONNECTIONS =
         direction === Direction.INCOMING
@@ -77,31 +90,32 @@ export async function POST(request: NextRequest) {
 
           const connectedNodeId = v4();
           const connectedEdgeId = v4();
-          connections.set(connectedNodeId, {
-            node: {
-              id: connectedNodeId,
-              label: label,
-            },
-            edge: {
-              id: connectedEdgeId,
-              type: relationship,
-              source:
-                direction === Direction.INCOMING ? connectedNodeId : node.id,
-              target:
-                direction === Direction.INCOMING ? node.id : connectedNodeId,
-              direction: direction,
-            },
-          });
 
-          connectionProps.push(
-            `\`${connectedNodeId}\`: any(v IN collect(EXISTS {${createConnectionPattern(
-              node.id,
-              label,
-              relationship,
-              direction
-            )} WHERE NOT r IN [${Array.from(treeParseResult.relIds)
-              .map(escapeCypherString)
-              .join(", ")}]}) WHERE v)`
+          connectionQueries.push(
+            `RETURN
+              EXISTS {
+                ${[
+                  ...treeParseResult.patterns,
+                  createConnectionPattern(
+                    node.id,
+                    label,
+                    relationship,
+                    direction
+                  ),
+                ].join(",\n\t")}
+              } AS exists,
+              "${connectedNodeId}" AS nodeId,
+              "${label}" AS label,
+              "${connectedEdgeId}" AS edgeId,
+              "${relationship}" AS type,
+              "${
+                direction === Direction.INCOMING ? connectedNodeId : node.id
+              }" AS source,
+              "${
+                direction === Direction.INCOMING ? node.id : connectedNodeId
+              }" AS target,
+              "${direction}" AS direction
+            `
           );
         }
       }
@@ -121,8 +135,7 @@ export async function POST(request: NextRequest) {
       .concat(Array.from(treeParseResult.relIds).map(escapeCypherString))
       .map((id) => `${id}: count(DISTINCT ${id})`)
       .join(",\n\t")}
-    } AS counts,
-    {\n\t${connectionProps.join(",\n\t")}\n} AS exists
+    } AS counts
   `;
   } catch (e) {
     return Response.json(
@@ -137,18 +150,37 @@ export async function POST(request: NextRequest) {
   const connectedNodes: NodeConnection[] = [];
   const connectedEdges: EdgeConnection[] = [];
   try {
-    const { counts, exists } = (
-      await executeReadOne<{
-        counts: { [key: string]: number };
-        exists: { [key: string]: boolean };
-      }>(getDriver(), pathwayElementsCountQuery)
-    ).toObject();
+    const driver = getDriver();
+    const [countsResult, ...connectionsResults] = await Promise.all([
+      executeReadOne<CountsQueryRecord>(driver, pathwayElementsCountQuery),
+      ...connectionQueries.map((q, i) =>
+        executeReadOne<ConnectionQueryRecord>(driver, q)
+      ),
+    ]);
 
-    Array.from(Object.entries(exists)).forEach(([id, exists]) => {
-      const connection = connections.get(id);
-      if (connection !== undefined && exists) {
-        connectedNodes.push(connection.node);
-        connectedEdges.push(connection.edge);
+    // This should never happen with the current query, but it doesn't hurt to check!
+    if (countsResult.length !== 1) {
+      throw Error(
+        `Unexpected row count in counts query. Expected 1 row, instead returned: ${countsResult.length}`
+      );
+    }
+
+    const { counts } = countsResult.toObject();
+    // There should be only one row per query
+    connectionsResults.forEach((result) => {
+      const data = result.toObject();
+      if (data.exists) {
+        connectedNodes.push({
+          id: data.nodeId,
+          label: data.label,
+        });
+        connectedEdges.push({
+          id: data.edgeId,
+          type: data.type,
+          source: data.source,
+          target: data.target,
+          direction: data.direction,
+        });
       }
     });
     return Response.json(
