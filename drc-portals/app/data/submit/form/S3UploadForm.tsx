@@ -318,7 +318,7 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
               />
             </Grid> */}
             <Grid item>
-              <DCCSelect dcc={dcc} setDCC={setDCC} dccOptions={user.dccs.join(',')} />
+              <DCCSelect value={dcc} onChange={evt => setDCC(form => (evt.target.value))} dccOptions={user.dccs.join(',')} />
             </Grid>
             <Grid item>
               <FileTypeSelect filetype={filetype} setFiletype={setFiletype}/>
