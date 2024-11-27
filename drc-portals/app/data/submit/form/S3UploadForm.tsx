@@ -202,7 +202,7 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
     try {
       let digest = await uploadAndComputeSha256(uploadedfile, fileTypeMatch.filetype, fileTypeMatch.dcc, setProgress)
       const new_assets = await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, fileTypeMatch.filetype, fileTypeMatch.dcc, Object.values(archive))
-      setAssets(new_assets)
+      setAssets(new_assets.filter(asset=>asset.dcc?.short_label == dcc && asset.fileAsset?.filetype == filetype && asset.current && !asset.deleted))
     }
     catch (error) {
       console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
@@ -248,7 +248,7 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
         try {
           let digest = await uploadAndComputeSha256(uploadedfile, filetype, dcc, setProgress)
           const new_assets = await saveChecksumDb(digest, uploadedfile.name, uploadedfile.size, filetype, dcc, Object.values(archive))
-          setAssets(new_assets)
+          setAssets(new_assets.filter(asset=>asset.dcc?.short_label == dcc && asset.fileAsset?.filetype == filetype && asset.current && !asset.deleted))
         }
         catch (error) {
           console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
