@@ -6,13 +6,8 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import React from 'react';
 
-export function DCCSelect({dccOptions, dcc, setDCC}: { dccOptions: string, dcc:string, setDCC: Function}) {
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setDCC(event.target.value);
-  };
-
-  const dccArray = dccOptions.split(',')
+export function DCCSelect(props: { value?: string, onChange?: (evt: SelectChangeEvent<string>) => void, dccOptions: string }) {
+  const dccArray = props.dccOptions.split(',')
   return (
     <div>
       <FormControl sx={{ minWidth: 80 }}>
@@ -22,8 +17,8 @@ export function DCCSelect({dccOptions, dcc, setDCC}: { dccOptions: string, dcc:s
         <Select
           labelId="select-dcc"
           id="simple-select"
-          value={dcc}
-          onChange={handleChange}
+          value={props.value}
+          onChange={props.onChange}
           autoWidth
           required
           label="DCC"
