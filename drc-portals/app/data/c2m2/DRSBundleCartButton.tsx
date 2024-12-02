@@ -2,6 +2,7 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Ensure you have @mui/icons-material installed
+import { setLocalStorage } from '@/utils/localstorage';
 
 interface DRSBundleButtonProps {
   data?: { [key: string]: string | bigint | number }[];
@@ -24,12 +25,10 @@ const DRSBundleCartButton: React.FC<DRSBundleButtonProps> = ({ data }) => {
 
   // Handle the copy to clipboard action
   const handleDRSBundle = React.useCallback(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('drs-cart', unique([
-        ...(localStorage.getItem('drs-cart') || '').split('\n'),
-        ...(access_urls ?? []),
-      ].filter(item => !!item)).join('\n'))
-    }
+    setLocalStorage('drs-cart', cart => unique([
+      ...(cart || '').split('\n'),
+      ...(access_urls ?? []),
+    ].filter(item => !!item)).join('\n'))
   }, [access_urls]);
 
   // Return early if no data is available, ensuring hooks are still called
