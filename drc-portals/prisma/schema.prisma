@@ -57,9 +57,11 @@ model Publication {
   carousel_link        String?
   carousel_description String?
   image                String?
+  keywords             Json?
   dccs                 DCCPublication[]
   partnertships        PartnershipPublications[]
   r03s                 R03Publications[]
+  centers              CenterPublications[]
   tool                 Tool?                     @relation(fields: [tool_id], references: [id])
 
   @@map("publications")
@@ -534,6 +536,7 @@ model Center {
   grant_num         String?
   active            Boolean   @default(true)
   outreach          CenterOutreach[]
+  publication       CenterPublications[]
 
   @@map("centers")
 }
@@ -546,3 +549,13 @@ model CenterOutreach {
 
   @@map("center_outreach")
 }
+
+model CenterPublications {
+  publication_id  String    @id
+  center_id    String
+  center       Center    @relation(fields: [center_id], references: [id])
+  outreach     Publication  @relation(fields: [publication_id], references: [id])
+
+  @@map("center_publications")
+}
+
