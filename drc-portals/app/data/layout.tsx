@@ -3,6 +3,7 @@ import Header  from '@/components/Header/'
 import Footer  from '@/components/Footer/data'
 import { Metadata } from 'next'
 import Background from '@/components/styled/background'
+import CartFab from '@/components/Cart/data'
 // import NavBreadcrumbs from '@/components/Header/breadcrumbs'
 
 export const metadata: Metadata = {
@@ -78,6 +79,7 @@ export default function DataLayout({
           <div>{children}</div>
         </Background>
       </Grid>
+      <CartFab />
       <Grid item><Footer/></Grid>
     </>
   )
