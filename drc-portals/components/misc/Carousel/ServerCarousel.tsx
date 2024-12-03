@@ -95,7 +95,7 @@ export default async function ServerCarousel () {
       ]
     
     
-    const children = [...outreach_items, ...publication_items, ...items].map( (item, i) => (
+    const children = [...items, ...outreach_items, ...publication_items].map( (item, i) => (
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
