@@ -91,7 +91,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 
     const significantDataExists = data && data.length > 0 && hasSignificantData(data);
 
-    
+
 
     console.log(tablePrefix + " hasSignificantData = " + significantDataExists);
 
@@ -143,8 +143,8 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                         />
                         <div className="flex flex-row gap-4">
                             {drsBundle && <DRSBundleButton data={dataToSend} />}
-                            <DownloadButton data={dataToSend} filename={downloadFileName} name={"Download Selected"} />
-                            <DownloadButton data={full_data} filename={downloadFileName+"_ALL.json"} name={"Download All"} />
+                            <DownloadButton data={dataToSend} filename={downloadFileName} name={"Download Selected Metadata"} />
+                            <DownloadButton data={full_data} filename={downloadFileName + "_ALL.json"} name={"Download All Metadata"} />
                         </div>
                     </AccordionDetails>
                 </Accordion>
