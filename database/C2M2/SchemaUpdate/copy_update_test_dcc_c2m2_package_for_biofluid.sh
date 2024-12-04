@@ -45,7 +45,8 @@ if [[ "$onlyTest" == "0" ]]; then
 	cd "${tdir}" &&	dos2unix *.tsv
 	echo "Applied command dos2unix to tsv files inside ${tdir}";
 	cp "${schemaupdate_dir}/empty_tsvs"/*biofluid* .
-	cp "${schemaupdate_dir}"/C2M2_datapackage_biofluid.json ./C2M2_datapackage.json
+	#cp "${schemaupdate_dir}"/C2M2_datapackage_biofluid.json ./C2M2_datapackage.json
+	cp "${schemaupdate_dir}"/C2M2_datapackage.json ./.
 	echo "Copied biofluid related empty files and updated c2m2 json schema file to ${tdir}";
 	cd "${curdir}"
 	cp "${schemaupdate_dir}"/"${scriptfile_for_update}" .
