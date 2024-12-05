@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "generate:p2p": "prisma generate --schema=prisma/pdp/schema.prisma",
     "generate:primary": "prisma generate --schema=prisma/schema.prisma",
     "generate:c2m2": "prisma generate --schema=prisma/c2m2/schema.prisma",
-    "generate": "npm run generate:primary && npm run generate:c2m2",
+    "generate": "npm run generate:primary && npm run generate:c2m2 && npm run generate:pdp",
     "migrate:primary": "prisma migrate deploy --schema=prisma/schema.prisma",
     "migrate": "npm run migrate:primary",
     "build": "npm run generate && next build",

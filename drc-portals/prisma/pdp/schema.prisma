@@ -1,0 +1,39 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../node_modules/.prisma/client/pdp"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PDP_DATABASE_URL")
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model entity {
+  type                 String         @db.VarChar
+  id                   String         @db.Uuid
+  attributes           Json
+  pagerank             Float?         @default(0)
+  source_relationships relationship[] @relation("relationship_source_type_source_idToentity")
+  target_relationships relationship[] @relation("relationship_target_type_target_idToentity")
+
+  @@id([type, id])
+  @@index([pagerank])
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model relationship {
+  source_type   String @db.VarChar
+  source_id     String @db.Uuid
+  predicate     String @db.VarChar
+  target_type   String @db.VarChar
+  target_id     String @db.Uuid
+  source_entity entity @relation("relationship_source_type_source_idToentity", fields: [source_type, source_id], references: [type, id], onDelete: NoAction, onUpdate: NoAction)
+  target_entity entity @relation("relationship_target_type_target_idToentity", fields: [target_type, target_id], references: [type, id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([predicate, source_id, target_id])
+  @@index([source_type])
+  @@index([target_type])
+}
