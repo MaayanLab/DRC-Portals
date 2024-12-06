@@ -250,7 +250,7 @@ export default function GraphPathway() {
           : deepCopyPathwaySearchNode(element)
       );
       const tempElements = [
-        deepCopyPathwaySearchNode(node, { count: undefined }, ["loading"]),
+        deepCopyPathwaySearchNode(node, undefined, ["loading"]),
         ...searchElements.filter(
           (element) =>
             element.classes?.includes("path-element") &&
@@ -336,41 +336,49 @@ export default function GraphPathway() {
 
     if (tree !== undefined) {
       setSearchElements([initialNode]);
-      getPathwayConnections(tree).then((response) => {
-        setSearchElements([
-          createPathwaySearchNode(
-            {
-              ...initialNode.data,
-            },
-            ["path-element"]
-          ),
-          ...response.connectedNodes.map((node) =>
-            createPathwaySearchNode({
-              id: node.id,
-              displayLabel: node.label,
-              dbLabel: node.label,
-            })
-          ),
-          ...response.connectedEdges.map((edge) =>
-            createPathwaySearchEdge(
+      getPathwayConnections(tree)
+        .then((response) => {
+          setSearchElements([
+            createPathwaySearchNode(
               {
-                id: edge.id,
-                source:
-                  edge.direction === Direction.OUTGOING
-                    ? edge.source
-                    : edge.target,
-                target:
-                  edge.direction === Direction.OUTGOING
-                    ? edge.target
-                    : edge.source,
-                displayLabel: edge.type,
-                type: edge.type,
+                ...initialNode.data,
               },
-              edge.direction === Direction.INCOMING ? ["source-arrow-only"] : []
-            )
-          ),
-        ]);
-      });
+              ["path-element"]
+            ),
+            ...response.connectedNodes.map((node) =>
+              createPathwaySearchNode({
+                id: node.id,
+                displayLabel: node.label,
+                dbLabel: node.label,
+              })
+            ),
+            ...response.connectedEdges.map((edge) =>
+              createPathwaySearchEdge(
+                {
+                  id: edge.id,
+                  source:
+                    edge.direction === Direction.OUTGOING
+                      ? edge.source
+                      : edge.target,
+                  target:
+                    edge.direction === Direction.OUTGOING
+                      ? edge.target
+                      : edge.source,
+                  displayLabel: edge.type,
+                  type: edge.type,
+                },
+                edge.direction === Direction.INCOMING
+                  ? ["source-arrow-only"]
+                  : []
+              )
+            ),
+          ]);
+        })
+        .catch((e) => {
+          console.error(e);
+          setSearchElements([]);
+          updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
+        });
     }
   };
 
