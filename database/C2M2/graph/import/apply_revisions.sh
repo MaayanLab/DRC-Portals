@@ -7,6 +7,7 @@ files=(
     "synonym_indexes.cypher"
     "synonyms.cypher"
     "direct_dcc_connections.cypher"
+    "add_unique_rels.cypher"
 )
 
 # Iterate over the array of filenames
