@@ -231,6 +231,13 @@ services:
   #   deploy:
   #     replicas: 0
 
+  drc-portal-postgraphile:
+    platform: linux/amd64
+    image: graphile/postgraphile:4
+    command: -c postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?sslmode=disable --schema api --watch --dynamic-json --enhance-graphiql
+    ports:
+      - 5000:5000
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:
@@ -245,3 +252,4 @@ volumes:
 x-kubernetes:
   name: drc-portal
   namespace: drc
+
