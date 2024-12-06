@@ -2,8 +2,9 @@ import { NextRequest } from "next/server";
 import { v4 } from "uuid";
 
 import {
-  INCOMING_CONNECTIONS,
-  OUTGOING_CONNECTIONS,
+  UNIQUE_PAIR_INCOMING_CONNECTIONS,
+  UNIQUE_PAIR_OUTGOING_CONNECTIONS,
+  UNIQUE_TO_GENERIC_REL,
 } from "@/lib/neo4j/constants";
 import { createConnectionPattern, parsePathwayTree } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
@@ -15,12 +16,6 @@ import {
   TreeParseResult,
 } from "@/lib/neo4j/types";
 import { escapeCypherString } from "@/lib/neo4j/utils";
-
-interface CountsQueryRecord {
-  counts: {
-    [key: string]: number;
-  };
-}
 
 interface ConnectionQueryRecord {
   exists: boolean;
@@ -39,7 +34,6 @@ export async function POST(request: NextRequest) {
   const body: { tree: string } = await request.json();
   let tree: PathwayNode;
   let treeParseResult: TreeParseResult;
-  let pathwayElementsCountQuery: string;
   const connectionQueries: string[] = [];
 
   if (body === null) {
@@ -73,49 +67,109 @@ export async function POST(request: NextRequest) {
     const addConnections = (node: PathwayNode, direction: Direction) => {
       const CONNECTIONS =
         direction === Direction.INCOMING
-          ? INCOMING_CONNECTIONS
-          : OUTGOING_CONNECTIONS;
+          ? UNIQUE_PAIR_INCOMING_CONNECTIONS
+          : UNIQUE_PAIR_OUTGOING_CONNECTIONS;
       const filteredCnxns =
         direction === Direction.INCOMING
           ? treeParseResult.incomingCnxns
           : treeParseResult.outgoingCnxns;
+
+      // Get all the ids which are used more than once across all patterns
+      const relevantIdCounts = new Map<string, number>([
+        ...Array.from(treeParseResult.nodeIds)
+          .map(
+            (nodeId) =>
+              [
+                nodeId,
+                Math.max(
+                  treeParseResult.patterns.join().split(nodeId).length - 1,
+                  0
+                ),
+              ] as [string, number]
+          )
+          .filter(([_, count]) => count > 1),
+      ]);
+
+      const workingSet = new Set<string>();
+      const queryStmts: string[] = [];
+      let whereStmtIdx: number | undefined = undefined;
+      treeParseResult.patterns.forEach((pattern) => {
+        queryStmts.push(`MATCH ${pattern}`);
+
+        if (whereStmtIdx === undefined && pattern.split(node.id).length > 1) {
+          queryStmts.push("");
+          whereStmtIdx = queryStmts.length - 1;
+        }
+
+        pattern
+          .match(
+            /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
+          )
+          ?.forEach((matchedId) => {
+            const currentCount = relevantIdCounts.get(matchedId);
+            if (currentCount !== undefined) {
+              const newCount = currentCount - 1;
+              relevantIdCounts.set(matchedId, newCount);
+
+              if (newCount > 0) {
+                workingSet.add(matchedId);
+              } else {
+                workingSet.delete(matchedId);
+              }
+            }
+          });
+
+        if (workingSet.size > 0) {
+          queryStmts.push(
+            `WITH DISTINCT ${Array.from(workingSet)
+              .map(escapeCypherString)
+              .join(", ")}`
+          );
+        }
+      });
+
       for (const [relationship, labels] of Array.from(
         CONNECTIONS.get(node.label)?.entries() || []
       )) {
         for (const label of labels) {
           // Skip this connection if it already exists for this node
-          if (filteredCnxns.get(node.id)?.get(relationship)?.includes(label)) {
+          if (
+            filteredCnxns
+              .get(node.id)
+              ?.get(UNIQUE_TO_GENERIC_REL.get(relationship) || "Unknown")
+              ?.includes(label)
+          ) {
             continue;
           }
 
           const connectedNodeId = v4();
           const connectedEdgeId = v4();
 
+          if (whereStmtIdx !== undefined) {
+            queryStmts[whereStmtIdx] = `WHERE COUNT {${createConnectionPattern(
+              node.id,
+              direction,
+              undefined,
+              relationship
+            )}} > 0`;
+          }
+
           connectionQueries.push(
-            `RETURN
-              EXISTS {
-                ${[
-                  ...treeParseResult.patterns,
-                  createConnectionPattern(
-                    node.id,
-                    label,
-                    relationship,
-                    direction
-                  ),
-                ].join(",\n\t")}
-              } AS exists,
-              "${connectedNodeId}" AS nodeId,
-              "${label}" AS label,
-              "${connectedEdgeId}" AS edgeId,
-              "${relationship}" AS type,
-              "${
+            [
+              ...queryStmts,
+              "RETURN",
+              `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
+              `\t"${connectedEdgeId}" AS edgeId,`,
+              `\t"${relationship}" AS type,`,
+              `\t"${
                 direction === Direction.INCOMING ? connectedNodeId : node.id
-              }" AS source,
-              "${
+              }" AS source,`,
+              `\t"${
                 direction === Direction.INCOMING ? node.id : connectedNodeId
-              }" AS target,
-              "${direction}" AS direction
-            `
+              }" AS target,`,
+              `\t"${direction}" AS direction`,
+              "LIMIT 1",
+            ].join("\n")
           );
         }
       }
@@ -125,18 +179,6 @@ export async function POST(request: NextRequest) {
       addConnections(node, Direction.OUTGOING);
       addConnections(node, Direction.INCOMING);
     }
-
-    pathwayElementsCountQuery = `
-  MATCH
-    ${treeParseResult.patterns.join(",\n\t")}
-  RETURN
-    {\n\t${Array.from(treeParseResult.nodeIds)
-      .map(escapeCypherString)
-      .concat(Array.from(treeParseResult.relIds).map(escapeCypherString))
-      .map((id) => `${id}: count(DISTINCT ${id})`)
-      .join(",\n\t")}
-    } AS counts
-  `;
   } catch (e) {
     return Response.json(
       {
@@ -151,41 +193,31 @@ export async function POST(request: NextRequest) {
   const connectedEdges: EdgeConnection[] = [];
   try {
     const driver = getDriver();
-    const [countsResult, ...connectionsResults] = await Promise.all([
-      executeReadOne<CountsQueryRecord>(driver, pathwayElementsCountQuery),
+    const [...connectionsResults] = await Promise.all([
       ...connectionQueries.map((q, i) =>
         executeReadOne<ConnectionQueryRecord>(driver, q)
       ),
     ]);
 
-    // This should never happen with the current query, but it doesn't hurt to check!
-    if (countsResult.length !== 1) {
-      throw Error(
-        `Unexpected row count in counts query. Expected 1 row, instead returned: ${countsResult.length}`
-      );
-    }
-
-    const { counts } = countsResult.toObject();
     // There should be only one row per query
-    connectionsResults.forEach((result) => {
-      const data = result.toObject();
-      if (data.exists) {
+    connectionsResults
+      .filter((result) => result !== undefined) // Filter out unmatched connections
+      .forEach((result) => {
+        const data = result.toObject();
         connectedNodes.push({
           id: data.nodeId,
           label: data.label,
         });
         connectedEdges.push({
           id: data.edgeId,
-          type: data.type,
+          type: UNIQUE_TO_GENERIC_REL.get(data.type) || "Unknown",
           source: data.source,
           target: data.target,
           direction: data.direction,
         });
-      }
-    });
+      });
     return Response.json(
       {
-        counts,
         connectedNodes,
         connectedEdges,
       },

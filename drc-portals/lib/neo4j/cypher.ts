@@ -495,16 +495,30 @@ export const createPathwaySearchPathsCountCypher = (
   RETURN count(*) AS count`;
 };
 
-export const createPathwaySearchCypher = (treeParseResult: TreeParseResult) => {
+export const createPathwaySearchAllPathsCypher = (
+  treeParseResult: TreeParseResult
+) => {
+  const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
+  const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
+  const allIds = nodeIds.concat(relIds);
+  return [
+    "MATCH",
+    `${treeParseResult.patterns.join(",\n")}`,
+    `RETURN ${allIds.join(", ")}`,
+    "SKIP $skip",
+    "LIMIT $limit",
+  ].join("\n");
+};
+
+export const createPathwaySearchDistinctSetCypher = (
+  treeParseResult: TreeParseResult
+) => {
   const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
   const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
   const allIds = nodeIds.concat(relIds);
   return `
   CALL {
-    MATCH
-    ${treeParseResult.patterns.join(",\n")}
-    RETURN ${allIds.join(", ")}
-    LIMIT $limit
+    ${createPathwaySearchAllPathsCypher(treeParseResult)}
   }
   WITH ${allIds.join(", ")}
   RETURN
@@ -526,15 +540,17 @@ export const createPathwaySearchCypher = (treeParseResult: TreeParseResult) => {
 
 export const createConnectionPattern = (
   refNodeId: string,
-  label: string,
-  type: string,
-  direction: Direction
+  direction: Direction,
+  label?: string,
+  type?: string
 ) => {
+  const relPattern =
+    type === undefined ? "[]" : `[:${escapeCypherString(type)}]`;
+  const nodePattern =
+    label === undefined ? "()" : `(:${escapeCypherString(label)})`;
   return `(${escapeCypherString(refNodeId)})${
     direction === Direction.INCOMING ? "<" : ""
-  }-[r:${escapeCypherString(type)}]-${
-    direction === Direction.OUTGOING ? ">" : ""
-  }(:${escapeCypherString(label)})`;
+  }-${relPattern}-${direction === Direction.OUTGOING ? ">" : ""}${nodePattern}`;
 };
 
 export const getPatternsFromPaths = (
@@ -704,11 +720,12 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
     if (node.children.length === 0) {
       patterns.push(currentPattern);
     } else if (node.children.length === 1) {
-      getQueryFromTree(node.children[0], currentPattern);
+      patterns.push(currentPattern);
+      getQueryFromTree(node.children[0], `(${escapedNodeId})`);
     } else {
       patterns.push(currentPattern);
       node.children.forEach((child) => {
-        getQueryFromTree(child, `\t\t(${escapedNodeId})`);
+        getQueryFromTree(child, `(${escapedNodeId})`);
       });
     }
   };

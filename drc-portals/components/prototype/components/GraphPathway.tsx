@@ -52,8 +52,8 @@ export default function GraphPathway() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
-  const PATHWAY_COUNTS_ERROR =
-    "An error occurred while retrieving counts for the current pathway.";
+  const PATHWAY_CONNECTIONS_ERROR =
+    "An error occurred while retrieving connections for the current pathway.";
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
@@ -164,17 +164,11 @@ export default function GraphPathway() {
             ),
             ...pathwayElements.map((element) => {
               if (isPathwaySearchEdgeElement(element)) {
-                const matched = Object.hasOwn(response.counts, element.data.id);
-                return deepCopyPathwaySearchEdge(element, {
-                  count: matched ? response.counts[element.data.id] : 0,
-                });
+                return deepCopyPathwaySearchEdge(element);
               } else {
-                const matched = Object.hasOwn(response.counts, element.data.id);
                 return deepCopyPathwaySearchNode(
                   element,
-                  {
-                    count: matched ? response.counts[element.data.id] : 0,
-                  },
+                  undefined,
                   [],
                   ["loading"]
                 );
@@ -205,7 +199,7 @@ export default function GraphPathway() {
         .catch((e) => {
           console.error(e);
           setSearchElements(fallbackElements);
-          updateSnackbar(true, PATHWAY_COUNTS_ERROR, "error");
+          updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
         });
     }
   };
@@ -235,19 +229,12 @@ export default function GraphPathway() {
       );
       const tempElements = [
         deepCopyPathwaySearchNode(node, undefined, ["loading", "path-element"]),
-        ...searchElements
-          .filter(
-            (element) =>
-              element.data.id !== node.data.id &&
-              element.data.id !== connectedEdge.data.id &&
-              element.classes?.includes("path-element")
-          )
-          .map((element) =>
-            // Remove the counts from the temporary elements; Consider the counts as "indeterminate" at this loading stage
-            isPathwaySearchEdgeElement(element)
-              ? deepCopyPathwaySearchEdge(element, { count: undefined })
-              : deepCopyPathwaySearchNode(element, { count: undefined })
-          ),
+        ...searchElements.filter(
+          (element) =>
+            element.data.id !== node.data.id &&
+            element.data.id !== connectedEdge.data.id &&
+            element.classes?.includes("path-element")
+        ),
         deepCopyPathwaySearchEdge(connectedEdge, undefined, ["path-element"]),
       ];
       updatePathwayCounts(tempElements, fallbackElements);
@@ -264,18 +251,11 @@ export default function GraphPathway() {
       );
       const tempElements = [
         deepCopyPathwaySearchNode(node, { count: undefined }, ["loading"]),
-        ...searchElements
-          .filter(
-            (element) =>
-              element.classes?.includes("path-element") &&
-              element.data.id !== node.data.id
-          )
-          .map((element) =>
-            // Temporarily remove the counts; Consider the counts as "indeterminate" at this loading stage
-            isPathwaySearchEdgeElement(element)
-              ? deepCopyPathwaySearchEdge(element, { count: undefined })
-              : deepCopyPathwaySearchNode(element, { count: undefined })
-          ),
+        ...searchElements.filter(
+          (element) =>
+            element.classes?.includes("path-element") &&
+            element.data.id !== node.data.id
+        ),
       ];
       updatePathwayCounts(tempElements, fallbackElements);
     },
@@ -319,7 +299,7 @@ export default function GraphPathway() {
         if (status === 206) {
           updateSnackbar(
             true,
-            `Not all paths are being displayed due to result volume. Only first ${data.returnedPathsCount} paths of ${data.allPathsCount} are displayed.`,
+            `Not all paths are being displayed due to result volume. Only first ${data.limit} paths are displayed.`,
             "warning"
           );
         }
@@ -361,9 +341,6 @@ export default function GraphPathway() {
           createPathwaySearchNode(
             {
               ...initialNode.data,
-              count: Object.hasOwn(response.counts, initialNode.data.id)
-                ? response.counts[initialNode.data.id]
-                : undefined,
             },
             ["path-element"]
           ),

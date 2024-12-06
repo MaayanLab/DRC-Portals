@@ -124,8 +124,8 @@ export interface PathwayConnectionsResult {
 
 export interface PathwaySearchResult {
   graph: SubGraph;
-  returnedPathsCount: number;
-  allPathsCount: number;
+  limit: number;
+  limitExceeded: boolean;
 }
 
 export type PropValue = string | number;
