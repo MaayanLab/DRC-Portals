@@ -89,7 +89,7 @@ export interface PathwayNode {
   label: string;
   children: PathwayNode[];
   props?: { [key: string]: any };
-  relationshipToParent?: PathwayRelationship;
+  parentRelationship?: PathwayRelationship;
 }
 
 export interface NodeConnection {

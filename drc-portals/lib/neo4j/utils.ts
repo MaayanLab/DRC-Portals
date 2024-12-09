@@ -2,6 +2,7 @@
 import parser from "lucene-query-parser";
 import { v4 } from "uuid";
 
+import { UNIQUE_PAIR_OUTGOING_CONNECTIONS } from "./constants";
 import {
   PathElement,
   PathwayNode,
@@ -96,4 +97,19 @@ export const isPathwayRelationshipElement = (
   element: PathwayNode | PathwayRelationship
 ): element is PathwayRelationship => {
   return (element as PathwayRelationship).direction !== undefined;
+};
+
+export const getUniqueTypeFromNodes = (source: string, dest: string) => {
+  const uniqOutgoingCnxns = UNIQUE_PAIR_OUTGOING_CONNECTIONS.get(source);
+
+  if (uniqOutgoingCnxns !== undefined) {
+    return (
+      Array.from(uniqOutgoingCnxns.entries())
+        .filter(([_, d]) => d === dest)
+        .map(([uniqType, _]) => uniqType)
+        .shift() || "Unknown"
+    );
+  } else {
+    return "Unknown";
+  }
 };

@@ -93,13 +93,16 @@ export async function POST(request: NextRequest) {
 
       const workingSet = new Set<string>();
       const queryStmts: string[] = [];
-      let whereStmtIdx: number | undefined = undefined;
+      let whereCnxnStmtIdx: number | undefined = undefined;
       treeParseResult.patterns.forEach((pattern) => {
         queryStmts.push(`MATCH ${pattern}`);
 
-        if (whereStmtIdx === undefined && pattern.split(node.id).length > 1) {
+        if (
+          whereCnxnStmtIdx === undefined &&
+          pattern.split(node.id).length > 1
+        ) {
           queryStmts.push("");
-          whereStmtIdx = queryStmts.length - 1;
+          whereCnxnStmtIdx = queryStmts.length - 1;
         }
 
         pattern
@@ -115,6 +118,7 @@ export async function POST(request: NextRequest) {
               if (newCount > 0) {
                 workingSet.add(matchedId);
               } else {
+                relevantIdCounts.delete(matchedId);
                 workingSet.delete(matchedId);
               }
             }
@@ -129,56 +133,50 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      for (const [relationship, labels] of Array.from(
+      for (const [relationship, label] of Array.from(
         CONNECTIONS.get(node.label)?.entries() || []
       )) {
-        for (const label of labels) {
-          // Skip this connection if it already exists for this node
-          if (
-            filteredCnxns
-              .get(node.id)
-              ?.get(
-                // If the relationship is in the unique set map it to the general set, otherwise just use the general set
-                UNIQUE_TO_GENERIC_REL.get(relationship) ||
-                  (RELATIONSHIP_TYPES.has(relationship)
-                    ? relationship
-                    : "Unknown")
-              )
-              ?.includes(label)
-          ) {
-            continue;
-          }
-
-          const connectedNodeId = v4();
-          const connectedEdgeId = v4();
-
-          if (whereStmtIdx !== undefined) {
-            queryStmts[whereStmtIdx] = `WHERE COUNT {${createConnectionPattern(
-              node.id,
-              direction,
-              undefined,
-              relationship
-            )}} > 0`;
-          }
-
-          connectionQueries.push(
-            [
-              ...queryStmts,
-              "RETURN",
-              `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
-              `\t"${connectedEdgeId}" AS edgeId,`,
-              `\t"${relationship}" AS type,`,
-              `\t"${
-                direction === Direction.INCOMING ? connectedNodeId : node.id
-              }" AS source,`,
-              `\t"${
-                direction === Direction.INCOMING ? node.id : connectedNodeId
-              }" AS target,`,
-              `\t"${direction}" AS direction`,
-              "LIMIT 1",
-            ].join("\n")
-          );
+        // Skip this connection if it already exists for this node
+        if (
+          filteredCnxns
+            .get(node.id)
+            ?.get(UNIQUE_TO_GENERIC_REL.get(relationship) || "Unknown")
+            ?.includes(label)
+        ) {
+          continue;
         }
+
+        const connectedNodeId = v4();
+        const connectedEdgeId = v4();
+
+        if (whereCnxnStmtIdx !== undefined) {
+          queryStmts[
+            whereCnxnStmtIdx
+          ] = `WHERE COUNT {${createConnectionPattern(
+            node.id,
+            direction,
+            undefined,
+            relationship
+          )}} > 0`;
+        }
+
+        connectionQueries.push(
+          [
+            ...queryStmts,
+            "RETURN",
+            `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
+            `\t"${connectedEdgeId}" AS edgeId,`,
+            `\t"${relationship}" AS type,`,
+            `\t"${
+              direction === Direction.INCOMING ? connectedNodeId : node.id
+            }" AS source,`,
+            `\t"${
+              direction === Direction.INCOMING ? node.id : connectedNodeId
+            }" AS target,`,
+            `\t"${direction}" AS direction`,
+            "LIMIT 1",
+          ].join("\n")
+        );
       }
     };
 
@@ -201,7 +199,7 @@ export async function POST(request: NextRequest) {
   try {
     const driver = getDriver();
     const [...connectionsResults] = await Promise.all([
-      ...connectionQueries.map((q, i) =>
+      ...connectionQueries.map((q) =>
         executeReadOne<ConnectionQueryRecord>(driver, q)
       ),
     ]);
@@ -219,8 +217,7 @@ export async function POST(request: NextRequest) {
           id: data.edgeId,
           type:
             // If the relationship is in the unique set map it to the general set, otherwise just use the general set
-            UNIQUE_TO_GENERIC_REL.get(data.type) ||
-            (RELATIONSHIP_TYPES.has(data.type) ? data.type : "Unknown"),
+            UNIQUE_TO_GENERIC_REL.get(data.type) || "Unknown",
           source: data.source,
           target: data.target,
           direction: data.direction,

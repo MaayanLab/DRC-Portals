@@ -35,7 +35,7 @@ export const createTree = (elements: PathwaySearchElement[]) => {
             : {
                 name: root.data.displayLabel,
               },
-        relationshipToParent: undefined,
+        parentRelationship: undefined,
         children: [],
       };
     }
@@ -93,7 +93,7 @@ export const createTree = (elements: PathwaySearchElement[]) => {
           : {
               name: root.data.displayLabel,
             },
-      relationshipToParent:
+      parentRelationship:
         parentEdge === undefined
           ? undefined
           : {

@@ -14,6 +14,7 @@ import {
   createPropReprStr,
   createRelReprStr,
   escapeCypherString,
+  getUniqueTypeFromNodes,
   isPathwayRelationshipElement,
   isRelationshipElement,
 } from "./utils";
@@ -656,26 +657,56 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
     }
   };
 
-  const getQueryFromTree = (node: PathwayNode, currentPattern: string) => {
+  const getQueryFromTree = (
+    node: PathwayNode,
+    currentPattern: string,
+    parent: PathwayNode | undefined
+  ) => {
     if (!nodeIds.has(node.id)) {
       nodeIds.add(node.id);
       nodes.push(node);
     }
 
-    if (node.relationshipToParent !== undefined) {
-      const escapedRelId = escapeCypherString(node.relationshipToParent.id);
-      relIds.add(node.relationshipToParent.id);
+    if (node.parentRelationship !== undefined && parent !== undefined) {
+      const relIsIncoming =
+        node.parentRelationship.direction === Direction.INCOMING;
+      const uniqType = relIsIncoming
+        ? getUniqueTypeFromNodes(node.label, parent.label)
+        : getUniqueTypeFromNodes(parent.label, node.label);
+      const escapedRelId = escapeCypherString(node.parentRelationship.id);
+      relIds.add(node.parentRelationship.id);
 
       currentPattern += `${
-        node.relationshipToParent.direction === Direction.INCOMING ? "<" : ""
-      }-[${escapedRelId}:${node.relationshipToParent.type}${
-        node.relationshipToParent.props !== undefined &&
-        Object.keys(node.relationshipToParent.props).length > 0
-          ? " " + createPropReprStr(node.relationshipToParent.props)
+        relIsIncoming ? "<" : ""
+      }-[${escapedRelId}:${uniqType}${
+        node.parentRelationship.props !== undefined &&
+        Object.keys(node.parentRelationship.props).length > 0
+          ? " " + createPropReprStr(node.parentRelationship.props)
           : ""
-      }]-${
-        node.relationshipToParent.direction === Direction.OUTGOING ? ">" : ""
-      }`;
+      }]-${!relIsIncoming ? ">" : ""}`;
+
+      if (!relIsIncoming) {
+        updateCnxns(parent.id, node.label, uniqType, outgoingCnxns);
+        updateCnxns(
+          node.id,
+          parent.label,
+          node.parentRelationship.type,
+          incomingCnxns
+        );
+      } else if (relIsIncoming) {
+        updateCnxns(
+          parent.id,
+          node.label,
+          node.parentRelationship.type,
+          incomingCnxns
+        );
+        updateCnxns(
+          node.id,
+          parent.label,
+          node.parentRelationship.type,
+          outgoingCnxns
+        );
+      }
     }
 
     const escapedNodeId = escapeCypherString(node.id);
@@ -685,52 +716,20 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
         : ""
     })`;
 
-    node.children.forEach((childNode) => {
-      if (childNode.relationshipToParent?.direction === Direction.OUTGOING) {
-        updateCnxns(
-          node.id,
-          childNode.label,
-          childNode.relationshipToParent.type,
-          outgoingCnxns
-        );
-        updateCnxns(
-          childNode.id,
-          node.label,
-          childNode.relationshipToParent.type,
-          incomingCnxns
-        );
-      } else if (
-        childNode.relationshipToParent?.direction === Direction.INCOMING
-      ) {
-        updateCnxns(
-          node.id,
-          childNode.label,
-          childNode.relationshipToParent.type,
-          incomingCnxns
-        );
-        updateCnxns(
-          childNode.id,
-          node.label,
-          childNode.relationshipToParent.type,
-          outgoingCnxns
-        );
-      }
-    });
-
     if (node.children.length === 0) {
       patterns.push(currentPattern);
     } else if (node.children.length === 1) {
       patterns.push(currentPattern);
-      getQueryFromTree(node.children[0], `(${escapedNodeId})`);
+      getQueryFromTree(node.children[0], `(${escapedNodeId})`, node);
     } else {
       patterns.push(currentPattern);
       node.children.forEach((child) => {
-        getQueryFromTree(child, `(${escapedNodeId})`);
+        getQueryFromTree(child, `(${escapedNodeId})`, node);
       });
     }
   };
 
-  getQueryFromTree(tree, "");
+  getQueryFromTree(tree, "", undefined);
 
   return {
     patterns,
