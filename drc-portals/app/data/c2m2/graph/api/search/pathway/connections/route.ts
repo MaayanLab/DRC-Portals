@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { v4 } from "uuid";
 
 import {
+  RELATIONSHIP_TYPES,
   UNIQUE_PAIR_INCOMING_CONNECTIONS,
   UNIQUE_PAIR_OUTGOING_CONNECTIONS,
   UNIQUE_TO_GENERIC_REL,
@@ -136,7 +137,13 @@ export async function POST(request: NextRequest) {
           if (
             filteredCnxns
               .get(node.id)
-              ?.get(UNIQUE_TO_GENERIC_REL.get(relationship) || "Unknown")
+              ?.get(
+                // If the relationship is in the unique set map it to the general set, otherwise just use the general set
+                UNIQUE_TO_GENERIC_REL.get(relationship) ||
+                  (RELATIONSHIP_TYPES.has(relationship)
+                    ? relationship
+                    : "Unknown")
+              )
               ?.includes(label)
           ) {
             continue;
@@ -210,7 +217,10 @@ export async function POST(request: NextRequest) {
         });
         connectedEdges.push({
           id: data.edgeId,
-          type: UNIQUE_TO_GENERIC_REL.get(data.type) || "Unknown",
+          type:
+            // If the relationship is in the unique set map it to the general set, otherwise just use the general set
+            UNIQUE_TO_GENERIC_REL.get(data.type) ||
+            (RELATIONSHIP_TYPES.has(data.type) ? data.type : "Unknown"),
           source: data.source,
           target: data.target,
           direction: data.direction,
