@@ -285,6 +285,14 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
     } catch (error) {
         console.error("Error fetching C2M2 Main table:", error);
+    
+        // Check if the error is a timeout error
+        if (error instanceof Error && error.message.includes("Timed out")) {
+            console.error("This error was caused by a timeout. Please narrow down your search");
+            return <div>Error fetching C2M2 Main table: Request timed out.</div>;
+        }
+    
+        // General error handling
         return <div>Error fetching C2M2 Main table: {(error as Error).message}</div>;
     }
 
