@@ -32,6 +32,7 @@ files=(
     "substance.cypher"
     # Add indexes/constraints after adding all nodes to avoid unnecessary label scans, but also to make adding relationships faster (via index lookups):
     "id_namespace_constraints.cypher"
+    "admin_indexes.cypher"
     "container_indexes.cypher"
     "dcc_constraints.cypher"
     "term_constraints.cypher"
