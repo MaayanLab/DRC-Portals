@@ -11,24 +11,36 @@ import {
   TextField,
 } from "@mui/material";
 
-import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  SyntheticEvent,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { fetchTermsByLabelAndName } from "@/lib/neo4j/api";
+import { fetchPathwayNodeOptions } from "@/lib/neo4j/api";
 
 import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
+import { PathwaySearchContext } from "../../contexts/PathwaySearchContext";
+import { PathwaySearchNode } from "../../interfaces/pathway-search";
 
 interface NodeTextSearchProps {
-  label: string;
-  value?: string;
+  node: PathwaySearchNode;
   onChange: (value: string) => void;
 }
 
 export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
-  const { label, onChange } = cmpProps;
-  const [value, setValue] = useState<string | null>(cmpProps.value || null);
+  const { node, onChange } = cmpProps;
+  const [value, setValue] = useState<string | null>(
+    node.data.displayLabel === node.data.dbLabel ? null : node.data.displayLabel
+  );
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { tree } = useContext(PathwaySearchContext);
+  const label = node.data.dbLabel;
   const abortControllerRef = useRef(new AbortController());
 
   const abortCVTermRequest = () => {
@@ -115,12 +127,6 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
     () =>
       debounce(async (input: string | null) => {
         setError(null);
-
-        if (input === null || input.length === 0) {
-          setOptions([]);
-          return;
-        }
-
         setLoading(true);
         setOptions(
           SEARCH_PLACEHOLDER_OPTIONS.map((option) => option.toString())
@@ -128,9 +134,14 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
 
         const abortController = abortControllerRef.current;
         try {
-          const response = await fetchTermsByLabelAndName(label, input, {
-            signal: abortController.signal,
-          });
+          const response = await fetchPathwayNodeOptions(
+            input,
+            node.data.id,
+            btoa(JSON.stringify(tree)),
+            {
+              signal: abortController.signal,
+            }
+          );
           const data: string[] = await response.json();
           setOptions(data);
         } catch (error) {

@@ -138,3 +138,18 @@ export const fetchPathwaySearchConnections = (
     },
     body: JSON.stringify({ tree: query }),
   });
+
+export const fetchPathwayNodeOptions = (
+  filter: string | null,
+  nodeId: string,
+  tree: string,
+  fetchProps?: RequestInit
+) =>
+  fetch(`${GRAPH_API_PREFIX}/search/pathway/terms`, {
+    ...fetchProps,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ filter, nodeId, tree }),
+  });

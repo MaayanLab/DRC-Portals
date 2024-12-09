@@ -3,7 +3,7 @@
 import { AlertColor, Grid } from "@mui/material";
 
 import { ElementDefinition } from "cytoscape";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { z } from "zod";
 
 import {
@@ -23,6 +23,10 @@ import {
   NO_RESULTS_ERROR_MSG,
 } from "../constants/search-bar";
 import { NODE_CLASS_MAP } from "../constants/shared";
+import {
+  PathwaySearchContext,
+  PathwaySearchContextProps,
+} from "../contexts/PathwaySearchContext";
 import {
   PathwaySearchEdge,
   PathwaySearchEdgeData,
@@ -47,11 +51,16 @@ export default function GraphPathway() {
   const [searchElements, setSearchElements] = useState<PathwaySearchElement[]>(
     []
   );
+  const [tree, setTree] = useState<PathwayNode>();
   const [showResults, setShowResults] = useState(false);
   const [loadingSearchResults, setLoadingSearchResults] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
+  const pathwayContextValue: PathwaySearchContextProps = useMemo(
+    () => ({ tree }),
+    [tree]
+  );
   const PATHWAY_CONNECTIONS_ERROR =
     "An error occurred while retrieving connections for the current pathway.";
   const PATHWAY_DATA_PARSE_ERROR =
@@ -145,16 +154,17 @@ export default function GraphPathway() {
     setSearchElements([]);
   }, []);
 
-  const updatePathwayCounts = (
+  const updatePathway = (
     pathwayElements: PathwaySearchElement[],
     fallbackElements: PathwaySearchElement[]
   ) => {
-    const tree = createTree(pathwayElements);
-    if (tree !== undefined) {
+    const tempTree = createTree(pathwayElements);
+    setTree(tempTree);
+    if (tempTree !== undefined) {
       setSearchElements(pathwayElements);
-      getPathwayConnections(tree)
+      getPathwayConnections(tempTree)
         .then((response) => {
-          setSearchElements([
+          const newSearchElements = [
             ...response.connectedNodes.map((node) =>
               createPathwaySearchNode({
                 id: node.id,
@@ -194,11 +204,13 @@ export default function GraphPathway() {
                   : []
               )
             ),
-          ]);
+          ];
+          setSearchElements(newSearchElements);
         })
         .catch((e) => {
           console.error(e);
           setSearchElements(fallbackElements);
+          setTree(createTree(fallbackElements));
           updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
         });
     }
@@ -237,7 +249,7 @@ export default function GraphPathway() {
         ),
         deepCopyPathwaySearchEdge(connectedEdge, undefined, ["path-element"]),
       ];
-      updatePathwayCounts(tempElements, fallbackElements);
+      updatePathway(tempElements, fallbackElements);
     },
     [searchElements]
   );
@@ -257,7 +269,7 @@ export default function GraphPathway() {
             element.data.id !== node.data.id
         ),
       ];
-      updatePathwayCounts(tempElements, fallbackElements);
+      updatePathway(tempElements, fallbackElements);
     },
     [searchElements]
   );
@@ -278,7 +290,6 @@ export default function GraphPathway() {
 
   const handleSearchBtnClick = useCallback(async () => {
     setLoadingSearchResults(true);
-    const tree = createTree(searchElements);
 
     if (tree === undefined) {
       updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
@@ -309,7 +320,7 @@ export default function GraphPathway() {
     } finally {
       setLoadingSearchResults(false);
     }
-  }, [searchElements]);
+  }, [tree]);
 
   const handleReturnBtnClick = () => {
     setShowResults(false);
@@ -332,13 +343,14 @@ export default function GraphPathway() {
       },
       ["path-element", "loading"]
     );
-    const tree = createTree([initialNode]);
+    const initialTree = createTree([initialNode]);
+    setTree(initialTree);
 
-    if (tree !== undefined) {
+    if (initialTree !== undefined) {
       setSearchElements([initialNode]);
-      getPathwayConnections(tree)
+      getPathwayConnections(initialTree)
         .then((response) => {
-          setSearchElements([
+          const newSearchElements = [
             createPathwaySearchNode(
               {
                 ...initialNode.data,
@@ -372,11 +384,13 @@ export default function GraphPathway() {
                   : []
               )
             ),
-          ]);
+          ];
+          setSearchElements(newSearchElements);
         })
         .catch((e) => {
           console.error(e);
           setSearchElements([]);
+          setTree(undefined);
           updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
         });
     }
@@ -432,16 +446,18 @@ export default function GraphPathway() {
           onReturnBtnClick={handleReturnBtnClick}
         />
       ) : (
-        <GraphPathwaySearch
-          elements={searchElements}
-          loading={loadingSearchResults}
-          onExport={handleExport}
-          onImport={handleImport}
-          onSearchBarSubmit={handleSearchBarSubmit}
-          onSearchBtnClick={handleSearchBtnClick}
-          onSelectedNodeChange={handleSelectedNodeChange}
-          onReset={handleReset}
-        />
+        <PathwaySearchContext.Provider value={pathwayContextValue}>
+          <GraphPathwaySearch
+            elements={searchElements}
+            loading={loadingSearchResults}
+            onExport={handleExport}
+            onImport={handleImport}
+            onSearchBarSubmit={handleSearchBarSubmit}
+            onSearchBtnClick={handleSearchBtnClick}
+            onSelectedNodeChange={handleSelectedNodeChange}
+            onReset={handleReset}
+          />
+        </PathwaySearchContext.Provider>
       )}
       <AlertSnackbar
         open={snackbarOpen}
