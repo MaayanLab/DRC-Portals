@@ -51,6 +51,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.13",
     "fairshakeinsignia": "^1.0.3",
+    "filesize": "^10.1.6",
     "fs": "^0.0.1-security",
     "graphile-worker": "^0.16.6",
     "html-entities": "^2.5.2",
