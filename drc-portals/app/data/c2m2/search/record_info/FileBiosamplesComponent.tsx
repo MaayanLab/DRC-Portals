@@ -139,7 +139,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                 SELECT DISTINCT fdb.*,
                 f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
                 f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+                f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
                 ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
                 /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
                 FROM c2m2.file_describes_biosample fdb
@@ -155,6 +155,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                 /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
                 LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
                 ), /* Mano */
                 file_bios_table AS (
                     SELECT * from file_bios_table_keycol

@@ -388,7 +388,8 @@ INNER JOIN sub_info ON
 /* FROM c2m2.file AS f
 LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
 LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
 INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                           AND f.project_id_namespace = ui.project_id_namespace
                           AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */
