@@ -16,6 +16,7 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
   }, [pathname])
   return (
     <FancyTabs
+      defaultTab="processed"
       tab={subpath}
       onChange={(evt, tab) => {
         const newSearchParams = new URLSearchParams(searchParams)
