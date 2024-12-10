@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import CryptoJS from 'crypto-js';
 import SQL from '@/lib/prisma/raw';
 import { z } from 'zod';
+import {filesize} from 'filesize';
 
 
 export interface MetadataItem {
@@ -560,9 +561,6 @@ export function getNameFromFileProjTable(iconKey: string): string {
 
 
 
-
-
-
 export function addCategoryColumns(
   columns: Record<string, ReactNode | string | bigint>,
   getNameFunction: (key: string) => string,
@@ -656,3 +654,8 @@ export function sanitizeFilename(filename: string, repchar: string): string {
   // repchar can be '__'
   return filename.replace(invalidCharacters, repchar);
 }
+
+export function formatFileSize(bytes: number, locale = 'en-US') {
+  return filesize(bytes, { locale });
+}
+
