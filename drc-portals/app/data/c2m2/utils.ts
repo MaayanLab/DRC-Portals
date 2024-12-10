@@ -128,7 +128,7 @@ export function pruneAndRetrieveColumnNames(
 
   const columnNames = Array.from(new Set(prunedData_full.flatMap(row => Object.keys(row))));
 
-  const dynamicColumns = columnNames.filter(column => {
+  var dynamicColumns = columnNames.filter(column => {
     const uniqueValues = new Set(prunedData_full.map(row => row[column]));
     return uniqueValues.size > 1;
   });
@@ -144,6 +144,9 @@ export function pruneAndRetrieveColumnNames(
   columnsToIgnore.forEach(column => {
     delete staticColumns[column];
   });
+
+  // Remove columnsToIgnore from dynamicColumns
+  dynamicColumns = dynamicColumns.filter(column => !columnsToIgnore.includes(column));
 
   return {
     prunedData,
