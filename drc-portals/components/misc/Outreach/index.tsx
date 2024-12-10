@@ -290,11 +290,14 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
       },
       orderBy: [
         {
-          application_end: { sort: 'asc', nulls: 'last' }
+          start_date: { sort: 'asc', nulls: 'last' }
         },
         {
-          start_date: { sort: 'asc', nulls: 'last' }
-        }
+          end_date: { sort: 'asc', nulls: 'last' }
+        },
+        {
+          application_end: { sort: 'asc', nulls: 'last' }
+        },
       ] 
     }): []
 
