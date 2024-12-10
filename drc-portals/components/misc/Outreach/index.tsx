@@ -177,12 +177,12 @@ const OutreachComponent = ({outreach, filter, now, expand_filter=false, past_cou
                                   day: 'numeric',
                                 })}`}
                     </Typography>}
-                    {(e.application_end && e.application_end > now) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
-                    `${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
+                    {(e.application_end) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
+                    `${e.application_end.toLocaleDateString("en-US", {
                                         year: 'numeric',
                                         month: 'long',
                                         day: 'numeric',
-                                      }): "Passed"}`
+                                      })}`
                     }
                     </Typography>}
               </Stack>
@@ -260,13 +260,7 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
           {
             OR: [
               {
-                end_date: {
-                  gte: now
-                }
-              },
-              {
-                end_date: null,
-                start_date: {
+                application_end: {
                   gte: now
                 }
               },
@@ -274,9 +268,20 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
                 application_start: {
                   gte: now
                 },
-                end_date: null,
-                start_date: null,
+                application_end: null
               },
+              {
+                end_date: {
+                  gte: now
+                },
+                application_end: null
+              },
+              {
+                end_date: null,
+                start_date: {
+                  gte: now
+                }
+              }
             ]
           },
           ...where_tags,
@@ -285,7 +290,7 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
       },
       orderBy: [
         {
-          end_date: { sort: 'asc', nulls: 'last' }
+          application_end: { sort: 'asc', nulls: 'last' }
         },
         {
           start_date: { sort: 'asc', nulls: 'last' }
@@ -338,6 +343,11 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
           {
             OR: [
               {
+                application_end: {
+                  lt: now
+                }
+              },
+              {
                 end_date: {
                   lt: now
                 }
@@ -347,14 +357,7 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
                 start_date: {
                   lt: now
                 }
-              },
-              {
-                start_date: null,
-                end_date: null,
-                application_start: {
-                  lte: now
-                }
-              },
+              }
             ],
           },
           ...where_tags
@@ -369,6 +372,11 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
           {
             OR: [
               {
+                application_end: {
+                  lt: now
+                }
+              },
+              {
                 end_date: {
                   lt: now
                 }
@@ -378,14 +386,7 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
                 start_date: {
                   lt: now
                 }
-              },
-              {
-                start_date: null,
-                end_date: null,
-                application_start: {
-                  lte: now
-                }
-              },
+              }
             ],
           },
           ...where_tags
