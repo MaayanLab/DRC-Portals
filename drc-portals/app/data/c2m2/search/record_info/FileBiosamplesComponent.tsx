@@ -196,7 +196,7 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
         }
 
 
-        const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace'];
+        const filesBios_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'biosample_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileBiosPrunedData,
             columnNames: fileBiosColNames,

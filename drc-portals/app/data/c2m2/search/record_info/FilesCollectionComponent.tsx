@@ -195,7 +195,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             return <></>;
         }
 
-        const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
+        const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileColPrunedData,
             columnNames: fileColColNames,
