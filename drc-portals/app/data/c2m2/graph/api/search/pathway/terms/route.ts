@@ -1,9 +1,12 @@
 import { NextRequest } from "next/server";
 
-import { parsePathwayTree } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
-import { escapeCypherString } from "@/lib/neo4j/utils";
+import {
+  escapeCypherString,
+  getOptimizedMatches,
+  parsePathwayTree,
+} from "@/lib/neo4j/utils";
 
 const PATHWAY_TERMS_LIMIT = 10;
 
@@ -62,13 +65,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    //TODO: Handle the edge case where body.nodeId is not actually in the tree
-
+    const queryStmts = getOptimizedMatches(treeParseResult, body.nodeId, true);
     const escapedNodeId = escapeCypherString(body.nodeId);
-    const driver = getDriver();
     const query = [
-      "MATCH",
-      treeParseResult.patterns.map((pattern) => `\t${pattern}`).join(",\n"),
+      ...queryStmts,
       ...(body.filter === null
         ? []
         : [`WHERE lower(${escapedNodeId}.name) CONTAINS $filter`]),
@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
       "ORDER BY size(name) ASC",
       "LIMIT $limit",
     ].join("\n");
+    const driver = getDriver();
     const result = await executeRead<{ name: string }>(driver, query, {
       filter: body.filter,
       limit: PATHWAY_TERMS_LIMIT,

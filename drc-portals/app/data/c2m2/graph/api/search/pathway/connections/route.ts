@@ -2,12 +2,11 @@ import { NextRequest } from "next/server";
 import { v4 } from "uuid";
 
 import {
-  RELATIONSHIP_TYPES,
   UNIQUE_PAIR_INCOMING_CONNECTIONS,
   UNIQUE_PAIR_OUTGOING_CONNECTIONS,
   UNIQUE_TO_GENERIC_REL,
 } from "@/lib/neo4j/constants";
-import { createConnectionPattern, parsePathwayTree } from "@/lib/neo4j/cypher";
+import { createConnectionPattern } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import { Direction } from "@/lib/neo4j/enums";
 import {
@@ -16,7 +15,7 @@ import {
   PathwayNode,
   TreeParseResult,
 } from "@/lib/neo4j/types";
-import { escapeCypherString } from "@/lib/neo4j/utils";
+import { getOptimizedMatches, parsePathwayTree } from "@/lib/neo4j/utils";
 
 interface ConnectionQueryRecord {
   exists: boolean;
@@ -74,62 +73,16 @@ export async function POST(request: NextRequest) {
         direction === Direction.INCOMING
           ? treeParseResult.incomingCnxns
           : treeParseResult.outgoingCnxns;
+      const queryStmts: string[] = getOptimizedMatches(
+        treeParseResult,
+        node.id
+      );
+      let whereCnxnIdx: number | undefined = undefined;
 
-      // Get all the ids which are used more than once across all patterns
-      const relevantIdCounts = new Map<string, number>([
-        ...Array.from(treeParseResult.nodeIds)
-          .map(
-            (nodeId) =>
-              [
-                nodeId,
-                Math.max(
-                  treeParseResult.patterns.join().split(nodeId).length - 1,
-                  0
-                ),
-              ] as [string, number]
-          )
-          .filter(([_, count]) => count > 1),
-      ]);
-
-      const workingSet = new Set<string>();
-      const queryStmts: string[] = [];
-      let whereCnxnStmtIdx: number | undefined = undefined;
-      treeParseResult.patterns.forEach((pattern) => {
-        queryStmts.push(`MATCH ${pattern}`);
-
-        if (
-          whereCnxnStmtIdx === undefined &&
-          pattern.split(node.id).length > 1
-        ) {
-          queryStmts.push("");
-          whereCnxnStmtIdx = queryStmts.length - 1;
-        }
-
-        pattern
-          .match(
-            /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
-          )
-          ?.forEach((matchedId) => {
-            const currentCount = relevantIdCounts.get(matchedId);
-            if (currentCount !== undefined) {
-              const newCount = currentCount - 1;
-              relevantIdCounts.set(matchedId, newCount);
-
-              if (newCount > 0) {
-                workingSet.add(matchedId);
-              } else {
-                relevantIdCounts.delete(matchedId);
-                workingSet.delete(matchedId);
-              }
-            }
-          });
-
-        if (workingSet.size > 0) {
-          queryStmts.push(
-            `WITH DISTINCT ${Array.from(workingSet)
-              .map(escapeCypherString)
-              .join(", ")}`
-          );
+      // Find the first statement where node.id is present and save the index for later use
+      queryStmts.forEach((stmt, idx) => {
+        if (whereCnxnIdx === undefined && stmt.split(node.id).length > 1) {
+          whereCnxnIdx = idx + 1;
         }
       });
 
@@ -146,23 +99,27 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        const connectedNodeId = v4();
-        const connectedEdgeId = v4();
-
-        if (whereCnxnStmtIdx !== undefined) {
-          queryStmts[
-            whereCnxnStmtIdx
-          ] = `WHERE COUNT {${createConnectionPattern(
+        const queryStmtsCopy = [...queryStmts];
+        if (whereCnxnIdx !== undefined) {
+          const whereCnxnStmt = `WHERE COUNT {${createConnectionPattern(
             node.id,
             direction,
             undefined,
             relationship
           )}} > 0`;
+
+          if (whereCnxnIdx === queryStmtsCopy.length) {
+            queryStmtsCopy.push(whereCnxnStmt);
+          } else {
+            queryStmtsCopy.splice(whereCnxnIdx, 0, whereCnxnStmt);
+          }
         }
 
+        const connectedNodeId = v4();
+        const connectedEdgeId = v4();
         connectionQueries.push(
           [
-            ...queryStmts,
+            ...queryStmtsCopy,
             "RETURN",
             `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
             `\t"${connectedEdgeId}" AS edgeId,`,

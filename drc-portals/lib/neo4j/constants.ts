@@ -1,5 +1,8 @@
 import { PredicateFn } from "./types";
 
+export const UUID_REGEX =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+
 // Admin entity labels
 export const DCC_LABEL = "DCC";
 export const ID_NAMESPACE_LABEL = "IDNamespace";
