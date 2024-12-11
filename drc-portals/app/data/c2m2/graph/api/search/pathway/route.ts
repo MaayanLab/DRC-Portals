@@ -3,10 +3,10 @@ import { NextRequest } from "next/server";
 import {
   createPathwaySearchDistinctSetCypher,
   createPathwaySearchAllPathsCypher,
-  parsePathwayTree,
 } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import { PathwayNode, SubGraph, TreeParseResult } from "@/lib/neo4j/types";
+import { parsePathwayTree } from "@/lib/neo4j/utils";
 
 const PATHWAY_SEARCH_LIMIT = 100;
 
