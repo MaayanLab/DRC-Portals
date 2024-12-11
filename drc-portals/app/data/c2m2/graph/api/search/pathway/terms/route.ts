@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    treeParseResult = parsePathwayTree(tree);
+    treeParseResult = parsePathwayTree(tree, false);
 
     if (!treeParseResult.nodeIds.has(body.nodeId)) {
       return Response.json(

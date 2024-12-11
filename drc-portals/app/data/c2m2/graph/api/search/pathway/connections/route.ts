@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    treeParseResult = parsePathwayTree(tree);
+    treeParseResult = parsePathwayTree(tree, true);
 
     const addConnections = (node: PathwayNode, direction: Direction) => {
       const CONNECTIONS =

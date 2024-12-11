@@ -116,7 +116,10 @@ export const getUniqueTypeFromNodes = (source: string, dest: string) => {
   }
 };
 
-export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
+export const parsePathwayTree = (
+  tree: PathwayNode,
+  convertRelsToUniq = false
+): TreeParseResult => {
   const patterns: string[] = [];
   const nodeIds = new Set<string>();
   const relIds = new Set<string>();
@@ -156,15 +159,20 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
     if (node.parentRelationship !== undefined && parent !== undefined) {
       const relIsIncoming =
         node.parentRelationship.direction === Direction.INCOMING;
-      const uniqType = relIsIncoming
-        ? getUniqueTypeFromNodes(node.label, parent.label)
-        : getUniqueTypeFromNodes(parent.label, node.label);
+      let type: string;
+
+      if (convertRelsToUniq) {
+        type = relIsIncoming
+          ? getUniqueTypeFromNodes(node.label, parent.label)
+          : getUniqueTypeFromNodes(parent.label, node.label);
+      } else {
+        type = node.parentRelationship.type;
+      }
+
       const escapedRelId = escapeCypherString(node.parentRelationship.id);
       relIds.add(node.parentRelationship.id);
 
-      currentPattern += `${
-        relIsIncoming ? "<" : ""
-      }-[${escapedRelId}:${uniqType}${
+      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${
         node.parentRelationship.props !== undefined &&
         Object.keys(node.parentRelationship.props).length > 0
           ? " " + createPropReprStr(node.parentRelationship.props)
@@ -172,7 +180,7 @@ export const parsePathwayTree = (tree: PathwayNode): TreeParseResult => {
       }]-${!relIsIncoming ? ">" : ""}`;
 
       if (!relIsIncoming) {
-        updateCnxns(parent.id, node.label, uniqType, outgoingCnxns);
+        updateCnxns(parent.id, node.label, type, outgoingCnxns);
         updateCnxns(
           node.id,
           parent.label,
