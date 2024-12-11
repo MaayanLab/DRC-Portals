@@ -107,7 +107,6 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
         sx={{ display: "flex" }}
         {...optionProps}
         onClick={(event: MouseEvent) => {
-          onChange(option);
           optionProps.onClick(event);
         }}
       >
