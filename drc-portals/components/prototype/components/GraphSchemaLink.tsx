@@ -1,3 +1,4 @@
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { Link } from "@mui/material";
 
 export default function GraphSchemaLink() {
@@ -9,6 +10,7 @@ export default function GraphSchemaLink() {
       color="secondary"
     >
       Graph Schema Diagram
+      <OpenInNewIcon fontSize="small" color="secondary" />
     </Link>
   );
 }
