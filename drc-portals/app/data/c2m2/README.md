@@ -180,6 +180,11 @@ https://data.cfde.cloud/search/exercise%20obese/c2m2?t=dcc%3AThe+Extracellular+C
 
 https://data.cfde.cloud/c2m2/search/record_info?q=exercise%20obese&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-SADAS1EXERs1-ST|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:anatomical%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay
 
+### Search: tobacco
+https://data.cfde.cloud/search/tobacco/c2m2
+
+https://data.cfde.cloud/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Canatomy_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
+
 ### Filters and then Record Info  page:
 https://data.cfde.cloud/search/throat%20cancer/c2m2?t=anatomy%3Asaliva&p=1
 
