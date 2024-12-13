@@ -63,7 +63,7 @@ publication_file = "publication_files/%s_publications.tsv"%now
 tool_file = "tool_files/%s_tools.tsv"%now
 publication_df.to_csv(publication_file, sep="\t", header=True, quoting=csv.QUOTE_NONE, index_label="id")
 df = df[[i for i in df.columns if i != 'doi']]
-df.to_csv(tool_file, sep="\t", header=True)
+df.to_csv(tool_file, sep="\t", header=True, quoting=csv.QUOTE_NONE)
 
 print("Uploading to s3")
 

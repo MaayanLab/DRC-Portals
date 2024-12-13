@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw'; // Import SQL
 import { generateFilterClauseFromtParam } from '../utils';
 import { main_table } from '../search/SearchQueryComponent';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {

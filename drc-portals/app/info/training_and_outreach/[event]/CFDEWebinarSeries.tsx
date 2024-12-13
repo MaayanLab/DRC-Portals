@@ -6,11 +6,9 @@ import { Grid,
 	ListItem,
 	Button,
 	Paper,
-	Accordion,
-	AccordionSummary,
-	AccordionDetails
+	Box,
+	Divider
 } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import prisma from "@/lib/prisma";
 import { OutreachWithDCC } from "@/components/misc/Outreach";
 import Link from "@/utils/link";
@@ -18,7 +16,7 @@ import Link from "@/utils/link";
 import Icon from '@mdi/react';
 import { mdiYoutube, mdiClipboardEditOutline } from "@mdi/js"
 import YoutubeEmbed from "@/components/misc/YoutubeEmbed";
-import Markdown from "@/components/misc/MarkdownComponent";
+import { ExpandableDescription } from "@/components/misc/Outreach/ExpandableDescription";
 type AgendaType = {
 	label: string,
 	summary?: string,
@@ -33,9 +31,9 @@ type AgendaType = {
 const Summary = ({section}: {section: AgendaType}) => (
 	<Stack>
 		<div className="flex flex-col space-y-2">
-			<Typography variant="body1">
+			{/* <Typography variant="body1">
 				<b>{section.label}</b>
-			</Typography>
+			</Typography> */}
 		{(section.presenters || []).map(({presenter, affiliation})=>(
 			<div className="flex flex-col">
 				<Typography variant="body1">
@@ -48,20 +46,10 @@ const Summary = ({section}: {section: AgendaType}) => (
 		))}
 		</div>
 		{section.summary &&
-		<Accordion elevation={0} sx={{background: 'inherit', borderTop: 'none'}}>
-			<AccordionSummary
-					expandIcon={<ExpandMoreIcon />}
-					aria-controls={`${section.label}-content`}
-					id={`${section.label}-header`}
-					sx={{paddingLeft: 0, marginLeft: -1, marginTop: -1, flexDirection: 'row-reverse',}}
-			>
-				<Typography variant="body1">Summary</Typography>
-			</AccordionSummary>
-			<AccordionDetails>
-				<Markdown markdown={section.summary}/>
-			</AccordionDetails>
-		</Accordion>}
+		<ExpandableDescription text={section.summary} previewLines={4}/>
+		}
 	</Stack>
+
 )
 
 const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
@@ -121,13 +109,25 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 		}
 	}
 	return (
-		<Stack sx={{marginBottom: 2}}>
-			{(webinar.start_date && webinar.end_date) && <Typography variant="body1" color="secondary"><b>{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}</b></Typography>}
-			{presenters.length > 0 && 
+		<Stack sx={{marginBottom: 1}}>
+			{(webinar.start_date && webinar.end_date) && 
+				<Box sx = {{marginTop: 3}}>
+					<Typography variant="h6" >
+						<b>{webinar.start_date.toLocaleDateString('default', {month: 'short', year: 'numeric', day: '2-digit', weekday: 'long'})}</b>
+					</Typography>
+				</Box>
+			}
+			{presenters.length > 0 ? (
 				<List sx={{marginLeft: -2}}>
 					{presenters.map((section)=>(
 						<ListItem key={section.label}>
-							<Grid container>
+							<Grid container sx={{marginBottom: 3}}>
+								<Grid item  xs={12} sx={{marginBottom:2}} >
+									<Typography variant="h6" color="secondary" >
+										{section.label}
+									</Typography>
+									
+								</Grid>
 								<Grid item xs={12} sm={7}>
 									<Stack>
 										<Summary section={section}/>
@@ -138,6 +138,7 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 										</Link>}
 									</Stack>
 								</Grid>
+					
 								<Grid item xs={12} sm={5}>
 									{section.video_link && 
 										<YoutubeEmbed embedId={section.video_link.split("?v=")[1]}/>
@@ -147,7 +148,14 @@ const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 						</ListItem>
 					))}
 				</List>
-			}
+			):(
+				<Grid sx={{marginTop:2, marginBottom: 4}}>
+				<Typography variant="body1" color="secondary">
+					The summary and video for the webinar will be added shortly.
+				</Typography>
+				</Grid>
+			)}
+			<Divider />
 		</Stack>
 	)
 }
@@ -188,7 +196,7 @@ const CFDEWebinarSeries = async () => {
 		}
 	})
 	return (
-		<Grid container spacing={1} justifyContent={"flex-start"}>
+		<Grid container spacing={1} justifyContent={"flex-start"} sx={{marginLeft:2}}>
 			<Grid item xs={12}>
 				<Typography variant="h2" color="secondary">
 					CFDE Webinar Series
@@ -204,14 +212,14 @@ const CFDEWebinarSeries = async () => {
 					Upcoming Webinars
 				</Typography>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid item xs={12} sx={{ marginbottom: 4}}>
 				{upcoming_webinars.length === 0 ?
 					<Typography variant="body1" color="secondary">
 						More details will be added soon
 					</Typography>: upcoming_webinars.map((webinar)=><UpcomingWebinar key={webinar.title} webinar={webinar}/>)
 				}
 			</Grid>
-			<Grid item xs={12}>
+			<Grid item xs={12} sx={{ marginTop: 4}}>
 				<Typography variant="h3" color="secondary">
 					Past Webinars
 				</Typography>

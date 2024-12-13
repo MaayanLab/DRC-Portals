@@ -36,32 +36,41 @@ def upload_file(file_name, bucket, object_name=None):
 bucket = 'cfde-drc'
 
 filename = sys.argv[1]
-dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=0)
+dccs = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv', sep="\t", index_col=0, header=0)
 # map dcc names to their respective ids
 dcc_mapper = {}
 for k,v in dccs.iterrows():
 	dcc_mapper[v["short_label"]] = k
 
 # map partnerships 
-partnerships = pd.read_csv('ingest/partnerships.tsv', sep="\t", index_col=0)
+partnerships = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_partnerships.tsv', sep="\t", index_col=0)
 partnership_mapper = {}
 for k,v in partnerships.iterrows():
 	partnership_mapper[v["title"]] = k
+     
+r03 = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_r03s.tsv', sep="\t", index_col=0)
+r03_mapper = {}
+for k,v in r03.iterrows():
+	r03_mapper[v["grant_num"]] = k
     
 now = str(date.today()).replace("-", "")
 df = pd.read_csv(filename, sep="\t")
 publication_columns = [i for i in df.columns if i not in ["dccs", "partnerships"]]
 dcc_publication_columns = ["publication_id", "dcc_id"]
 partnership_publication_columns = ["publication_id", "partnership_id"]
+r03_publication_columns = ["publication_id", "r03_id"]
 
 publication_df = pd.DataFrame("-", index=[], columns=publication_columns)
 dcc_publication_df = pd.DataFrame("-", index=[], columns=dcc_publication_columns)
 partnership_publication_df = pd.DataFrame("-", index=[], columns=partnership_publication_columns)
+r03_publication_df = pd.DataFrame("-", index=[], columns=r03_publication_columns)
+
 ind = 0
 pind = 0
+df["id"] = ""
 for i, val in df.iterrows():
     title = val["title"]
-    uid = val["id"] if type(val["id"]) == str else str(uuid5(NAMESPACE_URL, title))
+    uid = str(uuid5(NAMESPACE_URL, title))
     v = {c: val[c] for c in publication_columns}
     publication_df.loc[uid] = val
     if type(val["dccs"]) == str and val["dccs"].strip() != '':
@@ -76,39 +85,72 @@ for i, val in df.iterrows():
             partnership_id = partnership_mapper[partnership]
             partnership_publication_df.loc[pind] = [uid, partnership_mapper[partnership]]
             pind += 1
-publication_file = "publication_files/%s_publications.tsv"%now
-dcc_publication_file = "publication_files/%s_dcc_publications.tsv"%now
-partnership_publication_file = "publication_files/%s_partnership_publications.tsv"%now
-publication_df[[i for i in publication_df.columns if i != "id"]].to_csv(publication_file, sep="\t", header=True, quoting=csv.QUOTE_NONE, index_label="id")
+    
+    if type(val["r03"]) == str and val["r03"].strip() != '':
+        for r03 in val["r03"].split(";"):
+            r03 = r03.strip()
+            r03_id = r03_mapper[r03]
+            r03_publication_df.loc[pind] = [uid, r03_mapper[r03]]
+            pind += 1
+publication_file = "current/%s_publications.tsv"%now
+dcc_publication_file = "current/%s_dcc_publications.tsv"%now
+partnership_publication_file = "current/%s_partnership_publications.tsv"%now
+r03_publication_file = "current/%s_r03_publications.tsv"%now
+publication_df[[i for i in publication_df.columns if i != "id" and i != "r03"]].to_csv(publication_file, sep="\t", header=True, quoting=csv.QUOTE_NONE, index_label="id")
 dcc_publication_df.to_csv(dcc_publication_file, sep="\t", header=True, index=None)
 partnership_publication_df.to_csv(partnership_publication_file, sep="\t", header=True, index=None)
+r03_publication_df.to_csv(r03_publication_file, sep="\t", header=True, index=None)
 
 print("Uploading to s3")
 
-filename = publication_file.replace('publication_files', 'database/files')
+filename = publication_file.replace('current', 'database/files')
 print(filename)
 upload_file(publication_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(publication_file, bucket, filename)
 
-filename = dcc_publication_file.replace('publication_files', 'database/files')
+filename = dcc_publication_file.replace('current', 'database/files')
 print(filename)
 upload_file(dcc_publication_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(dcc_publication_file, bucket, filename)
 
-filename = partnership_publication_file.replace('publication_files', 'database/files')
+filename = partnership_publication_file.replace('current', 'database/files')
 print(filename)
 upload_file(partnership_publication_file, bucket, filename)
 filename = filename.replace(now, "current")
 print(filename)
 upload_file(partnership_publication_file, bucket, filename)
+
+filename = r03_publication_file.replace('current', 'database/files')
+print(filename)
+upload_file(r03_publication_file, bucket, filename)
+filename = filename.replace(now, "current")
+print(filename)
+upload_file(r03_publication_file, bucket, filename)
+
 
 # ingest
 print("ingesting...")
 cur = connection.cursor()
+cur.execute('''
+  DELETE FROM dcc_publications;
+''')
+
+cur.execute('''
+  DELETE FROM partnership_publications;
+''')
+
+cur.execute('''
+  DELETE FROM r03_publications;
+''')
+
+cur.execute('''
+  DELETE FROM publications;
+''')
+
 cur.execute('''
   create table publication_tmp
   as table publications
@@ -116,40 +158,24 @@ cur.execute('''
 ''')
 
 with open(publication_file, 'r') as fr:
-    next(fr)
+    columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'publication_tmp',
-      columns=(publication_df.columns),
+      columns=columns,
       null='',
       sep='\t',
     )
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured
+    insert into publications (%s)
+      select %s
       from publication_tmp
       on conflict (id)
         do update
-        set id = excluded.id,
-            title = excluded.title,
-            year = excluded.year,
-            page = excluded.page,
-            volume = excluded.volume,
-            issue = excluded.issue,
-            journal = excluded.journal,
-            pmid = excluded.pmid,
-            pmcid = excluded.pmcid,
-            doi = excluded.doi,
-            authors = excluded.authors,
-            landmark = excluded.landmark,
-            tool_id = excluded.tool_id,
-            carousel = excluded.carousel,
-            carousel_title = excluded.carousel_title,
-            carousel_link = excluded.carousel_link,
-            carousel_description = excluded.carousel_description,
-            image = excluded.image,
-            featured = excluded.featured
+        set %s
     ;
-  ''')
+  '''%(column_string, column_string, set_string))
 cur.execute('drop table publication_tmp;')
 connection.commit()
 
@@ -168,9 +194,6 @@ with open(dcc_publication_file, 'r') as fr:
       sep='\t',
     )
 
-cur.execute('''
-  DELETE FROM dcc_publications;
-''')
 
 cur.execute('''
     insert into dcc_publications (publication_id, dcc_id)
@@ -197,9 +220,6 @@ with open(partnership_publication_file, 'r') as fr:
       sep='\t',
     )
 
-cur.execute('''
-  DELETE FROM partnership_publications;
-''')
 
 cur.execute('''
     insert into partnership_publications (publication_id, partnership_id)
@@ -210,6 +230,33 @@ cur.execute('''
     ;
   ''')
 cur.execute('drop table partnership_publication_tmp;')
+
+
+cur = connection.cursor()
+cur.execute('''
+  create table r03_publication_tmp
+  as table r03_publications
+  with no data;
+''')
+
+with open(r03_publication_file, 'r') as fr:
+    next(fr)
+    cur.copy_from(fr, 'r03_publication_tmp',
+      columns=("publication_id", "r03_id"),
+      null='',
+      sep='\t',
+    )
+
+
+cur.execute('''
+    insert into r03_publications (publication_id, r03_id)
+      select publication_id, r03_id
+      from r03_publication_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table r03_publication_tmp;')
 
 
 connection.commit()

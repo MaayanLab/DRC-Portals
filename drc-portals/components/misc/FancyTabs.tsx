@@ -61,7 +61,11 @@ export function FancyTabs(props: React.PropsWithChildren<{
     tabs.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
     return tabs
   }, [ctx.tabs])
-  const currentTab = React.useMemo(() => props.tab ?? tab ?? tabs.filter(tab => !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
+  const currentTab = React.useMemo(() => [
+    props.tab ? ctx.tabs[props.tab] : undefined,
+    tab ? ctx.tabs[tab] : undefined,
+    ...tabs,
+  ].filter(tab => tab && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
   React.useEffect(() => {
     if (initializing_state !== 'pre' && props.tab === undefined && props.onChange && currentTab !== undefined) {
       props.onChange(undefined, currentTab)
