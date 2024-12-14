@@ -3,7 +3,7 @@
 
 ### Main page: based on https://dev.cfde.cloud; 
 
-https://dev.cfde.cloud/data if testing from your local instance
+https://dev.cfde.cloud/data: main search page
 
 Search: liver, filter: DCC/CF program: SPARC
 
@@ -154,3 +154,44 @@ https://dev.cfde.cloud/data/search/blood/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens
 
 Then apply Anatomy filter (Blood ir Brain):
 https://dev.cfde.cloud/data/search/blood/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cncbi_taxonomy%3AMus+musculus%7Cdcc%3A4D+NUCLEOME+DATA+COORDINATION+AND+INTEGRATION+CENTER%7Cdcc%3ALibrary+of+Integrated+Network-based+Cellular+Signatures%7Cdcc%3AIlluminating+the+Druggable+Genome%7Cdcc%3AUCSD+Metabolomics+Workbench%7Canatomy%3Ablood%7Canatomy%3Abrain
+
+### Search: hepatitis, apply filters
+https://dev.cfde.cloud/data/search/hepatitis/c2m2?t=dcc%3AIlluminating+the+Druggable+Genome%7Cdcc%3AUCSD+Metabolomics+Workbench%7Cdisease%3ABudd-Chiari+syndrome&p=1
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=hepatitis&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:Budd-Chiari%20syndrome|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+
+### Search: malignant carcinoma
+https://dev.cfde.cloud/data/search/malignant%20carcinoma/c2m2?t=disease%3Aadrenal+cortex+cancer%7Cdisease%3Anasopharynx+carcinoma&p=1
+
+### Search: doxorubicin
+https://dev.cfde.cloud/data/search/doxorubicin/c2m2?t=disease%3Aobesity%7Cdisease%3Abreast+carcinoma&p=1
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=doxorubicin&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001044|disease_name:obesity|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:liver|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+### Search: sleep apnea
+https://dev.cfde.cloud/data/search/sleep%20apnea/c2m2?t=&p=1
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=sleep%20apnea&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000097|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+### Search: vitiligo
+https://dev.cfde.cloud/data/search/vitiligo/c2m2?t=dcc%3AGlyGen&p=1
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=vitiligo&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:FBX11_HUMAN|compound_name:Unspecified|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified
+
+### Search: islet of langerhans
+https://dev.cfde.cloud/data/search/islet%20of%20langerhans/c2m2?t=&p=1
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=islet%20of%20langerhans&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000662|disease_name:Unspecified|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:islet%20of%20Langerhans|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:gas%20chromatography%20mass%20spectrometry%20assay
+
+### Search: exercise obese
+https://dev.cfde.cloud/data/search/exercise%20obese/c2m2
+
+https://dev.cfde.cloud/data/search/exercise%20obese/c2m2?t=dcc%3AThe+Extracellular+Communication+Consortium+Data+Coordination+Center&p=1
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=exercise%20obese&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-SADAS1EXERs1-ST|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:anatomical%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay
+
+### Search: tobacco
+https://dev.cfde.cloud/data/search/tobacco/c2m2
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Canatomy_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
+
