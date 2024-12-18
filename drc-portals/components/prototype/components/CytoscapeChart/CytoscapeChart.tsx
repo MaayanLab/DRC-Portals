@@ -24,7 +24,15 @@ import cytoscape from "cytoscape";
 // @ts-ignore
 import d3Force from "cytoscape-d3-force";
 import euler from "cytoscape-euler";
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
@@ -34,6 +42,7 @@ import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import {
   createNodeTooltip,
   hideElement,
+  rebindEventHandlers,
   resetHighlights,
   showElement,
 } from "../../utils/cy";
@@ -68,7 +77,7 @@ interface CytoscapeChartProps {
   autoungrabify?: boolean;
   zoom?: number;
   maxZoom?: number;
-  customEventHandlers?: CytoscapeEvent[];
+  customEvents?: CytoscapeEvent[];
 }
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
@@ -92,7 +101,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     autoungrabify,
     zoom,
     maxZoom,
-    customEventHandlers,
+    customEvents,
   } = cmpProps;
 
   const [hoveredNode, setHoveredNode] = useState<CytoscapeNodeData | null>(
@@ -120,9 +129,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     y: 0,
   });
   const popperRef = useRef<Instance>(null);
-  const prevCustomEventHandlersRef = useRef<CytoscapeEvent[]>(
-    customEventHandlers || []
-  );
+  const prevCustomEventsRef = useRef<CytoscapeEvent[]>([]);
+  const prevDefaultEventsRef = useRef<CytoscapeEvent[]>([]);
   let nodeHoverTimerId: NodeJS.Timeout | null = null;
 
   const handleContextMenuClose = () => {
@@ -156,63 +164,72 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   // TODO: Consider refactoring this as "sharedMenuItems" and make it an optional prop to the component. Ultimately, it should probably be
   // up to the parent what context menu items are avaialable, and if they provide none, don't show a context menu at all.
-  const getStaticMenuItems = (event: EventObject) => {
-    const items: ReactNode[] = [];
+  const getStaticMenuItems = useCallback(
+    (event: EventObject) => {
+      const items: ReactNode[] = [];
 
-    if (
-      event.cy.elements(".highlight").length > 0 ||
-      event.cy.elements(".transparent").length > 0
-    ) {
-      items.push(
-        <ChartCxtMenuItem
-          key="cxt-menu-reset-highlights"
-          renderContent={() => "Reset Highlights"}
-          action={resetHighlights}
-        ></ChartCxtMenuItem>
-      );
-    }
+      if (
+        event.cy.elements(".highlight").length > 0 ||
+        event.cy.elements(".transparent").length > 0
+      ) {
+        items.push(
+          <ChartCxtMenuItem
+            key="cxt-menu-reset-highlights"
+            renderContent={() => "Reset Highlights"}
+            action={resetHighlights}
+          ></ChartCxtMenuItem>
+        );
+      }
 
-    if (
-      selectionCxtMenuItems !== undefined &&
-      event.cy.elements(":selected").length > 0
-    ) {
-      items.push(...selectionCxtMenuItems);
-    }
+      if (
+        selectionCxtMenuItems !== undefined &&
+        event.cy.elements(":selected").length > 0
+      ) {
+        items.push(...selectionCxtMenuItems);
+      }
 
-    return items;
-  };
+      return items;
+    },
+    [selectionCxtMenuItems]
+  );
 
-  const handleContextMenu = (event: EventObject, menuItems: ReactNode[]) => {
-    const staticMenuItems = getStaticMenuItems(event);
-    if (menuItems.length > 0 && staticMenuItems.length > 0) {
-      menuItems.push(
-        <Divider key={`ctx-menu-static-item-divider`} variant="middle" />
-      );
-    }
-    menuItems.push(...staticMenuItems);
+  const handleContextMenu = useCallback(
+    (event: EventObject, menuItems: ReactNode[]) => {
+      const staticMenuItems = getStaticMenuItems(event);
+      if (menuItems.length > 0 && staticMenuItems.length > 0) {
+        menuItems.push(
+          <Divider key={`ctx-menu-static-item-divider`} variant="middle" />
+        );
+      }
+      menuItems.push(...staticMenuItems);
 
-    setContextMenuEvent(event);
-    setContextMenuItems(menuItems);
-    setContextMenuOpen(true);
-  };
+      setContextMenuEvent(event);
+      setContextMenuItems(menuItems);
+      setContextMenuOpen(true);
+    },
+    [getStaticMenuItems]
+  );
 
   const hideTooltip = () => {
     setTooltipOpen(false);
     setTooltipTitle(null);
   };
 
-  const showTooltip = (title: ReactNode) => {
-    // Don't show the tooltip if the context menu is open
-    if (!contextMenuOpen) {
-      setTooltipOpen(true);
-      setTooltipTitle(title);
-    }
-  };
+  const showTooltip = useCallback(
+    (title: ReactNode) => {
+      // Don't show the tooltip if the context menu is open
+      if (!contextMenuOpen) {
+        setTooltipOpen(true);
+        setTooltipTitle(title);
+      }
+    },
+    [contextMenuOpen]
+  );
 
-  const handleHideToolbarBtnClicked = () => {
+  const handleHideToolbarBtnClicked = useCallback(() => {
     setToolbarHidden(!toolbarHidden);
     setShowToolbarHiddenTooltip(false);
-  };
+  }, [toolbarHidden]);
 
   const handleHoverNode = (event: EventObjectNode) => {
     event.target.addClass("hovered");
@@ -270,83 +287,105 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     }
   };
 
-  const handleCxtTapNode = (event: EventObjectNode) => {
-    const items = [...getSharedMenuItems(event)];
+  const handleCxtTapNode = useCallback(
+    (event: EventObjectNode) => {
+      const items = [...getSharedMenuItems(event)];
 
-    if (nodeCxtMenuItems !== undefined) {
-      items.push(...nodeCxtMenuItems);
-    }
-
-    handleContextMenu(event, items);
-  };
-
-  const handleCxtTapEdge = (event: EventObjectEdge) => {
-    const items = [...getSharedMenuItems(event)];
-
-    if (edgeCxtMenuItems !== undefined) {
-      items.push(...edgeCxtMenuItems);
-    }
-
-    handleContextMenu(event, items);
-  };
-
-  const handleCxtTapCanvas = (event: EventObject) => {
-    // Note that everything preceding the if-block will trigger on *any* cxtTap event, allowing us to set some shared behavior
-    hideTooltip();
-    cxtTapHandleSelectState(event);
-    contextMenuPosRef.current = {
-      x: event.originalEvent.clientX,
-      y: event.originalEvent.clientY,
-    };
-
-    if (event.target === cyRef.current) {
-      const items: ReactNode[] = [];
-
-      if (canvasCxtMenuItems !== undefined) {
-        items.push(...canvasCxtMenuItems);
+      if (nodeCxtMenuItems !== undefined) {
+        items.push(...nodeCxtMenuItems);
       }
 
       handleContextMenu(event, items);
-    }
-  };
+    },
+    [nodeCxtMenuItems]
+  );
 
-  const defaultEvents: CytoscapeEvent[] = [
-    {
-      event: "mouseover",
-      target: "node",
-      callback: handleHoverNode,
-    },
-    {
-      event: "mouseout",
-      target: "node",
-      callback: handleBlurNode,
-    },
-    {
-      event: "mouseover",
-      target: "edge",
-      callback: handleHoverEdge,
-    },
-    {
-      event: "mouseout",
-      target: "edge",
-      callback: handleBlurEdge,
-    },
-    {
-      event: "grab",
-      target: "node",
-      callback: handleGrabNode,
-    },
-    {
-      event: "drag",
-      target: "node",
-      callback: handleDragNode,
-    },
-    { event: "cxttap", callback: handleCxtTapCanvas },
-    { event: "cxttap", target: "node", callback: handleCxtTapNode },
-    { event: "cxttap", target: "edge", callback: handleCxtTapEdge },
-  ];
+  const handleCxtTapEdge = useCallback(
+    (event: EventObjectEdge) => {
+      const items = [...getSharedMenuItems(event)];
 
-  const runLayout = () => {
+      if (edgeCxtMenuItems !== undefined) {
+        items.push(...edgeCxtMenuItems);
+      }
+
+      handleContextMenu(event, items);
+    },
+    [edgeCxtMenuItems]
+  );
+
+  const handleCxtTapCanvas = useCallback(
+    (event: EventObject) => {
+      // Note that everything preceding the if-block will trigger on *any* cxtTap event, allowing us to set some shared behavior
+      hideTooltip();
+      cxtTapHandleSelectState(event);
+      contextMenuPosRef.current = {
+        x: event.originalEvent.clientX,
+        y: event.originalEvent.clientY,
+      };
+
+      if (event.target === cyRef.current) {
+        const items: ReactNode[] = [];
+
+        if (canvasCxtMenuItems !== undefined) {
+          items.push(...canvasCxtMenuItems);
+        }
+
+        handleContextMenu(event, items);
+      }
+    },
+    [canvasCxtMenuItems]
+  );
+
+  const defaultEvents: CytoscapeEvent[] = useMemo(
+    () => [
+      {
+        event: "mouseover",
+        target: "node",
+        callback: handleHoverNode,
+      },
+      {
+        event: "mouseout",
+        target: "node",
+        callback: handleBlurNode,
+      },
+      {
+        event: "mouseover",
+        target: "edge",
+        callback: handleHoverEdge,
+      },
+      {
+        event: "mouseout",
+        target: "edge",
+        callback: handleBlurEdge,
+      },
+      {
+        event: "grab",
+        target: "node",
+        callback: handleGrabNode,
+      },
+      {
+        event: "drag",
+        target: "node",
+        callback: handleDragNode,
+      },
+      { event: "cxttap", callback: handleCxtTapCanvas },
+      { event: "cxttap", target: "node", callback: handleCxtTapNode },
+      { event: "cxttap", target: "edge", callback: handleCxtTapEdge },
+    ],
+    [
+      handleHoverNode,
+      handleBlurNode,
+      handleHoverEdge,
+      handleBlurEdge,
+      handleGrabNode,
+      handleDragNode,
+      handleCxtTapCanvas,
+      handleCxtTapNode,
+      handleCxtTapEdge,
+    ]
+  );
+
+  const runLayout = useCallback(() => {
     const cy = cyRef.current;
     if (cy !== undefined) {
       // Stop any existing animations
@@ -375,40 +414,25 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         customAnimations.forEach((fn) => fn(cy));
       }
     }
-  };
+  }, [layout, customAnimations]);
 
   useEffect(() => {
-    const cy = cyRef.current;
-    if (cy) {
-      // Need to make sure the handlers set by the previous prop are unbound, otherwise all previous handlers will also be triggered
-      const prevCustomEventHandlers = prevCustomEventHandlersRef.current;
-      if (prevCustomEventHandlers !== undefined) {
-        prevCustomEventHandlers.forEach((handler) => {
-          if (handler.target !== undefined) {
-            cy.unbind(handler.event, handler.target, handler.callback);
-          } else {
-            cy.unbind(handler.event, handler.callback);
-          }
-        });
-      }
+    const prevCustomEventHandlers = prevCustomEventsRef.current;
+    const newCustomEventHandlers = customEvents || [];
+    rebindEventHandlers(cyRef, prevCustomEventHandlers, newCustomEventHandlers);
+    prevCustomEventsRef.current = newCustomEventHandlers;
+  }, [customEvents]);
 
-      [...defaultEvents, ...(customEventHandlers || [])].forEach(
-        (interaction) => {
-          if (interaction.target !== undefined) {
-            cy.bind(
-              interaction.event,
-              interaction.target,
-              interaction.callback
-            );
-          } else {
-            cy.bind(interaction.event, interaction.callback);
-          }
-        }
-      );
-    }
-
-    prevCustomEventHandlersRef.current = customEventHandlers || [];
-  }, [customEventHandlers]);
+  useEffect(() => {
+    const prevDefaultEventHandlers = prevDefaultEventsRef.current;
+    const newDefaultEventHandlers = defaultEvents || [];
+    rebindEventHandlers(
+      cyRef,
+      prevDefaultEventHandlers,
+      newDefaultEventHandlers
+    );
+    prevDefaultEventsRef.current = newDefaultEventHandlers;
+  }, [defaultEvents]);
 
   useEffect(() => {
     // We need to rerun the layout when the elements change, otherwise they won't be drawn properly
@@ -440,7 +464,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         )
       );
     }
-  }, [hoveredNode]);
+  }, [hoveredNode, tooltipBoxStyleProps, tooltipContentProps]);
 
   return (
     <>

@@ -14,7 +14,14 @@ import {
 } from "@mui/material";
 
 import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
-import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { NodeResult } from "@/lib/neo4j/types";
 
@@ -100,7 +107,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         onSelectedNodeChange(newSelectedNode, "update");
       }
     },
-    [selectedNode]
+    [selectedNode, onSelectedNodeChange]
   );
 
   const handleReset = useCallback(() => {
@@ -109,108 +116,114 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onReset();
   }, [onSelectedNodeChange, onReset]);
 
-  const customTools: CustomToolbarFnFactory[] = [
-    () => {
-      return (
-        <Fragment key="pathway-search-chart-toolbar-reset-search">
-          <Tooltip title="Start Over" arrow>
-            <IconButton aria-label="start-over" onClick={handleReset}>
-              <RestartAltIcon />
-            </IconButton>
-          </Tooltip>
-        </Fragment>
-      );
-    },
-    () => {
-      return (
-        <Fragment key="pathway-search-chart-toolbar-export-pathway">
-          <Tooltip title="Export Pathway" arrow>
-            <IconButton aria-label="export-pathway" onClick={onExport}>
-              <FileDownloadIcon />
-            </IconButton>
-          </Tooltip>
-        </Fragment>
-      );
-    },
-    () => {
-      return (
-        <Fragment key="pathway-search-chart-toolbar-import-pathway">
-          <Tooltip title="Import Pathway" arrow>
-            <IconButton aria-label="export-pathway" component="label">
-              <FileUploadIcon />
-              <VisuallyHiddenInput
-                accept=".json,application/json"
-                id="pathway-import-input"
-                type="file"
-                onClick={(event) => {
-                  // Reset value on each click, this allows the user to submit the same file multiple times
-                  const target = event.target as HTMLInputElement;
-                  target.value = "";
-                }}
-                onChange={onImport}
-              />
-            </IconButton>
-          </Tooltip>
-        </Fragment>
-      );
-    },
-  ];
+  const customTools: CustomToolbarFnFactory[] = useMemo(
+    () => [
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-reset-search">
+            <Tooltip title="Start Over" arrow>
+              <IconButton aria-label="start-over" onClick={handleReset}>
+                <RestartAltIcon />
+              </IconButton>
+            </Tooltip>
+          </Fragment>
+        );
+      },
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-export-pathway">
+            <Tooltip title="Export Pathway" arrow>
+              <IconButton aria-label="export-pathway" onClick={onExport}>
+                <FileDownloadIcon />
+              </IconButton>
+            </Tooltip>
+          </Fragment>
+        );
+      },
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-import-pathway">
+            <Tooltip title="Import Pathway" arrow>
+              <IconButton aria-label="export-pathway" component="label">
+                <FileUploadIcon />
+                <VisuallyHiddenInput
+                  accept=".json,application/json"
+                  id="pathway-import-input"
+                  type="file"
+                  onClick={(event) => {
+                    // Reset value on each click, this allows the user to submit the same file multiple times
+                    const target = event.target as HTMLInputElement;
+                    target.value = "";
+                  }}
+                  onChange={onImport}
+                />
+              </IconButton>
+            </Tooltip>
+          </Fragment>
+        );
+      },
+    ],
+    [handleReset, onExport, onImport]
+  );
 
-  const customEventHandlers: CytoscapeEvent[] = [
-    {
-      event: "tap",
-      callback: (event: EventObject) => {
-        if (event.target === event.cy) {
-          handleSelectedNodeChange(undefined, event.cy);
-        }
+  const customEvents: CytoscapeEvent[] = useMemo(
+    () => [
+      {
+        event: "tap",
+        callback: (event: EventObject) => {
+          if (event.target === event.cy) {
+            handleSelectedNodeChange(undefined, event.cy);
+          }
+        },
       },
-    },
-    {
-      event: "tap",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        handleSelectedNodeChange(event.target.id(), event.cy);
+      {
+        event: "tap",
+        target: "node",
+        callback: (event: EventObjectNode) => {
+          handleSelectedNodeChange(event.target.id(), event.cy);
+        },
       },
-    },
-    {
-      event: "tap",
-      target: "edge",
-      callback: (event: EventObjectEdge) => {
-        const targetNode = event.target.source().hasClass("path-element")
-          ? event.target.target()
-          : event.target.source();
-        handleSelectedNodeChange(targetNode.id(), event.cy);
+      {
+        event: "tap",
+        target: "edge",
+        callback: (event: EventObjectEdge) => {
+          const targetNode = event.target.source().hasClass("path-element")
+            ? event.target.target()
+            : event.target.source();
+          handleSelectedNodeChange(targetNode.id(), event.cy);
+        },
       },
-    },
-    {
-      event: "mouseover",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        event.target.neighborhood().addClass("solid");
+      {
+        event: "mouseover",
+        target: "node",
+        callback: (event: EventObjectNode) => {
+          event.target.neighborhood().addClass("solid");
+        },
       },
-    },
-    {
-      event: "mouseout",
-      target: "node",
-      callback: (event: EventObjectNode) => {
-        event.target.neighborhood().removeClass("solid");
+      {
+        event: "mouseout",
+        target: "node",
+        callback: (event: EventObjectNode) => {
+          event.target.neighborhood().removeClass("solid");
+        },
       },
-    },
-    {
-      event: "mouseover",
-      target: "edge",
-      callback: (event: EventObjectEdge) => {
-        event.target.connectedNodes().addClass("solid");
+      {
+        event: "mouseover",
+        target: "edge",
+        callback: (event: EventObjectEdge) => {
+          event.target.connectedNodes().addClass("solid");
+        },
       },
-    },
-    {
-      event: "mouseout",
-      target: "edge",
-      callback: (event: EventObjectEdge) => {
-        event.target.connectedNodes().removeClass("solid");
+      {
+        event: "mouseout",
+        target: "edge",
+        callback: (event: EventObjectEdge) => {
+          event.target.connectedNodes().removeClass("solid");
+        },
       },
-    },
-  ];
+    ],
+    [handleSelectedNodeChange]
+  );
 
   const customAnimations: AnimationFn[] = [
     // Node loading animation
@@ -318,7 +331,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         autoungrabify={true}
         zoom={PATHWAY_SEARCH_ZOOM}
         maxZoom={PATHWAY_SEARCH_MAX_ZOOM}
-        customEventHandlers={customEventHandlers}
+        customEvents={customEvents}
       ></CytoscapeChart>
     </Grid>
   );

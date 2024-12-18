@@ -22,21 +22,22 @@ import {
   BASIC_SEARCH_ERROR_MSG,
   NO_RESULTS_ERROR_MSG,
 } from "../constants/search-bar";
-import { NODE_CLASS_MAP } from "../constants/shared";
 import {
   PathwaySearchContext,
   PathwaySearchContextProps,
 } from "../contexts/PathwaySearchContext";
 import {
   PathwaySearchEdge,
-  PathwaySearchEdgeData,
   PathwaySearchNode,
-  PathwaySearchNodeData,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
 import { createCytoscapeElements } from "../utils/cy";
 import {
+  createPathwaySearchEdge,
+  createPathwaySearchNode,
   createTree,
+  deepCopyPathwaySearchEdge,
+  deepCopyPathwaySearchNode,
   isPathwaySearchEdgeElement,
 } from "../utils/pathway-search";
 import { downloadBlob, getNodeDisplayProperty } from "../utils/shared";
@@ -100,54 +101,6 @@ export default function GraphPathway() {
 
     return { data: await response.json(), status: response.status };
   };
-
-  const createPathwaySearchNode = (
-    data: PathwaySearchNodeData,
-    classes?: string[]
-  ): PathwaySearchNode => {
-    return {
-      data,
-      classes: [NODE_CLASS_MAP.get(data.dbLabel) || "", ...(classes || [])],
-    };
-  };
-
-  const createPathwaySearchEdge = (
-    data: PathwaySearchEdgeData,
-    classes?: string[]
-  ): PathwaySearchEdge => {
-    return {
-      data,
-      classes,
-    };
-  };
-
-  const deepCopyPathwaySearchNode = (
-    node: PathwaySearchNode,
-    data?: Partial<PathwaySearchNodeData>,
-    classesToAdd?: string[],
-    classesToRemove?: string[]
-  ): PathwaySearchNode => ({
-    classes: Array.from(
-      new Set([...(node.classes || []), ...(classesToAdd || [])])
-    ).filter((c) => {
-      return classesToRemove === undefined || !classesToRemove.includes(c);
-    }),
-    data: { ...node.data, ...data },
-  });
-
-  const deepCopyPathwaySearchEdge = (
-    edge: PathwaySearchEdge,
-    data?: Partial<PathwaySearchEdgeData>,
-    classesToAdd?: string[],
-    classesToRemove?: string[]
-  ): PathwaySearchEdge => ({
-    classes: Array.from(
-      new Set([...(edge.classes || []), ...(classesToAdd || [])])
-    ).filter(
-      (c) => classesToRemove === undefined || !classesToRemove.includes(c)
-    ),
-    data: { ...edge.data, ...data },
-  });
 
   const handleReset = useCallback(() => {
     setResultElements([]);

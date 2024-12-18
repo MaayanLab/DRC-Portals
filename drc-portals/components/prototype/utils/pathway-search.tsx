@@ -1,9 +1,12 @@
 import { Direction } from "@/lib/neo4j/enums";
 import { PathwayNode } from "@/lib/neo4j/types";
 
+import { NODE_CLASS_MAP } from "../constants/shared";
 import {
   PathwaySearchEdge,
+  PathwaySearchEdgeData,
   PathwaySearchNode,
+  PathwaySearchNodeData,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
 
@@ -119,3 +122,51 @@ export const createTree = (elements: PathwaySearchElement[]) => {
   };
   return createTreeFromRoot(root);
 };
+
+export const createPathwaySearchNode = (
+  data: PathwaySearchNodeData,
+  classes?: string[]
+): PathwaySearchNode => {
+  return {
+    data,
+    classes: [NODE_CLASS_MAP.get(data.dbLabel) || "", ...(classes || [])],
+  };
+};
+
+export const createPathwaySearchEdge = (
+  data: PathwaySearchEdgeData,
+  classes?: string[]
+): PathwaySearchEdge => {
+  return {
+    data,
+    classes,
+  };
+};
+
+export const deepCopyPathwaySearchNode = (
+  node: PathwaySearchNode,
+  data?: Partial<PathwaySearchNodeData>,
+  classesToAdd?: string[],
+  classesToRemove?: string[]
+): PathwaySearchNode => ({
+  classes: Array.from(
+    new Set([...(node.classes || []), ...(classesToAdd || [])])
+  ).filter((c) => {
+    return classesToRemove === undefined || !classesToRemove.includes(c);
+  }),
+  data: { ...node.data, ...data },
+});
+
+export const deepCopyPathwaySearchEdge = (
+  edge: PathwaySearchEdge,
+  data?: Partial<PathwaySearchEdgeData>,
+  classesToAdd?: string[],
+  classesToRemove?: string[]
+): PathwaySearchEdge => ({
+  classes: Array.from(
+    new Set([...(edge.classes || []), ...(classesToAdd || [])])
+  ).filter(
+    (c) => classesToRemove === undefined || !classesToRemove.includes(c)
+  ),
+  data: { ...edge.data, ...data },
+});

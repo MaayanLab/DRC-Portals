@@ -44,6 +44,7 @@ import {
 import { ENTITY_STYLES_MAP, NODE_CLASS_MAP } from "../constants/shared";
 import {
   CytoscapeEdge,
+  CytoscapeEvent,
   CytoscapeNode,
   CytoscapeNodeData,
 } from "../interfaces/cy";
@@ -615,3 +616,28 @@ export const D3_FORCE_TOOLS: CustomToolbarFnFactory[] = [
       layout
     ),
 ];
+
+export const rebindEventHandlers = (
+  cyRef: CytoscapeReference,
+  prevHandlers: CytoscapeEvent[],
+  newHandlers: CytoscapeEvent[]
+) => {
+  const cy = cyRef.current;
+  if (cy !== undefined) {
+    prevHandlers.forEach((handler) => {
+      if (handler.target !== undefined) {
+        cy.unbind(handler.event, handler.target, handler.callback);
+      } else {
+        cy.unbind(handler.event, handler.callback);
+      }
+    });
+
+    newHandlers.forEach((handler) => {
+      if (handler.target !== undefined) {
+        cy.bind(handler.event, handler.target, handler.callback);
+      } else {
+        cy.bind(handler.event, handler.callback);
+      }
+    });
+  }
+};
