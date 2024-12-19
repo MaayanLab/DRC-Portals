@@ -12,7 +12,8 @@ fi
 # list of dcc_short_label from ingesting from all DCCs
 #dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids%20First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
 # KidsFirst name changed no %20 during June 2024 submission
-dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
+# 2024/12/18: SenNet added
+dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC', 'SenNet');
 #dcc_short_labels=('Metabolomics');
 
 # define python command
