@@ -47,3 +47,12 @@ Update the DCCAssets.tsv, FileAssets.tsv and CodeAssets.tsv file paths in the in
 python fair_assessment/assess_fair.py
 
 ```
+
+## Updating S3 Ingest Files from Production Database
+```bash
+# in one terminal, port forward the prod db
+kubectl port-forward -n drc deploy/drc-portal-postgres 5432
+
+# in another, run the following script to generate these files and load them into s3
+python update_s3_from_db.py dcc_assets file_assets code_assets
+```

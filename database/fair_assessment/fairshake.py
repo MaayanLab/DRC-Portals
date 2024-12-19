@@ -439,12 +439,14 @@ def xmt_fair(xmt_path, row):
     fairshake_ontological_count = 0
     fairshake_standard_elements = []
     gene_set_count = 0
+    set_labels = set()
     with xmt_path.open('r') as fr:
       for line in tqdm(fr, desc=f"Processing {row['dcc_short_label']}/{row['filename']}..."):
         gene_set_count += 1
         line_split = list(map(str.strip, line.split('\t')))
         if len(line_split) < 3: continue
         x_set_label, x_set_description, *x_set_elements = line_split
+        set_labels.add(x_set_label)
         term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
         if term_ontological:
           fairshake_ontological_count +=1
@@ -458,7 +460,8 @@ def xmt_fair(xmt_path, row):
 
     fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/gene_set_count if gene_set_count > 0 else None,
                             # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
-                            "XMT Elements are normalized to a standard": None, 
+                            "XMT Elements are normalized to a standard": None,
+                            "XMT Terms are unique": 1. if gene_set_count == len(set_labels) else 0.,
                             "Accessible via DRS": fairshake_drs,
                             "Persistent URL": fairshake_persistent
                             }
