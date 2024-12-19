@@ -69,6 +69,12 @@ DROP TABLE IF EXISTS public."xlibrary" CASCADE;
 DROP TABLE IF EXISTS public."_XEntityToXLibrary" CASCADE;
 DROP TABLE IF EXISTS public."c2m2file" CASCADE;
 
+DROP TABLE IF EXISTS public."centers" CASCADE;
+DROP TABLE IF EXISTS public."center_outreach" CASCADE;
+DROP TABLE IF EXISTS public."r03_publications" CASCADE;
+DROP TABLE IF EXISTS public."r03" CASCADE;
+DROP TABLE IF EXISTS public."center_publications" CASCADE;
+
 /* 
 ========== Also, may have to drop triggers, functions and indexes =============
 
