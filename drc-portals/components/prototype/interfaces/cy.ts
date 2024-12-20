@@ -68,3 +68,9 @@ export interface CytoscapeEvent {
   // TODO: Could require additional params here for the CytoscapeChart component objects (e.g. the tooltipPositionRef, popperRef, etc.)
   callback: EventHandler;
 }
+
+export interface ChartRadialMenuPosition {
+  x: number;
+  y: number;
+  r: number;
+}

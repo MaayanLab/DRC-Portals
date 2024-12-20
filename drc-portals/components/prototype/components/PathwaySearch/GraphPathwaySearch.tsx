@@ -17,6 +17,7 @@ import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
 import {
   ChangeEvent,
   Fragment,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -37,7 +38,7 @@ import {
   PathwayModeBtnContainer,
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
-import { CFDE_DARK_BLUE, VisuallyHiddenInput } from "../../constants/shared";
+import { VisuallyHiddenInput } from "../../constants/shared";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
 import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
@@ -234,7 +235,6 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         // Cytoscape breaks down if you try to animate empty collections
         if (loadingNodes.size() > 0) {
           loadingNodes.style({
-            "border-color": CFDE_DARK_BLUE,
             "border-opacity": 1,
             "border-width": 0,
           });
@@ -250,7 +250,17 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             easing: "ease-out-cubic",
             duration: 1000,
           });
-          ani.play().promise("complete").then(loop);
+          ani
+            .play()
+            .promise("complete")
+            .then(() => {
+              // Remove style bypasses created by the animation
+              loadingNodes.style({
+                "border-opacity": null,
+                "border-width": null,
+              });
+              loop();
+            });
         }
       };
       loop();
@@ -329,6 +339,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         customTools={customTools}
         customAnimations={customAnimations}
         autoungrabify={true}
+        boxSelectionEnabled={false}
         zoom={PATHWAY_SEARCH_ZOOM}
         maxZoom={PATHWAY_SEARCH_MAX_ZOOM}
         customEvents={customEvents}

@@ -1,0 +1,7 @@
+.radial-menu {
+  --__reactRadialMenu__separator-color: #336699;
+  --__reactRadialMenu__menu-bgColor: #fff;
+  --__reactRadialMenu__item-color: #336699;
+  --__reactRadialMenu__activeItem-bgColor: #336699;
+  --__reactRadialMenu__activeItem-color: #fff;
+}

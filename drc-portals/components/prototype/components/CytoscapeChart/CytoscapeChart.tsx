@@ -18,6 +18,8 @@ import {
   EventObjectNode,
   LayoutOptions,
   Layouts,
+  NodeSingular,
+  Position,
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
@@ -36,7 +38,11 @@ import {
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
-import { CytoscapeEvent, CytoscapeNodeData } from "../../interfaces/cy";
+import {
+  ChartRadialMenuPosition,
+  CytoscapeEvent,
+  CytoscapeNodeData,
+} from "../../interfaces/cy";
 import { PositionOffsets } from "../../interfaces/shared";
 import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import {
@@ -50,6 +56,7 @@ import {
 import { ChartCxtMenu } from "./ChartCxtMenu";
 import ChartCxtMenuItem from "./ChartCxtMenuItem";
 import ChartLegend from "./ChartLegend";
+import { ChartRadialMenu } from "./ChartRadialMenu";
 import ChartToolbar from "./ChartToolbar";
 import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
@@ -73,8 +80,10 @@ interface CytoscapeChartProps {
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
   canvasCxtMenuItems?: ReactNode[];
+  radialMenuItems?: ReactNode[];
   legend?: Map<string, ReactNode>;
   autoungrabify?: boolean;
+  boxSelectionEnabled?: boolean;
   zoom?: number;
   maxZoom?: number;
   customEvents?: CytoscapeEvent[];
@@ -97,8 +106,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     nodeCxtMenuItems,
     edgeCxtMenuItems,
     canvasCxtMenuItems,
+    radialMenuItems,
     legend,
     autoungrabify,
+    boxSelectionEnabled,
     zoom,
     maxZoom,
     customEvents,
@@ -115,16 +126,19 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
+  const [radialMenuOpen, setRadialMenuOpen] = useState(false);
   const cyRef = useRef<Core>();
   const cyLayoutRef = useRef<Layouts>();
-  const contextMenuPosRef = useRef<{
-    x: number;
-    y: number;
-  }>({
+  const contextMenuPosRef = useRef<Position>({
     x: 0,
     y: 0,
   });
-  const tooltipPositionRef = useRef<{ x: number; y: number }>({
+  const radialMenuPosRef = useRef<ChartRadialMenuPosition>({
+    x: 0,
+    y: 0,
+    r: 0,
+  });
+  const tooltipPositionRef = useRef<Position>({
     x: 0,
     y: 0,
   });
@@ -135,6 +149,14 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const handleContextMenuClose = () => {
     setContextMenuOpen(false);
+  };
+
+  const handleRadialMenuClick = () => {
+    setRadialMenuOpen(false);
+  };
+
+  const handleRadialMenuClickAway = () => {
+    setRadialMenuOpen(false);
   };
 
   // Menu items that are shared between nodes and edges
@@ -336,41 +358,65 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [canvasCxtMenuItems]
   );
 
+  const openRadialMenuAtNode = (node: NodeSingular) => {
+    const nodePos = node.renderedPosition();
+
+    setRadialMenuOpen(true);
+    radialMenuPosRef.current = {
+      x: nodePos.x,
+      y: nodePos.y,
+      r: node.renderedOuterWidth() / 2,
+    };
+  };
+
+  const handleTapNode = useCallback(
+    (event: EventObjectNode) => {
+      // Normally we open the radial menu when a node is selected via the user tapping it. However, if the menu is then closed without
+      // *deselecting* the node, they won't be able to reopen the radial menu until the node is deselected. We get around this by
+      // introducing this edge case.
+      if (
+        event.target.selected() &&
+        !radialMenuOpen &&
+        radialMenuItems !== undefined
+      ) {
+        openRadialMenuAtNode(event.target);
+      }
+    },
+    [radialMenuOpen, radialMenuItems]
+  );
+
+  const handleTapSelectNode = useCallback(
+    (event: EventObjectNode) => {
+      if (radialMenuItems !== undefined) {
+        openRadialMenuAtNode(event.target);
+      }
+    },
+    [radialMenuItems]
+  );
+
+  const handleTapStart = () => {
+    setRadialMenuOpen(false);
+  };
+
+  const handleZoom = () => {
+    setRadialMenuOpen(false);
+  };
+
   const defaultEvents: CytoscapeEvent[] = useMemo(
     () => [
-      {
-        event: "mouseover",
-        target: "node",
-        callback: handleHoverNode,
-      },
-      {
-        event: "mouseout",
-        target: "node",
-        callback: handleBlurNode,
-      },
-      {
-        event: "mouseover",
-        target: "edge",
-        callback: handleHoverEdge,
-      },
-      {
-        event: "mouseout",
-        target: "edge",
-        callback: handleBlurEdge,
-      },
-      {
-        event: "grab",
-        target: "node",
-        callback: handleGrabNode,
-      },
-      {
-        event: "drag",
-        target: "node",
-        callback: handleDragNode,
-      },
+      { event: "mouseover", target: "node", callback: handleHoverNode },
+      { event: "mouseout", target: "node", callback: handleBlurNode },
+      { event: "mouseover", target: "edge", callback: handleHoverEdge },
+      { event: "mouseout", target: "edge", callback: handleBlurEdge },
+      { event: "grab", target: "node", callback: handleGrabNode },
+      { event: "drag", target: "node", callback: handleDragNode },
       { event: "cxttap", callback: handleCxtTapCanvas },
       { event: "cxttap", target: "node", callback: handleCxtTapNode },
       { event: "cxttap", target: "edge", callback: handleCxtTapEdge },
+      { event: "tap", target: "node", callback: handleTapNode },
+      { event: "tapstart", callback: handleTapStart },
+      { event: "tapselect", target: "node", callback: handleTapSelectNode },
+      { event: "zoom", callback: handleZoom },
     ],
     [
       handleHoverNode,
@@ -382,6 +428,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       handleCxtTapCanvas,
       handleCxtTapNode,
       handleCxtTapEdge,
+      handleTapSelectNode,
     ]
   );
 
@@ -411,27 +458,24 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
       // Run the custom animations
       if (customAnimations !== undefined) {
+        // TODO: It would be good to have a "Stop Animation" listener if the animation can signal that it should be manually stopped
         customAnimations.forEach((fn) => fn(cy));
       }
     }
   }, [layout, customAnimations]);
 
   useEffect(() => {
-    const prevCustomEventHandlers = prevCustomEventsRef.current;
-    const newCustomEventHandlers = customEvents || [];
-    rebindEventHandlers(cyRef, prevCustomEventHandlers, newCustomEventHandlers);
-    prevCustomEventsRef.current = newCustomEventHandlers;
+    const prevCustomEvents = prevCustomEventsRef.current;
+    const newCustomEvents = customEvents || [];
+    rebindEventHandlers(cyRef, prevCustomEvents, newCustomEvents);
+    prevCustomEventsRef.current = newCustomEvents;
   }, [customEvents]);
 
   useEffect(() => {
-    const prevDefaultEventHandlers = prevDefaultEventsRef.current;
-    const newDefaultEventHandlers = defaultEvents || [];
-    rebindEventHandlers(
-      cyRef,
-      prevDefaultEventHandlers,
-      newDefaultEventHandlers
-    );
-    prevDefaultEventsRef.current = newDefaultEventHandlers;
+    const prevDefaultEvents = prevDefaultEventsRef.current;
+    const newDefaultEvents = defaultEvents || [];
+    rebindEventHandlers(cyRef, prevDefaultEvents, newDefaultEvents);
+    prevDefaultEventsRef.current = newDefaultEvents;
   }, [defaultEvents]);
 
   useEffect(() => {
@@ -485,7 +529,17 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
               zoom={zoom}
               maxZoom={maxZoom}
               autoungrabify={autoungrabify}
+              boxSelectionEnabled={boxSelectionEnabled}
             />
+            {radialMenuItems === undefined ? null : (
+              <ChartRadialMenu
+                open={radialMenuOpen}
+                position={radialMenuPosRef.current}
+                menuItems={radialMenuItems}
+                onMenuClick={handleRadialMenuClick}
+                onClickAway={handleRadialMenuClickAway}
+              ></ChartRadialMenu>
+            )}
           </ChartContainer>
         </ChartTooltip>
       </ClickAwayListener>

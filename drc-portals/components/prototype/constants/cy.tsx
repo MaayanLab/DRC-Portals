@@ -157,6 +157,8 @@ const getEdgePoint = (origin: Position, deg: number, r: number): Position => {
 export const ChartContainer = styled(Paper)({
   width: "100%",
   height: "100%",
+  position: "relative",
+  overflow: "hidden",
 });
 
 export const WidgetContainer = styled(Box)({
@@ -234,6 +236,8 @@ export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
       height: NODE_DIAMETER,
       width: NODE_DIAMETER,
       shape: "ellipse",
+      "border-color": CFDE_DARK_BLUE,
+      "border-width": 0,
       "font-family": NODE_FONT_FAMILY,
       "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
@@ -246,7 +250,6 @@ export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   {
     selector: "node:selected",
     style: {
-      "border-color": CFDE_DARK_BLUE,
       "border-width": NODE_BORDER_WIDTH,
     },
   },
@@ -392,6 +395,12 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
             : ` (${element.data("count")})`
         }`,
       opacity: TRANSPARENT_OPACITY,
+    },
+  },
+  {
+    selector: "node:active",
+    style: {
+      "overlay-opacity": 0,
     },
   },
   ...DEFAULT_EDGE_SELECTOR_STYLES,
