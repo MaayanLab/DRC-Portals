@@ -5,3 +5,7 @@
   --__reactRadialMenu__activeItem-bgColor: #336699;
   --__reactRadialMenu__activeItem-color: #fff;
 }
+
+.__rrm-menu {
+  cursor: pointer;
+}

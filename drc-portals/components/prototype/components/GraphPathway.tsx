@@ -2,8 +2,8 @@
 
 import { AlertColor, Grid } from "@mui/material";
 
-import { ElementDefinition } from "cytoscape";
-import { ChangeEvent, useCallback, useMemo, useState } from "react";
+import { ElementDefinition, NodeSingular } from "cytoscape";
+import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 import {
@@ -58,6 +58,7 @@ export default function GraphPathway() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
+  const expandedNodeIdsRef = useRef(new Set<string>());
   const pathwayContextValue: PathwaySearchContextProps = useMemo(
     () => ({ tree }),
     [tree]
@@ -75,10 +76,14 @@ export default function GraphPathway() {
   };
 
   const getPathwayConnections = async (
-    tree: PathwayNode
+    tree: PathwayNode,
+    targetNodeIds: string[]
   ): Promise<PathwayConnectionsResult> => {
-    const query = btoa(JSON.stringify(tree));
-    const response = await fetchPathwaySearchConnections(query);
+    const btoaTree = btoa(JSON.stringify(tree));
+    const response = await fetchPathwaySearchConnections(
+      btoaTree,
+      targetNodeIds
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -105,67 +110,99 @@ export default function GraphPathway() {
   const handleReset = useCallback(() => {
     setResultElements([]);
     setSearchElements([]);
+    expandedNodeIdsRef.current = new Set<string>();
   }, []);
 
-  const updatePathway = (
-    pathwayElements: PathwaySearchElement[],
-    fallbackElements: PathwaySearchElement[]
+  const updateExpandedNodeConnections = (
+    elements: PathwaySearchElement[],
+    onError?: () => void
   ) => {
-    const tempTree = createTree(pathwayElements);
-    setTree(tempTree);
-    if (tempTree !== undefined) {
-      setSearchElements(pathwayElements);
-      getPathwayConnections(tempTree)
-        .then((response) => {
-          const newSearchElements = [
-            ...response.connectedNodes.map((node) =>
-              createPathwaySearchNode({
-                id: node.id,
-                displayLabel: node.label,
-                dbLabel: node.label,
-              })
-            ),
-            ...pathwayElements.map((element) => {
-              if (isPathwaySearchEdgeElement(element)) {
-                return deepCopyPathwaySearchEdge(element);
-              } else {
-                return deepCopyPathwaySearchNode(
-                  element,
-                  undefined,
-                  [],
-                  ["loading"]
-                );
-              }
-            }),
-            ...response.connectedEdges.map((edge) =>
-              createPathwaySearchEdge(
-                {
-                  id: edge.id,
-                  source:
-                    edge.direction === Direction.OUTGOING
-                      ? edge.source
-                      : edge.target,
-                  target:
-                    edge.direction === Direction.OUTGOING
-                      ? edge.target
-                      : edge.source,
-                  displayLabel: edge.type,
-                  type: edge.type,
-                },
-                edge.direction === Direction.INCOMING
-                  ? ["source-arrow-only"]
-                  : []
-              )
-            ),
-          ];
-          setSearchElements(newSearchElements);
-        })
-        .catch((e) => {
-          console.error(e);
-          setSearchElements(fallbackElements);
-          setTree(createTree(fallbackElements));
-          updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
-        });
+    const expandedNodeIds = expandedNodeIdsRef.current;
+
+    if (expandedNodeIds.size > 0) {
+      // Create a fallback elements array for if the request fails
+      const fallbackElements = elements.map((element) =>
+        isPathwaySearchEdgeElement(element)
+          ? deepCopyPathwaySearchEdge(element)
+          : deepCopyPathwaySearchNode(element)
+      );
+
+      // Create copies of the expanded nodes with a temporary "loading" class
+      const tempExpandedNodes = (
+        elements.filter((el) =>
+          expandedNodeIds.has(el.data.id)
+        ) as PathwaySearchNode[]
+      ).map((node) => deepCopyPathwaySearchNode(node, undefined, ["loading"]));
+
+      // Set elements to only pathway elements while loading connections (i.e., hide non-pathway elements)
+      const tempElements = [
+        ...tempExpandedNodes,
+        ...elements.filter(
+          (element) =>
+            element.classes?.includes("path-element") &&
+            !expandedNodeIds.has(element.data.id)
+        ),
+      ];
+
+      const tempTree = createTree(tempElements);
+      setTree(tempTree);
+      if (tempTree !== undefined) {
+        setSearchElements(tempElements);
+        getPathwayConnections(tempTree, Array.from(expandedNodeIds))
+          .then((response) => {
+            const newSearchElements = [
+              ...response.connectedNodes.map((node) =>
+                createPathwaySearchNode({
+                  id: node.id,
+                  displayLabel: node.label,
+                  dbLabel: node.label,
+                })
+              ),
+              ...tempElements.map((element) => {
+                if (isPathwaySearchEdgeElement(element)) {
+                  return deepCopyPathwaySearchEdge(element);
+                } else {
+                  return deepCopyPathwaySearchNode(
+                    element,
+                    undefined,
+                    [],
+                    ["loading"]
+                  );
+                }
+              }),
+              ...response.connectedEdges.map((edge) =>
+                createPathwaySearchEdge(
+                  {
+                    id: edge.id,
+                    source:
+                      edge.direction === Direction.OUTGOING
+                        ? edge.source
+                        : edge.target,
+                    target:
+                      edge.direction === Direction.OUTGOING
+                        ? edge.target
+                        : edge.source,
+                    displayLabel: edge.type,
+                    type: edge.type,
+                  },
+                  edge.direction === Direction.INCOMING
+                    ? ["source-arrow-only"]
+                    : []
+                )
+              ),
+            ];
+            setSearchElements(newSearchElements);
+          })
+          .catch((e) => {
+            console.error(e);
+            if (onError !== undefined) {
+              onError();
+            }
+            setSearchElements(fallbackElements);
+            setTree(createTree(fallbackElements));
+            updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
+          });
+      }
     }
   };
 
@@ -173,9 +210,8 @@ export default function GraphPathway() {
     (node: PathwaySearchNode) => {
       // There should be exactly one edge where this node is the target
       const connectedEdge = searchElements.find(
-        (element) =>
-          isPathwaySearchEdgeElement(element) &&
-          element.data.target === node.data.id
+        (el) =>
+          isPathwaySearchEdgeElement(el) && el.data.target === node.data.id
       ) as PathwaySearchEdge | undefined;
 
       // This should never happen, but log an error just in case...
@@ -186,45 +222,49 @@ export default function GraphPathway() {
         return;
       }
 
-      // Take a snapshot of the original state in case the API request fails for any reason
-      const fallbackElements = searchElements.map((element) =>
-        isPathwaySearchEdgeElement(element)
-          ? deepCopyPathwaySearchEdge(element)
-          : deepCopyPathwaySearchNode(element)
-      );
-      const tempElements = [
-        deepCopyPathwaySearchNode(node, undefined, ["loading", "path-element"]),
-        ...searchElements.filter(
-          (element) =>
-            element.data.id !== node.data.id &&
-            element.data.id !== connectedEdge.data.id &&
-            element.classes?.includes("path-element")
-        ),
+      // Update search elements with the new node/edge and a copy of the rest
+      const newElements = [
+        deepCopyPathwaySearchNode(node, undefined, ["path-element"]),
+        ...searchElements
+          .filter(
+            (el) =>
+              el.data.id !== node.data.id &&
+              el.data.id !== connectedEdge.data.id
+          )
+          .map((el) =>
+            isPathwaySearchEdgeElement(el)
+              ? deepCopyPathwaySearchEdge(el)
+              : deepCopyPathwaySearchNode(el)
+          ),
         deepCopyPathwaySearchEdge(connectedEdge, undefined, ["path-element"]),
       ];
-      updatePathway(tempElements, fallbackElements);
+      setSearchElements(newElements);
+
+      // Then, update all connections
+      updateExpandedNodeConnections(newElements);
     },
-    [searchElements]
+    [searchElements, updateExpandedNodeConnections]
   );
 
   const updatePathNode = useCallback(
     (node: PathwaySearchNode) => {
-      const fallbackElements = searchElements.map((element) =>
-        isPathwaySearchEdgeElement(element)
-          ? deepCopyPathwaySearchEdge(element)
-          : deepCopyPathwaySearchNode(element)
-      );
-      const tempElements = [
-        deepCopyPathwaySearchNode(node, undefined, ["loading"]),
-        ...searchElements.filter(
-          (element) =>
-            element.classes?.includes("path-element") &&
-            element.data.id !== node.data.id
-        ),
+      // Update search elements with the updated node and a copy of the rest
+      const newElements = [
+        deepCopyPathwaySearchNode(node),
+        ...searchElements
+          .filter((el) => el.data.id !== node.data.id)
+          .map((element) =>
+            isPathwaySearchEdgeElement(element)
+              ? deepCopyPathwaySearchEdge(element)
+              : deepCopyPathwaySearchNode(element)
+          ),
       ];
-      updatePathway(tempElements, fallbackElements);
+      setSearchElements(newElements);
+
+      // Then, update all connections
+      updateExpandedNodeConnections(newElements);
     },
-    [searchElements]
+    [searchElements, updateExpandedNodeConnections]
   );
 
   const handleSelectedNodeChange = useCallback(
@@ -294,58 +334,13 @@ export default function GraphPathway() {
         displayLabel: getNodeDisplayProperty(cvTerm.labels[0], cvTerm),
         dbLabel: cvTerm.labels[0],
       },
-      ["path-element", "loading"]
+      ["path-element"]
     );
     const initialTree = createTree([initialNode]);
     setTree(initialTree);
 
     if (initialTree !== undefined) {
       setSearchElements([initialNode]);
-      getPathwayConnections(initialTree)
-        .then((response) => {
-          const newSearchElements = [
-            createPathwaySearchNode(
-              {
-                ...initialNode.data,
-              },
-              ["path-element"]
-            ),
-            ...response.connectedNodes.map((node) =>
-              createPathwaySearchNode({
-                id: node.id,
-                displayLabel: node.label,
-                dbLabel: node.label,
-              })
-            ),
-            ...response.connectedEdges.map((edge) =>
-              createPathwaySearchEdge(
-                {
-                  id: edge.id,
-                  source:
-                    edge.direction === Direction.OUTGOING
-                      ? edge.source
-                      : edge.target,
-                  target:
-                    edge.direction === Direction.OUTGOING
-                      ? edge.target
-                      : edge.source,
-                  displayLabel: edge.type,
-                  type: edge.type,
-                },
-                edge.direction === Direction.INCOMING
-                  ? ["source-arrow-only"]
-                  : []
-              )
-            ),
-          ];
-          setSearchElements(newSearchElements);
-        })
-        .catch((e) => {
-          console.error(e);
-          setSearchElements([]);
-          setTree(undefined);
-          updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
-        });
     }
   };
 
@@ -384,6 +379,51 @@ export default function GraphPathway() {
     }
   };
 
+  const handleExpand = useCallback(
+    (node: NodeSingular) => {
+      const nodeId = node.data("id");
+      const expandedNodeIds = expandedNodeIdsRef.current;
+      if (expandedNodeIds.has(nodeId)) {
+        // If the node was already expanded, remove it from the expand set and remove its non-pathway connections
+        expandedNodeIds.delete(nodeId);
+
+        const nonPathwayEdgeCnxns = searchElements
+          .filter((el) => isPathwaySearchEdgeElement(el))
+          .filter(
+            (el) =>
+              !(el.classes || []).includes("path-element") &&
+              el.data.source === nodeId
+          );
+        const nonPathwayEdgeCnxnIds = new Set(
+          nonPathwayEdgeCnxns.map((edge) => edge.data.id)
+        );
+        const nonPathwayNodeCnxnIds = new Set(
+          nonPathwayEdgeCnxns.map((edge) => edge.data.target)
+        );
+        setSearchElements(
+          searchElements
+            .filter(
+              (el) =>
+                !nonPathwayEdgeCnxnIds.has(el.data.id) &&
+                !nonPathwayNodeCnxnIds.has(el.data.id)
+            )
+            .map((element) =>
+              isPathwaySearchEdgeElement(element)
+                ? deepCopyPathwaySearchEdge(element)
+                : deepCopyPathwaySearchNode(element)
+            )
+        );
+      } else {
+        // Otherwise fetch its connections not already in the pathway
+        expandedNodeIds.add(nodeId);
+        updateExpandedNodeConnections(searchElements, () => {
+          expandedNodeIds.delete(nodeId);
+        });
+      }
+    },
+    [searchElements]
+  );
+
   return (
     <Grid
       container
@@ -403,6 +443,7 @@ export default function GraphPathway() {
           <GraphPathwaySearch
             elements={searchElements}
             loading={loadingSearchResults}
+            onExpand={handleExpand}
             onExport={handleExport}
             onImport={handleImport}
             onSearchBarSubmit={handleSearchBarSubmit}

@@ -39,6 +39,7 @@ import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
 import {
+  ChartRadialMenuItemProps,
   ChartRadialMenuPosition,
   CytoscapeEvent,
   CytoscapeNodeData,
@@ -50,6 +51,7 @@ import {
   hideElement,
   rebindEventHandlers,
   resetHighlights,
+  setChartCursor,
   showElement,
 } from "../../utils/cy";
 
@@ -80,7 +82,7 @@ interface CytoscapeChartProps {
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
   canvasCxtMenuItems?: ReactNode[];
-  radialMenuItems?: ReactNode[];
+  radialMenuItems?: ChartRadialMenuItemProps[];
   legend?: Map<string, ReactNode>;
   autoungrabify?: boolean;
   boxSelectionEnabled?: boolean;
@@ -127,6 +129,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
   const [radialMenuOpen, setRadialMenuOpen] = useState(false);
+  const [radialMenuNode, setRadialMenuNode] = useState<NodeSingular>();
   const cyRef = useRef<Core>();
   const cyLayoutRef = useRef<Layouts>();
   const contextMenuPosRef = useRef<Position>({
@@ -152,6 +155,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const handleRadialMenuClick = () => {
+    setRadialMenuOpen(false);
+  };
+
+  const handleRadialMenuItemClick = () => {
     setRadialMenuOpen(false);
   };
 
@@ -254,11 +261,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   }, [toolbarHidden]);
 
   const handleHoverNode = (event: EventObjectNode) => {
-    const container = event.cy.container();
-    if (container !== null) {
-      container.style.cursor = "pointer";
-    }
-
+    setChartCursor(event.cy, "pointer");
     event.target.addClass("hovered");
 
     // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
@@ -277,11 +280,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const handleBlurNode = (event: EventObjectNode) => {
-    const container = event.cy.container();
-    if (container !== null) {
-      container.style.cursor = "default";
-    }
-
+    setChartCursor(event.cy, "default");
     event.target.removeClass("hovered");
 
     if (nodeHoverTimerId !== null) {
@@ -370,8 +369,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const openRadialMenuAtNode = (node: NodeSingular) => {
     const nodePos = node.renderedPosition();
-
     setRadialMenuOpen(true);
+    setRadialMenuNode(node);
     radialMenuPosRef.current = {
       x: nodePos.x,
       y: nodePos.y,
@@ -382,8 +381,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const handleTapNode = useCallback(
     (event: EventObjectNode) => {
       // Normally we open the radial menu when a node is selected via the user tapping it. However, if the menu is then closed without
-      // *deselecting* the node, they won't be able to reopen the radial menu until the node is deselected. We get around this by
-      // introducing this edge case.
+      // *deselecting* the node (for example by clicking somewhere outside of the canvas), they won't be able to reopen the radial menu
+      // until the node is deselected. We get around this by introducing this edge case.
       if (
         event.target.selected() &&
         !radialMenuOpen &&
@@ -404,7 +403,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [radialMenuItems]
   );
 
-  const handleTapStart = () => {
+  const handleTapEnd = () => {
     setRadialMenuOpen(false);
   };
 
@@ -424,7 +423,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       { event: "cxttap", target: "node", callback: handleCxtTapNode },
       { event: "cxttap", target: "edge", callback: handleCxtTapEdge },
       { event: "tap", target: "node", callback: handleTapNode },
-      { event: "tapstart", callback: handleTapStart },
+      { event: "tapend", callback: handleTapEnd },
       { event: "tapselect", target: "node", callback: handleTapSelectNode },
       { event: "zoom", callback: handleZoom },
     ],
@@ -520,6 +519,19 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     }
   }, [hoveredNode, tooltipBoxStyleProps, tooltipContentProps]);
 
+  useEffect(() => {
+    // Make sure the cursor style on the chart is reset whenever the radial menu is opened/closed
+    const cy = cyRef.current;
+    if (cy !== undefined) {
+      setChartCursor(cy, "default");
+    }
+
+    if (!radialMenuOpen) {
+      // Make sure the radial menu node is reset anytime the menu is closed
+      setRadialMenuNode(undefined);
+    }
+  }, [radialMenuOpen]);
+
   return (
     <>
       <ClickAwayListener onClickAway={hideTooltip}>
@@ -541,12 +553,15 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
               autoungrabify={autoungrabify}
               boxSelectionEnabled={boxSelectionEnabled}
             />
-            {radialMenuItems === undefined ? null : (
+            {radialMenuItems === undefined ||
+            radialMenuNode === undefined ? null : (
               <ChartRadialMenu
                 open={radialMenuOpen}
+                node={radialMenuNode}
                 position={radialMenuPosRef.current}
                 menuItems={radialMenuItems}
                 onMenuClick={handleRadialMenuClick}
+                onMenuItemClick={handleRadialMenuItemClick}
                 onClickAway={handleRadialMenuClickAway}
               ></ChartRadialMenu>
             )}

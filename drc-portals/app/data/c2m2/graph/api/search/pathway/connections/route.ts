@@ -1,12 +1,6 @@
 import { NextRequest } from "next/server";
-import { v4 } from "uuid";
 
-import {
-  UNIQUE_PAIR_INCOMING_CONNECTIONS,
-  UNIQUE_PAIR_OUTGOING_CONNECTIONS,
-  UNIQUE_TO_GENERIC_REL,
-} from "@/lib/neo4j/constants";
-import { createConnectionPattern } from "@/lib/neo4j/cypher";
+import { UNIQUE_TO_GENERIC_REL } from "@/lib/neo4j/constants";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import { Direction } from "@/lib/neo4j/enums";
 import {
@@ -15,7 +9,7 @@ import {
   PathwayNode,
   TreeParseResult,
 } from "@/lib/neo4j/types";
-import { getOptimizedMatches, parsePathwayTree } from "@/lib/neo4j/utils";
+import { getConnectionQueries, parsePathwayTree } from "@/lib/neo4j/utils";
 
 interface ConnectionQueryRecord {
   exists: boolean;
@@ -31,8 +25,9 @@ interface ConnectionQueryRecord {
 // TODO: Would be awesome if we could somehow guarantee that the ids passed in for a given pathway will be exactly the same every time
 // that pathway is sent in the request. This would allow us to leverage the Neo4j query cache much more effectively.
 export async function POST(request: NextRequest) {
-  const body: { tree: string } = await request.json();
+  const body: { tree: string; targetNodeIds: string[] } = await request.json();
   let tree: PathwayNode;
+  const targetNodeIds = new Set<string>();
   let treeParseResult: TreeParseResult;
   const connectionQueries: string[] = [];
 
@@ -40,6 +35,34 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         error: "Request body is empty.",
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
+    if (body.targetNodeIds === undefined) {
+      return Response.json(
+        {
+          error: 'Request body missing required property "nodeId"',
+        },
+        { status: 400 }
+      );
+    } else if (!Array.isArray(body.targetNodeIds)) {
+      return Response.json(
+        {
+          error: `Property "nodeId" in request body had invalid type ${typeof body.targetNodeIds}. Must be "array".`,
+        },
+        { status: 400 }
+      );
+    } else {
+      body.targetNodeIds.forEach((id) => targetNodeIds.add(id));
+    }
+  } catch (e) {
+    return Response.json(
+      {
+        error: e,
+        message: "An error occured during the search. Please try again later.",
       },
       { status: 400 }
     );
@@ -64,82 +87,15 @@ export async function POST(request: NextRequest) {
   try {
     treeParseResult = parsePathwayTree(tree, true);
 
-    const addConnections = (node: PathwayNode, direction: Direction) => {
-      const CONNECTIONS =
-        direction === Direction.INCOMING
-          ? UNIQUE_PAIR_INCOMING_CONNECTIONS
-          : UNIQUE_PAIR_OUTGOING_CONNECTIONS;
-      const filteredCnxns =
-        direction === Direction.INCOMING
-          ? treeParseResult.incomingCnxns
-          : treeParseResult.outgoingCnxns;
-      const queryStmts: string[] = getOptimizedMatches(
-        treeParseResult,
-        node.id
-      );
-      let whereCnxnIdx: number | undefined = undefined;
-
-      // Find the first statement where node.id is present and save the index for later use
-      queryStmts.forEach((stmt, idx) => {
-        if (whereCnxnIdx === undefined && stmt.split(node.id).length > 1) {
-          whereCnxnIdx = idx + 1;
-        }
-      });
-
-      for (const [relationship, label] of Array.from(
-        CONNECTIONS.get(node.label)?.entries() || []
-      )) {
-        // Skip this connection if it already exists for this node
-        if (
-          filteredCnxns
-            .get(node.id)
-            ?.get(UNIQUE_TO_GENERIC_REL.get(relationship) || "Unknown")
-            ?.includes(label)
-        ) {
-          continue;
-        }
-
-        const queryStmtsCopy = [...queryStmts];
-        if (whereCnxnIdx !== undefined) {
-          const whereCnxnStmt = `WHERE COUNT {${createConnectionPattern(
-            node.id,
-            direction,
-            undefined,
-            relationship
-          )}} > 0`;
-
-          if (whereCnxnIdx === queryStmtsCopy.length) {
-            queryStmtsCopy.push(whereCnxnStmt);
-          } else {
-            queryStmtsCopy.splice(whereCnxnIdx, 0, whereCnxnStmt);
-          }
-        }
-
-        const connectedNodeId = v4();
-        const connectedEdgeId = v4();
+    for (const node of treeParseResult.nodes) {
+      if (targetNodeIds.has(node.id)) {
         connectionQueries.push(
-          [
-            ...queryStmtsCopy,
-            "RETURN",
-            `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
-            `\t"${connectedEdgeId}" AS edgeId,`,
-            `\t"${relationship}" AS type,`,
-            `\t"${
-              direction === Direction.INCOMING ? connectedNodeId : node.id
-            }" AS source,`,
-            `\t"${
-              direction === Direction.INCOMING ? node.id : connectedNodeId
-            }" AS target,`,
-            `\t"${direction}" AS direction`,
-            "LIMIT 1",
-          ].join("\n")
+          ...getConnectionQueries(treeParseResult, node, Direction.OUTGOING)
+        );
+        connectionQueries.push(
+          ...getConnectionQueries(treeParseResult, node, Direction.INCOMING)
         );
       }
-    };
-
-    for (const node of treeParseResult.nodes) {
-      addConnections(node, Direction.OUTGOING);
-      addConnections(node, Direction.INCOMING);
     }
   } catch (e) {
     return Response.json(

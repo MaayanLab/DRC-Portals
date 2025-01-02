@@ -8,6 +8,7 @@ import {
   EventObjectNode,
   NodeDataDefinition,
   NodeDefinition,
+  NodeSingular,
   Selector,
 } from "cytoscape";
 import { ReactNode } from "react";
@@ -73,4 +74,10 @@ export interface ChartRadialMenuPosition {
   x: number;
   y: number;
   r: number;
+}
+
+export interface ChartRadialMenuItemProps {
+  key: string;
+  content: ReactNode;
+  onClick: (node: NodeSingular) => void;
 }

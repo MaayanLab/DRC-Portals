@@ -1,23 +1,44 @@
-import React, { forwardRef, ReactNode } from "react";
-
 import { ClickAwayListener, Popper } from "@mui/material";
-import { Menu } from "@spaceymonk/react-radial-menu";
+import { Menu, MenuItem } from "@spaceymonk/react-radial-menu";
+import { NodeSingular } from "cytoscape";
+import React, { forwardRef, useCallback } from "react";
 
-import { ChartRadialMenuPosition } from "../../interfaces/cy";
+import {
+  ChartRadialMenuItemProps,
+  ChartRadialMenuPosition,
+} from "../../interfaces/cy";
 
 import "./ChartRadialMenu.css";
 
 interface ChartRadialMenuProps {
   open: boolean;
+  node: NodeSingular;
   position: ChartRadialMenuPosition;
-  menuItems: ReactNode[];
+  menuItems: ChartRadialMenuItemProps[];
   onMenuClick: () => void;
+  onMenuItemClick: () => void;
   onClickAway: () => void;
 }
 
 export const ChartRadialMenu = forwardRef<HTMLDivElement, ChartRadialMenuProps>(
   (cmpProps: ChartRadialMenuProps, ref) => {
-    const { open, position, menuItems, onMenuClick, onClickAway } = cmpProps;
+    const {
+      open,
+      node,
+      position,
+      menuItems,
+      onMenuClick,
+      onMenuItemClick,
+      onClickAway,
+    } = cmpProps;
+
+    const handleMenuItemClick = useCallback(
+      (onClick: (node: NodeSingular) => void) => {
+        onClick(node);
+        onMenuItemClick();
+      },
+      [onMenuItemClick]
+    );
 
     return (
       <Popper
@@ -36,12 +57,19 @@ export const ChartRadialMenu = forwardRef<HTMLDivElement, ChartRadialMenuProps>(
                 centerY={position.y}
                 innerRadius={position.r}
                 outerRadius={position.r * 2}
-                animation={["fade", "scale"]}
-                animationTimeout={150}
+                animation={["scale"]}
+                animationTimeout={100}
                 drawBackground
                 onClick={onMenuClick}
               >
-                {...menuItems}
+                {menuItems.map((item) => (
+                  <MenuItem
+                    key={item.key}
+                    onItemClick={() => handleMenuItemClick(item.onClick)}
+                  >
+                    {item.content}
+                  </MenuItem>
+                ))}
               </Menu>
             </div>
           </ClickAwayListener>

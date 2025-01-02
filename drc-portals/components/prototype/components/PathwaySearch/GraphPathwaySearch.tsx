@@ -1,7 +1,10 @@
 "use client";
 
+import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import HubIcon from "@mui/icons-material/Hub";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -13,11 +16,16 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
+import {
+  Core,
+  EventObject,
+  EventObjectEdge,
+  EventObjectNode,
+  NodeSingular,
+} from "cytoscape";
 import {
   ChangeEvent,
   Fragment,
-  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -39,7 +47,7 @@ import {
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
 import { VisuallyHiddenInput } from "../../constants/shared";
-import { CytoscapeEvent } from "../../interfaces/cy";
+import { ChartRadialMenuItemProps, CytoscapeEvent } from "../../interfaces/cy";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
 import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import { PathwaySearchElement } from "../../types/pathway-search";
@@ -52,6 +60,7 @@ interface GraphPathwaySearchProps {
   loading: boolean;
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
+  onExpand: (node: NodeSingular) => void;
   onReset: () => void;
   onExport: () => void;
   onImport: (files: ChangeEvent<HTMLInputElement>) => void;
@@ -65,6 +74,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const {
     elements,
     loading,
+    onExpand,
     onReset,
     onExport,
     onImport,
@@ -232,38 +242,66 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       const loop = () => {
         const loadingNodes = cy.elements("node.loading");
 
-        // Cytoscape breaks down if you try to animate empty collections
+        // Cytoscape crashes if you try to animate empty collections
         if (loadingNodes.size() > 0) {
           loadingNodes.style({
             "border-opacity": 1,
             "border-width": 0,
           });
 
-          // For some reason the position props are non-optional in the argument type definition for `animation`, but they are actually
-          // optional. This ignore suppresses that warning.
-          // @ts-ignore
-          const ani = loadingNodes.animation({
-            style: {
-              "border-opacity": 0,
-              "border-width": NODE_BORDER_WIDTH * 2,
-            },
-            easing: "ease-out-cubic",
-            duration: 1000,
-          });
-          ani
-            .play()
-            .promise("complete")
-            .then(() => {
-              // Remove style bypasses created by the animation
-              loadingNodes.style({
-                "border-opacity": null,
-                "border-width": null,
-              });
-              loop();
+          const animationPromises = loadingNodes.map((node) => {
+            // For some reason the position props are non-optional in the argument type definition for `animation`, but they are actually
+            // optional. This ignore suppresses that warning.
+            // @ts-ignore
+            const ani = node.animation({
+              style: {
+                "border-opacity": 0,
+                "border-width": NODE_BORDER_WIDTH * 2,
+              },
+              easing: "ease-out-cubic",
+              duration: 1000,
             });
+            return ani.play().promise("complete");
+          });
+
+          // Wait for all nodes to finish animating, then loop
+          Promise.all(animationPromises).then(() => {
+            // Remove style bypasses created by the animation
+            loadingNodes.style({
+              "border-opacity": null,
+              "border-width": null,
+            });
+            loop();
+          });
         }
       };
       loop();
+    },
+  ];
+
+  const radialMenuItems: ChartRadialMenuItemProps[] = [
+    {
+      key: "pathway-search-radial-menu-item-hub",
+      content: <HubIcon style={{ width: "100%", height: "100%" }} />,
+      onClick: onExpand,
+    },
+    {
+      key: "pathway-search-radial-menu-item-filter",
+      content: (
+        <Box style={{ width: "100%", height: "100%" }}>
+          <FilterAltIcon />
+        </Box>
+      ),
+      onClick: () => console.log("[menuItemCutFilter]"),
+    },
+    {
+      key: "pathway-search-radial-menu-item-cut",
+      content: (
+        <Box style={{ width: "100%", height: "100%" }}>
+          <ContentCutIcon />
+        </Box>
+      ),
+      onClick: () => console.log("[menuItemCutClick]"),
     },
   ];
 
@@ -338,6 +376,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
         customAnimations={customAnimations}
+        radialMenuItems={radialMenuItems}
         autoungrabify={true}
         boxSelectionEnabled={false}
         zoom={PATHWAY_SEARCH_ZOOM}

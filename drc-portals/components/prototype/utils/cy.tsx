@@ -14,6 +14,7 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import RadarIcon from "@mui/icons-material/Radar";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
+  Core,
   EventObject,
   EventObjectEdge,
   EventObjectNode,
@@ -639,5 +640,12 @@ export const rebindEventHandlers = (
         cy.bind(handler.event, handler.callback);
       }
     });
+  }
+};
+
+export const setChartCursor = (cy: Core, cursor: string) => {
+  const container = cy.container();
+  if (container !== null) {
+    container.style.cursor = cursor;
   }
 };

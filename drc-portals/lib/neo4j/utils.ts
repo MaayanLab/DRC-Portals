@@ -2,7 +2,13 @@
 import parser from "lucene-query-parser";
 import { v4 } from "uuid";
 
-import { UNIQUE_PAIR_OUTGOING_CONNECTIONS, UUID_REGEX } from "./constants";
+import {
+  UNIQUE_PAIR_INCOMING_CONNECTIONS,
+  UNIQUE_PAIR_OUTGOING_CONNECTIONS,
+  UNIQUE_TO_GENERIC_REL,
+  UUID_REGEX,
+} from "./constants";
+import { createConnectionPattern } from "./cypher";
 import {
   PathElement,
   PathwayNode,
@@ -323,4 +329,80 @@ export const getOptimizedMatches = (
   });
 
   return queryStmts;
+};
+
+export const getConnectionQueries = (
+  treeParseResult: TreeParseResult,
+  node: PathwayNode,
+  direction: Direction
+) => {
+  const connectionQueries: string[] = [];
+  const CONNECTIONS =
+    direction === Direction.INCOMING
+      ? UNIQUE_PAIR_INCOMING_CONNECTIONS
+      : UNIQUE_PAIR_OUTGOING_CONNECTIONS;
+  const filteredCnxns =
+    direction === Direction.INCOMING
+      ? treeParseResult.incomingCnxns
+      : treeParseResult.outgoingCnxns;
+  const queryStmts: string[] = getOptimizedMatches(treeParseResult, node.id);
+  let whereCnxnIdx: number | undefined = undefined;
+
+  // Find the first statement where node.id is present and save the index for later use
+  queryStmts.forEach((stmt, idx) => {
+    if (whereCnxnIdx === undefined && stmt.split(node.id).length > 1) {
+      whereCnxnIdx = idx + 1;
+    }
+  });
+
+  for (const [relationship, label] of Array.from(
+    CONNECTIONS.get(node.label)?.entries() || []
+  )) {
+    // Skip this connection if it already exists for this node
+    if (
+      filteredCnxns
+        .get(node.id)
+        ?.get(UNIQUE_TO_GENERIC_REL.get(relationship) || "Unknown")
+        ?.includes(label)
+    ) {
+      continue;
+    }
+
+    const queryStmtsCopy = [...queryStmts];
+    if (whereCnxnIdx !== undefined) {
+      const whereCnxnStmt = `WHERE COUNT {${createConnectionPattern(
+        node.id,
+        direction,
+        undefined,
+        relationship
+      )}} > 0`;
+
+      if (whereCnxnIdx === queryStmtsCopy.length) {
+        queryStmtsCopy.push(whereCnxnStmt);
+      } else {
+        queryStmtsCopy.splice(whereCnxnIdx, 0, whereCnxnStmt);
+      }
+    }
+
+    const connectedNodeId = v4();
+    const connectedEdgeId = v4();
+    connectionQueries.push(
+      [
+        ...queryStmtsCopy,
+        "RETURN",
+        `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
+        `\t"${connectedEdgeId}" AS edgeId,`,
+        `\t"${relationship}" AS type,`,
+        `\t"${
+          direction === Direction.INCOMING ? connectedNodeId : node.id
+        }" AS source,`,
+        `\t"${
+          direction === Direction.INCOMING ? node.id : connectedNodeId
+        }" AS target,`,
+        `\t"${direction}" AS direction`,
+        "LIMIT 1",
+      ].join("\n")
+    );
+  }
+  return connectionQueries;
 };

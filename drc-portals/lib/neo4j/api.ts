@@ -127,7 +127,8 @@ export const fetchPathwaySearch = (query: string, fetchProps?: RequestInit) =>
   });
 
 export const fetchPathwaySearchConnections = (
-  query: string,
+  tree: string,
+  targetNodeIds: string[],
   fetchProps?: RequestInit
 ) =>
   fetch(`${GRAPH_API_PREFIX}/search/pathway/connections`, {
@@ -136,7 +137,7 @@ export const fetchPathwaySearchConnections = (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ tree: query }),
+    body: JSON.stringify({ tree, targetNodeIds }),
   });
 
 export const fetchPathwayNodeOptions = (
