@@ -407,6 +407,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setRadialMenuOpen(false);
   };
 
+  const handleDragPan = () => {
+    setRadialMenuOpen(false);
+  };
+
   const handleZoom = () => {
     setRadialMenuOpen(false);
   };
@@ -425,6 +429,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       { event: "tap", target: "node", callback: handleTapNode },
       { event: "tapend", callback: handleTapEnd },
       { event: "tapselect", target: "node", callback: handleTapSelectNode },
+      { event: "dragpan", callback: handleDragPan },
       { event: "zoom", callback: handleZoom },
     ],
     [
