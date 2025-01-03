@@ -1,3 +1,4 @@
+import { AlertColor } from "@mui/material";
 import { ReactNode, useEffect, useState } from "react";
 
 import {
@@ -11,6 +12,8 @@ import {
 
 import { NodeFilterBox } from "../../constants/pathway-search";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
+
+import AlertSnackbar from "../shared/AlertSnackbar";
 
 import NodeTextSearch from "./NodeTextSearch";
 
@@ -31,6 +34,9 @@ interface PathwayNodeFiltersProps {
 export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
   const { node, onChange } = cmpProps;
   const [filter, setFilter] = useState<ReactNode>(null); // TODO: Need the ability to handle more than just a single filter
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
   const nodeLabel = node.data.dbLabel;
   // TODO: This implementation assumes we are ONLY filtering on node name. In the future we will need to calculate the presented
   // filters based on a combination of the node label and a list of known properties for that node. Keeping things simple for now.
@@ -45,8 +51,25 @@ export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
           />
         </NodeFilterBox>
       );
+    } else {
+      setSnackbarOpen(true);
+      setSnackbarMsg("Selected node has no filters.");
+      setSnackbarSeverity("warning");
     }
   }, [node]);
 
-  return filter;
+  return (
+    <>
+      {filter}
+      <AlertSnackbar
+        open={snackbarOpen}
+        message={snackbarMsg}
+        autoHideDuration={5000}
+        severity={snackbarSeverity}
+        vertical={"bottom"}
+        horizontal={"center"}
+        handleClose={() => setSnackbarOpen(false)}
+      />
+    </>
+  );
 }

@@ -83,11 +83,15 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onSelectedNodeChange,
   } = cmpProps;
   const [selectedNode, setSelectedNode] = useState<PathwaySearchNode>();
+  const [showFilters, setShowFilters] = useState(false);
   const PATHWAY_SEARCH_ZOOM = 4;
   const PATHWAY_SEARCH_MAX_ZOOM = 4;
 
   const handleSelectedNodeChange = useCallback(
     (id: string | undefined, cy: Core) => {
+      // Hide filters *any* time the selected node changes
+      setShowFilters(false);
+
       if (id === undefined) {
         setSelectedNode(undefined);
       } else {
@@ -279,31 +283,26 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     },
   ];
 
-  const radialMenuItems: ChartRadialMenuItemProps[] = [
-    {
-      key: "pathway-search-radial-menu-item-hub",
-      content: <HubIcon style={{ width: "100%", height: "100%" }} />,
-      onClick: onExpand,
-    },
-    {
-      key: "pathway-search-radial-menu-item-filter",
-      content: (
-        <Box style={{ width: "100%", height: "100%" }}>
-          <FilterAltIcon />
-        </Box>
-      ),
-      onClick: () => console.log("[menuItemCutFilter]"),
-    },
-    {
-      key: "pathway-search-radial-menu-item-cut",
-      content: (
-        <Box style={{ width: "100%", height: "100%" }}>
-          <ContentCutIcon />
-        </Box>
-      ),
-      onClick: () => console.log("[menuItemCutClick]"),
-    },
-  ];
+  const radialMenuItems: ChartRadialMenuItemProps[] = useMemo(
+    () => [
+      {
+        key: "pathway-search-radial-menu-item-hub",
+        content: <HubIcon style={{ width: "100%", height: "100%" }} />,
+        onClick: onExpand,
+      },
+      {
+        key: "pathway-search-radial-menu-item-filter",
+        content: <FilterAltIcon style={{ width: "100%", height: "100%" }} />,
+        onClick: () => setShowFilters(true),
+      },
+      {
+        key: "pathway-search-radial-menu-item-cut",
+        content: <ContentCutIcon style={{ width: "100%", height: "100%" }} />,
+        onClick: () => console.log("[menuItemCutClick]"),
+      },
+    ],
+    [onExpand]
+  );
 
   useEffect(() => {
     // If the source elements have changed, make sure the selectedNode is updated with any new data
@@ -359,14 +358,14 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           </Tooltip>
         </PathwayModeBtnContainer>
       )}
-      {selectedNode === undefined ? null : (
+      {showFilters && selectedNode !== undefined ? (
         <NodeFiltersContainer>
           <PathwayNodeFilters
             node={selectedNode}
             onChange={handleNodeFilterChange}
           ></PathwayNodeFilters>
         </NodeFiltersContainer>
-      )}
+      ) : null}
       <CytoscapeChart
         elements={elements}
         layout={EULER_LAYOUT}
