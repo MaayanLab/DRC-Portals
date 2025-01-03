@@ -187,25 +187,10 @@ export const parsePathwayTree = (
 
       if (!relIsIncoming) {
         updateCnxns(parent.id, node.label, type, outgoingCnxns);
-        updateCnxns(
-          node.id,
-          parent.label,
-          node.parentRelationship.type,
-          incomingCnxns
-        );
+        updateCnxns(node.id, parent.label, type, incomingCnxns);
       } else if (relIsIncoming) {
-        updateCnxns(
-          parent.id,
-          node.label,
-          node.parentRelationship.type,
-          incomingCnxns
-        );
-        updateCnxns(
-          node.id,
-          parent.label,
-          node.parentRelationship.type,
-          outgoingCnxns
-        );
+        updateCnxns(parent.id, node.label, type, incomingCnxns);
+        updateCnxns(node.id, parent.label, type, outgoingCnxns);
       }
     }
 
@@ -360,6 +345,8 @@ export const getConnectionQueries = (
   )) {
     // Skip this connection if it already exists for this node
     if (
+      // filteredCnxns can be a mix of unique and non-unique relationship types
+      filteredCnxns.get(node.id)?.get(relationship)?.includes(label) ||
       filteredCnxns
         .get(node.id)
         ?.get(UNIQUE_TO_GENERIC_REL.get(relationship) || "Unknown")
