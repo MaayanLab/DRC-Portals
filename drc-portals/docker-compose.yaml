@@ -73,7 +73,7 @@ services:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.12.0
+    image: maayanlab/drc-portal-worker:0.12.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:
