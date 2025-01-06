@@ -20,6 +20,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { CheckCircle, Error } from '@mui/icons-material'
 import { generateInsignia } from './FairshakeInsignia';
+import { assessAsset } from './assessAsset';
 
 
 
@@ -49,14 +50,16 @@ type FileAssetInfo = {
     open: boolean;
     fileInfo: FileAsset;
     fairAssessment: FairAssessment | undefined;
-    type: 'FileAsset'
+    type: 'FileAsset';
+    role: string;
 }
 
 type CodeAssetInfo = {
     open: boolean;
     fileInfo: CodeAsset;
     fairAssessment: FairAssessment | undefined;
-    type: 'CodeAsset'
+    type: 'CodeAsset';
+    role: string;
 }
 
 export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
@@ -81,7 +84,7 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                     </TableRow>
                     <TableRow>
                         <TableCell variant="head" align="left" style={{ width: 200 }}>FAIR Assessment</TableCell>
-                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'}</TableCell>
+                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'} {props.role === 'ADMIN' ? <button className="text-blue-600" onClick={() => {assessAsset(props.fileInfo)}}>trigger run</button> : null}</TableCell>
                     </TableRow>
                 </Table>
             </Box>}
@@ -129,8 +132,8 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                             </TableRow>}
                         </>}
                     <TableRow>
-                        <TableCell variant="head" align="left" style={{ width: 200 }}>Date FAIR Assessed</TableCell>
-                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'}</TableCell>
+                        <TableCell variant="head" align="left" style={{ width: 200 }}>FAIR Assessment</TableCell>
+                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'} {props.role === 'ADMIN' ? <button className="text-blue-600" onClick={() => {assessAsset(props.fileInfo)}}>trigger run</button> : null}</TableCell>
                     </TableRow>
                 </Table>
             </Box>}
@@ -138,7 +141,7 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
     )
 }
 
-export function EditButton({ userFile, userRole }: { userFile: {
+export function EditButton({ userFile, role }: { userFile: {
     dcc: {
         label: string;
         short_label: string | null
@@ -146,7 +149,7 @@ export function EditButton({ userFile, userRole }: { userFile: {
     fileAsset: FileAsset | null;
     codeAsset: CodeAsset | null;
     assetType: string | null;
-} & DccAsset, userRole: string }) {
+} & DccAsset, role: string }) {
     if (userFile.codeAsset) {
         return (
             <IconButton color='inherit' href={`/data/submit/urlform?url=${encodeURIComponent(userFile.codeAsset.link)}`}>
@@ -157,7 +160,7 @@ export function EditButton({ userFile, userRole }: { userFile: {
         return <></>
     }
 }
-export function DeleteDialogButton({ userFile, userRole }: { userFile: DccAsset, userRole: string }) {
+export function DeleteDialogButton({ userFile, role }: { userFile: DccAsset, role: string }) {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -173,7 +176,7 @@ export function DeleteDialogButton({ userFile, userRole }: { userFile: DccAsset,
         handleClose();
     }
 
-    if (userRole === 'READONLY') {
+    if (role === 'READONLY') {
         return <></>
     } else {
         return (
@@ -259,15 +262,15 @@ export function FileRow({ userFile, approvedSymboldcc, approvedSymbol, currentSy
                 <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{approvedSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>{currentSymbol}</div></TableCell>
                 <TableCell sx={{ fontSize: 14 }} align="center"  style={{width: 100,maxWidth: 100,overflow: "hidden", borderStyle: "border-box"}}><div className='flex justify-center'>
-                    <EditButton userFile={userFile} userRole={role} />
-                    <DeleteDialogButton userFile={userFile}  userRole={role} />
+                    <EditButton userFile={userFile} role={role} />
+                    <DeleteDialogButton userFile={userFile} role={role} />
                 </div></TableCell>
                 
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
-                    {assetInfoType === 'FileAsset' && <FileInfo open={open} fileInfo={fileInfo as FileAsset} type='FileAsset' fairAssessment={fairAssessment} />}
-                    {assetInfoType === 'CodeAsset' && <FileInfo open={open} fileInfo={fileInfo as CodeAsset} type='CodeAsset' fairAssessment={fairAssessment} />}
+                    {assetInfoType === 'FileAsset' && <FileInfo open={open} fileInfo={fileInfo as FileAsset} type='FileAsset' fairAssessment={fairAssessment} role={role} />}
+                    {assetInfoType === 'CodeAsset' && <FileInfo open={open} fileInfo={fileInfo as CodeAsset} type='CodeAsset' fairAssessment={fairAssessment} role={role} />}
                 </TableCell>
             </TableRow>
         </>
