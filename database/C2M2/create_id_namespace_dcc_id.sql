@@ -38,7 +38,8 @@ VALUES
  ('SPARC.project:', 'cfde_registry_dcc:sparc', 'SPARC'),
  ('SPARC.sample:', 'cfde_registry_dcc:sparc', 'SPARC'),
  ('SPARC.subject:', 'cfde_registry_dcc:sparc', 'SPARC'),
- ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC')
+ ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('tag:sennetconsortium.org,2024:', 'cfde_registry_dcc:sennet', 'SenNet')
 ;
 
 /* add the constraint */

@@ -72,7 +72,7 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 # Example: For June 2024
 #python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} 4DN GlyGen HuBMAP KidsFirst Metabolomics SPARC
 # Example: For December 2024
-python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} SenNet
+#python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} SPARC GlyGen
 # The above run provides additional instructions at the end for more crosschecks 
 # between data in tables in the c2m2 schema and the tables in the DCC-name-specific schema.
 
@@ -90,8 +90,7 @@ psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -o ${logdir}/log_c2m2_oth
 # After ingesting c2m2 files, create the table ffl_biosample by running (be in the database/C2M2 folder)
 # ffl_biosample needs project_data_type, so, run c2m2_other_tables.sql first
 psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1.sql -L ${logdir}/log_bios_ffl.log;
-# A version without biosample ID and related, in an effort to lower the number of rows in the main table being searched
-# *.sql and *_cmp.sql can be run in parallel
+# Also generate c2m2.ffl_collection [can be run in parallel to generating c2m2.ffl_biosample]
 psql "$(python3 dburl.py)" -a -f collection_fully_flattened_allin1.sql -L ${logdir}/log_col_ffl.log;
 
 # Combine c2m2.ffl_biosample and c2m2.ffl_collection to create c2m2.ffl_biosample_collection
@@ -99,7 +98,8 @@ psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection.sql -L ${logd
 # To save space, delete intermediate non-cmp ffl tables after c2m2.ffl_biosample_collection is ready and tested
 psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_tables.sql
 
-# Also generate c2m2.ffl_collection [can be run in parallel to generating c2m2.ffl_biosample]
+# A version without biosample ID and related, in an effort to lower the number of rows in the main table being searched
+# *.sql and *_cmp.sql can be run in parallel
 psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1_cmp.sql -L ${logdir}/log_bios_ffl_cmp.log;
 psql "$(python3 dburl.py)" -a -f collection_fully_flattened_allin1_cmp.sql -L ${logdir}/log_col_ffl_cmp.log;
 

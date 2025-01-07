@@ -60,6 +60,8 @@ select count(*) from c2m2.ffl_biosample_collection_cmp;
 select count(*) from c2m2.ffl_biosample_cmp;
 select count(*) from c2m2.ffl_collection_cmp;
 
+select project_id_namespace,count(*) from c2m2.ffl_biosample_collection_cmp group by project_id_namespace;
+
 select count(*) FROM c2m2.ffl_biosample_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
 select count(*) FROM c2m2.ffl_biosample_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
 select count(*) FROM c2m2.ffl_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
