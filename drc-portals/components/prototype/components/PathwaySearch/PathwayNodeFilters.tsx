@@ -53,7 +53,7 @@ export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
       );
     } else {
       setSnackbarOpen(true);
-      setSnackbarMsg("Selected node has no filters.");
+      setSnackbarMsg("Selected node has no available filters.");
       setSnackbarSeverity("warning");
     }
   }, [node]);

@@ -115,9 +115,6 @@ export interface TreeParseResult {
 }
 
 export interface PathwayConnectionsResult {
-  counts: {
-    [key: string]: number;
-  };
   connectedNodes: NodeConnection[];
   connectedEdges: EdgeConnection[];
 }

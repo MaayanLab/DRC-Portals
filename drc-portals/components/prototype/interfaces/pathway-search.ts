@@ -1,3 +1,5 @@
+import { Direction } from "@/lib/neo4j/enums";
+
 export interface PathwaySearchNodeData {
   id: string;
   displayLabel: string;
@@ -22,4 +24,14 @@ export interface PathwaySearchEdgeData {
 export interface PathwaySearchEdge {
   data: PathwaySearchEdgeData;
   classes?: string[];
+}
+
+export interface ConnectionMenuItem {
+  nodeId: string;
+  label: string;
+  edgeId: string;
+  type: string;
+  source: string;
+  target: string;
+  direction: Direction;
 }

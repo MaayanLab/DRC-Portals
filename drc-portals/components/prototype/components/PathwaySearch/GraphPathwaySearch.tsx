@@ -1,10 +1,7 @@
 "use client";
 
-import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import HubIcon from "@mui/icons-material/Hub";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -16,16 +13,11 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import {
-  Core,
-  EventObject,
-  EventObjectEdge,
-  EventObjectNode,
-  NodeSingular,
-} from "cytoscape";
+import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
 import {
   ChangeEvent,
   Fragment,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -34,8 +26,6 @@ import {
 
 import { NodeResult } from "@/lib/neo4j/types";
 
-import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
-import PathwaySearchBar from "../SearchBar/PathwaySearchBar";
 import {
   PATHWAY_SEARCH_STYLESHEET,
   EULER_LAYOUT,
@@ -47,11 +37,19 @@ import {
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
 import { VisuallyHiddenInput } from "../../constants/shared";
-import { ChartRadialMenuItemProps, CytoscapeEvent } from "../../interfaces/cy";
-import { PathwaySearchNode } from "../../interfaces/pathway-search";
+import { CytoscapeEvent } from "../../interfaces/cy";
+import {
+  ConnectionMenuItem,
+  PathwaySearchNode,
+} from "../../interfaces/pathway-search";
 import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import { PathwaySearchElement } from "../../types/pathway-search";
 import { isPathwaySearchEdgeElement } from "../../utils/pathway-search";
+
+import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
+import ChartCxtMenuItem from "../CytoscapeChart/ChartCxtMenuItem";
+import AddConnectionMenuItem from "../CytoscapeChart/custom-cxt-menu-items/AddConnectionMenuItem";
+import PathwaySearchBar from "../SearchBar/PathwaySearchBar";
 
 import PathwayNodeFilters from "./PathwayNodeFilters";
 
@@ -60,7 +58,7 @@ interface GraphPathwaySearchProps {
   loading: boolean;
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
-  onExpand: (node: NodeSingular) => void;
+  onConnectionSelected: (item: ConnectionMenuItem) => void;
   onReset: () => void;
   onExport: () => void;
   onImport: (files: ChangeEvent<HTMLInputElement>) => void;
@@ -74,7 +72,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const {
     elements,
     loading,
-    onExpand,
+    onConnectionSelected,
     onReset,
     onExport,
     onImport,
@@ -209,6 +207,13 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         },
       },
       {
+        event: "cxttap",
+        target: "node",
+        callback: (event: EventObjectNode) => {
+          handleSelectedNodeChange(event.target.id(), event.cy);
+        },
+      },
+      {
         event: "mouseover",
         target: "node",
         callback: (event: EventObjectNode) => {
@@ -283,25 +288,23 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     },
   ];
 
-  const radialMenuItems: ChartRadialMenuItemProps[] = useMemo(
+  const nodeCxtMenuItems: ReactNode[] = useMemo(
     () => [
-      {
-        key: "pathway-search-radial-menu-item-hub",
-        content: <HubIcon style={{ width: "100%", height: "100%" }} />,
-        onClick: onExpand,
-      },
-      {
-        key: "pathway-search-radial-menu-item-filter",
-        content: <FilterAltIcon style={{ width: "100%", height: "100%" }} />,
-        onClick: () => setShowFilters(true),
-      },
-      {
-        key: "pathway-search-radial-menu-item-cut",
-        content: <ContentCutIcon style={{ width: "100%", height: "100%" }} />,
-        onClick: () => console.log("[menuItemCutClick]"),
-      },
+      <AddConnectionMenuItem
+        key="chart-cxt-add-connection"
+        elements={elements}
+        onConnectionSelected={onConnectionSelected}
+      ></AddConnectionMenuItem>,
+      <ChartCxtMenuItem
+        key="chart-cxt-show-filters"
+        renderContent={(event) => "Show Filters"}
+        action={(event) => {
+          console.log(event);
+          setShowFilters(true);
+        }}
+      ></ChartCxtMenuItem>,
     ],
-    [onExpand]
+    [elements]
   );
 
   useEffect(() => {
@@ -370,12 +373,12 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         elements={elements}
         layout={EULER_LAYOUT}
         stylesheet={PATHWAY_SEARCH_STYLESHEET}
-        cxtMenuEnabled={false}
+        cxtMenuEnabled={true}
         tooltipEnabled={false}
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
         customAnimations={customAnimations}
-        radialMenuItems={radialMenuItems}
+        nodeCxtMenuItems={nodeCxtMenuItems}
         autoungrabify={true}
         boxSelectionEnabled={false}
         zoom={PATHWAY_SEARCH_ZOOM}

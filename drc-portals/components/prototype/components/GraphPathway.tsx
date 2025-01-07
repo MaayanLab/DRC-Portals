@@ -2,7 +2,7 @@
 
 import { AlertColor, Grid } from "@mui/material";
 
-import { ElementDefinition, NodeSingular } from "cytoscape";
+import { ElementDefinition } from "cytoscape";
 import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
@@ -27,6 +27,7 @@ import {
   PathwaySearchContextProps,
 } from "../contexts/PathwaySearchContext";
 import {
+  ConnectionMenuItem,
   PathwaySearchEdge,
   PathwaySearchNode,
 } from "../interfaces/pathway-search";
@@ -379,47 +380,39 @@ export default function GraphPathway() {
     }
   };
 
-  const handleExpand = useCallback(
-    (node: NodeSingular) => {
-      const nodeId = node.data("id");
-      const expandedNodeIds = expandedNodeIdsRef.current;
-      if (expandedNodeIds.has(nodeId)) {
-        // If the node was already expanded, remove it from the expand set and remove its non-pathway connections
-        expandedNodeIds.delete(nodeId);
-
-        const nonPathwayEdgeCnxns = searchElements
-          .filter((el) => isPathwaySearchEdgeElement(el))
-          .filter(
-            (el) =>
-              !(el.classes || []).includes("path-element") &&
-              el.data.source === nodeId
-          );
-        const nonPathwayEdgeCnxnIds = new Set(
-          nonPathwayEdgeCnxns.map((edge) => edge.data.id)
-        );
-        const nonPathwayNodeCnxnIds = new Set(
-          nonPathwayEdgeCnxns.map((edge) => edge.data.target)
-        );
-        setSearchElements(
-          searchElements
-            .filter(
-              (el) =>
-                !nonPathwayEdgeCnxnIds.has(el.data.id) &&
-                !nonPathwayNodeCnxnIds.has(el.data.id)
-            )
-            .map((element) =>
-              isPathwaySearchEdgeElement(element)
-                ? deepCopyPathwaySearchEdge(element)
-                : deepCopyPathwaySearchNode(element)
-            )
-        );
-      } else {
-        // Otherwise fetch its connections not already in the pathway
-        expandedNodeIds.add(nodeId);
-        updateExpandedNodeConnections(searchElements, () => {
-          expandedNodeIds.delete(nodeId);
-        });
-      }
+  const handleConnectionSelected = useCallback(
+    (item: ConnectionMenuItem) => {
+      const newElements = [
+        createPathwaySearchNode(
+          {
+            id: item.nodeId,
+            displayLabel: item.label,
+            dbLabel: item.label,
+          },
+          ["path-element"]
+        ),
+        ...searchElements.map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element)
+            : deepCopyPathwaySearchNode(element)
+        ),
+        createPathwaySearchEdge(
+          {
+            id: item.edgeId,
+            source:
+              item.direction === Direction.OUTGOING ? item.source : item.target,
+            target:
+              item.direction === Direction.OUTGOING ? item.target : item.source,
+            displayLabel: item.type,
+            type: item.type,
+          },
+          item.direction === Direction.INCOMING
+            ? ["source-arrow-only", "path-element"]
+            : ["path-element"]
+        ),
+      ];
+      setTree(createTree(newElements));
+      setSearchElements(newElements);
     },
     [searchElements]
   );
@@ -443,7 +436,7 @@ export default function GraphPathway() {
           <GraphPathwaySearch
             elements={searchElements}
             loading={loadingSearchResults}
-            onExpand={handleExpand}
+            onConnectionSelected={handleConnectionSelected}
             onExport={handleExport}
             onImport={handleImport}
             onSearchBarSubmit={handleSearchBarSubmit}
