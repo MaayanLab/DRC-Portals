@@ -261,7 +261,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   }, [toolbarHidden]);
 
   const handleHoverNode = (event: EventObjectNode) => {
-    setChartCursor(event.cy, "pointer");
+    if (radialMenuItems !== undefined) {
+      setChartCursor(event.cy, "pointer");
+    }
+
     event.target.addClass("hovered");
 
     // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
@@ -280,7 +283,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const handleBlurNode = (event: EventObjectNode) => {
-    setChartCursor(event.cy, "default");
+    if (radialMenuItems !== undefined) {
+      setChartCursor(event.cy, "default");
+    }
+
     event.target.removeClass("hovered");
 
     if (nodeHoverTimerId !== null) {
