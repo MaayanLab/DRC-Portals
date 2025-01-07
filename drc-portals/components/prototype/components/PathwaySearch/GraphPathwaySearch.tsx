@@ -298,10 +298,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       <ChartCxtMenuItem
         key="chart-cxt-show-filters"
         renderContent={(event) => "Show Filters"}
-        action={(event) => {
-          console.log(event);
-          setShowFilters(true);
-        }}
+        action={(event) => setShowFilters(true)}
       ></ChartCxtMenuItem>,
     ],
     [elements]
