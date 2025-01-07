@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 
 import { Grid,
   Card, 

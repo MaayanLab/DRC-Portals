@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Box, Button, Divider, Chip, Grid, List, ListItem, ListItemText } from '@mui/material';
 import { Prisma } from "@prisma/client";
 import NewsFilter from "./NewsFilters";
-import Image from "next/image";
+import Image from "@/utils/image";
 import { filterOptions } from './FilterOptions';
 import { JsonArray } from "next-auth/adapters";
 

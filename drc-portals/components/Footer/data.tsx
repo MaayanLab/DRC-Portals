@@ -1,5 +1,5 @@
 import Link from '@/utils/link'
-import Image from 'next/image';
+import Image from '@/utils/image';
 
 import { mdiGithub, mdiBugOutline, mdiEmail} from '@mdi/js';
 

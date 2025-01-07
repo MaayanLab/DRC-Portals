@@ -3,7 +3,7 @@
  *  and the button defines what to show.
  */
 import React from 'react'
-import Image from "next/image"
+import Image from "@/utils/image"
 import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
 import GDLPAIcon from '@/public/img/icons/gdlpa.png'

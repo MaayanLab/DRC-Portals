@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";

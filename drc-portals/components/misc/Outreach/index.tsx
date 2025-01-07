@@ -1,6 +1,6 @@
 import React from "react"
 import Link from "@/utils/link"
-import Image from "next/image"
+import Image from "@/utils/image"
 import Divider from '@mui/material/Divider'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'

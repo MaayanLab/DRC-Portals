@@ -1,7 +1,7 @@
 'use client'
 
 import Button from "@mui/material/Button"
-import Image from "next/image"
+import Image from "@/utils/image"
 import PWBIcon from '@/public/img/icons/playbook-workflow-builder.png'
 import CardButton from "./CardButton"
 
