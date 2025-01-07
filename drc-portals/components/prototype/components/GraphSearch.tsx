@@ -54,6 +54,7 @@ import {
   highlightNeighbors,
   highlightNodesWithLabel,
   isNodeD3Locked,
+  resetHighlights,
   rotateChart,
   selectAll,
   selectNeighbors,
@@ -287,11 +288,21 @@ export default function GraphSearch() {
     ></ChartCxtMenuItem>,
   ];
 
-  const selectionCxtMenuItems: ReactNode[] = [
+  const staticCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="cxt-menu-reset-highlights"
+      renderContent={() => "Reset Highlights"}
+      action={resetHighlights}
+      showFn={(event) =>
+        event.cy.elements(".highlight").length > 0 ||
+        event.cy.elements(".transparent").length > 0
+      }
+    ></ChartCxtMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-download-selection"
       renderContent={(event) => "Download Selection"}
       action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
+      showFn={(event) => event.cy.elements(":selected").length > 0}
     ></ChartCxtMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-show-selection"
@@ -489,7 +500,7 @@ export default function GraphSearch() {
             legendPosition={{ bottom: 10, left: 10 }}
             toolbarPosition={{ top: 10, right: 10 }}
             customTools={customTools}
-            selectionCxtMenuItems={selectionCxtMenuItems}
+            staticCxtMenuItems={staticCxtMenuItems}
             nodeCxtMenuItems={nodeCxtMenuItems}
             canvasCxtMenuItems={canvasCxtMenuItems}
           ></CytoscapeChart>

@@ -31,16 +31,19 @@ import {
   downloadChartData,
   downloadChartPNG,
   downloadCyAsJson,
+  hideElement,
   hideSelection,
   highlightNeighbors,
   highlightNodesWithLabel,
   isNodeD3Locked,
+  resetHighlights,
   selectAll,
   selectNeighbors,
   selectNodesWithLabel,
   selectionHasLockedNode,
   selectionIsAllHidden,
   selectionIsAllShown,
+  showElement,
   showSelection,
   unlockD3ForceNode,
   unlockSelection,
@@ -154,11 +157,21 @@ export default function GraphPathwayResults(
     ></ChartCxtMenuItem>,
   ];
 
-  const selectionCxtMenuItems: ReactNode[] = [
+  const staticCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="cxt-menu-reset-highlights"
+      renderContent={() => "Reset Highlights"}
+      action={resetHighlights}
+      showFn={(event) =>
+        event.cy.elements(".highlight").length > 0 ||
+        event.cy.elements(".transparent").length > 0
+      }
+    ></ChartCxtMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-download-selection"
       renderContent={(event) => "Download Selection"}
       action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
+      showFn={(event) => event.cy.elements(":selected").length > 0}
     ></ChartCxtMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-show-selection"
@@ -175,6 +188,18 @@ export default function GraphPathwayResults(
   ];
 
   const nodeCxtMenuItems: ReactNode[] = [
+    <ChartCxtMenuItem
+      key="cxt-menu-show"
+      renderContent={(event) => "Show"}
+      action={showElement}
+      showFn={(event) => event.target.hasClass("transparent")}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="cxt-menu-hide"
+      renderContent={(event) => "Hide"}
+      action={hideElement}
+      showFn={(event) => !event.target.hasClass("transparent")}
+    ></ChartCxtMenuItem>,
     <ChartCxtMenuItem
       key="chart-cxt-show-details"
       renderContent={(event) => "Show Details"}
@@ -207,6 +232,21 @@ export default function GraphPathwayResults(
       renderContent={(event) => "Select"}
       renderChildren={selectRenderChildren}
     ></ChartNestedCxtMenuItem>,
+  ];
+
+  const edgeCxtMenuItems = [
+    <ChartCxtMenuItem
+      key="cxt-menu-show"
+      renderContent={(event) => "Show"}
+      action={showElement}
+      showFn={(event) => event.target.hasClass("transparent")}
+    ></ChartCxtMenuItem>,
+    <ChartCxtMenuItem
+      key="cxt-menu-hide"
+      renderContent={(event) => "Hide"}
+      action={hideElement}
+      showFn={(event) => !event.target.hasClass("transparent")}
+    ></ChartCxtMenuItem>,
   ];
 
   const canvasCxtMenuItems = [
@@ -254,8 +294,9 @@ export default function GraphPathwayResults(
           legendPosition={{ bottom: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}
           customTools={customTools}
-          selectionCxtMenuItems={selectionCxtMenuItems}
+          staticCxtMenuItems={staticCxtMenuItems}
           nodeCxtMenuItems={nodeCxtMenuItems}
+          edgeCxtMenuItems={edgeCxtMenuItems}
           canvasCxtMenuItems={canvasCxtMenuItems}
         ></CytoscapeChart>
         <PathwayModeBtnContainer>

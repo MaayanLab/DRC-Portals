@@ -4,7 +4,6 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import {
   ClickAwayListener,
-  Divider,
   IconButton,
   Tooltip,
   TypographyProps,
@@ -48,15 +47,11 @@ import { PositionOffsets } from "../../interfaces/shared";
 import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
 import {
   createNodeTooltip,
-  hideElement,
   rebindEventHandlers,
-  resetHighlights,
   setChartCursor,
-  showElement,
 } from "../../utils/cy";
 
 import { ChartCxtMenu } from "./ChartCxtMenu";
-import ChartCxtMenuItem from "./ChartCxtMenuItem";
 import ChartLegend from "./ChartLegend";
 import { ChartRadialMenu } from "./ChartRadialMenu";
 import ChartToolbar from "./ChartToolbar";
@@ -78,7 +73,7 @@ interface CytoscapeChartProps {
   tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
   customAnimations?: AnimationFn[];
-  selectionCxtMenuItems?: ReactNode[];
+  staticCxtMenuItems?: ReactNode[];
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
   canvasCxtMenuItems?: ReactNode[];
@@ -104,7 +99,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     tooltipContentProps,
     customTools,
     customAnimations,
-    selectionCxtMenuItems,
+    staticCxtMenuItems,
     nodeCxtMenuItems,
     edgeCxtMenuItems,
     canvasCxtMenuItems,
@@ -166,77 +161,17 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setRadialMenuOpen(false);
   };
 
-  // Menu items that are shared between nodes and edges
-  const getSharedMenuItems = (event: EventObjectNode | EventObjectEdge) => {
-    const items: ReactNode[] = [];
-
-    if (event.target.hasClass("transparent")) {
-      items.push(
-        <ChartCxtMenuItem
-          key="cxt-menu-show"
-          renderContent={(event) => "Show"}
-          action={showElement}
-        ></ChartCxtMenuItem>
-      );
-    } else {
-      items.push(
-        <ChartCxtMenuItem
-          key="cxt-menu-hide"
-          renderContent={(event) => "Hide"}
-          action={hideElement}
-        ></ChartCxtMenuItem>
-      );
-    }
-
-    return items;
-  };
-
-  // TODO: Consider refactoring this as "sharedMenuItems" and make it an optional prop to the component. Ultimately, it should probably be
-  // up to the parent what context menu items are avaialable, and if they provide none, don't show a context menu at all.
-  const getStaticMenuItems = useCallback(
-    (event: EventObject) => {
-      const items: ReactNode[] = [];
-
-      if (
-        event.cy.elements(".highlight").length > 0 ||
-        event.cy.elements(".transparent").length > 0
-      ) {
-        items.push(
-          <ChartCxtMenuItem
-            key="cxt-menu-reset-highlights"
-            renderContent={() => "Reset Highlights"}
-            action={resetHighlights}
-          ></ChartCxtMenuItem>
-        );
-      }
-
-      if (
-        selectionCxtMenuItems !== undefined &&
-        event.cy.elements(":selected").length > 0
-      ) {
-        items.push(...selectionCxtMenuItems);
-      }
-
-      return items;
-    },
-    [selectionCxtMenuItems]
-  );
-
   const handleContextMenu = useCallback(
     (event: EventObject, menuItems: ReactNode[]) => {
-      const staticMenuItems = getStaticMenuItems(event);
-      if (menuItems.length > 0 && staticMenuItems.length > 0) {
-        menuItems.push(
-          <Divider key={`ctx-menu-static-item-divider`} variant="middle" />
-        );
+      if (staticCxtMenuItems !== undefined && staticCxtMenuItems.length > 0) {
+        menuItems.push(...staticCxtMenuItems);
       }
-      menuItems.push(...staticMenuItems);
 
       setContextMenuEvent(event);
       setContextMenuItems(menuItems);
       setContextMenuOpen(true);
     },
-    [getStaticMenuItems]
+    [staticCxtMenuItems]
   );
 
   const hideTooltip = () => {
@@ -326,7 +261,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const handleCxtTapNode = useCallback(
     (event: EventObjectNode) => {
-      const items = [...getSharedMenuItems(event)];
+      const items = [];
 
       if (nodeCxtMenuItems !== undefined) {
         items.push(...nodeCxtMenuItems);
@@ -339,7 +274,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const handleCxtTapEdge = useCallback(
     (event: EventObjectEdge) => {
-      const items = [...getSharedMenuItems(event)];
+      const items = [];
 
       if (edgeCxtMenuItems !== undefined) {
         items.push(...edgeCxtMenuItems);
