@@ -98,7 +98,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             ),
 
             allres_filtered AS (
-                SELECT allres.*, 
+                SELECT  allres.*, 
                 concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
                 '|project_local_id:', allres.project_local_id, 
                 '|disease_name:', allres.disease_name, 
@@ -250,8 +250,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
 
         const filterCount = result?.filter_count;
-        console.log("Filter count: " + filterCount);
-        console.log("tableRows length = " + tableRows);
+        console.log("Main Table Filter count: " + filterCount);
+        console.log("tableRows length = " + tableRows.length);
 
         const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
 
@@ -285,13 +285,13 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
     } catch (error) {
         console.error("Error fetching C2M2 Main table:", error);
-    
+
         // Check if the error is a timeout error
         if (error instanceof Error && error.message.includes("Timed out")) {
             console.error("");
             return <div>Error fetching C2M2 Main table: This error was caused by a timeout. Please narrow down your search.</div>;
         }
-    
+
         // General error handling
         return <div>Error fetching C2M2 Main table: {(error as Error).message}</div>;
     }
