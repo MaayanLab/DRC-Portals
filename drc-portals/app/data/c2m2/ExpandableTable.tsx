@@ -135,7 +135,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                         column.toLowerCase().includes('size_in_bytes') ? // matches substring 'size_in_bytes' in both "size_in_bytes" and "uncompressed_size_in_bytes"
                                             (
                                                 <Description
-                                                description={formatFileSize(Number(cellValueString))}
+                                                description={cellValueString == 'NA' ? 'NA' : formatFileSize(Number(cellValueString))}
                                                 key={`${rowIndex}-${column}`}
                                             />
                                         )
