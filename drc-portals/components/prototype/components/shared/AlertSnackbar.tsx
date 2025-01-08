@@ -3,7 +3,7 @@ import { Alert, AlertColor, Snackbar, SnackbarOrigin } from "@mui/material";
 interface AlertSnackbarProps extends SnackbarOrigin {
   open: boolean;
   message: string;
-  autoHideDuration: number;
+  autoHideDuration?: number;
   severity: AlertColor;
   handleClose: () => void;
 }

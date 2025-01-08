@@ -1,19 +1,30 @@
 "use client";
 
+import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
+  Button,
   CircularProgress,
   Fab,
   Grid,
   IconButton,
+  Paper,
+  Snackbar,
   Tooltip,
 } from "@mui/material";
 
-import { Core, EventObject, EventObjectEdge, EventObjectNode } from "cytoscape";
+import {
+  Core,
+  EventObject,
+  EventObjectEdge,
+  EventObjectNode,
+  NodeSingular,
+} from "cytoscape";
 import {
   ChangeEvent,
   Fragment,
@@ -36,7 +47,7 @@ import {
   PathwayModeBtnContainer,
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
-import { VisuallyHiddenInput } from "../../constants/shared";
+import { CFDE_DARK_BLUE, VisuallyHiddenInput } from "../../constants/shared";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import {
   ConnectionMenuItem,
@@ -59,6 +70,9 @@ interface GraphPathwaySearchProps {
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
   onConnectionSelected: (item: ConnectionMenuItem) => void;
+  onPruneSelected: (node: NodeSingular) => void;
+  onPruneConfirm: () => void;
+  onPruneCancel: () => void;
   onReset: () => void;
   onExport: () => void;
   onImport: (files: ChangeEvent<HTMLInputElement>) => void;
@@ -73,6 +87,9 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     elements,
     loading,
     onConnectionSelected,
+    onPruneSelected,
+    onPruneConfirm,
+    onPruneCancel,
     onReset,
     onExport,
     onImport,
@@ -82,6 +99,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   } = cmpProps;
   const [selectedNode, setSelectedNode] = useState<PathwaySearchNode>();
   const [showFilters, setShowFilters] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const PATHWAY_SEARCH_ZOOM = 4;
   const PATHWAY_SEARCH_MAX_ZOOM = 4;
 
@@ -297,8 +315,27 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       ></AddConnectionMenuItem>,
       <ChartCxtMenuItem
         key="chart-cxt-show-filters"
-        renderContent={(event) => "Show Filters"}
+        renderContent={(event) => (
+          <Box sx={{ display: "flex" }}>
+            <FilterAltIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+            Filters
+          </Box>
+        )}
         action={(event) => setShowFilters(true)}
+      ></ChartCxtMenuItem>,
+      <ChartCxtMenuItem
+        key="chart-cxt-prune"
+        renderContent={(event) => (
+          <Box sx={{ display: "flex" }}>
+            <ContentCutIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+            Prune
+          </Box>
+        )}
+        action={(event) => {
+          setSnackbarOpen(true);
+          onPruneSelected(event.target);
+          handleSelectedNodeChange(undefined, event.cy);
+        }}
       ></ChartCxtMenuItem>,
     ],
     [elements]
@@ -382,6 +419,53 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         maxZoom={PATHWAY_SEARCH_MAX_ZOOM}
         customEvents={customEvents}
       ></CytoscapeChart>
+      <Snackbar
+        open={snackbarOpen}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Paper
+          variant="outlined"
+          elevation={1}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderColor: CFDE_DARK_BLUE,
+            padding: 1,
+          }}
+        >
+          <Box sx={{ marginRight: 1 }}>
+            Please review the elements to be pruned, outlined in red.
+          </Box>
+          <Box sx={{ display: "flex" }}>
+            <Button
+              sx={{ marginRight: 1 }}
+              variant="contained"
+              color="secondary"
+              onClick={() => {
+                setSnackbarOpen(false);
+                onPruneConfirm();
+              }}
+            >
+              Confirm
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setSnackbarOpen(false);
+                onPruneCancel();
+              }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Paper>
+      </Snackbar>
     </Grid>
   );
 }

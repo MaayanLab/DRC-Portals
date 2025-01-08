@@ -2,7 +2,7 @@
 
 import { AlertColor, Grid } from "@mui/material";
 
-import { ElementDefinition } from "cytoscape";
+import { ElementDefinition, NodeSingular } from "cytoscape";
 import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
@@ -417,6 +417,87 @@ export default function GraphPathway() {
     [searchElements]
   );
 
+  const handlePruneSelected = useCallback(
+    (node: NodeSingular) => {
+      const pruneCandidates = new Set<string>([node.id()]);
+      const dfs = (n: NodeSingular) => {
+        const children = n.outgoers();
+
+        if (children.length > 0) {
+          children.forEach((child) => {
+            pruneCandidates.add(child.id());
+            if (child.isNode()) {
+              dfs(child);
+            }
+          });
+        }
+      };
+
+      // This should be a collection of a single node and edge; every node in the graph has exactly one parent, except for the root
+      const parents = node.incomers();
+      if (parents.size() !== 0) {
+        pruneCandidates.add(
+          node
+            .incomers()
+            .filter((el) => el.isEdge())[0]
+            .id()
+        );
+      }
+
+      dfs(node);
+      const newElements = [
+        ...searchElements.map((element) => {
+          if (pruneCandidates.has(element.data.id)) {
+            return isPathwaySearchEdgeElement(element)
+              ? deepCopyPathwaySearchEdge(element, undefined, [
+                  "prune-candidate",
+                ])
+              : deepCopyPathwaySearchNode(element, undefined, [
+                  "prune-candidate",
+                ]);
+          } else {
+            return isPathwaySearchEdgeElement(element)
+              ? deepCopyPathwaySearchEdge(element)
+              : deepCopyPathwaySearchNode(element);
+          }
+        }),
+      ];
+      setSearchElements(newElements);
+      setTree(createTree(newElements));
+    },
+    [searchElements]
+  );
+
+  const handlePruneConfirm = useCallback(() => {
+    const newElements = [
+      ...searchElements
+        .filter((element) => !element.classes?.includes("prune-candidate"))
+        .map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element)
+            : deepCopyPathwaySearchNode(element)
+        ),
+    ];
+    setSearchElements(newElements);
+    setTree(createTree(newElements));
+  }, [searchElements]);
+
+  const handlePruneCancel = useCallback(() => {
+    const newElements = [
+      ...searchElements.map((element) =>
+        isPathwaySearchEdgeElement(element)
+          ? deepCopyPathwaySearchEdge(element, undefined, undefined, [
+              "prune-candidate",
+            ])
+          : deepCopyPathwaySearchNode(element, undefined, undefined, [
+              "prune-candidate",
+            ])
+      ),
+    ];
+    setSearchElements(newElements);
+    setTree(createTree(newElements));
+  }, [searchElements]);
+
   return (
     <Grid
       container
@@ -437,6 +518,9 @@ export default function GraphPathway() {
             elements={searchElements}
             loading={loadingSearchResults}
             onConnectionSelected={handleConnectionSelected}
+            onPruneSelected={handlePruneSelected}
+            onPruneConfirm={handlePruneConfirm}
+            onPruneCancel={handlePruneCancel}
             onExport={handleExport}
             onImport={handleImport}
             onSearchBarSubmit={handleSearchBarSubmit}

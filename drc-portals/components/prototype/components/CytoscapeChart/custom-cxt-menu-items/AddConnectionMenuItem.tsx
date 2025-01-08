@@ -1,6 +1,7 @@
 "use client";
 
 import ErrorIcon from "@mui/icons-material/Error";
+import HubIcon from "@mui/icons-material/Hub";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Box, CircularProgress } from "@mui/material";
 import { NestedMenuItem } from "mui-nested-menu";
@@ -169,7 +170,12 @@ export default function AddConnectionMenuItem(
     <NestedMenuItem
       disabled={subMenuItems.length === 0}
       rightIcon={getRightIcon()}
-      renderLabel={() => "Expand"}
+      renderLabel={() => (
+        <Box sx={{ display: "flex", marginRight: 1 }}>
+          <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+          Expand
+        </Box>
+      )}
       parentMenuOpen={context.open}
       sx={{ paddingX: "16px" }}
     >

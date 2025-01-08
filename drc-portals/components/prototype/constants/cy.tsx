@@ -424,6 +424,21 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
       "z-index": HIGH_Z_INDEX,
     },
   },
+  {
+    selector: "node.prune-candidate",
+    style: {
+      "border-width": NODE_BORDER_WIDTH,
+      "border-color": "red",
+    },
+  },
+  {
+    selector: "edge.prune-candidate",
+    style: {
+      "target-arrow-color": "red",
+      "source-arrow-color": "red",
+      "line-color": "red",
+    },
+  },
 ];
 
 // Neo4j Schema Represented as a Cytoscape Chart:
