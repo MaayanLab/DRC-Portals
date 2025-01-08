@@ -1,6 +1,7 @@
 import os
 import sys
 import pandas as pd
+import pathlib
 import csv
 from datetime import date
 from uuid import uuid5, NAMESPACE_URL
@@ -109,7 +110,7 @@ if len(sys.argv) > 2:
       })
     outreach_df.at[k,'agenda'] = json.dumps(agenda, ensure_ascii=False)
 
-
+pathlib.Path('outreach_files').mkdir(exist_ok=True)
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
 outreach_df.index.name = "id"
