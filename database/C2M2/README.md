@@ -59,6 +59,8 @@ psql "$(python3 dburl.py)" -a -f ingest_CV.sql -o ${logdir}/log_ingest_CV.log
 # with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
 # will not work unless absolute path for the source tsv file is used.
 
+#------------------------------------
+# This block, that deals with ingestion into Dcc-specific schema, is largely indepedent of ingests into the c2m2 schema
 # If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
 dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
@@ -82,6 +84,7 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 # on psql prompt: \i rem_decimal_file_size_in_bytes_column.sql
 # OR, directly specify the sql file name in psql command:
 # psql -h localhost -U drc -d drc -p [5432|5433] -a -f rem_decimal_file_size_in_bytes_column.sql
+#------------------------------------
 
 # Other c2m2 related sql scripts
 psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -o ${logdir}/log_c2m2_other_tables.log
