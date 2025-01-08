@@ -19,12 +19,13 @@ export default function ClientCarousel({children, title}: {children: React.React
             }} indicators={true}
             indicatorContainerProps={{
               style: {
-                  position: "absolute",
-                  bottom: width === "sm" ? "15%": "10%",
-                  right:  ['sm', 'md', 'xs'].indexOf(width) > -1 ? "0": "40%",
+                position: "absolute",
+                bottom: "5%", 
+                left: "45%",  
+                transform: "translate(-50%, -50%)",  
+              
               }
-      
-          }}
+            }}
           >
               {children}
           </Carousel>

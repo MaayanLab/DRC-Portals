@@ -122,7 +122,7 @@ export default async function ServerCarousel () {
         </div>
     ))
 
-    return <ClientCarousel title="PRODUCTS, PARTNERSHIPS, & EVENTS">{children}</ClientCarousel>
+    return <ClientCarousel title="">{children}</ClientCarousel>
 
 }
 
