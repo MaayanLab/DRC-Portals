@@ -14,6 +14,7 @@ export default function ClientCarousel({children, title}: {children: React.React
         <div style={{position: "relative"}} className='flex justify-center'>
           <Carousel height={300} 
             sx={{
+              position: 'relative',
               minHeight: {xs: 260, sm: 260, md: 400, lg: 400, xl: 400}, 
               width: {xs: 300, sm: 300, md: 450, lg: 650, xl: 650}
             }} indicators={true}
@@ -21,10 +22,9 @@ export default function ClientCarousel({children, title}: {children: React.React
               style: {
                   position: "absolute",
                   bottom: width === "sm" ? "15%": "10%",
-                  right:  ['sm', 'md', 'xs'].indexOf(width) > -1 ? "0": "40%",
+                  paddingRight:  ['sm', 'md', 'xs'].indexOf(width) > -1 ? "0": "30px",
               }
-      
-          }}
+            }}
           >
               {children}
           </Carousel>
