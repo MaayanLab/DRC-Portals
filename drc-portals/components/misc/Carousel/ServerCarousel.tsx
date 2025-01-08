@@ -37,7 +37,7 @@ export default async function ServerCarousel () {
           ]
         },
         orderBy: {
-          start_date: { sort: 'asc', nulls: 'last' },
+          start_date: { sort: 'asc', nulls: 'first' },
         }
       })
     const outreach_items = outreach.map(o=>({
@@ -95,7 +95,7 @@ export default async function ServerCarousel () {
       ]
     
     
-    const children = [...items, ...outreach_items, ...publication_items].map( (item, i) => (
+    const children = [...outreach_items, ...items, ...publication_items].map( (item, i) => (
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
