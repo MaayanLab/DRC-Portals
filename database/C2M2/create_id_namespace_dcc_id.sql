@@ -24,7 +24,8 @@ VALUES
  ('gtex', 'cfde_registry_dcc:gtex', 'GTEx'),
  ('https://www.data.glygen.org/', 'cfde_registry_dcc:glygen', 'GlyGen'),
  ('tag:hmpdacc.org,2022-04-04:', 'cfde_registry_dcc:hmp', 'HMP'),
- ('tag:hubmapconsortium.org,2023:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
+ --- ('tag:hubmapconsortium.org,2023:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
+ ('tag:hubmapconsortium.org,2024:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
  ('https://druggablegenome.net/cfde_idg_drugcentral_drugs', 'cfde_registry_dcc:idg', 'IDG'),
  ('https://druggablegenome.net/cfde_idg_tcrd_diseases', 'cfde_registry_dcc:idg', 'IDG'),
  ('https://druggablegenome.net/cfde_idg_tcrd_targets', 'cfde_registry_dcc:idg', 'IDG'),
@@ -38,7 +39,8 @@ VALUES
  ('SPARC.project:', 'cfde_registry_dcc:sparc', 'SPARC'),
  ('SPARC.sample:', 'cfde_registry_dcc:sparc', 'SPARC'),
  ('SPARC.subject:', 'cfde_registry_dcc:sparc', 'SPARC'),
- ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC')
+ ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC'),
+ ('tag:sennetconsortium.org,2024:', 'cfde_registry_dcc:sennet', 'SenNet')
 ;
 
 /* add the constraint */

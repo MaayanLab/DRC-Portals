@@ -30,6 +30,7 @@ with gene__gene_set_helper.writer() as gene__gene_set:
             genes = {}
             with node_helper.writer() as node:
               for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+                gene_set_ids = set()
                 gmt_path = gmts_path/gmt['dcc_short_label']/gmt['filename']
                 gmt_path.parent.mkdir(parents=True, exist_ok=True)
                 if not gmt_path.exists():
@@ -61,6 +62,10 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                     if len(line_split) < 3: continue
                     gene_set_label, gene_set_description, *gene_set_genes = line_split
                     gene_set_id = str(uuid5(uuid0, '\t'.join((gene_set_library_id, gene_set_label, gene_set_description,))))
+                    if gene_set_id in gene_set_ids:
+                      print(f"WARN: Duplicate {gene_set_label} in {gmt_path} ignored")
+                      continue
+                    gene_set_ids.add(gene_set_id)
                     gene_set_genes = {gene_id for raw_gene in gene_set_genes if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
                     gene_set_node = dict(
                       dcc_id=gmt['dcc_id'],
