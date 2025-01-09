@@ -59,6 +59,7 @@ CREATE TABLE c2m2.ffl_collection_cmp as (
 select distinct
 --- COLUMNS TO SHOW TO USER ---
     -- concatenate all and save to_tsvector as searchable
+    -- Decided to exclude subject.local_id, biosample_from_subject.age_at_sampling and subject.age_at_enrollment from searchable
     to_tsvector(concat_ws('|', 
     /**? null, null, ?**/ /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
     c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 

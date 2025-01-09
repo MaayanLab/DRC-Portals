@@ -59,6 +59,7 @@ CREATE TABLE c2m2.ffl_biosample_cmp as (
 select distinct
 --- COLUMNS TO SHOW TO USER ---
     -- concatenate all and save to_tsvector as searchable
+    -- Decided to exclude subject.local_id, biosample_from_subject.age_at_sampling and subject.age_at_enrollment from searchable
     to_tsvector(concat_ws('|', 
     /**? c2m2.biosample.id_namespace, c2m2.biosample.local_id, ?**/
     c2m2.project.id_namespace, c2m2.project.local_id,  /* c2m2.biosample.project_id_namespace, c2m2.biosample.project_local_id, */
@@ -66,8 +67,8 @@ select distinct
     c2m2.biosample.sample_prep_method, c2m2.biosample.anatomy, c2m2.biosample.biofluid,
     c2m2.disease_association_type.id, /* use c2m2.disease_association_type.id */
     c2m2.disease.id, /* use c2m2.disease.id */
-    c2m2.subject.id_namespace, c2m2.subject.local_id, /* c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id,  */
-    c2m2.biosample_from_subject.age_at_sampling, 
+    c2m2.subject.id_namespace, /* c2m2.subject.local_id, */ /* c2m2.biosample_from_subject.subject_id_namespace, c2m2.biosample_from_subject.subject_local_id,  */
+    /* c2m2.biosample_from_subject.age_at_sampling, */
     c2m2.biosample_gene.gene,
     /* c2m2.biosample_in_collection.collection_id_namespace, c2m2.biosample_in_collection.collection_local_id, */
     c2m2.collection.id_namespace, c2m2.collection.local_id, /* now also joining c2m2.subject_in_collection */
@@ -86,7 +87,7 @@ select distinct
     c2m2.disease.name, c2m2.disease.description, c2m2.disease.synonyms,
 
     c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity, 
-    c2m2.subject.age_at_enrollment,
+    /* c2m2.subject.age_at_enrollment, */
 
     c2m2.substance.name, c2m2.substance.description, 
     c2m2.substance.synonyms, c2m2.substance.compound,
