@@ -5,6 +5,9 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import DRSBundleCartButton from "@/app/data/c2m2/DRSBundleCartButton";
+import DRSBundleButton from "@/app/data/c2m2/DRSBundleButton";
+import DownloadButton from "@/app/data/c2m2/DownloadButton";
 
 interface FileBiosTableResult {
     file_bios_table_full: {
@@ -253,6 +256,13 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                                         </Typography>
                                     ) : null
                                 ))}
+                                {'access_url' in staticFileBiosColumns && (
+                                    <div className="flex flex-row gap-4">
+                                        <DRSBundleCartButton data={fileBiosPrunedDataWithId} />
+                                        <DRSBundleButton data={fileBiosPrunedDataWithId} />
+                                        <DownloadButton data={fileBiosPrunedDataWithId} filename={downloadFilename} name={"Download Metadata"} />
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </Grid>
