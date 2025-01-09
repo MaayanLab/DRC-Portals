@@ -3,18 +3,14 @@
 import { AlertColor, Grid } from "@mui/material";
 
 import { ElementDefinition, NodeSingular } from "cytoscape";
-import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { z } from "zod";
 
-import {
-  fetchPathwaySearch,
-  fetchPathwaySearchConnections,
-} from "@/lib/neo4j/api";
+import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import { Direction } from "@/lib/neo4j/enums";
 import {
   NodeResult,
   PathwayNode,
-  PathwayConnectionsResult,
   PathwaySearchResult,
 } from "@/lib/neo4j/types";
 
@@ -28,7 +24,6 @@ import {
 } from "../contexts/PathwaySearchContext";
 import {
   ConnectionMenuItem,
-  PathwaySearchEdge,
   PathwaySearchNode,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
@@ -59,13 +54,10 @@ export default function GraphPathway() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
-  const expandedNodeIdsRef = useRef(new Set<string>());
   const pathwayContextValue: PathwaySearchContextProps = useMemo(
     () => ({ tree }),
     [tree]
   );
-  const PATHWAY_CONNECTIONS_ERROR =
-    "An error occurred while retrieving connections for the current pathway.";
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
@@ -74,24 +66,6 @@ export default function GraphPathway() {
     setSnackbarMsg(msg);
     setSnackbarOpen(open);
     setSnackbarSeverity(severity);
-  };
-
-  const getPathwayConnections = async (
-    tree: PathwayNode,
-    targetNodeIds: string[]
-  ): Promise<PathwayConnectionsResult> => {
-    const btoaTree = btoa(JSON.stringify(tree));
-    const response = await fetchPathwaySearchConnections(
-      btoaTree,
-      targetNodeIds
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Request failed: ${errorText}`);
-    }
-
-    return response.json();
   };
 
   const getPathwaySearchResults = async (
@@ -111,141 +85,7 @@ export default function GraphPathway() {
   const handleReset = useCallback(() => {
     setResultElements([]);
     setSearchElements([]);
-    expandedNodeIdsRef.current = new Set<string>();
   }, []);
-
-  const updateExpandedNodeConnections = (
-    elements: PathwaySearchElement[],
-    onError?: () => void
-  ) => {
-    const expandedNodeIds = expandedNodeIdsRef.current;
-
-    if (expandedNodeIds.size > 0) {
-      // Create a fallback elements array for if the request fails
-      const fallbackElements = elements.map((element) =>
-        isPathwaySearchEdgeElement(element)
-          ? deepCopyPathwaySearchEdge(element)
-          : deepCopyPathwaySearchNode(element)
-      );
-
-      // Create copies of the expanded nodes with a temporary "loading" class
-      const tempExpandedNodes = (
-        elements.filter((el) =>
-          expandedNodeIds.has(el.data.id)
-        ) as PathwaySearchNode[]
-      ).map((node) => deepCopyPathwaySearchNode(node, undefined, ["loading"]));
-
-      // Set elements to only pathway elements while loading connections (i.e., hide non-pathway elements)
-      const tempElements = [
-        ...tempExpandedNodes,
-        ...elements.filter(
-          (element) =>
-            element.classes?.includes("path-element") &&
-            !expandedNodeIds.has(element.data.id)
-        ),
-      ];
-
-      const tempTree = createTree(tempElements);
-      setTree(tempTree);
-      if (tempTree !== undefined) {
-        setSearchElements(tempElements);
-        getPathwayConnections(tempTree, Array.from(expandedNodeIds))
-          .then((response) => {
-            const newSearchElements = [
-              ...response.connectedNodes.map((node) =>
-                createPathwaySearchNode({
-                  id: node.id,
-                  displayLabel: node.label,
-                  dbLabel: node.label,
-                })
-              ),
-              ...tempElements.map((element) => {
-                if (isPathwaySearchEdgeElement(element)) {
-                  return deepCopyPathwaySearchEdge(element);
-                } else {
-                  return deepCopyPathwaySearchNode(
-                    element,
-                    undefined,
-                    [],
-                    ["loading"]
-                  );
-                }
-              }),
-              ...response.connectedEdges.map((edge) =>
-                createPathwaySearchEdge(
-                  {
-                    id: edge.id,
-                    source:
-                      edge.direction === Direction.OUTGOING
-                        ? edge.source
-                        : edge.target,
-                    target:
-                      edge.direction === Direction.OUTGOING
-                        ? edge.target
-                        : edge.source,
-                    displayLabel: edge.type,
-                    type: edge.type,
-                  },
-                  edge.direction === Direction.INCOMING
-                    ? ["source-arrow-only"]
-                    : []
-                )
-              ),
-            ];
-            setSearchElements(newSearchElements);
-          })
-          .catch((e) => {
-            console.error(e);
-            if (onError !== undefined) {
-              onError();
-            }
-            setSearchElements(fallbackElements);
-            setTree(createTree(fallbackElements));
-            updateSnackbar(true, PATHWAY_CONNECTIONS_ERROR, "error");
-          });
-      }
-    }
-  };
-
-  const addNodeToPath = useCallback(
-    (node: PathwaySearchNode) => {
-      // There should be exactly one edge where this node is the target
-      const connectedEdge = searchElements.find(
-        (el) =>
-          isPathwaySearchEdgeElement(el) && el.data.target === node.data.id
-      ) as PathwaySearchEdge | undefined;
-
-      // This should never happen, but log an error just in case...
-      if (connectedEdge === undefined) {
-        console.error(
-          `GraphPathway Error: No incoming edge for node ${node.data.id}. Aborting.`
-        );
-        return;
-      }
-
-      // Update search elements with the new node/edge and a copy of the rest
-      const newElements = [
-        deepCopyPathwaySearchNode(node, undefined, ["path-element"]),
-        ...searchElements
-          .filter(
-            (el) =>
-              el.data.id !== node.data.id &&
-              el.data.id !== connectedEdge.data.id
-          )
-          .map((el) =>
-            isPathwaySearchEdgeElement(el)
-              ? deepCopyPathwaySearchEdge(el)
-              : deepCopyPathwaySearchNode(el)
-          ),
-        deepCopyPathwaySearchEdge(connectedEdge, undefined, ["path-element"]),
-      ];
-      setSearchElements(newElements);
-
-      // Then, update all connections
-      updateExpandedNodeConnections(newElements);
-    },
-    [searchElements, updateExpandedNodeConnections]
-  );
 
   const updatePathNode = useCallback(
     (node: PathwaySearchNode) => {
@@ -261,25 +101,18 @@ export default function GraphPathway() {
           ),
       ];
       setSearchElements(newElements);
-
-      // Then, update all connections
-      updateExpandedNodeConnections(newElements);
+      setTree(createTree(newElements));
     },
-    [searchElements, updateExpandedNodeConnections]
+    [searchElements]
   );
 
   const handleSelectedNodeChange = useCallback(
     (node: PathwaySearchNode | undefined, reason: string) => {
-      if (node !== undefined) {
-        // Node was selected, but is not already in the path
-        if (reason === "select" && !node.classes?.includes("path-element")) {
-          addNodeToPath(node);
-        } else if (reason === "update") {
-          updatePathNode(node);
-        }
+      if (node !== undefined && reason === "update") {
+        updatePathNode(node);
       }
     },
-    [addNodeToPath, updatePathNode]
+    [updatePathNode]
   );
 
   const handleSearchBtnClick = useCallback(async () => {
