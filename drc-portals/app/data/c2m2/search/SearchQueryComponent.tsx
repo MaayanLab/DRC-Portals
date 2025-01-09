@@ -128,8 +128,8 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
   }>>(SQL.template`
     WITH 
     allres_exp AS (
-      SELECT /* No DISTINCT */ 
-        /* ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
+      SELECT DISTINCT
+        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
         SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -170,7 +170,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
 
     allres AS (
       SELECT DISTINCT 
-        /* rank, */
+        rank,
         dcc_name,
         dcc_abbreviation,
         dcc_short_label,
@@ -196,7 +196,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         project_name,
         project_persistent_id
       FROM allres_exp 
-      ORDER BY /* rank DESC, */ dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
+      ORDER BY rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
         protein_name, compound_name, data_type_name, assay_type_name
       OFFSET ${super_offset}
       LIMIT ${super_limit} 
