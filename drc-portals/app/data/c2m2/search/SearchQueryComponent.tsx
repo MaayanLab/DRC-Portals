@@ -128,7 +128,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
   }>>(SQL.template`
     WITH 
     allres_exp AS (
-      SELECT /* No DISTINCT */
+      SELECT /* No DISTINCT */ 
         /* ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
@@ -241,7 +241,7 @@ export async function SearchQueryComponentTab(props: { search: string }) {
   if (!results.data || results.data === 0) {
     return <FancyTab id="c2m2" priority={Infinity} label={<>Cross-Cut Metadata</>} hidden />;
   }
-
+  console.log("Count from doQueryCount " + results.data);
   // Render the tab with the count formatted as a localized string
   return (
     <FancyTab
@@ -292,7 +292,7 @@ export async function SearchQueryComponent(props: PageProps) {
     const t1: number = performance.now();
     console.log("---- Elapsed time for filtered count DB queries: ", t1 - t0, " milliseconds");
 
-    console.log("LP filtered_count = " + qryCnt_res?.filtered_count);
+    console.log("doQueryTotal filtered_count = " + qryCnt_res?.filtered_count);
 
 
     return (
