@@ -47,7 +47,12 @@ https://dev.cfde.cloud/data/c2m2/record_info?q=liver&t=dcc_name:Illuminating%20t
 https://dev.cfde.cloud/data/search/parkinson/c2m2
 
 Select some records:
+
 https://dev.cfde.cloud/data/c2m2/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+-->
+
+https://dev.cfde.cloud/data/c2m2/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 https://dev.cfde.cloud/data/c2m2/record_info?q=parkinson&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:secondary%20Parkinson%20disease|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
 
@@ -114,6 +119,8 @@ https://dev.cfde.cloud/data/search/myeloid%20cell/c2m2
 
 #### Apply filters anatomy: blood
 https://dev.cfde.cloud/data/search/myeloid%20cell/c2m2?t=anatomy%3Ablood&p=1
+OR
+https://dev.cfde.cloud/data/search/myeloid%20cell/c2m2?t=biofluid%3Ablood&p=1
 
 #### Apply filter taxonomy Homo sapiens
 https://dev.cfde.cloud/data/search/myeloid%20cell/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens
@@ -140,10 +147,16 @@ https://dev.cfde.cloud/data/c2m2/record_info?q=covid&t=dcc_name:The%20Gabriella%
 ### Search: throat cancer
 https://dev.cfde.cloud/data/search/throat%20cancer/c2m2
 
-### Filters and then Record Info  page:
+#### Filters and then Record Info  page:
 https://dev.cfde.cloud/data/search/throat%20cancer/c2m2?t=anatomy%3Asaliva&p=1
+OR
+https://dev.cfde.cloud/data/search/throat%20cancer/c2m2?t=biofluid%3Asaliva&p=1
 
 https://dev.cfde.cloud/data/c2m2/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+-->
+
+https://dev.cfde.cloud/data/c2m2/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 ### Another example of multiple filters
 Search blood then apply Species filter (two values, Homo sapiens or Mus Musculus):
@@ -173,6 +186,10 @@ https://dev.cfde.cloud/data/search/sleep%20apnea/c2m2?t=&p=1
 
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=sleep%20apnea&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000097|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
+-->
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=sleep%20apnea&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000097|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
 ### Search: vitiligo
 https://dev.cfde.cloud/data/search/vitiligo/c2m2?t=dcc%3AGlyGen&p=1
 
@@ -195,3 +212,6 @@ https://dev.cfde.cloud/data/search/tobacco/c2m2
 
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Canatomy_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
 
+-->
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Cbiofluid_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay

@@ -51,7 +51,7 @@ https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=liver&t=dcc_name:Ill
 https://ucsd-sslab.ngrok.app/data/search/parkinson/c2m2
 
 Select some records:
-https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=parkinson&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:secondary%20Parkinson%20disease|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
 
@@ -101,6 +101,10 @@ https://ucsd-sslab.ngrok.app/data/search/sterol/c2m2?p=1&t=dcc%3AUCSD+Metabolomi
 
 https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=sterol&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000633|disease_name:fatty%20liver%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:liver|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:mass%20spectrometry%20assay
 
+OR
+
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=PR000633&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000633|disease_name:steatotic%20liver%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:liver|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:mass%20spectrometry%20assay
+
 https://ucsd-sslab.ngrok.app/data/search/sterol/c2m2?p=1&t=anatomy%3Ablood+serum%7Canatomy%3Aadipose+tissue
 
 https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:adipose%20tissue|gene_name:SCP2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
@@ -118,6 +122,8 @@ https://ucsd-sslab.ngrok.app/data/search/myeloid%20cell/c2m2
 
 #### Apply filters anatomy: blood
 https://ucsd-sslab.ngrok.app/data/search/myeloid%20cell/c2m2?t=anatomy%3Ablood&p=1
+OR
+https://ucsd-sslab.ngrok.app/data/search/myeloid%20cell/c2m2?t=biofluid%3Ablood&p=1
 
 #### Apply filter taxonomy Homo sapiens
 https://ucsd-sslab.ngrok.app/data/search/myeloid%20cell/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens
@@ -144,10 +150,12 @@ https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=covid&t=dcc_name:The
 ### Search: throat cancer
 https://ucsd-sslab.ngrok.app/data/search/throat%20cancer/c2m2
 
-### Filters and then Record Info page:
+#### Filters and then Record Info page:
 https://ucsd-sslab.ngrok.app/data/search/throat%20cancer/c2m2?t=anatomy%3Asaliva&p=1
+OR
+https://ucsd-sslab.ngrok.app/data/search/throat%20cancer/c2m2?t=biofluid%3Asaliva&p=1
 
-https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 ### Another example of multiple filters
 Search blood then apply Species filter (two values, Homo sapiens or Mus Musculus):
@@ -175,7 +183,7 @@ https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=doxorubicin&t=dcc_na
 ### Search: sleep apnea
 https://ucsd-sslab.ngrok.app/data/search/sleep%20apnea/c2m2?t=&p=1
 
-https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=sleep%20apnea&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000097|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=sleep%20apnea&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000097|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 ### Search: vitiligo
 https://ucsd-sslab.ngrok.app/data/search/vitiligo/c2m2?t=dcc%3AGlyGen&p=1
@@ -197,5 +205,5 @@ https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=exercise%20obese&t=d
 ### Search: tobacco
 https://ucsd-sslab.ngrok.app/data/search/tobacco/c2m2
 
-https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Canatomy_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Cbiofluid_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
 
