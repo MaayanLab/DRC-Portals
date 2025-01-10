@@ -21,6 +21,7 @@ const Consortium = () => (
     <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer">
       <Typography variant="footer">About the CFDE</Typography>
     </Link>
+   
     <Link href="/info/dcc">
       <Typography variant="footer">CF-DCCs</Typography>
     </Link>
@@ -31,7 +32,6 @@ const Consortium = () => (
       <Typography variant="footer">Knowledge Portal</Typography>
     </Link> */}
     <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
-    <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Video Tutorial</Typography></Link>
     <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
   </Stack>
 )
@@ -43,8 +43,12 @@ const Ecosystem = () => (
       {/* <Link href="/info/coming_soon">
         <Typography variant="footer">Products</Typography>
       </Link> */}
+      <Link href="/info/center" >
+      <Typography variant="footer">Centers</Typography>
+    </Link>
       <Link href="/info/documentation"><Typography variant="footer">Documentation</Typography></Link>
       <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
+      <Link href="/info/r03"><Typography variant="footer">R03s</Typography></Link>
       <Link href="/info/qr"><Typography variant="footer">Get QR Codes</Typography></Link>
     </Stack>
 )
@@ -56,6 +60,7 @@ const Assets = () => (
       <Link href="/data/tools_and_workflows"><Typography variant="footer">Tools</Typography></Link>
       <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
       <Link href="/data/usecases"><Typography variant="footer">Use Cases</Typography></Link>
+      <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Video Tutorial</Typography></Link>
 
   </Stack>
 )
