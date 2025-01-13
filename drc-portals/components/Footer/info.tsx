@@ -43,7 +43,7 @@ const Ecosystem = () => (
       {/* <Link href="/info/coming_soon">
         <Typography variant="footer">Products</Typography>
       </Link> */}
-      <Link href="/info/center" >
+      <Link href="/info/centers" >
       <Typography variant="footer">Centers</Typography>
     </Link>
       <Link href="/info/documentation"><Typography variant="footer">Documentation</Typography></Link>

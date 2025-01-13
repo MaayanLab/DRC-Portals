@@ -53,7 +53,7 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 const info_nav = [
   {title: "Home", href: "/info"},
   {title: "CF Programs", href: "/info/dcc"},
-  {title: "CFDE Centers", href: "/info/center"},
+  {title: "CFDE Centers", href: "/info/centers"},
   {title: "Partnerships", href: "/info/partnerships"},
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},

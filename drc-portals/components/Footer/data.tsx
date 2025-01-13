@@ -21,7 +21,7 @@ const Portal = () => (
       <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer">
         <Typography variant="footer">About the CFDE</Typography>
       </Link>
-      <Link href="/info/center" >
+      <Link href="/info/centers" >
         <Typography variant="footer">Centers</Typography>
       </Link>
       <Link href="/info/dcc">

@@ -123,14 +123,14 @@ export default function PublicationComponent({ publications }: { publications: P
                                 }
                                 {pub.centers && pub.centers.length > 0 &&
                                     <>
-                                        <Chip label="Center" color="secondary" sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }} onClick={() => window.open('/info/center', '_blank')} clickable />
+                                        <Chip label="Center" color="secondary" sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }} onClick={() => window.open('/info/centers', '_blank')} clickable />
                                         {pub.centers.map((c) => (
                                             <Chip
                                                 key={c.center.id}
                                                 label={c.center.short_label}
                                                 color="secondary"
                                                 sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }}
-                                                onClick={() => window.open(`/info/center/${c.center.short_label}`, '_blank')} clickable
+                                                onClick={() => window.open(`/info/centers/${c.center.short_label}`, '_blank')} clickable
                                             />
                                         ))}
                                     </>
