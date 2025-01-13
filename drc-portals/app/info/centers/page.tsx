@@ -120,7 +120,7 @@ export default async function CenterLanding() {
 
                                     <CardActions sx={{ height: '64px' }}>
                                         <div className="flex gap-2 items-center">  {/* Container for buttons */}
-                                            <Link href={`/info/center/${center.short_label}`}>
+                                            <Link href={`/info/centers/${center.short_label}`}>
                                                 <Button color="secondary">
                                                     <Typography variant="body2">Expand</Typography>
                                                 </Button>
