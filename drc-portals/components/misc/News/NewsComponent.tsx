@@ -30,7 +30,7 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
 
     const filteredNews = news.filter(item => {
         const tags = item.tags as JsonArray
-        if (selectedPortals.length === 0) return false; 
+        if (selectedPortals.length === 0) return false;
         if (!selectedPortals.includes(item.portal)) return false;
         if (selectedTags[item.portal] && selectedTags[item.portal].length > 0) {
             return tags?.some(tag => selectedTags[item.portal].includes(`${tag}`)) || !item.tags || tags.length === 0;
@@ -94,7 +94,6 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
                                     </Typography>
                                 </Grid>
                             </Grid>
-                            {/* Description & image*/}
                             <Grid container spacing={2} alignItems="stretch" sx={{ height: '100%' }}>
                                 {/* Description, tags */}
                                 <Grid
@@ -112,24 +111,27 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
                                     <Typography color="secondary" variant="subtitle1" sx={{ marginTop: 1, marginLeft: 0.3 }}>
                                         {item.version && `Version ${item.version}`}
                                     </Typography>
+
+                                    {/* Descriptions */}
                                     {item.description && (
                                         <Box sx={{ marginTop: 1, marginBottom: 4, justifyContent: 'flex-end' }}>
                                             <Typography color="textSecondary">{item.description}</Typography>
+                                            {/* supplementary lists */}
+                                            <Grid sx={{ marginTop: 1 }} >
+                                                {item.supp_description && (
+                                                    <List sx={{ paddingLeft: 2, marginTop: 1 }}>
+                                                        {(item.supp_description as JsonArray).map((desc, i) => (
+                                                            <ListItem key={i} sx={{ display: 'list-item', padding: 0 }}>
+                                                                <ListItemText primary={<Typography color="textSecondary">• {`${desc}`}</Typography>} />
+                                                            </ListItem>
+                                                        ))}
+                                                    </List>
+                                                )}
+                                            </Grid>
+
                                         </Box>
                                     )}
 
-                                    {/* Descriptions */}
-                                    <Grid sx={{ marginTop: 1 }} >
-                                        {item.supp_description && (
-                                            <List sx={{ paddingLeft: 2 }}>
-                                                {(item.supp_description as JsonArray).map((desc, i) => (
-                                                    <ListItem key={i} sx={{ display: 'list-item', padding: 0 }}>
-                                                        <ListItemText primary={<Typography color="textSecondary">• {`${desc}`}</Typography>} />
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        )}
-                                    </Grid>
 
 
                                     {/* Learn more */}
@@ -140,6 +142,8 @@ export default function NewsComponent({ news }: { news: NewsWithDetails[] }) {
                                             </Link>
                                         </Box>
                                     )}
+
+                                    {/* Tags */}
                                     <div className="flex mt-2 mb-4 items-end justify-start">
                                         {item.portal && (
                                             <Chip
