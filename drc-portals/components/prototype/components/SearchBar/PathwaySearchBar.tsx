@@ -1,7 +1,6 @@
 "use client";
 
 import Autocomplete, {
-  AutocompleteOwnerState,
   AutocompleteRenderOptionState,
 } from "@mui/material/Autocomplete";
 import { debounce, Box, Skeleton } from "@mui/material";
@@ -11,6 +10,7 @@ import { fetchCVTerms } from "@/lib/neo4j/api";
 import { CVTermsResult, NodeResult } from "@/lib/neo4j/types";
 
 import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
+import { createNodeElement } from "../../utils/shared";
 
 import PathwaySearchBarInput from "./PathwaySearchBarInput";
 
@@ -65,11 +65,21 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
     <PathwaySearchBarInput inputParams={params} />
   );
 
+  const getOptionLabel = (option: string) => {
+    const termName = cvTermsMap.current.get(option)?.properties.name;
+    return option === termName ? (
+      option
+    ) : (
+      <>
+        {option} <em>({termName})</em>
+      </>
+    );
+  };
+
   const handleRenderOption = (
     props: any,
     option: string,
-    state: AutocompleteRenderOptionState,
-    ownerState: AutocompleteOwnerState<string, false, false, true, "div">
+    state: AutocompleteRenderOptionState
   ) => {
     const { key, ...optionProps } = props;
     return (
@@ -92,7 +102,21 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
             width={SEARCH_PLACEHOLDER_OPTIONS[state.index]}
           />
         ) : (
-          ownerState.getOptionLabel(option)
+          <Box
+            display="flex"
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <Box>{getOptionLabel(option)}</Box>
+            <Box>
+              {createNodeElement(
+                cvTermsMap.current.get(option)?.labels[0] || "Unknown"
+              )}
+            </Box>
+          </Box>
         )}
       </Box>
     );
