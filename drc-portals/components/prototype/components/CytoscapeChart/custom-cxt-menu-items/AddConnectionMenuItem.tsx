@@ -30,33 +30,38 @@ export default function AddConnectionMenuItem(
   cmpProps: AddConnectionMenuItemProps
 ) {
   const { elements, onConnectionSelected } = cmpProps;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [getConnectionsError, setGetConnectionsError] =
     useState<boolean>(false);
   const [subMenuItems, setSubMenuItems] = useState<ConnectionMenuItem[]>([]);
   const context = useContext(ChartCxtMenuContext);
 
-  const getRightIcon = () => {
+  const getRightIcon = useCallback(() => {
     if (loading) {
       return (
         <CircularProgress aria-label="loading" color="inherit" size={20} />
       );
     } else if (getConnectionsError) {
       return <ErrorIcon aria-label="error" color="error" />;
-    } else {
+    } else if (subMenuItems.length > 0) {
       return <KeyboardArrowRightIcon aria-label="show-all-rels" />;
+    } else {
+      return null;
     }
-  };
+  }, [loading, getConnectionsError]);
 
   const setConnectionOptions = useCallback(
-    async (nodeId: string) => {
+    async (nodeId: string, signal: AbortSignal) => {
+      setLoading(true);
       try {
         const tree = createTree(elements);
         const btoaTree = btoa(JSON.stringify(tree));
 
-        const response = await fetchPathwaySearchConnections(btoaTree, [
-          nodeId,
-        ]);
+        const response = await fetchPathwaySearchConnections(
+          btoaTree,
+          [nodeId],
+          { signal }
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -126,9 +131,17 @@ export default function AddConnectionMenuItem(
             .filter((v) => v !== undefined)
         );
       } catch (error) {
-        setGetConnectionsError(true);
+        if (!signal.aborted) {
+          setGetConnectionsError(true);
+        }
       } finally {
-        setLoading(false);
+        // This check should only be meaningful when strict mode is enabled: there is a race condition between the two runs of the effect
+        // below where the loading state can be erroneously set to false. Normally when `signal` is aborted we are unmounting the
+        // component because the menu was closed, so we don't need to update loading state. But when it's unmounted as a result of
+        // duplicate renders, the race condition is created.
+        if (!signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     [elements]
@@ -162,7 +175,14 @@ export default function AddConnectionMenuItem(
 
   useEffect(() => {
     if (context !== null) {
-      setConnectionOptions(context.event.target.data("id"));
+      const controller = new AbortController();
+      const signal = controller.signal;
+
+      setConnectionOptions(context.event.target.data("id"), signal);
+
+      return () => {
+        controller.abort("Cancelling connections request.");
+      };
     }
   }, []);
 
