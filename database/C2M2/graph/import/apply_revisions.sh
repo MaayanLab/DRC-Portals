@@ -8,6 +8,14 @@ files=(
     "synonyms.cypher"
     "direct_dcc_connections.cypher"
     "add_unique_rels.cypher"
+    "add_biosample_collection_pids.cypher"
+    "add_biosample_file_pids.cypher"
+    "add_biosample_project_pid.cypher"
+    "add_file_collection_pids.cypher"
+    "add_file_project_pid.cypher"
+    "add_subject_collection_pids.cypher"
+    "add_subject_file_pids.cypher"
+    "add_subject_project_pid.cypher"
 )
 
 # Iterate over the array of filenames
