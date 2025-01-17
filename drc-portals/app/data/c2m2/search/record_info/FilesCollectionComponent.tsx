@@ -89,6 +89,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
             ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
             ORDER BY rank DESC
+            /* OFFSET ${fileColTblOffset}
+            LIMIT 100 */
         ), 
         unique_info AS (
             SELECT DISTINCT 
@@ -163,8 +165,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             file_col_table_limited AS (
               SELECT * 
               FROM file_col_table
-              OFFSET ${fileColTblOffset}
-              LIMIT ${limit}
+              /* OFFSET ${fileColTblOffset} 
+              LIMIT ${limit} */
             ),
             count_file_col AS (
               SELECT COUNT(*)::int AS count

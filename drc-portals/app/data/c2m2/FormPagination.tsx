@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-const rowsPerPageOptions = [10, 20, 50, 100]
+const rowsPerPageOptions = [10, 20, 50]
 
 interface FormPaginationProps {
   p: number;
