@@ -215,3 +215,16 @@ https://dev.cfde.cloud/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+
 -->
 
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Cbiofluid_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
+
+### Example of biofluid filter: Search tuberculosis
+https://dev.cfde.cloud/data/search/tuberculosis/c2m2
+
+#### anatomy or biofluid filter: urine
+https://dev.cfde.cloud/data/search/tuberculosis/c2m2?t=anatomy%3Aurine&p=1
+-->
+https://dev.cfde.cloud/data/search/tuberculosis/c2m2?t=biofluid%3Aurine&p=1
+
+#### A record from MW
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=tuberculosis&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000716|disease_name:tuberculosis|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:urine|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+-->
+https://data.cfde.cloud/c2m2/search/record_info?q=tuberculosis&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000716|disease_name:tuberculosis|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:urine|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
