@@ -91,6 +91,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
+                /* OFFSET ${fileSubTblOffset}
+                LIMIT 100 */
             ), 
             unique_info AS ( /* has extra fields, but OK in case needed later*/
             SELECT DISTINCT 
@@ -166,8 +168,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 file_sub_table_limited as (
                   SELECT * 
                   FROM file_sub_table
-                  OFFSET ${fileSubTblOffset}
-                  LIMIT ${limit}
+                  /* OFFSET ${fileSubTblOffset} 
+                  LIMIT ${limit} */
                 ), /* Mano */
                 count_file_sub AS (
                   select count(*)::int as count

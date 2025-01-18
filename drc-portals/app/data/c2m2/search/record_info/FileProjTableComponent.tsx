@@ -88,6 +88,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
+                /* OFFSET ${fileProjTblOffset}
+                LIMIT 100 */
             ), 
             unique_info AS ( /* has extra fields, but OK in case needed later*/
             SELECT DISTINCT 
@@ -147,14 +149,14 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
                 LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
-            limit ${file_count_limit_proj}
+             limit ${file_count_limit_proj} 
             )
             , 
             file_table_limited as (
             SELECT * 
             FROM file_table
-            OFFSET ${fileProjTblOffset}
-            LIMIT ${limit}
+            /* OFFSET ${fileProjTblOffset} 
+            LIMIT ${limit} */
             ), /* Mano */
             count_file AS (
             select count(*)::int as count
@@ -182,7 +184,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
 
         const filesProjTable = firstResult.file_table ?? [];
         const filesProjTableFull = firstResult.file_table_full ?? [];
-
+        console.log("fileProjTable num rows  = "+filesProjTable.length);
         if (filesProjTable.length === 0 || filesProjTableFull.length === 0) {
             return <div></div>;
         }
@@ -209,8 +211,9 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
             filesProj_table_columnsToIgnore
         );
         // Add 'id' column with 'row-<index>' format
+        console.log("fileProjPrunedData num rows = "+fileProjPrunedData.length);
         const fileProjPrunedDataWithId = fileProjPrunedData.map((row, index) => ({ ...row, id: index }));
-        //console.log("fileProjPrundedDataWithId = "+fileProjPrunedDataWithId);
+        console.log("fileProjPrundedDataWithId num rows = "+fileProjPrunedDataWithId.length);
         const filesProj_table_full_withId = filesProjTableFull
             ? filesProjTableFull.map((row, index) => ({ ...row, id: index }))
             : [];

@@ -90,6 +90,8 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
+                /* OFFSET ${fileBiosTblOffset}
+                LIMIT 100 */
             ), 
             unique_info AS ( /* has extra fields, but OK in case needed later*/
             SELECT DISTINCT 
@@ -164,8 +166,8 @@ export default async function FilesBiosampleTableComponent({ searchParams, filte
                 file_bios_table_limited as (
                     SELECT * 
                     FROM file_bios_table
-                    OFFSET ${fileBiosTblOffset}
-                    LIMIT ${limit}
+                    /* OFFSET ${fileBiosTblOffset} 
+                    LIMIT ${limit} */
                 ), /* Mano */
                 count_file_bios AS (
                     select count(*)::int as count

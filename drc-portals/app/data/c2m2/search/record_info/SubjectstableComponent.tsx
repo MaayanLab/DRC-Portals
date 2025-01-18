@@ -70,8 +70,8 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
             subjects_table_limited AS (
                 SELECT * 
                 FROM subjects_table
-                OFFSET ${subTblOffset}
-                LIMIT ${limit}
+                /*OFFSET ${subTblOffset}*/
+                /*LIMIT ${limit}*/
             ),
             count_sub AS (
                 SELECT count(*)::int as count
