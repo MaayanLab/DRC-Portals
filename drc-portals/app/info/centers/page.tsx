@@ -68,7 +68,7 @@ export default async function CenterLanding() {
                                             }
                                         }}
                                         avatar={
-                                            <div className="flex relative" style={{ height: 70, minWidth: 70, maxWidth: 200 }}>
+                                            <div className="flex relative" style={{ height: (center.icon && center.short_label !== 'KC') ? 70: 40, minWidth: 70, maxWidth: 200 }}>
                                                 <Image
                                                     alt={center.id}
                                                     src={center.icon || "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/favicon.png"}
