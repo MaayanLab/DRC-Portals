@@ -9,6 +9,7 @@ import json
 from tqdm.auto import tqdm
 
 from ingest_common import TableHelper, current_dcc_assets, uuid0, uuid5
+from ingest_pdp import NodeHelper, RelationHelper
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -16,8 +17,8 @@ dcc_assets = current_dcc_assets()
 #%%
 # Ingest C2M2
 
-relation_helper = TableHelper('relation', ('source_type', 'source_id', 'predicate', 'target_type', 'target_id'), pk_columns=('predicate', 'source_id', 'target_id'))
-node_helper = TableHelper('node', ('type', 'id', 'attributes', 'pagerank',), pk_columns=('type', 'id',), add_columns=('pagerank',))
+relation_helper = RelationHelper()
+node_helper = NodeHelper()
 
 with relation_helper.writer() as relation:
   dccs = {}

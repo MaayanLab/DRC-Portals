@@ -8,7 +8,7 @@ import tempfile
 import urllib.request
 from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
-from uuid import UUID, uuid5
+from uuid import UUID, uuid5, uuid4
 
 uuid0 = UUID('00000000-0000-0000-0000-000000000000')
 def quote(col): return f'"{col}"'
@@ -20,13 +20,16 @@ class TableHelper:
     self.pk_columns = pk_columns
     self.columns = columns
     self.add_columns = add_columns
-  @property
-  def quoted_tablename(self):
+    self.tmp = f"tmp_{str(uuid4()).partition('-')[0]}"
+  def quoted_tablename(self, tmp=False):
     schema,_, table = self.tablename.partition('.')
     if not table:
       table = schema
       schema = 'public'
-    return f"{quote(schema)}.{quote(table)}"
+    if tmp:
+      return f"{table}_{self.tmp}"
+    else:
+      return f"{quote(schema)}.{quote(table)}"
   @contextlib.contextmanager
   def writer(self):
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -37,29 +40,29 @@ class TableHelper:
       with connection.cursor() as cur:
         cur.execute('set statement_timeout = 0')
         cur.execute(f'''
-          create temporary table {quote(self.tablename+'_tmp')}
-          as table {self.quoted_tablename}
+          create temporary table {self.quoted_tablename(True)}
+          as table {self.quoted_tablename()}
           with no data;
         ''')
         with path.open('r') as fr:
-          cur.copy_from(fr, f"{self.tablename}_tmp",
+          cur.copy_from(fr, self.quoted_tablename(True),
             columns=self.columns,
             null='',
             sep='\t',
           )
         update_set = ','.join([
           *[f"{quote(col)} = excluded.{quote(col)}" for col in self.columns if col not in self.pk_columns and col not in self.add_columns],
-          *[f"{quote(col)} = {self.quoted_tablename}.{quote(col)} + excluded.{quote(col)}" for col in self.add_columns],
+          *[f"{quote(col)} = {self.quoted_tablename()}.{quote(col)} + excluded.{quote(col)}" for col in self.add_columns],
         ])
         do_update_set = f"do update set {update_set}" if update_set else "do nothing"
         cur.execute(f'''
-            insert into {self.quoted_tablename} ({', '.join(map(quote, self.columns))})
+            insert into {self.quoted_tablename()} ({', '.join(map(quote, self.columns))})
               select {', '.join(map(quote, self.columns))}
-              from {quote(self.tablename+'_tmp')}
+              from {self.quoted_tablename(True)}
               on conflict ({', '.join(map(quote, self.pk_columns))})
               {do_update_set};
         ''')
-        cur.execute(f"drop table {quote(self.tablename+'_tmp')};")
+        cur.execute(f"drop table {self.quoted_tablename(True)};")
         connection.commit()
 
 #%%
