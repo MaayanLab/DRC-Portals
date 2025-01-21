@@ -604,3 +604,128 @@ select id_namespace, local_id, project_local_id, filename,access_url from c2m2.f
 --- from a DCC
 select id_namespace, local_id, project_local_id, filename,access_url from c2m2.file where (access_url is not null AND access_url != '' AND id_namespace ilike '%metab%') limit 100;
 
+
+--- 2025/01/17
+--- For some queries, on record_info page, there is spurious biosamples listed. These seems to be because,
+--- the project for the biosample and its subject are not the same. We used the followings for generating the flattened table.
+--- The code below is extracted from script biosample_fully_flattened_allin1.sql (not continuous)
+
+
+/**
+For tracking of the debug process:
+Error was identified as significant difference between biosample count on
+Around 2025/01/15
+[mano@sc-cfdewebdev 240905_c2m2_4dn_sub]$ pwd
+/home/mano/DRC/random_test/240905_c2m2_4dn_sub
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=intestine%20homo%20sapiens&t=dcc_name:4D%20NUCLEOME%20DATA%20COORDINATION%20AND%20INTEGRATION%20CENTER|project_local_id:12a92962-8265-4fc0-b2f8-cf14f05db58b|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:colon|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:imaging%20assay
+(Dec 2024 submission: 48 biosamples)
+and
+
+https://data.cfde.cloud/c2m2/search/record_info?q=intestine%20homo%20sapiens&t=dcc_name:4D%20NUCLEOME%20DATA%20COORDINATION%20AND%20INTEGRATION%20CENTER%7Cproject_local_id:12a92962-8265-4fc0-b2f8-cf14f05db58b%7Cdisease_name:Unspecified%7Cncbi_taxonomy_name:Homo%20sapiens%7Canatomy_name:colon%7Cgene_name:Unspecified%7Cprotein_name:Unspecified%7Ccompound_name:Unspecified%7Cdata_type_name:Unspecified%7Cassay_type_name:imaging%20assay
+(Sept 2024 submission: 216 biosamples)
+
+[mano@sc-cfdewebdev 240905_c2m2_4dn_sub]$ grep fce13598-39ed-443d-8b35-e23c03b12181 *.tsv
+biosample_from_subject.tsv:https://data.4dnucleome.org  fce13598-39ed-443d-8b35-e23c03b12181    https://data.4dnucleome.org     2b46c4e3-780f-40bc-929f-f1c1a2e181f1
+biosample_in_collection.tsv:https://data.4dnucleome.org fce13598-39ed-443d-8b35-e23c03b12181    https://data.4dnucleome.org     a573a992-e504-4f8c-ad02-6e6c3fe930d1
+biosample.tsv:https://data.4dnucleome.org       fce13598-39ed-443d-8b35-e23c03b12181    https://data.4dnucleome.org     b0b9c607-f8b4-4f02-93f4-9895b461334b    https://data.4dnucleome.org/4DNBSPAUO327        2019-11-25              UBERON:0001155
+[mano@sc-cfdewebdev 240905_c2m2_4dn_sub]$ grep a573a992-e504-4f8c-ad02-6e6c3fe930d1 *.tsv
+biosample_in_collection.tsv:https://data.4dnucleome.org fce13598-39ed-443d-8b35-e23c03b12181    https://data.4dnucleome.org     a573a992-e504-4f8c-ad02-6e6c3fe930d1
+collection_defined_by_project.tsv:https://data.4dnucleome.org   a573a992-e504-4f8c-ad02-6e6c3fe930d1    https://data.4dnucleome.org     b0b9c607-f8b4-4f02-93f4-9895b461334b
+collection_in_collection.tsv:https://data.4dnucleome.org        0d35712c-cf65-4387-8367-742b3a5b4f2b    https://data.4dnucleome.org     a573a992-e504-4f8c-ad02-6e6c3fe930d1
+collection.tsv:https://data.4dnucleome.org      a573a992-e504-4f8c-ad02-6e6c3fe930d1    https://data.4dnucleome.org/4DNEXYNQQUCK        2019-11-25      4DNEXYNQQUCK    in situ Hi-C Experiment 4DNEXYNQQUCK    Biological replicate 4, Technical replicate 1 of 4DNESQNC15UK
+.....
+[mano@sc-cfdewebdev 240905_c2m2_4dn_sub]$ grep 0d35712c-cf65-4387-8367-742b3a5b4f2b *.tsv
+collection_defined_by_project.tsv:https://data.4dnucleome.org   0d35712c-cf65-4387-8367-742b3a5b4f2b    https://data.4dnucleome.org     12a92962-8265-4fc0-b2f8-cf14f05db58b
+collection_in_collection.tsv:https://data.4dnucleome.org        0d35712c-cf65-4387-8367-742b3a5b4f2b    https://data.4dnucleome.org     f913b831-3fdb-44a1-bdf1-63dda71b2370
+collection_in_collection.tsv:https://data.4dnucleome.org        0d35712c-cf65-4387-8367-742b3a5b4f2b    https://data.4dnucleome.org     a573a992-e504-4f8c-ad02-6e6c3fe930d1
+collection.tsv:https://data.4dnucleome.org      0d35712c-cf65-4387-8367-742b3a5b4f2b    https://data.4dnucleome.org/4DNESQNC15UK        2019-11-25      4DNESQNC15UK    Replicate Set 4DNESQNC15UK      4DNESQNC15UK: Hi-C on RAD21-AID tagged HCT-116 - RAD21-depleted and reintroduced for 20 min, no ATP in situ Hi-C on HCT-116 (HCT-116-RAD21-mAC), IAA treated to deplete Cohesin-Rad21 followed by 20 min withdrawal, treated with oligomycin (2 hour) to deplete ATP
+.....
+subject_in_collection.tsv:https://data.4dnucleome.org   2b46c4e3-780f-40bc-929f-f1c1a2e181f1    https://data.4dnucleome.org     0d35712c-cf65-4387-8367-742b3a5b4f2b (edited) 
+  Yesterday at 5:03 PM
+The above suggests the likely source of the extra lines in ffl_biosample_collection from Sept 2024 is the linking of collection, collection_in_collection, collection_defined_by_project, biosample_in_collection, subject_in_collection. But why this is not affecting the December submission. The concerned rows are the same, and the C2M2 branch code for ...../database/C2M2/collection_fully_flattened_allin1.sql is the same for the concerned joins in Sept and Dec ingest scripts. Needs further digging if I used script from another branch for Sept 2024 ffl; seems unlikely.
+**/
+
+/**
+The error is due to multiple paths to project_local_id from biosample_local_id in the script
+biosample_fully_flattened_allin1.sql . See test scripts below.
+**/
+
+--- Project from biosample is not same as that from subject for that biosample
+select count(*) from (
+    select distinct c2m2.biosample.project_id_namespace
+    , c2m2.biosample.project_local_id as biosample_project_local_id,
+    c2m2.subject.project_local_id as subject_project_local_id, c2m2.biosample.local_id as biosample_local_id,
+    c2m2.subject.local_id as subject_local_id
+ from
+    c2m2.biosample 
+    full join c2m2.biosample_from_subject
+        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and 
+        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+
+    full join c2m2.subject /* Could right-join make more sense here; likely no; yes, trying on 2024/04/30 moved from later part to here */
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+
+    left join c2m2.project
+        on ((c2m2.biosample.project_local_id = c2m2.project.local_id and
+        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
+        OR (c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace))         
+
+    where NOT (c2m2.biosample.project_local_id = c2m2.subject.project_local_id and
+        c2m2.subject.project_id_namespace = c2m2.biosample.project_id_namespace)
+        and (c2m2.biosample.project_id_namespace ilike '%4dnuc%')
+        limit 30;
+);
+
+--- Project from biosample is not same as that from subject for that biosample: which DCCs
+select distinct c2m2.biosample.project_id_namespace
+ from
+    c2m2.biosample 
+    full join c2m2.biosample_from_subject
+        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and 
+        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+
+    full join c2m2.subject /* Could right-join make more sense here; likely no; yes, trying on 2024/04/30 moved from later part to here */
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+
+    left join c2m2.project
+        on ((c2m2.biosample.project_local_id = c2m2.project.local_id and
+        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
+        OR (c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace))         
+
+    where NOT (c2m2.biosample.project_local_id = c2m2.subject.project_local_id and
+        c2m2.subject.project_id_namespace = c2m2.biosample.project_id_namespace)
+        limit 30;
+
+--- 2025/01/17
+--- lists some biosamples for which two different project_local_id got assigned in flattened table
+select * from (select distinct project_id_namespace, biosample_local_id, subject_local_id, count(distinct project_local_id) as count_project_local_id
+ from c2m2.ffl_biosample_collection group by project_id_namespace, biosample_local_id, subject_local_id) where count_project_local_id > 1 limit 5;
+
+select distinct biosample_local_id, subject_local_id, project_local_id from c2m2.ffl_biosample_collection  where biosample_local_id = '001cf3ff-f4e7-4b58-ba20-fe28bdee7052';
+
+select * from (select distinct project_id_namespace, biosample_local_id, subject_local_id, collection_local_id, count(distinct project_local_id) as count_project_local_id
+ from c2m2.ffl_biosample_collection group by project_id_namespace, biosample_local_id, subject_local_id, collection_local_id) where count_project_local_id > 1 limit 5;
+
+/* Srini: SPARC may have situation where there is subject, measurements from several locations, 
+ so they don't specify any biosample
+ */
+
+--- After fixing spurious rows
+/*
+ drc=# select count(*) from c2m2.ffl_biosample_collection;
+  count  
+---------
+ 6531318
+(1 row)
+
+--- Before
+drc=# select count(*) from c2m2.ffl_biosample_collection;
+  count  
+---------
+ 8019781
+(1 row)
+*/
