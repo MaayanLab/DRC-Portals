@@ -253,7 +253,7 @@ export default async function ToolsPage() {
 				</ClientCarousel>
 			</Grid>
 			<Grid item xs={12} sx={{ display: { xs: "none", sm: "block", md: "none", lg: "none", xl: "none" } }}>
-				<ClientCarousel title="" height={650}>
+				<ClientCarousel title="" height={750}>
 					<ServerCarousel tools={featured_tools} />
 				</ClientCarousel>
 			</Grid>
