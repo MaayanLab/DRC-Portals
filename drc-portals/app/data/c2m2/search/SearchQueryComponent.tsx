@@ -64,7 +64,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
     WITH 
     allres AS (
       SELECT DISTINCT
-          /* ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
+          ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, 
           allres_full.dcc_name AS dcc_name,
           allres_full.dcc_abbreviation AS dcc_abbreviation,
           SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -93,7 +93,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      ORDER BY /* rank DESC, */ dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
+      ORDER BY  rank DESC,  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
           protein_name, compound_name, data_type_name, assay_type_name
   ),
     
