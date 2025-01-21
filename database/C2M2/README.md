@@ -143,8 +143,8 @@ psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_cmp_tables.sql
 # There is also the table dbgap_study_id.tsv ; for now, it will be in slim schema, if needed later, can be put in a schema called dbgap.
 ./gen_ingest_slim_script.sh ingest_slim.sql
 logf=${logdir}/log_ingest_slim.log
-echo ${date_div} > ${logf};
 psql "$(python3 dburl.py)" -a -f ingest_slim.sql -o ${logf}
+echo ${date_div} >> ${logf};
 
 # In the table c2m2.file, add the column access_url
 logf=${logdir}/log_create_access_urls.log
