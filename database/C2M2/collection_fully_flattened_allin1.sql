@@ -14,6 +14,20 @@ set max_parallel_workers to 4;
 --- combine ffl_biosample and ffl_collection using union so that on the front one, one query interface will
 --- be enough.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --- To make a copy, after adjusting the table name if needed, copy paste the code within /* */ on psql prompt 
 /*
 DROP TABLE IF EXISTS c2m2.ffl0_collection;
@@ -176,6 +190,16 @@ select distinct
     null /** c2m2.phenotype_association_type.name **/ as phenotype_association_type_name,
     c2m2.phenotype.name as phenotype_name
 
+
+
+
+
+
+
+
+
+
+
 from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related tables here instead of in generating fl_biosample
 
 --- FIRST PART USES LEFT JOIN instead of FULL JOIN: --- Mano: 2024/04/11: brought this part core_table_joins.sql
@@ -261,10 +285,13 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         --- THIS CAN BE A PROBLEM
 
     /* Mano: 2024/01/31: added project_in_project else cannot link to dcc ; without this was getting null for dcc */
+    /* Mano: 2025/01/17: project_in_project not needed since using c2m2.id_namespace_dcc_id now */
+    /*
     left join c2m2.project_in_project
         on (c2m2.project_in_project.child_project_local_id = c2m2.project.local_id and
         c2m2.project_in_project.child_project_id_namespace = c2m2.project.id_namespace) 
-
+    */
+    
     /* Mano: 2024/03/04: added data_type */
     LEFT JOIN c2m2.project_data_type 
         ON (c2m2.project.local_id = c2m2.project_data_type.project_local_id AND 

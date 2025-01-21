@@ -21,9 +21,7 @@ set max_parallel_workers to 4;
 
 --- This builds a collection centric fully flattened table.
 --- This follow the style used in the file biosample_fully_flattened_allin1_cmp.tsx
----
 --- table name c2m2.ffl_collection means fully flattened collection
-
 --- Mano: 2024/04/09: This script is based on the overall style of biosample_fully_flattened_allin1.sql, 
 --- with customizations (especially the first few joins) for collections. The name and order of columns 
 --- in ffl_collection is same as ffl_biosample, using null as appropriate, in the hope of being able to 
@@ -53,6 +51,7 @@ END $$;
     between end points such as anatomy reachable from biosample side vs. collection_anatomy side.
     ****/
 */
+
 
 DROP TABLE IF EXISTS c2m2.ffl_collection_cmp;
 CREATE TABLE c2m2.ffl_collection_cmp as (
@@ -286,10 +285,13 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         --- THIS CAN BE A PROBLEM
 
     /* Mano: 2024/01/31: added project_in_project else cannot link to dcc ; without this was getting null for dcc */
+    /* Mano: 2025/01/17: project_in_project not needed since using c2m2.id_namespace_dcc_id now */
+    /*
     left join c2m2.project_in_project
         on (c2m2.project_in_project.child_project_local_id = c2m2.project.local_id and
         c2m2.project_in_project.child_project_id_namespace = c2m2.project.id_namespace) 
-
+    */
+    
     /* Mano: 2024/03/04: added data_type */
     LEFT JOIN c2m2.project_data_type 
         ON (c2m2.project.local_id = c2m2.project_data_type.project_local_id AND 
