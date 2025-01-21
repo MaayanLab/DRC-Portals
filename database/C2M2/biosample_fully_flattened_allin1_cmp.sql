@@ -53,7 +53,6 @@ To check in docker:[user@server]docker exec -it <container_id> df -h | grep shm
 
 */
 
-
 DROP TABLE IF EXISTS c2m2.ffl_biosample_cmp;
 CREATE TABLE c2m2.ffl_biosample_cmp as (
 select distinct
@@ -245,6 +244,17 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
     --- Moved dcc to after project & project_in_project
 
+
+
+
+
+
+
+
+
+
+
+
     left join c2m2.anatomy
         on (c2m2.biosample.anatomy = c2m2.anatomy.id)
 
@@ -271,20 +281,31 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
     /* Mano: 2024/05/01: use OR with c2m2.subject.*/
     --- Solution for future: require that project_local_id for subject/biosample pairs be the same. Also, wherever possible, biosample should come from subject, i.e., there should be no biosample without subject. Also, for a biosample/subject pair, if biosample is part of a collection, then the collection for the subject should be the same (if at all), isn’t it?
+    /* Mano: 2025/01/17: The OR part is leading to more than one project_local_id for a biosample if the
+    project for the corresponding subject (from biosample_from_subject) is different. 
+    This is hapening for several DCCs. See test queries in ..../C2M2/c2m2_crosscheck_basic_queries.sql date 2025/01/17
+    So, like that for joining c2m2.subject_in_collection, in the OR part require that 
+    the subject is not in biosample_from_subject */
     left join c2m2.project
         on ((c2m2.biosample.project_local_id = c2m2.project.local_id and
         c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
-        OR (c2m2.subject.project_local_id = c2m2.project.local_id and
-        c2m2.subject.project_id_namespace = c2m2.project.id_namespace))         
+        OR ((c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace) AND
+        NOT(c2m2.subject.local_id = c2m2.biosample_from_subject.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.biosample_from_subject.subject_id_namespace)
+        ))
         /* we are not defining the new table fl_biosample; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
         --- THIS CAN BE A PROBLEM
 
     /* Mano: 2024/01/31: added project_in_project else cannot link to dcc ; without this was getting null for dcc */
+    /* Mano: 2025/01/17: project_in_project not needed since using c2m2.id_namespace_dcc_id now */
+    /*
     left join c2m2.project_in_project
         on (c2m2.project_in_project.child_project_local_id = c2m2.project.local_id and
         c2m2.project_in_project.child_project_id_namespace = c2m2.project.id_namespace) 
-
+    */
+    
     /* Mano: 2024/03/04: added data_type */
     LEFT JOIN c2m2.project_data_type 
         ON (c2m2.project.local_id = c2m2.project_data_type.project_local_id AND 
