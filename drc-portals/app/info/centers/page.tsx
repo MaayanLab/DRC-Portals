@@ -10,7 +10,8 @@ import {
     CardActions,
     Button,
     Box,
-    Paper
+    Paper,
+    Container
 } from '@mui/material';
 import MasonryClient from "@/components/misc/MasonryClient";
 
@@ -47,12 +48,17 @@ export default async function CenterLanding() {
                 </Box>
             </Grid>
             <Grid item xs={12}>
+                <Container sx={{display: "flex", justifyContent: "center", background: "white"}}>
+                    <Image src='https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers.png' alt ='cfde-centers' width={1300} height={600} />
+                </Container>
+            </Grid>
+            <Grid item xs={12}>
                 <Box sx={{ minHeight: 253 }}>
                     <MasonryClient defaultHeight={1500}>
                         {sortedCenters.map(center => (
                             center.label === 'centers' ? (
                                 <Grid sx={{ paddingLeft: 2, paddingRight: 2, height: '365px', display: 'flex', alignItems:'center', justifyContent:'center', backgroundColor:'white'}}>
-                                    <Image src='https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers.png' alt ='cfde-centers' width={300} height={300} />
+                                    <Image src='https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers-old.png' alt ='cfde-centers' width={300} height={300} />
                                 </Grid>
                             ) : (
                                 <Card sx={{ paddingLeft: 2, paddingRight: 2 , height: '365px'}}>
