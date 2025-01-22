@@ -10,6 +10,9 @@ export default async function ServerCarousel () {
         where: {
           active: true,
           carousel: true,
+          title: {
+            not: "CFDE Centers"
+          },
           AND: [
             // date filters
             {
@@ -93,9 +96,15 @@ export default async function ServerCarousel () {
             url: "https://pubmed.ncbi.nlm.nih.gov/36409836/"
         }
       ]
-    
-    
-    const children = [...outreach_items, ...items, ...publication_items].map( (item, i) => (
+    const center = [
+      {
+        name: 'CFDE Centers',
+        description: '-',
+        icon: 'https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers.png',
+        url: '/info/centers'
+      }
+    ]
+    const children = [...center, ...outreach_items, ...items, ...publication_items].map( (item, i) => (
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 300, xl: 300}, 
