@@ -24,11 +24,11 @@ gmts_path = ingest_path / 'gmts'
 relation_helper = RelationHelper()
 node_helper = NodeHelper()
 
-with relation_helper.writer() as relation:
-  dccs = {}
-  genes = {}
-  with node_helper.writer() as node:
-    for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+  with relation_helper.writer() as relation:
+    dccs = {}
+    genes = {}
+    with node_helper.writer() as node:
       gmt_path = gmts_path/gmt['dcc_short_label']/gmt['filename']
       gmt_path.parent.mkdir(parents=True, exist_ok=True)
       if not gmt_path.exists():
@@ -161,5 +161,5 @@ with relation_helper.writer() as relation:
           node.writerow(gene_set_node)
       node.writerow(gene_set_library_node)
 
-    node.writerows(genes.values())
-    node.writerows(dccs.values())
+      node.writerows(genes.values())
+      node.writerows(dccs.values())

@@ -20,10 +20,10 @@ dcc_assets = current_dcc_assets()
 relation_helper = RelationHelper()
 node_helper = NodeHelper()
 
-with relation_helper.writer() as relation:
-  dccs = {}
-  with node_helper.writer() as node:
-    for _, file in tqdm(dcc_assets.iterrows(), total=dcc_assets.shape[0], desc='Processing DCC Assets...'):
+for _, file in tqdm(dcc_assets.iterrows(), total=dcc_assets.shape[0], desc='Processing DCC Assets...'):
+  with relation_helper.writer() as relation:
+    dccs = {}
+    with node_helper.writer() as node:
       dcc_id = str(uuid5(uuid0, f"dcc:{file['dcc_short_label']}"))
       if dcc_id not in dccs:
         dccs[dcc_id] = dict(
@@ -52,4 +52,4 @@ with relation_helper.writer() as relation:
         target_type='dcc',
         target_id=dcc_id,
       ))
-    node.writerows(dccs.values())
+      node.writerows(dccs.values())

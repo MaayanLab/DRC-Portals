@@ -63,52 +63,53 @@ map_type = {
 relation_helper = RelationHelper()
 node_helper = NodeHelper()
 
-with relation_helper.writer() as relation:
-  dccs = {}
-  genes = {}
-  entities = {}
-  dcc_assets_ = {}
-  with node_helper.writer() as node:
-    def ensure_entity(entity_type, entity_attributes):
-      if entity_type == 'gene':
-        for gene_ensembl in gene_lookup.get(entity_attributes['label'], []):
-          gene_id = str(uuid5(uuid0, f"gene:{gene_ensembl}"))
+for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+  with relation_helper.writer() as relation:
+    dccs = {}
+    genes = {}
+    entities = {}
+    dcc_assets_ = {}
+    with node_helper.writer() as node:
+      def ensure_entity(entity_type, entity_attributes):
+        if entity_type == 'gene':
+          for gene_ensembl in gene_lookup.get(entity_attributes['label'], []):
+            gene_id = str(uuid5(uuid0, f"gene:{gene_ensembl}"))
+            def ensure():
+              if gene_id not in genes:
+                genes[gene_id] = dict(
+                  id=gene_id,
+                  type='gene',
+                  attributes=json.dumps(dict(
+                    label=gene_labels[gene_ensembl],
+                    description=gene_descriptions[gene_ensembl],
+                    entrez=gene_entrez[gene_ensembl],
+                    ensembl=gene_ensembl,
+                  )),
+                  pagerank=0,
+                )
+              else:
+                genes[gene_id]['pagerank'] += 1
+              return gene_id, 'gene'
+            yield ensure
+        elif entity_type:
+          entity_type = map_type.get(entity_type, entity_type)
+          entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_attributes['label']))))
           def ensure():
-            if gene_id not in genes:
-              genes[gene_id] = dict(
-                id=gene_id,
-                type='gene',
+            if entity_id not in entities:
+              entities[entity_id] = dict(
+                id=entity_id,
+                type=f"{entity_type}",
                 attributes=json.dumps(dict(
-                  label=gene_labels[gene_ensembl],
-                  description=gene_descriptions[gene_ensembl],
-                  entrez=gene_entrez[gene_ensembl],
-                  ensembl=gene_ensembl,
+                  entity_attributes,
+                  description=f"A {entity_type.lower()} in the c2m2",
                 )),
                 pagerank=0,
               )
             else:
-              genes[gene_id]['pagerank'] += 1
-            return gene_id, 'gene'
+              entities[entity_id]['pagerank'] += 1
+            return entity_id, entity_type
           yield ensure
-      elif entity_type:
-        entity_type = map_type.get(entity_type, entity_type)
-        entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_attributes['label']))))
-        def ensure():
-          if entity_id not in entities:
-            entities[entity_id] = dict(
-              id=entity_id,
-              type=f"{entity_type}",
-              attributes=json.dumps(dict(
-                entity_attributes,
-                description=f"A {entity_type.lower()} in the c2m2",
-              )),
-              pagerank=0,
-            )
-          else:
-            entities[entity_id]['pagerank'] += 1
-          return entity_id, entity_type
-        yield ensure
-    for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+      #
       dcc_id = str(uuid5(uuid0, f"dcc:{c2m2['dcc_short_label']}"))
       if dcc_id not in dccs:
         dccs[dcc_id] = dict(
@@ -119,7 +120,6 @@ with relation_helper.writer() as relation:
         )
       else:
         dccs[dcc_id]['pagerank'] += 1
-
       c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
       c2m2_path.parent.mkdir(parents=True, exist_ok=True)
       print("c2m2['link'] object:"); print(c2m2['link']); ##
@@ -206,7 +206,7 @@ with relation_helper.writer() as relation:
               target_id=target_id,
             ))
 
-    node.writerows(genes.values())
-    node.writerows(entities.values())
-    node.writerows(dccs.values())
-    node.writerows(dcc_assets_.values())
+      node.writerows(genes.values())
+      node.writerows(entities.values())
+      node.writerows(dccs.values())
+      node.writerows(dcc_assets_.values())

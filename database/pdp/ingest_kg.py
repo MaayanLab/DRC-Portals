@@ -35,53 +35,54 @@ map_type = {
 relation_helper = RelationHelper()
 node_helper = NodeHelper()
 
-with relation_helper.writer() as relation:
-  dccs = {}
-  kg_assertions = set()
-  genes = {}
-  entities = {}
-  kg_relations = {}
-  with node_helper.writer() as node:
-    def ensure_entity(entity_type, entity_label, entity_description=None):
-      if entity_type == 'Gene':
-        for gene_ensembl in gene_lookup.get(entity_label, []):
-          gene_id = str(uuid5(uuid0, f"gene:{gene_ensembl}"))
+for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
+  with relation_helper.writer() as relation:
+    dccs = {}
+    kg_assertions = set()
+    genes = {}
+    entities = {}
+    kg_relations = {}
+    with node_helper.writer() as node:
+      def ensure_entity(entity_type, entity_label, entity_description=None):
+        if entity_type == 'Gene':
+          for gene_ensembl in gene_lookup.get(entity_label, []):
+            gene_id = str(uuid5(uuid0, f"gene:{gene_ensembl}"))
+            def ensure():
+              if gene_id not in genes:
+                genes[gene_id] = dict(
+                  id=gene_id,
+                  type='gene',
+                  attributes=json.dumps(dict(
+                    label=gene_labels[gene_ensembl],
+                    description=gene_descriptions[gene_ensembl],
+                    entrez=gene_entrez[gene_ensembl],
+                    ensembl=gene_ensembl,
+                  )),
+                  pagerank=0,
+                )
+              else:
+                genes[gene_id]['pagerank'] += 1
+              return gene_id, 'gene'
+            yield ensure
+        elif entity_type:
+          entity_type = map_type.get(entity_type, entity_type)
+          entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
           def ensure():
-            if gene_id not in genes:
-              genes[gene_id] = dict(
-                id=gene_id,
-                type='gene',
+            if entity_id not in entities:
+              entities[entity_id] = dict(
+                id=entity_id,
+                type=f"{entity_type}",
                 attributes=json.dumps(dict(
-                  label=gene_labels[gene_ensembl],
-                  description=gene_descriptions[gene_ensembl],
-                  entrez=gene_entrez[gene_ensembl],
-                  ensembl=gene_ensembl,
+                  label=entity_label,
+                  description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                 )),
                 pagerank=0,
               )
             else:
-              genes[gene_id]['pagerank'] += 1
-            return gene_id, 'gene'
+              entities[entity_id]['pagerank'] += 1
+            return entity_id, entity_type
           yield ensure
-      elif entity_type:
-        entity_type = map_type.get(entity_type, entity_type)
-        entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
-        def ensure():
-          if entity_id not in entities:
-            entities[entity_id] = dict(
-              id=entity_id,
-              type=f"{entity_type}",
-              attributes=json.dumps(dict(
-                label=entity_label,
-                description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
-              )),
-              pagerank=0,
-            )
-          else:
-            entities[entity_id]['pagerank'] += 1
-          return entity_id, entity_type
-        yield ensure
-    for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
+      #
       dcc_id = str(uuid5(uuid0, f"dcc:{file['dcc_short_label']}"))
       if dcc_id not in dccs:
         dccs[dcc_id] = dict(
@@ -200,7 +201,7 @@ with relation_helper.writer() as relation:
                     target_id=dcc_id,
                   ))
 
-    node.writerows(dccs.values())
-    node.writerows(kg_relations.values())
-    node.writerows(entities.values())
-    node.writerows(genes.values())
+      node.writerows(dccs.values())
+      node.writerows(kg_relations.values())
+      node.writerows(entities.values())
+      node.writerows(genes.values())
