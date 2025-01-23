@@ -71,7 +71,7 @@ https://data.cfde.cloud/c2m2/search/record_info?q=parkinson&t=dcc_name:The%20Ext
 https://data.cfde.cloud/search/intestine%20homo%20sapiens%20female%20cancer/c2m2
 
 Select a record:
-https://data.cfde.cloud/c2m2/search/record_info?q=intestine%20homo%20sapiens%20female%20cancer&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:exRNA_Atlas|disease_name:colorectal%20cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:cardiovascular%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+https://data.cfde.cloud/c2m2/search/record_info?q=intestine%20homo%20sapiens%20female%20cancer&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-DGALA1GUTPLASM-ST|disease_name:colorectal%20cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:cardiovascular%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay
 
 ### Search: intestine homo sapiens
 https://data.cfde.cloud/search/intestine%20homo%20sapiens/c2m2
@@ -99,7 +99,7 @@ https://data.cfde.cloud/c2m2/search/record_info?q=sterol&t=dcc_name:Illuminating
 Go back: Apply filter: DCC: LINCS
 https://data.cfde.cloud/search/sterol/c2m2?p=1&t=dcc%3ALibrary+of+Integrated+Network-based+Cellular+Signatures
 
-https://data.cfde.cloud/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:breast%20carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|gene_name:SOAT2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+https://data.cfde.cloud/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS-2021|disease_name:breast%20carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|gene_name:SCP2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
 
 Go back: Apply filter: DCC: MW
 https://data.cfde.cloud/search/sterol/c2m2?p=1&t=dcc%3AUCSD+Metabolomics+Workbench
@@ -108,14 +108,14 @@ https://data.cfde.cloud/c2m2/search/record_info?q=sterol&t=dcc_name:UCSD%20Metab
 
 https://data.cfde.cloud/search/sterol/c2m2?p=1&t=anatomy%3Ablood+serum%7Canatomy%3Aadipose+tissue
 
-https://data.cfde.cloud/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:adipose%20tissue|gene_name:SCP2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+https://data.cfde.cloud/c2m2/search/record_info?q=sterol&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:LCAT_HUMAN|compound_name:CID%2091845155|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified
 
 ### Search: atorvastatin
 https://data.cfde.cloud/search/atorvastatin/c2m2?p=1
 
 https://data.cfde.cloud/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:Drugmonizome|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Unspecified|assay_type_name:Unspecified
 
-https://data.cfde.cloud/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:kidney|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Unspecified|assay_type_name:Unspecified
+https://data.cfde.cloud/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS-2021|disease_name:carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:kidney|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
 
 ### Search: myeloid cell
 
