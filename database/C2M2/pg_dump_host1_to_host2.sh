@@ -43,7 +43,7 @@ echo -e "logdir:${logdir}";
 # list of schemas for pg_dump: do not include 'public' since tables in there are init by prisma migration commands
 # and pg_dump doesn't work well on that.
 #schemas=('c2m2' 'slim' '_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
-schemas=('_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
+schemas=('_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 #schemas=('Metabolomics');
 
 if [[ $# -lt 5 ]]; then
