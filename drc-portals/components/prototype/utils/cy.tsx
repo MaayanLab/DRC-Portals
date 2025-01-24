@@ -42,7 +42,11 @@ import {
   NODE_FONT_FAMILY,
   MAX_NODE_LINES,
 } from "../constants/cy";
-import { ENTITY_STYLES_MAP, NODE_CLASS_MAP } from "../constants/shared";
+import {
+  ENTITY_STYLES_MAP,
+  NODE_CLASS_MAP,
+  NODE_TOOLTIP_PROPS_MAP,
+} from "../constants/shared";
 import {
   CytoscapeEdge,
   CytoscapeEvent,
@@ -220,12 +224,24 @@ export const createNodeTooltip = (
   boxStyleProps?: CSSProperties,
   contentProps?: TypographyProps
 ): ReactNode => {
-  if (node.neo4j?.labels && node.neo4j?.properties) {
+  const nodeLabels = node.neo4j?.labels;
+  const nodeProps = node.neo4j?.properties;
+  if (nodeLabels !== undefined && nodeProps !== undefined) {
     const tooltipBorderColor =
-      node.neo4j.labels.length === 1
-        ? ENTITY_STYLES_MAP.get(NODE_CLASS_MAP.get(node.neo4j.labels[0]) || "")
+      nodeLabels.length === 1
+        ? ENTITY_STYLES_MAP.get(NODE_CLASS_MAP.get(nodeLabels[0]) || "")
             ?.backgroundColor
         : "#fff";
+    const propsForLabel =
+      nodeLabels.length === 1
+        ? NODE_TOOLTIP_PROPS_MAP.get(nodeLabels[0]) || []
+        : [];
+    const propsToShow = Object.fromEntries(
+      propsForLabel
+        .filter((prop) => Object.hasOwn(nodeProps, prop))
+        .map((validProp) => [validProp, nodeProps[validProp]])
+    );
+
     return (
       <Box
         sx={{
@@ -234,8 +250,8 @@ export const createNodeTooltip = (
           ...boxStyleProps,
         }}
       >
-        {createNodeLabels(node.neo4j.labels)}
-        {createNodeProperties(node.neo4j.properties, {
+        {createNodeLabels(nodeLabels)}
+        {createNodeProperties(propsToShow, {
           ...DEFAULT_TOOLTIP_CONTENT_PROPS,
           ...contentProps,
         })}

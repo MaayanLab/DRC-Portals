@@ -290,4 +290,30 @@ export const NODE_CLASS_MAP: ReadonlyMap<string, string> = new Map([
   ]),
 ]);
 
+export const NODE_TOOLTIP_PROPS_MAP: ReadonlyMap<string, string[]> = new Map([
+  [DCC_LABEL, ["id", "name", "description", "contact_name", "contact_email"]],
+  [ID_NAMESPACE_LABEL, ["id", "name", "description"]],
+  [PROJECT_LABEL, ["local_id", "name", "description", "persistent_id"]],
+  [COLLECTION_LABEL, ["local_id", "name", "description", "persistent_id"]],
+  [FILE_LABEL, ["local_id", "filename", "size_in_bytes", "persistent_id"]],
+  [BIOSAMPLE_LABEL, ["local_id", "persistent_id"]],
+  [SUBJECT_LABEL, ["local_id", "granularity", "persistent_id"]],
+  ...TERM_LABELS.map((label): [string, string[]] => [
+    label,
+    ["id", "name", "description", "synonyms"],
+  ]),
+  ...FILE_RELATED_LABELS.map((label): [string, string[]] => [
+    label,
+    ["id", "name", "description"],
+  ]),
+  ...SUBJECT_RELATED_LABELS.map((label): [string, string[]] => [
+    label,
+    ["id", "name", "description"],
+  ]),
+  ...BIOSAMPLE_RELATED_LABELS.map((label): [string, string[]] => [
+    label,
+    ["id", "name", "description"],
+  ]),
+]);
+
 export const SEARCH_PLACEHOLDER_OPTIONS = [80, 110, 145, 170, 240];
