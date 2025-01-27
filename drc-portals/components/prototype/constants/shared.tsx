@@ -182,7 +182,7 @@ export const TERM_NODE_CLASS = "term-node";
 export const ADMIN_NODE_COLOR = "#ffc454";
 export const BIOSAMPLE_RELATED_NODE_COLOR = "#f79767";
 export const CONTAINER_NODE_COLOR = "#4c8eda";
-export const CORE_NODE_COLOR = "#3a414a";
+export const CORE_NODE_COLOR = "#949494";
 export const FILE_RELATED_NODE_COLOR = "#d46989";
 export const SUBJECT_RELATED_NODE_COLOR = "#c186b7";
 export const TERM_NODE_COLOR = "#569480";
@@ -240,7 +240,7 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     CORE_NODE_CLASS,
     {
-      color: "#fff",
+      color: "#000",
       backgroundColor: CORE_NODE_COLOR,
     },
   ],
