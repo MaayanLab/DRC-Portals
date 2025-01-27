@@ -6,11 +6,17 @@ class RelationWriter:
     super().__init__()
     self.writer = writer
     self.predicates = set()
+    self.pks = set()
   def writerow(self, rowdict):
     self.predicates.add(rowdict['predicate'])
+    assert (rowdict['predicate'], rowdict['source_id'], rowdict['target_id']) not in self.pks
+    self.pks.add((rowdict['predicate'], rowdict['source_id'], rowdict['target_id']))
     return self.writer.writerow(rowdict)
   def writerows(self, rowdicts):
     self.predicates.update([rowdict['predicate'] for rowdict in rowdicts])
+    for rowdict in rowdicts:
+      assert (rowdict['predicate'], rowdict['source_id'], rowdict['target_id']) not in self.pks
+      self.pks.add((rowdict['predicate'], rowdict['source_id'], rowdict['target_id']))
     return self.writer.writerows(rowdicts)
 
 class RelationHelper:

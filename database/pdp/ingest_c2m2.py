@@ -7,6 +7,7 @@ sys.path.insert(0, str(__dir__.parent))
 #%%
 import json
 import zipfile
+import traceback
 from datetime import datetime
 from tqdm.auto import tqdm
 from datapackage import Package
@@ -42,7 +43,6 @@ def validate(pkg: Package):
 
 #%%
 dcc_assets = current_dcc_assets()
-dcc_assets=dcc_assets[dcc_assets['dcc_short_label']=='LINCS']
 
 #%%
 # Ingest C2M2
@@ -73,7 +73,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
       def ensure_entity(entity_type, entity_attributes):
         if entity_type == 'gene':
           for gene_ensembl in gene_lookup.get(entity_attributes['label'], []):
-            gene_id = str(uuid5(uuid0, f"gene:{gene_ensembl}"))
+            gene_id = str(uuid5(uuid0, f"entity:gene:{gene_ensembl}"))
             def ensure():
               if gene_id not in genes:
                 genes[gene_id] = dict(
@@ -93,7 +93,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
             yield ensure
         elif entity_type:
           entity_type = map_type.get(entity_type, entity_type)
-          entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_attributes['label']))))
+          entity_id = str(uuid5(uuid0, ':'.join(['entity', entity_type, entity_attributes['label']])))
           def ensure():
             if entity_id not in entities:
               entities[entity_id] = dict(
@@ -152,19 +152,27 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
         ))
       else:
         dcc_assets_[dcc_asset_id]['pagerank'] += 1
-
-      package = Package(str(next(iter(c2m2_extract_path.rglob('*datapackage.json')))))
-      if not validate(package):
+      try:
+        package = Package(str(next(iter(p for p in c2m2_extract_path.rglob('*datapackage.json') if not p.name.startswith('.')))))
+        assert validate(package)
+      except KeyboardInterrupt: raise
+      except:
+        traceback.print_exc()
         print(c2m2_path, 'is invalid')
         continue
-      
       for resource in package.resources:
         pk = ensure_list(resource.descriptor['schema']['primaryKey'])
         fks = {field for fk in resource.descriptor['schema'].get('foreignKeys', []) for field in ensure_list(fk['fields'])}
-        for record in tqdm(resource.read(keyed=True), desc=f"Processing {c2m2['dcc_short_label']}/{resource.descriptor['name']}..."):
+        for record_with_relations in tqdm(resource.read(keyed=True, relations=True), desc=f"Processing {c2m2['dcc_short_label']}/{resource.descriptor['name']}..."):
+          record = dict(**record_with_relations)
+          for fk in resource.descriptor['schema'].get('foreignKeys', []):
+            for fk_field, target_field in zip(ensure_list(fk['fields']), ensure_list(fk['reference']['fields'])):
+              if record_with_relations[fk_field] is not None:
+                record[fk_field] = record_with_relations[fk_field][target_field]
           if resource.name in map_type:
-            record['label'] = record['name']
-            del record['name']
+            if 'label' not in record:
+              record['label'] = record['name']
+              del record['name']
             for ensure_gene_entity in ensure_entity(resource.name, record):
               source_id, source_type = ensure_gene_entity()
           else:
@@ -188,25 +196,35 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
               target_id=dcc_asset_id,
             ))
             dcc_assets_[dcc_asset_id]['pagerank'] += 1
-          #
+          
           for fk in resource.descriptor['schema'].get('foreignKeys', []):
             if any(record[k] is None for k in ensure_list(fk['fields'])): continue
+            target_record = record_with_relations[ensure_list(fk['fields'])[0]]
             if fk['reference']['resource'] in map_type:
-              target_type = fk['reference']['resource']
-              target_id = str(uuid5(uuid0, '\t'.join([target_type]+ [record[k] for k in ensure_list(fk['fields'])])))
+              if 'label' not in target_record:
+                target_record['label'] = target_record['name']
+                del target_record['name']
+              for ensure_target_entity in ensure_entity(fk['reference']['resource'], target_record):
+                target_id, target_type = ensure_target_entity()
             else:
-              target_type = f"c2m2__{fk['reference']['resource']}"
-              target_id = str(uuid5(uuid0, ':'.join(['c2m2']+[record[k] for k in ensure_list(fk['fields'])])))
+              target_type = f"c2m2_{fk['reference']['resource']}"
+              target_id = str(uuid5(uuid0, ':'.join(['c2m2', fk['reference']['resource']]+[target_record[k] for k in ensure_list(fk['reference']['fields'])])))
             #
-            relation.writerow(dict(
-              source_type=source_type,
-              source_id=source_id,
-              predicate=f"c2m2__{source_type}__{target_type}",
-              target_type=target_type,
-              target_id=target_id,
-            ))
+            try:
+              relation.writerow(dict(
+                source_type=source_type,
+                source_id=source_id,
+                predicate=f"c2m2__{source_type}__{target_type}",
+                target_type=target_type,
+                target_id=target_id,
+              ))
+            except AssertionError:
+              print('duplicated', f"c2m2__{source_type}__{target_type}", source_id, target_id)
+              pass
 
       node.writerows(genes.values())
       node.writerows(entities.values())
       node.writerows(dccs.values())
       node.writerows(dcc_assets_.values())
+
+# %%

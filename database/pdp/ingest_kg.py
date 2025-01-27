@@ -11,7 +11,7 @@ import zipfile
 from tqdm.auto import tqdm
 
 from ingest_pdp import NodeHelper, RelationHelper
-from ingest_common import ingest_path, current_dcc_assets, uuid0, uuid5, connection
+from ingest_common import ingest_path, current_dcc_assets, uuid0, uuid5
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
 debug = 1;
@@ -66,7 +66,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
             yield ensure
         elif entity_type:
           entity_type = map_type.get(entity_type, entity_type)
-          entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
+          entity_id = str(uuid5(uuid0, ':'.join(['entity', entity_type, entity_label])))
           def ensure():
             if entity_id not in entities:
               entities[entity_id] = dict(
@@ -137,7 +137,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
           for assertion in tqdm(assertion_edge_reader, desc=f"  Processing {assertion_edge_file.name}..."):
             for ensure_source_id in assertion_nodes.get(assertion['source'], []):
               for ensure_target_id in assertion_nodes.get(assertion['target'], []):
-                relation_id = str(uuid5(uuid0, '\t'.join((assertion['relation'],))))
+                relation_id = str(uuid5(uuid0, ':'.join(['kg_relation', assertion['relation']])))
                 if relation_id not in kg_relations:
                   kg_relations[relation_id] = dict(
                     id=relation_id,
@@ -161,7 +161,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                 #
                 source_id, source_type = ensure_source_id()
                 target_id, target_type = ensure_target_id()
-                assertion_id = str(uuid5(uuid0, '\t'.join((file['dcc_id'], source_id, target_id, relation_id, assertion['evidence_class'] or '',))))
+                assertion_id = str(uuid5(uuid0, ':'.join(['kg_assertion', file['dcc_id'], source_id, target_id, relation_id, assertion['evidence_class'] or ''])))
                 if assertion_id not in kg_assertions:
                   kg_assertions.add(assertion_id)
                   node.writerow(dict(
