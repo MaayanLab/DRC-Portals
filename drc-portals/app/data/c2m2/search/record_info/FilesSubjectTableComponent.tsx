@@ -91,6 +91,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
+                /* OFFSET ${fileSubTblOffset}
+                LIMIT 100 */
             ), 
             unique_info AS ( /* has extra fields, but OK in case needed later*/
             SELECT DISTINCT 
@@ -104,6 +106,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 allres_full.disease,
                 allres_full.anatomy_name,
                 allres_full.anatomy,
+                allres_full.biofluid_name,
+                allres_full.biofluid,
                 allres_full.gene, 
                 allres_full.gene_name,
                 allres_full.protein, 
@@ -138,7 +142,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                   SELECT DISTINCT fds.*,
                   f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
                   f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                  f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+                  f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
                   ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name
                   /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
                 FROM c2m2.file_describes_subject fds
@@ -154,7 +158,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                     AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
                   /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
                   LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
-                  LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
                   ), /* Mano */
                 file_sub_table AS (
                   SELECT * from file_sub_table_keycol
@@ -163,8 +168,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 file_sub_table_limited as (
                   SELECT * 
                   FROM file_sub_table
-                  OFFSET ${fileSubTblOffset}
-                  LIMIT ${limit}
+                  /* OFFSET ${fileSubTblOffset} 
+                  LIMIT ${limit} */
                 ), /* Mano */
                 count_file_sub AS (
                   select count(*)::int as count
@@ -198,7 +203,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         }
 
 
-        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
+        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileSubPrunedData,
             columnNames: fileSubColNames,

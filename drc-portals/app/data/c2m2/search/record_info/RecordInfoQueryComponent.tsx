@@ -95,6 +95,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         disease: string,
         anatomy_name: string,
         anatomy: string,
+        biofluid_name: string,
+        biofluid: string,
         gene_name: string,
         gene: string,
         protein_name: string,
@@ -110,6 +112,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         project_local_id: string,
         project_description: string,
         anatomy_description: string,
+        biofluid_description: string,
         disease_description: string,
         gene_description: string,
         protein_description: string,
@@ -139,6 +142,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               REPLACE(allres_full.disease, ':', '_') AS disease,
               COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
               REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+              COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+              REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
               COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
               allres_full.gene AS gene,
               COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -158,6 +163,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               allres_full.project_local_id AS project_local_id,
               c2m2.project.description AS project_description,
               c2m2.anatomy.description AS anatomy_description,
+              c2m2.biofluid.description AS biofluid_description,
               c2m2.disease.description AS disease_description,
               c2m2.gene.description AS gene_description,
               c2m2.protein.description AS protein_description,
@@ -168,18 +174,19 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
               allres_full.project_local_id = c2m2.project.local_id) 
             LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
+            LEFT JOIN c2m2.biofluid ON (allres_full.biofluid = c2m2.biofluid.id)
             LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
             LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
             LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
             LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-              anatomy_name,  anatomy, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
+              anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
               data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-              allres_full.project_local_id, project_description, anatomy_description, disease_description, gene_description, 
+              allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
-            /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, project_name, project_description, rank*/
-            ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+            /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, biofluid_name, project_name, project_description, rank*/
+            ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
               protein_name, compound_name, data_type_name, assay_type_name /*rank DESC*/
           ) 
           SELECT
@@ -223,6 +230,15 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           : /* resultsRec?.anatomy_name || */ ''
       },
       resultsRec?.anatomy_description ? { label: 'Sample Source Description', value: resultsRec?.anatomy_description } : null,
+      {
+        label: 'Biofluid',
+        value: resultsRec?.biofluid_name && resultsRec?.biofluid_name !== "Unspecified"
+          ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.biofluid}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.biofluid_name)}
+          </Link>
+          : /* resultsRec?.biofluid_name || */ ''
+      },
+      resultsRec?.biofluid_description ? { label: 'Biofluid Description', value: resultsRec?.biofluid_description } : null,
       {
         label: 'Disease',
         value: resultsRec?.disease_name && resultsRec?.disease_name !== "Unspecified"
@@ -298,32 +314,32 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
         </React.Suspense>
-        
+
 
         <React.Suspense fallback={<>Loading..</>}>
           <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
         </React.Suspense>
-        
+
 
         <React.Suspense fallback={<>Loading..</>}>
           <CollectionsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} colTblOffset={colTblOffset} />
         </React.Suspense>
-        
+
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesProjTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileProjTblOffset={fileProjTblOffset} file_count_limit_proj={file_count_limit_proj} />
         </React.Suspense>
-        
+
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileSubTblOffset={fileSubTblOffset} file_count_limit_sub={file_count_limit_sub} />
         </React.Suspense>
-        
+
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesBiosampleTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileBiosTblOffset={fileBiosTblOffset} file_count_limit_bios={file_count_limit_bios} />
         </React.Suspense>
-        
+
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col} />
@@ -372,7 +388,8 @@ INNER JOIN sub_info ON
 /* FROM c2m2.file AS f
 LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
 LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id
-LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
 INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                           AND f.project_id_namespace = ui.project_id_namespace
                           AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) ) */

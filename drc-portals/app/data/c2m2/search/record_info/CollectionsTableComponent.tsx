@@ -71,8 +71,8 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
             collections_table_limited AS (
                 SELECT * 
                 FROM collections_table
-                OFFSET ${colTblOffset}
-                LIMIT ${limit}
+                /*OFFSET ${colTblOffset}*/
+                /*LIMIT ${limit}*/
             ),
             count_col AS (
                 SELECT count(*)::int as count

@@ -21,6 +21,8 @@ interface C2M2SearchResult {
         disease: string,
         anatomy_name: string,
         anatomy: string,
+        biofluid_name: string,
+        biofluid: string,
         gene_name: string,
         gene: string,
         protein_name: string,
@@ -71,6 +73,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                     REPLACE(allres_full.disease, ':', '_') AS disease,
                     COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
                     REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+                    COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+                    REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
                     COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
                     allres_full.gene AS gene,
                     COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -87,19 +91,20 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                 FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                     ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-                ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+                ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
                     protein_name, compound_name, data_type_name, assay_type_name
                 OFFSET ${offset} 
                 LIMIT 100
             ),
 
             allres_filtered AS (
-                SELECT allres.*, 
+                SELECT  allres.*, 
                 concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
                 '|project_local_id:', allres.project_local_id, 
                 '|disease_name:', allres.disease_name, 
                 '|ncbi_taxonomy_name:', allres.taxonomy_name, 
                 '|anatomy_name:', allres.anatomy_name, 
+                '|biofluid_name:', allres.biofluid_name,
                 '|gene_name:', allres.gene_name, 
                 '|protein_name:', allres.protein_name,
                 '|compound_name:', allres.compound_name, 
@@ -149,7 +154,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         const searchHashFileName = generateMD5Hash(concatenatedString);
         const qStringClean = sanitizeFilename(qString, '__');
 
-        const downloadFileName = "CFDEC2M2MainSearchTable_" + qStringClean + "_" + searchHashFileName ;
+        const downloadFileName = "CFDEC2M2MainSearchTable_" + qStringClean + "_" + searchHashFileName;
 
 
 
@@ -181,6 +186,13 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                         <>
                             <span>Sample source: </span>
                             <Link href={`http://purl.obolibrary.org/obo/${res.anatomy}`} target="_blank"><i><u>{capitalizeFirstLetter(res.anatomy_name)}</u></i></Link>
+                            <br />
+                        </>
+                    )}
+                    {res.biofluid_name !== "Unspecified" && (
+                        <>
+                            <span>Biofluid: </span>
+                            <Link href={`http://purl.obolibrary.org/obo/${res.biofluid}`} target="_blank"><i><u>{capitalizeFirstLetter(res.biofluid_name)}</u></i></Link>
                             <br />
                         </>
                     )}
@@ -238,8 +250,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
 
         const filterCount = result?.filter_count;
-        console.log("Filter count: " + filterCount);
-        console.log("tableRows length = " + tableRows);
+        console.log("Main Table Filter count: " + filterCount);
+        console.log("tableRows length = " + tableRows.length);
 
         const apiEndpoint = '/data/c2m2/get-data'; // Replace with your actual API endpoint
 
@@ -273,6 +285,14 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
     } catch (error) {
         console.error("Error fetching C2M2 Main table:", error);
+
+        // Check if the error is a timeout error
+        if (error instanceof Error && error.message.includes("Timed out")) {
+            console.error("");
+            return <div>Error fetching C2M2 Main table: This error was caused by a timeout. Please narrow down your search.</div>;
+        }
+
+        // General error handling
         return <div>Error fetching C2M2 Main table: {(error as Error).message}</div>;
     }
 

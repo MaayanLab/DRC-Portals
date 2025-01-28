@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw'; // Import SQL
 import { generateFilterClauseFromtParam } from '../utils';
-import {main_table} from '../search/SearchQueryComponent';
+import { main_table } from '../search/SearchQueryComponent';
 
 export async function POST(request: Request) {
   try {
@@ -33,6 +33,8 @@ export async function POST(request: Request) {
         disease: string,
         anatomy_name: string,
         anatomy: string,
+        biofluid_name: string,
+        biofluid: string,
         gene_name: string,
         gene: string,
         protein_name: string,
@@ -66,6 +68,8 @@ export async function POST(request: Request) {
           REPLACE(allres_full.disease, ':', '_') AS disease,
           COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
           REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+          COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+          REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
           COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
           allres_full.gene AS gene,
           COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -82,7 +86,7 @@ export async function POST(request: Request) {
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${queryParam})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
+      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
           protein_name, compound_name, data_type_name, assay_type_name
   ),
       allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres),
@@ -91,6 +95,7 @@ export async function POST(request: Request) {
         concat_ws('', '/data/c2m2/search/record_info?q=', ${queryParam}, '&t=', 'dcc_name:', allres.dcc_name,
         '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name,
         '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name,
+        '|', 'biofluid_name:', allres.biofluid_name,
         '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
         '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
         FROM allres

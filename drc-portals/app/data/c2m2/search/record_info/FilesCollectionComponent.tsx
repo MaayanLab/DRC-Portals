@@ -89,6 +89,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
             ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
             ORDER BY rank DESC
+            /* OFFSET ${fileColTblOffset}
+            LIMIT 100 */
         ), 
         unique_info AS (
             SELECT DISTINCT 
@@ -102,6 +104,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                 allres_full.disease,
                 allres_full.anatomy_name,
                 allres_full.anatomy,
+                allres_full.biofluid_name,
+                allres_full.biofluid,
                 allres_full.gene, 
                 allres_full.gene_name,
                 allres_full.protein, 
@@ -136,7 +140,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
               SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
               f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
               f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-              f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+              f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
               ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
               /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
             FROM c2m2.file_describes_in_collection fdc
@@ -152,6 +156,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
               /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
               LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
               LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+              LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
             ),
             file_col_table AS (
               SELECT * from file_col_table_keycol
@@ -160,8 +165,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             file_col_table_limited AS (
               SELECT * 
               FROM file_col_table
-              OFFSET ${fileColTblOffset}
-              LIMIT ${limit}
+              /* OFFSET ${fileColTblOffset} 
+              LIMIT ${limit} */
             ),
             count_file_col AS (
               SELECT COUNT(*)::int AS count
@@ -192,7 +197,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             return <></>;
         }
 
-        const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id'];
+        const filesCol_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'collection_id_namespace', 'collection_local_id', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileColPrunedData,
             columnNames: fileColColNames,

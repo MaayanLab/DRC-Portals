@@ -88,6 +88,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
+                /* OFFSET ${fileProjTblOffset}
+                LIMIT 100 */
             ), 
             unique_info AS ( /* has extra fields, but OK in case needed later*/
             SELECT DISTINCT 
@@ -101,6 +103,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 allres_full.disease,
                 allres_full.anatomy_name,
                 allres_full.anatomy,
+                allres_full.biofluid_name,
+                allres_full.biofluid,
                 allres_full.gene, 
                 allres_full.gene_name,
                 allres_full.protein, 
@@ -134,7 +138,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 f.local_id,
                 f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
                 f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+                f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
                 ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
                 /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
                 FROM c2m2.file AS f INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
@@ -144,14 +148,15 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
                 LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-            limit ${file_count_limit_proj}
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
+             limit ${file_count_limit_proj} 
             )
             , 
             file_table_limited as (
             SELECT * 
             FROM file_table
-            OFFSET ${fileProjTblOffset}
-            LIMIT ${limit}
+            /* OFFSET ${fileProjTblOffset} 
+            LIMIT ${limit} */
             ), /* Mano */
             count_file AS (
             select count(*)::int as count
@@ -179,7 +184,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
 
         const filesProjTable = firstResult.file_table ?? [];
         const filesProjTableFull = firstResult.file_table_full ?? [];
-
+        console.log("fileProjTable num rows  = "+filesProjTable.length);
         if (filesProjTable.length === 0 || filesProjTableFull.length === 0) {
             return <div></div>;
         }
@@ -194,7 +199,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
 
-        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
+        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileProjPrunedData,
             columnNames: fileProjColNames,
@@ -206,8 +211,9 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
             filesProj_table_columnsToIgnore
         );
         // Add 'id' column with 'row-<index>' format
+        console.log("fileProjPrunedData num rows = "+fileProjPrunedData.length);
         const fileProjPrunedDataWithId = fileProjPrunedData.map((row, index) => ({ ...row, id: index }));
-        //console.log("fileProjPrundedDataWithId = "+fileProjPrunedDataWithId);
+        console.log("fileProjPrundedDataWithId num rows = "+fileProjPrunedDataWithId.length);
         const filesProj_table_full_withId = filesProjTableFull
             ? filesProjTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
