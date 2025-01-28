@@ -57,11 +57,23 @@ const renderMetadataValue = (item: MetadataItem) => {
     }
     return item.value;
 };
+export async function BiosamplesTableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
 
-export default async function BiosamplesTableComponent({ searchParams, filterClause, bioSamplTblOffset, limit }: { searchParams: any, filterClause: SQL, bioSamplTblOffset: number, limit: number }): Promise<JSX.Element> {
-    console.log("In BiosampleTableComponent");
+    console.log("In BiosamplesTableQueryComponent");
+
+    try {
+        const results = await fetchBiosamplesTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Biosamples Table :", error);
+        return <div>Error fetching Biosamples Table information: {(error as Error).message}</div>;
+    }
+}
+async function fetchBiosamplesTableQueryResults(searchParams: any, filterClause: SQL) {
     console.log("q = " + searchParams.q);
-
+    const limit = searchParams.r;
+    const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
+    const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
     try {
         const query = SQL.template`
             WITH allres_full AS (

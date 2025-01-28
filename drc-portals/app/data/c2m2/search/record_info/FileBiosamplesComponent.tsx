@@ -76,10 +76,26 @@ const renderMetadataValue = (item: MetadataItem) => {
     }
     return item.value;
 };
+export async function FileBiosamplesComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
 
-export default async function FilesBiosampleTableComponent({ searchParams, filterClause, fileBiosTblOffset, limit, file_count_limit_bios }: { searchParams: any, filterClause: SQL, fileBiosTblOffset: number, limit: number, file_count_limit_bios: number }): Promise<JSX.Element> {
-    console.log("In FilesBiosTableComponent");
+    console.log("In FileBiosamplesComponent");
+
+    try {
+        const results = await fetchFilesBiosampleTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Files related to Biosamples Table :", error);
+        return <div>Error fetching Files related to Biosamples  Table: {(error as Error).message}</div>;
+    }
+}
+async function fetchFilesBiosampleTableQueryResults(searchParams: any, filterClause: SQL) {
+
     console.log("q = " + searchParams.q);
+    const limit = searchParams.r;
+    const file_count_limit_bios = 200000;
+    const fileBiosTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileBiosTbl_p : 1;
+    const fileBiosTblOffset = (fileBiosTbl_p - 1) * limit;
+    // console.log("fileBiosTbl_p = " + fileBiosTbl_p + " fileBiosTblOffset = " + fileBiosTblOffset);
 
     try {
         const query = SQL.template`

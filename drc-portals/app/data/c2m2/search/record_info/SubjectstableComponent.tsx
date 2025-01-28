@@ -41,10 +41,26 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export default async function SubjectsTableComponent({ searchParams, filterClause, subTblOffset, limit }: { searchParams: any, filterClause: SQL, subTblOffset: number, limit: number }): Promise<JSX.Element> {
+export async function SubjectstableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+
+    console.log("In SubjectstableQueryComponent");
+
+    try {
+        const results = await fetchSubjectsTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Subjects Table :", error);
+        return <div>Error fetching Subjects Table information: {(error as Error).message}</div>;
+    }
+}
+
+async function fetchSubjectsTableQueryResults(searchParams: any, filterClause: SQL) {
     console.log("In SubjectsTableComponent");
     console.log("q = " + searchParams.q);
-
+    const limit = searchParams.r;
+    const subTbl_p = searchParams.colTbl_p !== undefined ? searchParams.subTbl_p : 1;
+    const subTblOffset = (subTbl_p - 1) * limit;
+    // console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
     try {
         const query = SQL.template`
             WITH allres_full AS (

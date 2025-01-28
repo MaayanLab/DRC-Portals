@@ -78,10 +78,25 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export default async function FilesSubjectTableComponent({ searchParams, filterClause, fileSubTblOffset, limit, file_count_limit_sub }: { searchParams: any, filterClause: SQL, fileSubTblOffset: number, limit: number, file_count_limit_sub: number }): Promise<JSX.Element> {
-    console.log("In FilesSubTableComponent");
-    console.log("q = " + searchParams.q);
+export async function FilesSubjectTableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+    console.log("In FilesSubjectTableComponent");
 
+    try {
+        const results = await fetchFilesSubjectTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Files related to Subject Table :", error);
+        return <div>Error fetching Files related to Subject Table: {(error as Error).message}</div>;
+    }
+}
+
+async function fetchFilesSubjectTableQueryResults(searchParams: any, filterClause: SQL) {
+    console.log("q = " + searchParams.q);
+    const limit = searchParams.r;
+    const file_count_limit_sub = 200000;
+    const fileSubTbl_p = searchParams.fileSubTbl_p !== undefined ? searchParams.fileSubTbl_p : 1;
+    const fileSubTblOffset = (fileSubTbl_p - 1) * limit;
+    // console.log("fileSubTbl_p = " + fileSubTbl_p + " fileSubTblOffset = " + fileSubTblOffset);
     try {
         const query = SQL.template`
             WITH allres_full AS (

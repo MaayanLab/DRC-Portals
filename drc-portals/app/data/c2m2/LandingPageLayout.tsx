@@ -17,9 +17,9 @@ interface Icon {
 }
 
 interface LandingPageLayoutProps {
-  title: React.ReactNode;
-  subtitle: React.ReactNode;
-  description: React.ReactNode;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  description?: React.ReactNode;
   categories?: Category[];
   metadata?: (MetadataItem | null)[];
   icon?: Icon;
@@ -56,10 +56,21 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
   return (
     <Grid container sx={{ paddingTop: 5, paddingBottom: 5 }} rowGap={2}>
       <Grid item xs={8}>
-        <Typography variant="h1" color="secondary" sx={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
-          {props.title}
-          {props.subtitle ? <>&nbsp;<span className="whitespace-nowrap">({props.subtitle})</span></> : null}
-        </Typography>
+        {(props.title || props.subtitle) && (
+          <Typography
+            variant="h1"
+            color="secondary"
+            sx={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
+          >
+            {props.title}
+            {props.subtitle ? (
+              <>
+                &nbsp;<span className="whitespace-nowrap">({props.subtitle})</span>
+              </>
+            ) : null}
+          </Typography>
+        )}
+
       </Grid>
       <Grid item xs={4}>
         {props.icon ?

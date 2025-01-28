@@ -41,9 +41,26 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export default async function CollectionsTableComponent({ searchParams, filterClause, colTblOffset, limit }: { searchParams: any, filterClause: SQL, colTblOffset: number, limit: number }): Promise<JSX.Element> {
+export async function CollectionsTableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+
+    console.log("In CollectionsTableQueryComponent");
+
+    try {
+        const results = await fetchCollectionsTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Collections Table :", error);
+        return <div>Error fetching Collections Table information: {(error as Error).message}</div>;
+    }
+}
+
+async function fetchCollectionsTableQueryResults(searchParams: any, filterClause: SQL) {
     console.log("In CollectionsTableComponent");
     console.log("q = " + searchParams.q);
+    const limit = searchParams.r;
+    const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
+    const colTblOffset = (colTbl_p - 1) * limit;
+
 
     try {
         const query = SQL.template`

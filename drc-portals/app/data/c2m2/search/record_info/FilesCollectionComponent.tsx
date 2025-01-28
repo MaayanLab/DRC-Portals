@@ -77,9 +77,27 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export default async function FilesCollectionTableComponent({ searchParams, filterClause, fileColTblOffset, limit, file_count_limit_col }: { searchParams: any, filterClause: SQL, fileColTblOffset: number, limit: number, file_count_limit_col: number }): Promise<JSX.Element> {
-    console.log("In FilesColTableComponent");
+export async function FilesCollectionComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+
+    console.log("In FilesCollectionComponent");
+
+    try {
+        const results = await fetchFilesCollectionTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Files related to Collection Table :", error);
+        return <div>Error fetching Files related to Collection Table: {(error as Error).message}</div>;
+    }
+}
+
+export default async function fetchFilesCollectionTableQueryResults(searchParams: any, filterClause: SQL) {
+
     console.log("q = " + searchParams.q);
+    const limit = searchParams.r;
+    const file_count_limit_col = 200000;
+    const fileColTbl_p = searchParams.fileColTbl_p !== undefined ? searchParams.fileColTbl_p : 1;
+    const fileColTblOffset = (fileColTbl_p - 1) * limit;
+    console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
     try {
         const query = SQL.template`
         WITH allres_full AS (

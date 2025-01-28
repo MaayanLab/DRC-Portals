@@ -75,10 +75,28 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export default async function FilesProjTableComponent({ searchParams, filterClause, fileProjTblOffset, limit, file_count_limit_proj }: { searchParams: any, filterClause: SQL, fileProjTblOffset: number, limit: number, file_count_limit_proj: number }): Promise<JSX.Element> {
+export async function FileProjTableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+
+    console.log("In FileProjTableComponent");
+
+    try {
+        const results = await fetchFilesProjTableQueryResults(searchParams, filterClause);
+        return results;
+    } catch (error) {
+        console.error("Error fetching Files related to Project Table :", error);
+        return <div>Error fetching Files related to Project Table: {(error as Error).message}</div>;
+    }
+}
+
+async function fetchFilesProjTableQueryResults(searchParams: any, filterClause: SQL) {
     console.log("In FilesProjTableComponent");
     console.log("q = " + searchParams.q);
+    const limit = searchParams.r;
+    const file_count_limit_proj = 200000;
+    const fileProjTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileProjTbl_p : 1;
+    const fileProjTblOffset = (fileProjTbl_p - 1) * limit;
 
+    // console.log("fileProjTbl_p = " + fileProjTbl_p + " fileProjTblOffset = " + fileProjTblOffset);
     try {
         const query = SQL.template`
             WITH allres_full AS (
