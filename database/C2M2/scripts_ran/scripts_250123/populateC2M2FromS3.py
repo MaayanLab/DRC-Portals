@@ -24,7 +24,6 @@ import json
 import numpy as np
 import sys
 import time
-import datetime
 import subprocess
 import gc
 import urllib.parse
@@ -38,7 +37,7 @@ write_empty_tsvs = 0
 add_missing_columns_for_SchemaUpdate = 1
 exit_after_creating_empty_tsvs = 0
 
-add_searchable_column = 1
+add_searchable_column = 0
 searchable_colname = "searchable"
 # Define the exclusion patterns, if none, put some junk string so that no columns excluded
 searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|access_url|size_in_bytes' #r'^project_|_id$|temp'
@@ -47,9 +46,6 @@ actually_ingest_tables = actually_create_schema * actually_ingest_tables
 
 newline = '\n'
 tabchar = '\t'
-
-timenow = datetime.datetime.now(); timenow_fmt = timenow.strftime("%Y-%m-%d %H:%M:%S");
-print(f"=============== SRART Time: {timenow_fmt} ===============");
 
 # Lines copied from dburl.py and modified
 if (add_missing_columns_for_SchemaUpdate >= 0):
@@ -749,12 +745,8 @@ if(add_searchable_column == 1):
 
         add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} tsvector;";
         table_fields = resource.schema.fields
-        column_names = [field.name for field in table_fields]
-
-        if(debug > 0):
-            print(f"column_names: {column_names}") 
-            print(f"searchable_col_exclude_pattern: {searchable_col_exclude_pattern}") 
-
+        column_names = [{field.name} for field in table_fields]
+        
         # Exclude columns matching any of the patterns
         filtered_columns = [col for col in column_names if not re.search(searchable_col_exclude_pattern, col)]
 
@@ -801,9 +793,6 @@ t6 = time.time();
 
 print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Total time taken: {t6-t0} seconds.{newline}");
 print(f"********** C2M2 metadata ingestion completed: schema_name: {schema_name}.");
-
-timenow = datetime.datetime.now(); timenow_fmt = timenow.strftime("%Y-%m-%d %H:%M:%S");
-print(f"=============== END Time: {timenow_fmt} ===============");
 
 qf.close()
 
