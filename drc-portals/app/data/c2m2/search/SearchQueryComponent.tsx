@@ -128,7 +128,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
   }>>(SQL.template`
     WITH 
     allres_exp AS (
-      SELECT DISTINCT
+      SELECT /* DISTINCT */
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
         allres_full.dcc_name AS dcc_name,
         allres_full.dcc_abbreviation AS dcc_abbreviation,
