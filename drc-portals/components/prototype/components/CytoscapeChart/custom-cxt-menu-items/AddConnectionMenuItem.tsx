@@ -3,9 +3,17 @@
 import ErrorIcon from "@mui/icons-material/Error";
 import HubIcon from "@mui/icons-material/Hub";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { Box, CircularProgress } from "@mui/material";
+import WarningIcon from "@mui/icons-material/Warning";
+import { Box, CircularProgress, MenuItem, Tooltip } from "@mui/material";
 import { NestedMenuItem } from "mui-nested-menu";
-import { useCallback, useContext, useEffect, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { ConnectionMenuItem } from "@/components/prototype/interfaces/pathway-search";
 import { PathwaySearchElement } from "@/components/prototype/types/pathway-search";
@@ -33,7 +41,9 @@ export default function AddConnectionMenuItem(
   const [loading, setLoading] = useState(false);
   const [getConnectionsError, setGetConnectionsError] =
     useState<boolean>(false);
-  const [subMenuItems, setSubMenuItems] = useState<ConnectionMenuItem[]>([]);
+  const [subMenuItems, setSubMenuItems] = useState<ReactNode[]>([]);
+  const [gotConnections, setGotConnections] = useState(false);
+  const abortControllerRef = useRef(new AbortController());
   const context = useContext(ChartCxtMenuContext);
 
   const getRightIcon = useCallback(() => {
@@ -42,17 +52,29 @@ export default function AddConnectionMenuItem(
         <CircularProgress aria-label="loading" color="inherit" size={20} />
       );
     } else if (getConnectionsError) {
-      return <ErrorIcon aria-label="error" color="error" />;
-    } else if (subMenuItems.length > 0) {
-      return <KeyboardArrowRightIcon aria-label="show-all-rels" />;
+      return (
+        <Tooltip title="An error occurred fetching expand options">
+          <ErrorIcon aria-label="error" color="error" />
+        </Tooltip>
+      );
+    } else if (gotConnections && subMenuItems.length === 0) {
+      return (
+        <Tooltip title="Node has no expand options">
+          <WarningIcon aria-label="warning" color="warning" />
+        </Tooltip>
+      );
     } else {
       return null;
     }
-  }, [loading, getConnectionsError]);
+  }, [loading, getConnectionsError, subMenuItems, gotConnections]);
 
   const setConnectionOptions = useCallback(
-    async (nodeId: string, signal: AbortSignal) => {
+    async (nodeId: string) => {
+      const controller = abortControllerRef.current;
+      const signal = controller.signal;
+
       setLoading(true);
+
       try {
         const tree = createTree(elements);
         const btoaTree = btoa(JSON.stringify(tree));
@@ -129,12 +151,15 @@ export default function AddConnectionMenuItem(
               }
             })
             .filter((v) => v !== undefined)
+            .map(createConnectionMenuItem)
         );
       } catch (error) {
         if (!signal.aborted) {
           setGetConnectionsError(true);
         }
       } finally {
+        setGotConnections(true);
+
         // This check should only be meaningful when strict mode is enabled: there is a race condition between the two runs of the effect
         // below where the loading state can be erroneously set to false. Normally when `signal` is aborted we are unmounting the
         // component because the menu was closed, so we don't need to update loading state. But when it's unmounted as a result of
@@ -173,35 +198,48 @@ export default function AddConnectionMenuItem(
     [onConnectionSelected]
   );
 
-  useEffect(() => {
+  const onMenuClicked = useCallback(() => {
     if (context !== null) {
-      const controller = new AbortController();
-      const signal = controller.signal;
-
-      setConnectionOptions(context.event.target.data("id"), signal);
-
-      return () => {
-        controller.abort("Cancelling connections request.");
-      };
+      setConnectionOptions(context.event.target.data("id"));
     }
+  }, [context]);
+
+  useEffect(() => {
+    return () => {
+      const controller = abortControllerRef.current;
+      controller.abort("Cancelling connections request.");
+
+      // This may seem unnecessary, and in production mode it is. However in dev mode, the extra render caused by `reactStrictMode` means
+      // we need to reset the abort controller so that the abort call above doesn't carry over into the state of the new render.
+      abortControllerRef.current = new AbortController();
+    };
   }, []);
 
   return context !== null ? (
-    <NestedMenuItem
-      disabled={subMenuItems.length === 0}
-      rightIcon={getRightIcon()}
-      renderLabel={() => (
-        <Box sx={{ display: "flex", marginRight: 1 }}>
-          <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-          Expand
-        </Box>
-      )}
-      parentMenuOpen={context.open}
-      sx={{ paddingX: "16px" }}
-    >
-      {subMenuItems.length > 0
-        ? subMenuItems.map(createConnectionMenuItem)
-        : null}
-    </NestedMenuItem>
+    // We need this ternary check because NestedMenuItem shows an empty cxt menu box when it has no children
+    subMenuItems.length > 0 ? (
+      <NestedMenuItem
+        rightIcon={<KeyboardArrowRightIcon aria-label="show-all-rels" />}
+        renderLabel={() => (
+          <Box sx={{ display: "flex", marginRight: 1 }}>
+            <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+            Expand
+          </Box>
+        )}
+        parentMenuOpen={context.open}
+        sx={{ paddingX: "16px" }}
+        children={subMenuItems}
+      />
+    ) : (
+      <MenuItem onClick={onMenuClicked} sx={{ paddingX: "16px" }}>
+        {
+          <Box sx={{ display: "flex", marginRight: 1 }}>
+            <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+            <Box sx={{ marginRight: 1 }}>Expand</Box>
+            {getRightIcon()}
+          </Box>
+        }
+      </MenuItem>
+    )
   ) : null;
 }
