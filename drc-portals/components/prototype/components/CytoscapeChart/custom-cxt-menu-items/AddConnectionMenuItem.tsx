@@ -57,11 +57,13 @@ export default function AddConnectionMenuItem(
           <ErrorIcon aria-label="error" color="error" />
         </Tooltip>
       );
-    } else if (gotConnections && subMenuItems.length === 0) {
-      return (
+    } else if (gotConnections) {
+      return subMenuItems.length === 0 ? (
         <Tooltip title="Node has no expand options">
           <WarningIcon aria-label="warning" color="warning" />
         </Tooltip>
+      ) : (
+        <KeyboardArrowRightIcon aria-label="show-all-rels" />
       );
     } else {
       return null;
@@ -216,30 +218,19 @@ export default function AddConnectionMenuItem(
   }, []);
 
   return context !== null ? (
-    // We need this ternary check because NestedMenuItem shows an empty cxt menu box when it has no children
-    subMenuItems.length > 0 ? (
-      <NestedMenuItem
-        rightIcon={<KeyboardArrowRightIcon aria-label="show-all-rels" />}
-        renderLabel={() => (
-          <Box sx={{ display: "flex", marginRight: 1 }}>
-            <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-            Expand
-          </Box>
-        )}
-        parentMenuOpen={context.open}
-        sx={{ paddingX: "16px" }}
-        children={subMenuItems}
-      />
-    ) : (
-      <MenuItem onClick={onMenuClicked} sx={{ paddingX: "16px" }}>
-        {
-          <Box sx={{ display: "flex", marginRight: 1 }}>
-            <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-            <Box sx={{ marginRight: 1 }}>Expand</Box>
-            {getRightIcon()}
-          </Box>
-        }
-      </MenuItem>
-    )
+    <NestedMenuItem
+      onClick={onMenuClicked}
+      rightIcon={getRightIcon()}
+      renderLabel={() => (
+        <Box sx={{ display: "flex", marginRight: 1 }}>
+          <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+          Expand
+        </Box>
+      )}
+      MenuProps={subMenuItems.length > 0 ? undefined : { open: false }} // This is a kludge to make sure an empty submenu isn't shown
+      parentMenuOpen={context.open}
+      sx={{ paddingX: "16px" }}
+      children={subMenuItems}
+    />
   ) : null;
 }
