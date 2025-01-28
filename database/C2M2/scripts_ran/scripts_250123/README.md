@@ -26,7 +26,6 @@ env_file_name=.env
 logdir=log${server_label}
 mkdir -p ${logdir}
 ymd=$(date +%y%m%d); 
-date_div=$(echo "============= `date` =============");
 scripts_ran_dir=scripts_ran/scripts_${ymd};mkdir -p ${scripts_ran_dir}
 cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/.
 
@@ -44,7 +43,7 @@ cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/
 # and to 1 if in the SchemaUpdate folder.
 mkdir -p ${logdir}
 date_div=$(echo "============= `date` =============");
-python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; echo ${date_div} > ${logf}; 
+python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; echo ${date_div} > ${logf}; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf}
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log; 
 egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log;
@@ -53,8 +52,8 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log
 # \i create_id_namespace_dcc_id.sql
 # OR, directly specify the sql file name in psql command:
 logf=${logdir}/log_create_id_namespace_dcc_id.log
+echo ${date_div} > ${logf};
 psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o ${logf}
-echo ${date_div} >> ${logf};
 
 # To ingest controlled vocabulary files into c2m2 schema
 # on psql prompt while being in database folder: \i ingest_CV.sql
@@ -62,8 +61,8 @@ echo ${date_div} >> ${logf};
 #psql -h localhost -U drc -d drc -p [5432|5433] -a -f ingest_CV.sql
 #psql -h sc-cfdedbdev.sdsc.edu -v ON_ERROR_STOP=1 -U drcadmin -d drc -p 5432 -a -f ingest_CV.sql -o ${logdir}/log_ingest_CV.log
 logf=${logdir}/log_ingest_CV.log
+echo ${date_div} > ${logf};
 psql "$(python3 dburl.py)" -a -f ingest_CV.sql -o ${logf}
-echo ${date_div} >> ${logf};
 # To be added if needed: using python script: I am using \COPY inside the sql file, so
 # with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
 # will not work unless absolute path for the source tsv file is used.
@@ -71,7 +70,7 @@ echo ${date_div} >> ${logf};
 #------------------------------------
 # This block, that deals with ingestion into Dcc-specific schema, is largely indepedent of ingests into the c2m2 schema
 # If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf} ; echo ${date_div} >> ${logf}; 
+dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; echo ${date_div} > ${logf}; ${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 # To run it for all DCCs in one go (i.e., put tables from respectives DCCs into a schema by that DCC's name), run the linux shell script:
 chmod ug+x call_populateC2M2FromS3_DCCnameASschema.sh
