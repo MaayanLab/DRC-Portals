@@ -3,7 +3,7 @@ import SearchTabs from "../tabs";
 import { redirect } from "next/navigation";
 import AllSearchPages from '@/app/data/search/AllSearchPages'
 import { SearchQueryComponentTab as C2M2SearchQueryComponentTab} from '@/app/data/c2m2/search/SearchQueryComponent'
-import { FancyTab } from "@/components/misc/FancyTabs";
+import { FancyTabPlaceholder } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
 
 export async function generateMetadata(props: { params: { search: string } }, parent: ResolvingMetadata): Promise<Metadata> {
@@ -18,12 +18,16 @@ export default function Page(props: React.PropsWithChildren<{ params: { search: 
   if (!props.params.search) redirect('/data')
   return (
     <SearchTabs>
-      <React.Suspense fallback={<FancyTab id='c2m2' label={<>Cross-Cut Metadata Model</>} priority={Infinity} loading />}>
-        <C2M2SearchQueryComponentTab search={decodeURIComponent(props.params.search)} />
-      </React.Suspense>
-      <React.Suspense fallback={<FancyTab id='processed' label={<>Processed Data</>} loading />}>
-        <AllSearchPages search={decodeURIComponent(props.params.search)} />
-      </React.Suspense>
+      <FancyTabPlaceholder id='c2m2' label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
+        <React.Suspense>
+          <C2M2SearchQueryComponentTab search={decodeURIComponent(props.params.search)} />
+        </React.Suspense>
+      </FancyTabPlaceholder>
+      <FancyTabPlaceholder id='processed' label={<>Processed Data</>}>
+        <React.Suspense>
+          <AllSearchPages search={decodeURIComponent(props.params.search)} />
+        </React.Suspense>
+      </FancyTabPlaceholder>
       {props.children}
     </SearchTabs>
   )
