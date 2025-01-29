@@ -5,6 +5,7 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromCollectionTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import { generateFilterQueryStringForRecordInfo } from "@/app/data/c2m2/utils";
 
 interface CollectionTableResult {
     collections_table_full: {
@@ -41,9 +42,10 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export async function CollectionsTableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+export async function CollectionsTableComponent({ searchParams, schemaName, tableName }: { searchParams: any, schemaName: string, tableName: string }): Promise<JSX.Element> {
 
     console.log("In CollectionsTableQueryComponent");
+    const filterClause = generateFilterQueryStringForRecordInfo(searchParams, schemaName, tableName);
 
     try {
         const results = await fetchCollectionsTableQueryResults(searchParams, filterClause);

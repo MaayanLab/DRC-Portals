@@ -5,6 +5,7 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import { generateFilterQueryStringForRecordInfo } from "@/app/data/c2m2/utils";
 
 interface FileBiosTableResult {
     file_bios_table_full: {
@@ -76,9 +77,10 @@ const renderMetadataValue = (item: MetadataItem) => {
     }
     return item.value;
 };
-export async function FileBiosamplesComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+export async function FileBiosamplesComponent({ searchParams, schemaName, tableName }: { searchParams: any, schemaName: string, tableName: string }): Promise<JSX.Element> {
 
     console.log("In FileBiosamplesComponent");
+    const filterClause = generateFilterQueryStringForRecordInfo(searchParams, schemaName, tableName);
 
     try {
         const results = await fetchFilesBiosampleTableQueryResults(searchParams, filterClause);

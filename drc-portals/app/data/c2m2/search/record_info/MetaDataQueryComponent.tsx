@@ -4,17 +4,16 @@ import { MetadataItem, getDCCIcon, getdccCFlink, generateFilterQueryStringForRec
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
 import { Card, CardContent } from "@mui/material";
-
 import { capitalizeFirstLetter, isURL } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
-
 import React from "react";
 
 
 
-export async function MetaDataQueryComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+export async function MetaDataQueryComponent({ searchParams, schemaName, tableName }: { searchParams: any, schemaName: string, tableName: string }): Promise<JSX.Element> {
 
   console.log("In MetaDataQueryComponent");
+  const filterClause = generateFilterQueryStringForRecordInfo(searchParams, schemaName, tableName);
 
   try {
     const results = await fetchMetaDataQueryResults(searchParams, filterClause);

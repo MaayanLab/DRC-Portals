@@ -5,6 +5,7 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromSubjectTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import { generateFilterQueryStringForRecordInfo } from "@/app/data/c2m2/utils";
 
 interface SubjectTableResult {
     subjects_table_full: {
@@ -41,9 +42,10 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export async function SubjectstableComponent({ searchParams, filterClause }: { searchParams: any, filterClause: SQL }): Promise<JSX.Element> {
+export async function SubjectstableComponent({ searchParams, schemaName, tableName }: { searchParams: any, schemaName: string, tableName: string }): Promise<JSX.Element> {
 
     console.log("In SubjectstableQueryComponent");
+    const filterClause = generateFilterQueryStringForRecordInfo(searchParams, schemaName, tableName);
 
     try {
         const results = await fetchSubjectsTableQueryResults(searchParams, filterClause);
