@@ -27,13 +27,13 @@ const FancyTabContext = React.createContext([undefined as string | undefined, (d
 
 export function FancyTabPlaceholder(props: React.PropsWithChildren<FancyTabProps>) {
   const [currentTab, register] = React.useContext(FancyTabContext)
-  React.useEffect(() => register({ placeholder: true, loading: props.loading === undefined ? true : props.loading, ...props }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
+  React.useEffect(() => register({ ...props, placeholder: true, loading: props.loading === undefined ? true : props.loading }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
   return <>{props.children}</>
 }
 
 export function FancyTab(props: React.PropsWithChildren<FancyTabProps>) {
   const [currentTab, register] = React.useContext(FancyTabContext)
-  React.useEffect(() => register({ loading: props.loading === undefined ? false : props.loading, ...props }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
+  React.useEffect(() => register({ ...props, loading: props.loading === undefined ? false : props.loading }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
   if (props.id !== currentTab || props.hidden) return null
   return <>{props.children}</>
 }
