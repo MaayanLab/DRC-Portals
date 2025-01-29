@@ -290,6 +290,7 @@ export default function GraphPathwayResults(
           stylesheet={DEFAULT_STYLESHEET}
           legend={legend}
           cxtMenuEnabled={true}
+          hoverCxtMenuEnabled={false}
           tooltipEnabled={true}
           legendPosition={{ bottom: 10, left: 10 }}
           toolbarPosition={{ top: 10, right: 10 }}

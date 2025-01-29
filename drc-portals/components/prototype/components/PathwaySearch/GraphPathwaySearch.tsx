@@ -407,8 +407,9 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         elements={elements}
         layout={EULER_LAYOUT}
         stylesheet={PATHWAY_SEARCH_STYLESHEET}
-        cxtMenuEnabled={true}
+        cxtMenuEnabled={false}
         tooltipEnabled={false}
+        hoverCxtMenuEnabled={true}
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
         customAnimations={customAnimations}

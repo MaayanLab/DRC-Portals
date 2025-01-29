@@ -67,6 +67,7 @@ interface CytoscapeChartProps {
   stylesheet: string | Stylesheet | Stylesheet[];
   cxtMenuEnabled: boolean;
   tooltipEnabled: boolean;
+  hoverCxtMenuEnabled: boolean;
   legendPosition?: PositionOffsets;
   toolbarPosition?: PositionOffsets;
   tooltipBoxStyleProps?: CSSProperties;
@@ -93,6 +94,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     stylesheet,
     cxtMenuEnabled,
     tooltipEnabled,
+    hoverCxtMenuEnabled,
     legendPosition,
     toolbarPosition,
     tooltipBoxStyleProps,
@@ -259,7 +261,16 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     }
   };
 
-  const handleCxtTapNode = useCallback(
+  const handleCxtTap = (event: EventObject) => {
+    hideTooltip();
+    cxtTapHandleSelectState(event);
+    contextMenuPosRef.current = {
+      x: event.originalEvent.clientX,
+      y: event.originalEvent.clientY,
+    };
+  };
+
+  const openNodeCxt = useCallback(
     (event: EventObjectNode) => {
       const items = [];
 
@@ -272,7 +283,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [nodeCxtMenuItems]
   );
 
-  const handleCxtTapEdge = useCallback(
+  const openEdgeCxt = useCallback(
     (event: EventObjectEdge) => {
       const items = [];
 
@@ -285,16 +296,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [edgeCxtMenuItems]
   );
 
-  const handleCxtTapCanvas = useCallback(
+  const openCanvasCxt = useCallback(
     (event: EventObject) => {
-      // Note that everything preceding the if-block will trigger on *any* cxtTap event, allowing us to set some shared behavior
-      hideTooltip();
-      cxtTapHandleSelectState(event);
-      contextMenuPosRef.current = {
-        x: event.originalEvent.clientX,
-        y: event.originalEvent.clientY,
-      };
-
       if (event.target === cyRef.current) {
         const items: ReactNode[] = [];
 
@@ -356,6 +359,18 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setRadialMenuOpen(false);
   };
 
+  const openNodeHoverCxt = (event: EventObjectNode) => {
+    contextMenuPosRef.current = {
+      x: event.originalEvent.clientX,
+      y: event.originalEvent.clientY,
+    };
+    openNodeCxt(event);
+  };
+
+  const closeNodeHoverCxt = () => {
+    handleContextMenuClose();
+  };
+
   const defaultEvents: CytoscapeEvent[] = useMemo(
     () => [
       { event: "mouseover", target: "node", callback: handleHoverNode },
@@ -364,25 +379,46 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       { event: "mouseout", target: "edge", callback: handleBlurEdge },
       { event: "grab", target: "node", callback: handleGrabNode },
       { event: "drag", target: "node", callback: handleDragNode },
-      { event: "cxttap", callback: handleCxtTapCanvas },
-      { event: "cxttap", target: "node", callback: handleCxtTapNode },
-      { event: "cxttap", target: "edge", callback: handleCxtTapEdge },
+      { event: "cxttap", callback: handleCxtTap }, // Shared cxttap behavior
+      ...(cxtMenuEnabled
+        ? [
+            { event: "cxttap", callback: openCanvasCxt }, // Canvas specific cxttap behavior
+            { event: "cxttap", target: "node", callback: openNodeCxt },
+            { event: "cxttap", target: "edge", callback: openEdgeCxt },
+          ]
+        : []),
       { event: "tap", target: "node", callback: handleTapNode },
       { event: "tapend", callback: handleTapEnd },
       { event: "tapselect", target: "node", callback: handleTapSelectNode },
       { event: "dragpan", callback: handleDragPan },
       { event: "zoom", callback: handleZoom },
+      ...(hoverCxtMenuEnabled
+        ? [
+            {
+              event: "mouseover",
+              target: "node",
+              callback: openNodeHoverCxt,
+            },
+            {
+              event: "mouseout",
+              target: "node",
+              callback: closeNodeHoverCxt,
+            },
+          ]
+        : []),
     ],
     [
+      cxtMenuEnabled,
+      hoverCxtMenuEnabled,
       handleHoverNode,
       handleBlurNode,
       handleHoverEdge,
       handleBlurEdge,
       handleGrabNode,
       handleDragNode,
-      handleCxtTapCanvas,
-      handleCxtTapNode,
-      handleCxtTapEdge,
+      openCanvasCxt,
+      openNodeCxt,
+      openEdgeCxt,
       handleTapSelectNode,
     ]
   );
@@ -516,9 +552,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       </ClickAwayListener>
       <ClickAwayListener onClickAway={handleContextMenuClose}>
         <ChartCxtMenu
-          open={
-            cxtMenuEnabled && contextMenuOpen && contextMenuItems.length > 0
-          }
+          open={contextMenuOpen && contextMenuItems.length > 0}
           position={contextMenuPosRef.current}
           event={contextMenuEvent}
           onClose={handleContextMenuClose}
