@@ -43,7 +43,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
   const register = React.useCallback((props: FancyTabProps) => {
     setCtx(({ tabs }) => ({ initialized: true, tabs: { ...tabs, [props.id]: props } }))
     return () => {
-      setCtx(({ tabs: { [props.id]: _, ...tabs } }) => ({ initialized: true, tabs }))
+      setCtx(({ tabs: { [props.id]: unmountedTab, ...tabs } }) => ({ initialized: true, tabs: {...tabs, [unmountedTab.id]: {...unmountedTab, hidden: true} } }))
     }
   }, [setCtx])
   const [tab, setTab] = React.useState(props.defaultTab)
