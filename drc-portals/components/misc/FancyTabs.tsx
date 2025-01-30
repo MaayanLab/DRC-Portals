@@ -47,7 +47,10 @@ export function FancyTabs(props: React.PropsWithChildren<{
 }>) {
   const [ctx, setCtx] = React.useState({ initialized: false, tabs: {} as Record<string, FancyTabProps & { placeholder?: boolean }> })
   const register = React.useCallback((props: FancyTabProps & { placeholder?: boolean }) => {
-    setCtx(({ tabs }) => ({ initialized: true, tabs: { ...tabs, [props.id]: props } }))
+    setCtx(({ tabs }) => ({
+      initialized: true,
+      tabs: props.placeholder && props.id in tabs ? tabs : { ...tabs, [props.id]: props }
+    }))
     return () => {
       setCtx(({ tabs: { [props.id]: unmountedTab, ...tabs } }) => ({ initialized: true, tabs: unmountedTab.placeholder ? tabs : {...tabs, [unmountedTab.id]: {...unmountedTab, hidden: true} } }))
     }
