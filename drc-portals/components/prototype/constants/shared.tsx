@@ -315,24 +315,27 @@ export const NODE_TOOLTIP_PROPS_MAP: ReadonlyMap<string, string[]> = new Map([
   [ID_NAMESPACE_LABEL, ["id", "name", "description"]],
   [PROJECT_LABEL, ["local_id", "name", "description", "persistent_id"]],
   [COLLECTION_LABEL, ["local_id", "name", "description", "persistent_id"]],
-  [FILE_LABEL, ["local_id", "filename", "size_in_bytes", "persistent_id"]],
-  [BIOSAMPLE_LABEL, ["local_id", "persistent_id"]],
-  [SUBJECT_LABEL, ["local_id", "granularity", "persistent_id"]],
+  [
+    FILE_LABEL,
+    ["local_id", "filename", "description", "size_in_bytes", "persistent_id"],
+  ],
+  [BIOSAMPLE_LABEL, ["local_id", "description", "persistent_id"]],
+  [SUBJECT_LABEL, ["local_id", "description", "granularity", "persistent_id"]],
   ...TERM_LABELS.map((label): [string, string[]] => [
     label,
-    ["id", "name", "description", "synonyms"],
+    ["id", "name", "description", "synonyms", "ontology"],
   ]),
   ...FILE_RELATED_LABELS.map((label): [string, string[]] => [
     label,
-    ["id", "name", "description"],
+    ["id", "name", "description", "ontology"],
   ]),
   ...SUBJECT_RELATED_LABELS.map((label): [string, string[]] => [
     label,
-    ["id", "name", "description"],
+    ["id", "name", "description", "ontology"],
   ]),
   ...BIOSAMPLE_RELATED_LABELS.map((label): [string, string[]] => [
     label,
-    ["id", "name", "description"],
+    ["id", "name", "description", "ontology"],
   ]),
 ]);
 
