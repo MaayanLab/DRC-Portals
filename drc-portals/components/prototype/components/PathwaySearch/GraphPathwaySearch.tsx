@@ -147,6 +147,17 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onReset();
   }, [onSelectedNodeChange, onReset]);
 
+  const handleFilterNodeSelected = (event: EventObjectNode) => {
+    handleSelectedNodeChange(event.target.id(), event.cy);
+    setShowFilters(true);
+  };
+
+  const handlePruneNodeSelected = (event: EventObjectNode) => {
+    setSnackbarOpen(true);
+    onPruneSelected(event.target);
+    handleSelectedNodeChange(undefined, event.cy);
+  };
+
   const customTools: CustomToolbarFnFactory[] = useMemo(
     () => [
       () => {
@@ -321,7 +332,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             Filters
           </Box>
         )}
-        action={(event) => setShowFilters(true)}
+        action={handleFilterNodeSelected}
       ></ChartCxtMenuItem>,
       <ChartCxtMenuItem
         key="chart-cxt-prune"
@@ -331,11 +342,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             Prune
           </Box>
         )}
-        action={(event) => {
-          setSnackbarOpen(true);
-          onPruneSelected(event.target);
-          handleSelectedNodeChange(undefined, event.cy);
-        }}
+        action={handlePruneNodeSelected}
       ></ChartCxtMenuItem>,
     ],
     [elements]
