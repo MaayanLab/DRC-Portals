@@ -21,5 +21,11 @@ export default singleton('prisma-slow', () => {
     })
     return prisma
   }
-  return new PrismaClient()
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.PDP_DATABASE_URL || process.env.DATABASE_URL,
+      },
+    },
+  })
 })
