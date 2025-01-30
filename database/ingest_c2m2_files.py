@@ -20,10 +20,10 @@ c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link
 c2m2_file_helper = TableHelper('c2m2_file_node', ('id', 'c2m2_datapackage_id', 'creation_time', 'persistent_id', 'access_url', 'size_in_bytes', 'file_format', 'data_type', 'assay_type', 'mime_type', 'md5', 'sha256'), pk_columns=('id',))
 node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
 
-with c2m2_file_helper.writer() as c2m2_file:
-  with node_helper.writer() as node:
-    with c2m2_datapackage_helper.writer() as c2m2_datapackage:
-      for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+  with c2m2_file_helper.writer() as c2m2_file:
+    with node_helper.writer() as node:
+      with c2m2_datapackage_helper.writer() as c2m2_datapackage:
         c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         print("c2m2['link'] object:"); print(c2m2['link']); ##

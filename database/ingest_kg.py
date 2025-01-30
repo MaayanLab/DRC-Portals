@@ -30,64 +30,64 @@ kg_assertion_helper = TableHelper('kg_assertion', ('id', 'dcc_id', 'relation_id'
 gene_helper = TableHelper('gene_entity', ('id', 'entrez', 'ensembl',), pk_columns=('id',))
 node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'dcc_id', 'pagerank'), pk_columns=('id',), add_columns=('pagerank',))
 
-with kg_assertion_helper.writer() as kg_assertion:
-  kg_assertions = set()
-  with gene_helper.writer() as gene:
-    genes = {}
-    with entity_helper.writer() as entity:
-      entities = {}
-      with kg_relation_helper.writer() as kg_relation:
-        kg_relations = {}
-        with node_helper.writer() as node:
-          def ensure_entity(entity_type, entity_label, entity_description=None):
-            if entity_type == 'Gene':
-              for gene_ensembl in gene_lookup.get(entity_label, []):
-                gene_id = str(uuid5(uuid0, gene_ensembl))
+for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
+  with kg_assertion_helper.writer() as kg_assertion:
+    kg_assertions = set()
+    with gene_helper.writer() as gene:
+      genes = {}
+      with entity_helper.writer() as entity:
+        entities = {}
+        with kg_relation_helper.writer() as kg_relation:
+          kg_relations = {}
+          with node_helper.writer() as node:
+            def ensure_entity(entity_type, entity_label, entity_description=None):
+              if entity_type == 'Gene':
+                for gene_ensembl in gene_lookup.get(entity_label, []):
+                  gene_id = str(uuid5(uuid0, gene_ensembl))
+                  def ensure():
+                    if gene_id not in genes:
+                      genes[gene_id] = dict(
+                        id=gene_id,
+                        type='entity',
+                        entity_type='gene',
+                        label=gene_labels[gene_ensembl],
+                        description=gene_descriptions[gene_ensembl],
+                        pagerank=0,
+                      )
+                      gene.writerow(dict(
+                        id=gene_id,
+                        entrez=gene_entrez[gene_ensembl],
+                        ensembl=gene_ensembl,
+                      ))
+                      entity.writerow(dict(
+                        id=gene_id,
+                        type='gene',
+                      ))
+                    else:
+                      genes[gene_id]['pagerank'] += 1
+                    return gene_id
+                  yield ensure
+              elif entity_type:
+                entity_type = map_type.get(entity_type, entity_type)
+                entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
                 def ensure():
-                  if gene_id not in genes:
-                    genes[gene_id] = dict(
-                      id=gene_id,
+                  if entity_id not in entities:
+                    entities[entity_id] = dict(
+                      id=entity_id,
                       type='entity',
-                      entity_type='gene',
-                      label=gene_labels[gene_ensembl],
-                      description=gene_descriptions[gene_ensembl],
+                      entity_type=entity_type,
+                      label=entity_label,
+                      description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
                       pagerank=0,
                     )
-                    gene.writerow(dict(
-                      id=gene_id,
-                      entrez=gene_entrez[gene_ensembl],
-                      ensembl=gene_ensembl,
-                    ))
                     entity.writerow(dict(
-                      id=gene_id,
-                      type='gene',
+                      id=entity_id,
+                      type=entity_type,
                     ))
                   else:
-                    genes[gene_id]['pagerank'] += 1
-                  return gene_id
+                    entities[entity_id]['pagerank'] += 1
+                  return entity_id
                 yield ensure
-            elif entity_type:
-              entity_type = map_type.get(entity_type, entity_type)
-              entity_id = str(uuid5(uuid0, '\t'.join((entity_type, entity_label))))
-              def ensure():
-                if entity_id not in entities:
-                  entities[entity_id] = dict(
-                    id=entity_id,
-                    type='entity',
-                    entity_type=entity_type,
-                    label=entity_label,
-                    description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
-                    pagerank=0,
-                  )
-                  entity.writerow(dict(
-                    id=entity_id,
-                    type=entity_type,
-                  ))
-                else:
-                  entities[entity_id]['pagerank'] += 1
-                return entity_id
-              yield ensure
-          for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
             # assemble the full file path for the DCC's asset
             file_path = assertions_path/file['dcc_short_label']/file['filename']
             if(debug >0):
@@ -169,6 +169,6 @@ with kg_assertion_helper.writer() as kg_assertion:
                           evidence=assertion['evidence_class'],
                           dcc_id=file['dcc_id'],
                         ))
-          node.writerows(kg_relations.values())
-          node.writerows(entities.values())
-          node.writerows(genes.values())
+            node.writerows(kg_relations.values())
+            node.writerows(entities.values())
+            node.writerows(genes.values())
