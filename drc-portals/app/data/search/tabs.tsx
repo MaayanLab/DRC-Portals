@@ -21,7 +21,8 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
       onChange={(evt, tab) => {
         const newSearchParams = new URLSearchParams(searchParams)
         newSearchParams.delete('p')
-        router.push(`${basepath}/${search}/${tab}?${newSearchParams.toString()}`, { scroll: false })
+        if (evt === undefined) router.replace(`${basepath}/${search}/${tab}?${newSearchParams.toString()}`, { scroll: false })
+        else router.push(`${basepath}/${search}/${tab}?${newSearchParams.toString()}`, { scroll: false })
       }}
       postInitializationFallback={<ErrorRedirect error="No results" />}
     >
