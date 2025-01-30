@@ -52,22 +52,26 @@ import {
 import {
   ADMIN_NODE_CLASS,
   ADMIN_NODE_COLOR,
+  BIOSAMPLE_NODE_CLASS,
+  BIOSAMPLE_NODE_COLOR,
   BIOSAMPLE_RELATED_NODE_CLASS,
   BIOSAMPLE_RELATED_NODE_COLOR,
   CFDE_DARK_BLUE,
   CONTAINER_NODE_CLASS,
   CONTAINER_NODE_COLOR,
-  CORE_NODE_CLASS,
-  CORE_NODE_COLOR,
   DO_LINK,
   EDAM_LINK,
   ENTITY_STYLES_MAP,
+  FILE_NODE_CLASS,
+  FILE_NODE_COLOR,
   FILE_RELATED_NODE_CLASS,
   FILE_RELATED_NODE_COLOR,
   HPO_LINK,
   NCBI_TAXONOMY_LINK,
   NODE_CLASS_MAP,
   OBI_LINK,
+  SUBJECT_NODE_CLASS,
+  SUBJECT_NODE_COLOR,
   SUBJECT_RELATED_NODE_CLASS,
   SUBJECT_RELATED_NODE_COLOR,
   TERM_NODE_CLASS,
@@ -1519,7 +1523,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["term-relationship"],
+    classes: ["file-related-relationship"],
     data: {
       id: FILE_IS_FILE_FORMAT_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1528,7 +1532,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["term-relationship"],
+    classes: ["file-related-relationship"],
     data: {
       id: FILE_GENERATED_BY_ASSAY_TYPE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1537,7 +1541,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["term-relationship"],
+    classes: ["file-related-relationship"],
     data: {
       id: FILE_GENERATED_BY_ANALYSIS_TYPE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1546,7 +1550,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["term-relationship"],
+    classes: ["file-related-relationship"],
     data: {
       id: FILE_IS_DATA_TYPE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1555,7 +1559,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["core-relationship"],
+    classes: ["file-relationship"],
     data: {
       id: FILE_DESCRIBES_BIOSAMPLE_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1564,7 +1568,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["core-relationship"],
+    classes: ["file-relationship"],
     data: {
       id: FILE_DESCRIBES_SUBJECT_EDGE_ID,
       source: FILE_NODE_ID,
@@ -1690,7 +1694,7 @@ export const SCHEMA_EDGES = [
     },
   },
   {
-    classes: ["core-relationship"],
+    classes: ["biosample-relationship"],
     data: {
       id: BIOSAMPLE_SAMPLED_FROM_SUBJECT_EDGE_ID,
       source: BIOSAMPLE_NODE_ID,
@@ -1747,7 +1751,9 @@ export const SCHEMA_EDGES = [
 
 export const SCHEMA_ADMIN_NODE_ITEM = "Admin Node";
 export const SCHEMA_CONTAINER_NODE_ITEM = "Container Node";
-export const SCHEMA_CORE_NODE_ITEM = "Core Node";
+export const SCHEMA_FILE_NODE_ITEM = "File Node";
+export const SCHEMA_BIOSAMPLE_NODE_ITEM = "Biosample Node";
+export const SCHEMA_SUBJECT_NODE_ITEM = "Subject Node";
 export const SCHEMA_TERM_NODE_ITEM = "Term Node";
 export const SCHEMA_FILE_RELATED_NODE_ITEM = "File Related Node";
 export const SCHEMA_SUBJECT_RELATED_NODE_ITEM = "Subject Related Node";
@@ -1757,11 +1763,13 @@ export const SCHEMA_RELATIONSHIP_ITEM = "Relationship";
 export const STYLE_CLASS_TO_LEGEND_KEY_MAP = new Map<string, string>([
   [ADMIN_NODE_CLASS, SCHEMA_ADMIN_NODE_ITEM],
   [CONTAINER_NODE_CLASS, SCHEMA_CONTAINER_NODE_ITEM],
-  [CORE_NODE_CLASS, SCHEMA_CORE_NODE_ITEM],
-  [TERM_NODE_CLASS, SCHEMA_TERM_NODE_ITEM],
+  [FILE_NODE_CLASS, SCHEMA_FILE_NODE_ITEM],
   [FILE_RELATED_NODE_CLASS, SCHEMA_FILE_RELATED_NODE_ITEM],
+  [SUBJECT_NODE_CLASS, SCHEMA_SUBJECT_NODE_ITEM],
   [SUBJECT_RELATED_NODE_CLASS, SCHEMA_SUBJECT_RELATED_NODE_ITEM],
+  [BIOSAMPLE_NODE_CLASS, SCHEMA_BIOSAMPLE_NODE_ITEM],
   [BIOSAMPLE_RELATED_NODE_CLASS, SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM],
+  [TERM_NODE_CLASS, SCHEMA_TERM_NODE_ITEM],
 ]);
 
 export const SCHEMA_LEGEND = new Map<string, ReactNode>(
@@ -1775,16 +1783,16 @@ export const SCHEMA_LEGEND = new Map<string, ReactNode>(
       <CircleIcon sx={{ color: CONTAINER_NODE_COLOR }} fontSize="small" />,
     ],
     [
-      SCHEMA_CORE_NODE_ITEM,
-      <CircleIcon sx={{ color: CORE_NODE_COLOR }} fontSize="small" />,
-    ],
-    [
-      SCHEMA_TERM_NODE_ITEM,
-      <CircleIcon sx={{ color: TERM_NODE_COLOR }} fontSize="small" />,
+      SCHEMA_FILE_NODE_ITEM,
+      <CircleIcon sx={{ color: FILE_NODE_COLOR }} fontSize="small" />,
     ],
     [
       SCHEMA_FILE_RELATED_NODE_ITEM,
       <CircleIcon sx={{ color: FILE_RELATED_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_SUBJECT_NODE_ITEM,
+      <CircleIcon sx={{ color: SUBJECT_NODE_COLOR }} fontSize="small" />,
     ],
     [
       SCHEMA_SUBJECT_RELATED_NODE_ITEM,
@@ -1794,11 +1802,19 @@ export const SCHEMA_LEGEND = new Map<string, ReactNode>(
       />,
     ],
     [
+      SCHEMA_BIOSAMPLE_NODE_ITEM,
+      <CircleIcon sx={{ color: BIOSAMPLE_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
       SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM,
       <CircleIcon
         sx={{ color: BIOSAMPLE_RELATED_NODE_COLOR }}
         fontSize="small"
       />,
+    ],
+    [
+      SCHEMA_TERM_NODE_ITEM,
+      <CircleIcon sx={{ color: TERM_NODE_COLOR }} fontSize="small" />,
     ],
     [SCHEMA_RELATIONSHIP_ITEM, createArrowDividerElement(false)],
   ])
@@ -1869,19 +1885,11 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
-    selector: "edge.core-relationship",
+    selector: "edge.file-relationship",
     style: {
-      color: CORE_NODE_COLOR,
-      "line-color": CORE_NODE_COLOR,
-      "target-arrow-color": CORE_NODE_COLOR,
-    },
-  },
-  {
-    selector: "edge.term-relationship",
-    style: {
-      color: TERM_NODE_COLOR,
-      "line-color": TERM_NODE_COLOR,
-      "target-arrow-color": TERM_NODE_COLOR,
+      color: FILE_NODE_COLOR,
+      "line-color": FILE_NODE_COLOR,
+      "target-arrow-color": FILE_NODE_COLOR,
     },
   },
   {
@@ -1893,6 +1901,14 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
+    selector: "edge.subject-relationship",
+    style: {
+      color: SUBJECT_NODE_COLOR,
+      "line-color": SUBJECT_NODE_COLOR,
+      "target-arrow-color": SUBJECT_NODE_COLOR,
+    },
+  },
+  {
     selector: "edge.subject-related-relationship",
     style: {
       color: SUBJECT_RELATED_NODE_COLOR,
@@ -1901,11 +1917,27 @@ export const SCHEMA_STYLESHEET: any[] = [
     },
   },
   {
+    selector: "edge.biosample-relationship",
+    style: {
+      color: BIOSAMPLE_NODE_COLOR,
+      "line-color": BIOSAMPLE_NODE_COLOR,
+      "target-arrow-color": BIOSAMPLE_NODE_COLOR,
+    },
+  },
+  {
     selector: "edge.biosample-related-relationship",
     style: {
       color: BIOSAMPLE_RELATED_NODE_COLOR,
       "line-color": BIOSAMPLE_RELATED_NODE_COLOR,
       "target-arrow-color": BIOSAMPLE_RELATED_NODE_COLOR,
+    },
+  },
+  {
+    selector: "edge.term-relationship",
+    style: {
+      color: TERM_NODE_COLOR,
+      "line-color": TERM_NODE_COLOR,
+      "target-arrow-color": TERM_NODE_COLOR,
     },
   },
   {

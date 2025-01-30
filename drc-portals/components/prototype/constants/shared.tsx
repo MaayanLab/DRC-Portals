@@ -171,20 +171,24 @@ export const DO_LINK = (
 
 // Entity class style names
 export const ADMIN_NODE_CLASS = "admin-node";
-export const BIOSAMPLE_RELATED_NODE_CLASS = "biosample-related-node";
 export const CONTAINER_NODE_CLASS = "container-node";
-export const CORE_NODE_CLASS = "core-node";
+export const FILE_NODE_CLASS = "file-node";
 export const FILE_RELATED_NODE_CLASS = "file-related-node";
+export const BIOSAMPLE_NODE_CLASS = "biosample-node";
+export const BIOSAMPLE_RELATED_NODE_CLASS = "biosample-related-node";
+export const SUBJECT_NODE_CLASS = "subject-node";
 export const SUBJECT_RELATED_NODE_CLASS = "subject-related-node";
 export const TERM_NODE_CLASS = "term-node";
 
 // Entity styles
 export const ADMIN_NODE_COLOR = "#ffc454";
-export const BIOSAMPLE_RELATED_NODE_COLOR = "#f79767";
 export const CONTAINER_NODE_COLOR = "#4c8eda";
-export const CORE_NODE_COLOR = "#949494";
+export const FILE_NODE_COLOR = "#ee5f5f";
 export const FILE_RELATED_NODE_COLOR = "#d46989";
+export const SUBJECT_NODE_COLOR = "#e9adc2";
 export const SUBJECT_RELATED_NODE_COLOR = "#c186b7";
+export const BIOSAMPLE_NODE_COLOR = "#d4c1a6";
+export const BIOSAMPLE_RELATED_NODE_COLOR = "#806e47";
 export const TERM_NODE_COLOR = "#569480";
 
 // Map of node label to the appropriate representation string
@@ -224,13 +228,6 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
     },
   ],
   [
-    BIOSAMPLE_RELATED_NODE_CLASS,
-    {
-      color: "#000",
-      backgroundColor: BIOSAMPLE_RELATED_NODE_COLOR,
-    },
-  ],
-  [
     CONTAINER_NODE_CLASS,
     {
       color: "#000",
@@ -238,17 +235,24 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
     },
   ],
   [
-    CORE_NODE_CLASS,
+    FILE_NODE_CLASS,
     {
       color: "#000",
-      backgroundColor: CORE_NODE_COLOR,
+      backgroundColor: FILE_NODE_COLOR,
     },
   ],
   [
     FILE_RELATED_NODE_CLASS,
     {
       color: "#000",
-      backgroundColor: TERM_NODE_COLOR,
+      backgroundColor: FILE_RELATED_NODE_COLOR,
+    },
+  ],
+  [
+    SUBJECT_NODE_CLASS,
+    {
+      color: "#000",
+      backgroundColor: SUBJECT_NODE_COLOR,
     },
   ],
   [
@@ -256,6 +260,20 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
     {
       color: "#000",
       backgroundColor: SUBJECT_RELATED_NODE_COLOR,
+    },
+  ],
+  [
+    BIOSAMPLE_NODE_CLASS,
+    {
+      color: "#000",
+      backgroundColor: BIOSAMPLE_NODE_COLOR,
+    },
+  ],
+  [
+    BIOSAMPLE_RELATED_NODE_CLASS,
+    {
+      color: "#000",
+      backgroundColor: BIOSAMPLE_RELATED_NODE_COLOR,
     },
   ],
   [
@@ -274,20 +292,22 @@ export const NODE_CLASS_MAP: ReadonlyMap<string, string> = new Map([
     label,
     CONTAINER_NODE_CLASS,
   ]),
-  ...CORE_LABELS.map((label): [string, string] => [label, CORE_NODE_CLASS]),
-  ...TERM_LABELS.map((label): [string, string] => [label, TERM_NODE_CLASS]),
+  [FILE_LABEL, FILE_NODE_CLASS],
   ...FILE_RELATED_LABELS.map((label): [string, string] => [
     label,
     FILE_RELATED_NODE_CLASS,
   ]),
+  [SUBJECT_LABEL, SUBJECT_NODE_CLASS],
   ...SUBJECT_RELATED_LABELS.map((label): [string, string] => [
     label,
     SUBJECT_RELATED_NODE_CLASS,
   ]),
+  [BIOSAMPLE_LABEL, BIOSAMPLE_NODE_CLASS],
   ...BIOSAMPLE_RELATED_LABELS.map((label): [string, string] => [
     label,
     BIOSAMPLE_RELATED_NODE_CLASS,
   ]),
+  ...TERM_LABELS.map((label): [string, string] => [label, TERM_NODE_CLASS]),
 ]);
 
 export const NODE_TOOLTIP_PROPS_MAP: ReadonlyMap<string, string[]> = new Map([
