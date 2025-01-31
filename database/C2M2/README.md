@@ -152,6 +152,11 @@ logf=${logdir}/log_create_access_urls.log
 psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logf}
 echo ${date_div} >> ${logf};
 
+# To create additional indexes on some tables for faster query
+logf=${logdir}/log_c2m2_other_indexes.log
+psql "$(python3 dburl.py)" -a -f c2m2_other_indexes.sql -o ${logf}
+echo ${date_div} >> ${logf};
+
 #-------------------------------------------------------------------------------------------------------
 # *ONLY* to copy the updated tables (e.g. after new ingest) to another server
 # As of now, user1 and user2 on the two hosts, respectively are hard-coded as drcadmin and drc or drcadmin and drcadmin, so only intended for use by Mano. Others can run after altering these values suitably.
