@@ -1,3 +1,9 @@
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import RadarIcon from "@mui/icons-material/Radar";
+import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Box,
   IconButton,
@@ -7,12 +13,6 @@ import {
   Typography,
   TypographyProps,
 } from "@mui/material";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-import RadarIcon from "@mui/icons-material/Radar";
-import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Core,
   EventObject,
@@ -59,7 +59,9 @@ import { NodeElementFactory } from "../types/shared";
 import {
   LABEL_TO_FACTORY_MAP,
   downloadBlob,
+  getExternalLinkElement,
   getNodeDisplayProperty,
+  getOntologyLink,
   labelInFactoryMapFilter,
   truncateTextToFitWidth,
 } from "./shared";
@@ -178,46 +180,102 @@ export const truncateLabelToFitNode = (label: string) => {
   }
 };
 
-export const createNodeLabels = (labels: string[]) => (
-  <Stack direction="row" sx={{ margin: "6px 0px", padding: "3px 7px" }}>
-    {labels
-      .filter(labelInFactoryMapFilter)
-      .map((label) =>
-        (LABEL_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
-      )}
-  </Stack>
-);
+export const createNodeLabels = (node: CytoscapeNodeData) => {
+  const nodeLabels = node.neo4j?.labels;
+
+  if (nodeLabels !== undefined) {
+    return (
+      <Stack direction="row" sx={{ margin: "6px 0px", padding: "3px 7px" }}>
+        {nodeLabels
+          .filter(labelInFactoryMapFilter)
+          .map((label) =>
+            (LABEL_TO_FACTORY_MAP.get(label) as NodeElementFactory)(label)
+          )}
+      </Stack>
+    );
+  } else {
+    return <Typography>No labels found on this node.</Typography>;
+  }
+};
 
 export const createNodeProperties = (
-  properties: { [key: string]: any },
+  node: CytoscapeNodeData,
   textProps?: TypographyProps
-) => (
-  <Stack direction="column">
-    {Object.entries(properties).map(([key, val], index) => (
-      <div
-        key={`prop-${key}-${index}`}
-        style={{
-          margin: "0px 7px",
-          padding: "2px 0px",
-        }}
-      >
-        <Typography {...textProps}>
-          <b>{`${key}: `}</b>
-          {Array.isArray(val)
-            ? val.map((arrItem, arrIdx) => (
-                <ListItem
-                  key={`prop-${key}-${index}-${arrIdx}`}
-                  sx={{ display: "list-item", py: 0 }}
-                >
-                  {arrItem}
-                </ListItem>
-              ))
-            : val}
-        </Typography>
-      </div>
-    ))}
-  </Stack>
-);
+) => {
+  const nodeLabels = node.neo4j?.labels;
+  const nodeProps = node.neo4j?.properties;
+
+  if (nodeLabels !== undefined && nodeProps !== undefined) {
+    const propsForLabel =
+      nodeLabels.length === 1
+        ? NODE_TOOLTIP_PROPS_MAP.get(nodeLabels[0]) || []
+        : [];
+    const propsToShow = Object.fromEntries(
+      propsForLabel
+        .filter((prop) => Object.hasOwn(nodeProps, prop))
+        .map((validProp) => [validProp, nodeProps[validProp]])
+    );
+    return (
+      <Stack direction="column">
+        {Object.entries(propsToShow).map(([key, val], index) => {
+          let valueElement;
+
+          if (Array.isArray(val)) {
+            valueElement = val.map((arrItem, arrIdx) => (
+              <ListItem
+                key={`prop-${key}-${index}-${arrIdx}`}
+                sx={{ display: "list-item", py: 0 }}
+              >
+                {arrItem}
+              </ListItem>
+            ));
+          } else if (typeof val === "string") {
+            if (
+              key === "id" &&
+              nodeLabels.length > 0 &&
+              [
+                ...TERM_LABELS,
+                ...FILE_RELATED_LABELS,
+                ...SUBJECT_RELATED_LABELS,
+                ...BIOSAMPLE_RELATED_LABELS,
+              ].includes(nodeLabels[0])
+            ) {
+              const ontologyLink = getOntologyLink(nodeLabels[0], val);
+              valueElement = getExternalLinkElement(ontologyLink, val);
+            } else if (
+              /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i.test(
+                val
+              )
+            ) {
+              valueElement = getExternalLinkElement(val, val);
+            } else {
+              valueElement = val;
+            }
+          } else {
+            valueElement = val;
+          }
+
+          return (
+            <div
+              key={`prop-${key}-${index}`}
+              style={{
+                margin: "0px 7px",
+                padding: "2px 0px",
+              }}
+            >
+              <Typography {...textProps}>
+                <b>{`${key}: `}</b>
+                {valueElement}
+              </Typography>
+            </div>
+          );
+        })}
+      </Stack>
+    );
+  } else {
+    return <Typography>No properties found on this node.</Typography>;
+  }
+};
 
 export const createNodeTooltip = (
   node: CytoscapeNodeData,
@@ -232,15 +290,6 @@ export const createNodeTooltip = (
         ? ENTITY_STYLES_MAP.get(NODE_CLASS_MAP.get(nodeLabels[0]) || "")
             ?.backgroundColor
         : "#fff";
-    const propsForLabel =
-      nodeLabels.length === 1
-        ? NODE_TOOLTIP_PROPS_MAP.get(nodeLabels[0]) || []
-        : [];
-    const propsToShow = Object.fromEntries(
-      propsForLabel
-        .filter((prop) => Object.hasOwn(nodeProps, prop))
-        .map((validProp) => [validProp, nodeProps[validProp]])
-    );
 
     return (
       <Box
@@ -250,8 +299,8 @@ export const createNodeTooltip = (
           ...boxStyleProps,
         }}
       >
-        {createNodeLabels(nodeLabels)}
-        {createNodeProperties(propsToShow, {
+        {createNodeLabels(node)}
+        {createNodeProperties(node, {
           ...DEFAULT_TOOLTIP_CONTENT_PROPS,
           ...contentProps,
         })}

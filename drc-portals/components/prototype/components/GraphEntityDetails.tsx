@@ -48,14 +48,12 @@ export default function GraphEntityDetails(
             {entityDetails.neo4j.labels === undefined ? (
               <Typography>No labels found on this node.</Typography>
             ) : (
-              createNodeLabels(entityDetails.neo4j.labels)
+              createNodeLabels(entityDetails)
             )}
             {entityDetails.neo4j.properties === undefined ? (
               <Typography>No properties found on this node.</Typography>
             ) : (
-              createNodeProperties(entityDetails.neo4j.properties, {
-                variant: "body2",
-              })
+              createNodeProperties(entityDetails, { variant: "body2" })
             )}
           </>
         )}

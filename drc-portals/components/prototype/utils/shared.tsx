@@ -1,9 +1,26 @@
-import { Box, Divider } from "@mui/material";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { Box, Divider, Link } from "@mui/material";
 import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
 import { CSSProperties } from "react";
 import { v4 } from "uuid";
 
-import { NODE_LABELS, RELATIONSHIP_TYPES } from "@/lib/neo4j/constants";
+import {
+  ANALYSIS_TYPE_LABEL,
+  ANATOMY_LABEL,
+  ASSAY_TYPE_LABEL,
+  COMPOUND_LABEL,
+  DATA_TYPE_LABEL,
+  DISEASE_LABEL,
+  FILE_FORMAT_LABEL,
+  GENE_LABEL,
+  NCBI_TAXONOMY_LABEL,
+  NODE_LABELS,
+  PHENOTYPE_LABEL,
+  PROTEIN_LABEL,
+  RELATIONSHIP_TYPES,
+  SAMPLE_PREP_METHOD_LABEL,
+  SUBSTANCE_LABEL,
+} from "@/lib/neo4j/constants";
 import { Direction } from "@/lib/neo4j/enums";
 import { NodeResult } from "@/lib/neo4j/types";
 
@@ -219,3 +236,55 @@ export const downloadBlob = (data: string, type: string, filename: string) => {
 
   URL.revokeObjectURL(url);
 };
+
+export const getOntologyLink = (label: string, id: string) => {
+  const [prefix, id_num] = id.split(":");
+  switch (label) {
+    case ANALYSIS_TYPE_LABEL:
+    case ASSAY_TYPE_LABEL:
+    case SAMPLE_PREP_METHOD_LABEL:
+      return `http://purl.obolibrary.org/obo/OBI_${id.split(":")[1]}`;
+    case ANATOMY_LABEL: {
+      if (prefix === "CL") {
+        return `http://purl.obolibrary.org/obo/CL_${id_num}`;
+      } else {
+        return `http://purl.obolibrary.org/obo/UBERON_${id_num}`;
+      }
+    }
+    case COMPOUND_LABEL:
+      if (id[0] === "G") {
+        return `https://glytoucan.org/Structures/Glycans/${id}`;
+      } else {
+        return `https://pubchem.ncbi.nlm.nih.gov/compound/${id}`;
+      }
+    case DATA_TYPE_LABEL:
+      if (prefix === "ILX") {
+        return `http://uri.interlex.org/base/ilx_${id_num}`;
+      } else {
+        return `http://edamontology.org/data_${id_num}`;
+      }
+    case DISEASE_LABEL:
+      return `https://disease-ontology.org/term/${id}/obo/`;
+    case GENE_LABEL:
+      return `https://useast.ensembl.org/Multi/Search/Results?q=${id};site=ensembl_all`;
+    case FILE_FORMAT_LABEL:
+      return `http://edamontology.org/format_${id_num}`;
+    case NCBI_TAXONOMY_LABEL:
+      return `https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${id_num}`;
+    case PHENOTYPE_LABEL:
+      return `https://hpo.jax.org/browse/term/${id}`;
+    case PROTEIN_LABEL:
+      return `https://www.uniprot.org/uniprotkb/${id}`;
+    case SUBSTANCE_LABEL:
+      return `https://pubchem.ncbi.nlm.nih.gov/substance/${id}`;
+    default:
+      return "";
+  }
+};
+
+export const getExternalLinkElement = (link: string, text: string) => (
+  <Link href={link} target="_blank" rel="noopener" color="secondary">
+    {text}
+    <OpenInNewIcon fontSize="small" color="secondary" />
+  </Link>
+);
