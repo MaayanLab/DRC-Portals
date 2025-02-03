@@ -50,6 +50,7 @@ tables_list = set([
 "tools",
 "usecase",
 "dcc_usecase",
+"centers"
 ])
 tables = tables_list.intersection(input_table)
 
