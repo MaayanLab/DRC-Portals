@@ -18,49 +18,33 @@ import SocialMedia from '../misc/Socials';
 const Consortium = () => (
   <Stack spacing={2}>
     <Typography variant="subtitle1"><b>Consortium</b></Typography>
-    <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer">
-      <Typography variant="footer">About the CFDE</Typography>
-    </Link>
-   
-    <Link href="/info/dcc">
-      <Typography variant="footer">CF-DCCs</Typography>
-    </Link>
-    <Link href="/data">
-      <Typography variant="footer">Data Portal</Typography>
-    </Link>
-    {/* <Link href="/info/coming_soon">
-      <Typography variant="footer">Knowledge Portal</Typography>
-    </Link> */}
+    <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer"><Typography variant="footer">About the CFDE</Typography></Link>
+    <Link href="/info/dcc"><Typography variant="footer">CF Programs</Typography></Link>
+    <Link href="/info/centers"><Typography variant="footer">CFDE Centers</Typography></Link>
     <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
-    <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
+    <Link href="/info/r03"><Typography variant="footer">Pilot Projects</Typography></Link>
   </Stack>
 )
 
-const Ecosystem = () => (
+const Community = () => (
   <Stack spacing={2}>
-      <Typography variant="subtitle1"><b>Ecosystem</b></Typography>
+      <Typography variant="subtitle1"><b>Community</b></Typography>
+      <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Workbench Tutorial</Typography></Link>
       <Link href="/info/training_and_outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
-      {/* <Link href="/info/coming_soon">
-        <Typography variant="footer">Products</Typography>
-      </Link> */}
-      <Link href="/info/centers" >
-      <Typography variant="footer">Centers</Typography>
-    </Link>
       <Link href="/info/documentation"><Typography variant="footer">Documentation</Typography></Link>
-      <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
-      <Link href="/info/r03"><Typography variant="footer">R03s</Typography></Link>
       <Link href="/info/qr"><Typography variant="footer">Get QR Codes</Typography></Link>
+      <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
     </Stack>
 )
 
-const Assets = () => (
+const Resources = () => (
   <Stack spacing={2}>
-      <Typography variant="subtitle1"><b>Assets</b></Typography>
+      <Typography variant="subtitle1"><b>Resources</b></Typography>
       <Link href="/data"><Typography variant="footer">Data & Metadata</Typography></Link>
       <Link href="/data/tools_and_workflows"><Typography variant="footer">Tools</Typography></Link>
       <Link href="/data/chat"><Typography variant="footer">Chatbot</Typography></Link>
       <Link href="/data/usecases"><Typography variant="footer">Use Cases</Typography></Link>
-      <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Video Tutorial</Typography></Link>
+      <Link href="/info/publications"><Typography variant="footer">Publications</Typography></Link>
 
   </Stack>
 )
@@ -98,10 +82,10 @@ export default async function InfoFooter() {
             <Consortium />
           </Grid>
           <Grid item>
-            <Ecosystem />
+            <Community />
           </Grid>
           <Grid item>
-              <Assets />
+              <Resources />
           </Grid>
         </Grid>
         <Grid item xs={12} sx={{ marginTop: 5, marginRight: 5, marginLeft: 6 }}>
@@ -129,9 +113,9 @@ export default async function InfoFooter() {
         <Stack spacing={2}>
           <Consortium />
           <Divider sx={{borderColor: "#FFF"}}/>
-          <Ecosystem />
+          <Community />
           <Divider sx={{borderColor: "#FFF"}}/>
-          <Assets />
+          <Resources />
           <Divider sx={{borderColor: "#FFF"}}/>
           <Stack direction={"column"} spacing={2}>
             <Logo title="CFDE Workbench" href="/info" color="inherit"/>
