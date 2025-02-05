@@ -136,10 +136,11 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
                 f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
                 ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
-                FROM /* c2m2.file */ file_table_keycol AS f INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
-                AND f.project_id_namespace = ui.project_id_namespace
-                AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL))  /****/
-                AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+                FROM /* c2m2.file */ file_table_keycol AS f INNER JOIN unique_info ui ON 
+                ((f.project_local_id = ui.project_local_id)
+                    AND (f.project_id_namespace = ui.project_id_namespace)
+                    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL))  /****/
+                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
                 LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
             limit ${file_count_limit_proj}
@@ -164,7 +165,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const t0: number = performance.now();
         const results = await prisma.$queryRaw<FileProjTableResult[]>(query);
         const t1: number = performance.now();
-        console.log("Elapsed time for FilesProjTableComponent queries: ", t1 - t0, " milliseconds");
+        console.log("------------ Elapsed time for FilesProjTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
             return <div></div>;
