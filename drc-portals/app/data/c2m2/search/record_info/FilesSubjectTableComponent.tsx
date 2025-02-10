@@ -104,6 +104,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 allres_full.disease,
                 allres_full.anatomy_name,
                 allres_full.anatomy,
+                allres_full.biofluid_name,
+                allres_full.biofluid,
                 allres_full.gene, 
                 allres_full.gene_name,
                 allres_full.protein, 
@@ -123,11 +125,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 FROM allres_full
             ), /* 2024/03/07 */
             file_table_keycol AS (
-                SELECT DISTINCT 
-                    f.id_namespace,
-                    f.local_id,
-                    f.project_id_namespace,
-                    f.project_local_id
+                /* SELECT DISTINCT f.id_namespace, f.local_id, f.project_id_namespace, f.project_local_id */
+                SELECT DISTINCT f.*
                 FROM c2m2.file AS f
                 INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                         AND f.project_id_namespace = ui.project_id_namespace
@@ -138,23 +137,24 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                   SELECT DISTINCT fds.*,
                   f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
                   f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                  f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+                  f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
                   ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name
-                  /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
                 FROM c2m2.file_describes_subject fds
-                  INNER JOIN file_table_keycol ftk ON 
-                  (ftk.local_id = fds.file_local_id AND ftk.id_namespace = fds.file_id_namespace)
+                  /**? INNER JOIN file_table_keycol ftk ON (ftk.local_id = fds.file_local_id AND ftk.id_namespace = fds.file_id_namespace) */
+                  INNER JOIN file_table_keycol f ON (f.local_id = fds.file_local_id AND f.id_namespace = fds.file_id_namespace)
                   INNER JOIN sub_info ON 
                   (sub_info.subject_local_id = fds.subject_local_id AND sub_info.subject_id_namespace = fds.subject_id_namespace) /* 2024/03/07 match subject */    /** limit ${file_count_limit_sub}     **/
                   /* Mano: even though columns of ftk are from f only, # rows ftk << #rows f */
-                  INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace)
-                  INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
-                    AND f.project_id_namespace = ui.project_id_namespace
+                  /**? NOT NEEDED--dueto-file_table_keycol INNER JOIN c2m2.file AS f ON (f.local_id = ftk.local_id AND f.id_namespace = ftk.id_namespace) */
+                  INNER JOIN unique_info ui ON 
+                  ((f.project_local_id = ui.project_local_id)
+                    AND (f.project_id_namespace = ui.project_id_namespace)
                     AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/
                     AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
                   /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
                   LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
-                  LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
                   ), /* Mano */
                 file_sub_table AS (
                   SELECT * from file_sub_table_keycol
@@ -179,7 +179,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         const t0: number = performance.now();
         const results = await prisma.$queryRaw<FileSubTableResult[]>(query);
         const t1: number = performance.now();
-        console.log("Elapsed time for FilesSubjectTableComponent queries: ", t1 - t0, " milliseconds");
+        console.log("------------ Elapsed time for FilesSubjectTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
             return <></>;
@@ -198,7 +198,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         }
 
 
-        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace'];
+        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileSubPrunedData,
             columnNames: fileSubColNames,

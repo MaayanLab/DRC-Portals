@@ -10,7 +10,7 @@ import DownloadButton from './DownloadButton';
 import DRSBundleButton from './DRSBundleButton';
 import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
 import Link from '@/utils/link';
-import { RowType } from './utils';
+import { RowType, formatFileSize } from './utils';
 
 type TableFunction = (column: string) => string | undefined;
 
@@ -91,7 +91,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 
     const significantDataExists = data && data.length > 0 && hasSignificantData(data);
 
-    
+
 
     console.log(tablePrefix + " hasSignificantData = " + significantDataExists);
 
@@ -132,9 +132,19 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                             {cellValueString}
                                         </Link>
                                     ) : (
-                                        column.toLowerCase().includes('size_in_bytes') ?
-                                            (<Description description={cellValueString.replace(/\.0$/, '')} key={`${rowIndex}-${column}`} />)
-                                            : (<Description description={cellValueString} key={`${rowIndex}-${column}`} />)
+                                        column.toLowerCase().includes('size_in_bytes') ? // matches substring 'size_in_bytes' in both "size_in_bytes" and "uncompressed_size_in_bytes"
+                                            (
+                                                <Description
+                                                description={cellValueString == 'NA' ? 'NA' : formatFileSize(Number(cellValueString))}
+                                                key={`${rowIndex}-${column}`}
+                                            />
+                                        )
+                                            : (
+                                                <Description
+                                                description={cellValueString}
+                                                key={`${rowIndex}-${column}`}
+                                            />
+                                        )
                                     );
                                 });
                                 return { id: row.id, ...renderedColumns };
@@ -143,8 +153,8 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                         />
                         <div className="flex flex-row gap-4">
                             {drsBundle && <DRSBundleButton data={dataToSend} />}
-                            <DownloadButton data={dataToSend} filename={downloadFileName} name={"Download Selected"} />
-                            <DownloadButton data={full_data} filename={downloadFileName+"_ALL.json"} name={"Download All"} />
+                            <DownloadButton data={dataToSend} filename={downloadFileName} name={"Download Selected Metadata"} />
+                            <DownloadButton data={full_data} filename={downloadFileName + "_ALL.json"} name={"Download All Metadata"} />
                         </div>
                     </AccordionDetails>
                 </Accordion>

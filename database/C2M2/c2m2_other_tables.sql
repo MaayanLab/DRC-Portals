@@ -10,6 +10,7 @@ psql -h localhost -U drc -d drc -p [5432|5433] -a -f c2m2_other_tables.sql
 -------------------------------------------------------------------------------
 --- project_data_type: include assay_type as well since both data_type and assay_type are coming from the
 --- c2m2.file table.
+--- To include analysis_type from c2m2.file and use it in ffl tables and in query filters.
 DROP TABLE IF EXISTS c2m2.project_data_type;
 CREATE TABLE c2m2.project_data_type as (
 select distinct

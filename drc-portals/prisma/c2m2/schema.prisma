@@ -1,8 +1,8 @@
 generator client {
   provider        = "prisma-client-js"
+  output          = "../../node_modules/.prisma/client/c2m2"
   previewFeatures = ["fullTextSearch", "multiSchema"]
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
-  output   = "../../node_modules/.prisma/client/c2m2"
 }
 
 datasource db {
@@ -41,11 +41,12 @@ model biosample {
   project_id_namespace                                                String                     @db.VarChar
   project_local_id                                                    String                     @db.VarChar
   persistent_id                                                       String?                    @default("") @db.VarChar
-  access_url                                                          String?                    @default("") @db.VarChar
   creation_time                                                       String?                    @default("") @db.VarChar
   sample_prep_method                                                  String?                    @default("") @db.VarChar
   anatomy                                                             String?                    @default("") @db.VarChar
+  biofluid                                                            String?                    @default("") @db.VarChar
   anatomy_biosample_anatomyToanatomy                                  anatomy?                   @relation("biosample_anatomyToanatomy", fields: [anatomy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_anatomy_4")
+  biofluid_biosample_biofluidTobiofluid                               biofluid?                  @relation("biosample_biofluidTobiofluid", fields: [biofluid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_biofluid_5")
   id_namespace_biosample_id_namespaceToid_namespace                   id_namespace               @relation("biosample_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_id_namespace_1")
   project                                                             project                    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_project_2")
   sample_prep_method_biosample_sample_prep_methodTosample_prep_method sample_prep_method?        @relation("biosample_sample_prep_methodTosample_prep_method", fields: [sample_prep_method], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_sample_prep_method_3")
@@ -125,6 +126,7 @@ model collection {
   biosample_in_collection                                                                                                     biosample_in_collection[]
   id_namespace_collection_id_namespaceToid_namespace                                                                          id_namespace                    @relation("collection_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_id_namespace_1")
   collection_anatomy                                                                                                          collection_anatomy[]
+  collection_biofluid                                                                                                         collection_biofluid[]
   collection_compound                                                                                                         collection_compound[]
   collection_defined_by_project                                                                                               collection_defined_by_project[]
   collection_disease                                                                                                          collection_disease[]
@@ -260,20 +262,19 @@ model data_type {
   description                    String? @default("") @db.VarChar
   synonyms                       String? @default("") @db.VarChar
   file_file_data_typeTodata_type file[]  @relation("file_data_typeTodata_type")
-
 }
 
 model dcc {
-  id                   String  @id @db.VarChar
-  dcc_name             String  @db.VarChar
-  dcc_abbreviation     String  @db.VarChar
-  dcc_description      String? @default("") @db.VarChar
-  contact_email        String  @db.VarChar
-  contact_name         String  @db.VarChar
-  dcc_url              String  @db.VarChar
-  project_id_namespace String  @db.VarChar
-  project_local_id     String  @db.VarChar
-  project              project @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
+  id                   String                @id @db.VarChar
+  dcc_name             String                @db.VarChar
+  dcc_abbreviation     String                @db.VarChar
+  dcc_description      String?               @default("") @db.VarChar
+  contact_email        String                @db.VarChar
+  contact_name         String                @db.VarChar
+  dcc_url              String                @db.VarChar
+  project_id_namespace String                @db.VarChar
+  project_local_id     String                @db.VarChar
+  project              project               @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
   id_namespace_dcc_id  id_namespace_dcc_id[]
 }
 
@@ -294,74 +295,16 @@ model disease_association_type {
   description String @db.VarChar
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model ffl_biosample {
-  searchable                         Unsupported("tsvector")?
-  biosample_id_namespace             String                  @db.VarChar
-  biosample_local_id                 String                  @db.VarChar
-  project_id_namespace               String?                  @db.VarChar
-  project_local_id                   String?                  @db.VarChar
-  biosample_persistent_id            String?                  @db.VarChar
-  biosample_creation_time            String?                  @db.VarChar
-  sample_prep_method                 String?                  @db.VarChar
-  anatomy                            String?                  @db.VarChar
-  disease_association_type           String?                  @db.VarChar
-  disease                            String?                  @db.VarChar
-  subject_id_namespace               String?                  @db.VarChar
-  subject_local_id                   String?                  @db.VarChar
-  biosample_age_at_sampling          String?                  @db.VarChar
-  gene                               String?                  @db.VarChar
-  collection_id_namespace            String?                  @db.VarChar
-  collection_local_id                String?                  @db.VarChar
-  substance                          String?                  @db.VarChar
-  dcc_name                           String?                  @db.VarChar
-  dcc_abbreviation                   String?                  @db.VarChar
-  anatomy_name                       String?                  @db.VarChar
-  gene_name                          String?                  @db.VarChar
-  disease_name                       String?                  @db.VarChar
-  subject_granularity                String?                  @db.VarChar
-  subject_sex                        String?                  @db.VarChar
-  subject_ethnicity                  String?                  @db.VarChar
-  subject_age_at_enrollment          String?                  @db.VarChar
-  substance_name                     String?                  @db.VarChar
-  substance_compound                 String?                  @db.VarChar
-  compound_name                      String?                  @db.VarChar
-  project_name                       String?                  @db.VarChar
-  project_abbreviation               String?                  @db.VarChar
-  data_type_id                       String?                  @db.VarChar
-  data_type_name                     String?                  @db.VarChar
-  subject_role_taxonomy_taxonomy_id  String?                  @db.VarChar
-  ncbi_taxonomy_name                 String?                  @db.VarChar
-  collection_name                    String?                  @db.VarChar
-  collection_abbreviation            String?                  @db.VarChar
-  collection_has_time_series_data    String?                  @db.VarChar
-  sample_prep_method_name            String?                  @db.VarChar
-  subject_race                       String?                  @db.VarChar
-  subject_race_name                  String?                  @db.VarChar
-  subject_granularity_name           String?                  @db.VarChar
-  subject_sex_name                   String?                  @db.VarChar
-  subject_ethnicity_name             String?                  @db.VarChar
-  subject_role_taxonomy_role_id      String?                  @db.VarChar
-  subject_role_name                  String?                  @db.VarChar
-  disease_association_type_name      String?                  @db.VarChar
-  phenotype_association_type         String?                  @db.VarChar
-  phenotype                          String?                  @db.VarChar
-  phenotype_association_type_name    String?                  @db.VarChar
-  phenotype_name                     String?                  @db.VarChar
-
-  @@id([biosample_id_namespace, biosample_local_id])
-  @@index([searchable], map: "ffl_biosample_idx_searchable", type: Gin)
-  @@index(fields: [dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name], map: "ffl_biosample_idx_dcc_sp_dis_ana", type: BTree)
-  @@index(fields: [dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name], map: "ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data", type: BTree)
-}
-
 model project_data_type {
-  project_id_namespace               String?                  @db.VarChar
-  project_local_id                   String?                  @db.VarChar
-  data_type_id                       String?                  @db.VarChar
-  data_type_name                     String?                  @db.VarChar
-  data_type_description              String?                  @db.VarChar
-  pk_id                              Int                      @id @db.Integer
+  project_id_namespace   String? @db.VarChar
+  project_local_id       String? @db.VarChar
+  data_type_id           String? @db.VarChar
+  data_type_name         String? @db.VarChar
+  data_type_description  String? @db.VarChar
+  assay_type_id          String? @db.VarChar
+  assay_type_name        String? @db.VarChar
+  assay_type_description String? @db.VarChar
+  pk_id                  Int     @id @default(autoincrement())
 }
 
 model file {
@@ -385,6 +328,7 @@ model file {
   bundle_collection_id_namespace                   String?                     @default("") @db.VarChar
   bundle_collection_local_id                       String?                     @default("") @db.VarChar
   dbgap_study_id                                   String?                     @default("") @db.VarChar
+  access_url                                       String?                     @default("") @db.VarChar
   analysis_type_file_analysis_typeToanalysis_type  analysis_type?              @relation("file_analysis_typeToanalysis_type", fields: [analysis_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_analysis_type_7")
   assay_type_file_assay_typeToassay_type           assay_type?                 @relation("file_assay_typeToassay_type", fields: [assay_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_assay_type_6")
   collection                                       collection?                 @relation(fields: [bundle_collection_id_namespace, bundle_collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_collection_8")
@@ -454,29 +398,6 @@ model file_in_collection {
   @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model fl_biosample {
-  id_namespace            String? @db.VarChar
-  local_id                String? @db.VarChar
-  project_id_namespace    String? @db.VarChar
-  project_local_id        String? @db.VarChar
-  persistent_id           String? @db.VarChar
-  creation_time           String? @db.VarChar
-  sample_prep_method      String? @db.VarChar
-  anatomy                 String? @db.VarChar
-  association_type        String? @db.VarChar
-  disease                 String? @db.VarChar
-  subject_id_namespace    String? @db.VarChar
-  subject_local_id        String? @db.VarChar
-  age_at_sampling         String? @db.VarChar
-  gene                    String? @db.VarChar
-  collection_id_namespace String? @db.VarChar
-  collection_local_id     String? @db.VarChar
-  substance               String? @db.VarChar
-
-  @@ignore
-}
-
 model gene {
   id                                         String            @id @db.VarChar
   name                                       String            @db.VarChar
@@ -491,16 +412,16 @@ model gene {
 }
 
 model id_namespace {
-  id                                               String       @id @db.VarChar
-  abbreviation                                     String?      @default("") @db.VarChar
-  name                                             String       @db.VarChar
-  description                                      String?      @default("") @db.VarChar
-  biosample_biosample_id_namespaceToid_namespace   biosample[]  @relation("biosample_id_namespaceToid_namespace")
-  collection_collection_id_namespaceToid_namespace collection[] @relation("collection_id_namespaceToid_namespace")
-  file_file_id_namespaceToid_namespace             file[]       @relation("file_id_namespaceToid_namespace")
+  id                                               String               @id @db.VarChar
+  abbreviation                                     String?              @default("") @db.VarChar
+  name                                             String               @db.VarChar
+  description                                      String?              @default("") @db.VarChar
+  biosample_biosample_id_namespaceToid_namespace   biosample[]          @relation("biosample_id_namespaceToid_namespace")
+  collection_collection_id_namespaceToid_namespace collection[]         @relation("collection_id_namespaceToid_namespace")
+  file_file_id_namespaceToid_namespace             file[]               @relation("file_id_namespaceToid_namespace")
   id_namespace_dcc_id                              id_namespace_dcc_id?
-  project_project_id_namespaceToid_namespace       project[]    @relation("project_id_namespaceToid_namespace")
-  subject_subject_id_namespaceToid_namespace       subject[]    @relation("subject_id_namespaceToid_namespace")
+  project_project_id_namespaceToid_namespace       project[]            @relation("project_id_namespaceToid_namespace")
+  subject_subject_id_namespaceToid_namespace       subject[]            @relation("subject_id_namespaceToid_namespace")
 }
 
 model ncbi_taxonomy {
@@ -739,6 +660,31 @@ model substance {
   compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_substance_compound_1")
 }
 
+model biofluid {
+  id                                                         String                @id @db.VarChar
+  name                                                       String                @db.VarChar
+  description                                                String?               @default("") @db.VarChar
+  synonyms                                                   String?               @default("") @db.VarChar
+  biosample_biosample_biofluidTobiofluid                     biosample[]           @relation("biosample_biofluidTobiofluid")
+  collection_biofluid_collection_biofluid_biofluidTobiofluid collection_biofluid[] @relation("collection_biofluid_biofluidTobiofluid")
+}
+
+model biosample_type {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model collection_biofluid {
+  collection_id_namespace                         String     @db.VarChar
+  collection_local_id                             String     @db.VarChar
+  biofluid                                        String     @db.VarChar
+  biofluid_collection_biofluid_biofluidTobiofluid biofluid   @relation("collection_biofluid_biofluidTobiofluid", fields: [biofluid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_biofluid_biofluid_2")
+  collection                                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_biofluid_collection_1")
+
+  @@id([collection_id_namespace, collection_local_id, biofluid])
+}
+
 model ffl_biosample_collection {
   searchable                        Unsupported("tsvector")?
   biosample_id_namespace            String?                  @db.VarChar
@@ -749,6 +695,7 @@ model ffl_biosample_collection {
   biosample_creation_time           String?                  @db.VarChar
   sample_prep_method                String?                  @db.VarChar
   anatomy                           String?                  @db.VarChar
+  biofluid                          String?                  @db.VarChar
   disease_association_type          String?                  @db.VarChar
   disease                           String?                  @db.VarChar
   subject_id_namespace              String?                  @db.VarChar
@@ -761,6 +708,7 @@ model ffl_biosample_collection {
   dcc_name                          String?                  @db.VarChar
   dcc_abbreviation                  String?                  @db.VarChar
   anatomy_name                      String?                  @db.VarChar
+  biofluid_name                     String?                  @db.VarChar
   gene_name                         String?                  @db.VarChar
   protein                           String?                  @db.VarChar
   protein_name                      String?                  @db.VarChar
@@ -812,6 +760,7 @@ model ffl_biosample_collection_cmp {
   project_local_id                  String?                  @db.VarChar
   sample_prep_method                String?                  @db.VarChar
   anatomy                           String?                  @db.VarChar
+  biofluid                          String?                  @db.VarChar
   disease_association_type          String?                  @db.VarChar
   disease                           String?                  @db.VarChar
   subject_id_namespace              String?                  @db.VarChar
@@ -824,6 +773,7 @@ model ffl_biosample_collection_cmp {
   dcc_name                          String?                  @db.VarChar
   dcc_abbreviation                  String?                  @db.VarChar
   anatomy_name                      String?                  @db.VarChar
+  biofluid_name                     String?                  @db.VarChar
   gene_name                         String?                  @db.VarChar
   protein                           String?                  @db.VarChar
   protein_name                      String?                  @db.VarChar
@@ -867,7 +817,7 @@ model ffl_biosample_collection_cmp {
   pk_id                             Int                      @id @default(autoincrement())
 
   @@index([searchable], map: "ffl_biosample_collection_cmp_idx", type: Gin)
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name], map: "ffl_biosample_collection_cmp_idx_many_cols")
+  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name], map: "ffl_biosample_collection_cmp_idx_many_cols")
 }
 
 model file_describes_in_collection {

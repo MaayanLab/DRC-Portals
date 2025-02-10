@@ -46,11 +46,11 @@ export async function C2m2SubmissionPrep() {
     )
     .replace( // update to most recent prep script
       '8 Mar 2023]](https://osf.io/c67sp/)',  
-      '18 May 2023]](https://osf.io/7qdz4)'
+      '28 August 2024]](https://osf.io/7qdz4)'
     )
     .replace( // update to most recent ontology files
       '8 Mar 2023]](https://osf.io/bq6k9/files/)',  
-      '24 May 2023]](https://osf.io/bq6k9/files/)'
+      '28 August 2024]](https://osf.io/bq6k9/files/)'
     )
     .split('This script is under')[0]
   return (
