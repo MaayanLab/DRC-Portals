@@ -48,7 +48,7 @@ http://localhost:3000/data/c2m2/search/record_info?q=liver&t=dcc_name:Illuminati
 http://localhost:3000/data/search/parkinson/c2m2
 
 Select some records:
-http://localhost:3000/data/c2m2/search/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+http://localhost:3000/data/c2m2/search/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 http://localhost:3000/data/c2m2/search/record_info?q=parkinson&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:secondary%20Parkinson%20disease|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
 
@@ -63,7 +63,8 @@ http://localhost:3000/data/c2m2/search/record_info?q=parkinson&t=dcc_name:The%20
 http://localhost:3000/data/search/intestine%20homo%20sapiens%20female%20cancer/c2m2
 
 Select a record:
-http://localhost:3000/data/c2m2/search/record_info?q=intestine%20homo%20sapiens%20female%20cancer&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:exRNA_Atlas|disease_name:colorectal%20cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:cardiovascular%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+
+http://localhost:3000/data/c2m2/search/record_info?q=intestine%20homo%20sapiens%20female%20cancer&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-DGALA1GUTPLASM-ST|disease_name:colorectal%20cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:cardiovascular%20system|biofluid_name:seminal%20fluid|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay
 
 ### Search: intestine homo sapiens
 http://localhost:3000/data/search/intestine%20homo%20sapiens/c2m2
@@ -91,23 +92,27 @@ http://localhost:3000/data/c2m2/search/record_info?q=sterol&t=dcc_name:Illuminat
 Go back: Apply filter: DCC: LINCS
 http://localhost:3000/data/search/sterol/c2m2?p=1&t=dcc%3ALibrary+of+Integrated+Network-based+Cellular+Signatures
 
-http://localhost:3000/data/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:breast%20carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|gene_name:SOAT2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+http://localhost:3000/data/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS-2021|disease_name:breast%20carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|biofluid_name:Unspecified|gene_name:SCP2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
 
 Go back: Apply filter: DCC: MW
 http://localhost:3000/data/search/sterol/c2m2?p=1&t=dcc%3AUCSD+Metabolomics+Workbench
 
 http://localhost:3000/data/c2m2/search/record_info?q=sterol&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000633|disease_name:fatty%20liver%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:liver|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:mass%20spectrometry%20assay
 
+OR
+
+http://localhost:3000/data/c2m2/search/record_info?q=PR000633&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000633|disease_name:steatotic%20liver%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:liver|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:mass%20spectrometry%20assay
+
 http://localhost:3000/data/search/sterol/c2m2?p=1&t=anatomy%3Ablood+serum%7Canatomy%3Aadipose+tissue
 
-http://localhost:3000/data/c2m2/search/record_info?q=sterol&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:adipose%20tissue|gene_name:SCP2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+http://localhost:3000/data/c2m2/search/record_info?q=sterol&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20serum|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:LCAT_HUMAN|compound_name:CID%2091845155|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified
 
 ### Search: atorvastatin
 http://localhost:3000/data/search/atorvastatin/c2m2?p=1
 
 http://localhost:3000/data/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:Drugmonizome|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Unspecified|assay_type_name:Unspecified
 
-http://localhost:3000/data/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS|disease_name:carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:kidney|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Unspecified|assay_type_name:Unspecified
+http://localhost:3000/data/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS-2021|disease_name:carcinoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:kidney|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Atorvastatin|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
 
 ### Search: myeloid cell
 
@@ -115,6 +120,8 @@ http://localhost:3000/data/search/myeloid%20cell/c2m2
 
 #### Apply filters anatomy: blood
 http://localhost:3000/data/search/myeloid%20cell/c2m2?t=anatomy%3Ablood&p=1
+OR
+http://localhost:3000/data/search/myeloid%20cell/c2m2?t=biofluid%3Ablood&p=1
 
 #### Apply filter taxonomy Homo sapiens
 http://localhost:3000/data/search/myeloid%20cell/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens
@@ -141,10 +148,13 @@ http://localhost:3000/data/c2m2/search/record_info?q=covid&t=dcc_name:The%20Gabr
 ### Search: throat cancer
 http://localhost:3000/data/search/throat%20cancer/c2m2
 
-### Filters and then Record Info  page:
+#### Filters and then Record Info  page:
 http://localhost:3000/data/search/throat%20cancer/c2m2?t=anatomy%3Asaliva&p=1
+or
+http://localhost:3000/data/search/throat%20cancer/c2m2?t=biofluid%3Asaliva&p=1
 
-http://localhost:3000/data/c2m2/search/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+http://localhost:3000/data/c2m2/search/record_info?q=throat%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001492|disease_name:human%20immunodeficiency%20virus%20infectious%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:saliva|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 
 ### Another example of multiple filters
 Search blood then apply Species filter (two values, Homo sapiens or Mus Musculus):
@@ -156,3 +166,51 @@ http://localhost:3000/data/search/blood/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%
 Then apply Anatomy filter (Blood ir Brain):
 http://localhost:3000/data/search/blood/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cncbi_taxonomy%3AMus+musculus%7Cdcc%3A4D+NUCLEOME+DATA+COORDINATION+AND+INTEGRATION+CENTER%7Cdcc%3ALibrary+of+Integrated+Network-based+Cellular+Signatures%7Cdcc%3AIlluminating+the+Druggable+Genome%7Cdcc%3AUCSD+Metabolomics+Workbench%7Canatomy%3Ablood%7Canatomy%3Abrain
 
+### Search: hepatitis, apply filters
+http://localhost:3000/data/search/hepatitis/c2m2?t=dcc%3AIlluminating+the+Druggable+Genome%7Cdcc%3AUCSD+Metabolomics+Workbench%7Cdisease%3ABudd-Chiari+syndrome&p=1
+
+http://localhost:3000/data/c2m2/search/record_info?q=hepatitis&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:Budd-Chiari%20syndrome|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified
+
+### Search: malignant carcinoma
+http://localhost:3000/data/search/malignant%20carcinoma/c2m2?t=disease%3Aadrenal+cortex+cancer%7Cdisease%3Anasopharynx+carcinoma&p=1
+
+### Search: doxorubicin
+http://localhost:3000/data/search/doxorubicin/c2m2?t=disease%3Aobesity%7Cdisease%3Abreast+carcinoma&p=1
+
+http://localhost:3000/data/c2m2/search/record_info?q=doxorubicin&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001044|disease_name:obesity|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:liver|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+### Search: sleep apnea
+http://localhost:3000/data/search/sleep%20apnea/c2m2?t=&p=1
+
+http://localhost:3000/data/c2m2/search/record_info?q=sleep%20apnea&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000097|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+### Search: vitiligo
+http://localhost:3000/data/search/vitiligo/c2m2?t=dcc%3AGlyGen&p=1
+
+http://localhost:3000/data/c2m2/search/record_info?q=vitiligo&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:FBX11_HUMAN|compound_name:Unspecified|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified
+
+### Search: islet of langerhans
+http://localhost:3000/data/search/islet%20of%20langerhans/c2m2?t=&p=1
+
+http://localhost:3000/data/c2m2/search/record_info?q=islet%20of%20langerhans&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000662|disease_name:Unspecified|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:islet%20of%20Langerhans|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:gas%20chromatography%20mass%20spectrometry%20assay
+
+### Search: exercise obese
+http://localhost:3000/data/search/exercise%20obese/c2m2
+
+http://localhost:3000/data/search/exercise%20obese/c2m2?t=dcc%3AThe+Extracellular+Communication+Consortium+Data+Coordination+Center&p=1
+
+http://localhost:3000/data/c2m2/search/record_info?q=exercise%20obese&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-SADAS1EXERs1-ST|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:anatomical%20system|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay
+
+### Search: tobacco
+http://localhost:3000/data/search/tobacco/c2m2
+
+http://localhost:3000/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Cbiofluid_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
+
+### Example of biofluid filter: Search tuberculosis
+http://localhost:3000/data/search/tuberculosis/c2m2
+
+#### biofluid filter: urine
+http://localhost:3000/data/search/tuberculosis/c2m2?t=biofluid%3Aurine&p=1
+
+#### A record from MW
+http://localhost:3000/data/c2m2/search/record_info?q=tuberculosis&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000716|disease_name:tuberculosis|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:urine|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay

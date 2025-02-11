@@ -101,6 +101,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 allres_full.disease,
                 allres_full.anatomy_name,
                 allres_full.anatomy,
+                allres_full.biofluid_name,
+                allres_full.biofluid,
                 allres_full.gene, 
                 allres_full.gene_name,
                 allres_full.protein, 
@@ -115,13 +117,11 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         ),
             /* create file_table_keycol */
             /* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
-             /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
+            /* For some DCCs, e.g., hubmap, it may list many many files (> 1M) for some projects */
             file_table_keycol AS (
-            SELECT DISTINCT 
-                f.id_namespace,
-                f.local_id,
-                f.project_id_namespace,
-                f.project_local_id
+            /* SELECT DISTINCT f.id_namespace, f.local_id, f.project_id_namespace, f.project_local_id */
+            /* Make a subtable with all columns and use that later since just a simple scan through the file table takes long */
+            SELECT DISTINCT f.*
             FROM c2m2.file AS f
             INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                     AND f.project_id_namespace = ui.project_id_namespace
@@ -134,16 +134,15 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 f.local_id,
                 f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
                 f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                f.file_format, f.compression_format,  f.mime_type, f.dbgap_study_id,
+                f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
                 ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
-                /**** dt.name AS data_type_name, at.name AS assay_type_name, aty.name AS analysis_type_name ****/
-                FROM c2m2.file AS f INNER JOIN unique_info ui ON (f.project_local_id = ui.project_local_id 
-                AND f.project_id_namespace = ui.project_id_namespace
-                AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL))  /****/
-                AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
-                /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
-                LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
+                FROM /* c2m2.file */ file_table_keycol AS f INNER JOIN unique_info ui ON 
+                ((f.project_local_id = ui.project_local_id)
+                    AND (f.project_id_namespace = ui.project_id_namespace)
+                    AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL))  /****/
+                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
+                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
             limit ${file_count_limit_proj}
             )
             , 
@@ -166,7 +165,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const t0: number = performance.now();
         const results = await prisma.$queryRaw<FileProjTableResult[]>(query);
         const t1: number = performance.now();
-        console.log("Elapsed time for FilesProjTableComponent queries: ", t1 - t0, " milliseconds");
+        console.log("------------ Elapsed time for FilesProjTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
             return <div></div>;
@@ -194,7 +193,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
 
-        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace'];
+        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileProjPrunedData,
             columnNames: fileProjColNames,
