@@ -119,10 +119,11 @@ export interface PathwayConnectionsResult {
   connectedEdges: EdgeConnection[];
 }
 
+export type PathwaySearchResultRow = (NodeResult | RelationshipResult)[];
+
 export interface PathwaySearchResult {
-  graph: SubGraph;
-  limit: number;
-  limitExceeded: boolean;
+  paths: PathwaySearchResultRow[];
+  count: number;
 }
 
 export type PropValue = string | number;

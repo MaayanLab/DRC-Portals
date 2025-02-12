@@ -116,14 +116,19 @@ export const fetchPathSearch = (
     }
   );
 
-export const fetchPathwaySearch = (query: string, fetchProps?: RequestInit) =>
+export const fetchPathwaySearch = (
+  query: string,
+  page?: number,
+  limit?: number,
+  fetchProps?: RequestInit
+) =>
   fetch(`${GRAPH_API_PREFIX}/search/pathway`, {
     ...fetchProps,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ tree: query }),
+    body: JSON.stringify({ tree: query, page, limit }),
   });
 
 export const fetchPathwaySearchConnections = (

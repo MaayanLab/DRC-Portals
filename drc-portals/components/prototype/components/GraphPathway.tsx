@@ -2,22 +2,18 @@
 
 import { AlertColor, Grid } from "@mui/material";
 
-import { ElementDefinition, NodeSingular } from "cytoscape";
+import { NodeSingular } from "cytoscape";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { z } from "zod";
 
-import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import { Direction } from "@/lib/neo4j/enums";
 import {
   NodeResult,
   PathwayNode,
-  PathwaySearchResult,
+  PathwaySearchResultRow,
 } from "@/lib/neo4j/types";
 
-import {
-  BASIC_SEARCH_ERROR_MSG,
-  NO_RESULTS_ERROR_MSG,
-} from "../constants/search-bar";
+import { BASIC_SEARCH_ERROR_MSG } from "../constants/search-bar";
 import {
   PathwaySearchContext,
   PathwaySearchContextProps,
@@ -27,7 +23,6 @@ import {
   PathwaySearchNode,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
-import { createCytoscapeElements } from "../utils/cy";
 import {
   createPathwaySearchEdge,
   createPathwaySearchNode,
@@ -44,13 +39,11 @@ import GraphPathwaySearch from "./PathwaySearch/GraphPathwaySearch";
 import AlertSnackbar from "./shared/AlertSnackbar";
 
 export default function GraphPathway() {
-  const [resultElements, setResultElements] = useState<ElementDefinition[]>([]);
   const [searchElements, setSearchElements] = useState<PathwaySearchElement[]>(
     []
   );
   const [tree, setTree] = useState<PathwayNode>();
   const [showResults, setShowResults] = useState(false);
-  const [loadingSearchResults, setLoadingSearchResults] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
@@ -68,22 +61,7 @@ export default function GraphPathway() {
     setSnackbarSeverity(severity);
   };
 
-  const getPathwaySearchResults = async (
-    tree: PathwayNode
-  ): Promise<{ data: PathwaySearchResult; status: number }> => {
-    const query = btoa(JSON.stringify(tree));
-    const response = await fetchPathwaySearch(query);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Request failed: ${errorText}`);
-    }
-
-    return { data: await response.json(), status: response.status };
-  };
-
   const handleReset = useCallback(() => {
-    setResultElements([]);
     setSearchElements([]);
   }, []);
 
@@ -116,42 +94,16 @@ export default function GraphPathway() {
   );
 
   const handleSearchBtnClick = useCallback(async () => {
-    setLoadingSearchResults(true);
-
     if (tree === undefined) {
       updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
-      setLoadingSearchResults(false);
       return;
     }
 
-    try {
-      const { data, status } = await getPathwaySearchResults(tree);
-      const elements = createCytoscapeElements(data.graph);
-
-      if (elements.length === 0) {
-        updateSnackbar(true, NO_RESULTS_ERROR_MSG, "warning");
-      } else {
-        setShowResults(true);
-        setResultElements(elements);
-
-        if (status === 206) {
-          updateSnackbar(
-            true,
-            `Not all paths are being displayed due to result volume. Only first ${data.limit} paths are displayed.`,
-            "warning"
-          );
-        }
-      }
-    } catch (e) {
-      updateSnackbar(true, BASIC_SEARCH_ERROR_MSG, "error");
-    } finally {
-      setLoadingSearchResults(false);
-    }
+    setShowResults(true);
   }, [tree]);
 
   const handleReturnBtnClick = () => {
     setShowResults(false);
-    setResultElements([]);
   };
 
   const handleSearchBarSubmit = (cvTerm: NodeResult) => {
@@ -340,16 +292,15 @@ export default function GraphPathway() {
         height: "640px",
       }}
     >
-      {showResults ? (
+      {showResults && tree !== undefined ? (
         <GraphPathwayResults
-          elements={resultElements}
+          tree={tree}
           onReturnBtnClick={handleReturnBtnClick}
         />
       ) : (
         <PathwaySearchContext.Provider value={pathwayContextValue}>
           <GraphPathwaySearch
             elements={searchElements}
-            loading={loadingSearchResults}
             onConnectionSelected={handleConnectionSelected}
             onPruneSelected={handlePruneSelected}
             onPruneConfirm={handlePruneConfirm}

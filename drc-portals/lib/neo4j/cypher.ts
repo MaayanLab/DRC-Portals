@@ -14,7 +14,6 @@ import {
   createPropReprStr,
   createRelReprStr,
   escapeCypherString,
-  getUniqueTypeFromNodes,
   isPathwayRelationshipElement,
   isRelationshipElement,
 } from "./utils";
@@ -496,47 +495,39 @@ export const createPathwaySearchPathsCountCypher = (
   RETURN count(*) AS count`;
 };
 
+export const createPathwaySearchAllPathsCountCypher = (
+  treeParseResult: TreeParseResult
+) => {
+  return [
+    "MATCH",
+    `${treeParseResult.patterns.join(",\n")}`,
+    "RETURN count(*) AS count",
+  ].join("\n");
+};
+
 export const createPathwaySearchAllPathsCypher = (
   treeParseResult: TreeParseResult
 ) => {
   const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
   const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
-  const allIds = nodeIds.concat(relIds);
   return [
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
-    `RETURN ${allIds.join(", ")}`,
-    "SKIP $skip",
-    "LIMIT $limit",
-  ].join("\n");
-};
-
-export const createPathwaySearchDistinctSetCypher = (
-  treeParseResult: TreeParseResult
-) => {
-  const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
-  const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
-  const allIds = nodeIds.concat(relIds);
-  return `
-  CALL {
-    ${createPathwaySearchAllPathsCypher(treeParseResult)}
-  }
-  WITH ${allIds.join(", ")}
-  RETURN
-    apoc.coll.toSet(apoc.coll.flatten([
-      ${nodeIds
-        .map(
-          (id) =>
-            `collect({uuid: ${id}._uuid, labels: labels(${id}), properties: properties(${id})})`
-        )
-        .join(", ")}
-    ])) AS nodes,
-    apoc.coll.toSet(apoc.coll.flatten([
-      ${relIds.map(
+    `RETURN
+    ${nodeIds
+      .map(
         (id) =>
-          `collect({uuid: ${id}._uuid, type: type(${id}), properties: properties(${id}), startUUID: startNode(${id})._uuid, endUUID: endNode(${id})._uuid})`
-      )}
-    ])) AS relationships`;
+          `{uuid: ${id}._uuid, labels: labels(${id}), properties: properties(${id})} AS ${id}`
+      )
+      .concat(
+        relIds.map(
+          (id) =>
+            `{uuid: ${id}._uuid, type: type(${id}), properties: properties(${id}), startUUID: startNode(${id})._uuid, endUUID: endNode(${id})._uuid} AS ${id}`
+        )
+      )
+      .join(", ")}`,
+    "SKIP $skip LIMIT $limit",
+  ].join("\n");
 };
 
 export const createConnectionPattern = (

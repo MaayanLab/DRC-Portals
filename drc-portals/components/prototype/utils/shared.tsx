@@ -1,6 +1,6 @@
+import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { Box, Divider, Link } from "@mui/material";
-import ArrowRightAltRoundedIcon from "@mui/icons-material/ArrowRightAltRounded";
 import { CSSProperties } from "react";
 import { v4 } from "uuid";
 
@@ -285,6 +285,10 @@ export const getOntologyLink = (label: string, id: string) => {
 export const getExternalLinkElement = (link: string, text: string) => (
   <Link href={link} target="_blank" rel="noopener" color="secondary">
     {text}
-    <OpenInNewIcon fontSize="small" color="secondary" />
+    <OpenInNewIcon
+      fontSize="small"
+      color="secondary"
+      sx={{ marginLeft: "2px" }}
+    />
   </Link>
 );

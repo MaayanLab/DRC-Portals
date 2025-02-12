@@ -1,4 +1,12 @@
-import { Box, IconButton, styled } from "@mui/material";
+import { TabPanel as BaseTabPanel } from "@mui/base/TabPanel";
+import {
+  Box,
+  IconButton,
+  Paper,
+  TableCell,
+  styled,
+  tableCellClasses,
+} from "@mui/material";
 
 export const NodeFiltersContainer = styled(Box)({
   flexGrow: 1,
@@ -17,7 +25,6 @@ export const PathwayModeBtnContainer = styled(Box)({
   bottom: 10,
   right: 10,
   zIndex: 1,
-  padding: "inherit",
 });
 
 export const NodeFilterCarousel = styled(Box)(() => ({
@@ -44,3 +51,39 @@ export const NodeFilterButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: theme.palette.secondary.dark,
   },
 }));
+
+export const PathwayResultTabPanel = styled(BaseTabPanel)(() => ({
+  width: "100%",
+  height: "573px",
+}));
+
+export const TableViewContainer = styled(Paper)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: "8px",
+  width: "100%",
+  height: "100%",
+  overflowX: "auto",
+}));
+
+export const StyledTableCell = styled(TableCell)(() => ({
+  [`&.${tableCellClasses.root}`]: {
+    color: "#2D5986",
+    height: "38px",
+    overflow: "hidden",
+    textAlign: "left",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: "#CAD2E9",
+    fontWeight: "bold",
+  },
+}));
+
+export const StyledDataCell = styled(StyledTableCell)(() => ({
+  minWidth: "150px",
+  maxWidth: "200px",
+}));
+
+export const PATHWAY_SEARCH_DEFAULT_LIMIT = 10;

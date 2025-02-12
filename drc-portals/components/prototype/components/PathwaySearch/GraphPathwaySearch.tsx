@@ -9,7 +9,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
   Button,
-  CircularProgress,
   Fab,
   Grid,
   IconButton,
@@ -17,7 +16,6 @@ import {
   Snackbar,
   Tooltip,
 } from "@mui/material";
-
 import {
   Core,
   EventObject,
@@ -66,7 +64,6 @@ import PathwayNodeFilters from "./PathwayNodeFilters";
 
 interface GraphPathwaySearchProps {
   elements: PathwaySearchElement[];
-  loading: boolean;
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
   onConnectionSelected: (item: ConnectionMenuItem) => void;
@@ -85,7 +82,6 @@ interface GraphPathwaySearchProps {
 export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const {
     elements,
-    loading,
     onConnectionSelected,
     onPruneSelected,
     onPruneConfirm,
@@ -381,23 +377,11 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
               <Fab
                 aria-label="search-path"
                 color="secondary"
-                size="large"
+                size="medium"
                 onClick={onSearchBtnClick}
               >
                 <SearchIcon />
               </Fab>
-              {loading && (
-                <CircularProgress
-                  color="primary"
-                  size={68} // This should be the FAB diameter + 4
-                  sx={{
-                    position: "absolute",
-                    top: -6,
-                    left: -6,
-                    zIndex: 1,
-                  }}
-                />
-              )}
             </Box>
           </Tooltip>
         </PathwayModeBtnContainer>

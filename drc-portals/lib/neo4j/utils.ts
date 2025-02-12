@@ -10,10 +10,12 @@ import {
 } from "./constants";
 import { createConnectionPattern } from "./cypher";
 import {
+  NodeResult,
   PathElement,
   PathwayNode,
   PathwayRelationship,
   RelationshipPathElement,
+  RelationshipResult,
   TreeParseResult,
 } from "./types";
 import { Direction } from "./enums";
@@ -75,6 +77,12 @@ export const isRelationshipElement = (
   option: PathElement
 ): option is RelationshipPathElement => {
   return (option as RelationshipPathElement).direction !== undefined;
+};
+
+export const isRelationshipResult = (
+  element: NodeResult | RelationshipResult
+): element is RelationshipResult => {
+  return (element as RelationshipResult).type !== undefined;
 };
 
 export const getParamsForBrowser = (params: Object) => {

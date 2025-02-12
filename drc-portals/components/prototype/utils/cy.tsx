@@ -32,7 +32,12 @@ import {
   SUBJECT_RELATED_LABELS,
   TERM_LABELS,
 } from "@/lib/neo4j/constants";
-import { NodeResult, RelationshipResult, SubGraph } from "@/lib/neo4j/types";
+import {
+  NodeResult,
+  PathwaySearchResultRow,
+  RelationshipResult,
+} from "@/lib/neo4j/types";
+import { isRelationshipResult } from "@/lib/neo4j/utils";
 
 import {
   DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
@@ -106,26 +111,38 @@ export const createCytoscapeEdge = (
   };
 };
 
-export const createCytoscapeElements = (subgraph: SubGraph) => {
+export const createCytoscapeElements = (
+  graphPaths: PathwaySearchResultRow[]
+) => {
   let nodes: CytoscapeNode[] = [];
   let edges: CytoscapeEdge[] = [];
+  const seenNodes = new Set<string>();
+  const seenEdges = new Set<string>();
 
-  subgraph.nodes.forEach((node) => {
-    const nodeLabel = node.labels[0];
-    const usePropForLabel = [
-      ...TERM_LABELS,
-      ...FILE_RELATED_LABELS,
-      ...BIOSAMPLE_RELATED_LABELS,
-      ...SUBJECT_RELATED_LABELS,
-      ID_NAMESPACE_LABEL,
-      DCC_LABEL,
-    ].includes(nodeLabel);
-    nodes.push(createCytoscapeNode(node, [], usePropForLabel));
+  graphPaths.forEach((path) => {
+    path.forEach((element) => {
+      if (isRelationshipResult(element)) {
+        if (!seenEdges.has(element.uuid)) {
+          edges.push(createCytoscapeEdge(element));
+          seenEdges.add(element.uuid);
+        }
+      } else {
+        if (!seenNodes.has(element.uuid)) {
+          const nodeLabel = element.labels[0];
+          const usePropForLabel = [
+            ...TERM_LABELS,
+            ...FILE_RELATED_LABELS,
+            ...BIOSAMPLE_RELATED_LABELS,
+            ...SUBJECT_RELATED_LABELS,
+            ID_NAMESPACE_LABEL,
+            DCC_LABEL,
+          ].includes(nodeLabel);
+          nodes.push(createCytoscapeNode(element, [], usePropForLabel));
+          seenNodes.add(element.uuid);
+        }
+      }
+    });
   });
-
-  subgraph.relationships.forEach((relationship) =>
-    edges.push(createCytoscapeEdge(relationship))
-  );
 
   return [...nodes, ...edges];
 };

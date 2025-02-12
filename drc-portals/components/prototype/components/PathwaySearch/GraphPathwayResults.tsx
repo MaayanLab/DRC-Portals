@@ -1,341 +1,164 @@
 "use client";
 
-import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
-import {
-  Alert,
-  AlertColor,
-  Fab,
-  Grid,
-  Snackbar,
-  SnackbarCloseReason,
-  Tooltip,
-} from "@mui/material";
+import { Tabs } from "@mui/base/Tabs";
+import HubIcon from "@mui/icons-material/Hub";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import { AlertColor, SelectChangeEvent } from "@mui/material";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 
-import { ElementDefinition, EventObject } from "cytoscape";
-import { useEffect, useState, ReactNode } from "react";
-
-import ExpandNodeMenuItem from "../../components/CytoscapeChart/custom-cxt-menu-items/ExpandNodeMenuItem";
-import ChartCxtMenuItem from "../../components/CytoscapeChart/ChartCxtMenuItem";
-import ChartNestedCxtMenuItem from "../../components/CytoscapeChart/NestedChartCxtMenuItem";
+import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
-  DEFAULT_STYLESHEET,
-  EULER_LAYOUT,
-  SCHEMA_LEGEND,
-  SCHEMA_RELATIONSHIP_ITEM,
-  STYLE_CLASS_TO_LEGEND_KEY_MAP,
-} from "../../constants/cy";
-import { PathwayModeBtnContainer } from "../../constants/pathway-search";
-import { CytoscapeNodeData } from "../../interfaces/cy";
-import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
-import {
-  downloadChartData,
-  downloadChartPNG,
-  downloadCyAsJson,
-  hideElement,
-  hideSelection,
-  highlightNeighbors,
-  highlightNodesWithLabel,
-  isNodeD3Locked,
-  resetHighlights,
-  selectAll,
-  selectNeighbors,
-  selectNodesWithLabel,
-  selectionHasLockedNode,
-  selectionIsAllHidden,
-  selectionIsAllShown,
-  showElement,
-  showSelection,
-  unlockD3ForceNode,
-  unlockSelection,
-} from "../../utils/cy";
+  PathwayNode,
+  PathwaySearchResult,
+  PathwaySearchResultRow,
+} from "@/lib/neo4j/types";
 
-import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
-import GraphEntityDetails from "../GraphEntityDetails";
+import { Tab, TabsList } from "../../constants/advanced-search";
+import {
+  PATHWAY_SEARCH_DEFAULT_LIMIT,
+  PathwayResultTabPanel,
+  TableViewContainer,
+} from "../../constants/pathway-search";
+
+import AlertSnackbar from "../shared/AlertSnackbar";
+
+import TableView from "./PathwayResults/TableView";
+import GraphView from "./PathwayResults/GraphView";
+import TableViewSkeleton from "./PathwayResults/TableViewSkeleton";
 
 interface GraphPathwayResultsProps {
-  elements: ElementDefinition[];
+  tree: PathwayNode;
   onReturnBtnClick: () => void;
 }
 
 export default function GraphPathwayResults(
   cmpProps: GraphPathwayResultsProps
 ) {
-  const { onReturnBtnClick } = cmpProps;
-  const [elements, setElements] = useState<ElementDefinition[]>(
-    cmpProps.elements
-  );
-  const [legend, setLegend] = useState<Map<string, ReactNode>>();
-  const [entityDetails, setEntityDetails] = useState<
-    CytoscapeNodeData | undefined
-  >(undefined);
+  const { tree, onReturnBtnClick } = cmpProps;
+  const [paths, setPaths] = useState<PathwaySearchResultRow[]>([]);
+  const [count, setCount] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(PATHWAY_SEARCH_DEFAULT_LIMIT);
+  const [loading, setLoading] = useState<boolean>(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMsg, setSnackbarMsg] = useState<string | null>(null);
-  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>();
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
 
-  const handleExpandNodeError = (error: string) => {
-    setSnackbarMsg(error);
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  };
+  const getPathwaySearchResults = async (
+    tree: PathwayNode,
+    page: number,
+    limit: number
+  ): Promise<{ data: PathwaySearchResult; status: number }> => {
+    const query = btoa(JSON.stringify(tree));
+    const response = await fetchPathwaySearch(query, page, limit);
 
-  const handleSnackbarClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") {
-      return;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
     }
 
-    setSnackbarOpen(false);
+    return { data: await response.json(), status: response.status };
   };
 
-  const resetLegend = () => {
-    if (elements.length === 0) {
-      setLegend(undefined);
-    } else {
-      const newLegend = new Map<string, ReactNode>();
-      const nodeClasses = new Set<string>();
-      let relationshipElementFound = false;
+  const handlePageChange = useCallback(
+    async (event: ChangeEvent, newPage: number) => {
+      setPage(newPage);
+      setLoading(true);
+      const { data } = await getPathwaySearchResults(tree, newPage, limit);
+      setLoading(false);
+      setPaths(data.paths);
+      setCount(data.count);
+    },
+    [tree, limit]
+  );
 
-      elements.forEach((element) => {
-        if (element.data.source !== undefined) {
-          relationshipElementFound = true;
-        } else {
-          const elementClasses = element.classes;
-          if (typeof elementClasses === "string") {
-            elementClasses
-              .split(" ")
-              .forEach((value) => nodeClasses.add(value));
-          } else if (Array.isArray(elementClasses)) {
-            elementClasses.forEach((value) => nodeClasses.add(value));
-          }
-        }
-      });
-
-      Array.from(nodeClasses)
-        .sort()
-        .forEach((nodeClass) => {
-          const legendKey = STYLE_CLASS_TO_LEGEND_KEY_MAP.get(nodeClass);
-          if (legendKey !== undefined) {
-            newLegend.set(legendKey, SCHEMA_LEGEND.get(legendKey));
-          }
-        });
-
-      if (relationshipElementFound) {
-        newLegend.set(
-          SCHEMA_RELATIONSHIP_ITEM,
-          SCHEMA_LEGEND.get(SCHEMA_RELATIONSHIP_ITEM)
+  const handleLimitChange = useCallback(
+    async (event: SelectChangeEvent<number>) => {
+      try {
+        const newLimit = Number(event.target.value);
+        setLimit(newLimit);
+        setPage(1); // Reset the table to the first page
+        setLoading(true);
+        const { data } = await getPathwaySearchResults(tree, 1, newLimit);
+        setLoading(false);
+        setPaths(data.paths);
+        setCount(data.count);
+      } catch {
+        updateSnackbar(
+          true,
+          "An error occurred updating table limit. Please try again later.",
+          "error"
         );
       }
-      setLegend(newLegend);
-    }
+    },
+    [tree, page]
+  );
+
+  const updateSnackbar = (open: boolean, msg: string, severity: AlertColor) => {
+    setSnackbarMsg(msg);
+    setSnackbarOpen(open);
+    setSnackbarSeverity(severity);
   };
 
-  const highlightRenderChildren = (event: EventObject) => [
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-neighbors"
-      renderContent={(event) => "Neighbors"}
-      action={highlightNeighbors}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-nodes-with-label"
-      renderContent={(event) => "Nodes with this Label"}
-      action={highlightNodesWithLabel}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const selectRenderChildren = (event: EventObject) => [
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-neighbors"
-      renderContent={(event) => "Select Neighbors"}
-      action={selectNeighbors}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-nodes-with-label"
-      renderContent={(event) => "Select Nodes with this Label"}
-      action={selectNodesWithLabel}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const staticCxtMenuItems: ReactNode[] = [
-    <ChartCxtMenuItem
-      key="cxt-menu-reset-highlights"
-      renderContent={() => "Reset Highlights"}
-      action={resetHighlights}
-      showFn={(event) =>
-        event.cy.elements(".highlight").length > 0 ||
-        event.cy.elements(".transparent").length > 0
-      }
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-download-selection"
-      renderContent={(event) => "Download Selection"}
-      action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
-      showFn={(event) => event.cy.elements(":selected").length > 0}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-show-selection"
-      renderContent={(event) => "Show Selection"}
-      action={showSelection}
-      showFn={(event) => !selectionIsAllShown(event)}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-hide-selection"
-      renderContent={(event) => "Hide Selection"}
-      action={hideSelection}
-      showFn={(event) => !selectionIsAllHidden(event)}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const nodeCxtMenuItems: ReactNode[] = [
-    <ChartCxtMenuItem
-      key="cxt-menu-show"
-      renderContent={(event) => "Show"}
-      action={showElement}
-      showFn={(event) => event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="cxt-menu-hide"
-      renderContent={(event) => "Hide"}
-      action={hideElement}
-      showFn={(event) => !event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-show-details"
-      renderContent={(event) => "Show Details"}
-      action={(event) => setEntityDetails(event.target.data())}
-    ></ChartCxtMenuItem>,
-    <ExpandNodeMenuItem
-      key="chart-cxt-expand"
-      setElements={setElements}
-      onError={handleExpandNodeError}
-    ></ExpandNodeMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-unlock"
-      renderContent={(event) => "Unlock"}
-      action={(event) => unlockD3ForceNode(event.target)}
-      showFn={(event) => isNodeD3Locked(event.target)}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-unlock-selection"
-      renderContent={(event) => "Unlock Selection"}
-      action={unlockSelection}
-      showFn={selectionHasLockedNode}
-    ></ChartCxtMenuItem>,
-    <ChartNestedCxtMenuItem
-      key="chart-cxt-highlight"
-      renderContent={(event) => "Highlight"}
-      renderChildren={highlightRenderChildren}
-    ></ChartNestedCxtMenuItem>,
-    <ChartNestedCxtMenuItem
-      key="chart-cxt-select"
-      renderContent={(event) => "Select"}
-      renderChildren={selectRenderChildren}
-    ></ChartNestedCxtMenuItem>,
-  ];
-
-  const edgeCxtMenuItems = [
-    <ChartCxtMenuItem
-      key="cxt-menu-show"
-      renderContent={(event) => "Show"}
-      action={showElement}
-      showFn={(event) => event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="cxt-menu-hide"
-      renderContent={(event) => "Hide"}
-      action={hideElement}
-      showFn={(event) => !event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const canvasCxtMenuItems = [
-    <ChartCxtMenuItem
-      key="cxt-menu-select-all"
-      renderContent={() => "Select All"}
-      action={selectAll}
-    ></ChartCxtMenuItem>,
-  ];
-
-  // TODO: We could probably reduce some of the repetition in these function definitions...also would be nice to move this to another file
-  const customTools: CustomToolbarFnFactory[] = [
-    (cyRef: CytoscapeReference) =>
-      downloadChartData(
-        "search-chart-toolbar-download-data",
-        "Download Data",
-        cyRef
-      ),
-    (cyRef: CytoscapeReference) =>
-      downloadChartPNG(
-        "search-chart-toolbar-download-png",
-        "Download PNG",
-        cyRef
-      ),
-  ];
-
   useEffect(() => {
-    resetLegend();
-  }, [elements]);
+    setLoading(true);
+    getPathwaySearchResults(tree, page, limit).then(({ data }) => {
+      setLoading(false);
+      setPaths(data.paths);
+      setCount(data.count);
+    });
+  }, [tree]);
 
   return (
     <>
-      <Grid
-        item
-        xs={entityDetails === undefined ? 12 : 9}
-        sx={{ position: "relative", height: "inherit" }}
-      >
-        <CytoscapeChart
-          elements={elements}
-          layout={EULER_LAYOUT}
-          stylesheet={DEFAULT_STYLESHEET}
-          legend={legend}
-          cxtMenuEnabled={true}
-          hoverCxtMenuEnabled={false}
-          tooltipEnabled={true}
-          legendPosition={{ bottom: 10, left: 10 }}
-          toolbarPosition={{ top: 10, right: 10 }}
-          customTools={customTools}
-          staticCxtMenuItems={staticCxtMenuItems}
-          nodeCxtMenuItems={nodeCxtMenuItems}
-          edgeCxtMenuItems={edgeCxtMenuItems}
-          canvasCxtMenuItems={canvasCxtMenuItems}
-        ></CytoscapeChart>
-        <PathwayModeBtnContainer>
-          <Tooltip title="Return to Path Search" arrow placement="left">
-            <Fab
-              aria-label="return-to-search"
-              color="secondary"
-              size="large"
-              onClick={onReturnBtnClick}
-            >
-              <KeyboardReturnIcon />
-            </Fab>
-          </Tooltip>
-        </PathwayModeBtnContainer>
-      </Grid>
-      {entityDetails !== undefined ? (
-        <Grid item xs={3} sx={{ height: "inherit" }}>
-          <GraphEntityDetails
-            entityDetails={entityDetails}
-            onCloseDetails={() => setEntityDetails(undefined)}
-          />
-        </Grid>
-      ) : null}
-      <Snackbar
+      <Tabs defaultValue={0} style={{ width: "100%", height: "100%" }}>
+        <TabsList>
+          <Tab value={0} disabled={loading}>
+            Table View <TableChartIcon sx={{ marginLeft: 1 }} />
+          </Tab>
+          <Tab value={1} disabled={loading}>
+            Network View <HubIcon sx={{ marginLeft: 1 }} />
+          </Tab>
+        </TabsList>
+        <PathwayResultTabPanel value={0}>
+          <TableViewContainer>
+            {loading ? (
+              <TableViewSkeleton
+                limit={limit}
+                page={page}
+                count={count}
+                onReturnBtnClick={onReturnBtnClick}
+              />
+            ) : (
+              <TableView
+                data={paths}
+                limit={limit}
+                page={page}
+                count={count}
+                onReturnBtnClick={onReturnBtnClick}
+                onPageChange={handlePageChange}
+                onLimitChange={handleLimitChange}
+              ></TableView>
+            )}
+          </TableViewContainer>
+        </PathwayResultTabPanel>
+        <PathwayResultTabPanel value={1}>
+          <GraphView
+            paths={paths}
+            onReturnBtnClick={onReturnBtnClick}
+          ></GraphView>
+        </PathwayResultTabPanel>
+      </Tabs>
+
+      <AlertSnackbar
         open={snackbarOpen}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        message={snackbarMsg}
         autoHideDuration={5000}
-        onClose={handleSnackbarClose}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbarMsg}
-        </Alert>
-      </Snackbar>
+        severity={snackbarSeverity}
+        vertical={"bottom"}
+        horizontal={"center"}
+        handleClose={() => setSnackbarOpen(false)}
+      />
     </>
   );
 }

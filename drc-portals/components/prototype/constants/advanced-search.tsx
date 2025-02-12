@@ -114,10 +114,10 @@ export const TabPanel = styled(BaseTabPanel)(() => ({
 export const TabsList = styled(BaseTabsList)(({ theme }) => ({
   backgroundColor: theme.palette.secondary.main,
   borderRadius: "12px",
-  marginBottom: "16px",
+  marginBottom: "8px",
   display: "inline-flex",
   alignContent: "center",
   alignItems: "center",
   justifyContent: "space-between",
-  boxShadow: "0px 4px 15px grey",
+  boxShadow: "0px 4px 8px grey",
 }));
