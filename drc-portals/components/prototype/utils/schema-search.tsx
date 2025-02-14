@@ -1,53 +1,25 @@
-import { Paper, Popper } from "@mui/material";
-import { CSSProperties, ReactElement } from "react";
-
 import { Direction } from "@/lib/neo4j/enums";
 import {
   INCOMING_CONNECTIONS,
   NODE_LABELS,
   OUTGOING_CONNECTIONS,
-  PROPERTY_MAP,
-  PROPERTY_OPERATORS,
   RELATIONSHIP_TYPES,
 } from "@/lib/neo4j/constants";
 import {
-  BasePropFilter,
   NodePathElement,
   PathElement,
   RelationshipPathElement,
 } from "@/lib/neo4j/types";
-import { neo4jSafeUUID } from "@/lib/neo4j/utils";
 
-import {
-  NodeElementFactory,
-  RelationshipElementFactory,
-} from "../types/shared";
+import { labelInFactoryMapFilter, typeInFactoryMapFilter } from "./shared";
 
-import {
-  LABEL_TO_FACTORY_MAP,
-  TYPE_TO_FACTORY_MAP,
-  createAnonymousNodeElement,
-  createLineDividerElement,
-  factoryExistsFilter,
-  labelInFactoryMapFilter,
-  typeInFactoryMapFilter,
-} from "./shared";
-
-export const CustomPaper = (props: any) => (
-  <Paper {...props} sx={{ width: "fit-content" }} />
-);
-
-export const CustomPopper = (props: any) => (
-  <Popper {...props} placement="bottom-start" />
-);
-
-export const isRelationshipOption = (
+const isRelationshipOption = (
   option: NodePathElement | RelationshipPathElement
 ): option is RelationshipPathElement => {
   return (option as RelationshipPathElement).direction !== undefined;
 };
 
-export const getAllNodeOptions = () => {
+const getAllNodeOptions = () => {
   return Array.from(NODE_LABELS)
     .filter(labelInFactoryMapFilter)
     .map((label) => {
@@ -58,7 +30,7 @@ export const getAllNodeOptions = () => {
     });
 };
 
-export const getAllRelationshipOptions = () => {
+const getAllRelationshipOptions = () => {
   return Array.from(RELATIONSHIP_TYPES)
     .filter(typeInFactoryMapFilter)
     .flatMap((type) => {
@@ -218,114 +190,4 @@ export const getOptions = (value?: PathElement[]): PathElement[] => {
     ...nodes,
     ...relationships.sort((a, b) => a.name.localeCompare(b.name)),
   ];
-};
-
-export const createEntityElement = (
-  entity: PathElement,
-  style?: CSSProperties
-) => {
-  if (isRelationshipOption(entity)) {
-    return (TYPE_TO_FACTORY_MAP.get(entity.name) as RelationshipElementFactory)(
-      entity.name,
-      entity.direction,
-      entity.key
-    );
-  } else {
-    return (LABEL_TO_FACTORY_MAP.get(entity.name) as NodeElementFactory)(
-      entity.name,
-      entity.key,
-      style
-    );
-  }
-};
-
-export const createNodeSegment = (node: JSX.Element, prev?: PathElement) => {
-  let segment: JSX.Element[] = [];
-
-  if (prev !== undefined && !isRelationshipOption(prev)) {
-    segment.push(createLineDividerElement());
-  }
-
-  segment.push(node);
-
-  return segment;
-};
-
-export const getSearchPathElements = (path: PathElement[]) => {
-  const newPath: ReactElement[][] = [];
-  path
-    .filter((entity) => factoryExistsFilter(entity.name))
-    .forEach((entity, index) => {
-      // We know for sure the name is in the map from the filter above, but we need the explicit type coercion to ignore errors
-      const compositeElement: ReactElement[] = [];
-      const entityElement = createEntityElement(entity);
-      const entityIsRelationship = isRelationshipOption(entity);
-      const prevEntity = index > 0 ? path[index - 1] : undefined;
-      const prevIsRelationship =
-        prevEntity !== undefined && isRelationshipOption(prevEntity);
-
-      // If the first element of the path is a relationship, prepend it with an anonymous node
-      if (index === 0 && entityIsRelationship) {
-        compositeElement.push(createAnonymousNodeElement());
-      }
-
-      // If the current and previous element are both Relationships, then we need to add an anonymous node between them
-      if (index > 0 && entityIsRelationship && prevIsRelationship) {
-        compositeElement.push(createAnonymousNodeElement());
-      }
-
-      // Add the current entity
-      if (entityIsRelationship) {
-        compositeElement.push(entityElement);
-      } else {
-        if (prevEntity !== undefined && !prevIsRelationship) {
-          compositeElement.push(createLineDividerElement());
-        }
-        compositeElement.push(entityElement);
-      }
-
-      // If the last element is a relationship, append an anonymous node
-      if (entityIsRelationship && index === path.length - 1) {
-        compositeElement.push(createAnonymousNodeElement());
-      }
-      newPath.push(compositeElement);
-    });
-
-  return newPath;
-};
-
-export const getEntityProperties = (value: PathElement) =>
-  PROPERTY_MAP.get(value.name);
-
-export const getPropertyOperators = (property: string) => {
-  if (!PROPERTY_OPERATORS.has(property)) {
-    console.warn(`No operators exist for property ${property}!`);
-  }
-  return PROPERTY_OPERATORS.get(property) || [];
-};
-
-export const createPropertyFilter = (
-  name: string
-): BasePropFilter | undefined => {
-  if (PROPERTY_MAP.has(name)) {
-    const propertyName = (PROPERTY_MAP.get(name) as string[])[0];
-
-    const propertyOperator = PROPERTY_OPERATORS.has(propertyName)
-      ? (PROPERTY_OPERATORS.get(propertyName) as string[])[0]
-      : undefined;
-
-    if (propertyOperator === undefined) {
-      return undefined;
-    }
-
-    return {
-      name: propertyName,
-      // type: PropertyType, // TODO
-      operator: propertyOperator,
-      value: "",
-      paramName: neo4jSafeUUID(),
-    };
-  } else {
-    return undefined;
-  }
 };

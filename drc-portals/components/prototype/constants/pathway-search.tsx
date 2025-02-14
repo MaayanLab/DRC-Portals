@@ -1,12 +1,5 @@
 import { TabPanel as BaseTabPanel } from "@mui/base/TabPanel";
-import {
-  Box,
-  IconButton,
-  Paper,
-  TableCell,
-  styled,
-  tableCellClasses,
-} from "@mui/material";
+import { Box, Paper, TableCell, styled, tableCellClasses } from "@mui/material";
 
 export const NodeFiltersContainer = styled(Box)({
   flexGrow: 1,
@@ -27,29 +20,11 @@ export const PathwayModeBtnContainer = styled(Box)({
   zIndex: 1,
 });
 
-export const NodeFilterCarousel = styled(Box)(() => ({
-  maxWidth: "475px",
-  display: "flex",
-  overflowX: "scroll",
-  overflowY: "hidden",
-  scrollBehavior: "smooth",
-  scrollbarWidth: "none",
-  overscrollBehavior: "contain",
-}));
-
 export const NodeFilterBox = styled(Box)(() => ({
   minWidth: "225px",
   paddingTop: "8px",
   paddingRight: "2px",
   paddingLeft: "2px",
-}));
-
-export const NodeFilterButton = styled(IconButton)(({ theme }) => ({
-  color: "white",
-  backgroundColor: theme.palette.secondary.main,
-  "&:hover, &.Mui-focusVisible": {
-    backgroundColor: theme.palette.secondary.dark,
-  },
 }));
 
 export const PathwayResultTabPanel = styled(BaseTabPanel)(() => ({

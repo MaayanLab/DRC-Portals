@@ -79,7 +79,6 @@ import {
   UBERON_LINK,
 } from "./shared";
 
-import { CytoscapeNodeData } from "../interfaces/cy";
 import { createArrowDividerElement } from "../utils/shared";
 
 const getRelativePos = (s: Position, t: Position, c: Position) => {
@@ -190,36 +189,24 @@ export const DEFAULT_TOOLTIP_CONTENT_PROPS: TypographyProps = {
 
 // Default node properties
 export const NODE_FONT_FAMILY = "arial";
-export const NODE_DIAMETER = 30;
 export const NODE_BORDER_WIDTH = 2;
+const NODE_DIAMETER = 30;
 
 // Default edge properties
-export const ARROW_SCALE = 0.5;
-export const EDGE_WIDTH = 1;
+const EDGE_WIDTH = 1;
+const ARROW_SCALE = 0.5;
 
 // Other Properties
 export const FONT_SIZE = "4px";
 export const MAX_NODE_LINES = 3;
 export const MAX_NODE_LABEL_WIDTH = 24;
-export const MIN_ZOOMED_FONT_SIZE = 8;
-export const SOLID_OPACITY = 1;
-export const TRANSPARENT_OPACITY = 0.33;
-export const HIGH_Z_INDEX = 999;
+const HIGH_Z_INDEX = 999;
+const MIN_ZOOMED_FONT_SIZE = 8;
+const SOLID_OPACITY = 1;
+const TRANSPARENT_OPACITY = 0.33;
 
 // Schema-specific Properties
-export const PATH_COLOR = "#c634eb";
-
-export const D3_FORCE_LAYOUT = {
-  name: "d3-force",
-  animate: true,
-  infinite: true,
-  fixedAfterDragging: true,
-  linkId: (d: CytoscapeNodeData) => {
-    return d.id;
-  },
-  linkDistance: 80,
-  manyBodyStrength: -300,
-};
+const PATH_COLOR = "#c634eb";
 
 export const EULER_LAYOUT = {
   name: "euler",
@@ -232,7 +219,7 @@ export const EULER_LAYOUT = {
   maxSimulationTime: 8000,
 };
 
-export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
+const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   {
     selector: "node",
     style: {
@@ -265,7 +252,7 @@ export const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   },
 ];
 
-export const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
+const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
   {
     selector: "edge",
     style: {
@@ -293,7 +280,7 @@ export const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
   },
 ];
 
-export const STYLESHEET_CLASSES = [
+const STYLESHEET_CLASSES = [
   // Element agnostic classes
   {
     selector: ".transparent",
@@ -969,7 +956,7 @@ const BIOSAMPLE_ASSOCIATED_WITH_GENE_TARGET_POS = getEdgePoint(
 const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_SOURCE_DEG = 225;
 const SUBSTANCE_ASSOCIATED_WITH_TAXONOMY_TARGET_DEG = 90;
 
-export const SCHEMA_NODES = [
+const SCHEMA_NODES = [
   {
     classes: [NODE_CLASS_MAP.get(ID_NAMESPACE_LABEL) || ""],
     position: ID_NAMESPACE_POS,
@@ -1377,7 +1364,7 @@ export const SCHEMA_NODES = [
   },
 ];
 
-export const SCHEMA_EDGES = [
+const SCHEMA_EDGES = [
   {
     classes: ["admin-relationship", "horizontal-text"],
     data: {
@@ -1749,15 +1736,15 @@ export const SCHEMA_EDGES = [
   },
 ];
 
-export const SCHEMA_ADMIN_NODE_ITEM = "Admin Node";
-export const SCHEMA_CONTAINER_NODE_ITEM = "Container Node";
-export const SCHEMA_FILE_NODE_ITEM = "File Node";
-export const SCHEMA_BIOSAMPLE_NODE_ITEM = "Biosample Node";
-export const SCHEMA_SUBJECT_NODE_ITEM = "Subject Node";
-export const SCHEMA_TERM_NODE_ITEM = "Term Node";
-export const SCHEMA_FILE_RELATED_NODE_ITEM = "File Related Node";
-export const SCHEMA_SUBJECT_RELATED_NODE_ITEM = "Subject Related Node";
-export const SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM = "Biosample Related Node";
+const SCHEMA_ADMIN_NODE_ITEM = "Admin Node";
+const SCHEMA_CONTAINER_NODE_ITEM = "Container Node";
+const SCHEMA_FILE_NODE_ITEM = "File Node";
+const SCHEMA_BIOSAMPLE_NODE_ITEM = "Biosample Node";
+const SCHEMA_SUBJECT_NODE_ITEM = "Subject Node";
+const SCHEMA_TERM_NODE_ITEM = "Term Node";
+const SCHEMA_FILE_RELATED_NODE_ITEM = "File Related Node";
+const SCHEMA_SUBJECT_RELATED_NODE_ITEM = "Subject Related Node";
+const SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM = "Biosample Related Node";
 export const SCHEMA_RELATIONSHIP_ITEM = "Relationship";
 
 export const STYLE_CLASS_TO_LEGEND_KEY_MAP = new Map<string, string>([

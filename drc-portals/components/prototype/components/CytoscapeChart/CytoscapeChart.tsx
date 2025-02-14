@@ -22,8 +22,6 @@ import {
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
-// @ts-ignore
-import d3Force from "cytoscape-d3-force";
 import euler from "cytoscape-euler";
 import {
   CSSProperties,
@@ -58,7 +56,6 @@ import ChartToolbar from "./ChartToolbar";
 import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
 
-cytoscape.use(d3Force);
 cytoscape.use(euler);
 
 interface CytoscapeChartProps {

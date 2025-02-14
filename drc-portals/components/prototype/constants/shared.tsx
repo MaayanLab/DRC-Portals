@@ -20,7 +20,6 @@ import {
   COLLECTION_LABEL,
   COMPOUND_LABEL,
   CONTAINER_LABELS,
-  CORE_LABELS,
   DATA_TYPE_LABEL,
   DCC_LABEL,
   DISEASE_LABEL,
@@ -47,7 +46,7 @@ import {
 export const EDGE_COLOR = "#797979";
 export const CFDE_DARK_BLUE = "#336699";
 
-export const GraphElement = styled(Box)(() => ({
+const GraphElement = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -78,7 +77,7 @@ export const AnonymousNodeElement = styled(Box)(() => ({
   marginBottom: "3px",
 }));
 
-export const EntityText = styled(Typography)(() => ({
+const EntityText = styled(Typography)(() => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
@@ -114,7 +113,7 @@ export const TransparentIconButton = styled(IconButton)({
   "&.MuiIconButton-root:hover": { backgroundColor: "transparent" },
 });
 
-export const StyledLink = styled(Link)(({ theme }) => ({
+const StyledLink = styled(Link)(({ theme }) => ({
   display: "inline-flex",
   alignItems: "center",
   textDecoration: "none",
@@ -136,7 +135,7 @@ export const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-export const ExternalLink = ({ children, ...props }: LinkProps) => (
+const ExternalLink = ({ children, ...props }: LinkProps) => (
   <StyledLink {...props} target="_blank" rel="noopener">
     <Box component="span" mr={0.5}>
       {children}

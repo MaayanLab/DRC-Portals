@@ -1,9 +1,5 @@
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-import RadarIcon from "@mui/icons-material/Radar";
-import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Box,
   IconButton,
@@ -18,9 +14,7 @@ import {
   EventObject,
   EventObjectEdge,
   EventObjectNode,
-  LayoutOptions,
   NodeSingular,
-  Position,
 } from "cytoscape";
 import { CSSProperties, Fragment, ReactNode } from "react";
 
@@ -42,10 +36,6 @@ import { isRelationshipResult } from "@/lib/neo4j/utils";
 import {
   DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
   DEFAULT_TOOLTIP_CONTENT_PROPS,
-  FONT_SIZE,
-  MAX_NODE_LABEL_WIDTH,
-  NODE_FONT_FAMILY,
-  MAX_NODE_LINES,
 } from "../constants/cy";
 import {
   ENTITY_STYLES_MAP,
@@ -58,7 +48,7 @@ import {
   CytoscapeNode,
   CytoscapeNodeData,
 } from "../interfaces/cy";
-import { CustomToolbarFnFactory, CytoscapeReference } from "../types/cy";
+import { CytoscapeReference } from "../types/cy";
 import { NodeElementFactory } from "../types/shared";
 
 import {
@@ -68,10 +58,9 @@ import {
   getNodeDisplayProperty,
   getOntologyLink,
   labelInFactoryMapFilter,
-  truncateTextToFitWidth,
 } from "./shared";
 
-export const createCytoscapeNode = (
+const createCytoscapeNode = (
   node: NodeResult,
   classes?: string[],
   usePropForLabel = false
@@ -92,7 +81,7 @@ export const createCytoscapeNode = (
   };
 };
 
-export const createCytoscapeEdge = (
+const createCytoscapeEdge = (
   relationship: RelationshipResult,
   classes?: string[]
 ): CytoscapeEdge => {
@@ -156,45 +145,6 @@ export const getNeo4jLabelFromCyNode = (event: EventObjectNode) => {
   }
 
   return nodeLabel;
-};
-
-export const truncateLabelToFitNode = (label: string) => {
-  if (/\s/.test(label)) {
-    const lines = label.split(/\s+/);
-    const originalNumLines = lines.length;
-
-    // If the number of lines would exceed the vertical bound, remove the excess lines
-    if (originalNumLines > MAX_NODE_LINES) {
-      lines.splice(MAX_NODE_LINES);
-    }
-
-    // If any line would exceed the horizontal bound, truncate the label to include everything up until that line, which is itself
-    // truncated
-    for (let i = 0; i < lines.length; i++) {
-      const newLine = truncateTextToFitWidth(
-        lines[i],
-        MAX_NODE_LABEL_WIDTH,
-        FONT_SIZE,
-        NODE_FONT_FAMILY
-      );
-      if (newLine.length !== lines[i].length) {
-        return [...lines.slice(0, i), newLine].join(" ");
-      }
-    }
-
-    // Note that this might not return exactly the same strings as before the truncation: we split on *any* whitespace above, here
-    // we join on simply " ". This should, however, not be noticeable by the user.
-    return originalNumLines === lines.length
-      ? lines.join(" ")
-      : lines.join(" ") + "...";
-  } else {
-    return truncateTextToFitWidth(
-      label,
-      MAX_NODE_LABEL_WIDTH,
-      FONT_SIZE,
-      NODE_FONT_FAMILY
-    );
-  }
 };
 
 export const createNodeLabels = (node: CytoscapeNodeData) => {
@@ -422,59 +372,6 @@ export const selectionIsAllHidden = (event: EventObject) =>
     element.hasClass("transparent")
   );
 
-export const printNodePositions = (
-  key: string,
-  title: string,
-  ariaLabel: string,
-  cyRef: CytoscapeReference
-) => {
-  const action = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      cy.nodes().forEach((el) => {
-        console.log(el.data("label"), el.position());
-      });
-    }
-  };
-  return (
-    <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label={ariaLabel} onClick={action}>
-        <RadarIcon />
-      </IconButton>
-    </Tooltip>
-  );
-};
-
-export const resetChart = (
-  key: string,
-  title: string,
-  ariaLabel: string,
-  positions: Map<string, Position>,
-  cyRef: CytoscapeReference
-) => {
-  const action = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      cy.batch(() => {
-        // Reset node positions
-        cy.nodes().forEach((el) => {
-          el.position(positions.get(el.id()) as Position);
-        });
-
-        // Reset styles
-        cy.elements().removeClass("highlight transparent");
-      });
-    }
-  };
-  return (
-    <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label={ariaLabel} onClick={action}>
-        <RestoreIcon />
-      </IconButton>
-    </Tooltip>
-  );
-};
-
 export const isNodeD3Locked = (node: NodeSingular) => {
   const scratch = node.scratch();
 
@@ -492,76 +389,13 @@ export const unlockD3ForceNode = (node: NodeSingular) => {
   node.scratch(scratch);
 };
 
-export const lockD3ForceNode = (node: NodeSingular) => {
-  const scratch = node.scratch();
-  const { x, y } = node.position();
-  node.scratch({
-    ...scratch,
-    "d3-force": {
-      ...scratch["d3-force"],
-      fx: x,
-      fy: y,
-    },
-  });
-};
-
-export const unlockD3ForceNodes = (
-  key: string,
-  title: string,
-  cyRef: CytoscapeReference,
-  layout: LayoutOptions
-) => {
-  // Note that this is directly manipulating some "under the hood" behavior implemented by the d3-force layout. When the
-  // "fixedAfterDragging" option of the layout is set to true, a pair of hidden position properties (fx and fy) are set on nodes after a
-  // drag event concludes. These properties are added to the "scratch" data of the node, a feature supported by Cytoscape.js directly. It
-  // appears that when this scratch position data exists, the layout will not attempt to move the node. It does not seem there is an
-  // alternative method of "unlocking" the nodes after they have been dragged, except perhaps by updating the layout options to set
-  // "fixedAfterDragging" to false.
-  const action = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      cy.nodes().forEach(unlockD3ForceNode);
-      cy.layout(layout).run(); // Ensures that the d3-force layout does not stop
-    }
-  };
-  return (
-    <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label="unlock-nodes" onClick={action}>
-        <LockOpenIcon />
-      </IconButton>
-    </Tooltip>
-  );
-};
-
-export const lockD3ForceNodes = (
-  key: string,
-  title: string,
-  cyRef: CytoscapeReference,
-  layout: LayoutOptions
-) => {
-  const action = () => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      cy.nodes().forEach(lockD3ForceNode);
-      cy.layout(layout).run();
-    }
-  };
-  return (
-    <Tooltip key={key} title={title} arrow>
-      <IconButton aria-label="lock-nodes" onClick={action}>
-        <LockIcon />
-      </IconButton>
-    </Tooltip>
-  );
-};
-
 export const unlockSelection = (event: EventObject) =>
   event.cy.nodes(":selected").forEach((node) => unlockD3ForceNode(node));
 
 export const selectionHasLockedNode = (event: EventObject) =>
   Array.from(event.cy.nodes(":selected")).some(isNodeD3Locked);
 
-export const getCyDataForDownload = (cy: cytoscape.Collection) => {
+const getCyDataForDownload = (cy: cytoscape.Collection) => {
   return {
     nodes: cy.nodes().map((n) => {
       return {
@@ -586,7 +420,7 @@ export const downloadCyAsJson = (cy: cytoscape.Collection) => {
   downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
 };
 
-export const downloadCyAsPNG = (cy: cytoscape.Core) => {
+const downloadCyAsPNG = (cy: cytoscape.Core) => {
   const base64URI = cy.png({ bg: "#f2f2f2", scale: 3 });
   const link = document.createElement("a");
 
@@ -640,65 +474,6 @@ export const downloadChartPNG = (
     </Fragment>
   );
 };
-
-export const rotateChart = (
-  key: string,
-  title: string,
-  label: string,
-  icon: ReactNode,
-  angle: number,
-  cyRef: CytoscapeReference,
-  layout: LayoutOptions
-) => {
-  const action = (angle: number) => {
-    const cy = cyRef.current;
-    if (cy !== undefined && layout !== undefined) {
-      const center = { x: cy.width() / 2, y: cy.height() / 2 };
-      const rad = angle * (Math.PI / 180); // Convert angle to radians
-
-      cy.batch(() => {
-        cy.nodes().forEach((node) => {
-          const pos = node.position();
-          const x = pos.x - center.x;
-          const y = pos.y - center.y;
-          const newX = x * Math.cos(rad) - y * Math.sin(rad) + center.x;
-          const newY = x * Math.sin(rad) + y * Math.cos(rad) + center.y;
-
-          node.position({ x: newX, y: newY });
-          lockD3ForceNode(node);
-        });
-      });
-      cy.layout(layout).run();
-    }
-  };
-
-  return (
-    <Fragment key={key}>
-      <Tooltip title={title} arrow>
-        <IconButton aria-label={label} onClick={() => action(angle)}>
-          {icon}
-        </IconButton>
-      </Tooltip>
-    </Fragment>
-  );
-};
-
-export const D3_FORCE_TOOLS: CustomToolbarFnFactory[] = [
-  (cyRef: CytoscapeReference, layout: LayoutOptions) =>
-    unlockD3ForceNodes(
-      "search-chart-toolbar-unlock-btn",
-      "Unlock All Nodes",
-      cyRef,
-      layout
-    ),
-  (cyRef: CytoscapeReference, layout: LayoutOptions) =>
-    lockD3ForceNodes(
-      "search-chart-toolbar-lock-btn",
-      "Lock All Nodes",
-      cyRef,
-      layout
-    ),
-];
 
 export const rebindEventHandlers = (
   cyRef: CytoscapeReference,

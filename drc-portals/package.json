@@ -50,7 +50,6 @@
     "classnames": "^2.3.2",
     "crypto-js": "^4.2.0",
     "cytoscape": "^3.29.2",
-    "cytoscape-d3-force": "^1.1.4",
     "cytoscape-euler": "^1.2.3",
     "fairshakeinsignia": "^1.0.3",
     "fs": "^0.0.1-security",
