@@ -123,7 +123,7 @@ export default function TableView(cmpProps: TableViewProps) {
   }, [data]);
 
   useEffect(() => {
-    const newColumns = [];
+    let newColumns = [];
     if (data.length > 0) {
       const firstRow = data[0];
 
@@ -227,6 +227,15 @@ export default function TableView(cmpProps: TableViewProps) {
           });
         }
       }
+
+      newColumns = newColumns.map((col) => {
+        const [label, _] = col.header.split("-");
+        return {
+          ...col,
+          header: (labelCounts.get(label) as number) === 1 ? label : col.header,
+        };
+      });
+
       setColumns(newColumns);
     }
   }, [data]);
