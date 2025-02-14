@@ -252,6 +252,10 @@ export default function TableView(cmpProps: TableViewProps) {
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
+              {/* width: 1% forces minimal use of space */}
+              <StyledTableCell sx={{ width: "1%" }}>
+                <Typography variant="body1">#</Typography>
+              </StyledTableCell>
               <StyledTableCell padding="checkbox">
                 <Checkbox
                   indeterminate={
@@ -273,6 +277,7 @@ export default function TableView(cmpProps: TableViewProps) {
           <TableBody>
             {data.map((row, i) => (
               <TableRow key={`row-${i}`}>
+                <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
                 <StyledTableCell padding="checkbox">
                   <Checkbox
                     checked={selectedRows[i]}
