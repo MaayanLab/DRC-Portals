@@ -1742,20 +1742,14 @@ const SCHEMA_FILE_NODE_ITEM = "File Node";
 const SCHEMA_BIOSAMPLE_NODE_ITEM = "Biosample Node";
 const SCHEMA_SUBJECT_NODE_ITEM = "Subject Node";
 const SCHEMA_TERM_NODE_ITEM = "Term Node";
-const SCHEMA_FILE_RELATED_NODE_ITEM = "File Related Node";
-const SCHEMA_SUBJECT_RELATED_NODE_ITEM = "Subject Related Node";
-const SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM = "Biosample Related Node";
 export const SCHEMA_RELATIONSHIP_ITEM = "Relationship";
 
 export const STYLE_CLASS_TO_LEGEND_KEY_MAP = new Map<string, string>([
   [ADMIN_NODE_CLASS, SCHEMA_ADMIN_NODE_ITEM],
   [CONTAINER_NODE_CLASS, SCHEMA_CONTAINER_NODE_ITEM],
   [FILE_NODE_CLASS, SCHEMA_FILE_NODE_ITEM],
-  [FILE_RELATED_NODE_CLASS, SCHEMA_FILE_RELATED_NODE_ITEM],
   [SUBJECT_NODE_CLASS, SCHEMA_SUBJECT_NODE_ITEM],
-  [SUBJECT_RELATED_NODE_CLASS, SCHEMA_SUBJECT_RELATED_NODE_ITEM],
   [BIOSAMPLE_NODE_CLASS, SCHEMA_BIOSAMPLE_NODE_ITEM],
-  [BIOSAMPLE_RELATED_NODE_CLASS, SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM],
   [TERM_NODE_CLASS, SCHEMA_TERM_NODE_ITEM],
 ]);
 
@@ -1774,30 +1768,12 @@ export const SCHEMA_LEGEND = new Map<string, ReactNode>(
       <CircleIcon sx={{ color: FILE_NODE_COLOR }} fontSize="small" />,
     ],
     [
-      SCHEMA_FILE_RELATED_NODE_ITEM,
-      <CircleIcon sx={{ color: FILE_RELATED_NODE_COLOR }} fontSize="small" />,
-    ],
-    [
       SCHEMA_SUBJECT_NODE_ITEM,
       <CircleIcon sx={{ color: SUBJECT_NODE_COLOR }} fontSize="small" />,
     ],
     [
-      SCHEMA_SUBJECT_RELATED_NODE_ITEM,
-      <CircleIcon
-        sx={{ color: SUBJECT_RELATED_NODE_COLOR }}
-        fontSize="small"
-      />,
-    ],
-    [
       SCHEMA_BIOSAMPLE_NODE_ITEM,
       <CircleIcon sx={{ color: BIOSAMPLE_NODE_COLOR }} fontSize="small" />,
-    ],
-    [
-      SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM,
-      <CircleIcon
-        sx={{ color: BIOSAMPLE_RELATED_NODE_COLOR }}
-        fontSize="small"
-      />,
     ],
     [
       SCHEMA_TERM_NODE_ITEM,

@@ -183,13 +183,12 @@ export const TERM_NODE_CLASS = "term-node";
 export const ADMIN_NODE_COLOR = "#ffc454";
 export const CONTAINER_NODE_COLOR = "#4c8eda";
 export const FILE_NODE_COLOR = "#ee5f5f";
-export const FILE_RELATED_NODE_COLOR = "#d46989";
 export const SUBJECT_NODE_COLOR = "#e9adc2";
-export const SUBJECT_RELATED_NODE_COLOR = "#c186b7";
 export const BIOSAMPLE_NODE_COLOR = "#d4c1a6";
-export const BIOSAMPLE_RELATED_NODE_COLOR = "#806e47";
 export const TERM_NODE_COLOR = "#569480";
-
+export const FILE_RELATED_NODE_COLOR = TERM_NODE_COLOR;
+export const SUBJECT_RELATED_NODE_COLOR = TERM_NODE_COLOR;
+export const BIOSAMPLE_RELATED_NODE_COLOR = TERM_NODE_COLOR;
 // Map of node label to the appropriate representation string
 export const NODE_DISPLAY_PROPERTY_MAP: ReadonlyMap<string, string> = new Map([
   [DCC_LABEL, "name"],
