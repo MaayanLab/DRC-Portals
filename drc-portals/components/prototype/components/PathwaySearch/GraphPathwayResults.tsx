@@ -12,6 +12,7 @@ import {
   PathwaySearchResult,
   PathwaySearchResultRow,
 } from "@/lib/neo4j/types";
+import { isRelationshipResult } from "@/lib/neo4j/utils";
 
 import { Tab, TabsList } from "../../constants/advanced-search";
 import {
@@ -19,6 +20,7 @@ import {
   PathwayResultTabPanel,
   TableViewContainer,
 } from "../../constants/pathway-search";
+import { downloadBlob } from "../../utils/shared";
 
 import AlertSnackbar from "../shared/AlertSnackbar";
 
@@ -46,8 +48,8 @@ export default function GraphPathwayResults(
 
   const getPathwaySearchResults = async (
     tree: PathwayNode,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<{ data: PathwaySearchResult; status: number }> => {
     const query = btoa(JSON.stringify(tree));
     const response = await fetchPathwaySearch(query, page, limit);
@@ -94,6 +96,16 @@ export default function GraphPathwayResults(
     [tree, page]
   );
 
+  const handleDownloadAllClicked = async () => {
+    const { data } = await getPathwaySearchResults(tree);
+    const jsonString = JSON.stringify(
+      data.paths.map((row) =>
+        row.filter((element) => !isRelationshipResult(element))
+      )
+    );
+    downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
+  };
+
   const updateSnackbar = (open: boolean, msg: string, severity: AlertColor) => {
     setSnackbarMsg(msg);
     setSnackbarOpen(open);
@@ -138,6 +150,7 @@ export default function GraphPathwayResults(
                 onReturnBtnClick={onReturnBtnClick}
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
+                onDownloadAll={handleDownloadAllClicked}
               ></TableView>
             )}
           </TableViewContainer>

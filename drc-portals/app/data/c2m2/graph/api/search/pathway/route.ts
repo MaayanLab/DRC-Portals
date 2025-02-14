@@ -14,15 +14,13 @@ import {
 } from "@/lib/neo4j/types";
 import { parsePathwayTree } from "@/lib/neo4j/utils";
 
-const PATHWAY_SEARCH_LIMIT = 10;
-
 export async function POST(request: NextRequest) {
   const body: { tree: string; page?: number; limit?: number } =
     await request.json();
   let treeParseResult: TreeParseResult;
   let tree: PathwayNode;
-  let page: number; // Note that this is 1-indexed!
-  let limit: number;
+  let page: number | undefined = undefined;
+  let limit: number | undefined = undefined;
 
   if (body === null) {
     return Response.json(
@@ -33,15 +31,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (body.page === undefined || typeof body.page !== "number") {
-    page = 1;
-  } else {
+  if (body.page !== undefined && typeof body.page === "number") {
     page = body.page;
   }
 
-  if (body.limit === undefined || typeof body.limit !== "number") {
-    limit = PATHWAY_SEARCH_LIMIT;
-  } else {
+  if (body.limit !== undefined && typeof body.limit === "number") {
     limit = body.limit;
   }
 
@@ -62,7 +56,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const driver = getDriver();
-    const skip = limit * (page - 1); // Page is 1-indexed!
+    const skip =
+      limit !== undefined && page !== undefined
+        ? limit * (page - 1) // Page is 1-indexed!
+        : undefined;
+
     const [pathwaySearchResultCount, pathwaySearchResult] = await Promise.all([
       executeReadOne<{ count: number }>(
         driver,
@@ -70,7 +68,11 @@ export async function POST(request: NextRequest) {
       ),
       executeRead<{ [key: string]: NodeResult | RelationshipResult }>(
         driver,
-        createPathwaySearchAllPathsCypher(treeParseResult),
+        createPathwaySearchAllPathsCypher(
+          treeParseResult,
+          skip !== undefined,
+          limit !== undefined
+        ),
         {
           limit,
           skip,
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     const count = pathwaySearchResultCount.get("count");
-    const partialContent = skip + limit < count;
+    const partialContent = pathwaySearchResult.length < count;
     const paths: PathwaySearchResultRow[] = pathwaySearchResult.map((record) =>
       Object.values(record.toObject())
     );

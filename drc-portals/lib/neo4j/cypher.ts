@@ -506,7 +506,9 @@ export const createPathwaySearchAllPathsCountCypher = (
 };
 
 export const createPathwaySearchAllPathsCypher = (
-  treeParseResult: TreeParseResult
+  treeParseResult: TreeParseResult,
+  useSkip = true,
+  useLimit = true
 ) => {
   const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
   const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
@@ -526,7 +528,8 @@ export const createPathwaySearchAllPathsCypher = (
         )
       )
       .join(", ")}`,
-    "SKIP $skip LIMIT $limit",
+    useSkip ? "SKIP $skip" : "",
+    useLimit ? "LIMIT $limit" : "",
   ].join("\n");
 };
 

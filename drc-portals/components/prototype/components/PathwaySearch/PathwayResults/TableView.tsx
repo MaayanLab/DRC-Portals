@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   FormControl,
   MenuItem,
   Pagination,
@@ -73,6 +74,7 @@ interface TableViewProps {
   onReturnBtnClick: () => void;
   onPageChange: (event: ChangeEvent<any>, page: number) => void;
   onLimitChange: (event: SelectChangeEvent<number>) => void;
+  onDownloadAll: () => Promise<void>;
 }
 
 export default function TableView(cmpProps: TableViewProps) {
@@ -84,15 +86,17 @@ export default function TableView(cmpProps: TableViewProps) {
     onReturnBtnClick,
     onPageChange,
     onLimitChange,
+    onDownloadAll,
   } = cmpProps;
   const [columns, setColumns] = useState<ColumnData[]>([]);
-  const [selectedRows, setSelectedRows] = useState<boolean[]>(
+  const [selected, setSelected] = useState<boolean[]>(
     new Array(data.length).fill(false)
   );
+  const [downloading, setDownloading] = useState(false);
 
   const handleCheckboxChange = (rowIdx: number) => {
-    setSelectedRows(
-      selectedRows.map((rowChecked, idx) =>
+    setSelected(
+      selected.map((rowChecked, idx) =>
         idx === rowIdx ? !rowChecked : rowChecked
       )
     );
@@ -100,27 +104,25 @@ export default function TableView(cmpProps: TableViewProps) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      setSelectedRows(new Array(data.length).fill(true));
+      setSelected(new Array(data.length).fill(true));
     } else {
-      setSelectedRows(new Array(data.length).fill(false));
+      setSelected(new Array(data.length).fill(false));
     }
   };
 
   const handleDownloadSelectedClicked = useCallback(() => {
     const jsonString = JSON.stringify(
       data
-        .filter((_, idx) => selectedRows[idx])
+        .filter((_, idx) => selected[idx])
         .map((row) => row.filter((element) => !isRelationshipResult(element)))
     );
     downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
-  }, [data, selectedRows]);
+  }, [data, selected]);
 
-  const handleDownloadAllClicked = useCallback(() => {
-    const jsonString = JSON.stringify(
-      data.map((row) => row.filter((element) => !isRelationshipResult(element)))
-    );
-    downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
-  }, [data]);
+  const handleDownloadAllClicked = () => {
+    setDownloading(true);
+    onDownloadAll().then(() => setDownloading(false));
+  };
 
   useEffect(() => {
     let newColumns = [];
@@ -259,10 +261,10 @@ export default function TableView(cmpProps: TableViewProps) {
               <StyledTableCell padding="checkbox">
                 <Checkbox
                   indeterminate={
-                    selectedRows.some((val) => val) && // Some checked
-                    selectedRows.some((val) => !val) // And some not checked
+                    selected.some((val) => val) && // Some checked
+                    selected.some((val) => !val) // And some not checked
                   }
-                  checked={selectedRows.every((val) => val)}
+                  checked={selected.every((val) => val)}
                   onChange={handleSelectAllClick}
                 />
               </StyledTableCell>
@@ -280,7 +282,7 @@ export default function TableView(cmpProps: TableViewProps) {
                 <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
                 <StyledTableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedRows[i]}
+                    checked={selected[i]}
                     onChange={() => handleCheckboxChange(i)}
                   />
                 </StyledTableCell>
@@ -343,12 +345,18 @@ export default function TableView(cmpProps: TableViewProps) {
           <Button
             variant="contained"
             color="primary"
-            startIcon={<DownloadIcon />}
+            startIcon={
+              downloading ? (
+                <CircularProgress color="secondary" size={20} />
+              ) : (
+                <DownloadIcon />
+              )
+            }
             onClick={handleDownloadAllClicked}
           >
             Download All
           </Button>
-          {selectedRows.some((val) => val) ? (
+          {selected.some((val) => val) ? (
             <Button
               variant="contained"
               color="primary"
