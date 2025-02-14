@@ -288,20 +288,23 @@ export default function TableView(cmpProps: TableViewProps) {
         alignItems="center"
         marginTop={1}
       >
-        <Pagination
-          page={page}
-          count={Math.ceil(count / limit)}
-          onChange={onPageChange}
-          variant="text"
-          shape="rounded"
-          color="primary"
-          renderItem={(item) => (
-            <PaginationItem
-              slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
-              {...item}
-            />
-          )}
-        />
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Pagination
+            page={page}
+            count={Math.ceil(count / limit)}
+            onChange={onPageChange}
+            variant="text"
+            shape="rounded"
+            color="primary"
+            renderItem={(item) => (
+              <PaginationItem
+                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                {...item}
+              />
+            )}
+          />
+          <Typography>(Total Rows: {count})</Typography>
+        </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="nav" noWrap>
