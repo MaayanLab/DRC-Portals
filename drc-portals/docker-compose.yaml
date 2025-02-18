@@ -5,6 +5,7 @@ services:
     platform: linux/amd64
     image: maayanlab/drc-portal:0.14.5
     deploy:
+      replicas: 2
       resources:
         reservations:
           cpus: '1.0'
