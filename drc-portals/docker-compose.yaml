@@ -9,7 +9,7 @@ services:
       resources:
         reservations:
           cpus: '1.0'
-          memory: 512M
+          memory: 1024M
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
