@@ -4,6 +4,8 @@ import ThemeRegistry from './ThemeRegistry'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { Grid } from '@mui/material'
+import AppProgressProvider from '@/utils/progressbar'
+
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
   description: '',
@@ -20,14 +22,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeRegistry options={{ key: 'mui' }}>
-          <NextAuthProvider>
-            <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
-              {/* <Grid item><Header/></Grid> */}
-              {children}
-            </Grid>
-          </NextAuthProvider>
-        </ThemeRegistry>
+        <AppProgressProvider>
+          <ThemeRegistry options={{ key: 'mui' }}>
+            <NextAuthProvider>
+              <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
+                {/* <Grid item><Header/></Grid> */}
+                {children}
+              </Grid>
+            </NextAuthProvider>
+          </ThemeRegistry>
+        </AppProgressProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} /> : null}
       </body>
     </html>

@@ -1,7 +1,7 @@
 'use client'
 import React from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/utils/navigation";
 import { FancyTabs } from "@/components/misc/FancyTabs";
 import ErrorRedirect from "./ErrorRedirect";
 
