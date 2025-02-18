@@ -15,8 +15,8 @@ export default function ClientCarousel({children, title}: {children: React.React
           <Carousel height={300} 
             sx={{
               position: 'relative',
-              minHeight: {xs: 260, sm: 260, md: 400, lg: 400, xl: 400}, 
-              width: {xs: 300, sm: 300, md: 450, lg: 650, xl: 650}
+              minHeight: {xs: 260, sm: 260, md: 400, lg: 600, xl: 600}, 
+              width: {xs: 300, sm: 300, md: 450, lg: 760, xl: 760}
             }} indicators={true}
             indicatorContainerProps={{
               style: {
