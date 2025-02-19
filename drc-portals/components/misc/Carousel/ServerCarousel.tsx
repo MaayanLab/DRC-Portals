@@ -4,6 +4,8 @@ import Box from '@mui/material/Box'
 import ClientCarousel from "./ClientCarousel"
 import Link from "@/utils/link"
 import prisma from "@/lib/prisma"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from "remark-gfm"
 
 const SmartLink = ({href, children}: {href: string, children: React.ReactNode}) => {
   if (href.startsWith("http")) {
@@ -74,19 +76,19 @@ export default async function ServerCarousel () {
     const items = [
         {
             name: "Playbook Workflow Builder",
-            description: "Learn how to construct workflows that span multiple common fund programs dynamically with the Playbook Workflow Builder",
+            description: "Learn how to construct workflows that span multiple Common Fund Programs dynamically with the **Playbook Workflow Builder**",
             icon: "/img/Playbook.png",
             url: "https://playbook-workflow-builder.cloud/graph/extend"
         },
         {
           name: "GeneSetCart",
-          description: "You can now assemble, combine, analyze, and visualize all your gene sets in one place with the CFDE platform Gene-Set-Cart",
+          description: "You can now assemble, combine, analyze, and visualize all your gene sets in one place with the CFDE platform **Gene-Set-Cart**",
           url: "https://genesetcart.cfde.cloud/",
           icon: "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/GeneSetCart-tutorial.png"
         },
         {
           name: "CFDE-GSE",
-          description: "Query your gene set again ten gene set libraries created from eight Common Fund Programs that participate in the CFDEf Consortium",
+          description: "Query your gene sets against 10 gene set libraries created from 8 Common Fund programs with **CFDE-GSE**",
           icon: "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/GSE-screenshot.png",
           url: "https://gse.cfde.cloud/"
         },
@@ -118,7 +120,7 @@ export default async function ServerCarousel () {
     const center = [
       {
         name: 'CFDE Centers',
-        description: 'Explore the newly established five cfde centers: data, knowledge, cloud, training and admin centers',
+        description: 'Explore the five newly established **CFDE centers**: Data, Knowledge, Cloud, Training, and Admin centers',
         icon: 'https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers.png',
         url: '/info/centers'
       }
@@ -127,7 +129,7 @@ export default async function ServerCarousel () {
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 450, xl: 450}, 
-                width: {xs: 300, sm: 300, md: 450, lg: 760, xl: 760}, 
+                width: {xs: 300, sm: 300, md: 450, lg: 790, xl: 790}, 
                 textAlign: "center", 
                 border: 1,
                 borderRadius: 5,
@@ -141,10 +143,15 @@ export default async function ServerCarousel () {
                             background: "#FFF"
                         }}>
                         
-                        {item.description ? 
-                        <div><Typography variant="subtitle1" sx={{textTransform: "uppercase", marginBottom: 1}} color="tertiary">{item.description}</Typography></div>:
-                        <div><Typography variant="subtitle1" color="tertiary">{item.name}</Typography></div>
-                        }
+                        <div><Typography variant="subtitle1" sx={{textTransform: "uppercase", marginBottom: 1, color: "#FFF", backgroundColor: "tertiary.main", pl: 4, pr: 4}}>
+                          <ReactMarkdown 
+                            skipHtml
+                            remarkPlugins={[remarkGfm]}
+                          >
+                            {item.description || item.name}
+                          </ReactMarkdown>
+                          </Typography>
+                        </div>
                         <div className="flex grow items-center justify-center relative">
                             <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
                         </div>
