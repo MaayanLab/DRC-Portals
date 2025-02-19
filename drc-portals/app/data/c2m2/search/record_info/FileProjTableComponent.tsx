@@ -7,7 +7,7 @@ import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 
 interface FileProjTableResult {
-file_table_full: {
+    file_table_full: {
         id_namespace: string,
         local_id: string,
         project_id_namespace: string,
@@ -30,7 +30,7 @@ file_table_full: {
         dbgap_study_id: string,
         access_url: string,
         file_format_name: string,
-        compression_format_name: string,  
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -58,7 +58,7 @@ file_table_full: {
         dbgap_study_id: string,
         access_url: string,
         file_format_name: string,
-        compression_format_name: string,  
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -192,10 +192,10 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(countFile ?? 0, count_file_table_withlimit, file_count_limit_proj);
 
 
-        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+        const priorityFileCols = ['filename', 'file_local_id', 'data_type_name', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
 
-        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
+        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileProjPrunedData,
             columnNames: fileProjColNames,

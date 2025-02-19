@@ -32,7 +32,7 @@ interface FileSubTableResult {
         dbgap_study_id: string,
         access_url: string,
         file_format_name: string,
-        compression_format_name: string,  
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -62,7 +62,7 @@ interface FileSubTableResult {
         dbgap_study_id: string,
         access_url: string,
         file_format_name: string,
-        compression_format_name: string,  
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -204,7 +204,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         }
 
 
-        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
+        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileSubPrunedData,
             columnNames: fileSubColNames,
@@ -221,7 +221,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
             ? filesSubTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
 
-        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+        const priorityFileCols = ['filename', 'file_local_id', 'data_type_name', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
         const newFileSubColumns = priorityFileCols.filter(item => dynamicFileSubColumns.includes(item));
         const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileSubColumns.includes(item)); // priority columns that are static, don't change with 
