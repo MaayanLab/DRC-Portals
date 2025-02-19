@@ -52,7 +52,7 @@ export default async function ServerCarousel () {
       })
     const outreach_items = outreach.map(o=>({
         name: o.title,
-        description: o.short_description,
+        description: o.carousel_description || o.short_description,
         icon: o.image || '',
         url: o.link || '',
     }))
@@ -74,9 +74,21 @@ export default async function ServerCarousel () {
     const items = [
         {
             name: "Playbook Workflow Builder",
-            description: "CFDE Playbook Partnership",
+            description: "Learn how to construct workflows that span multiple common fund programs dynamically with the Playbook Workflow Builder",
             icon: "/img/Playbook.png",
             url: "https://playbook-workflow-builder.cloud/graph/extend"
+        },
+        {
+          name: "GeneSetCart",
+          description: "You can now assemble, combine, analyze, and visualize all your gene sets in one place with the CFDE platform Gene-Set-Cart",
+          url: "https://genesetcart.cfde.cloud/",
+          icon: "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/GeneSetCart-tutorial.png"
+        },
+        {
+          name: "CFDE-GSE",
+          description: "Query your gene set again ten gene set libraries created from eight Common Fund Programs that participate in the CFDEf Consortium",
+          icon: "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/GSE-screenshot.png",
+          url: "https://gse.cfde.cloud/"
         },
         // {
         //     name: "Reproductive Toxicity Knowledge Graph (ReproTox-KG)",
@@ -106,7 +118,7 @@ export default async function ServerCarousel () {
     const center = [
       {
         name: 'CFDE Centers',
-        description: '-',
+        description: 'Explore the newly established five cfde centers: data, knowledge, cloud, training and admin centers',
         icon: 'https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers.png',
         url: '/info/centers'
       }
@@ -128,7 +140,11 @@ export default async function ServerCarousel () {
                             boxShadow: "none", 
                             background: "#FFF"
                         }}>
-                        <div><Typography variant="subtitle2" color="secondary">{item.name}</Typography></div>
+                        
+                        {item.description ? 
+                        <div><Typography variant="subtitle1" sx={{textTransform: "uppercase", marginBottom: 1}} color="tertiary">{item.description}</Typography></div>:
+                        <div><Typography variant="subtitle1" color="tertiary">{item.name}</Typography></div>
+                        }
                         <div className="flex grow items-center justify-center relative">
                             <Image src={item.icon} alt={item.name} fill={true} style={{objectFit: "contain"}}/>
                         </div>
