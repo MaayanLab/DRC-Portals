@@ -16,7 +16,6 @@ interface FileColTableResult {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
-        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -32,6 +31,9 @@ interface FileColTableResult {
         bundle_collection_id_namespace: string,
         bundle_collection_local_id: string,
         dbgap_study_id: string,
+        access_url: string,
+        file_format_name: string,
+        compression_format_name: string,  
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -44,7 +46,6 @@ interface FileColTableResult {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
-        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -60,6 +61,9 @@ interface FileColTableResult {
         bundle_collection_id_namespace: string,
         bundle_collection_local_id: string,
         dbgap_study_id: string,
+        access_url: string,
+        file_format_name: string,
+        compression_format_name: string,  
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -133,9 +137,11 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
           ),
           file_col_table_keycol AS (
               SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
-              f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
+              f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
               f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-              f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
+              f.file_format, f.compression_format,  f.data_type, f.assay_type, f.analysis_type, 
+              f.mime_type, f.bundle_collection_id_namespace, f. bundle_collection_local_id, f.dbgap_study_id, f.access_url, 
+              ff.name AS file_format_name, fff.name AS compression_format_name,
               ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
             FROM c2m2.file_describes_in_collection fdc
               /**? INNER JOIN file_table_keycol ftk ON (ftk.local_id = fdc.file_local_id AND ftk.id_namespace = fdc.file_id_namespace) */
@@ -149,7 +155,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                 AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/ 
                 AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
               LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-              LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
+              LEFT JOIN c2m2.file_format AS ff ON f.file_format = ff.id
+              LEFT JOIN c2m2.file_format AS fff ON f.compression_format = fff.id
             ),
             file_col_table AS (
               SELECT * from file_col_table_keycol
