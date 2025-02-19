@@ -27,3 +27,19 @@ select dcc_name, count(*) from (select distinct dcc_name, anatomy_name, ncbi_tax
     biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name 
     from c2m2.ffl_biosample_collection_cmp) group by dcc_name; /*  ~1.2M*/
 
+--- increase in #rows if including file_format
+select count(*) from
+--- (select id_namespace, count(*) from 
+(select distinct 
+    id_namespace, project_local_id, file_format, compression_format, data_type, assay_type, analysis_type from c2m2.file
+) 
+---group by id_namespace)
+;
+
+select count(*) from
+---(select id_namespace, count(*) from 
+(select distinct 
+    id_namespace, project_local_id, data_type, assay_type, analysis_type from c2m2.file
+) 
+---group by id_namespace)
+;
