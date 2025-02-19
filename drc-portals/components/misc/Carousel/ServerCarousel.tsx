@@ -143,7 +143,13 @@ export default async function ServerCarousel () {
                             background: "#FFF"
                         }}>
                         
-                        <div><Typography variant="subtitle1" sx={{textTransform: "uppercase", marginBottom: 1, color: "#FFF", backgroundColor: "tertiary.main", pl: 4, pr: 4}}>
+                        <div><Typography variant="subtitle1" sx={{textTransform: "uppercase",
+                            margin: 1,
+                            color: "#FFF", 
+                            backgroundColor: "tertiary.main", 
+                            pl: 4, pr: 4, pt: 1, pb: 1,
+                            lineHeight: 1
+                          }}>
                           <ReactMarkdown 
                             skipHtml
                             remarkPlugins={[remarkGfm]}
