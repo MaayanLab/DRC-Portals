@@ -94,7 +94,6 @@
     "@tailwindcss/typography": "^0.5.10",
     "@types/crypto-js": "^4.2.2",
     "@types/cytoscape": "^3.21.2",
-    "@types/cytoscape-d3-force": "^1.0.0",
     "@types/cytoscape-euler": "^1.2.3",
     "@types/node": "^20",
     "@types/react": "^18",
