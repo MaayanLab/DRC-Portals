@@ -401,7 +401,7 @@ export function generateFilterClauseFromtParam(t: { type: string; entity_type: s
           'data_type', 'assay_type'];
 
         if (item.entity_type !== "Unspecified") {
-          typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" = ${item.entity_type}`);
+          typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" ILIKE ${item.entity_type}`);
         } else {
           if (tablename == 'allres') {
             typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" = 'Unspecified'`);
