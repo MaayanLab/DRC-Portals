@@ -162,3 +162,21 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 };
 
 export default ExpandableTable;
+
+/*
+
+Example of testing record_info with more than one file format:
+Go through the count_ff in:
+select * from (select distinct id_namespace, project_local_id, assay_type, data_type, count(distinct file_format) as count_ff from c2m2.file group by id_namespace, project_local_id, assay_type, data_type) where count_ff > 1;
+Select something that has > 1 file format.
+E.g., from 4DN, search for: 91b694c3-f4d7-4ddd-8278-16f94e15c1c5 and select the first record
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=91b694c3-f4d7-4ddd-8278-16f94e15c1c5&t=dcc_name:4D%20NUCLEOME%20DATA%20COORDINATION%20AND%20INTEGRATION%20CENTER|project_local_id:91b694c3-f4d7-4ddd-8278-16f94e15c1c5|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20cell|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Annotation%20track|assay_type_name:DamID-seq
+
+Another example: https://ucsd-sslab.ngrok.app/data/search/PR000319/c2m2 (search: PR000319)
+
+From SPARC: search: OT2OD023847
+
+https://ucsd-sslab.ngrok.app/data/search/OT2OD023847/c2m2
+Try first or any other record
+
+*/

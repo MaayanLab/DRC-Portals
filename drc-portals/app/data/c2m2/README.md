@@ -232,3 +232,27 @@ https://data.cfde.cloud/search/tuberculosis/c2m2?t=biofluid%3Aurine&p=1
 https://data.cfde.cloud/c2m2/search/record_info?q=tuberculosis&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000716|disease_name:tuberculosis|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:urine|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
 -->
 https://data.cfde.cloud/c2m2/search/record_info?q=tuberculosis&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000716|disease_name:tuberculosis|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:urine|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+### Examples of records with more than one file format
+
+#### Search for 91b694c3-f4d7-4ddd-8278-16f94e15c1c5 (from 4DN) and select the first record
+https://data.cfde.cloud/search/91b694c3-f4d7-4ddd-8278-16f94e15c1c5/c2m2
+
+https://data.cfde.cloud/c2m2/search/record_info?q=91b694c3-f4d7-4ddd-8278-16f94e15c1c5&t=dcc_name:4D%20NUCLEOME%20DATA%20COORDINATION%20AND%20INTEGRATION%20CENTER|project_local_id:91b694c3-f4d7-4ddd-8278-16f94e15c1c5|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20cell|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Annotation%20track|assay_type_name:DamID-seq
+
+#### Another example: search: PR000319 (from Metabolomics Workbench)
+
+https://data.cfde.cloud/search/PR000319/c2m2
+
+Try first record:
+
+https://data.cfde.cloud/c2m2/search/record_info?q=PR000319&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000319|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:feces|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:NMR%20spectrum|assay_type_name:NMR%20spectroscopy%20assay
+
+#### From SPARC: search: OT2OD023847
+
+https://data.cfde.cloud/search/OT2OD023847/c2m2
+
+Try first or any other record
+
+https://data.cfde.cloud/c2m2/search/record_info?q=OT2OD023847&t=dcc_name:Stimulating%20Peripheral%20Activity%20to%20Relieve%20Conditions|project_local_id:OT2OD023847|disease_name:Unspecified|ncbi_taxonomy_name:domestic%20pig|anatomy_name:stomach|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:experimental%20measurement|assay_type_name:electrophysiology%20assay
+
