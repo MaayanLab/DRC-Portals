@@ -236,5 +236,5 @@ http://localhost:3000/data/search/OT2OD023847/c2m2
 
 Try first or any other record
 
-http://localhost:3000/data/search/OT2OD023847/c2m2
-/data/c2m2/search/record_info?q=OT2OD023847&t=dcc_name:Stimulating%20Peripheral%20Activity%20to%20Relieve%20Conditions|project_local_id:OT2OD023847|disease_name:Unspecified|ncbi_taxonomy_name:domestic%20pig|anatomy_name:stomach|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:experimental%20measurement|assay_type_name:electrophysiology%20assay
+http://localhost:3000/data/c2m2/search/record_info?q=OT2OD023847&t=dcc_name:Stimulating%20Peripheral%20Activity%20to%20Relieve%20Conditions|project_local_id:OT2OD023847|disease_name:Unspecified|ncbi_taxonomy_name:domestic%20pig|anatomy_name:stomach|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:experimental%20measurement|assay_type_name:electrophysiology%20assay
+
