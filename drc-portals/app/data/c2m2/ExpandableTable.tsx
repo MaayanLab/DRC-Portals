@@ -96,7 +96,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                 <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{tableTitle}</Typography>
-                        <div className="flex flex-wrap gap-4 mb-4">
+                        {/* <div className="flex flex-wrap gap-4 mb-4">
                             {dynamicColumns.map(column => {
                                 const uniqueValues = Array.from(new Set(data.map(row => row[column] || '')));
                                 if (column == 'file_format_name') {
@@ -120,7 +120,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                     )
                                 }
                             })}
-                        </div>
+                        </div> */}
                     </AccordionSummary>
                     <AccordionDetails>
 
