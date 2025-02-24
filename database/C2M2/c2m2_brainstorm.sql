@@ -186,3 +186,13 @@ f.data_type = 'ILX:0793824' and fdc.collection_local_id = 'COL_P31946-1_GLY_0000
 --- All looks good:
 --- https://data.cfde.cloud/c2m2/search/record_info?q=COL_P31946-1_GLY_000001&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:1433B_HUMAN|compound_name:Unspecified|data_type_name:Protein%20name%20(UniProt)|assay_type_name:Unspecified
 --- lists files with collections
+
+/* 
+To make file_format filter available on the main search results page, 
+without including it in ffl_biosample_collection* tables, include it 
+in the table c2m2.project_data_type (see c2m2_other_tables.sql). Then, 
+dynamically use it in the CTE during query to restrict the project set. 
+
+Include it in the record_info URL and there this can apply as a filter on 
+the c2m2.file table (project is already set to just one value).
+*/
