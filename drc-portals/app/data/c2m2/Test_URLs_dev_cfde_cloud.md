@@ -256,3 +256,24 @@ Try first or any other record
 
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=OT2OD023847&t=dcc_name:Stimulating%20Peripheral%20Activity%20to%20Relieve%20Conditions|project_local_id:OT2OD023847|disease_name:Unspecified|ncbi_taxonomy_name:domestic%20pig|anatomy_name:stomach|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:experimental%20measurement|assay_type_name:electrophysiology%20assay
 
+## Additional examples to test the filter "Apply" feature
+
+### Search Melanoma and apply filter Species: Homo sapiens and furthe apply filter Skin of body
+
+https://dev.cfde.cloud/data/search/melanoma/c2m2?t=ncbi_taxonomy%3AHomo+sapiens&p=1
+https://dev.cfde.cloud/data/search/melanoma/c2m2?t=ncbi_taxonomy%3AHomo+sapiens%7Canatomy%3Askin+of+body&p=1
+
+#### Select first two records
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=melanoma&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001681|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:skin%20of%20body|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=melanoma&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS-2021|disease_name:melanoma|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:skin%20of%20body|biofluid_name:Unspecified|gene_name:AIM2|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
+
+### Search triple negative breast cancer and apply filters Homo sapiens and anatomy breast
+https://dev.cfde.cloud/data/search/triple%20negative%20breast%20cancer/c2m2?t=ncbi_taxonomy%3AHomo+sapiens%7Canatomy%3Abreast&p=1
+
+#### Select the third record
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=triple%20negative%20breast%20cancer&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001810|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
+
+#### Further apply Data type filter as Gene Expression Data
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=triple%20negative%20breast%20cancer&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS%20phase%202|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
