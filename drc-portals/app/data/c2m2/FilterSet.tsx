@@ -102,20 +102,31 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
               setPendingFilters(validNewValue);
             }} */
             onChange={(event, newValue, reason) => {
-              // Detects when the X button is clicked (reason === 'clear').
+              const searchParams = new URLSearchParams(window.location.search);
+              const currentRawFilters = searchParams.get('t');
+              const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+            
               if (reason === 'clear') {
-                // Clear all filters when the "X" button is clicked
+                // Remove only the filters that were selected (not all t parameters)
+                const selectedFilterNames = selectedFilters.map(filter => `${id}:${filter.name}`);
+                const updatedFilters = currentFilters.filter(filter => !selectedFilterNames.includes(filter));
+            
+                if (updatedFilters.length > 0) {
+                  searchParams.set('t', updatedFilters.join('|'));
+                } else {
+                  searchParams.delete('t');
+                }
+            
+                router.push(`${window.location.pathname}?${searchParams.toString()}`);
                 setSelectedFilters([]);
                 setPendingFilters([]);
-            
-                const searchParams = new URLSearchParams(window.location.search);
-                searchParams.delete('t'); // Remove the 't' parameter
-                router.push(`${window.location.pathname}?${searchParams.toString()}`);
               } else {
                 const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
                 setPendingFilters(validNewValue);
               }
             }}
+            
+            
             
             renderTags={(value, getTagProps) => (
               <Box display="flex" flexWrap="wrap" gap={1}>
