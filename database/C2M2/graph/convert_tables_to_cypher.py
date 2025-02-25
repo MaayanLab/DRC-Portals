@@ -779,7 +779,7 @@ def main():
     for data_filename, cypher_filename, query_builder_fn in dataf_cypherf_fn_threeple:
         with open(f'./import/cypher/{cypher_filename}', 'w') as cypher_fp:
             # Constraints/indexes are special load files, we don't need to load from a TSV for them
-            if cypher_filename in ['id_namespace_constraints.cypher', 'container_indexes.cypher', 'dcc_constraints.cypher', 'term_constraints.cypher', 'core_indexes.cypher', 'node_uuid_constraints.cypher', 'relationship_uuid_constraints.cypher']:
+            if cypher_filename in ['id_namespace_constraints.cypher', 'container_indexes.cypher', 'dcc_constraints.cypher', 'term_constraints.cypher', 'term_name_indexes.cypher', 'core_indexes.cypher', 'node_uuid_constraints.cypher', 'relationship_uuid_constraints.cypher']:
                 cypher_fp.write(query_builder_fn())
             else:
                 cypher_fp.write(create_load_query(data_filename, query_builder_fn()))
