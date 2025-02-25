@@ -97,10 +97,26 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
             groupBy={(option) => getFirstLetter(option)}
             getOptionLabel={(option) => option.name}
             value={[...selectedFilters, ...pendingFilters]}
-            onChange={(event, newValue) => {
+            /* onChange={(event, newValue) => {
               const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
               setPendingFilters(validNewValue);
+            }} */
+            onChange={(event, newValue, reason) => {
+              // Detects when the X button is clicked (reason === 'clear').
+              if (reason === 'clear') {
+                // Clear all filters when the "X" button is clicked
+                setSelectedFilters([]);
+                setPendingFilters([]);
+            
+                const searchParams = new URLSearchParams(window.location.search);
+                searchParams.delete('t'); // Remove the 't' parameter
+                router.push(`${window.location.pathname}?${searchParams.toString()}`);
+              } else {
+                const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
+                setPendingFilters(validNewValue);
+              }
             }}
+            
             renderTags={(value, getTagProps) => (
               <Box display="flex" flexWrap="wrap" gap={1}>
                 {value.map((option, index) => (
