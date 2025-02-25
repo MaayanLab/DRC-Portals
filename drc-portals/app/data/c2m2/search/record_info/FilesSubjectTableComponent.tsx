@@ -7,7 +7,6 @@ import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 
 interface FileSubTableResult {
-
     file_sub_table: {
         file_id_namespace: string,
         file_local_id: string,
@@ -16,7 +15,6 @@ interface FileSubTableResult {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
-        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -32,6 +30,9 @@ interface FileSubTableResult {
         bundle_collection_id_namespace: string,
         bundle_collection_local_id: string,
         dbgap_study_id: string,
+        access_url: string,
+        file_format_name: string,
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -44,7 +45,6 @@ interface FileSubTableResult {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
-        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -60,6 +60,9 @@ interface FileSubTableResult {
         bundle_collection_id_namespace: string,
         bundle_collection_local_id: string,
         dbgap_study_id: string,
+        access_url: string,
+        file_format_name: string,
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -135,9 +138,11 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 ),
                 file_sub_table_keycol AS (
                   SELECT DISTINCT fds.*,
-                  f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
+                  f.project_id_namespace, f.project_local_id, f.persistent_id, f.creation_time,
                   f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                  f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
+                  f.file_format, f.compression_format,  f.data_type, f.assay_type, f.analysis_type, 
+                  f.mime_type, f.bundle_collection_id_namespace, f. bundle_collection_local_id, f.dbgap_study_id, f.access_url, 
+                  ff.name AS file_format_name, fff.name AS compression_format_name,
                   ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name
                 FROM c2m2.file_describes_subject fds
                   /**? INNER JOIN file_table_keycol ftk ON (ftk.local_id = fds.file_local_id AND ftk.id_namespace = fds.file_id_namespace) */
@@ -154,7 +159,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                   /**** LEFT JOIN c2m2.data_type AS dt ON f.data_type = dt.id
                   LEFT JOIN c2m2.assay_type AS at ON f.assay_type = at.id ****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
+                LEFT JOIN c2m2.file_format AS ff ON f.file_format = ff.id
+                LEFT JOIN c2m2.file_format AS fff ON f.compression_format = fff.id
                   ), /* Mano */
                 file_sub_table AS (
                   SELECT * from file_sub_table_keycol
@@ -198,7 +204,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         }
 
 
-        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
+        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileSubPrunedData,
             columnNames: fileSubColNames,
@@ -215,7 +221,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
             ? filesSubTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
 
-        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+        const priorityFileCols = ['filename', 'file_local_id', 'data_type_name', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
         const newFileSubColumns = priorityFileCols.filter(item => dynamicFileSubColumns.includes(item));
         const staticPriorityFileCols = priorityFileCols.filter(item => !dynamicFileSubColumns.includes(item)); // priority columns that are static, don't change with 

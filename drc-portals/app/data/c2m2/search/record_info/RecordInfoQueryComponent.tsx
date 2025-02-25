@@ -278,7 +278,14 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Data type',
         value: resultsRec?.data_type_name && resultsRec?.data_type_name !== "Unspecified"
-          ? <Link href={`http://edamontology.org/${resultsRec?.data_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link
+            href={resultsRec?.data_type?.includes("ILX_") || resultsRec?.data_type?.includes("ilx_")
+              ? `http://uri.interlex.org/${resultsRec?.data_type.toLowerCase()}`
+              : `http://edamontology.org/${resultsRec?.data_type}`
+            }
+            className="underline cursor-pointer text-blue-600"
+            target="_blank"
+          >
             {capitalizeFirstLetter(resultsRec?.data_type_name)}
           </Link>
           : /* resultsRec?.data_type_name || */ ''

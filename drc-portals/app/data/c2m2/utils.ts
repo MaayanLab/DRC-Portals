@@ -401,7 +401,7 @@ export function generateFilterClauseFromtParam(t: { type: string; entity_type: s
           'data_type', 'assay_type'];
 
         if (item.entity_type !== "Unspecified") {
-          typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" = ${item.entity_type}`);
+          typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" ILIKE ${item.entity_type}`);
         } else {
           if (tablename == 'allres') {
             typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" = 'Unspecified'`);
@@ -543,7 +543,9 @@ const fileProjTable: { [key: string]: string } = {
   "md5": "Checksum (md5)",
   "filename": "File name",
   "file_format": "Format",
+  "file_format_name": "Format",
   "compression_format": "Compression format",
+  "compression_format_name": "Compression format",
   "data_type_name": "Data type",
   "assay_type_name": "Assay type",
   "analysis_type_name": "Analysis type",
