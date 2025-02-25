@@ -34,7 +34,7 @@ function getFirstLetter(opt: FilterObject): string {
   return opt.name[0].toUpperCase();
 }
 
-export default function FilterSet({ id, filterList, filter_title, example_query }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string }) {
+export default function FilterSet({ id, filterList, filter_title, example_query, maxCount }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string, maxCount?: number }) {
   const router = useRouter();
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
   const [pendingFilters, setPendingFilters] = useState<FilterObject[]>([]);
