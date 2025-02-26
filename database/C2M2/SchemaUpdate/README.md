@@ -64,6 +64,9 @@ cd "$C2M2_sub_folder"
 # To get back to SchemaUpdateFolder
 cd "$SchemaUpdateFolder"
 
+#--------- CRITICALLY IMPORTANT: Even for this trivial change, 
+# I had to modify prepare_C2M2_submission.py as the columns of file.tsv are explicitly listed on line ~1332.
+#
 # For file.tsv access_url update
 # mock access_url related data in file.tsv.
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
@@ -72,7 +75,7 @@ cd "$SchemaUpdateFolder"
 cp *.sh "$C2M2_sub_folder"/.
 cd "$C2M2_sub_folder"
 ./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_access_url.sh \
-append_random_access_url_to_file.sh "$SchemaUpdateFolder" 1 2>&1 | tee schema_update_test_access_url.log
+append_random_access_url_to_file.sh "$SchemaUpdateFolder" 0 2>&1 | tee schema_update_test_access_url.log
 # To get back to SchemaUpdateFolder
 cd "$SchemaUpdateFolder"
 
