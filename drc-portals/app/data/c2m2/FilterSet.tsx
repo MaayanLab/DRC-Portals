@@ -39,13 +39,40 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
   const [pendingFilters, setPendingFilters] = useState<FilterObject[]>([]);
 
+  /*  useEffect(() => {
+     const searchParams = new URLSearchParams(window.location.search);
+     const currentRawFilters = searchParams.get('t');
+     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+     const updatedSelectedFilters = filterList.filter(filter => currentFilters.includes(`${id}:${filter.name}`));
+     setSelectedFilters(updatedSelectedFilters);
+   }, [filterList, id]); */
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
-    const updatedSelectedFilters = filterList.filter(filter => currentFilters.includes(`${id}:${filter.name}`));
-    setSelectedFilters(updatedSelectedFilters);
-  }, [filterList, id]);
+
+    // Extract valid filters that match the current filterList
+    const validFilterNames = new Set(filterList.map(filter => filter.name));
+
+    // Remove any filters that belong to this id but are not in filterList
+    const updatedFilters = currentFilters.filter(filter => {
+      const [filterId, filterName] = filter.split(':');
+      return filterId !== id || validFilterNames.has(filterName);
+    });
+
+    if (updatedFilters.length !== currentFilters.length) {
+      if (updatedFilters.length > 0) {
+        searchParams.set('t', updatedFilters.join('|'));
+      } else {
+        searchParams.delete('t');
+      }
+      router.replace(`${window.location.pathname}?${searchParams.toString()}`);
+    }
+
+    const selected = filterList.filter(filter => currentFilters.includes(`${id}:${filter.name}`));
+    setSelectedFilters(selected);
+  }, [filterList, id, router]);
+
 
   const applyFilters = () => {
     if (pendingFilters.length === 0) return;
@@ -105,18 +132,18 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
               const searchParams = new URLSearchParams(window.location.search);
               const currentRawFilters = searchParams.get('t');
               const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
-            
+
               if (reason === 'clear') {
                 // Remove only the filters that were selected (not all t parameters)
                 const selectedFilterNames = selectedFilters.map(filter => `${id}:${filter.name}`);
                 const updatedFilters = currentFilters.filter(filter => !selectedFilterNames.includes(filter));
-            
+
                 if (updatedFilters.length > 0) {
                   searchParams.set('t', updatedFilters.join('|'));
                 } else {
                   searchParams.delete('t');
                 }
-            
+
                 router.push(`${window.location.pathname}?${searchParams.toString()}`);
                 setSelectedFilters([]);
                 setPendingFilters([]);
@@ -125,9 +152,9 @@ export default function FilterSet({ id, filterList, filter_title, example_query 
                 setPendingFilters(validNewValue);
               }
             }}
-            
-            
-            
+
+
+
             renderTags={(value, getTagProps) => (
               <Box display="flex" flexWrap="wrap" gap={1}>
                 {value.map((option, index) => (
