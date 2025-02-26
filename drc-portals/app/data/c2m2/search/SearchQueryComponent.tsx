@@ -24,7 +24,7 @@ import AnatomyFilterComponent from './AnatomyFilterComponent';
 import BiofluidFilterComponent from './BiofluidFilterComponent';
 import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
-import React from "react";
+import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
 import DownloadAllButton from '../DownloadAllButton';
 import c2m2 from '@/lib/prisma/c2m2';

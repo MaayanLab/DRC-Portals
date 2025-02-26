@@ -73,7 +73,6 @@ export default function Documentation() {
                     Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.
                     To submit assets, you must be logged in and registered. Registration involves being assigned a
                     role by an administrator. To register, please send us an email at <MailToLink email="help@cfde.cloud" color='secondary' />.
-                    Please consult this documentation for June 2024 submission (June 1st - June 15th, 2024). 
                 </Typography>
             </Grid>
             <Grid item xs={12} container justifyContent={'center'}>

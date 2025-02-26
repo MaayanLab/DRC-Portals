@@ -2,7 +2,7 @@
 import React from 'react';
 import { Typography, Button, Accordion, AccordionSummary, AccordionDetails, Grid, Chip, styled } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/utils/navigation';
 
 // Common style for text and buttons
 const commonTextStyle = {

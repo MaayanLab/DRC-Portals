@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/utils/navigation'
 
 export default function ErrorRedirect(props: { error?: string }) {
   const router = useRouter()

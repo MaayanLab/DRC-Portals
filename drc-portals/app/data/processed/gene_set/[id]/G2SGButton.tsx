@@ -1,7 +1,7 @@
 'use client'
 
 import Button from "@mui/material/Button"
-import Image from "next/image"
+import Image from "@/utils/image"
 import G2SGIcon from '@/public/img/icons/g2sg-logo.png'
 import CardButton from "@/app/data/processed/CardButton"
 import * as React from 'react';

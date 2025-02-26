@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import Link from '@/utils/link';
-import Image from 'next/image';
+import Image from '@/utils/image';
 import { Button } from '@mui/material';
 
 const METADATA_API = "https://maayanlab.cloud/sigcom-lincs/metadata-api/"

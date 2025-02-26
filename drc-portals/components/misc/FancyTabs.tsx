@@ -23,11 +23,17 @@ type FancyTabProps = {
   loading?: boolean,
   disabled?: boolean,
 }
-const FancyTabContext = React.createContext([undefined as string | undefined, (data: FancyTabProps) => { }] as const)
+const FancyTabContext = React.createContext([undefined as string | undefined, (data: FancyTabProps & { placeholder?: boolean }) => { }] as const)
+
+export function FancyTabPlaceholder(props: React.PropsWithChildren<FancyTabProps>) {
+  const [currentTab, register] = React.useContext(FancyTabContext)
+  React.useEffect(() => register({ ...props, placeholder: true, loading: props.loading === undefined ? true : props.loading }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
+  return <>{props.children}</>
+}
 
 export function FancyTab(props: React.PropsWithChildren<FancyTabProps>) {
   const [currentTab, register] = React.useContext(FancyTabContext)
-  React.useEffect(() => register({ ...props }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
+  React.useEffect(() => register({ ...props, loading: props.loading === undefined ? false : props.loading }), [props.label, props.id, props.priority, props.hidden, props.loading, props.disabled])
   if (props.id !== currentTab || props.hidden) return null
   return <>{props.children}</>
 }
@@ -39,11 +45,14 @@ export function FancyTabs(props: React.PropsWithChildren<{
   preInitializationFallback?: React.ReactNode,
   postInitializationFallback?: React.ReactNode,
 }>) {
-  const [ctx, setCtx] = React.useState({ initialized: false, tabs: {} as Record<string, FancyTabProps> })
-  const register = React.useCallback((props: FancyTabProps) => {
-    setCtx(({ tabs }) => ({ initialized: true, tabs: { ...tabs, [props.id]: props } }))
+  const [ctx, setCtx] = React.useState({ initialized: false, tabs: {} as Record<string, FancyTabProps & { placeholder?: boolean }> })
+  const register = React.useCallback((props: FancyTabProps & { placeholder?: boolean }) => {
+    setCtx(({ tabs }) => ({
+      initialized: true,
+      tabs: props.placeholder && props.id in tabs ? tabs : { ...tabs, [props.id]: props }
+    }))
     return () => {
-      setCtx(({ tabs: { [props.id]: _, ...tabs } }) => ({ initialized: true, tabs }))
+      setCtx(({ tabs: { [props.id]: unmountedTab, ...tabs } }) => ({ initialized: true, tabs: unmountedTab.placeholder ? tabs : {...tabs, [unmountedTab.id]: {...unmountedTab, hidden: true} } }))
     }
   }, [setCtx])
   const [tab, setTab] = React.useState(props.defaultTab)

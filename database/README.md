@@ -56,3 +56,12 @@ kubectl port-forward -n drc deploy/drc-portal-postgres 5432
 # in another, run the following script to generate these files and load them into s3
 python update_s3_from_db.py dcc_assets file_assets code_assets
 ```
+
+## Updating Outreach/Webinar in Production
+```bash
+# in one terminal, port forward the prod db
+kubectl port-forward -n drc deploy/drc-portal-postgres 5432
+
+# in another, run the following script to generate the files and load them into s3 & the prod database
+python update_outreach.py updated-outreach.tsv updated-webinar.tsv
+```

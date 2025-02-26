@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import { useSearchParams } from "next/navigation"
-import Link from '@/utils/link'
 import { Checkbox, FormControlLabel, Typography } from '@mui/material'
+import { useSearchParams, useRouter } from '@/utils/navigation'
 
 export default function SearchFilter({ id, label, color, count }: { id: string, label: string, color?: string, count: number }) {
+  const router = useRouter()
   const rawSearchParams = useSearchParams()
   const { searchParams, currentFilterSet } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)
@@ -18,8 +18,15 @@ export default function SearchFilter({ id, label, color, count }: { id: string, 
     return { searchParams, currentFilterSet }
   }, [id, rawSearchParams])
   return (
-    <Link href={`?${searchParams.toString()}`}>
-      <FormControlLabel control={<Checkbox/>} label={<Typography variant='body2' color={color ?? 'secondary'}>{label} ({count.toLocaleString()})</Typography>} checked={currentFilterSet} />
-    </Link>
+    <FormControlLabel
+      onClick={evt => {router.push(`?${searchParams.toString()}`, { scroll: false })}}
+      control={<Checkbox/>}
+      label={
+        <Typography variant='body2'
+          color={color ?? 'secondary'}
+        >{label} ({count.toLocaleString()})</Typography>
+      }
+      checked={currentFilterSet}
+    />
   )
 }

@@ -1,5 +1,5 @@
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
 import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Tooltip } from "@mui/material";
 
@@ -36,7 +36,7 @@ const ToolCard = ({ tool }: { tool: ToolsWithPublications }) => (
 						</Typography>
 						{tool.publications.length > 0 &&
 							<div className="flex items-center">
-								<Typography variant="subtitle1"><b>Publications:</b></Typography>
+								<Typography variant="subtitle1"><b>Publication:</b></Typography>
 								{tool.publications.map((pub, i) => (
 									<Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
 										<Button color="secondary">
@@ -114,9 +114,13 @@ const ToolCard = ({ tool }: { tool: ToolsWithPublications }) => (
 								>
 									<Button
 										color="secondary"
-										startIcon={<Icon path={mdiVideoOutline} size={1} />}
+										sx={{
+											minWidth: 0,
+											padding: '2px',
+										}}
+								
 									>
-										Tutorial
+										TUTORIAL <Icon path={mdiVideoOutline} size={1} />
 									</Button>
 								</Link>
 							) : null}			
@@ -193,6 +197,8 @@ const ServerCarousel = ({ tools }: { tools: Array<ToolsWithPublications> }) => {
 									))}
 								</>
 							) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
+								<>
+								<Typography variant="subtitle2" color="secondary">TUTORIAL</Typography>
 								<Link
 									href={tool.tutorial[0]}
 									target="_blank"
@@ -200,11 +206,15 @@ const ServerCarousel = ({ tools }: { tools: Array<ToolsWithPublications> }) => {
 								>
 									<Button
 										color="secondary"
-										startIcon={<Icon path={mdiVideoOutline} size={1} />}
+										sx={{
+											minWidth: 0,
+											padding: '2px',
+										}}
 									>
-										Tutorial
+										<Icon path={mdiVideoOutline} size={1} />
 									</Button>
 								</Link>
+								</>
 							) : null}			
 								</Grid>
 							</Grid>
@@ -253,7 +263,7 @@ export default async function ToolsPage() {
 				</ClientCarousel>
 			</Grid>
 			<Grid item xs={12} sx={{ display: { xs: "none", sm: "block", md: "none", lg: "none", xl: "none" } }}>
-				<ClientCarousel title="" height={650}>
+				<ClientCarousel title="" height={750}>
 					<ServerCarousel tools={featured_tools} />
 				</ClientCarousel>
 			</Grid>

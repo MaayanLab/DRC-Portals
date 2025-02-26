@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { Paper, Grid, Typography, Button, Box } from "@mui/material";
-import { useRouter, useSearchParams } from 'next/navigation'; // Import useRouter and useSearchParams
+import { useRouter, useSearchParams } from '@/utils/navigation'; // Import useRouter and useSearchParams
 import DownloadButton from "./DownloadButton";
 import { get_partial_list_string } from "@/app/data/c2m2/utils";
 

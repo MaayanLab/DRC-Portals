@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/utils/image";
 import { Grid, Typography, Button, Stack, Card, CardContent, Avatar, Link } from "@mui/material";
 import { ElevatedIconButton } from "@/components/styled/Buttons";
 export default function Specs() {

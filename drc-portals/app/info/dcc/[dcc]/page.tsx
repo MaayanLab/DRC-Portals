@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -140,22 +140,22 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 { (publications.length > 0 || Object.keys(assets).length > 0) && 
                     <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                         <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                    <Paper sx={{padding: 2, height: "100%"}}>
+                                        <DCCAccordion dcc={params.dcc} fulldata={assets} />
+                                        <Link href="/data/matrix">
+                                            <Button sx={{marginLeft: 2}}>
+                                                <Typography variant={'subtitle1'} color="secondary">Go to data matrix</Typography>
+                                            </Button>
+                                        </Link>
+                                    </Paper>
+                                </Grid>
                             {publications.length > 0 && <Grid item xs={12}>
                                 <Paper sx={{padding: 2, height: "100%"}}>
                                     <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
                                     <SimplePublicationComponent publications={publications}/>
                                 </Paper>
                             </Grid>}
-                            <Grid item xs={12}>
-                                <Paper sx={{padding: 2, height: "100%"}}>
-                                    <DCCAccordion dcc={params.dcc} fulldata={assets} />
-                                    <Link href="/data/matrix">
-                                        <Button sx={{marginLeft: 2}}>
-                                            <Typography variant={'subtitle1'} color="secondary">Go to data matrix</Typography>
-                                        </Button>
-                                    </Link>
-                                </Paper>
-                            </Grid>
                         </Grid>
                     </Grid>
                 }

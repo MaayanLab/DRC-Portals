@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { Autocomplete, Grid, TextField } from '@mui/material';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from '@/utils/navigation';
 
 interface TableFilterProps {
     tableNames: { table: string; label: string }[];

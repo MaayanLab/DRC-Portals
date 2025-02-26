@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from "react"
 import { useWidth } from "../Carousel/helper"
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from '@/utils/navigation';
 import { OutreachParams } from '.';
 import { parseAsJson } from 'next-usequerystate';
 export const ClientExpander = ({children}: {children: React.ReactNode}) => {

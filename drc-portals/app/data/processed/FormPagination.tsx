@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { Box, FormControl, Grid, InputLabel, MenuItem, Pagination, PaginationItem, Paper, Select, Stack, TableCell, TableRow, Typography } from '@mui/material'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from '@/utils/navigation'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
