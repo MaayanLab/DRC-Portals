@@ -2,7 +2,7 @@ import { Grid } from "@mui/material";
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from "remark-gfm"
 import { fetchC2m2Markdown } from "@/components/misc/ExternalC2m2";
-import {  LinkRenderer } from '@/components/misc/ReactMarkdownRenderers'
+import {  LinkRenderer, TableRenderer, ThRenderer } from '@/components/misc/ReactMarkdownRenderers'
 
 export default async function StandardsPage(
   { params } : { params: { doc: string } }
@@ -39,14 +39,16 @@ export default async function StandardsPage(
       + params.doc + ')*\n\n'
     return (
       <Grid container sx={{ml:3, mt:3}}>
-        <Grid item sx={{mb:5}}>
+        <Grid item sx={{mb:5, overflow: 'hidden'}}>
           <br/>
           <ReactMarkdown 
             skipHtml
             remarkPlugins={[remarkGfm]}
             components={{ 
-              a: LinkRenderer
-          }} className="prose">
+              a: LinkRenderer,
+              table: TableRenderer,
+              th: ThRenderer,
+          }} className="prose max-w-none">
             {''.concat(
               title,
               source,

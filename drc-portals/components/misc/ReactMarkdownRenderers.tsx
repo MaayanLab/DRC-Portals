@@ -47,3 +47,21 @@ export function H3Renderer(props: any) {
     </h3>
   )
 }
+
+export function TableRenderer(props: any) {
+  return (
+    <div className="overflow-auto">
+      <table className="table table-auto" style={props.style}>
+        {props.children}
+      </table>
+    </div>
+  )
+}
+
+export function ThRenderer(props: any) {
+  return (
+    <th className="whitespace-nowrap" style={props.style}>
+      {props.children}
+    </th>
+  )
+}
