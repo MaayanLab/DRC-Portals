@@ -22,9 +22,12 @@ interface LandingPageLayoutProps {
   description: React.ReactNode;
   categories?: Category[];
   metadata?: (MetadataItem | null)[];
+  downloadMetadata?:object | object[];
+  downloadFilename?: string;
   icon?: Icon;
   children?: React.ReactNode;
 }
+
 
 export default function LandingPageLayout(props: LandingPageLayoutProps) {
   const [maxHeight, setMaxHeight] = useState(0);
@@ -53,6 +56,11 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
     return item.value;
   };
 
+  
+  
+  
+  
+
   return (
     <Grid container sx={{ paddingTop: 5, paddingBottom: 5 }} rowGap={2}>
       <Grid item xs={8}>
@@ -73,6 +81,13 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
           {props.description ? <Typography variant="body1"><strong>Project Description</strong>: {props.description}</Typography> : null}
           {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="body1"><strong>{item.label}</strong>: {item.value}</Typography> : null)}
         </Stack>
+      </Grid>
+      <Grid item xs={12}>
+      <DownloadButton
+        data={props.downloadMetadata}
+        filename={`${props.downloadFilename}.json`}
+        name="Download Metadata"
+      />
       </Grid>
       <Grid container spacing={2}>
         {props.categories && props.categories.length > 0 && (
@@ -96,6 +111,9 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
                 </Card>
               </Grid>
             ))}
+            {/* Download Button after all categories */}
+            
+ 
           </Grid>
         )}
 
