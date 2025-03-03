@@ -22,7 +22,7 @@ interface LandingPageLayoutProps {
   description: React.ReactNode;
   categories?: Category[];
   metadata?: (MetadataItem | null)[];
-  downloadMetadata?: { key: string; value: string }[];
+  downloadMetadata?:object | object[];
   downloadFilename?: string;
   icon?: Icon;
   children?: React.ReactNode;

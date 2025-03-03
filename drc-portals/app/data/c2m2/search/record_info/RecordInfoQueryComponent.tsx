@@ -204,159 +204,84 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const resultsRec = results?.records[0];
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
 
-    const downloadMetadata: { key: string; value: string }[] = [
-      { key: "Project ID", value: resultsRec?.project_local_id || "" },
-      resultsRec?.project_persistent_id
-        ? { key: "Project URL", value: resultsRec.project_persistent_id }
+    const downloadMetadata = {
+      project: {
+        id: resultsRec?.project_local_id || "",
+        url: resultsRec?.project_persistent_id || null,
+        description: resultsRec?.project_description ?? ""
+      },
+      taxonomy: resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified"
+        ? {
+            name: resultsRec.taxonomy_name,
+            url: `https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`,
+            description: resultsRec.taxonomy_description || null,
+          }
         : null,
-    
-      // Taxonomy Section
-      resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified" ? [
-        {
-          key: "Taxonomy",
-          value: resultsRec.taxonomy_name
-        },
-        {
-          key: "Taxonomy URL",
-          value: `https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`
-        },
-        
-      ] : null,
-    
-      // Taxonomy Description Section
-      resultsRec?.taxonomy_description
-        ? { key: "Taxonomy/Species Description", value: capitalizeFirstLetter(resultsRec.taxonomy_description) }
+      sampleSource: resultsRec?.anatomy_name && resultsRec.anatomy_name !== "Unspecified"
+        ? {
+            name: resultsRec.anatomy_name,
+            url: `http://purl.obolibrary.org/obo/${resultsRec.anatomy}`,
+            description: resultsRec.anatomy_description || null,
+          }
         : null,
-    
-      // Anatomy Section (Sample Source)
-      resultsRec?.anatomy_name && resultsRec.anatomy_name !== "Unspecified" ? [
-        {
-          key: "Sample Source",
-          value: resultsRec.anatomy_name
-        },
-        {
-          key: "Sample Source URL",
-          value: `http://purl.obolibrary.org/obo/${resultsRec.anatomy}`
-        }
-      ] : null,
-    
-      // Anatomy Description Section
-      resultsRec?.anatomy_description
-        ? { key: "Sample Source Description", value: resultsRec.anatomy_description }
+      biofluid: resultsRec?.biofluid_name && resultsRec.biofluid_name !== "Unspecified"
+        ? {
+            name: resultsRec.biofluid_name,
+            url: `http://purl.obolibrary.org/obo/${resultsRec.biofluid}`,
+            description: resultsRec.biofluid_description || null,
+          }
         : null,
-    
-      // Biofluid Section
-      resultsRec?.biofluid_name && resultsRec.biofluid_name !== "Unspecified" ? [
-        {
-          key: "Biofluid",
-          value: resultsRec.biofluid_name
-        },
-        {
-          key: "Biofluid URL",
-          value: `http://purl.obolibrary.org/obo/${resultsRec.biofluid}`
-        }
-      ] : null,
-    
-      // Biofluid Description Section
-      resultsRec?.biofluid_description
-        ? { key: "Biofluid Description", value: resultsRec.biofluid_description }
+      disease: resultsRec?.disease_name && resultsRec.disease_name !== "Unspecified"
+        ? {
+            name: resultsRec.disease_name,
+            url: `http://purl.obolibrary.org/obo/${resultsRec.disease}`,
+            description: resultsRec.disease_description || null,
+          }
         : null,
-    
-      // Disease Section
-      resultsRec?.disease_name && resultsRec.disease_name !== "Unspecified" ? [
-        {
-          key: "Disease",
-          value: resultsRec.disease_name
-        },
-        {
-          key: "Disease URL",
-          value: `http://purl.obolibrary.org/obo/${resultsRec.disease}`
-        }
-      ] : null,
-    
-      // Disease Description Section
-      resultsRec?.disease_description
-        ? { key: "Disease Description", value: resultsRec.disease_description }
+      gene: resultsRec?.gene_name && resultsRec.gene_name !== "Unspecified"
+        ? {
+            name: resultsRec.gene_name,
+            url: `http://www.ensembl.org/id/${resultsRec.gene}`,
+            description: resultsRec.gene_description ? capitalizeFirstLetter(resultsRec.gene_description) : null,
+          }
         : null,
-    
-      // Gene Section
-      resultsRec?.gene_name && resultsRec.gene_name !== "Unspecified" ? [
-        {
-          key: "Gene",
-          value: resultsRec.gene_name
-        },
-        {
-          key: "Gene URL",
-          value: `http://www.ensembl.org/id/${resultsRec.gene}`
-        }
-      ] : null,
-    
-      // Gene Description Section
-      resultsRec?.gene_description
-        ? { key: "Gene Description", value: capitalizeFirstLetter(resultsRec.gene_description) }
+      protein: resultsRec?.protein_name && resultsRec.protein_name !== "Unspecified"
+        ? {
+            name: resultsRec.protein_name,
+            url: `https://www.uniprot.org/uniprotkb/${resultsRec.protein}`,
+            description: resultsRec.protein_description ? capitalizeFirstLetter(resultsRec.protein_description) : null,
+          }
         : null,
-    
-      // Protein Section
-      resultsRec?.protein_name && resultsRec.protein_name !== "Unspecified" ? [
-        {
-          key: "Protein",
-          value: resultsRec.protein_name
-        },
-        {
-          key: "Protein URL",
-          value: `https://www.uniprot.org/uniprotkb/${resultsRec.protein}`
-        }
-      ] : null,
-    
-      // Protein Description Section
-      resultsRec?.protein_description
-        ? { key: "Protein Description", value: capitalizeFirstLetter(resultsRec.protein_description) }
+      compound: resultsRec?.compound_name && resultsRec.compound_name !== "Unspecified"
+        ? {
+            name: resultsRec.compound_name,
+            url: `http://www.ensembl.org/id/${resultsRec.compound}`,
+            description: resultsRec.compound_description ? capitalizeFirstLetter(resultsRec.compound_description) : null,
+          }
         : null,
-    
-      // Compound Section
-      resultsRec?.compound_name && resultsRec.compound_name !== "Unspecified" ? [
-        {
-          key: "Compound",
-          value: resultsRec.compound_name
-        },
-        {
-          key: "Compound URL",
-          value: `http://www.ensembl.org/id/${resultsRec.compound}`
-        }
-      ] : null,
-    
-      // Compound Description Section
-      resultsRec?.compound_description
-        ? { key: "Compound Description", value: capitalizeFirstLetter(resultsRec.compound_description) }
+      dataType: resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified"
+        ? {
+            name: resultsRec.data_type_name,
+            url:
+              resultsRec.data_type?.includes("ILX_") || resultsRec.data_type?.includes("ilx_")
+                ? `http://uri.interlex.org/${resultsRec.data_type.toLowerCase()}`
+                : `http://edamontology.org/${resultsRec.data_type}`,
+          }
         : null,
+      assayType: resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified"
+        ? {
+            name: resultsRec.assay_type,
+            url: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`,
+          }
+        : null,
+    };
     
-      // Data Type Section
-      resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified" ? [
-        {
-          key: "Data Type",
-          value: resultsRec.data_type_name
-        },
-        {
-          key: "Data Type URL",
-          value:
-            resultsRec.data_type?.includes("ILX_") || resultsRec.data_type?.includes("ilx_")
-              ? `http://uri.interlex.org/${resultsRec.data_type.toLowerCase()}`
-              : `http://edamontology.org/${resultsRec.data_type}`
-        }
-      ] : null,
+    // Remove null values
+    const filteredMetadata = Object.fromEntries(
+      Object.entries(downloadMetadata).filter(([_, v]) => v !== null)
+    );
     
-      // Assay Type Section
-      resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified" ? [
-        {
-          key: "Assay Type",
-          value: resultsRec.assay_type
-        },
-        {
-          key: "Assay Type URL",
-          value: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`
-        }
-      ] : null,
-    ].filter((item): item is { key: string; value: string } => item !== null);
+    
     
     
     const downloadFilename = generateHashedJSONFilename("Metadata_", searchParams);
@@ -470,7 +395,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         subtitle={""}
         description={format_description(resultsRec?.project_description ?? "")}
         metadata={metadata}
-        downloadMetadata={downloadMetadata}
+        downloadMetadata={filteredMetadata}
         downloadFilename={downloadFilename}
       //categories={categories}
       >
