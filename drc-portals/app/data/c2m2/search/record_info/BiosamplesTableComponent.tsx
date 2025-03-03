@@ -5,7 +5,7 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromBiosampleTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Paper, Grid, Typography, Card, CardContent } from "@mui/material";
-
+import DownloadButton from "../../DownloadButton";
 
 interface BiosampleTableResult {
     biosamples_table_full: {
@@ -175,10 +175,16 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
 
         const downloadFilename = generateHashedJSONFilename("BiosampleTable_", searchParams);
         const categories: Category[] = [];
-
+        
 
         addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
         const category = categories[0];
+        const downloadData = category?.metadata
+            ? category.metadata
+                .filter(item => item && item.value !== null)  // Only include items with a non-null value
+                .map(item => ({ [item.label]: item.value }))  // Create an object with label as the key and value as the value
+            : []; // If category is not present, return an empty array
+
 
         console.log("Biosample Category = " + category);
 
@@ -202,7 +208,18 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                             </CardContent>
                         </Card>
                     </Grid>
+                    
                 )}
+                {/* Conditionally render DownloadButton if biosamplePrunedDataWithId is empty */}
+                {countBios === 1 && (
+                    <Grid item xs={12}>
+                        <DownloadButton
+                            data={downloadData}
+                            filename={downloadFilename}
+                            name="Download Metadata"
+                        />
+                    </Grid>
+                )}  
                 <Grid item xs={12}>
                     <ExpandableTable
                         data={biosamplePrunedDataWithId}
