@@ -1,5 +1,5 @@
 'use client'
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname } from "@/utils/navigation"
 import TablePagination from '@mui/material/TablePagination';
 import Grid from "@mui/material/Grid"
 import { queryJson } from "./PublicationsServer"

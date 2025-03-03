@@ -4,7 +4,7 @@ import React from 'react'
 import { useSearchParams } from "next/navigation"
 import { NodeType } from '@prisma/client'
 import { pluralize, type_to_string } from '@/app/data/processed/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/utils/navigation'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 

@@ -5,11 +5,5 @@ output/
 .DS_Store
 kub/
 venv
-outreach_files/
 package-lock.json
-usecase_files/
-publication_files/
 playground*
-tool_files/
-partnership_files/
-current/

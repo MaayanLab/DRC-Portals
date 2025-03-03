@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/utils/image";
 import { Grid, Typography } from "@mui/material";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';

@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import { Grid, Stack, Typography, Card, CardContent } from "@mui/material";
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 import { isURL, MetadataItem, Category } from './utils';
 import DownloadButton from './DownloadButton';
 

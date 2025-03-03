@@ -3,7 +3,7 @@
 import React from 'react'
 import Button from '@mui/material/Button';
 import { signIn, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/utils/navigation';
 
 export function SignInLink({ children }: React.PropsWithChildren<{}>) {
   const router = useRouter()

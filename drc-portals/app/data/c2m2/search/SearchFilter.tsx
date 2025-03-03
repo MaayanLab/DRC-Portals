@@ -30,7 +30,7 @@
 'use client'
 
 import React from 'react'
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "@/utils/navigation"
 import { useState, useEffect } from 'react';
 import Link from '@/utils/link'
 import { Checkbox, FormControlLabel, Typography, TextField, Autocomplete } from '@mui/material'
@@ -40,6 +40,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 
 export default function SearchFilter({ id, label, count }: { id: string, label: string, count: number }) {
+  const router = useRouter()
   const rawSearchParams = useSearchParams()
   const { searchParams, currentFilterSet } = React.useMemo(() => {
     const searchParams = new URLSearchParams(rawSearchParams)
@@ -56,24 +57,20 @@ export default function SearchFilter({ id, label, count }: { id: string, label: 
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   return (
-    <Link href={`?${searchParams.toString()}`}>
+    <FormControlLabel
+      onClick={evt => {router.push(`?${searchParams.toString()}`, { scroll: false })}}
+      sx={{ paddingLeft: '5px' }} // Adjust the padding value as needed
+      control={
 
-      <FormControlLabel
-        sx={{ paddingLeft: '5px' }} // Adjust the padding value as needed
-        control={
-
-          <Checkbox
-
-
-          />
-
-        }
-        label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>}
-        checked={currentFilterSet}
-      />
+        <Checkbox
 
 
-    </Link>
+        />
+
+      }
+      label={<Typography variant='body2' color='secondary'>{label} ({count.toLocaleString()})</Typography>}
+      checked={currentFilterSet}
+    />
   )
 }
 

@@ -1,6 +1,6 @@
 import Grid  from '@mui/material/Grid'
 import Header  from '@/components/Header/'
-import Footer  from '@/components/Footer/data'
+import Footer  from '@/components/Footer/info'
 import { Metadata } from 'next'
 import Background from '@/components/styled/background'
 // import NavBreadcrumbs from '@/components/Header/breadcrumbs'

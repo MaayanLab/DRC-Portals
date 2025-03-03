@@ -1,5 +1,5 @@
 import Link from '@/utils/link'
-import Image from 'next/image';
+import Image from '@/utils/image';
 
 import { mdiGithub, mdiBugOutline, mdiEmail} from '@mdi/js';
 
@@ -21,6 +21,9 @@ const Portal = () => (
       <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer">
         <Typography variant="footer">About the CFDE</Typography>
       </Link>
+      <Link href="/info/centers" >
+        <Typography variant="footer">Centers</Typography>
+      </Link>
       <Link href="/info/dcc">
         <Typography variant="footer">CF-DCCs</Typography>
       </Link>
@@ -28,6 +31,7 @@ const Portal = () => (
         <Typography variant="footer">Information Portal</Typography>
       </Link>
       <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>
+      <Link href="/info/r03"><Typography variant="footer">R03s</Typography></Link>
       <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Video Tutorial</Typography></Link>
       <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
   </Stack>

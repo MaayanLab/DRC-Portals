@@ -12,6 +12,8 @@ import C2M2MainSearchTable from './C2M2MainSearchTable';
 
 interface C2M2SearchResult {
     records: {
+        /* searchable: string, */
+        rank: number,
         dcc_name: string,
         dcc_abbreviation: string,
         dcc_short_label: string,
@@ -62,6 +64,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             WITH 
             allres AS (
                 SELECT DISTINCT
+                    /* allres_full.searchable AS searchable, */
                     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
                     allres_full.dcc_name AS dcc_name,
                     allres_full.dcc_abbreviation AS dcc_abbreviation,
@@ -98,7 +101,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             ),
 
             allres_filtered AS (
-                SELECT  allres.*, 
+                SELECT allres.*,
+                /* SELECT distinct allres.* except rank, DID NOT WORK ; difference of 0.002 vs 0.00204 is leading to two identical records being listed */ 
                 concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
                 '|project_local_id:', allres.project_local_id, 
                 '|disease_name:', allres.disease_name, 
@@ -139,6 +143,9 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         // Assuming you want to process the first result in the array
         const result = results[0];
         const records = result?.records ?? [];
+
+        // For debug:
+        console.log("records: ", records);
 
         if (records.length === 0) {
             return <div><Typography>No results found</Typography></div>;

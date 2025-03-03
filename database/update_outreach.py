@@ -1,6 +1,7 @@
 import os
 import sys
 import pandas as pd
+import pathlib
 import csv
 from datetime import date
 from uuid import uuid5, NAMESPACE_URL
@@ -109,13 +110,12 @@ if len(sys.argv) > 2:
       })
     outreach_df.at[k,'agenda'] = json.dumps(agenda, ensure_ascii=False)
 
-
+pathlib.Path('outreach_files').mkdir(exist_ok=True)
 outreach_file = "outreach_files/%s_outreach.tsv"%now
 dcc_outreach_file = "outreach_files/%s_dcc_outreach.tsv"%now
 outreach_df.index.name = "id"
 outreach_df.to_csv(outreach_file, sep="\t", header=True, quoting=csv.QUOTE_NONE)
 dcc_outreach_df.to_csv(dcc_outreach_file, sep="\t", header=True, index=None)
-
 print("Uploading to s3")
 
 filename = outreach_file.replace('outreach_files', 'database/files')
@@ -151,19 +151,20 @@ cur.execute('''
 ''')
 
 with open(outreach_file, 'r') as fr:
-    next(fr)
+    columns = next(fr)
+    print(columns)
     cur.copy_from(fr, 'outreach_tmp',
       columns=('id', 'title', 'short_description', 'description', 'tags', 'agenda', 'featured','active',
-       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel', 'cfde_specific', 'flyer'),
+       'start_date', 'end_date', 'application_start', 'application_end', 'link', 'image', 'carousel', 'carousel_description', 'cfde_specific', 'flyer'),
       null='',
       sep='\t',
     )
 
 cur.execute('''
     insert into outreach (id, title, short_description, description, tags, agenda, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer)
+       start_date, end_date, application_start, application_end, link, image, carousel, carousel_description, cfde_specific, flyer)
       select id, title, short_description, description, tags, agenda, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer
+       start_date, end_date, application_start, application_end, link, image, carousel, carousel_description, cfde_specific, flyer
       from outreach_tmp
       on conflict (id)
         do update
@@ -182,6 +183,7 @@ cur.execute('''
             link = excluded.link,
             image = excluded.image,
             carousel = excluded.carousel,
+            carousel_description = excluded.carousel_description,
             cfde_specific = excluded.cfde_specific,
             flyer = excluded.flyer
     ;

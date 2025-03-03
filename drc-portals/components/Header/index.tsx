@@ -53,12 +53,11 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 const info_nav = [
   {title: "Home", href: "/info"},
   {title: "CF Programs", href: "/info/dcc"},
+  {title: "CFDE Centers", href: "/info/centers"},
   {title: "Partnerships", href: "/info/partnerships"},
-//   {title: "R03s", href: "/info/r03"},
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},
   {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
-  {title: "Documentation", href: "/info/documentation"},
   {title: "What's New?", href: "/info/news"},
   // {title: "About", href: "/info/coming_soon"},
 ]

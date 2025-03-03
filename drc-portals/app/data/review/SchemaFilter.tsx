@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Autocomplete, Grid, TextField } from '@mui/material';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from '@/utils/navigation';
 import { schemaToDCC } from '@/app/data/review/utils';
 
 interface SchemaFilterProps {

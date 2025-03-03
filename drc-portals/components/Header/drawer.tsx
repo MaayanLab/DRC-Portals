@@ -1,7 +1,7 @@
 'use client'
 import { useState } from "react"
 import Link from "@/utils/link";
-import { Button, Stack, Divider, Typography } from "@mui/material"
+import { Button, Stack, Divider, Typography, Container } from "@mui/material"
 import Drawer from '@mui/material/Drawer';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -16,13 +16,15 @@ export const DRCDrawer = ({path, nav, session}: {path: "/info"| "/data", nav: Ar
   	const matches = useMediaQuery(theme.breakpoints.up('sm'));
 	return (
 		<>
-			<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-				<Logo title="CFDE Workbench" href={path} size={matches ? 'large': 'small'} color="secondary"/>
-				<div className="flex">
-					<Button color="secondary" onClick={()=>setOpen(!open)}><MenuIcon/></Button>
-					{session !== null &&  <UserComponent session={session}/>}
-				</div>
-			</Stack>
+			<Container>
+				<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+					<Logo title="CFDE Workbench" href={path} size={matches ? 'large': 'small'} color="secondary"/>
+					<div className="flex">
+						<Button color="secondary" onClick={()=>setOpen(!open)}><MenuIcon/></Button>
+						{session !== null &&  <UserComponent session={session}/>}
+					</div>
+				</Stack>
+			</Container>
 			<Drawer open={open} onClose={()=>setOpen(false)}>
 				<Stack spacing={2} sx={{padding: 2}} justifyContent={"flex-start"}>
 					<div className="flex flex-col">

@@ -1,6 +1,6 @@
 'use client'
 import { Pagination, PaginationItem } from "@mui/material"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/utils/navigation"
 import { usePathname } from "next/navigation"
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

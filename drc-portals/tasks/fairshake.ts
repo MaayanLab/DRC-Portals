@@ -33,7 +33,6 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
   helpers.abortSignal?.throwIfAborted()
   if (fairAssessments.length > 0) {
     helpers.logger.warn('FAIR assessment already performed')
-    return
   }
   if (asset.deleted) {
     helpers.logger.warn('Will not assess deleted asset')

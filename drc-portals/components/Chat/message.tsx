@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import Image from 'next/image'
+import Image from '@/utils/image'
 
 
 export default function Message({ role, children}: {role: string, children: React.ReactNode}) {

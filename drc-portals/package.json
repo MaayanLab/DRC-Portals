@@ -1,6 +1,6 @@
 {
   "name": "drc-portals",
-  "version": "0.12.14",
+  "version": "0.15.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -21,6 +21,7 @@
     "@aws-sdk/client-s3": "^3.465.0",
     "@aws-sdk/credential-providers": "^3.468.0",
     "@aws-sdk/s3-request-presigner": "^3.468.0",
+    "@bprogress/next": "^3.0.0",
     "@citation-js/plugin-bibtex": "^0.7.2",
     "@citation-js/plugin-csl": "^0.7.2",
     "@citation-js/plugin-ris": "^0.7.4",
@@ -66,7 +67,7 @@
     "next-auth": "^4.24.4",
     "next-usequerystate": "^1.17.1",
     "nodemailer": "^6.9.9",
-    "openai": "^4.28.0",
+    "openai": "^4.79.3",
     "plotly.js": "^2.27.1",
     "react": "^18",
     "react-dom": "^18",

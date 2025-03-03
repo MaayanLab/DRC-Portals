@@ -21,15 +21,16 @@ entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 gene_helper = TableHelper('gene_entity', ('id', 'entrez', 'ensembl',), pk_columns=('id',))
 node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
 
-with gene__gene_set_helper.writer() as gene__gene_set:
-  with gene__gene_set_library_helper.writer() as gene__gene_set_library:
-    with gene_set_helper.writer() as gene_set:
-      with gene_set_library_helper.writer() as gene_set_library:
-        with gene_helper.writer() as gene:
-          with entity_helper.writer() as entity:
-            genes = {}
-            with node_helper.writer() as node:
-              for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+  if 'l1000_cp' in gmt['filename']: continue
+  with gene__gene_set_helper.writer() as gene__gene_set:
+    with gene__gene_set_library_helper.writer() as gene__gene_set_library:
+      with gene_set_helper.writer() as gene_set:
+        with gene_set_library_helper.writer() as gene_set_library:
+          with gene_helper.writer() as gene:
+            with entity_helper.writer() as entity:
+              genes = {}
+              with node_helper.writer() as node:
                 gene_set_ids = set()
                 gmt_path = gmts_path/gmt['dcc_short_label']/gmt['filename']
                 gmt_path.parent.mkdir(parents=True, exist_ok=True)
@@ -122,4 +123,4 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                     #
                     node.writerow(gene_set_node)
                 node.writerow(gene_set_library_node)
-              node.writerows(genes.values())
+                node.writerows(genes.values())

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
 import FormPagination from './FormPagination';
 import Link from '@/utils/link';
-import Image, { StaticImageData } from 'next/image';
+import Image, { StaticImageData } from '@/utils/image';
 import { NodeType } from '@prisma/client';
 import { type_to_string } from '../processed/utils';
 import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';

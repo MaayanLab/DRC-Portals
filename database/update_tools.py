@@ -5,6 +5,7 @@ import csv
 from datetime import date
 from uuid import uuid5, NAMESPACE_URL
 import boto3
+import pathlib
 from botocore.exceptions import ClientError
 from ingest_common import connection
 
@@ -59,7 +60,9 @@ for i, row in df.iterrows():
 	df.at[i, "id"] = uid
 df = df.set_index("id")
 
+pathlib.Path('publication_files').mkdir(exist_ok=True)
 publication_file = "publication_files/%s_publications.tsv"%now
+pathlib.Path('tool_files').mkdir(exist_ok=True)
 tool_file = "tool_files/%s_tools.tsv"%now
 publication_df.to_csv(publication_file, sep="\t", header=True, quoting=csv.QUOTE_NONE, index_label="id")
 df = df[[i for i in df.columns if i != 'doi']]

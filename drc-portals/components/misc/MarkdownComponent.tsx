@@ -1,7 +1,7 @@
 import { Typography, Link } from '@mui/material';
 import MarkdownToJSX from 'markdown-to-jsx';
 import { ReactNode } from 'react';
-import Image from 'next/image';
+import Image from '@/utils/image';
 
 const overrides = {
     h1: {

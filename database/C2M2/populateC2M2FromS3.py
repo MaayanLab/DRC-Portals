@@ -75,7 +75,7 @@ if(debug> 1):
     print(f"Printed debug info on DB");
 
 # PostgreSQL connection details
-database_name = "drc" # c2m2_database_url.path is /drc, don't want the / part, so fixed here
+database_name = c2m2_database_url.path.lstrip('/') # c2m2_database_url.path is /drc, don't want the / part, so fixed here
 user = c2m2_database_url.username # "drc"
 password = urllib.parse.unquote(c2m2_database_url.password); # "drcpass"
 host = c2m2_database_url.hostname # "localhost"
