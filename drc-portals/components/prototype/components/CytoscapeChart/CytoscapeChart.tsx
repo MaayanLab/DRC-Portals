@@ -142,7 +142,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const popperRef = useRef<Instance>(null);
   const prevCustomEventsRef = useRef<CytoscapeEvent[]>([]);
   const prevDefaultEventsRef = useRef<CytoscapeEvent[]>([]);
-  let nodeHoverTimerId: NodeJS.Timeout | null = null;
+  const [nodeHoverTimerId, setNodeHoverTimerId] =
+    useState<NodeJS.Timeout | null>(null);
+  const [closeNodeCxtTimerId, setCloseNodeCxtTimerId] =
+    useState<NodeJS.Timeout | null>(null);
 
   const handleContextMenuClose = () => {
     setContextMenuOpen(false);
@@ -194,41 +197,49 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setShowToolbarHiddenTooltip(false);
   }, [toolbarHidden]);
 
-  const handleHoverNode = (event: EventObjectNode) => {
-    if (radialMenuItems !== undefined) {
-      setChartCursor(event.cy, "pointer");
-    }
-
-    event.target.addClass("hovered");
-
-    // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
-    // handled here
-    nodeHoverTimerId = setTimeout(() => {
-      tooltipPositionRef.current = {
-        x: event.originalEvent.clientX,
-        y: event.originalEvent.clientY,
-      };
-
-      if (popperRef.current != null) {
-        popperRef.current.update();
+  const handleHoverNode = useCallback(
+    (event: EventObjectNode) => {
+      if (radialMenuItems !== undefined) {
+        setChartCursor(event.cy, "pointer");
       }
-      setHoveredNode(event.target.data());
-    }, 500);
-  };
 
-  const handleBlurNode = (event: EventObjectNode) => {
-    if (radialMenuItems !== undefined) {
-      setChartCursor(event.cy, "default");
-    }
+      event.target.addClass("hovered");
 
-    event.target.removeClass("hovered");
+      // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
+      // handled here
+      setNodeHoverTimerId(
+        setTimeout(() => {
+          tooltipPositionRef.current = {
+            x: event.originalEvent.clientX,
+            y: event.originalEvent.clientY,
+          };
 
-    if (nodeHoverTimerId !== null) {
-      clearTimeout(nodeHoverTimerId);
-      nodeHoverTimerId = null;
-    }
-    setHoveredNode(null);
-  };
+          if (popperRef.current != null) {
+            popperRef.current.update();
+          }
+          setHoveredNode(event.target.data());
+        }, 500)
+      );
+    },
+    [radialMenuItems]
+  );
+
+  const handleBlurNode = useCallback(
+    (event: EventObjectNode) => {
+      if (radialMenuItems !== undefined) {
+        setChartCursor(event.cy, "default");
+      }
+
+      event.target.removeClass("hovered");
+
+      if (nodeHoverTimerId !== null) {
+        clearTimeout(nodeHoverTimerId);
+        setNodeHoverTimerId(null);
+      }
+      setHoveredNode(null);
+    },
+    [radialMenuItems, nodeHoverTimerId]
+  );
 
   const handleHoverEdge = (event: EventObjectEdge) => {
     event.target.addClass("hovered");
@@ -356,7 +367,17 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setRadialMenuOpen(false);
   };
 
+  const clearCloseNodeCxtTimer = useCallback(() => {
+    if (closeNodeCxtTimerId !== null) {
+      clearTimeout(closeNodeCxtTimerId);
+      setCloseNodeCxtTimerId(null);
+    }
+  }, [closeNodeCxtTimerId]);
+
   const openNodeHoverCxt = (event: EventObjectNode) => {
+    // Make sure we don't accidentally close the menu if the user quickly hovered between nodes
+    clearCloseNodeCxtTimer();
+
     contextMenuPosRef.current = {
       x: event.originalEvent.clientX,
       y: event.originalEvent.clientY,
@@ -365,6 +386,18 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const closeNodeHoverCxt = () => {
+    setCloseNodeCxtTimerId(
+      setTimeout(() => {
+        handleContextMenuClose();
+      }, 100)
+    );
+  };
+
+  const handleCxtMenuMouseEnter = () => {
+    clearCloseNodeCxtTimer();
+  };
+
+  const handleCxtMenuMouseLeave = () => {
     handleContextMenuClose();
   };
 
@@ -553,6 +586,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           position={contextMenuPosRef.current}
           event={contextMenuEvent}
           onClose={handleContextMenuClose}
+          onMouseEnter={handleCxtMenuMouseEnter}
+          onMouseLeave={handleCxtMenuMouseLeave}
         >
           {contextMenuItems}
         </ChartCxtMenu>

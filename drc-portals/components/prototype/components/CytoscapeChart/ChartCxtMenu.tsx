@@ -9,12 +9,22 @@ type ChartCxtMenuProps = {
   position: { x: number; y: number };
   event?: EventObject;
   onClose: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   children: ReactNode;
 };
 
 export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
   (cmpProps: ChartCxtMenuProps, ref) => {
-    const { open, position, event, onClose, children } = cmpProps;
+    const {
+      open,
+      position,
+      event,
+      onClose,
+      onMouseEnter,
+      onMouseLeave,
+      children,
+    } = cmpProps;
 
     if (event === undefined) {
       // Don't try to display the context menu if we don't know what the event was
@@ -28,6 +38,8 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
           open={open}
           placement="right-start"
           transition
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
           anchorEl={{
             getBoundingClientRect: () => {
               return new DOMRect(position.x, position.y, 0, 0);
