@@ -3,8 +3,7 @@ import { format_description, pluralize, type_to_string } from "@/app/data/proces
 import { MetadataItem, getDCCIcon, getdccCFlink, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
-import ExpandableTable from "../../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, generateHashedJSONFilename, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent from "./BiosamplesTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
@@ -205,8 +204,162 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const resultsRec = results?.records[0];
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
 
-
-
+    const downloadMetadata: { key: string; value: string }[] = [
+      { key: "Project ID", value: resultsRec?.project_local_id || "" },
+      resultsRec?.project_persistent_id
+        ? { key: "Project URL", value: resultsRec.project_persistent_id }
+        : null,
+    
+      // Taxonomy Section
+      resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified" ? [
+        {
+          key: "Taxonomy",
+          value: resultsRec.taxonomy_name
+        },
+        {
+          key: "Taxonomy URL",
+          value: `https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`
+        },
+        
+      ] : null,
+    
+      // Taxonomy Description Section
+      resultsRec?.taxonomy_description
+        ? { key: "Taxonomy/Species Description", value: capitalizeFirstLetter(resultsRec.taxonomy_description) }
+        : null,
+    
+      // Anatomy Section (Sample Source)
+      resultsRec?.anatomy_name && resultsRec.anatomy_name !== "Unspecified" ? [
+        {
+          key: "Sample Source",
+          value: resultsRec.anatomy_name
+        },
+        {
+          key: "Sample Source URL",
+          value: `http://purl.obolibrary.org/obo/${resultsRec.anatomy}`
+        }
+      ] : null,
+    
+      // Anatomy Description Section
+      resultsRec?.anatomy_description
+        ? { key: "Sample Source Description", value: resultsRec.anatomy_description }
+        : null,
+    
+      // Biofluid Section
+      resultsRec?.biofluid_name && resultsRec.biofluid_name !== "Unspecified" ? [
+        {
+          key: "Biofluid",
+          value: resultsRec.biofluid_name
+        },
+        {
+          key: "Biofluid URL",
+          value: `http://purl.obolibrary.org/obo/${resultsRec.biofluid}`
+        }
+      ] : null,
+    
+      // Biofluid Description Section
+      resultsRec?.biofluid_description
+        ? { key: "Biofluid Description", value: resultsRec.biofluid_description }
+        : null,
+    
+      // Disease Section
+      resultsRec?.disease_name && resultsRec.disease_name !== "Unspecified" ? [
+        {
+          key: "Disease",
+          value: resultsRec.disease_name
+        },
+        {
+          key: "Disease URL",
+          value: `http://purl.obolibrary.org/obo/${resultsRec.disease}`
+        }
+      ] : null,
+    
+      // Disease Description Section
+      resultsRec?.disease_description
+        ? { key: "Disease Description", value: resultsRec.disease_description }
+        : null,
+    
+      // Gene Section
+      resultsRec?.gene_name && resultsRec.gene_name !== "Unspecified" ? [
+        {
+          key: "Gene",
+          value: resultsRec.gene_name
+        },
+        {
+          key: "Gene URL",
+          value: `http://www.ensembl.org/id/${resultsRec.gene}`
+        }
+      ] : null,
+    
+      // Gene Description Section
+      resultsRec?.gene_description
+        ? { key: "Gene Description", value: capitalizeFirstLetter(resultsRec.gene_description) }
+        : null,
+    
+      // Protein Section
+      resultsRec?.protein_name && resultsRec.protein_name !== "Unspecified" ? [
+        {
+          key: "Protein",
+          value: resultsRec.protein_name
+        },
+        {
+          key: "Protein URL",
+          value: `https://www.uniprot.org/uniprotkb/${resultsRec.protein}`
+        }
+      ] : null,
+    
+      // Protein Description Section
+      resultsRec?.protein_description
+        ? { key: "Protein Description", value: capitalizeFirstLetter(resultsRec.protein_description) }
+        : null,
+    
+      // Compound Section
+      resultsRec?.compound_name && resultsRec.compound_name !== "Unspecified" ? [
+        {
+          key: "Compound",
+          value: resultsRec.compound_name
+        },
+        {
+          key: "Compound URL",
+          value: `http://www.ensembl.org/id/${resultsRec.compound}`
+        }
+      ] : null,
+    
+      // Compound Description Section
+      resultsRec?.compound_description
+        ? { key: "Compound Description", value: capitalizeFirstLetter(resultsRec.compound_description) }
+        : null,
+    
+      // Data Type Section
+      resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified" ? [
+        {
+          key: "Data Type",
+          value: resultsRec.data_type_name
+        },
+        {
+          key: "Data Type URL",
+          value:
+            resultsRec.data_type?.includes("ILX_") || resultsRec.data_type?.includes("ilx_")
+              ? `http://uri.interlex.org/${resultsRec.data_type.toLowerCase()}`
+              : `http://edamontology.org/${resultsRec.data_type}`
+        }
+      ] : null,
+    
+      // Assay Type Section
+      resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified" ? [
+        {
+          key: "Assay Type",
+          value: resultsRec.assay_type
+        },
+        {
+          key: "Assay Type URL",
+          value: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`
+        }
+      ] : null,
+    ].filter((item): item is { key: string; value: string } => item !== null);
+    
+    
+    const downloadFilename = generateHashedJSONFilename("Metadata_", searchParams);
     const metadata: (MetadataItem | null)[] = [
       { label: 'Project ID', value: projectLocalId },
       resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)
@@ -301,6 +454,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     ];
 
+    
 
     // const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
     return (
@@ -316,6 +470,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         subtitle={""}
         description={format_description(resultsRec?.project_description ?? "")}
         metadata={metadata}
+        downloadMetadata={downloadMetadata}
+        downloadFilename={downloadFilename}
       //categories={categories}
       >
         <React.Suspense fallback={<>Loading..</>}>
