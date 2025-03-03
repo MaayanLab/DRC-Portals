@@ -216,9 +216,12 @@ export const parsePathwayTree = (
       getQueryFromTree(node.children[0], `(${escapedNodeId})`, node);
     } else {
       patterns.push(currentPattern);
-      node.children.forEach((child) => {
-        getQueryFromTree(child, `(${escapedNodeId})`, node);
-      });
+      node.children
+        // Parse children with the fewest children first
+        .sort((a, b) => a.children.length - b.children.length)
+        .forEach((child) => {
+          getQueryFromTree(child, `(${escapedNodeId})`, node);
+        });
     }
   };
 
