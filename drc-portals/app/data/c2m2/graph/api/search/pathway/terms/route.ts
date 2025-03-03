@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       ...queryStmts,
       ...(body.filter === null
         ? []
-        : [`WHERE lower(${escapedNodeId}.name) CONTAINS $filter`]),
+        : [`WHERE lower(${escapedNodeId}.name) CONTAINS lower($filter)`]),
       `RETURN DISTINCT ${escapedNodeId}.name AS name`,
       "ORDER BY size(name) ASC",
       "LIMIT $limit",
