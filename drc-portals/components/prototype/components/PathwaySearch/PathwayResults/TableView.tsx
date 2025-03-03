@@ -3,6 +3,7 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DownloadIcon from "@mui/icons-material/Download";
+import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 import {
   Box,
   Button,
@@ -21,10 +22,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import {
   ChangeEvent,
+  KeyboardEvent,
   ReactNode,
   useCallback,
   useEffect,
@@ -72,8 +75,8 @@ interface TableViewProps {
   page: number;
   count: number;
   onReturnBtnClick: () => void;
-  onPageChange: (event: ChangeEvent<any>, page: number) => void;
-  onLimitChange: (event: SelectChangeEvent<number>) => void;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
   onDownloadAll: () => Promise<void>;
 }
 
@@ -88,11 +91,18 @@ export default function TableView(cmpProps: TableViewProps) {
     onLimitChange,
     onDownloadAll,
   } = cmpProps;
+  const MAX_PAGE = Math.ceil(count / limit);
+  const JUMP_TO_PAGE_DEFAULT_LABEL = "Jump to Page";
   const [columns, setColumns] = useState<ColumnData[]>([]);
   const [selected, setSelected] = useState<boolean[]>(
     new Array(data.length).fill(false)
   );
   const [downloading, setDownloading] = useState(false);
+  const [jumpToPageVal, setJumpToPageVal] = useState(page.toString());
+  const [jumpToPageError, setJumpToPageError] = useState(false);
+  const [jumpToPageHelperText, setJumpToPageHelperText] = useState<
+    string | undefined
+  >();
 
   const handleCheckboxChange = (rowIdx: number) => {
     setSelected(
@@ -122,6 +132,34 @@ export default function TableView(cmpProps: TableViewProps) {
   const handleDownloadAllClicked = () => {
     setDownloading(true);
     onDownloadAll().then(() => setDownloading(false));
+  };
+
+  const handleJumpToPageKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        const jumpToPageNum = Number(jumpToPageVal);
+        if (Number.isNaN(jumpToPageNum)) {
+          setJumpToPageError(true);
+          setJumpToPageHelperText("Page must be a number");
+        } else if (1 <= jumpToPageNum && jumpToPageNum <= MAX_PAGE) {
+          onPageChange(jumpToPageNum);
+        } else {
+          setJumpToPageError(true);
+          setJumpToPageHelperText(`Page must be between 1 and ${MAX_PAGE}`);
+        }
+      }
+    },
+    [jumpToPageVal]
+  );
+
+  const handleJumpToPageOnChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setJumpToPageError(false);
+    setJumpToPageHelperText(undefined);
+    setJumpToPageVal(event.target.value);
+  };
+
+  const handleLimitChange = (event: SelectChangeEvent<number>) => {
+    onLimitChange(Number(event.target.value));
   };
 
   useEffect(() => {
@@ -254,21 +292,26 @@ export default function TableView(cmpProps: TableViewProps) {
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
-              {/* width: 1% forces minimal use of space */}
-              <StyledTableCell sx={{ width: "1%" }}>
-                <Typography variant="body1">#</Typography>
-              </StyledTableCell>
-              <StyledTableCell padding="checkbox">
+              <StyledTableCell
+                padding="checkbox"
+                sx={{ position: "sticky", left: 0, zIndex: 3 }}
+              >
                 <Checkbox
                   indeterminate={
                     selected.some((val) => val) && // Some checked
                     selected.some((val) => !val) // And some not checked
                   }
+                  indeterminateIcon={
+                    <IndeterminateCheckBoxIcon sx={{ color: "#2D5986" }} />
+                  }
                   checked={selected.every((val) => val)}
                   onChange={handleSelectAllClick}
                 />
               </StyledTableCell>
-
+              {/* width: 1% forces minimal use of space */}
+              <StyledTableCell sx={{ width: "1%" }}>
+                <Typography variant="body1">#</Typography>
+              </StyledTableCell>
               {columns.map((col) => (
                 <StyledDataCell key={col.key}>
                   <Typography variant="body1">{col.header}</Typography>
@@ -279,13 +322,21 @@ export default function TableView(cmpProps: TableViewProps) {
           <TableBody>
             {data.map((row, i) => (
               <TableRow key={`row-${i}`}>
-                <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
-                <StyledTableCell padding="checkbox">
+                <StyledTableCell
+                  padding="checkbox"
+                  sx={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 3,
+                    background: "white",
+                  }}
+                >
                   <Checkbox
                     checked={selected[i]}
                     onChange={() => handleCheckboxChange(i)}
                   />
                 </StyledTableCell>
+                <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
                 {columns.map((col, j) => (
                   <StyledDataCell key={j}>
                     {col.valueGetter(row[col.pathIdx] as NodeResult)}
@@ -307,8 +358,8 @@ export default function TableView(cmpProps: TableViewProps) {
         <Stack direction="row" alignItems="center" spacing={1}>
           <Pagination
             page={page}
-            count={Math.ceil(count / limit)}
-            onChange={onPageChange}
+            count={MAX_PAGE}
+            onChange={(event, page) => onPageChange(page)}
             variant="text"
             shape="rounded"
             color="primary"
@@ -319,6 +370,24 @@ export default function TableView(cmpProps: TableViewProps) {
               />
             )}
           />
+          <Box sx={{ position: "relative" }}>
+            <TextField
+              sx={{
+                width: "150px",
+                "& .MuiFormHelperText-root": {
+                  top: "100%",
+                  position: "absolute",
+                },
+              }}
+              value={jumpToPageVal}
+              aria-label={JUMP_TO_PAGE_DEFAULT_LABEL}
+              label="Jump to Page"
+              helperText={jumpToPageHelperText}
+              error={jumpToPageError}
+              onKeyDown={handleJumpToPageKeyDown}
+              onChange={handleJumpToPageOnChange}
+            />
+          </Box>
           <Typography>(Total Rows: {count})</Typography>
         </Stack>
 
@@ -328,7 +397,7 @@ export default function TableView(cmpProps: TableViewProps) {
           </Typography>
 
           <FormControl size="small">
-            <Select value={limit} onChange={onLimitChange}>
+            <Select value={limit} onChange={handleLimitChange}>
               {[5, 10, 25].map((rowsPerPage) => (
                 <MenuItem key={rowsPerPage} value={rowsPerPage}>
                   {rowsPerPage}

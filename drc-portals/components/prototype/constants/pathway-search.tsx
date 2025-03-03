@@ -59,6 +59,11 @@ export const StyledTableCell = styled(TableCell)(() => ({
 export const StyledDataCell = styled(StyledTableCell)(() => ({
   minWidth: "150px",
   maxWidth: "200px",
+  [":hover"]: {
+    overflow: "visible",
+    wordBreak: "break-all",
+    whiteSpace: "normal",
+  },
 }));
 
 export const PATHWAY_SEARCH_DEFAULT_LIMIT = 10;

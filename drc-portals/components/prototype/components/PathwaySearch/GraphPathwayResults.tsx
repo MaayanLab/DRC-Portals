@@ -63,7 +63,7 @@ export default function GraphPathwayResults(
   };
 
   const handlePageChange = useCallback(
-    async (event: ChangeEvent, newPage: number) => {
+    async (newPage: number) => {
       setPage(newPage);
       setLoading(true);
       const { data } = await getPathwaySearchResults(tree, newPage, limit);
@@ -75,9 +75,8 @@ export default function GraphPathwayResults(
   );
 
   const handleLimitChange = useCallback(
-    async (event: SelectChangeEvent<number>) => {
+    async (newLimit: number) => {
       try {
-        const newLimit = Number(event.target.value);
         setLimit(newLimit);
         setPage(1); // Reset the table to the first page
         setLoading(true);
