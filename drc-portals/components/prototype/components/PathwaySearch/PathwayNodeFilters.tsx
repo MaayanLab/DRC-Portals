@@ -1,14 +1,7 @@
 import { AlertColor } from "@mui/material";
 import { ReactNode, useEffect, useState } from "react";
 
-import {
-  BIOSAMPLE_RELATED_LABELS,
-  DCC_LABEL,
-  FILE_RELATED_LABELS,
-  ID_NAMESPACE_LABEL,
-  SUBJECT_RELATED_LABELS,
-  TERM_LABELS,
-} from "@/lib/neo4j/constants";
+import { FILTER_LABELS } from "@/lib/neo4j/constants";
 
 import { NodeFilterBox } from "../../constants/pathway-search";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
@@ -16,15 +9,6 @@ import { PathwaySearchNode } from "../../interfaces/pathway-search";
 import AlertSnackbar from "../shared/AlertSnackbar";
 
 import NodeTextSearch from "./NodeTextSearch";
-
-const NODE_SEARCH_LABELS: ReadonlySet<string> = new Set([
-  ...FILE_RELATED_LABELS,
-  ...SUBJECT_RELATED_LABELS,
-  ...BIOSAMPLE_RELATED_LABELS,
-  ...TERM_LABELS,
-  ID_NAMESPACE_LABEL,
-  DCC_LABEL,
-]);
 
 interface PathwayNodeFiltersProps {
   node: PathwaySearchNode;
@@ -42,7 +26,7 @@ export default function PathwayNodeFilters(cmpProps: PathwayNodeFiltersProps) {
   // filters based on a combination of the node label and a list of known properties for that node. Keeping things simple for now.
 
   useEffect(() => {
-    if (NODE_SEARCH_LABELS.has(nodeLabel)) {
+    if (FILTER_LABELS.has(nodeLabel)) {
       setFilter(
         <NodeFilterBox key={`${nodeLabel}-node-text-filter`}>
           <NodeTextSearch

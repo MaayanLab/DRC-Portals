@@ -20,9 +20,8 @@ import { CSSProperties, Fragment, ReactNode } from "react";
 
 import {
   BIOSAMPLE_RELATED_LABELS,
-  DCC_LABEL,
   FILE_RELATED_LABELS,
-  ID_NAMESPACE_LABEL,
+  FILTER_LABELS,
   SUBJECT_RELATED_LABELS,
   TERM_LABELS,
 } from "@/lib/neo4j/constants";
@@ -118,14 +117,7 @@ export const createCytoscapeElements = (
       } else {
         if (!seenNodes.has(element.uuid)) {
           const nodeLabel = element.labels[0];
-          const usePropForLabel = [
-            ...TERM_LABELS,
-            ...FILE_RELATED_LABELS,
-            ...BIOSAMPLE_RELATED_LABELS,
-            ...SUBJECT_RELATED_LABELS,
-            ID_NAMESPACE_LABEL,
-            DCC_LABEL,
-          ].includes(nodeLabel);
+          const usePropForLabel = FILTER_LABELS.has(nodeLabel);
           nodes.push(createCytoscapeNode(element, [], usePropForLabel));
           seenNodes.add(element.uuid);
         }

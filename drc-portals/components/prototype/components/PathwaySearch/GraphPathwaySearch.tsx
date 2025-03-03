@@ -33,6 +33,7 @@ import {
   useState,
 } from "react";
 
+import { FILTER_LABELS } from "@/lib/neo4j/constants";
 import { NodeResult } from "@/lib/neo4j/types";
 
 import {
@@ -147,6 +148,9 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     handleSelectedNodeChange(event.target.id(), event.cy);
     setShowFilters(true);
   };
+
+  const showFilterNode = (event: EventObjectNode) =>
+    FILTER_LABELS.has(event.target.data("dbLabel"));
 
   const handlePruneNodeSelected = (event: EventObjectNode) => {
     setSnackbarOpen(true);
@@ -329,6 +333,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           </Box>
         )}
         action={handleFilterNodeSelected}
+        showFn={showFilterNode}
       ></ChartCxtMenuItem>,
       <ChartCxtMenuItem
         key="chart-cxt-prune"

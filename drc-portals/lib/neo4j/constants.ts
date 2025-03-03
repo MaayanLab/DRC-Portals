@@ -94,6 +94,16 @@ export const NODE_LABELS: ReadonlySet<string> = new Set([
   ...BIOSAMPLE_RELATED_LABELS,
 ]);
 
+// Set of labels we currently filter values on
+export const FILTER_LABELS: ReadonlySet<string> = new Set([
+  ...FILE_RELATED_LABELS,
+  ...SUBJECT_RELATED_LABELS,
+  ...BIOSAMPLE_RELATED_LABELS,
+  ...TERM_LABELS,
+  ID_NAMESPACE_LABEL,
+  DCC_LABEL,
+]);
+
 // Relationship types
 export const ASSOCIATED_WITH_TYPE = "ASSOCIATED_WITH";
 export const CONTAINS_TYPE = "CONTAINS";
