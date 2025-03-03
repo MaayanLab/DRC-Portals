@@ -1,6 +1,6 @@
 "use client";
 import { Typography, Button, Box } from "@mui/material";
-import Image from "next/image";
+import Image from "@/utils/image";
 import { useEffect, useState } from "react";
 import React from "react";
 import { DCC } from "@prisma/client";

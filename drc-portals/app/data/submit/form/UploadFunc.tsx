@@ -12,23 +12,43 @@ import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
+import { queue_fairshake } from '@/tasks/fairshake';
+import { DCCAssetWithFileAsset } from './S3UploadForm';
 
 
-
-async function verifyUser() {
+async function verifyUser({ dcc }: { dcc?: string } = {}) {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
     if (!(session.user.role === 'ADMIN' || session.user.role === 'UPLOADER' || session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER')) throw new Error('not authorized')
+    if (dcc && !session.user.dccs.includes(dcc)) throw new Error('not authorized')
 }
 
+function ensureSanitaryFiletype(filetype: string) {
+    if (![
+        'XMT',
+        'Attribute Table',
+        'C2M2',
+        'KG Assertions',
+    ].includes(filetype)) {
+        throw new Error(`Unrecognized filetype ${filetype}`)
+    }
+    return filetype
+}
 
-export const createPresignedUrl = async (filepath: string, checksumHash: string) => {
+function ensureSanitaryFilename(filename: string) {
+    return filename.replaceAll(/\.{2,}/g, '.').replaceAll(/\//g, '-')
+}
+
+export const createPresignedUrl = async (props: { dcc: string, filetype: string, filename: string, checksumHash: string }) => {
     if (!process.env.S3_ACCESS_KEY) throw new Error('s3 access key not defined')
     if (!process.env.S3_SECRET_KEY) throw new Error('s3 access key not defined')
     if (!process.env.S3_REGION) throw new Error('S3 region not configured')
     if (!process.env.S3_BUCKET) throw new Error('S3 bucket not configured')
 
-    await verifyUser();
+    await verifyUser({ dcc: props.dcc });
+
+    let date = new Date().toJSON().slice(0, 10)
+    let filepath = props.dcc.replace(' ', '') + '/' + ensureSanitaryFiletype(props.filetype) + '/' + date + '/' + ensureSanitaryFilename(props.filename)
 
     const s3Configuration: S3ClientConfig = {
         credentials: {
@@ -41,7 +61,7 @@ export const createPresignedUrl = async (filepath: string, checksumHash: string)
     const command = new PutObjectCommand({
         Bucket: process.env.S3_BUCKET,
         Key: filepath,
-        ChecksumSHA256: checksumHash
+        ChecksumSHA256: props.checksumHash
     });
     return getSignedUrl(s3, command, { expiresIn: 3600, unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
 };
@@ -105,7 +125,7 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
     return fileAsset
 }
 
-export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string) => {
+export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string, archive: DCCAssetWithFileAsset[]) => {
     const session = await getServerSession(authOptions)
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
     if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
@@ -148,9 +168,20 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     }
     if (dcc === null) throw new Error('Failed to find DCC')
 
+    const link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
+    await prisma.dccAsset.updateMany({
+        where: {
+            dcc_id: {in: archive.map(i=>i.dcc_id)},
+            link: {in: archive.map(i=>i.link)},
+            lastmodified: {in: archive.map(i=>i.lastmodified)},
+        },
+        data: {
+            current: false
+        }
+    })
     const savedUpload = await prisma.dccAsset.create({
         data: {
-            link: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`,
+            link,
             creator: session.user.email,
             current: true,
             dcc_id: dcc.id,
@@ -167,11 +198,23 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
             fileAsset: true,
         },
     })
-
+    await queue_fairshake({ link })
     const receipt = await sendUploadReceipt(session.user, savedUpload);
     const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedUpload)
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);
-    return savedUpload
+
+    const file_assets = await prisma.dccAsset.findMany({
+        where: {
+          dcc: {
+            short_label: {in: session.user.dccs}
+          }
+        },
+        include: {
+          fileAsset: true,
+          dcc:true
+        }
+    })
+    return file_assets
 }
 
 export async function sendUploadReceipt(user: { name?: string | null, email?: string | null }, assetInfo: { fileAsset: FileAsset | null }) {

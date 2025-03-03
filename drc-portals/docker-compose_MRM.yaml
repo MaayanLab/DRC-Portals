@@ -98,6 +98,8 @@ services:
       nginx_server_name: cfde.info
       nginx_redirect_00: /(.*) https://info.cfde.cloud/$$1
 
+# Command to run this service in a container, e.g.,
+# docker-compose -f docker-compose_MRM.yaml up -d drc-portal-postgres
   drc-portal-postgres:
     image: postgres:16
     shm_size: 1024m

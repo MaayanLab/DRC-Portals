@@ -21,7 +21,7 @@ import UserComponent from "../misc/LoginComponents/UserComponent"
 import { authOptions } from '@/lib/auth'
 import { TextNav } from "./client"
 import { Session, getServerSession } from "next-auth"
-
+import NavBreadcrumbs from './breadcrumbs';
 export const TopNav = async ({path, session}: {path: "/info"| "/data", session: Session | null}) => {
 	return (
 	<>
@@ -53,11 +53,12 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 const info_nav = [
   {title: "Home", href: "/info"},
   {title: "CF Programs", href: "/info/dcc"},
+  {title: "CFDE Centers", href: "/info/centers"},
   {title: "Partnerships", href: "/info/partnerships"},
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},
   {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
-  {title: "Documentation", href: "/info/documentation"},
+  {title: "What's New?", href: "/info/news"},
   // {title: "About", href: "/info/coming_soon"},
 ]
 
@@ -80,24 +81,23 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
       <AppBar position="static" sx={{color: "#000", display: {xs: "none", sm: "none", md: "block"}}}>
       <Toolbar>
 			  <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
-          <Grid item>
-            <Logo title="CFDE Workbench" href={path} size='large' color="secondary"/>
-          </Grid>
-          <Grid item>
-            <Stack direction={"row"} alignItems={"center"} spacing={2}>
-              <TopNav path={path} session={session}/>
-            </Stack>
-				  </Grid>
-          <Grid item xs={12}> 
-            <Grid container alignItems={"center"} spacing={2}>
-              <BottomNav nav={nav} path={path}/>
-            </Grid>
-          </Grid>
+				<Grid item>
+					<Logo title="CFDE Workbench" href={path} size='large' color="secondary"/>
+				</Grid>
+				<Grid item>
+					<Stack direction={"row"} alignItems={"center"} spacing={2}>
+					<TopNav path={path} session={session}/>
+					</Stack>
+				</Grid>
+				<Grid item xs={12}> 
+					<Grid container alignItems={"center"} spacing={2}>
+						<BottomNav nav={nav} path={path}/>
+					</Grid>
+				</Grid>
           
-		  <Grid item xs={12} sx={{textAlign: 'right'}}>
-			{path === "/data" && <SearchParamSearchField />}
-		  </Grid>
-          
+				<Grid item xs={12} className='flex items-center'>
+					<div className='flex flex-grow'><NavBreadcrumbs/></div>{path === "/data" && <SearchParamSearchField />}
+				</Grid>
         </Grid>
       </Toolbar>
       </AppBar>

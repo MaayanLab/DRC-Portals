@@ -11,6 +11,7 @@ export default async function AssayTypeFilterComponent({ q, filterClause, maxCou
         FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        AND (COALESCE(assay_type_name, '') != '')
         /*LIMIT ${maxCount}*/
       ),
       assay_type_name_count AS (

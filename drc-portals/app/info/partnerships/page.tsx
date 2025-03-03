@@ -1,5 +1,5 @@
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
@@ -16,9 +16,9 @@ import MasonryClient from "@/components/misc/MasonryClient";
 type PartnershipsWithDCC = Prisma.PartnershipsGetPayload<{
     include: {
         dccs: {
-          include: {
-            dcc: true
-          }
+            include: {
+                dcc: true
+            }
         },
         publications: {
             include: {
@@ -26,25 +26,25 @@ type PartnershipsWithDCC = Prisma.PartnershipsGetPayload<{
             }
         }
     }
-  }>
-const shuffle = (array: PartnershipsWithDCC[]) => { 
-    for (let i = array.length - 1; i > 0; i--) { 
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [array[i], array[j]] = [array[j], array[i]]; 
-    } 
-    return array; 
-  }; 
+}>
+const shuffle = (array: PartnershipsWithDCC[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
 
-const PartnershipCard = ({partnership}:{partnership: PartnershipsWithDCC}) => {
+const PartnershipCard = ({ partnership }: { partnership: PartnershipsWithDCC }) => {
     const lead_dccs = []
     const dccs = []
-    for (const {dcc, lead} of partnership.dccs) {
+    for (const { dcc, lead } of partnership.dccs) {
         const comp = <Grid item key={dcc.short_label} className="flex items-center justify-center relative">
             <Link href={`/info/dcc/${dcc.short_label}`}>
                 <Tooltip title={dcc.short_label}>
-                    <IconButton sx={{minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 70: 40, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 60: 40}}>
-                        {dcc.icon ? 
-                            <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>:
+                    <IconButton sx={{ minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 70 : 40, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 60 : 40 }}>
+                        {dcc.icon ?
+                            <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{ objectFit: "contain" }} /> :
                             <Avatar>{dcc.label[0]}</Avatar>
                         }
                     </IconButton>
@@ -55,44 +55,60 @@ const PartnershipCard = ({partnership}:{partnership: PartnershipsWithDCC}) => {
         else dccs.push(comp)
     }
     return (
-        <Card sx={{paddingLeft: 2, paddingRight: 2}}>
+        <Card sx={{ paddingLeft: 2, paddingRight: 2 }}>
             <CardHeader
-                avatar={partnership.image ? 
-                            <Image alt={partnership.id} width={80} height={80} src={partnership.image} />:
-                            <Avatar>{partnership.title[0]}</Avatar>
-                        }
+                avatar={partnership.image ?
+                    <Image alt={partnership.id} width={80} height={80} src={partnership.image} /> :
+                    <Avatar>{partnership.title[0]}</Avatar>
+                }
                 title={<Typography variant="h3" color="secondary">{partnership.title}</Typography>}
             />
             <CardContent>
                 <Grid container spacing={1}>
                     <Grid item xs={12}>
-                        <Chip label={partnership.status} 
+                        <Chip label={partnership.status}
                             variant="filled"
-                            sx={{borderRadius: 2, textTransform: "uppercase", backgroundColor: partnership.status === "active"? "tertiary.main": "primary.light", color: partnership.status === "active"?"#FFF":"secondary.main",}}/>
+                            sx={{ borderRadius: 2, textTransform: "uppercase", backgroundColor: partnership.status === "active" ? "tertiary.main" : "primary.light", color: partnership.status === "active" ? "#FFF" : "secondary.main", }} />
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant={'body2'} color="secondary">
                             {partnership.description}
                         </Typography>
                     </Grid>
-                    { partnership.publications.length > 0 && 
+                    {partnership.grant_num &&
+                        <Grid item xs={12}>
+                            <Link
+                                href={`https://reporter.nih.gov/project-details/${partnership.grant_num}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: 'none' }}
+                            >
+                                <Typography variant="body2" color="secondary">Grant: {partnership.grant_num}</Typography>
+                            </Link>
+                        </Grid>
+                    }
+                    {partnership.publications.length > 0 &&
                         <Grid item xs={12} className="flex items-center">
                             <Typography variant="body2" color="secondary"><b>Publication{partnership.publications.length > 1 && 's'}:</b></Typography>
-                            {partnership.publications.map(({publication})=>(
+                            {partnership.publications.map(({ publication }) => (
                                 <Link key={publication.id} target="_blank" rel="noopener noreferrer" href={`https://www.doi.org/${publication.doi}`}>
                                     <Button color="secondary"><Typography variant="body2" color="secondary">{publication.doi}</Typography></Button>
                                 </Link>
                             ))}
                         </Grid>
                     }
-                    <Grid item xs={12}>
-                        <Grid container spacing={1} alignItems={"center"}>
-                            <Grid item xs={12}>
-                                <Typography variant="body2" color="secondary"><b>Participating DCCs:</b></Typography>
+                    {(lead_dccs.length > 0 || dccs.length > 0) && (
+                        <Grid item xs={12}>
+                            <Grid container spacing={1} alignItems={"center"}>
+                                <Grid item xs={12}>
+                                    <Typography variant="body2" color="secondary">
+                                        <b>Participating DCCs:</b>
+                                    </Typography>
+                                </Grid>
+                                {[...lead_dccs, ...dccs]}
                             </Grid>
-                            {[...lead_dccs, ...dccs]}
                         </Grid>
-                    </Grid>
+                    )}
                     {partnership.website &&
                         <Grid item xs={12}>
                             <Link href={partnership.website}>
@@ -101,7 +117,7 @@ const PartnershipCard = ({partnership}:{partnership: PartnershipsWithDCC}) => {
                                 </Button>
                             </Link>
                         </Grid>
-                    }  
+                    }
                 </Grid>
             </CardContent>
         </Card>
@@ -124,11 +140,11 @@ export default async function PartnershipPage() {
                 include: {
                     publication: true
                 }
-            }
+            },
         },
         orderBy: [
-            {priority: 'asc'},
-            {dccs: {_count: 'desc'}}, {title: 'asc'}
+            { priority: 'asc' },
+            { dccs: { _count: 'desc' } }, { title: 'asc' }
         ],
     })
     const completed_partnerships = await prisma.partnerships.findMany({
@@ -147,11 +163,11 @@ export default async function PartnershipPage() {
                 }
             }
         },
-        orderBy: [{dccs: {_count: 'desc'}}, {title: 'asc'}, {id: 'asc'}],
+        orderBy: [{ dccs: { _count: 'desc' } }, { title: 'asc' }, { id: 'asc' }],
     })
-
+    console.log(active_partnerships)
     return (
-        <Grid container spacing={2} sx={{marginTop: 2}}>
+        <Grid container spacing={2} sx={{ marginTop: 2 }}>
             <Grid item xs={12}>
                 <Typography variant="h3" color="secondary">CFDE Partnerships</Typography>
             </Grid>
@@ -165,8 +181,8 @@ export default async function PartnershipPage() {
             </Grid>
             <Grid item xs={12}>
                 <MasonryClient defaultHeight={1500}>
-                    {active_partnerships.map(partnership=>(
-                        <PartnershipCard partnership={partnership}/>   
+                    {active_partnerships.map(partnership => (
+                        <PartnershipCard key={partnership.id} partnership={partnership} />
                     ))}
                 </MasonryClient>
             </Grid>
@@ -175,8 +191,8 @@ export default async function PartnershipPage() {
             </Grid>
             <Grid item xs={12}>
                 <MasonryClient defaultHeight={1500}>
-                    {completed_partnerships.map(partnership=>(
-                        <PartnershipCard partnership={partnership}/>   
+                    {completed_partnerships.map(partnership => (
+                        <PartnershipCard key={partnership.id} partnership={partnership} />
                     ))}
                 </MasonryClient>
             </Grid>

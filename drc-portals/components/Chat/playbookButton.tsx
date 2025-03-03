@@ -1,5 +1,5 @@
 import React from 'react'
-import Image from 'next/image'
+import Image from '@/utils/image'
 import { Button } from '@mui/material'
 import Link from '@/utils/link'
 

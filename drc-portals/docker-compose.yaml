@@ -3,19 +3,21 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.10.5
+    image: maayanlab/drc-portal:0.15.0
     deploy:
+      replicas: 2
       resources:
         reservations:
           cpus: '1.0'
-          memory: 512M
+          memory: 1024M
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30
-      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30
+      - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - C2M2_DATABASE_URL=${PROD_C2M2_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - PDP_DATABASE_URL=${PROD_PDP_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - PUBLIC_URL=https://cfde.cloud
       - NEXTAUTH_URL=https://cfde.cloud/auth
       - NEXTAUTH_SECRET
@@ -37,16 +39,19 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.10.0-17
+    image: maayanlab/drc-portal-dev:0.13.16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://dev.cfde.cloud
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+          more_set_headers "X-Robots-Tag: noindex";
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30
-      - C2M2_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30
+      - DATABASE_URL=${DEV_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - C2M2_DATABASE_URL=${DEV_C2M2_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - PDP_DATABASE_URL=${DEV_PDP_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - PUBLIC_URL=https://dev.cfde.cloud
       - NEXTAUTH_URL=https://dev.cfde.cloud/auth
       - NEXTAUTH_SECRET
@@ -63,6 +68,19 @@ services:
       - OPENAI_API_KEY
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
       - ASSISTANT_ID
+
+  drc-portal-worker:
+    build:
+      context: ..
+      dockerfile: worker/Dockerfile
+    platform: linux/amd64
+    image: maayanlab/drc-portal-worker:0.12.1
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    environment:
+      - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - C2M2_DATABASE_URL=${PROD_C2M2_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - PDP_DATABASE_URL=${PROD_PDP_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
@@ -179,7 +197,7 @@ services:
       restartPolicy: Never
       cron: '0 * * * *'
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public
+      - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public}
       - TWITTER_TWEETS_FROM
       - TWITTER_USERNAME
       - TWITTER_EMAIL

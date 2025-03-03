@@ -1,5 +1,5 @@
 import Link from "@/utils/link"
-import Image from "next/image"
+import Image from "@/utils/image"
 
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'

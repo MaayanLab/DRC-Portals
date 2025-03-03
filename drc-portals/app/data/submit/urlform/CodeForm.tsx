@@ -29,6 +29,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { CheckCircle, Error } from '@mui/icons-material'
 import Status, { StatusType } from '../Status';
+import { MailToLink } from '@/utils/mailto';
+import { useSearchParams } from 'next/navigation';
 
 const OtherCodeData = z.object({
     name: z.string(),
@@ -165,8 +167,6 @@ type fullDCCAsset = {
 } & DccAsset
 
 export function CodeForm(user: { name?: string | null, email?: string | null, role: Role, dccs: string[] }) {
-
-    const [codeType, setCodeType] = React.useState('');
     const [status, setStatus] = React.useState<StatusType>({})
     const [smartSelected, setSmartSelected] = React.useState(false)
     const [apiSelected, setApiSelected] = React.useState(false)
@@ -174,6 +174,40 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
     const [popOpen, setPopOpen] = React.useState(false)
     const [oldVersion, setOldVersion] = React.useState<fullDCCAsset[]>([])
     const [currentVersion, setCurrentVersion] = React.useState<OtherCodeDataType | APIDataType | null>(null)
+    const searchParams = useSearchParams()
+    const [form, setForm] = React.useState({
+        name: '',
+        url: '',
+        assetType: '',
+        openAPISpecs: false,
+        smartAPISpecs: false,
+        smartAPIUrl: '',
+        entityPageExample: '',
+        description: '',
+        dcc: '',
+    })
+
+    React.useEffect(() => {
+        const url = searchParams.get('url')
+        if (url) {
+            findCodeAsset(url).then(foundVersions => {
+                for (const version of foundVersions) {
+                    if (!version.codeAsset) continue
+                    setForm({
+                        url: version.link,
+                        name: version.codeAsset.name,
+                        dcc: version.dcc?.short_label || '',
+                        assetType: version.codeAsset.type,
+                        description: version.codeAsset.description || '',
+                        openAPISpecs: !!version.codeAsset.openAPISpec,
+                        smartAPISpecs: !!version.codeAsset.smartAPISpec,
+                        smartAPIUrl: version.codeAsset.smartAPIURL || '',
+                        entityPageExample: version.codeAsset.entityPageExample || '',
+                    })
+                }
+            })
+        }
+    }, [searchParams])
 
 
     const handlePopClose = () => {
@@ -239,7 +273,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
     };
 
     const handleChange = React.useCallback((event: SelectChangeEvent) => {
-        setCodeType(event.target.value);
+        setForm(form => ({ ...form, assetType: event.target.value }));
         if (event.target.value === 'API') {
             setApiSelected(true)
             setEntitySelected(false)
@@ -251,16 +285,9 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
         }
     }, []);
 
-    const handleSmartSelect = React.useCallback((event: React.SyntheticEvent<Element, Event>, checked: boolean) => {
-        if (checked) {
-            setSmartSelected(true)
-        } else {
-            setSmartSelected(false)
-        }
-    }, []);
-
     return (
-        <form onSubmit={async (evt) => {
+        <form
+            onSubmit={async (evt) => {
             evt.preventDefault()
             const formData = new FormData(evt.currentTarget)
             if (apiSelected) {
@@ -340,7 +367,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                     <AssetInfoDrawer assetOptions={assetOptions} buttonText={<Tooltip title='Click here for more information on code asset types'><HelpIcon sx={{ mb: 2, mt: 2 }} /></Tooltip>} />
                 </Stack>
                 <Typography variant="subtitle1" color="#666666" sx={{ mb: 2, ml: 2 }}>
-                    This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC at  <Link href="mailto:help@cfde.cloud" color='secondary'>help@cfde.cloud</Link>.
+                    This is the form to submit URLs for the code assets of your DCCs. If there is an asset type that is not listed as an option, please contact the DRC at <MailToLink email="help@cfde.cloud" color='secondary' />.
                     See the {' '}
                     <Link color="secondary" href="/data/submit"> Documentation page</Link> for more information about the steps to submit code assets.
                 </Typography>
@@ -364,7 +391,11 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                                 sx={{ mx: 2 }}
                                 fullWidth
                             />
-                            <DCCSelect dccOptions={user.dccs.join(',')} />
+                            <DCCSelect
+                                dccOptions={user.dccs.join(',')}
+                                value={form.dcc}
+                                onChange={evt => { setForm(form => ({...form, dcc: evt.target.value })) } }
+                            />
                         </Stack>
                         <Stack direction='row' width={'100%'} spacing={2}>
                             <div>
@@ -375,12 +406,12 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                                     <Select
                                         labelId="select-url"
                                         id="simple-select"
-                                        value={codeType}
                                         onChange={handleChange}
                                         autoWidth
                                         required
                                         label="Code Asset Type"
                                         name="assetType"
+                                        value={form.assetType}
                                         sx={{ fontSize: 16 }}
                                         color='secondary'
                                     >
@@ -405,6 +436,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                                 label="Name"
                                 name='name'
                                 required
+                                value={form.name}
+                                onChange={(evt) => {setForm(form => ({ ...form, name: evt.target.value }))}}
                                 color='secondary'
                                 placeholder='Enter asset name here'
                                 inputProps={{ style: { fontSize: 16 } }}
@@ -416,6 +449,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                             label="URL"
                             name='url'
                             required
+                            value={form.url}
+                            onChange={(evt) => {setForm(form => ({ ...form, url: evt.target.value }))}}
                             color='secondary'
                             placeholder='Enter URL here'
                             inputProps={{ style: { fontSize: 16 } }}
@@ -423,8 +458,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                         />
                         {apiSelected &&
                             <FormGroup>
-                                <FormControlLabel control={<Checkbox />} label="OpenAPI Specifications" name="openAPISpecs" />
-                                <FormControlLabel control={<Checkbox />} label="Deposited in SmartAPI" name="smartAPISpecs" onChange={handleSmartSelect} />
+                                <FormControlLabel control={<Checkbox />} label="OpenAPI Specifications" name="openAPISpecs" value={form.openAPISpecs} onChange={(evt, checked) => {setForm(form => ({ ...form, openAPISpecs: checked }))}} />
+                                <FormControlLabel control={<Checkbox />} label="Deposited in SmartAPI" name="smartAPISpecs" value={form.smartAPISpecs} onChange={(evt, checked) => {setForm(form => ({ ...form, smartAPISpecs: checked }))}} />
                             </FormGroup>
                         }
                         {smartSelected &&
@@ -432,6 +467,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                                 label="SmartAPI URL"
                                 name='smartAPIUrl'
                                 color='secondary'
+                                value={form.smartAPIUrl}
+                                onChange={(evt) => {setForm(form => ({ ...form, smartAPIUrl: evt.target.value }))}}
                                 placeholder='Enter SmartAPI URL here'
                                 inputProps={{ style: { fontSize: 16 } }}
                                 InputLabelProps={{ style: { fontSize: 16 } }}
@@ -441,6 +478,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                             <TextField sx={{ minWidth: 640 }}
                                 label="Entity Page Example"
                                 name='entityPageExample'
+                                value={form.entityPageExample}
+                                onChange={(evt) => {setForm(form => ({ ...form, entityPageExample: evt.target.value }))}}
                                 color='secondary'
                                 required
                                 placeholder='Enter Entity Page Example here'
@@ -453,6 +492,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                             rows={4}
                             label="Description"
                             name='description'
+                            value={form.description}
+                            onChange={(evt) => {setForm(form => ({ ...form, description: evt.target.value }))}}
                             color='secondary'
                             placeholder='Enter short description here'
                             inputProps={{ style: { fontSize: 16 } }}

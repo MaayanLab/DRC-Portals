@@ -23,7 +23,7 @@ export function capitalize(s: string) {
 }
 
 export function pluralize(s: string) {
-  if (s.toLowerCase() === 'all') return s
+  if (s.toLowerCase() === 'processed') return s
   if (s.toLowerCase() === 'c2m2') return s
   if (s.endsWith('y')) return `${s.slice(0, -1)}ies`
   return `${s}s`
@@ -40,7 +40,8 @@ export function type_to_string(type: NodeType | string, entity_type: string | nu
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
-  else if (type === 'all') return 'Processed Data'
+  else if (type === 'processed') return 'Processed Data'
+  else if (type === 'c2m2') return 'Cross-Cut Metadata'
   else return capitalize(type)
 }
 

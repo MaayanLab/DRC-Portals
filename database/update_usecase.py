@@ -39,7 +39,7 @@ filename = sys.argv[1]
 dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=0)
 # map dcc names to their respective ids
 dcc_mapper = {}
-for i, v in dccs.iloc[:,1].items():
+for i, v in dccs.loc[:,'short_label'].items():
     dcc_mapper[v] = i
 print(dcc_mapper)
 now = str(date.today()).replace("-", "")

@@ -3,7 +3,7 @@ import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableF
 import FormPagination from "./FormPagination"
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
-import Image, { StaticImageData } from "next/image"
+import Image, { StaticImageData } from "@/utils/image"
 import { NodeType } from "@prisma/client"
 import { type_to_color, type_to_string } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"

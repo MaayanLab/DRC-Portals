@@ -1,3 +1,6 @@
 log
 log_dbserver
 ingest
+main_pg_dump_log_*.log
+*.log
+

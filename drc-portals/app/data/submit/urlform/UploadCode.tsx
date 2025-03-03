@@ -8,6 +8,7 @@ import { render } from '@react-email/render';
 import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
+import { queue_fairshake } from '@/tasks/fairshake';
 
 
 
@@ -79,7 +80,7 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
             codeAsset: true
         }
     })
-
+    await queue_fairshake({ link: url })
     const receipt = await sendUploadReceipt(session.user, savedCode);
     const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedCode);
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedCode);
@@ -108,6 +109,7 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
     if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not an allowed to upload')
     if (!session.user.email) throw new Error('User email missing')
+    if (!session.user.dccs.includes(formDcc)) throw new Error('No access to this DCC')
     let dcc = await prisma.dCC.findFirst({
         where: {
             short_label: formDcc,
@@ -145,9 +147,11 @@ export const updateCodeAsset = async (name: string, assetType: string, url: stri
                     smartAPIURL: smartAPIURL === '' ? null : smartAPIURL,
                     entityPageExample: entityPageExample === '' ? null : entityPageExample
                 }
-            }
+            },
+            deleted: false,
         }
     });
+    await queue_fairshake({ link: url })
 }
 
 

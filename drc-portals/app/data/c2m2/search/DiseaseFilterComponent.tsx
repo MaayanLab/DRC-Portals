@@ -11,6 +11,7 @@ export default async function DiseaseFilterComponent({ q, filterClause, maxCount
         FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} /* c2m2.ffl_biosample_collection */
         WHERE searchable @@ websearch_to_tsquery('english', ${q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
+        AND (COALESCE(disease_name, '') != '')
         /*LIMIT ${maxCount}*/
       ),
       disease_name_count AS (

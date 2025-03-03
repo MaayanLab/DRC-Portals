@@ -1,10 +1,10 @@
 
 import Typography from '@mui/material/Typography'
 import { Prisma } from "@prisma/client"
-
 import prisma from '@/lib/prisma'
 import PublicationsClient from "./PublicationsClient"
 import PublicationComponent from "@/components/misc/Publication/PublicationComponent"
+import { Grid } from '@mui/material'
 export interface queryJson {
   order?: {
       field: Prisma.PublicationScalarFieldEnum, 
@@ -24,7 +24,7 @@ export default async function PublicationsServer({
     q?: string
   }
 }) {
-    const q:queryJson = JSON.parse((searchParams || {}).q || '{}')
+  const q:queryJson = JSON.parse((searchParams || {}).q || '{}')
     const { 
       where, 
       include,
@@ -32,9 +32,11 @@ export default async function PublicationsServer({
         field: "year",
         ordering: "desc",
       },
-      take=10,
+      // take=10,
       skip
     } = q
+
+
     const count = await prisma.publication.count()
     const dccs = await prisma.dCC.findMany()
     const publications = await prisma.publication.findMany({
@@ -44,7 +46,7 @@ export default async function PublicationsServer({
           [order.field]: order.ordering
         }
       ],
-      take: take,
+      take: count,
       skip: skip || 0,
       include: {
         dccs: {
@@ -52,19 +54,26 @@ export default async function PublicationsServer({
             dcc: true
           }
         },
+        r03s: {
+          include: {
+            r03: true
+          }
+        },
+        centers: {
+          include: {
+            center: true
+          }
+        },
       },
     })
     return (
         <div>
-            <Typography variant="h2" color="secondary">CFDE Associated and CF Programs Landmark Publications</Typography>
-            <div className="mb-5 mt-10">
-              <Typography variant="subtitle1" color="secondary">
-                The publications listed here are automatically extracted from PubMed based on grants awarded to the Common Fund Data Ecosystem (CFDE) Participating Common Fund programs’ DCCs and CFDE awarded R03s.
-              </Typography>
-            </div>
-            <PublicationsClient count={count} q={q} dccs={dccs.map(i=>i.short_label || '')}>
+          <Grid sx={{marginBottom:4}}>
+            <Typography variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Landmark Publications</Typography>
+          </Grid> 
+            {/* <PublicationsClient count={count} q={q} dccs={dccs.map(i=>i.short_label || '')}> */}
               <PublicationComponent publications={publications}/>
-            </PublicationsClient>
+            {/* </PublicationsClient> */}
         </div>
     )
   }

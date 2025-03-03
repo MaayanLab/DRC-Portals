@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "@/utils/link";
-import Image from "next/image";
+import Image from "@/utils/image";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -19,6 +19,7 @@ import SimplePublicationComponent from "@/components/misc/Publication/SimplePubl
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from "@/components/misc/ReadMore";
+import {OutreachComponent} from "@/components/misc/Outreach/featured";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const dcc = await prisma.dCC.findFirst({
         where: {
@@ -55,6 +56,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             },
         }
     })
+    const now = new Date()
     const outreach = dcc?.outreach || []
     const publications = dcc?.publications.map(i=>i.publication) || []
     if (!dcc) return notFound()
@@ -88,18 +90,18 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     link={dcc.cf_site}
                                 /> */}
                                 <Typography variant="body1" color="secondary">
-                                    {dcc.description} {dcc.cf_site && <>(Retrieved from the <Link href={dcc.cf_site} className="underline">NIH Common Fund site</Link>)</>}
+                                    {dcc.description} {dcc.cf_site && <>(Retrieved from the <Link href={dcc.cf_site} target="_blank" className="underline">NIH Common Fund site</Link>)</>}
                                 </Typography>
                             </Stack>
                         </CardContent>
                         <CardActions>
                             <Stack sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
-                                <Link href={dcc.homepage}>
+                                <Link href={dcc.homepage} target="_blank">
                                     <Button color="secondary"  sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} DCC Portal
                                     </Button>
                                 </Link>
-                                {dcc.cf_site && <Link href={dcc.cf_site}>
+                                {dcc.cf_site && <Link href={dcc.cf_site} target="_blank">
                                     <Button color="secondary" sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} Program on the NIH Common Fund Website
                                     </Button>
@@ -107,12 +109,12 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                 }
                             </Stack>
                             <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
-                                <Link href={dcc.homepage}>
+                                <Link href={dcc.homepage} target="_blank">
                                     <Button color="secondary"  sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} DCC Portal
                                     </Button>
                                 </Link>
-                                {dcc.cf_site && <Link href={dcc.cf_site}>
+                                {dcc.cf_site && <Link href={dcc.cf_site} target="_blank">
                                     <Button color="secondary" sx={{textAlign: "left"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
                                         {dcc.short_label} Program on the NIH Common Fund Website
                                     </Button>
@@ -124,42 +126,13 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 </Grid>
                 {(outreach.length > 0) && 
                     <Grid item xs={12} md={(publications.length > 0 || Object.keys(assets).length > 0) ? 3:12}>
-                        <Paper sx={{padding: 2, textAlign: "center"}}>
-                            <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", maxWidth: 300}}variant="subtitle1">TRAINING & OUTREACH</Typography>
+                        <Paper sx={{padding: 2}}>
+                            <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", maxWidth: 300, textAlign: "center"}}variant="subtitle1">TRAINING & OUTREACH</Typography>
                             { (outreach === undefined || outreach.length === 0) ?
                                 <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>
                                     No events at the moment
                                 </Typography>:
-                                <>
-                                {dcc.outreach.map((e,i)=>(
-                                    <Card elevation={0} sx={{borderBottom: 1, borderColor: "#B7C3E2", borderRadius: 0, textAlign: "left"}}>
-                                        <CardContent>
-                                            <Stack spacing={1}>
-                                            <Typography color="inherit" variant="subtitle1" sx={{textTransform: "uppercase"}}>{e.outreach.title}</Typography>
-                                            <Typography variant="subtitle2">{e.outreach.short_description}</Typography>
-                                            {e.outreach.application_end ? 
-                                                <Typography variant="subtitle2"><b>Application ends</b>: {`${e.outreach.application_end.toLocaleDateString("en-US", {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                })}`}
-                                                </Typography> :
-                                                e.outreach.start_date &&
-                                                    <Typography variant="subtitle2"><b>Starts</b>: {`${e.outreach.start_date.toLocaleDateString("en-US", {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                    })}`}
-                                                    </Typography>
-                                            }
-                                            <Link href={e.outreach.link || ''} target="_blank" rel="noopener noreferrer">
-                                                <Button sx={{marginLeft: -2}} color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>Visit event page</Button>
-                                            </Link>
-                                            </Stack>
-                                        </CardContent>
-                                    </Card>
-                                ))}    
-                                </>
+                                <OutreachComponent size="small" outreach={dcc.outreach.map(({outreach})=>outreach)} now={now}/>
                             }
                         </Paper>
                     </Grid>
@@ -167,22 +140,22 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 { (publications.length > 0 || Object.keys(assets).length > 0) && 
                     <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                         <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                    <Paper sx={{padding: 2, height: "100%"}}>
+                                        <DCCAccordion dcc={params.dcc} fulldata={assets} />
+                                        <Link href="/data/matrix">
+                                            <Button sx={{marginLeft: 2}}>
+                                                <Typography variant={'subtitle1'} color="secondary">Go to data matrix</Typography>
+                                            </Button>
+                                        </Link>
+                                    </Paper>
+                                </Grid>
                             {publications.length > 0 && <Grid item xs={12}>
                                 <Paper sx={{padding: 2, height: "100%"}}>
                                     <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
                                     <SimplePublicationComponent publications={publications}/>
                                 </Paper>
                             </Grid>}
-                            <Grid item xs={12}>
-                                <Paper sx={{padding: 2, height: "100%"}}>
-                                    <DCCAccordion dcc={params.dcc} fulldata={assets} />
-                                    <Link href="/data/matrix">
-                                        <Button sx={{marginLeft: 2}}>
-                                            <Typography variant={'subtitle1'} color="secondary">Go to data matrix</Typography>
-                                        </Button>
-                                    </Link>
-                                </Paper>
-                            </Grid>
                         </Grid>
                     </Grid>
                 }

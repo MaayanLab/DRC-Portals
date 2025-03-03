@@ -1,10 +1,13 @@
-'use client';
+'use client'
 import React, { useState, useEffect } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
+import Button from '@mui/material/Button';
 import { styled, lighten, darken } from '@mui/system';
 import { useRouter } from 'next/navigation';
+import { Typography, Box } from '@mui/material';
 
 export type FilterObject = {
   id: string;
@@ -31,176 +34,168 @@ function getFirstLetter(opt: FilterObject): string {
   return opt.name[0].toUpperCase();
 }
 
-export default function FilterSet({ id, filterList, filter_title, example_query, maxCount }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string, maxCount: number }) {
+export default function FilterSet({ id, filterList, filter_title, example_query, maxCount }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string, maxCount?: number }) {
   const router = useRouter();
   const [selectedFilters, setSelectedFilters] = useState<FilterObject[]>([]);
-  const [filterIndex, setFilterIndex] = useState<string[]>([]);
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
-  const [selectedFiltersForAutocomplete, setSelectedFiltersForAutocomplete] = useState<FilterObject[]>([]);
+  const [pendingFilters, setPendingFilters] = useState<FilterObject[]>([]);
 
-  const options = filterList.map((option) => {
-    const firstLetter = option.name[0].toUpperCase();
-    return {
-      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
-      ...option,
-    };
-  });
-
+  /*  useEffect(() => {
+     const searchParams = new URLSearchParams(window.location.search);
+     const currentRawFilters = searchParams.get('t');
+     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+     const updatedSelectedFilters = filterList.filter(filter => currentFilters.includes(`${id}:${filter.name}`));
+     setSelectedFilters(updatedSelectedFilters);
+   }, [filterList, id]); */
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
 
-    const updatedSelectedFilters = filterList.filter(filter => {
-      return currentFilters.includes(`${id}:${filter.name}`);
+    // Extract valid filters that match the current filterList
+    const validFilterNames = new Set(filterList.map(filter => filter.name));
+
+    // Remove any filters that belong to this id but are not in filterList
+    const updatedFilters = currentFilters.filter(filter => {
+      const [filterId, filterName] = filter.split(':');
+      return filterId !== id || validFilterNames.has(filterName);
     });
 
-    setSelectedFilters(updatedSelectedFilters);
-    setSelectedFiltersForAutocomplete(updatedSelectedFilters);
-  }, [filterList, id]);
+    if (updatedFilters.length !== currentFilters.length) {
+      if (updatedFilters.length > 0) {
+        searchParams.set('t', updatedFilters.join('|'));
+      } else {
+        searchParams.delete('t');
+      }
+      router.replace(`${window.location.pathname}?${searchParams.toString()}`);
+    }
 
-  useEffect(() => {
-    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
-    setSelectedFiltersForAutocomplete(selectedFilters);
-  }, [selectedFilters]);
+    const selected = filterList.filter(filter => currentFilters.includes(`${id}:${filter.name}`));
+    setSelectedFilters(selected);
+  }, [filterList, id, router]);
 
-  const generateFilterIndex = () => {
-    const index = new Set<string>();
-    filterList.forEach(filter => {
-      index.add(filter.name.charAt(0).toUpperCase());
-    });
-    return Array.from(index);
-  };
-
-  if (filterList.length > 50 && filterIndex.length === 0) {
-    setFilterIndex(generateFilterIndex());
-  }
 
   const applyFilters = () => {
+    if (pendingFilters.length === 0) return;
+
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.delete('C2M2MainSearchTbl_p');
     const currentRawFilters = searchParams.get('t');
     const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
-
     const otherFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:`));
+    const newFiltersForCurrentId = [...selectedFilters, ...pendingFilters].map(filter => `${id}:${filter.name}`);
 
-    const newFiltersForCurrentId = selectedFilters.map(filter => `${id}:${filter.name}`);
-
-    const updatedFilters = [...otherFilters, ...newFiltersForCurrentId];
-
-    searchParams.set('t', updatedFilters.join('|'));
+    searchParams.set('t', [...otherFilters, ...newFiltersForCurrentId].join('|'));
     searchParams.set('p', '1');
-    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    router.push(newUrl);
+    router.push(`${window.location.pathname}?${searchParams.toString()}`);
+    setSelectedFilters(prev => [...prev, ...pendingFilters]);
+    setPendingFilters([]);
   };
 
-  const getFilteredOptions = () => {
-    if (!selectedLetter) {
-      return filterList;
+  const handleDelete = (filterToDelete: FilterObject) => {
+    setSelectedFilters(prev => prev.filter(filter => filter.id !== filterToDelete.id));
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentRawFilters = searchParams.get('t');
+    const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+    const updatedFilters = currentFilters.filter(filter => !filter.startsWith(`${id}:${filterToDelete.name}`));
+    if (updatedFilters.length > 0) {
+      searchParams.set('t', updatedFilters.join('|'));
     } else {
-      return filterList.filter(filter => filter.name.charAt(0).toUpperCase() === selectedLetter);
+      searchParams.delete('t');
     }
+    router.push(`${window.location.pathname}?${searchParams.toString()}`);
   };
 
-  const chunkArray = (array: string[], size: number) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size));
-    }
-    return result;
-  };
-
-  const indexRows = chunkArray(filterIndex, 8);
-
-  const disableAutocomplete = options.length === 0 || selectedFilters.length === filterList.length;
+  // Function to shorten chip labels
+  const shortenLabel = (label: string, maxLength = 10) =>
+    label.length > maxLength ? `${label.substring(0, maxLength)}...` : label;
 
   return (
     <>
-      <div>{filter_title}</div>
-      {options.length > 0 && (
-        <Autocomplete
-          multiple
-          autoComplete
-          disableCloseOnSelect
-          limitTags={3}
-          id="filterSet"
-          options={options
-            .filter(option => !selectedFiltersForAutocomplete.some(filter => filter.id === option.id))
-            .sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
-          }
-          noOptionsText=""
-          freeSolo={false} // Disable free text input
-          groupBy={(option) => getFirstLetter(option)}
-          getOptionLabel={(option) => `${option.name}`}
-          value={selectedFiltersForAutocomplete}
-          onChange={(event, newValue) => {
-            const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
-            setSelectedFilters(validNewValue);
-          }}
-          renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <Chip
-                variant="outlined"
-                label={option.name}
-                size="medium"
-                {...getTagProps({ index })}
-                onDelete={undefined}
-                sx={{
-                  backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
-                  color: 'navy', // Navy blue text
-                  fontWeight: 'bold', // Bold text
-                  borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
-                }}
-              />
-            ))
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              size='small'
-              placeholder={example_query}
-              disabled={disableAutocomplete} // Disable input if no options or all selected
-              sx={{
-                backgroundColor: theme => theme.palette.mode === 'light' ? '#f7f7f7' : '#424242', // Lighter background for input field
-                '& .MuiInputBase-input::placeholder': {
-                  color: theme => theme.palette.text.primary, // Darker example text
-                  opacity: 0.8,
-                },
-                '& .MuiAutocomplete-popupIndicator': {
-                  display: disableAutocomplete ? 'none' : 'flex', // Hide arrow if no options or all selected
-                  color: theme => theme.palette.text.primary,
-                  fontWeight: 'bold', // Increase prominence of downward arrow
-                },
-              }}
-            />
-          )}
-          renderGroup={(params) => (
-            <li key={params.key}>
-              <GroupHeader>{params.group}</GroupHeader>
-              <GroupItems>{params.children}</GroupItems>
-            </li>
-          )}
-          sx={{ width: 'auto' }}
-          onBlur={() => {
-            applyFilters();
-          }}
-        />
+      {filterList.length > 0 && (
+        <>
+          <Typography color="secondary" variant="h6">{filter_title}</Typography>
+          <Autocomplete
+            multiple
+            autoComplete
+            disableCloseOnSelect
+            limitTags={3}
+            id="filterSet"
+            options={filterList.filter(option => !selectedFilters.includes(option) && !pendingFilters.includes(option))}
+            groupBy={(option) => getFirstLetter(option)}
+            getOptionLabel={(option) => option.name}
+            value={[...selectedFilters, ...pendingFilters]}
+            /* onChange={(event, newValue) => {
+              const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
+              setPendingFilters(validNewValue);
+            }} */
+            onChange={(event, newValue, reason) => {
+              const searchParams = new URLSearchParams(window.location.search);
+              const currentRawFilters = searchParams.get('t');
+              const currentFilters = currentRawFilters ? currentRawFilters.split('|') : [];
+
+              if (reason === 'clear') {
+                // Remove only the filters that were selected (not all t parameters)
+                const selectedFilterNames = selectedFilters.map(filter => `${id}:${filter.name}`);
+                const updatedFilters = currentFilters.filter(filter => !selectedFilterNames.includes(filter));
+
+                if (updatedFilters.length > 0) {
+                  searchParams.set('t', updatedFilters.join('|'));
+                } else {
+                  searchParams.delete('t');
+                }
+
+                router.push(`${window.location.pathname}?${searchParams.toString()}`);
+                setSelectedFilters([]);
+                setPendingFilters([]);
+              } else {
+                const validNewValue = newValue.filter((val): val is FilterObject => typeof val !== 'string');
+                setPendingFilters(validNewValue);
+              }
+            }}
+
+
+
+            renderTags={(value, getTagProps) => (
+              <Box display="flex" flexWrap="wrap" gap={1}>
+                {value.map((option, index) => (
+                  <Tooltip title={option.name} key={option.id}>
+                    <Chip
+                      variant="outlined"
+                      label={shortenLabel(option.name)}
+                      size="small"
+                      {...getTagProps({ index })}
+                      onDelete={() => handleDelete(option)}
+                      sx={{
+                        backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
+                        color: '#3a577c', // Navy blue text
+                        fontWeight: 'bold', // Bold text
+                        borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
+                        padding: '0px',
+                        height: 'auto',
+                      }}
+                    />
+                  </Tooltip>
+                ))}
+                {pendingFilters.length > 0 && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={applyFilters}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Apply
+                  </Button>
+                )}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} size="small" placeholder={example_query} />
+            )}
+            sx={{ width: 'auto', marginBottom: '20px' }}
+          />
+        </>
       )}
-      {/* Render selected chips even when the Autocomplete is hidden */}
-      {!options.length && selectedFiltersForAutocomplete.map((option, index) => (
-        <Chip
-          key={option.id}
-          variant="outlined"
-          label={option.name}
-          size="medium"
-          sx={{
-            backgroundColor: theme => theme.palette.mode === 'light' ? '#f1f1f1' : '#333', // Lighter background
-            color: 'navy', // Navy blue text
-            fontWeight: 'bold', // Bold text
-            borderColor: theme => theme.palette.mode === 'light' ? '#e0e0e0' : '#555', // Very light border
-          }}
-        />
-      ))}
     </>
   );
 }

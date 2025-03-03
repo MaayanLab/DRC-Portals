@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Checkbox } from '@mui/material';
 import FormPagination from './FormPagination';
 import Link from '@/utils/link';
-import Image, { StaticImageData } from 'next/image';
+import Image, { StaticImageData } from '@/utils/image';
 import { NodeType } from '@prisma/client';
 import { type_to_string } from '../processed/utils';
 import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';
@@ -94,7 +94,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
     //     // Clear the selectedRows state whenever the page or rows change
     //     setSelectedRows([]);
     // }, [props.p, props.rows]); // Dependencies to monitor changes in page or rows
-    
+
 
     const handleCheckboxChange = (row: RowType) => { // Use the RowType
         const isSelected = selectedRows.some(selectedRow => selectedRow.id === row.id);
@@ -129,13 +129,13 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
             }
             <Grid item xs={12} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
                 <Stack spacing={1}>
-                    {(props.q || props.t) &&
+                    {/* {(props.q || props.t) &&
                         <Box display="inline-block">
                             <TagComponent q={props.q} t={props.t} />
                         </Box>
-                    }
-                    
-                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
+                    } */}
+
+                    <TableContainer component={Paper} elevation={0} variant="rounded-top" sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
                         {props.rows.length === 0 ? (
                             <Typography variant='h6' color="secondary" sx={{ padding: 4, textAlign: 'center' }}>
                                 No results found
@@ -144,7 +144,7 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                             <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%' }}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell padding="checkbox">
+                                        <TableCell padding="checkbox" sx={{ backgroundColor: '#CAD2E9' }} >
                                             <Checkbox
                                                 indeterminate={selectedRows.length > 0 && selectedRows.length < props.rows.length}
                                                 checked={props.rows.length > 0 && selectedRows.length === props.rows.length}
@@ -158,14 +158,14 @@ const SearchablePagedTable: React.FC<SearchablePagedTableProps> = (props) => {
                                                 sx={{
                                                     padding: '8px',
                                                     textAlign: 'left',
-                                                    backgroundColor: '#F0F8FF',
+                                                    backgroundColor: '#CAD2E9',
                                                     fontWeight: 'bold',
                                                     whiteSpace: 'nowrap',
                                                     overflowX: 'hidden',
                                                     textOverflow: 'ellipsis',
                                                 }}
                                             >
-                                                <Typography variant='h6' color="secondary">{column}</Typography>
+                                                <Typography variant='body1' color="secondary">{column}</Typography>
                                             </TableCell>
                                         ))}
                                     </TableRow>

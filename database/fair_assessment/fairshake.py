@@ -26,6 +26,7 @@ from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
 from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
+import traceback
 import logging; logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
 
@@ -45,11 +46,12 @@ def find_between_r( s, first, last ):
     
 def check_repo_public(github_url):
     """Checks if the GitHub URL is the link of a public repo."""
-    x = requests.head(github_url)
-    if x.status_code == 200: 
-        return True
-    else:
-        return False
+    try:
+        x = requests.head(github_url)
+        return x.status_code == 200
+    except KeyboardInterrupt: raise
+    except: traceback.print_exc(file=sys.stderr)
+    return False
   
 def get_repo_license(github_url):
     """Extracts the license information from a GitHub repository URL using the API."""
@@ -57,13 +59,13 @@ def get_repo_license(github_url):
     repo_url = github_url.split("/")
     owner, repo = repo_url[3], repo_url[4]
     api_url = f"https://api.github.com/repos/{owner}/{repo}/license"
-    response = requests.get(api_url)
-    if response.status_code == 200:
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
         data = response.json()
         return data['license']['name']
-    else:
-        return None
-    
+    except KeyboardInterrupt: raise
+    except: traceback.print_exc(file=sys.stderr)
 
 def assess_metanode(metanode_name):
     """Run FAIR Assessment for a given PWB metanode given its name using the PWB components API endpoint."""
@@ -73,8 +75,9 @@ def assess_metanode(metanode_name):
     fairshake_license = 0
     fairshake_persistent_url = 0
     metanode_name = metanode_name
-    response= requests.get('https://playbook-workflow-builder.cloud/api/components/' + metanode_name)
-    if response.ok: 
+    try:
+        response= requests.get('https://playbook-workflow-builder.cloud/api/components/' + metanode_name)
+        response.raise_for_status()
         metanode_info = response.json()
         metadata = metanode_info['meta']
         if metadata['description'] != "":
@@ -91,8 +94,8 @@ def assess_metanode(metanode_name):
         else:
             fairshake_cite_methods = None
         return  [fairshake_description, fairshake_cite_methods, fairshake_contact_info, fairshake_license, fairshake_persistent_url]
-    else:
-        return None
+    except KeyboardInterrupt: raise
+    except: traceback.print_exc(file=sys.stderr)
 
 
 def format_PWB_results(result):
@@ -112,7 +115,12 @@ def PWB_metanode_fair(row_name, row_url):
         split_url = urlsplit(row_url.replace('/nih-cfde/playbook-partnership/blob/', '/MaayanLab/Playbook-Workflow-Builder/'))
         base_url = split_url.netloc
         if base_url ==  'github.com': #if url was a github url
-            metanode_names = re.findall("= MetaNode\('.+?\)", requests.get('https://raw.githubusercontent.com' + split_url.path).text)
+            try:
+                text = requests.get('https://raw.githubusercontent.com' + split_url.path).text
+            except KeyboardInterrupt: raise
+            except:
+                text = ''
+            metanode_names = re.findall("= MetaNode\('.+?\)", text)
             metanode_name = split_url.path.split('/')[-2]
             result = assess_metanode(metanode_name)
             if result != None:
@@ -147,13 +155,19 @@ def entity_page_fair(entityPageExample, link):
     template_url = link
     try:
         if type(example_url) == 'string':
+            try:
                 x = requests.head(example_url)
-                if x.ok:
-                    fairshake_head_request_support = 1
+                x.raise_for_status()
+                fairshake_head_request_support = 1
+            except KeyboardInterrupt: raise
+            except: traceback.print_exc(file=sys.stderr)
         example_term = find_between_r(template_url, '%7B', '%7D' ) 
-        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', '')
-        if requests.head(missing_element_url).status_code == 404:
-            fairshake_return_404 = 1
+        missing_element_url = template_url.replace('%7B' +example_term+ '%7D', 'thisstringshouldhopefullynotmatchanything')
+        try:
+            if requests.head(missing_element_url).status_code == 404:
+                fairshake_return_404 = 1
+        except KeyboardInterrupt: raise
+        except: traceback.print_exc(file=sys.stderr)
         check_url_templated = re.search("^.*%7B.*%7D.*$", template_url)
         if not(check_url_templated):
             check_url_templated = re.search("^.*{.*}.*$", template_url)
@@ -206,8 +220,8 @@ def api_fair(row):
         try:
             api_response = requests.get(smartapi_link).json()
             metadata = api_response['info']
-            if 'contact' in metadata and 'email' in metadata['contact']:
-                fairshake_contact = 1 if metadata['contact']['email'] != '' else 0
+            if 'contact' in metadata:
+                fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
             if 'license' in metadata and 'name' in metadata['license']:
                 fairshake_license = 1 if metadata['license']['name'] != '' else 0
                 return {"Documented with OpenAPI": fairshake_openapi,
@@ -235,8 +249,9 @@ def apps_urls_fair(apps_url):
     fairshake_license = 0
     fairshake_description = 0
     fairshake_persistent_url = 0 
-    response = requests.get(apps_url)
-    if response.ok:
+    try:
+        response = requests.get(apps_url)
+        response.raise_for_status()
         html = response.text
         soup = BeautifulSoup(html, features="html.parser")
         schema_json = soup.find('script', type='application/ld+json')
@@ -250,6 +265,8 @@ def apps_urls_fair(apps_url):
                         fairshake_license = 1
                     if 'description' in webpageObject: 
                         fairshake_description = 1
+    except KeyboardInterrupt: raise
+    except: traceback.print_exc(file=sys.stderr)
     rubric = {"Resource discovery through web search": fairshake_description,
             "Digital resource license": fairshake_license,
             "Persistent URL": fairshake_persistent_url}
@@ -263,8 +280,9 @@ def chatbot_specs_fair(chatbot_specs_url):
     fairshake_valid_openapi_link = 0
     fairshake_contact = 0
     fairshake_ogp = [0] * 4
-    response = requests.get(chatbot_specs_url)
-    if response.ok:
+    try:
+        response = requests.get(chatbot_specs_url)
+        response.raise_for_status()
         chatbot_specs = response.json()
         # check if ai-plugin compatible
         required_plugin_fields = ['schema_version', 'name_for_human', 'name_for_model', 'description_for_model', 'description_for_human', 'api']
@@ -272,12 +290,19 @@ def chatbot_specs_fair(chatbot_specs_url):
             if field in chatbot_specs: 
                 fairshake_aiplugin_compatible[index] = 1
         if 'api' in chatbot_specs and chatbot_specs['api']['type'] == 'openapi':
-            openapi_json_response = requests.get(chatbot_specs['api']['url'])
-            fairshake_valid_openapi_link = 1 if openapi_json_response.ok else 0
+            try:
+                openapi_json_response = requests.get(chatbot_specs['api']['url'])
+                openapi_json_response.raise_for_status()
+            except KeyboardInterrupt: raise
+            except: fairshake_valid_openapi_link = 0
+            else: fairshake_valid_openapi_link = 1
         fairshake_contact = 1 if 'contact_email' in chatbot_specs else 0
+    except KeyboardInterrupt: raise
+    except: traceback.print_exc(file=sys.stderr)
     split_url = urlsplit(chatbot_specs_url)
-    webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
-    if webpage_response.ok:
+    try:
+        webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
+        webpage_response.raise_for_status()
         html = webpage_response.text
         soup = BeautifulSoup(html, features="html.parser")
         ogp_title = soup.find('meta', property="og:title")
@@ -288,6 +313,8 @@ def chatbot_specs_fair(chatbot_specs_url):
         for index, ogp_req in enumerate(ogp_req_metadata): 
             if ogp_req:
                 fairshake_ogp[index] = 1
+    except KeyboardInterrupt: raise
+    except: traceback.print_exc(file=sys.stderr)
     rubric = {"Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
               "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_valid_openapi_link, 
               "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
@@ -352,7 +379,7 @@ def c2m2_fair(directory):
             ),
             cachedir=directory,
         )
-        result = assess(CFDE, rubric='amanda2022', full=False)
+        result = assess(CFDE, rubric='drc2024', full=False)
         rubric = {}
         for index, row in result.iterrows():
             if math.isnan(row['value']):
@@ -405,18 +432,21 @@ def c2m2_fair(directory):
     
 
 def xmt_fair(xmt_path, row):
+    """Run FAIR Assessment for a XMT file asset given its filepath and database row"""
     # initialize fairshake variables
     fairshake_drs = 1
     fairshake_persistent = 0
     fairshake_ontological_count = 0
     fairshake_standard_elements = []
     gene_set_count = 0
+    set_labels = set()
     with xmt_path.open('r') as fr:
       for line in tqdm(fr, desc=f"Processing {row['dcc_short_label']}/{row['filename']}..."):
         gene_set_count += 1
         line_split = list(map(str.strip, line.split('\t')))
         if len(line_split) < 3: continue
         x_set_label, x_set_description, *x_set_elements = line_split
+        set_labels.add(x_set_label)
         term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
         if term_ontological:
           fairshake_ontological_count +=1
@@ -430,7 +460,8 @@ def xmt_fair(xmt_path, row):
 
     fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/gene_set_count if gene_set_count > 0 else None,
                             # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
-                            "XMT Elements are normalized to a standard": None, 
+                            "XMT Elements are normalized to a standard": None,
+                            "XMT Terms are unique": 1. if gene_set_count == len(set_labels) else 0.,
                             "Accessible via DRS": fairshake_drs,
                             "Persistent URL": fairshake_persistent
                             }
@@ -438,6 +469,7 @@ def xmt_fair(xmt_path, row):
           
 
 def attribute_tables_fair(attr_table_path, row):
+    """Run FAIR Assessment for an Attribute table file asset given its filepath and database row"""
     # initialize fairshake variables
     fairshake_drs = 1
     fairshake_persistent = 0
@@ -469,6 +501,7 @@ def attribute_tables_fair(attr_table_path, row):
 
 
 def kg_assertions_fair(assertions_extract_path):
+    """Run FAIR Assessment for a KG Assertions file asset given its filepath and database row"""
     # initialize fairshake metric variables
     fairshake_drs = 1
     fairshake_persistent = 0

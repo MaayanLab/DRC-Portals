@@ -7,8 +7,7 @@ import boto3
 from botocore.exceptions import ClientError
 import csv
 import json
-if len(sys.argv) == 0:
-	raise Exception("Please put some tables")
+import pathlib
 
 def upload_file(file_name, bucket, object_name=None):
 	"""Upload a file to an S3 bucket
@@ -51,8 +50,15 @@ tables_list = set([
 "tools",
 "usecase",
 "dcc_usecase",
+"centers"
 ])
 tables = tables_list.intersection(input_table)
+
+if not tables:
+	raise Exception("Please put some tables")
+
+pathlib.Path('current').mkdir(exist_ok=True)
+
 for table in tables:
 	cur = connection.cursor()
 	now = str(date.today()).replace("-", "")

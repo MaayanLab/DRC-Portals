@@ -21,20 +21,22 @@ entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 gene_helper = TableHelper('gene_entity', ('id', 'entrez', 'ensembl',), pk_columns=('id',))
 node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
 
-with gene__gene_set_helper.writer() as gene__gene_set:
-  with gene__gene_set_library_helper.writer() as gene__gene_set_library:
-    with gene_set_helper.writer() as gene_set:
-      with gene_set_library_helper.writer() as gene_set_library:
-        with gene_helper.writer() as gene:
-          with entity_helper.writer() as entity:
-            genes = {}
-            with node_helper.writer() as node:
-              for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
+  if 'l1000_cp' in gmt['filename']: continue
+  with gene__gene_set_helper.writer() as gene__gene_set:
+    with gene__gene_set_library_helper.writer() as gene__gene_set_library:
+      with gene_set_helper.writer() as gene_set:
+        with gene_set_library_helper.writer() as gene_set_library:
+          with gene_helper.writer() as gene:
+            with entity_helper.writer() as entity:
+              genes = {}
+              with node_helper.writer() as node:
+                gene_set_ids = set()
                 gmt_path = gmts_path/gmt['dcc_short_label']/gmt['filename']
                 gmt_path.parent.mkdir(parents=True, exist_ok=True)
                 if not gmt_path.exists():
                   import urllib.request
-                  urllib.request.urlretrieve(gmt['link'], gmt_path)
+                  urllib.request.urlretrieve(gmt['link'].replace(' ', '%20'), gmt_path)
                 #
                 gene_set_library_id = str(uuid5(uuid0, gmt['link']))
                 library_genes = set()
@@ -61,6 +63,10 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                     if len(line_split) < 3: continue
                     gene_set_label, gene_set_description, *gene_set_genes = line_split
                     gene_set_id = str(uuid5(uuid0, '\t'.join((gene_set_library_id, gene_set_label, gene_set_description,))))
+                    if gene_set_id in gene_set_ids:
+                      print(f"WARN: Duplicate {gene_set_label} in {gmt_path} ignored")
+                      continue
+                    gene_set_ids.add(gene_set_id)
                     gene_set_genes = {gene_id for raw_gene in gene_set_genes if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
                     gene_set_node = dict(
                       dcc_id=gmt['dcc_id'],
@@ -117,4 +123,4 @@ with gene__gene_set_helper.writer() as gene__gene_set:
                     #
                     node.writerow(gene_set_node)
                 node.writerow(gene_set_library_node)
-              node.writerows(genes.values())
+                node.writerows(genes.values())

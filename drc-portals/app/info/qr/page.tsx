@@ -1,5 +1,5 @@
 import QRCode from '@/public/img/qr/CFDE-WB-QR-code.png'
-import Image from 'next/image'
+import Image from '@/utils/image'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 

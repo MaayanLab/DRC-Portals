@@ -7,6 +7,7 @@ from uuid import uuid5, NAMESPACE_URL
 import boto3
 from botocore.exceptions import ClientError
 from ingest_common import connection
+import math
 import json
 if len(sys.argv) == 0 or not sys.argv[1].endswith("tsv"):
 		raise Exception("Please add a tsv file")
@@ -36,10 +37,10 @@ def upload_file(file_name, bucket, object_name=None):
 bucket = 'cfde-drc'
 
 filename = sys.argv[1]
-dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=0)
+dccs = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv', sep="\t", index_col=0, header=0)
 # map dcc names to their respective ids
 dcc_mapper = {}
-for i, v in dccs.iloc[:,1].items():
+for i, v in dccs.loc[:,'short_label'].items():
 		dcc_mapper[v] = i
 print(dcc_mapper)
 now = str(date.today()).replace("-", "")
@@ -57,8 +58,9 @@ for i, row in df.iterrows():
 		"description": row["description"],
 		"status": row["status"],
 		"website": row["website"],
-		"priority": row["priority"],
+		"priority": int(row["priority"] if not math.isnan(row['priority']) else 0),
 		"image": row["image"],
+		"grant_num": row["grant_num"],
 	}
 	if type(row["dccs"]) == str:
 		lead_dccs = [dcc_mapper[i] for i in row["lead_dccs"].strip().split("; ")] if type(row["lead_dccs"]) == str else []

@@ -1,7 +1,7 @@
 import ListItemCollapsible from "@/components/misc/ListItemCollapsible"
 import prisma from "@/lib/prisma/slow"
 import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material"
-import Image from "next/image"
+import Image from "@/utils/image"
 import Link from "@/utils/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
 import { safeAsync } from "@/utils/safe"

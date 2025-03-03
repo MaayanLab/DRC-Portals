@@ -1,5 +1,5 @@
 BeautifulSoup4
-c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment
+c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment@v0.0.5
 h5py
 numpy
 psycopg2-binary

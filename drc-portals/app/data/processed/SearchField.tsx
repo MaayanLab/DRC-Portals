@@ -3,7 +3,7 @@ import React from "react";
 import { mdiMagnify } from "@mdi/js";
 import Icon from '@mdi/react';
 import { InputAdornment, TextField } from '@mui/material';
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/utils/navigation";
 
 export function SearchForm({ children, action }: React.PropsWithChildren<{ action?: string }>) {
   const router = useRouter()

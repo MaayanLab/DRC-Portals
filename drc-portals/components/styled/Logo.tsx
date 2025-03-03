@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/utils/image';
 import Link from '@/utils/link';
 import Typography from '@mui/material/Typography'
 import { ElevatedIconButton } from "./Buttons";

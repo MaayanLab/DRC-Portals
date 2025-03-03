@@ -15,7 +15,7 @@ python ingestion.py
 # much slower, for production or when developing with those features, can be omitted until necessary
 python ingest_dcc_assets.py
 python ingest_gmts.py
-python ingest_c2m2_files.py
+#python ingest_c2m2_files.py
 python ingest_kg.py
 ```
 
@@ -35,7 +35,9 @@ rm -r ingest
 python ingestion.py
 ```
 
-### To populate C2M2 related tables, go to the subfolder C2M2 (database/C2M2) and follow through the README.md file there.
+## Ingesting C2M2
+
+To populate C2M2 related tables, see [the C2M2 README.md](C2M2/README.md).
 
 ## Running FAIR Assessment 
 
@@ -44,4 +46,22 @@ Update the DCCAssets.tsv, FileAssets.tsv and CodeAssets.tsv file paths in the in
 # FAIR assessment of current code and file assets
 python fair_assessment/assess_fair.py
 
+```
+
+## Updating S3 Ingest Files from Production Database
+```bash
+# in one terminal, port forward the prod db
+kubectl port-forward -n drc deploy/drc-portal-postgres 5432
+
+# in another, run the following script to generate these files and load them into s3
+python update_s3_from_db.py dcc_assets file_assets code_assets
+```
+
+## Updating Outreach/Webinar in Production
+```bash
+# in one terminal, port forward the prod db
+kubectl port-forward -n drc deploy/drc-portal-postgres 5432
+
+# in another, run the following script to generate the files and load them into s3 & the prod database
+python update_outreach.py updated-outreach.tsv updated-webinar.tsv
 ```

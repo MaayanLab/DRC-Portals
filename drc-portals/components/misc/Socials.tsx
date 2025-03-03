@@ -7,15 +7,16 @@ import Email from "@/public/img/icons/email.svg"
 import Facebook from "@/public/img/icons/Facebook.svg"
 import Linkedin from "@/public/img/icons/Linkedin.svg"
 import Youtube from "@/public/img/icons/Youtube.svg"
+import { MailTo } from "@/utils/mailto"
 
 const SocialMedia = ({color}: {color?: "inherit" | "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"}) => {
     return (
         <div className='flex items-center space-x-2'>
-            <Link href="mailto:help@cfde.cloud">
+            <MailTo email="help@cfde.cloud">
                 <IconButton color={"secondary"}>
                     <Email/>
                 </IconButton>
-            </Link>
+            </MailTo>
             <Link href="https://twitter.com/CfdeWorkbench" target="_blank" rel="noopener noreferrer">
                 <IconButton  color={"secondary"}>
                     <Twitter/>

@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw'; // Import SQL
 import { generateFilterClauseFromtParam } from '../utils';
-
-const prisma = new PrismaClient();
+import { main_table } from '../search/SearchQueryComponent';
 
 export async function POST(request: Request) {
   try {
@@ -11,15 +10,15 @@ export async function POST(request: Request) {
     const { q, t, limit, offset } = await request.json();
 
     // Ensure `limit` is provided and is a valid number
-    const maxLimit = typeof limit === 'number' && limit > 0 ? limit : 200000; // Default to 200,000 if limit is invalid
+    // const maxLimit = typeof limit === 'number' && limit > 0 ? limit : 200000; // Default to 200,000 if limit is invalid
 
     // Ensure `offset` is provided and is a valid number
-    const maxOffset = typeof offset === 'number' && offset >= 0 ? offset : 0; // Default to 0 if offset is invalid
+    // const maxOffset = typeof offset === 'number' && offset >= 0 ? offset : 0; // Default to 0 if offset is invalid
 
     // Validate q and filterClause
     const queryParam = typeof q === 'string' ? q : '';
     console.log("queryParam = " + queryParam);
-    const filterClause = generateFilterClauseFromtParam(t, "ffl_biosample_collection"); // Adjust tablename as needed
+    const filterClause = generateFilterClauseFromtParam(t, "allres_full"); // Adjust tablename as needed
 
     // Execute the SQL query
     const [results] = await prisma.$queryRaw<Array<{
@@ -34,6 +33,8 @@ export async function POST(request: Request) {
         disease: string,
         anatomy_name: string,
         anatomy: string,
+        biofluid_name: string,
+        biofluid: string,
         gene_name: string,
         gene: string,
         protein_name: string,
@@ -42,30 +43,21 @@ export async function POST(request: Request) {
         compound: string,
         data_type_name: string,
         data_type: string,
+        assay_type_name: string,
+        assay_type: string,
         project_name: string,
-        project_description: string,
         project_persistent_id: string,
-        count: number, // this is based on across all-columns of ffl_biosample
+        count: number,
         count_bios: number,
         count_sub: number,
         count_col: number,
         record_info_url: string,
       }[],
     }>>(SQL.template`
-    WITH allres_full AS (
-      SELECT c2m2.ffl_biosample_collection.*,
-        ts_rank_cd(searchable, websearch_to_tsquery('english', ${queryParam})) as "rank"
-        FROM c2m2.ffl_biosample_collection
-        WHERE searchable @@ websearch_to_tsquery('english', ${queryParam})
-        ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
-        ORDER BY rank DESC, dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name,
-        protein_name, compound_name, data_type_name, subject_local_id, biosample_local_id, collection_local_id
-        LIMIT ${maxLimit}
-        OFFSET ${maxOffset}
-    ),
-      allres AS (
-        SELECT 
-          allres_full.rank AS rank,
+    WITH 
+    allres AS (
+      SELECT DISTINCT
+          ts_rank_cd(searchable, websearch_to_tsquery('english', ${queryParam})) AS rank,
           allres_full.dcc_name AS dcc_name,
           allres_full.dcc_abbreviation AS dcc_abbreviation,
           SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
@@ -76,6 +68,8 @@ export async function POST(request: Request) {
           REPLACE(allres_full.disease, ':', '_') AS disease,
           COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
           REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
+          COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
+          REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
           COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
           allres_full.gene AS gene,
           COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
@@ -84,28 +78,24 @@ export async function POST(request: Request) {
           allres_full.substance_compound AS compound,
           COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
           REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-          COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-          c2m2.project.description AS project_description,
-          allres_full.project_persistent_id as project_persistent_id,
-          COUNT(*)::INT AS count,
-          COUNT(DISTINCT biosample_local_id)::INT AS count_bios,
-          COUNT(DISTINCT subject_local_id)::INT AS count_sub,
-          COUNT(DISTINCT collection_local_id)::INT AS count_col
-        FROM allres_full 
-        LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND
-          allres_full.project_local_id = c2m2.project.local_id)
-        GROUP BY rank, dcc_name, dcc_abbreviation, dcc_short_label, project_local_id, taxonomy_name, taxonomy_id,
-          disease_name, disease, anatomy_name, anatomy, gene_name, gene, protein_name, protein, compound_name, compound,
-          data_type_name, data_type, project_name, project_description, allres_full.project_persistent_id
-        ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name,
-          protein_name, compound_name, data_type_name
-      ),
+          COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
+          REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
+          COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
+              SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
+          allres_full.project_persistent_id AS project_persistent_id
+      FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
+      WHERE searchable @@ websearch_to_tsquery('english', ${queryParam})
+          ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
+      ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
+          protein_name, compound_name, data_type_name, assay_type_name
+  ),
       allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres),
       allres_filtered AS (
         SELECT allres.*,
         concat_ws('', '/data/c2m2/search/record_info?q=', ${queryParam}, '&t=', 'dcc_name:', allres.dcc_name,
         '|', 'project_local_id:', allres.project_local_id, '|', 'disease_name:', allres.disease_name,
         '|', 'ncbi_taxonomy_name:', allres.taxonomy_name, '|', 'anatomy_name:', allres.anatomy_name,
+        '|', 'biofluid_name:', allres.biofluid_name,
         '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
         '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name) AS record_info_url
         FROM allres

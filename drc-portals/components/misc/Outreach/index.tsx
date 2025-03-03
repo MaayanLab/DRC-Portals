@@ -1,6 +1,6 @@
 import React from "react"
 import Link from "@/utils/link"
-import Image from "next/image"
+import Image from "@/utils/image"
 import Divider from '@mui/material/Divider'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -68,7 +68,8 @@ export interface OutreachParams {
   tags: Array<string>,
   expand_filter?: boolean,
   status: Array<string>,
-  cfde_specific?: boolean
+  cfde_specific?: boolean,
+  past_limit?: number
 }
 
 const same_date = (start_date:Date|null, end_date:Date|null) => {
@@ -78,23 +79,23 @@ const same_date = (start_date:Date|null, end_date:Date|null) => {
     start_date.getDate() === end_date.getDate();
 }
 
-const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
+const OutreachComponent = ({outreach, filter, now, expand_filter=false, past_count, past_limit}: {
   outreach: OutreachWithDCC[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
   now: Date,
-  past?: Boolean,
+  past_count?: number,
+  past_limit?: number,
   filter?: OutreachParams,
   expand_filter: boolean,
 }) =>(
-  <Box sx={{ minHeight: 100 }}>
+  <Box sx={{ minHeight: 100, textAlign: "center" }}>
     <MasonryClient defaultHeight={1500} columns={expand_filter ? 2: 3}>
       {outreach.map((e,i)=>{
         let tags:JsonArray = []
         if (Array.isArray(e.tags)) {
           tags = e.tags
         }
-        if (same_date(e.start_date, e.end_date)) console.log(e.title, e.start_date?.toDateString(), e.end_date?.toDateString())
         return (
           <Card>
             <CardContent>
@@ -138,7 +139,7 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                 }
                 <div className="flex flex-row mb-5">
                   {tags.map((tag, i)=> {
-                    const new_filter = filter || {tags: []}
+                    const new_filter = {tags: [], ...filter }
                     new_filter.tags = [`${tag}`]
                     return (
                       <Link href={`/info/training_and_outreach?filter=${JSON.stringify(new_filter)}`}>
@@ -176,12 +177,12 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
                                   day: 'numeric',
                                 })}`}
                     </Typography>}
-                    {(e.application_end && e.application_end > now) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
-                    `${ e.application_end > now ? e.application_end.toLocaleDateString("en-US", {
+                    {(e.application_end) && <Typography variant="body2" color="secondary"><b>Application deadline:</b> {
+                    `${e.application_end.toLocaleDateString("en-US", {
                                         year: 'numeric',
                                         month: 'long',
                                         day: 'numeric',
-                                      }): "Passed"}`
+                                      })}`
                     }
                     </Typography>}
               </Stack>
@@ -201,6 +202,11 @@ const OutreachComponent = ({outreach, past=false, filter, now, expand_filter}: {
         )
       })}
       </MasonryClient>
+      {(past_limit && past_count && past_limit < past_count) && <Button variant="outlined" color="secondary">
+          <Link href={`/info/training_and_outreach?filter=${JSON.stringify({...filter, past_limit: past_limit + 5})}`}>
+            <Typography variant="body1">See More</Typography>
+          </Link>
+        </Button>}
     </Box>
 )
 
@@ -211,11 +217,10 @@ const type_tags = (type: string) => {
 }
 
 
-async function Outreach({featured=true, orientation='horizontal', size=2, searchParams}:{
+async function Outreach({featured=true, orientation='horizontal', searchParams}:{
   featured?: Boolean,
   active?: Boolean,
   orientation?: 'horizontal' | 'vertical',
-  size?: number,
   searchParams?: {
     filter?: string
   },
@@ -223,9 +228,9 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
 }) {
     const now = new Date()
     
-    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: true, status: ['active', 'recurring'], cfde_specific: true})
+    const query_parser = parseAsJson<OutreachParams>().withDefault({type: ['outreach', 'training'], tags:[], expand_filter: false, status: ['active', 'recurring', 'past'], cfde_specific: false, past_limit: 5})
     const parsedParams: OutreachParams = query_parser.parseServerSide(searchParams?.filter)
-    const {tags, type, expand_filter, status=[], cfde_specific} = parsedParams
+    const {tags, type, expand_filter, status=['active', 'recurring', 'past'], cfde_specific, past_limit=5} = parsedParams
     let distinct_tags =(type && type.length > 0 ) ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]): [...type_tags('outreach'), ...type_tags('training')]
     const type_filter = type ? type.reduce((acc:Array<string>, i:string)=>([...acc, ...type_tags(i)]),[]).map(tag=>({tags: {
       path: [],
@@ -255,13 +260,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
           {
             OR: [
               {
-                end_date: {
-                  gte: now
-                }
-              },
-              {
-                end_date: null,
-                start_date: {
+                application_end: {
                   gte: now
                 }
               },
@@ -269,9 +268,20 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                 application_start: {
                   gte: now
                 },
-                end_date: null,
-                start_date: null,
+                application_end: null
               },
+              {
+                end_date: {
+                  gte: now
+                },
+                application_end: null
+              },
+              {
+                end_date: null,
+                start_date: {
+                  gte: now
+                }
+              }
             ]
           },
           ...where_tags,
@@ -280,11 +290,14 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       },
       orderBy: [
         {
+          start_date: { sort: 'asc', nulls: 'last' }
+        },
+        {
           end_date: { sort: 'asc', nulls: 'last' }
         },
         {
-          start_date: { sort: 'asc', nulls: 'last' }
-        }
+          application_end: { sort: 'asc', nulls: 'last' }
+        },
       ] 
     }): []
 
@@ -307,12 +320,36 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
         }
       },
     }): []
-    
-    const past = (status && (status.length === 0 || status.indexOf('past') > -1)) ? await prisma.outreach.findMany({
+    const r = await prisma.outreach.findMany({
+      where: {
+        active: true,
+        end_date: null,
+        start_date: null,
+        application_start: null,
+        AND: where_tags.length ? where_tags: undefined,
+      },
+      orderBy: {
+        start_date: { sort: 'desc', nulls: 'last' }
+      },
+      include: {
+        dccs: {
+            include: {
+                dcc: true
+            }
+        }
+      },
+    })
+
+    const past_count = await prisma.outreach.count({
       where: {
         AND: [
           {
             OR: [
+              {
+                application_end: {
+                  lt: now
+                }
+              },
               {
                 end_date: {
                   lt: now
@@ -323,14 +360,36 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                 start_date: {
                   lt: now
                 }
-              },
+              }
+            ],
+          },
+          ...where_tags
+        ],
+      }
+    })
+    
+    const past = (status && (status.length === 0 || status.indexOf('past') > -1)) ? await prisma.outreach.findMany({
+      take: past_limit,
+      where: {
+        AND: [
+          {
+            OR: [
               {
-                start_date: null,
-                end_date: null,
-                application_start: {
-                  lte: now
+                application_end: {
+                  lt: now
                 }
               },
+              {
+                end_date: {
+                  lt: now
+                }
+              },
+              {
+                end_date: null,
+                start_date: {
+                  lt: now
+                }
+              }
             ],
           },
           ...where_tags
@@ -351,7 +410,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
       <ClientExpander>
         <Grid container spacing={1} sx={{marginTop: 2}}>
           {expand_filter && <Grid item xs={12} sm={3}>
-            <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+            <Link href={`/info/training_and_outreach?filter=${JSON.stringify({...parsedParams, expand_filter: !(expand_filter)})}`}>
               <Button variant="outlined" color="secondary">
                 Collapse Filter
               </Button>
@@ -385,7 +444,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
               <Grid item xs={12}>
                 <Grid container justifyContent={"space-between"}>
                   <Grid item sx={{height: 50}}>
-                    { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({type, tags, expand_filter: !(expand_filter)})}`}>
+                    { !expand_filter && <Link href={`/info/training_and_outreach?filter=${JSON.stringify({...parsedParams, expand_filter: !(expand_filter)})}`}>
                       <Button variant="outlined" color="secondary">
                         Expand Filter
                       </Button>
@@ -429,7 +488,7 @@ async function Outreach({featured=true, orientation='horizontal', size=2, search
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} past={true} filter={parsedParams} expand_filter={expand_filter || false}/>
+                  <OutreachComponent now={now} outreach={past} featured={featured} orientation={orientation} filter={parsedParams} expand_filter={expand_filter || false} past_count={past_count} past_limit={past_limit}/>
                 </Grid>
               </>
           }

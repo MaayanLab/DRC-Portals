@@ -4,6 +4,11 @@ import singleton from '@/lib/singleton'
 export default singleton('prisma-slow', () => {
   if (process.env.NODE_ENV === 'development') {
     const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.PDP_DATABASE_URL || process.env.DATABASE_URL,
+        },
+      },
       log: [
         {
           emit: 'event',
@@ -16,5 +21,11 @@ export default singleton('prisma-slow', () => {
     })
     return prisma
   }
-  return new PrismaClient()
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.PDP_DATABASE_URL || process.env.DATABASE_URL,
+      },
+    },
+  })
 })
