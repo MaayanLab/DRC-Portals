@@ -136,6 +136,11 @@
                   "name": "dbgap_study_id",
                   "description": "The name of a dbGaP study ID governing access control for this file, compatible for comparison to RAS user-level access control metadata",
                   "type": "string"
+               },
+               {
+                  "name": "access_url",
+                  "description": "A DRS URI or otherwise a publicly accessible DRS-compatible URL",
+                  "type": "string"
                }
             ],
             "missingValues": [
