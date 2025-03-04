@@ -19,7 +19,7 @@ import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import { ResponsivePaper } from "./styled"
-import { Box } from "@mui/material"
+import InteractiveNav from "@/components/InteractiveNav"
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
@@ -68,7 +68,11 @@ export default async function Home() {
                     borderLeft: 2,
                     borderColor: "tertiary.main"
                   }}>
-                      <Stack spacing={2}>
+                      <Stack spacing={2} justifyContent={"center"}>
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">INTERACTIVE CFDE GRAPHIC</Typography>
+                        <div style={{marginLeft: 40}}>
+                          <InteractiveNav/>
+                        </div>
                         <Link href="/info/training_and_outreach"><Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
                         <Outreach orientation="vertical" size={1}/> 
                         {/* <Link href="/info/training_and_outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}

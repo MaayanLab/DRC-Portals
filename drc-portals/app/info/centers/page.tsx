@@ -14,8 +14,7 @@ import {
     Container
 } from '@mui/material';
 import MasonryClient from "@/components/misc/MasonryClient";
-
-
+import CentersComponent from "./centers";
 export default async function CenterLanding() {
     const centerOrder = [
         'The Data Resource Center',
@@ -57,9 +56,11 @@ export default async function CenterLanding() {
                     <MasonryClient defaultHeight={1500}>
                         {sortedCenters.map(center => (
                             center.label === 'centers' ? (
-                                <Grid sx={{ paddingLeft: 2, paddingRight: 2, height: '365px', display: 'flex', alignItems:'center', justifyContent:'center', backgroundColor:'white'}}>
-                                    <Image src='https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers-old.png' alt ='cfde-centers' width={300} height={300} />
-                                </Grid>
+                                <Card sx={{ paddingLeft: 2, paddingRight: 2 , height: '365px', position:"relative"}}>
+                                    <CardContent sx={{transform: 'scale(0.7)', position: "absolute", left: "35%", top: "10%"}}>
+                                        <CentersComponent/>
+                                    </CardContent>
+                                </Card>
                             ) : (
                                 <Card sx={{ paddingLeft: 2, paddingRight: 2 , height: '365px'}}>
 
