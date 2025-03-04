@@ -657,3 +657,64 @@ export function formatFileSize(bytes: number, locale = 'en-US') {
   return filesize(bytes, { locale });
 }
 
+// generate a string of columna names (separated by comma) to use in sql query for selecting column
+export function generateSelectColumnsStringPlain(tablename: string = '') {
+  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".")  : '';
+
+  // decorate and sanitize using SQL.template and SQL.raw
+  
+  const colnames: string[] = ['dcc_name', 'dcc_abbreviation', 'dcc_short_label', 
+    'project_local_id', 'taxonomy_name', 'taxonomy_id', 'disease_name', 'disease', 'anatomy_name', 
+    'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein', 
+    'compound_name', 'compound', 'data_type_name', 'data_type', 'assay_type_name', 'assay_type', 
+    'project_name', 'project_persistent_id'];
+    
+  const colnamesStringArray = colnames.map(col => tablenameWithDot + col);
+  return colnamesStringArray.join(", ");
+}
+
+// generate a string of columna names (separated by comma) to use in sql query for selecting column with modification
+export function generateSelectColumnsStringModified(tablename: string = '') {
+  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".")  : '';
+
+  // decorate and sanitize using SQL.template and SQL.raw
+  const colnamesString = 
+  "allres_full.dcc_name AS dcc_name," +
+  "allres_full.dcc_abbreviation AS dcc_abbreviation," + 
+  "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label," +
+  "COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id," +
+  "COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name," +
+  "SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id," +
+  "COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name," +
+  "REPLACE(allres_full.disease, ':', '_') AS disease," +
+  "COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name," +
+  "REPLACE(allres_full.anatomy, ':', '_') AS anatomy," +
+  "COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name," +
+  "REPLACE(allres_full.biofluid, ':', '_') AS biofluid," +
+  "COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name," +
+  "allres_full.gene AS gene," +
+  "COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name," +
+  "allres_full.protein AS protein," +
+  "COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name," +
+  "allres_full.substance_compound AS compound," +
+  "COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name," +
+  "REPLACE(allres_full.data_type_id, ':', '_') AS data_type," +
+  "COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name," +
+  "REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type," +
+  "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
+  "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
+  "allres_full.project_persistent_id AS project_persistent_id";
+
+  return colnamesString;
+}
+
+// generate order by string
+export function generateOrderByString(rankColname: string = 'rank') {
+  let orderByRankStr = ((rankColname) && (rankColname.length >0)) ? rankColname + " DESC, " : '';
+
+  // decorate and sanitize using SQL.template and SQL.raw
+  const OrderByString: string = orderByRankStr +
+  "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, " +
+    "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name";
+  return OrderByString;
+}

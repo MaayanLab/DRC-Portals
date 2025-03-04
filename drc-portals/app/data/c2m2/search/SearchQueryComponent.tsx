@@ -154,16 +154,8 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
         COALESCE(allres_full.project_name,    concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
           SPLIT_PART(allres_full.dcc_abbreviation, '_', 1)) ) AS project_name,
-        /**** c2m2.project.description AS project_description, ****/
         allres_full.project_persistent_id as project_persistent_id
-        /**** UNNEST(allres_full.bios_array) as biosample_local_id, ****/ /**** SLOWER BUT ACCURATE ****/
-        /**** allres_full.bios_array as bios_array, ****/ /**** FASTER but later, count incorrect if biosample in several collection; See matching line in allres CTE ****/
-        /**** allres_full.subject_local_id as subject_local_id, ****/
-        /**** allres_full.collection_local_id as collection_local_id ****/
-      /**** FROM c2m2.ffl_biosample_collection_cmp as allres_full ****/
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} as allres_full 
-      
-      /**** Mano: 2024/08/09: Trying to combine allres_full and allres into one CTE ****/  
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
     ),
