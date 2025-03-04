@@ -213,6 +213,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       },
       taxonomy: resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified"
         ? {
+          id: resultsRec.taxonomy_id,
           name: resultsRec.taxonomy_name,
           url: `https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`,
           description: resultsRec.taxonomy_description || null,
@@ -220,6 +221,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       sampleSource: resultsRec?.anatomy_name && resultsRec.anatomy_name !== "Unspecified"
         ? {
+          id: resultsRec.anatomy,
           name: resultsRec.anatomy_name,
           url: `http://purl.obolibrary.org/obo/${resultsRec.anatomy}`,
           description: resultsRec.anatomy_description || null,
@@ -227,6 +229,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       biofluid: resultsRec?.biofluid_name && resultsRec.biofluid_name !== "Unspecified"
         ? {
+          id: resultsRec.biofluid,
           name: resultsRec.biofluid_name,
           url: `http://purl.obolibrary.org/obo/${resultsRec.biofluid}`,
           description: resultsRec.biofluid_description || null,
@@ -241,6 +244,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       gene: resultsRec?.gene_name && resultsRec.gene_name !== "Unspecified"
         ? {
+          id: resultsRec.gene,
           name: resultsRec.gene_name,
           url: `http://www.ensembl.org/id/${resultsRec.gene}`,
           description: resultsRec.gene_description ? capitalizeFirstLetter(resultsRec.gene_description) : null,
@@ -248,6 +252,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       protein: resultsRec?.protein_name && resultsRec.protein_name !== "Unspecified"
         ? {
+          id: resultsRec.protein,
           name: resultsRec.protein_name,
           url: `https://www.uniprot.org/uniprotkb/${resultsRec.protein}`,
           description: resultsRec.protein_description ? capitalizeFirstLetter(resultsRec.protein_description) : null,
@@ -255,12 +260,13 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       compound: resultsRec?.compound_name && resultsRec.compound_name !== "Unspecified"
         ? {
+          id: resultsRec.compound,
           name: resultsRec.compound_name,
           url: `http://www.ensembl.org/id/${resultsRec.compound}`,
           description: resultsRec.compound_description ? capitalizeFirstLetter(resultsRec.compound_description) : null,
         }
         : null,
-      dataType: resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified"
+      data_type: resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified"
         ? {
           name: resultsRec.data_type_name,
           url:
@@ -269,7 +275,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               : `http://edamontology.org/${resultsRec.data_type}`,
         }
         : null,
-      assayType: resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified"
+      assay_type: resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified"
         ? {
           id: resultsRec.assay_type,
           name: resultsRec.assay_type_name,
