@@ -13,7 +13,6 @@ interface FileProjTableResult {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
-        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -29,6 +28,9 @@ interface FileProjTableResult {
         bundle_collection_id_namespace: string,
         bundle_collection_local_id: string,
         dbgap_study_id: string,
+        access_url: string,
+        file_format_name: string,
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -39,7 +41,6 @@ interface FileProjTableResult {
         project_id_namespace: string,
         project_local_id: string,
         persistent_id: string,
-        access_url: string,
         creation_time: string,
         size_in_bytes: bigint,
         uncompressed_size_in_bytes: bigint,
@@ -55,6 +56,9 @@ interface FileProjTableResult {
         bundle_collection_id_namespace: string,
         bundle_collection_local_id: string,
         dbgap_study_id: string,
+        access_url: string,
+        file_format_name: string,
+        compression_format_name: string,
         data_type_name: string,
         assay_type_name: string,
         analysis_type_name: string
@@ -130,11 +134,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
             ),
             file_table AS (
             SELECT DISTINCT 
-                f.id_namespace,
-                f.local_id,
-                f.project_id_namespace, f.project_local_id, f.persistent_id, f.access_url, f.creation_time,
-                f.size_in_bytes, f.uncompressed_size_in_bytes, f.sha256, f.md5, f.filename,
-                f.file_format, ff.name AS compression_format,  f.mime_type, f.dbgap_study_id,
+                f.*,
+                ff.name AS file_format_name, fff.name AS compression_format_name,
                 ui.data_type_name, ui.assay_type_name, aty.name AS analysis_type_name /****/
                 FROM /* c2m2.file */ file_table_keycol AS f INNER JOIN unique_info ui ON 
                 ((f.project_local_id = ui.project_local_id)
@@ -142,7 +143,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                     AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL))  /****/
                     AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
                 LEFT JOIN c2m2.analysis_type AS aty ON f.analysis_type = aty.id
-                LEFT JOIN c2m2.file_format AS ff ON f.compression_format = ff.id
+                LEFT JOIN c2m2.file_format AS ff ON f.file_format = ff.id
+                LEFT JOIN c2m2.file_format AS fff ON f.compression_format = fff.id
             limit ${file_count_limit_proj}
             )
             , 
@@ -190,10 +192,10 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const fileProjTableTitle = fileProj_table_label_base + ": " + get_partial_list_string(countFile ?? 0, count_file_table_withlimit, file_count_limit_proj);
 
 
-        const priorityFileCols = ['filename', 'file_local_id', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
+        const priorityFileCols = ['filename', 'file_local_id', 'data_type_name', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
 
-        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256']; // added md5 and sha256 to ignore columns
+        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileProjPrunedData,
             columnNames: fileProjColNames,
