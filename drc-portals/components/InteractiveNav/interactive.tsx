@@ -152,9 +152,14 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 									transform: `translate(${x}px, ${y}px)`,
 								}}
 							>
-								<Link href={additional_label.indexOf(dcc.short_label || '') > -1 ? dcc.homepage: `/info/dcc/${dcc.short_label}`}>
+								{ additional_label.indexOf(dcc.short_label || '') > -1 ?
+								<Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
+									<Image src={dcc.icon || ''} alt={dcc.short_label || ''} width={70} height={70}/>
+								</Link>:
+								<Link href={`/info/dcc/${dcc.short_label}`}>
 									<Image src={dcc.icon || ''} alt={dcc.short_label || ''} width={70} height={70}/>
 								</Link>
+								}
 							</Button>
 						</Tooltip>
 					)
@@ -174,11 +179,11 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 								height: 190,
 							}}>
 								<Link href={center.endpoint}>
-								<Image src={`/img/interactive/${center.label}.png`} alt={center.label} fill={true} style={{objectFit: "contain", transform: `rotate(${center.rotate || '0deg'})`}}/>
-								<Typography sx={{color: "#FFF", position: "absolute", textTransform: "uppercase", ...(center.text_position || {})}}>
-									<b>{center.label}</b>
-								</Typography>
-								<Image src={`/img/interactive/${center.label} 1.png`} alt={center.label} width={40} height={40} style={{position: "absolute", zIndex: 100, ...(center.image_position || {})}}/>
+									<Image src={`/img/interactive/${center.label}.png`} alt={center.label} fill={true} style={{objectFit: "contain", transform: `rotate(${center.rotate || '0deg'})`}}/>
+									<Typography sx={{color: "#FFF", position: "absolute", textTransform: "uppercase", ...(center.text_position || {})}}>
+										<b>{center.label}</b>
+									</Typography>
+									<Image src={`/img/interactive/${center.label} 1.png`} alt={center.label} width={40} height={40} style={{position: "absolute", zIndex: 100, ...(center.image_position || {})}}/>
 								</Link>
 							</Container>
 						</Button>
