@@ -538,6 +538,11 @@ model Center {
   icon              String?
   grant_num         String?
   active            Boolean   @default(true)
+  project_title     String @default("")
+  principal_investigators  Json?
+  institution       Json?
+  press_release     Json?
+  video_tutorial    String?
   outreach          CenterOutreach[]
   publication       CenterPublications[]
 
