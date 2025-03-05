@@ -538,6 +538,11 @@ model Center {
   icon              String?
   grant_num         String?
   active            Boolean   @default(true)
+  project_title     String @default("")
+  principal_investigators  Json?
+  institution       Json?
+  press_release     Json?
+  video_tutorial    String?
   outreach          CenterOutreach[]
   publication       CenterPublications[]
 
@@ -554,11 +559,11 @@ model CenterOutreach {
 }
 
 model CenterPublications {
-  publication_id  String    @id
+  publication_id  String
   center_id    String
   center       Center    @relation(fields: [center_id], references: [id])
-  outreach     Publication  @relation(fields: [publication_id], references: [id])
-
+  publication     Publication  @relation(fields: [publication_id], references: [id])
+  @@id([publication_id, center_id])
   @@map("center_publications")
 }
 
