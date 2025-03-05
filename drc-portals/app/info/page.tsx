@@ -69,7 +69,7 @@ export default async function Home() {
                     borderColor: "tertiary.main"
                   }}>
                       <Stack spacing={2} justifyContent={"center"}>
-                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">INTERACTIVE CFDE GRAPHIC</Typography>
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
                         <div style={{marginLeft: 40}}>
                           <InteractiveNav/>
                         </div>
