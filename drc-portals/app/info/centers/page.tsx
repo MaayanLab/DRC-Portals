@@ -100,16 +100,16 @@ export default async function CenterLanding() {
                                     />
 
                                     <CardContent sx={{ paddingTop: '0', }}>
-                                        <div className="h-[60px] flex items-center">
+                                        {/* <div className="h-[60px] flex items-center">
                                             <Typography
                                                 className="overflow-hidden"
-                                                variant="caption"
+                                                variant="body1"
                                                 color="secondary"
-                                                style={{ fontWeight: 600 }}
+                                                // style={{ fontWeight: 600 }}
                                             >
                                                 {center.short_description}
                                             </Typography>
-                                        </div>
+                                        </div> */}
                                         <Typography
                                             variant={'body2'}
                                             color="secondary"
@@ -121,7 +121,7 @@ export default async function CenterLanding() {
                                                 overflow: 'hidden'
                                             }}
                                         >
-                                            {center.description}
+                                            {center.short_description}
                                         </Typography>
                                     </CardContent>
 

@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import React from "react";
 
 export function LinkRenderer(props: any) {
@@ -63,5 +64,13 @@ export function ThRenderer(props: any) {
     <th className="whitespace-nowrap" style={props.style}>
       {props.children}
     </th>
+  )
+}
+
+export function PRenderer(props: any) {
+  return (
+    <Typography variant={"subtitle2"} sx={{marginBottom: 2, textAlign: "justify"}}>
+      {props.children}
+    </Typography>
   )
 }
