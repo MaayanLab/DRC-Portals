@@ -24,6 +24,9 @@ import AnatomyFilterComponent from './AnatomyFilterComponent';
 import BiofluidFilterComponent from './BiofluidFilterComponent';
 import TaxonomyFilterComponent from './TaxonomyFilterComponent';
 import DiseaseFilterComponent from './DiseaseFilterComponent';
+import SubjectEthnicityFilterComponent from './SubjectEthnicityFilterComponent';
+import SubjectSexFilterComponent from './SubjectSexFilterComponent';
+import SubjectRaceFilterComponent from './SubjectRaceFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
 import DownloadAllButton from '../DownloadAllButton';
@@ -87,6 +90,12 @@ const doQueryCount = React.cache(async (props: PageProps) => {
           REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
           COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
           REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
+          COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
+          allres_full.subject_ethnicity AS subject_ethnicity,
+          COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
+          allres_full.subject_sex AS subject_sex,
+          COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
+          allres_full.subject_race AS subject_race,
           COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
               SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
           allres_full.project_persistent_id AS project_persistent_id
@@ -94,7 +103,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
       ORDER BY  rank DESC,  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-          protein_name, compound_name, data_type_name, assay_type_name
+          protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name
   ),
     
     
@@ -152,6 +161,12 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
         COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
         REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
+        COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
+        allres_full.subject_ethnicity AS subject_ethnicity,
+        COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
+        allres_full.subject_sex AS subject_sex,
+        COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
+        allres_full.subject_race AS subject_race,
         COALESCE(allres_full.project_name,    concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
           SPLIT_PART(allres_full.dcc_abbreviation, '_', 1)) ) AS project_name,
         allres_full.project_persistent_id as project_persistent_id
@@ -185,11 +200,17 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         data_type,
         assay_type_name,
         assay_type,
+        subject_ethnicity_name,
+        subject_ethnicity,
+        subject_sex_name,
+        subject_sex,
+        subject_race_name,
+        subject_race,
         project_name,
         project_persistent_id
       FROM allres_exp 
       ORDER BY rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-        protein_name, compound_name, data_type_name, assay_type_name
+        protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name
       OFFSET ${super_offset}
       LIMIT ${super_limit} 
     ),
@@ -329,6 +350,18 @@ export async function SearchQueryComponent(props: PageProps) {
 
             <React.Suspense fallback={<>Loading..</>}>
               <AssayTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <SubjectEthnicityFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <SubjectSexFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <SubjectRaceFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
             <React.Suspense fallback={<>Loading..</>}>

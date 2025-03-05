@@ -283,6 +283,8 @@ export const tableToName = [
   { table: 'subject_disease', label: 'Subject - Disease' },
   { table: 'subject_in_collection', label: 'Subject in Collection' },
   { table: 'subject_phenotype', label: 'Subject - Phenotype' },
+  { table: 'subject_ethnicity', label: 'Subject - Ethnicity' },
+  { table: 'subject_sex', label: 'Subject - Sex' },
   { table: 'subject_race', label: 'Subject - Race' },
   { table: 'subject_role_taxonomy', label: 'Subject Role Taxonomy' },
   { table: 'subject_substance', label: 'Subject - Substance' },
@@ -308,7 +310,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         // ${t.entity_type.replace(/'/g, "''")} is not needed: ${t.entity_type} is enough.
         const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name',
           'ncbi_taxonomy_name', 'anatomy_name', 'biofluid_name', 'gene_name', 'protein_name', 'compound_name',
-          'data_type_name', 'assay_type_name'];
+          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name'];
         
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate upper and lower cases
@@ -353,7 +355,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate  upper case and lower case entity names
@@ -398,7 +400,7 @@ export function generateFilterClauseFromtParam(t: { type: string; entity_type: s
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race'];
 
         if (item.entity_type !== "Unspecified") {
           typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" ILIKE ${item.entity_type}`);
@@ -662,7 +664,7 @@ export function generateSelectColumnsStringPlain(tablename: string = '') {
   let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".")  : '';
 
   // decorate and sanitize using SQL.template and SQL.raw
-  
+
   const colnames: string[] = ['dcc_name', 'dcc_abbreviation', 'dcc_short_label', 
     'project_local_id', 'taxonomy_name', 'taxonomy_id', 'disease_name', 'disease', 'anatomy_name', 
     'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein', 
