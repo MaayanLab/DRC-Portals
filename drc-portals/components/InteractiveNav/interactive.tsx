@@ -112,7 +112,10 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 		ExRNA: 'Extracellular RNA communication',
 		SenNet: 'Mapping senescent cells',
 		IDG: 'Illuminating GPCRs, kinases, ion channels, & other drug targets',
-		H3Africa: 'Improving the health of African populations'
+		H3Africa: 'Improving the health of African populations',
+		SMaHT: "Mapping somatic mutations' health implications",
+		ComPASS: "Community-led research on structural drivers of health",
+		NPH: "Predictive algorithms to advance nutrition research"
 	  }
 	const additional = [
 		{
