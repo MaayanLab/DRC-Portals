@@ -78,7 +78,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     // Generate the query clause for filters
 
     const filterClause = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
-
+    console.log("generated FilterClause in RecordInfoQuery");
     // To measure time taken by different parts
     const t0: number = performance.now();
 
@@ -190,12 +190,13 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
               anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+              data_type, assay_type_name, assay_type, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
+              subject_race_name, subject_race, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
               allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
             /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, biofluid_name, project_name, project_description, rank*/
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-              protein_name, compound_name, data_type_name, assay_type_name /*rank DESC*/
+              protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name /*rank DESC*/
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
@@ -289,6 +290,24 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           id: resultsRec.assay_type,
           name: resultsRec.assay_type_name,
           url: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`,
+        }
+        : null,
+      subject_ethnicity: resultsRec?.subject_ethnicity_name && resultsRec.subject_ethnicity_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_ethnicity,
+          name: resultsRec.subject_ethnicity_name
+        }
+        : null,
+        subject_sex: resultsRec?.subject_sex_name && resultsRec.subject_sex_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_sex,
+          name: resultsRec.subject_sex_name
+        }
+        : null,
+        subject_race: resultsRec?.subject_race_name && resultsRec.subject_race_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_race,
+          name: resultsRec.subject_race_name
         }
         : null,
     };
@@ -391,9 +410,26 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.assay_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.assay_type_name)}
           </Link>
-          : /* resultsRec?.data_type_name || */ ''
+          : ''
       },
-
+      {
+        label: 'Subject ethnicity',
+        value: resultsRec?.subject_ethnicity_name && resultsRec?.subject_ethnicity_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_ethnicity_name)
+          : ''
+      },
+      {
+        label: 'Subject sex',
+        value: resultsRec?.subject_sex_name && resultsRec?.subject_sex_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_sex_name)
+          : ''
+      },
+      {
+        label: 'Subject race',
+        value: resultsRec?.subject_race_name && resultsRec?.subject_race_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_race_name)
+          : ''
+      },
     ];
 
 
