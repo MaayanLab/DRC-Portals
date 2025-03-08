@@ -247,6 +247,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       disease: resultsRec?.disease_name && resultsRec.disease_name !== "Unspecified"
         ? {
+          id: resultsRec.disease,
           name: resultsRec.disease_name,
           url: `http://purl.obolibrary.org/obo/${resultsRec.disease}`,
           description: resultsRec.disease_description || null,
@@ -278,6 +279,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         : null,
       data_type: resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified"
         ? {
+          id: resultsRec.data_type,
           name: resultsRec.data_type_name,
           url:
             resultsRec.data_type?.includes("ILX_") || resultsRec.data_type?.includes("ilx_")
