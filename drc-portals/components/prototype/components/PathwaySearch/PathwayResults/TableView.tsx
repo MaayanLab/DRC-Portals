@@ -294,7 +294,7 @@ export default function TableView(cmpProps: TableViewProps) {
             <TableRow>
               <StyledTableCell
                 padding="checkbox"
-                sx={{ position: "sticky", left: 0, zIndex: 3 }}
+                sx={{ position: "sticky", left: 0, zIndex: 4 }}
               >
                 <Checkbox
                   indeterminate={
