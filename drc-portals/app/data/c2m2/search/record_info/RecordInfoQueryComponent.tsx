@@ -106,10 +106,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
-        subject_ethnicity_name: string, 
-        subject_ethnicity: string, 
-        subject_sex_name: string, 
-        subject_sex: string, 
+        subject_ethnicity_name: string,
+        subject_ethnicity: string,
+        subject_sex_name: string,
+        subject_sex: string,
         subject_race_name: string,
         subject_race: string,
         project_name: string,
@@ -209,17 +209,24 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
 
 
-    // The following items are present in metadata
+
+    //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
-
+    // The following items are present in metadata and downloadMetadata
     const downloadMetadata = {
       project: {
         id: resultsRec?.project_local_id || "",
         name: resultsRec?.project_name || "",
         url: resultsRec?.project_persistent_id || null,
         description: resultsRec?.project_description ?? ""
+      },
+      dcc: {
+        name: resultsRec?.dcc_name || "",
+        abbreviation: resultsRec?.dcc_abbreviation || "",
+        short_label: resultsRec?.dcc_short_label || "",
+        // url: resultsRec?.dcc_short_label ? `/info/dcc/${getdccCFlink(resultsRec?.dcc_short_label)}` : "",
       },
       taxonomy: resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified"
         ? {
@@ -300,13 +307,13 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           name: resultsRec.subject_ethnicity_name
         }
         : null,
-        subject_sex: resultsRec?.subject_sex_name && resultsRec.subject_sex_name != "Unspecified"
+      subject_sex: resultsRec?.subject_sex_name && resultsRec.subject_sex_name != "Unspecified"
         ? {
           id: resultsRec.subject_sex,
           name: resultsRec.subject_sex_name
         }
         : null,
-        subject_race: resultsRec?.subject_race_name && resultsRec.subject_race_name != "Unspecified"
+      subject_race: resultsRec?.subject_race_name && resultsRec.subject_race_name != "Unspecified"
         ? {
           id: resultsRec.subject_race,
           name: resultsRec.subject_race_name
@@ -328,6 +335,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)
         ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
         : resultsRec?.project_persistent_id ? { label: 'Project URL', value: resultsRec?.project_persistent_id } : null,
+      {
+        label: 'DCC',
+        value: resultsRec?.dcc_name
+      },
       {
         label: 'Taxonomy',
         value: resultsRec?.taxonomy_name && resultsRec?.taxonomy_name !== "Unspecified"
