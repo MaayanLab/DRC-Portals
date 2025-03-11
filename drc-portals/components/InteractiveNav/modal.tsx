@@ -30,7 +30,7 @@ export default function InteractiveNavModal({children, fab}: {children: React.Re
   return (
     <div>
       <Wrapper onClick={handleOpen}>
-		<Image src="/img/interactive/g2.png" alt={'nav-but'} width={120} height={120}/>
+		<Image src="/img/interactive/cfde_unified_icon.svg" alt={'nav-but'} width={120} height={120}/>
 	  </Wrapper>
       <Modal
         open={open}
