@@ -92,7 +92,7 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 			}
 		},
 	]
-	const pie_chunk = 2*Math.PI/dccs.length
+	
 	const radius = 280
 	const descriptions: {[key:string]: string} = {
 		KOMP2: 'Knockout Mouse Phenotyping',
@@ -134,11 +134,16 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 			homepage: "https://commonfund.nih.gov/nutritionforprecisionhealth"
 		}
 	]
-
+	
 	const additional_label = ['NPH', 'ComPASS', 'SMaHT']
+	const ordering = [ "Kids First", "A2CPS", "HuBMAP", "ComPASS", "4DN", "LINCS", "IDG", "NPH", 
+		"GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",]
+	const all_dccs: {[key:string]: any} = [...dccs, ...additional].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
+	const pie_chunk = 2*Math.PI/(ordering.length)
 	return (
 		<Container sx={{position: "relative", width: 200}}>
-				{!disableDCC && [...dccs, ...additional].sort((a,b)=>(a.short_label || '') > (b.short_label || '') ? -1: 1).map((dcc, i)=>{
+				{!disableDCC && ordering.map((dcc_name, i)=>{
+					const dcc = all_dccs[dcc_name as string]
 					const angle = pie_chunk * i
 					const x = radius * Math.cos(angle)
 					const y = radius * Math.sin(angle) + 400
