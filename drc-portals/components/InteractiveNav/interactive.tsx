@@ -125,7 +125,7 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 		},
 		{
 			short_label: "ComPASS",
-			icon: "/img/interactive/compass.png",
+			icon: "/img/interactive/compass.svg",
 			homepage: "https://commonfund.nih.gov/compass"
 		},
 		{
