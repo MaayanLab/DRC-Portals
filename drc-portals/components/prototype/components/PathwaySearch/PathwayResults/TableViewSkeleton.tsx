@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 
 import {
+  PATHWAY_SEARCH_LIMIT_CHOICES,
   StyledDataCell,
   StyledTableCell,
 } from "@/components/prototype/constants/pathway-search";
@@ -118,7 +119,7 @@ export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
 
           <FormControl size="small">
             <Select disabled value={limit}>
-              {[5, 10, 25].map((rowsPerPage) => (
+              {PATHWAY_SEARCH_LIMIT_CHOICES.map((rowsPerPage) => (
                 <MenuItem key={rowsPerPage} value={rowsPerPage}>
                   {rowsPerPage}
                 </MenuItem>

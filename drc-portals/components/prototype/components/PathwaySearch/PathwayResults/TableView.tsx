@@ -56,6 +56,7 @@ import {
   getOntologyLink,
 } from "@/components/prototype/utils/shared";
 import {
+  PATHWAY_SEARCH_LIMIT_CHOICES,
   StyledDataCell,
   StyledTableCell,
 } from "@/components/prototype/constants/pathway-search";
@@ -398,7 +399,7 @@ export default function TableView(cmpProps: TableViewProps) {
 
           <FormControl size="small">
             <Select value={limit} onChange={handleLimitChange}>
-              {[5, 10, 25].map((rowsPerPage) => (
+              {PATHWAY_SEARCH_LIMIT_CHOICES.map((rowsPerPage) => (
                 <MenuItem key={rowsPerPage} value={rowsPerPage}>
                   {rowsPerPage}
                 </MenuItem>
