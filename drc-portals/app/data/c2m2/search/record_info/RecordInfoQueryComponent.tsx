@@ -496,7 +496,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
 
         <React.Suspense fallback={<>Loading..</>}>
-          <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col} />
+          <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileColTblOffset} file_count_limit_col={file_count_limit_col} />
         </React.Suspense>
       </LandingPageLayout>
     )
