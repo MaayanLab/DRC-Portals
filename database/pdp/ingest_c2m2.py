@@ -144,10 +144,8 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           pagerank=1,
         )
         relation.writerow(dict(
-          source_type='dcc_asset',
           source_id=dcc_asset_id,
           predicate='dcc',
-          target_type='dcc',
           target_id=dcc_id,
         ))
       else:
@@ -189,10 +187,8 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
               pagerank=1,
             ))
             relation.writerow(dict(
-              source_type=source_type,
               source_id=source_id,
               predicate='is_from_dcc_asset',
-              target_type='dcc_asset',
               target_id=dcc_asset_id,
             ))
             dcc_assets_[dcc_asset_id]['pagerank'] += 1
@@ -212,10 +208,8 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
             #
             try:
               relation.writerow(dict(
-                source_type=source_type,
                 source_id=source_id,
                 predicate=f"c2m2__{source_type}__{target_type}",
-                target_type=target_type,
                 target_id=target_id,
               ))
             except AssertionError:

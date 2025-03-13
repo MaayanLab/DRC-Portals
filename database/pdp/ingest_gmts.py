@@ -52,10 +52,8 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
         attributes=json.dumps(dict(label=gmt['filename'])),
       ))
       relation.writerow(dict(
-        source_type='dcc_asset',
         source_id=dcc_asset_id,
         predicate='dcc',
-        target_type='dcc',
         target_id=dcc_id,
       ))
       library_genes = set()
@@ -71,17 +69,13 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
           pagerank=1,
         )
         relation.writerow(dict(
-          source_type='gene_set_library',
           source_id=gene_set_library_id,
           predicate='is_from_dcc_asset',
-          target_type='dcc_asset',
           target_id=dcc_asset_id,
         ))
         relation.writerow(dict(
-          source_type='gene_set_library',
           source_id=gene_set_library_id,
           predicate='dcc',
-          target_type='dcc',
           target_id=dcc_id,
         ))
       else:
@@ -104,17 +98,13 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
             pagerank=1,
           )
           relation.writerow(dict(
-            source_type='gene_set',
             source_id=gene_set_id,
             predicate='is_in_gene_set_library',
-            target_type='gene_set_library',
             target_id=gene_set_library_id,
           ))
           relation.writerow(dict(
-            source_type='gene_set',
             source_id=gene_set_id,
             predicate='dcc',
-            target_type='dcc',
             target_id=dcc_id,
           ))
           #
@@ -141,19 +131,15 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
               #
               if gene_id not in library_genes:
                 relation.writerow(dict(
-                  source_type='gene',
                   source_id=gene_id,
                   predicate='is_in_gene_set_library',
-                  target_type='gene_set_library',
                   target_id=gene_set_library_id,
                 ))
                 library_genes.add(gene_id)
                 gene_set_library_node['pagerank'] += 1
               relation.writerow(dict(
-                source_type='gene',
                 source_id=gene_id,
                 predicate='is_in_gene_set',
-                target_type='gene_set',
                 target_id=gene_set_id,
               ))
               gene_set_node['pagerank'] += 1

@@ -173,31 +173,23 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                     )),
                   ))
                   relation.writerow(dict(
-                    source_type='kg_assertion',
                     source_id=assertion_id,
                     predicate='kg_assertion_relation',
-                    target_type='kg_relation',
                     target_id=relation_id,
                   ))
                   relation.writerow(dict(
-                    source_type='kg_assertion',
                     source_id=assertion_id,
                     predicate='kg_assertion_source',
-                    target_type=source_type,
                     target_id=source_id,
                   ))
                   relation.writerow(dict(
-                    source_type='kg_assertion',
                     source_id=assertion_id,
                     predicate='kg_assertion_target',
-                    target_type=target_type,
                     target_id=target_id,
                   ))
                   relation.writerow(dict(
-                    source_type='kg_assertion',
                     source_id=assertion_id,
                     predicate='dcc',
-                    target_type='dcc',
                     target_id=dcc_id,
                   ))
 

@@ -46,10 +46,8 @@ for _, file in tqdm(dcc_assets.iterrows(), total=dcc_assets.shape[0], desc='Proc
         pagerank=1,
       ))
       relation.writerow(dict(
-        source_type='dcc_asset',
         source_id=dcc_asset_id,
         predicate='dcc',
-        target_type='dcc',
         target_id=dcc_id,
       ))
       node.writerows(dccs.values())

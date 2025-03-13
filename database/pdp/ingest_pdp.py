@@ -21,7 +21,7 @@ class RelationWriter:
 
 class RelationHelper:
   def __init__(self):
-    self.helper = TableHelper('pdp.relationship', ('source_type', 'source_id', 'predicate', 'target_type', 'target_id'), pk_columns=('predicate', 'source_id', 'target_id'))
+    self.helper = TableHelper('pdp.relationship', ('source_id', 'predicate', 'target_id'), pk_columns=('predicate', 'source_id', 'target_id'))
   @contextlib.contextmanager
   def writer(self):
     with self.helper.writer() as relation:
@@ -51,7 +51,7 @@ class NodeWriter:
 
 class NodeHelper:
   def __init__(self):
-    self.helper = TableHelper('pdp.entity', ('type', 'id', 'attributes', 'pagerank',), pk_columns=('type', 'id',), add_columns=('pagerank',))
+    self.helper = TableHelper('pdp.entity', ('type', 'id', 'attributes', 'pagerank',), pk_columns=('id',), add_columns=('pagerank',))
   @contextlib.contextmanager
   def writer(self):
     with self.helper.writer() as node:
