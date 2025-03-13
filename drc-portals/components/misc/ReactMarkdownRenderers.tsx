@@ -74,3 +74,11 @@ export function PRenderer(props: any) {
     </Typography>
   )
 }
+
+export function PRendererNarrow(props: any) {
+  return (
+    <Typography variant={"subtitle2"} sx={{marginBottom: 2, textAlign: "justify", width: 233}}>
+      {props.children}
+    </Typography>
+  )
+}
