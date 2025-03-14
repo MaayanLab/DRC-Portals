@@ -72,8 +72,8 @@ interface GraphPathwaySearchProps {
   onPruneConfirm: () => void;
   onPruneCancel: () => void;
   onReset: () => void;
-  onExport: () => void;
-  onImport: (files: ChangeEvent<HTMLInputElement>) => void;
+  onDownload: () => void;
+  onUpload: (files: ChangeEvent<HTMLInputElement>) => void;
   onSelectedNodeChange: (
     node: PathwaySearchNode | undefined,
     reason: string
@@ -88,8 +88,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onPruneConfirm,
     onPruneCancel,
     onReset,
-    onExport,
-    onImport,
+    onDownload,
+    onUpload,
     onSearchBarSubmit,
     onSearchBtnClick,
     onSelectedNodeChange,
@@ -173,9 +173,9 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       },
       () => {
         return (
-          <Fragment key="pathway-search-chart-toolbar-export-pathway">
-            <Tooltip title="Export Pathway" arrow>
-              <IconButton aria-label="export-pathway" onClick={onExport}>
+          <Fragment key="pathway-search-chart-toolbar-download-pathway">
+            <Tooltip title="Download Pathway" arrow>
+              <IconButton aria-label="download-pathway" onClick={onDownload}>
                 <FileDownloadIcon />
               </IconButton>
             </Tooltip>
@@ -184,20 +184,20 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       },
       () => {
         return (
-          <Fragment key="pathway-search-chart-toolbar-import-pathway">
-            <Tooltip title="Import Pathway" arrow>
-              <IconButton aria-label="export-pathway" component="label">
+          <Fragment key="pathway-search-chart-toolbar-upload-pathway">
+            <Tooltip title="Upload Pathway" arrow>
+              <IconButton aria-label="upload-pathway" component="label">
                 <FileUploadIcon />
                 <VisuallyHiddenInput
                   accept=".json,application/json"
-                  id="pathway-import-input"
+                  id="pathway-upload-input"
                   type="file"
                   onClick={(event) => {
                     // Reset value on each click, this allows the user to submit the same file multiple times
                     const target = event.target as HTMLInputElement;
                     target.value = "";
                   }}
-                  onChange={onImport}
+                  onChange={onUpload}
                 />
               </IconButton>
             </Tooltip>
@@ -205,7 +205,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         );
       },
     ],
-    [handleReset, onExport, onImport]
+    [handleReset, onDownload, onUpload]
   );
 
   const customEvents: CytoscapeEvent[] = useMemo(

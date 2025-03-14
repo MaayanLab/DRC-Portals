@@ -305,8 +305,8 @@ export default function GraphPathway() {
             onPruneSelected={handlePruneSelected}
             onPruneConfirm={handlePruneConfirm}
             onPruneCancel={handlePruneCancel}
-            onExport={handleExport}
-            onImport={handleImport}
+            onDownload={handleExport}
+            onUpload={handleImport}
             onSearchBarSubmit={handleSearchBarSubmit}
             onSearchBtnClick={handleSearchBtnClick}
             onSelectedNodeChange={handleSelectedNodeChange}
