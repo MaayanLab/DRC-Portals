@@ -68,15 +68,6 @@ export const RelationshipElement = styled(GraphElement)(() => ({
   borderWidth: "thin",
 }));
 
-export const AnonymousNodeElement = styled(Box)(() => ({
-  height: "1.9em",
-  width: "1.9em",
-  border: "1px solid #797979",
-  borderRadius: "50%",
-  marginTop: "3px",
-  marginBottom: "3px",
-}));
-
 const EntityText = styled(Typography)(() => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -180,15 +171,27 @@ export const SUBJECT_RELATED_NODE_CLASS = "subject-related-node";
 export const TERM_NODE_CLASS = "term-node";
 
 // Entity styles
-export const ADMIN_NODE_COLOR = "#ffc454";
+export const ADMIN_NODE_COLOR = "#C78100";
 export const CONTAINER_NODE_COLOR = "#4c8eda";
-export const FILE_NODE_COLOR = "#ee5f5f";
-export const SUBJECT_NODE_COLOR = "#e9adc2";
-export const BIOSAMPLE_NODE_COLOR = "#d4c1a6";
+export const FILE_NODE_COLOR = "#8F8F8F";
+export const SUBJECT_NODE_COLOR = "#DA6C93";
+export const BIOSAMPLE_NODE_COLOR = "#A47ECD";
 export const TERM_NODE_COLOR = "#569480";
 export const FILE_RELATED_NODE_COLOR = TERM_NODE_COLOR;
 export const SUBJECT_RELATED_NODE_COLOR = TERM_NODE_COLOR;
 export const BIOSAMPLE_RELATED_NODE_COLOR = TERM_NODE_COLOR;
+
+// Entity text styles
+export const ADMIN_TEXT_COLOR = "#000";
+export const CONTAINER_TEXT_COLOR = "#000";
+export const FILE_TEXT_COLOR = "#000";
+export const SUBJECT_TEXT_COLOR = "#000";
+export const BIOSAMPLE_TEXT_COLOR = "#000";
+export const TERM_TEXT_COLOR = "#000";
+export const FILE_RELATED_TEXT_COLOR = TERM_TEXT_COLOR;
+export const SUBJECT_RELATED_TEXT_COLOR = TERM_TEXT_COLOR;
+export const BIOSAMPLE_RELATED_TEXT_COLOR = TERM_TEXT_COLOR;
+
 // Map of node label to the appropriate representation string
 export const NODE_DISPLAY_PROPERTY_MAP: ReadonlyMap<string, string> = new Map([
   [DCC_LABEL, "name"],
@@ -221,63 +224,63 @@ export const ENTITY_STYLES_MAP: ReadonlyMap<string, CSSProperties> = new Map([
   [
     ADMIN_NODE_CLASS,
     {
-      color: "#000",
+      color: ADMIN_TEXT_COLOR,
       backgroundColor: ADMIN_NODE_COLOR,
     },
   ],
   [
     CONTAINER_NODE_CLASS,
     {
-      color: "#000",
+      color: CONTAINER_TEXT_COLOR,
       backgroundColor: CONTAINER_NODE_COLOR,
     },
   ],
   [
     FILE_NODE_CLASS,
     {
-      color: "#000",
+      color: FILE_TEXT_COLOR,
       backgroundColor: FILE_NODE_COLOR,
     },
   ],
   [
     FILE_RELATED_NODE_CLASS,
     {
-      color: "#000",
+      color: FILE_RELATED_TEXT_COLOR,
       backgroundColor: FILE_RELATED_NODE_COLOR,
     },
   ],
   [
     SUBJECT_NODE_CLASS,
     {
-      color: "#000",
+      color: SUBJECT_TEXT_COLOR,
       backgroundColor: SUBJECT_NODE_COLOR,
     },
   ],
   [
     SUBJECT_RELATED_NODE_CLASS,
     {
-      color: "#000",
+      color: SUBJECT_RELATED_TEXT_COLOR,
       backgroundColor: SUBJECT_RELATED_NODE_COLOR,
     },
   ],
   [
     BIOSAMPLE_NODE_CLASS,
     {
-      color: "#000",
+      color: BIOSAMPLE_TEXT_COLOR,
       backgroundColor: BIOSAMPLE_NODE_COLOR,
     },
   ],
   [
     BIOSAMPLE_RELATED_NODE_CLASS,
     {
-      color: "#000",
+      color: BIOSAMPLE_RELATED_TEXT_COLOR,
       backgroundColor: BIOSAMPLE_RELATED_NODE_COLOR,
     },
   ],
   [
     TERM_NODE_CLASS,
     {
-      color: "#000",
+      color: TERM_TEXT_COLOR,
       backgroundColor: TERM_NODE_COLOR,
     },
   ],

@@ -54,7 +54,6 @@ import {
   ADMIN_NODE_COLOR,
   BIOSAMPLE_NODE_CLASS,
   BIOSAMPLE_NODE_COLOR,
-  BIOSAMPLE_RELATED_NODE_CLASS,
   BIOSAMPLE_RELATED_NODE_COLOR,
   CFDE_DARK_BLUE,
   CONTAINER_NODE_CLASS,
@@ -64,7 +63,6 @@ import {
   ENTITY_STYLES_MAP,
   FILE_NODE_CLASS,
   FILE_NODE_COLOR,
-  FILE_RELATED_NODE_CLASS,
   FILE_RELATED_NODE_COLOR,
   HPO_LINK,
   NCBI_TAXONOMY_LINK,
@@ -72,7 +70,6 @@ import {
   OBI_LINK,
   SUBJECT_NODE_CLASS,
   SUBJECT_NODE_COLOR,
-  SUBJECT_RELATED_NODE_CLASS,
   SUBJECT_RELATED_NODE_COLOR,
   TERM_NODE_CLASS,
   TERM_NODE_COLOR,
@@ -187,9 +184,12 @@ export const DEFAULT_TOOLTIP_CONTENT_PROPS: TypographyProps = {
   noWrap: true,
 };
 
+// Default canvas properties
+export const CHART_BG_COLOR = "#f9f9f9";
+
 // Default node properties
-export const NODE_FONT_FAMILY = "arial";
 export const NODE_BORDER_WIDTH = 2;
+const NODE_FONT_FAMILY = "arial";
 const NODE_DIAMETER = 30;
 
 // Default edge properties
@@ -197,9 +197,8 @@ const EDGE_WIDTH = 1;
 const ARROW_SCALE = 0.5;
 
 // Other Properties
-export const FONT_SIZE = "4px";
-export const MAX_NODE_LINES = 3;
-export const MAX_NODE_LABEL_WIDTH = 24;
+const FONT_SIZE = "4px";
+const MAX_NODE_LABEL_WIDTH = 24;
 const HIGH_Z_INDEX = 999;
 const MIN_ZOOMED_FONT_SIZE = 8;
 const SOLID_OPACITY = 1;
@@ -264,7 +263,7 @@ const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
       width: EDGE_WIDTH,
       "font-size": FONT_SIZE,
       "min-zoomed-font-size": MIN_ZOOMED_FONT_SIZE,
-      "text-background-color": "#f2f2f2",
+      "text-background-color": CHART_BG_COLOR,
       "text-background-opacity": SOLID_OPACITY,
       // so the transition is selected when its label/name is selected
       "text-events": "yes",
@@ -1812,7 +1811,7 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "node.all-terms-node",
     style: {
-      "background-color": "#f2f2f2",
+      "background-color": CHART_BG_COLOR,
       "border-width": 1,
       "border-color": TERM_NODE_COLOR,
     },
@@ -1820,7 +1819,7 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "node.artificial-collection-node",
     style: {
-      "background-color": "#f2f2f2",
+      "background-color": CHART_BG_COLOR,
       "border-width": 1,
       "border-color": CONTAINER_NODE_COLOR,
     },

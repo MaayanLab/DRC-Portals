@@ -33,6 +33,7 @@ import {
 import { isRelationshipResult } from "@/lib/neo4j/utils";
 
 import {
+  CHART_BG_COLOR,
   DEFAULT_TOOLTIP_BOX_STYLE_PROPS,
   DEFAULT_TOOLTIP_CONTENT_PROPS,
 } from "../constants/cy";
@@ -413,7 +414,7 @@ export const downloadCyAsJson = (cy: cytoscape.Collection) => {
 };
 
 const downloadCyAsPNG = (cy: cytoscape.Core) => {
-  const base64URI = cy.png({ bg: "#f2f2f2", scale: 3 });
+  const base64URI = cy.png({ bg: CHART_BG_COLOR, scale: 3 });
   const link = document.createElement("a");
 
   link.href = base64URI;
