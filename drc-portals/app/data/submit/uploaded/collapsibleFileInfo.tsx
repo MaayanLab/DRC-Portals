@@ -40,6 +40,8 @@ export function FairAssessmentLogDialogButton({ log }: { log: string }) {
             <Dialog
                 open={open}
                 onClose={handleClose}
+                fullWidth
+                maxWidth="lg"
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
@@ -50,7 +52,7 @@ export function FairAssessmentLogDialogButton({ log }: { log: string }) {
                     <DialogContentText id="alert-dialog-description">
                         These are the logs that occurred while assessing your asset for FAIRness. Please contact us if you're having trouble deciphering them.
                     </DialogContentText>
-                    <textarea>{log}</textarea>
+                    <textarea className="w-full overflow-auto whitespace-nowrap font-mono" rows={20}>{log}</textarea>
                 </DialogContent>
                 <DialogActions>
                     <Button color="secondary" onClick={handleClose}>OK</Button>
