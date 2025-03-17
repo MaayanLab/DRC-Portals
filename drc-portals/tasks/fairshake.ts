@@ -40,6 +40,7 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
   }
   helpers.logger.info(`Performing FAIR assessment on ${payload.link}...`)
   process.env.PYTHONPATH = path.resolve(__rootdir, 'database', 'fair_assessment')
+  let log: string = ''
   const assessment: {
     id: string,
     dcc_id: string,
@@ -54,7 +55,10 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
         ...(fileAsset ? {...fileAsset, size: fileAsset.size?.toString()} : codeAsset ?? {})
       },
     ],
-  }, msg => {helpers.logger.info(msg)})
+  }, msg => {
+    log += msg
+    helpers.logger.info(msg)
+  })
   helpers.abortSignal?.throwIfAborted()
   helpers.logger.info(`Registering FAIR assessment for ${payload.link}...`)
   await prisma.fairAssessment.create({
@@ -65,6 +69,7 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
       link: assessment.link,
       rubric: assessment.rubric,
       timestamp: new Date(assessment.timestamp),
+      log,
     },
   })
 }
