@@ -18,6 +18,16 @@ export default async function Layout(props: {
       title={item.node.label}
       subtitle={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
       description={format_description(item.node.description)}
+      metadata={[
+        item.gene && {
+          label: <>Ensembl Gene ID</>,
+          value: <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item.gene.ensembl}`} target="_blank">{item.gene.ensembl}</a>
+        },
+        item.gene && {
+          label: <>Entrez Gene ID</>,
+          value: <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item.gene.entrez}`} target="_blank">{item.gene.entrez}</a>
+        },
+      ]}
     >
       {props.analyze}
       {props.children}
