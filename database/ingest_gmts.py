@@ -19,7 +19,7 @@ gene_set_helper = TableHelper('gene_set_node', ('id', 'gene_set_library_id',), p
 gene_set_library_helper = TableHelper('gene_set_library_node', ('id', 'dcc_asset_link',), pk_columns=('id',))
 entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 gene_helper = TableHelper('gene_entity', ('id', 'entrez', 'ensembl',), pk_columns=('id',))
-node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
+node_helper = TableHelper('node', ('id', 'slug', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
 
 for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
   if 'l1000_cp' in gmt['filename']: continue
@@ -44,6 +44,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
                   gene_set_library_node = dict(
                     dcc_id=gmt['dcc_id'],
                     id=gene_set_library_id,
+                    slug=gene_set_library_id,
                     type="gene_set_library",
                     entity_type=None,
                     label=gmt_path.stem.replace('_', ' '),
@@ -71,6 +72,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
                     gene_set_node = dict(
                       dcc_id=gmt['dcc_id'],
                       id=gene_set_id,
+                      slug=gene_set_id,
                       type='gene_set',
                       entity_type=None,
                       label=gene_set_label.replace('_', ' '),
@@ -90,6 +92,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
                         #
                         genes[gene_id] = gene_node = dict(
                           id=gene_id,
+                          slug=gene_set_gene,
                           type='entity',
                           entity_type='gene',
                           label=label,
