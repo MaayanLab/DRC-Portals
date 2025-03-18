@@ -6,6 +6,9 @@ import SearchablePagedTable, { LinkedTypedNode } from "@/app/data/processed/Sear
 import { Metadata, ResolvingMetadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import modules from "./modules";
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -13,6 +16,15 @@ const getItem = cache((id: string) => prisma.geneSetLibraryNode.findUnique({
   where: { id },
   select: {
     dcc_asset_link: true,
+    dcc_asset: {
+      select: {
+        fileAsset: {
+          select: {
+            filename: true,
+          },
+        },
+      },
+    },
     _count: {
       select: {
         gene_sets: true,
@@ -115,6 +127,16 @@ export default async function Page(props: PageProps) {
         { label: 'Download', value: <Link href={library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.dcc_asset_link}</Link> },
       ]}
     >
+    <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
+      <Grid item xs={12} sx={{marginBottom: 5}}>
+        <Typography variant="h2" color="secondary">Analyze</Typography>
+      </Grid>
+      <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {modules
+          .filter(({ compatible }) => compatible({ id: props.params.id, node: library.node, access_url: library.dcc_asset_link, filename: library.dcc_asset.fileAsset?.filename ?? `${library.node.label}.gmt` }))
+          .map(({ button: ModButton }, i) => <ModButton key={i} item={{ id: props.params.id, node: library.node, access_url: library.dcc_asset_link, filename: library.dcc_asset.fileAsset?.filename ?? `${library.node.label}.gmt` }} />)}
+      </Grid>
+    </Grid>
       <SearchablePagedTable
         label="Gene sets"
         q={searchParams.q ?? ''}
