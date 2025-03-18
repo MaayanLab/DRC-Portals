@@ -15,7 +15,7 @@ type PageProps = { params: { slug: string }, searchParams: Record<string, string
 
 const getItem = cache((slug: string) => prisma.geneSetNode.findUnique({
   where: {
-    node: { slug },
+    node: { type: 'gene_set', entity_type: null, slug },
   },
   select: {
     _count: {

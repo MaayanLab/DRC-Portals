@@ -10,7 +10,7 @@ import { metadata } from "@/app/data/layout";
 type PageProps = { params: { slug: string } }
 
 const getItem = cache((slug: string) => prisma.dCCAssetNode.findUnique({
-  where: { node: { slug } },
+  where: { node: { type: 'dcc_asset', entity_type: null, slug } },
   select: {
     dcc_asset: {
       select: {

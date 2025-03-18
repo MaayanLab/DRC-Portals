@@ -12,7 +12,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
   // const offset = (searchParams.p - 1)*searchParams.r
   // const limit = searchParams.r
   const { data: item, error } = await safeAsync(() => prisma.geneEntity.findUnique({
-    where: { slug: props.params.slug },
+    where: { node: { type: 'entity', entity_type: props.params.entity_type, slug: props.params.slug } },
     select: {
       _count: {
         select: {

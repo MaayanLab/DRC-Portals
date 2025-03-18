@@ -30,7 +30,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
         "kg_assertion"."dcc_id"
       from node n
       inner join "kg_assertion" on "kg_assertion"."source_id" = n.id or "kg_assertion"."target_id" = n.id
-      where n.slug = ${props.params.slug}
+      where n.type = 'entity' and n.entity_type = ${props.params.entity_type} and n.slug = ${props.params.slug}
     ), kg_assertion_fs as (
       select *
       from kg_assertion_f

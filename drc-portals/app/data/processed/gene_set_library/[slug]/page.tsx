@@ -13,7 +13,7 @@ import modules from "./modules";
 type PageProps = { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
 const getItem = cache((slug: string) => prisma.geneSetLibraryNode.findUnique({
-  where: { node: { slug } },
+  where: { node: { type: 'gene_set_library', entity_type: null, slug } },
   select: {
     dcc_asset_link: true,
     dcc_asset: {

@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 type PageProps = { params: { entity_type: string, slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const item = await getItem(props.params.slug)
+  const item = await getItem(props.params)
   if (!item) return {}
   const parentMetadata = await parent
   return {

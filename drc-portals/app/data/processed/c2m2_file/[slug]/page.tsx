@@ -10,7 +10,7 @@ import { metadata } from "@/app/data/layout";
 type PageProps = { params: { slug: string } }
 
 const getItem = cache((slug: string) => prisma.c2M2FileNode.findUnique({
-  where: { node: { slug } },
+  where: { node: { entity: 'c2m2_file', entity_type: null, slug } },
   select: {
     persistent_id: true,
     access_url: true,

@@ -10,7 +10,7 @@ import { notFound } from "next/navigation";
 type PageProps = { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
 const getItem = cache((slug: string) => prisma.kGRelationNode.findUnique({
-  where: { node: { slug } },
+  where: { node: { type: 'kg_relation', entity_type: null, slug } },
   select: {
     node: {
       select: {

@@ -273,7 +273,7 @@ enum NodeType {
 model Node {
   dcc_id      String?
   id          String                   @id @db.Uuid
-  slug        String                   @unique
+  slug        String
   type        NodeType
   entity_type String?
   label       String
@@ -296,6 +296,7 @@ model Node {
   @@index([pagerank(sort: Desc)], map: "node_pagerank", type: BTree)
   @@index([searchable], map: "node_searchable_fts", type: Gin)
   @@map("node")
+  @@unique([type, entity_type, slug])
 }
 
 model EntityNode {

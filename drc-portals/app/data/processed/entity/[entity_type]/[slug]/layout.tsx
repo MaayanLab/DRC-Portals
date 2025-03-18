@@ -11,7 +11,7 @@ export default async function Layout(props: {
   assertions: React.ReactNode,
   params: { entity_type: string, slug: string },
 }) {
-  const item = await getItem(props.params.slug)
+  const item = await getItem(props.params)
   if (!item) return notFound()
   return (
     <LandingPageLayout
