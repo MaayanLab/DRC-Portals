@@ -7,10 +7,10 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { metadata } from "@/app/data/layout";
 
-type PageProps = { params: { id: string } }
+type PageProps = { params: { slug: string } }
 
-const getItem = cache((id: string) => prisma.dCCAssetNode.findUnique({
-  where: { id },
+const getItem = cache((slug: string) => prisma.dCCAssetNode.findUnique({
+  where: { node: { slug } },
   select: {
     dcc_asset: {
       select: {
@@ -43,7 +43,7 @@ const getItem = cache((id: string) => prisma.dCCAssetNode.findUnique({
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('dcc_asset', null)
-  const item = await getItem(props.params.id)
+  const item = await getItem(props.params.slug)
   if (!item) return {}
   const parentMetadata = await parent
   return {
@@ -58,8 +58,8 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-export default async function Page(props: { params: { id: string } }) {
-  const item = await getItem(props.params.id)
+export default async function Page(props: { params: { slug: string } }) {
+  const item = await getItem(props.params.slug)
   if (!item) return notFound()
   return (
     <>
@@ -74,7 +74,7 @@ export default async function Page(props: { params: { id: string } }) {
             item.dcc_asset.fileAsset ? { label: 'Asset', value:  <Link href={`/data/matrix/${item.node.dcc.short_label}#${item.dcc_asset.fileAsset.filetype}`} className="underline cursor-pointer text-blue-600">Asset Page</Link> } : null,
           ] : []),
           { label: 'Link', value: <Link href={item.dcc_asset.link} className="underline cursor-pointer text-blue-600" target="_blank">{item.dcc_asset.link}</Link> },
-          process.env.PUBLIC_URL ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
+          process.env.PUBLIC_URL ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.slug}` } : null,
           item.dcc_asset.fileAsset ? { label: 'File Type', value: item.dcc_asset.fileAsset.filetype } : null,
           item.dcc_asset.fileAsset ? { label: 'Size in Bytes', value: item.dcc_asset.fileAsset.size?.toLocaleString() ?? 'unknown' } : null,
           { label: 'Last Modified', value: item.dcc_asset.lastmodified.toLocaleDateString() },

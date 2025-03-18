@@ -58,7 +58,7 @@ export default async function Page(props: { search: string, type: string, entity
     `), ' or '),
   ], ' or ') : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-    items: {id: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    items: {slug: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,
     total_count: number,
     dcc_counts: {id: string, short_label: string, count: number}[],
@@ -71,7 +71,7 @@ export default async function Page(props: { search: string, type: string, entity
       offset ${offset}
       limit 100
     ), items as (
-      select id, type, entity_type, label, description, (
+      select slug, type, entity_type, label, description, (
         select jsonb_build_object(
           'short_label', "dccs".short_label,
           'icon', "dccs".icon,
@@ -131,7 +131,7 @@ export default async function Page(props: { search: string, type: string, entity
           <>Description</>,
         ]}
         rows={results?.items.map(item => {
-          const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${item.id}`
+          const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${item.slug}`
           return [
             item.dcc?.icon ? <SearchablePagedTableCellIcon href={href} src={item.dcc.icon} alt={item.dcc.label} />
               : item.entity_type !== null ?
@@ -140,7 +140,7 @@ export default async function Page(props: { search: string, type: string, entity
                 : <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string('entity', item.entity_type)} />
               : item.type === 'kg_relation' ? <SearchablePagedTableCellIcon href={href} src={KGEdge} alt={type_to_string('entity', item.entity_type)} />
               : null,
-            <LinkedTypedNode type={item.type} entity_type={item.entity_type} id={item.id} label={item.label} search={searchParams.q ?? ''} />,
+            <LinkedTypedNode type={item.type} entity_type={item.entity_type} slug={item.slug} label={item.label} search={searchParams.q ?? ''} />,
             <Description description={item.description} search={searchParams.q ?? ''} />,
           ]
         }) ?? []}

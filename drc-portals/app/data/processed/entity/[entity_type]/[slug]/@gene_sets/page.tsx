@@ -6,13 +6,13 @@ import Link from "@/utils/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
 import { safeAsync } from "@/utils/safe"
 
-export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string, slug: string }, searchParams: Record<string, string | string[] | undefined> }) {
   // const searchParams = useSanitizedSearchParams(props)
   if (props.params.entity_type !== 'gene') return null
   // const offset = (searchParams.p - 1)*searchParams.r
   // const limit = searchParams.r
   const { data: item, error } = await safeAsync(() => prisma.geneEntity.findUnique({
-    where: { id: props.params.id },
+    where: { slug: props.params.slug },
     select: {
       _count: {
         select: {
@@ -38,7 +38,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
                 where: {
                   genes: {
                     some: {
-                      id: props.params.id
+                      slug: props.params.slug
                     }
                   }
                 },
@@ -61,7 +61,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
             where: {
               genes: {
                 some: {
-                  id: props.params.id
+                  slug: props.params.slug
                 }
               }
             },
@@ -69,6 +69,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
               id: true,
               node: {
                 select: {
+                  slug: true,
                   type: true,
                   label: true,
                   description: true,
@@ -107,7 +108,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
                   {library.gene_sets.map(set => (
                     <TableRow key={set.id}>
                       <TableCell component="th" scope="row">
-                        <Link href={`/data/processed/${set.node.type}/${set.id}`}>{set.node.label}</Link>
+                        <Link href={`/data/processed/${set.node.type}/${set.node.slug}`}>{set.node.label}</Link>
                       </TableCell>
                       <TableCell>
                         {format_description(set.node.description)}

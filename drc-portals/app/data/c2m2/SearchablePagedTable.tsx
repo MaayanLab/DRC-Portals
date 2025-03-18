@@ -11,13 +11,13 @@ import TagComponent from './TagComponent';
 import { RowType } from './utils'; // Import the RowType
 
 export function LinkedTypedNode({
-    id,
+    slug,
     type,
     label,
     entity_type = null,
     focus = false,
 }: {
-    id: string,
+    slug: string,
     type: NodeType,
     label: string,
     entity_type?: string | null,
@@ -25,7 +25,7 @@ export function LinkedTypedNode({
 }) {
     return (
         <div className="flex flex-col">
-            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${id}`}>
+            <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${slug}`}>
                 <Typography variant="body1" sx={{ overflowWrap: 'break-word', maxWidth: 300 }} color="secondary" fontWeight={focus ? 'bold' : undefined}>
                     {label}
                 </Typography>

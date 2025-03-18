@@ -30,6 +30,7 @@ export default async function Page(props: PageProps) {
         id: true,
         node: {
           select: {
+            slug: true,
             type: true,
             label: true,
             description: true,
@@ -67,7 +68,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={human_readable(item.node.label)} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type={item.node.type} slug={item.node.slug} label={human_readable(item.node.label)} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
       />

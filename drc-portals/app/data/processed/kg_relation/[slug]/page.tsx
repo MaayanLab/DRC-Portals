@@ -7,10 +7,10 @@ import { Metadata, ResolvingMetadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 
-type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+type PageProps = { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((id: string) => prisma.kGRelationNode.findUnique({
-  where: { id },
+const getItem = cache((slug: string) => prisma.kGRelationNode.findUnique({
+  where: { node: { slug } },
   select: {
     node: {
       select: {
@@ -23,7 +23,7 @@ const getItem = cache((id: string) => prisma.kGRelationNode.findUnique({
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('kg_relation', null)
-  const item = await getItem(props.params.id)
+  const item = await getItem(props.params.slug)
   if (!item) return {}
   const parentMetadata = await parent
   return {
@@ -37,19 +37,18 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
-export default async function Page(props: { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const item = await getItem(props.params.id)
+  const item = await getItem(props.params.slug)
   if (!item) return notFound()
   const [results] = await prisma.$queryRaw<Array<{
     assertions: {
       id: string,
       evidence: Prisma.JsonValue,
-      source: { id: string, type: string, label: string },
-      relation: { id: string, label: string },
-      target: { id: string, type: string, label: string },
+      source: { slug: string, type: string, label: string },
+      target: { slug: string, type: string, label: string },
       dcc: { short_label: string, icon: string, label: string },
     }[],
     n_filtered_assertions: number,
@@ -57,8 +56,9 @@ export default async function Page(props: { params: { id: string }, searchParams
   }>>`
     with kg_assertion_f as (
       select *
-      from "kg_assertion"
-      where "kg_assertion"."relation_id" = ${props.params.id}::uuid
+      from "node" n
+      inner join "kg_assertion" on "kg_assertion"."relation_id" = n.id
+      where n.slug = ${props.params.slug}
     ), kg_assertion_fs as (
       select *
       from kg_assertion_f
@@ -74,7 +74,7 @@ export default async function Page(props: { params: { id: string }, searchParams
         kg_assertion_fs."evidence",
         (
           select jsonb_build_object(
-            'id', "node"."id",
+            'slug', "node"."slug",
             'type', "node".entity_type,
             'label', "node".label
           )
@@ -83,7 +83,7 @@ export default async function Page(props: { params: { id: string }, searchParams
         ) as source,
         (
           select jsonb_build_object(
-            'id', "node"."id",
+            'slug', "node"."slug",
             'type', "node".entity_type,
             'label', "node".label
           )
@@ -134,9 +134,9 @@ export default async function Page(props: { params: { id: string }, searchParams
         ]}
         rows={results.assertions.map(assertion => [
           assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
-          <LinkedTypedNode type="entity" id={assertion.source.id} label={assertion.source.label} entity_type={assertion.source.type} search={searchParams.q ?? ''} />,
-          <LinkedTypedNode type="kg_relation" id={props.params.id} label={human_readable(item.node.label)} focus />,
-          <LinkedTypedNode type="entity" id={assertion.target.id} label={assertion.target.label} entity_type={assertion.target.type} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type="entity" slug={assertion.source.slug} label={assertion.source.label} entity_type={assertion.source.type} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type="kg_relation" slug={props.params.slug} label={human_readable(item.node.label)} focus />,
+          <LinkedTypedNode type="entity" slug={assertion.target.slug} label={assertion.target.label} entity_type={assertion.target.type} search={searchParams.q ?? ''} />,
           assertion.evidence?.toString(),
         ])}
       />

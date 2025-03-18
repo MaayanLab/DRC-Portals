@@ -3,8 +3,8 @@ import Typography from "@mui/material/Typography";
 import { getItem } from "../item"
 import modules from "./modules";
 
-export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
-  const item = await getItem(props.params.id)
+export default async function Page(props: { params: { entity_type: string, slug: string }, searchParams: Record<string, string | string[] | undefined> }) {
+  const item = await getItem(props.params.slug)
   if (!item) return null
   return (
     <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>

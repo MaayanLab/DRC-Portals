@@ -273,6 +273,7 @@ enum NodeType {
 model Node {
   dcc_id      String?
   id          String                   @id @db.Uuid
+  slug        String                   @unique
   type        NodeType
   entity_type String?
   label       String

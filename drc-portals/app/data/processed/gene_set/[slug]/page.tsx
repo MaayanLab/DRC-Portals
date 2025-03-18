@@ -11,11 +11,11 @@ import Typography from "@mui/material/Typography";
 import modules from "./modules";
 import { notFound } from 'next/navigation';
 
-type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+type PageProps = { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((id: string) => prisma.geneSetNode.findUnique({
+const getItem = cache((slug: string) => prisma.geneSetNode.findUnique({
   where: {
-    id,
+    node: { slug },
   },
   select: {
     _count: {
@@ -54,7 +54,7 @@ const getItem = cache((id: string) => prisma.geneSetNode.findUnique({
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('gene_set', null)
-  const item = await getItem(props.params.id)
+  const item = await getItem(props.params.slug)
   if (!item) return {}
   const parentMetadata = await parent
   return {
@@ -73,11 +73,11 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const gene_set = await getItem(props.params.id)
+  const gene_set = await getItem(props.params.slug)
   if (!gene_set) return notFound()
   const genes = await prisma.geneSetNode.findUnique({
     where: {
-      id: props.params.id,
+      slug: props.params.slug,
     },
     select: {
       _count: {
@@ -100,6 +100,7 @@ export default async function Page(props: PageProps) {
             select: {
               node: {
                 select: {
+                  slug: true,
                   type: true,
                   label: true,
                   description: true,
@@ -129,7 +130,7 @@ export default async function Page(props: PageProps) {
       description={format_description(gene_set.node.description)}
       metadata={[
         gene_set.node.dcc ? { label: 'Project', value: <Link href={`/info/dcc/${gene_set.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{gene_set.node.dcc.label}</Link> } : null,
-        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.id}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
+        { label: 'Gene Set Library', value: <Link href={`/data/processed/${gene_set.gene_set_library.node.type}/${gene_set.gene_set_library.node.slug}`} className="underline cursor-pointer text-blue-600">{gene_set.gene_set_library.node.label}</Link> },
         { label: 'Genes', value: gene_set._count.genes.toLocaleString() },
       ]}
     >
@@ -154,7 +155,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={genes.genes.map(gene => [
-          <LinkedTypedNode type="entity" id={gene.id} label={gene.entity.node.label} entity_type="gene" search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type="entity" slug={gene.entity.node.slug} label={gene.entity.node.label} entity_type="gene" search={searchParams.q ?? ''} />,
           format_description(gene.entity.node.description),
         ])}
       />

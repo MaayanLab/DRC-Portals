@@ -7,10 +7,10 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { metadata } from "@/app/data/layout";
 
-type PageProps = { params: { id: string } }
+type PageProps = { params: { slug: string } }
 
-const getItem = cache((id: string) => prisma.c2M2FileNode.findUnique({
-  where: { id },
+const getItem = cache((slug: string) => prisma.c2M2FileNode.findUnique({
+  where: { node: { slug } },
   select: {
     persistent_id: true,
     access_url: true,
@@ -37,7 +37,7 @@ const getItem = cache((id: string) => prisma.c2M2FileNode.findUnique({
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const title = type_to_string('c2m2_file', null)
-  const item = await getItem(props.params.id)
+  const item = await getItem(props.params.slug)
   if (!item) return {}
   const parentMetadata = await parent
   return {
@@ -53,7 +53,7 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
 }
 
 export default async function Page(props: PageProps) {
-  const item = await getItem(props.params.id)
+  const item = await getItem(props.params.slug)
   if (!item) return notFound()
   return (
     <>

@@ -26,6 +26,7 @@ export default async function Page(props: PageProps) {
       id: string,
       type: string,
       node: {
+        slug: string,
         type: NodeType,
         label: string,
         description: string,
@@ -50,6 +51,7 @@ export default async function Page(props: PageProps) {
         "items"."id",
         "items"."entity_type",
         jsonb_build_object(
+          'slug', items."slug",
           'type', items."type",
           'label', items."label",
           'description', items."description"
@@ -83,7 +85,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results?.items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={item.type} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type={item.node.type} slug={item.node.slug} label={item.node.label} entity_type={item.type} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ]) ?? []}
       />
