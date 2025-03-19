@@ -10,6 +10,12 @@ export const getItem = cache((id: string) => prisma.entityNode.findUnique({
         label: true,
         description: true,
       }
-    }
+    },
+    gene: {
+      select: {
+        entrez: true,
+        ensembl: true,
+      },
+    },
   }
 }))
