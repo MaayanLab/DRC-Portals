@@ -13,7 +13,7 @@ export default function ClientCarousel({children, title}: {children: React.React
         </Typography>}
         <div style={{position: "relative"}} className='flex justify-center'>
           <Carousel height={300} 
-            duration={2000}
+            duration={3000}
             sx={{
               position: 'relative',
               minHeight: {xs: 260, sm: 260, md: 400, lg: 600, xl: 600}, 
