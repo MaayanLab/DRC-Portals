@@ -25,7 +25,7 @@ for _, file in tqdm(dcc_assets.iterrows(), total=dcc_assets.shape[0], desc='Proc
         id=dcc_asset_id,
         slug=dcc_asset_id,
         type='dcc_asset',
-        entity_type=None,
+        entity_type='',
         label=f"{file['dcc_short_label']}_{file['filename']}",
         description=f"A {file['filetype']} processed data file from {file['dcc_short_label']}",
         pagerank=1,

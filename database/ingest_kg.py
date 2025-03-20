@@ -140,6 +140,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                           id=relation_id,
                           slug=assertion['relation'],
                           type='kg_relation',
+                          entity_type='',
                           label=assertion['relation'],
                           description="A relationship in the knowledge graph",
                           pagerank=1,

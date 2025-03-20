@@ -106,7 +106,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
               id=c2m2_file_id,
               slug=c2m2_file_id,
               type='c2m2_file',
-              entity_type=None,
+              entity_type='',
               label=file['filename'],
               description=description,
               pagerank=0,
