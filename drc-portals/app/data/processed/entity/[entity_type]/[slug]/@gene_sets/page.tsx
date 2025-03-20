@@ -5,14 +5,17 @@ import Image from "@/utils/image"
 import Link from "@/utils/link"
 import { format_description/*, useSanitizedSearchParams*/ } from "@/app/data/processed/utils"
 import { safeAsync } from "@/utils/safe"
+import { getItem } from "../item"
 
 export default async function Page(props: { params: { entity_type: string, slug: string }, searchParams: Record<string, string | string[] | undefined> }) {
   // const searchParams = useSanitizedSearchParams(props)
   if (props.params.entity_type !== 'gene') return null
   // const offset = (searchParams.p - 1)*searchParams.r
   // const limit = searchParams.r
+  const node = await getItem(props.params)
+  if (!node) return null
   const { data: item, error } = await safeAsync(() => prisma.geneEntity.findUnique({
-    where: { node: { type: 'entity', entity_type: props.params.entity_type, slug: props.params.slug } },
+    where: { id: node.id },
     select: {
       _count: {
         select: {
@@ -38,7 +41,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
                 where: {
                   genes: {
                     some: {
-                      slug: props.params.slug
+                      id: node.id
                     }
                   }
                 },
@@ -61,7 +64,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
             where: {
               genes: {
                 some: {
-                  slug: props.params.slug
+                  id: node.id
                 }
               }
             },
@@ -108,7 +111,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
                   {library.gene_sets.map(set => (
                     <TableRow key={set.id}>
                       <TableCell component="th" scope="row">
-                        <Link href={`/data/processed/${set.node.type}/${set.node.slug}`}>{set.node.label}</Link>
+                        <Link href={`/data/processed/${set.node.type}/${encodeURIComponent(set.node.slug)}`}>{set.node.label}</Link>
                       </TableCell>
                       <TableCell>
                         {format_description(set.node.description)}

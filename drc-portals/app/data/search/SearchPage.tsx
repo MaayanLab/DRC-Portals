@@ -19,7 +19,7 @@ import { safeAsync } from '@/utils/safe';
 export default async function Page(props: {
   search: string,
   type: string,
-  entity_type: string | null,
+  entity_type: string,
   searchParams: Record<string, string>,
 }) {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } })
@@ -32,7 +32,7 @@ export default async function Page(props: {
     c2m2_file: true,
   }[props.type]
   const { data: [results] = [], error } = searchParams.q ? await safeAsync(() => prisma.$queryRaw<Array<{
-    items: {slug: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    items: {slug: string, type: NodeType, entity_type: string, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     count: number,
   }>>`
     with results as (
@@ -41,7 +41,7 @@ export default async function Page(props: {
       where ${Prisma_join([
         Prisma.sql`q @@ "node"."searchable"`,
         Prisma.sql`"node"."type" = ${props.type}::"NodeType"`,
-        props.entity_type !== null ? Prisma.sql`"node"."entity_type" = ${props.entity_type}` : Prisma.empty,
+        Prisma.sql`"node"."entity_type" = ${props.entity_type}`,
         searchParams.et ? Prisma_join(searchParams.et.map(t => t.type === 'dcc' ? 
           dcc_filterable ? Prisma.sql`"node"."dcc_id" = ${t.entity_type}` : Prisma.empty
         : Prisma.sql`
@@ -121,10 +121,10 @@ export default async function Page(props: {
             <>Description</>,
           ]}
           rows={results?.items.map(item => {
-            const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${item.slug}`
+            const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${encodeURIComponent(item.slug)}`
             return [
               item.dcc?.icon ? <SearchablePagedTableCellIcon href={href} src={item.dcc.icon} alt={item.dcc.label} />
-                : item.entity_type !== null ?
+                : item.entity_type ?
                   item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={href} src={GeneIcon} alt="Gene" />
                   : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={href} src={DrugIcon} alt="Drug" />
                   : <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string('entity', item.entity_type)} />

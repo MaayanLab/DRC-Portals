@@ -9,17 +9,17 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   if (!item) return {}
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | ${item.node.label}`,
-    description: item.node.description,
+    title: `${parentMetadata.title?.absolute} | ${item.label}`,
+    description: item.description,
     keywords: [
-      item.node.label,
+      item.label,
       parentMetadata.keywords,
     ].join(', '),
   }
 }
 
 export default async function Page(props: PageProps) {
-  const item = await getItem(props.params.slug)
+  const item = await getItem(props.params)
   if (!item) return notFound()
   return null
 }

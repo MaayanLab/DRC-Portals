@@ -3,11 +3,14 @@ import { human_readable, useSanitizedSearchParams } from "@/app/data/processed/u
 import { Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 import { safeAsync } from "@/utils/safe";
+import { getItem } from "../item";
 
 export default async function Page(props: { params: { entity_type: string, slug: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
+  const node = await getItem(props.params)
+  if (!node) return null
   const { data: [results] = [], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     assertions: {
       id: string,
@@ -28,9 +31,8 @@ export default async function Page(props: { params: { entity_type: string, slug:
         "kg_assertion"."relation_id",
         "kg_assertion"."target_id",
         "kg_assertion"."dcc_id"
-      from node n
-      inner join "kg_assertion" on "kg_assertion"."source_id" = n.id or "kg_assertion"."target_id" = n.id
-      where n.type = 'entity' and n.entity_type = ${props.params.entity_type} and n.slug = ${props.params.slug}
+      from "kg_assertion"
+      where "kg_assertion"."source_id" = ${node.id}::uuid or "kg_assertion"."target_id" = ${node.id}::uuid
     ), kg_assertion_fs as (
       select *
       from kg_assertion_f
@@ -47,7 +49,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
         kg_assertion_fs."evidence",
         (
           select jsonb_build_object(
-            'slug', "entity_node"."slug",
+            'slug', "node"."slug",
             'type', "entity_node".type,
             'label', "node".label
           )
@@ -57,7 +59,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
         ) as source,
         (
           select jsonb_build_object(
-            'slug', "kg_relation_node"."slug",
+            'slug', "node"."slug",
             'label', "node".label
           )
           from "kg_relation_node"
@@ -66,7 +68,7 @@ export default async function Page(props: { params: { entity_type: string, slug:
         ) as relation,
         (
           select jsonb_build_object(
-            'slug', "entity_node"."slug",
+            'slug', "node"."slug",
             'type', "entity_node".type,
             'label', "node".label
           )

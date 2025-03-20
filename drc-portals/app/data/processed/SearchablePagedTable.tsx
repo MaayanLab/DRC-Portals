@@ -25,8 +25,8 @@ export function LinkedTypedNode({
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${slug}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${slug}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${encodeURIComponent(slug)}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
+      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${encodeURIComponent(slug)}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }

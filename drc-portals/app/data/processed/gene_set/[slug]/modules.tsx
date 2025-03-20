@@ -16,44 +16,44 @@ const getGeneSet = cache(async (id: string) => (
 )?.genes.map(r => r.entity.node.label))
 
 const modules: {
-  compatible: (item: { id: string, node: { label: string; description: string; } }) => boolean,
-  button: (props: { item: { id: string,node: { label: string; description: string; } } }) => React.ReactNode,
+  compatible: (item: { id: string; label: string; description: string; }) => boolean,
+  button: (props: { item: { id: string; label: string; description: string; } }) => React.ReactNode,
 }[] = [
   {
     compatible: (item) => true,
     button: async ({ item }) => <PWBButton
       body={{
-        data: { gene_set: { type: "Input[Set[Gene]]", value: { set: await getGeneSet(item.id), description: item.node.label } } },
+        data: { gene_set: { type: "Input[Set[Gene]]", value: { set: await getGeneSet(item.id), description: item.label } } },
         workflow: [
           { id: "input_gene_set", type: "Input[Set[Gene]]", data: { id: "gene_set" } },
         ],
       }}
       title="Playbook Workflow Builder"
-      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.node.label}.</>}
+      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.label}.</>}
     />,
   },
   {
     compatible: (item) => true,
     button: async ({ item }) => <G2SGButton
       body={{
-        "term": item.node.label,
+        "term": item.label,
         "genes": await getGeneSet(item.id),
-        "description": item.node.description
+        "description": item.description
       }}
       title="GeneSetCart"
-      description={<>GeneSetCart helps you to fetch gene sets from various data sources, augment, combine with set operations, visualize and analyze these gene sets in a single session. Start a new session with {item.node.label}.</>}
+      description={<>GeneSetCart helps you to fetch gene sets from various data sources, augment, combine with set operations, visualize and analyze these gene sets in a single session. Start a new session with {item.label}.</>}
     />,
   },
   {
     compatible: (item) => true,
     button: async ({ item }) => <GSEButton
       body={{
-        "term": item.node.label,
+        "term": item.label,
         "genes": await getGeneSet(item.id),
-        "description": item.node.description
+        "description": item.description
       }}
       title="CFDE Gene Set Enrichment (GSE)"
-      description={<>CFDE-GSE illuminates connections between the input gene set and various CF gene sets that overlap with the queried gene set. Query CFDE-GSE with {item.node.label}.</>}
+      description={<>CFDE-GSE illuminates connections between the input gene set and various CF gene sets that overlap with the queried gene set. Query CFDE-GSE with {item.label}.</>}
     />,
   },
 ]

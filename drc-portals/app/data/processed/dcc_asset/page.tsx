@@ -9,7 +9,7 @@ import { safeAsync } from "@/utils/safe";
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('dcc_asset', null))
+  const title = pluralize(type_to_string('dcc_asset', ''))
   const parentMetadata = await parent
   return {
     title: `${(await parent).title?.absolute} | ${title}`,
@@ -88,7 +88,7 @@ export default async function Page(props: PageProps) {
       maxCount={100}
     >
       <SearchablePagedTable
-        label={`${type_to_string('dcc_asset', null)} (Entity Type)`}
+        label={`${type_to_string('dcc_asset', '')} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -99,7 +99,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results?.items.map(item => [
-          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/${item.node.type}/${item.node.slug}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
+          item.node.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/${item.node.type}/${encodeURIComponent(item.node.slug)}`} src={item.node.dcc.icon} alt={item.node.dcc.label} /> : null,
           <LinkedTypedNode type={item.node.type} slug={item.node.slug} label={item.node.label} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ]) ?? []}

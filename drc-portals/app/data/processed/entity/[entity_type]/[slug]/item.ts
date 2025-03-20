@@ -1,20 +1,21 @@
 import prisma from "@/lib/prisma/slow"
 import { cache } from "react";
 
-export const getItem = cache(({ entity_type, slug, }: { entity_type: string, slug: string }) => prisma.entityNode.findUnique({
-  where: { node: { type: 'entity', entity_type, slug } },
+export const getItem = cache(({ entity_type, slug, }: { entity_type: string, slug: string }) => prisma.node.findUnique({
+  where: { type_entity_type_slug: { type: 'entity', entity_type: decodeURIComponent(entity_type), slug: decodeURIComponent(slug) } },
   select: {
-    type: true,
-    node: {
+    id: true,
+    label: true,
+    description: true,
+    entity: {
       select: {
-        label: true,
-        description: true,
-      }
-    },
-    gene: {
-      select: {
-        entrez: true,
-        ensembl: true,
+        type: true,
+        gene: {
+          select: {
+            entrez: true,
+            ensembl: true,
+          },
+        },
       },
     },
   }

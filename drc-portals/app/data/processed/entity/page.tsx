@@ -9,7 +9,7 @@ import { safeAsync } from "@/utils/safe";
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('entity', null))
+  const title = pluralize(type_to_string('entity', ''))
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title}`,
@@ -49,7 +49,7 @@ export default async function Page(props: PageProps) {
     ), paginated_items as (
       select
         "items"."id",
-        "items"."entity_type",
+        "items"."entity_type" as type,
         jsonb_build_object(
           'slug', items."slug",
           'type', items."type",
@@ -75,7 +75,7 @@ export default async function Page(props: PageProps) {
       maxCount={100}
     >
       <SearchablePagedTable
-        label={`${type_to_string('entity', null)} (Entity Type)`}
+        label={`${type_to_string('entity', '')} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}

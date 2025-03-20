@@ -7,7 +7,7 @@ import { Metadata, ResolvingMetadata } from 'next'
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('gene_set_library', null))
+  const title = pluralize(type_to_string('gene_set_library', ''))
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title}`,
@@ -73,7 +73,7 @@ export default async function Page(props: PageProps) {
       count={count}
     >
       <SearchablePagedTable
-        label={`${type_to_string('gene_set_library', null)} (Entity Type)`}
+        label={`${type_to_string('gene_set_library', '')} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -84,7 +84,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={items.map(item => [
-          item.dcc_asset.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/gene_set_library/${item.node.slug}`} src={item.dcc_asset.dcc.icon} alt={item.dcc_asset.dcc.short_label ?? ''} /> : null,
+          item.dcc_asset.dcc?.icon ? <SearchablePagedTableCellIcon href={`/data/processed/gene_set_library/${encodeURIComponent(item.node.slug)}`} src={item.dcc_asset.dcc.icon} alt={item.dcc_asset.dcc.short_label ?? ''} /> : null,
           <LinkedTypedNode type="gene_set_library" slug={item.node.slug} label={item.node.label} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}

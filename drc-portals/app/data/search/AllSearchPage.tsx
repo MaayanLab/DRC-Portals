@@ -23,7 +23,7 @@ function Prisma_join<T>(L: T[], sep: string) {
   return L.length === 0 ? Prisma.empty : L.length === 1 ? L[0] : Prisma.join(L, sep)
 }
 
-export default async function Page(props: { search: string, type: string, entity_type: string | null, searchParams: Record<string, string> }) {
+export default async function Page(props: { search: string, type: string, entity_type: string, searchParams: Record<string, string> }) {
   const searchParams = useSanitizedSearchParams({ searchParams: {...props.searchParams, q: props.search } })
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
@@ -33,7 +33,7 @@ export default async function Page(props: { search: string, type: string, entity
       ? Prisma_join(
         searchParams.et.filter(t => t.type === 'dcc').map(t => Prisma_join([
           Prisma.sql`"node"."dcc_id" = ${t.entity_type}`,
-          Prisma_join(searchParams.et ? searchParams.et.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+          Prisma_join(searchParams.et ? searchParams.et.filter(t => t.type !== 'dcc' && !t.entity_type).map(t => Prisma.sql`
             (
               "node"."type" = ${t.type}::"NodeType"
             )
@@ -42,13 +42,13 @@ export default async function Page(props: { search: string, type: string, entity
         ' or '
       )
       // otherwise, we filter by entity type independent of dcc
-      : Prisma_join(searchParams.et.filter(t => t.type !== 'dcc' && t.entity_type === null).map(t => Prisma.sql`
+      : Prisma_join(searchParams.et.filter(t => t.type !== 'dcc' && !t.entity_type).map(t => Prisma.sql`
         (
           "node"."type" = ${t.type}::"NodeType"
         )
         `), ' or '),
     // entities not associated with a DCC should be independently filterable
-    Prisma_join(searchParams.et.filter(t => t.entity_type !== null).map(t => Prisma.sql`
+    Prisma_join(searchParams.et.filter(t => t.entity_type).map(t => Prisma.sql`
       (
         "node"."type" = 'entity'::"NodeType"
         ${t.entity_type ? Prisma.sql`
@@ -58,7 +58,7 @@ export default async function Page(props: { search: string, type: string, entity
     `), ' or '),
   ], ' or ') : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
-    items: {slug: string, type: NodeType, entity_type: string | null, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
+    items: {slug: string, type: NodeType, entity_type: string, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,
     total_count: number,
     dcc_counts: {id: string, short_label: string, count: number}[],
@@ -131,10 +131,10 @@ export default async function Page(props: { search: string, type: string, entity
           <>Description</>,
         ]}
         rows={results?.items.map(item => {
-          const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${item.slug}`
+          const href = `/data/processed/${item.type}${item.entity_type ? `/${encodeURIComponent(item.entity_type)}` : ''}/${encodeURIComponent(item.slug)}`
           return [
             item.dcc?.icon ? <SearchablePagedTableCellIcon href={href} src={item.dcc.icon} alt={item.dcc.label} />
-              : item.entity_type !== null ?
+              : item.entity_type ?
                 item.entity_type === 'gene' ? <SearchablePagedTableCellIcon href={href} src={GeneIcon} alt="Gene" />
                 : item.entity_type === 'Drug' ? <SearchablePagedTableCellIcon href={href} src={DrugIcon} alt="Drug" />
                 : <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string('entity', item.entity_type)} />

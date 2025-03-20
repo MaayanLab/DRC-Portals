@@ -9,7 +9,7 @@ import { safeAsync } from "@/utils/safe";
 type PageProps = { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('entity', props.params.entity_type))
+  const title = pluralize(type_to_string('entity', decodeURIComponent(props.params.entity_type)))
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title}`,

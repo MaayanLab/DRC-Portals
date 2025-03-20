@@ -12,20 +12,20 @@ export default async function Layout(props: {
   params: { entity_type: string, slug: string },
 }) {
   const item = await getItem(props.params)
-  if (!item) return notFound()
+  if (!item?.entity) return notFound()
   return (
     <LandingPageLayout
-      title={item.node.label}
+      title={item.label}
       subtitle={type_to_string('entity', decodeURIComponent(props.params.entity_type))}
-      description={format_description(item.node.description)}
+      description={format_description(item.description)}
       metadata={[
-        item.gene && {
+        item.entity.gene && {
           label: <>Ensembl Gene ID</>,
-          value: <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item.gene.ensembl}`} target="_blank">{item.gene.ensembl}</a>
+          value: <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item.entity.gene.ensembl}`} target="_blank">{item.entity.gene.ensembl}</a>
         },
-        item.gene && {
+        item.entity.gene && {
           label: <>Entrez Gene ID</>,
-          value: <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item.gene.entrez}`} target="_blank">{item.gene.entrez}</a>
+          value: <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item.entity.gene.entrez}`} target="_blank">{item.entity.gene.entrez}</a>
         },
       ]}
     >

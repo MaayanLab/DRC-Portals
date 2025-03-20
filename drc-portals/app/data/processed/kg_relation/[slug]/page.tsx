@@ -9,29 +9,31 @@ import { notFound } from "next/navigation";
 
 type PageProps = { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((slug: string) => prisma.kGRelationNode.findUnique({
-  where: { node: { type: 'kg_relation', entity_type: null, slug } },
+const getItem = cache((slug: string) => prisma.node.findUnique({
+  where: { type_entity_type_slug: { type: 'kg_relation', entity_type: '', slug: decodeURIComponent(slug) } },
   select: {
-    node: {
+    id: true,
+    label: true,
+    description: true,
+    kg_relation_node: {
       select: {
-        label: true,
-        description: true,
+        id: true,
       },
     },
   },
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = type_to_string('kg_relation', null)
+  const title = type_to_string('kg_relation', '')
   const item = await getItem(props.params.slug)
-  if (!item) return {}
+  if (!item?.kg_relation_node) return {}
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
-    description: item.node.description,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.label}`,
+    description: item.description,
     keywords: [
       title,
-      item.node.label,
+      item.label,
       parentMetadata.keywords,
     ].join(', '),
   }
@@ -42,7 +44,7 @@ export default async function Page(props: { params: { slug: string }, searchPara
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
   const item = await getItem(props.params.slug)
-  if (!item) return notFound()
+  if (!item?.kg_relation_node) return notFound()
   const [results] = await prisma.$queryRaw<Array<{
     assertions: {
       id: string,
@@ -56,9 +58,8 @@ export default async function Page(props: { params: { slug: string }, searchPara
   }>>`
     with kg_assertion_f as (
       select *
-      from "node" n
-      inner join "kg_assertion" on "kg_assertion"."relation_id" = n.id
-      where n.slug = ${props.params.slug}
+      from "kg_assertion"
+      where "kg_assertion"."relation_id" = ${item.id}::uuid
     ), kg_assertion_fs as (
       select *
       from kg_assertion_f
@@ -112,9 +113,9 @@ export default async function Page(props: { params: { slug: string }, searchPara
   if (!results) return notFound()
   return (
     <LandingPageLayout
-      title={human_readable(item.node.label)}
-      subtitle={type_to_string('kg_relation', null)}
-      description={format_description(item.node.description)}
+      title={human_readable(item.label)}
+      subtitle={type_to_string('kg_relation', '')}
+      description={format_description(item.description)}
       metadata={[
         { label: 'Assertions', value: results.n_assertions.toLocaleString() },
       ]}
@@ -135,7 +136,7 @@ export default async function Page(props: { params: { slug: string }, searchPara
         rows={results.assertions.map(assertion => [
           assertion.dcc.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
           <LinkedTypedNode type="entity" slug={assertion.source.slug} label={assertion.source.label} entity_type={assertion.source.type} search={searchParams.q ?? ''} />,
-          <LinkedTypedNode type="kg_relation" slug={props.params.slug} label={human_readable(item.node.label)} focus />,
+          <LinkedTypedNode type="kg_relation" slug={props.params.slug} label={human_readable(item.label)} focus />,
           <LinkedTypedNode type="entity" slug={assertion.target.slug} label={assertion.target.label} entity_type={assertion.target.type} search={searchParams.q ?? ''} />,
           assertion.evidence?.toString(),
         ])}

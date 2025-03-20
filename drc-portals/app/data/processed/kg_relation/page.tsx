@@ -7,7 +7,7 @@ import { Metadata, ResolvingMetadata } from 'next'
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('kg_relation', null))
+  const title = pluralize(type_to_string('kg_relation', ''))
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title}`,
@@ -58,7 +58,7 @@ export default async function Page(props: PageProps) {
       count={count}
     >
       <SearchablePagedTable
-        label={`${type_to_string('kg_relation', null)} (Entity Type)`}
+        label={`${type_to_string('kg_relation', '')} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}

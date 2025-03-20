@@ -9,44 +9,45 @@ import { metadata } from "@/app/data/layout";
 
 type PageProps = { params: { slug: string } }
 
-const getItem = cache((slug: string) => prisma.c2M2FileNode.findUnique({
-  where: { node: { entity: 'c2m2_file', entity_type: null, slug } },
+const getItem = cache((slug: string) => prisma.node.findUnique({
+  where: { type_entity_type_slug: { type: 'c2m2_file', entity_type: '', slug: decodeURIComponent(slug) } },
   select: {
-    persistent_id: true,
-    access_url: true,
-    size_in_bytes: true,
-    file_format: true,
-    assay_type: true,
-    data_type: true,
-    node: {
+    id: true,
+    label: true,
+    description: true,
+    dcc: {
       select: {
+        short_label: true,
         label: true,
-        description: true,
-        dcc: {
-          select: {
-            short_label: true,
-            label: true,
-            icon: true,
-            homepage: true,
-          }
-        },
-      },
+        icon: true,
+        homepage: true,
+      }
+    },
+    c2m2_file: {
+      select: {
+        persistent_id: true,
+        access_url: true,
+        size_in_bytes: true,
+        file_format: true,
+        assay_type: true,
+        data_type: true,
+      }
     }
   },
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = type_to_string('c2m2_file', null)
+  const title = type_to_string('c2m2_file', '')
   const item = await getItem(props.params.slug)
-  if (!item) return {}
+  if (!item?.c2m2_file) return {}
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
-    description: item.node.description,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.label}`,
+    description: item.description,
     keywords: [
       title,
-      item.node.label,
-      item.node.dcc?.short_label,
+      item.label,
+      item.dcc?.short_label,
       parentMetadata.keywords,
     ].join(', '),
   }
@@ -54,33 +55,33 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
 
 export default async function Page(props: PageProps) {
   const item = await getItem(props.params.slug)
-  if (!item) return notFound()
+  if (!item?.c2m2_file) return notFound()
   return (
     <>
       <LandingPageLayout
-        icon={item.node.dcc?.icon ? { href: `/info/dcc/${item.node.dcc.short_label}`, src: item.node.dcc.icon, alt: item.node.dcc.label } : undefined}
-        title={item.node.label}
-        subtitle={type_to_string('c2m2_file', null)}
-        description={format_description(item.node.description)}
+        icon={item.dcc?.icon ? { href: `/info/dcc/${item.dcc.short_label}`, src: item.dcc.icon, alt: item.dcc.label } : undefined}
+        title={item.label}
+        subtitle={type_to_string('c2m2_file', '')}
+        description={format_description(item.description)}
         metadata={[
-          item.node.dcc?.label ? {
+          item.dcc?.label ? {
             label: 'Project',
-            value: <Link href={`/info/dcc/${item.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.node.dcc.label}</Link>
+            value: <Link href={`/info/dcc/${item.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{item.dcc.label}</Link>
           } : null,
-          item.persistent_id ? {
+          item.c2m2_file.persistent_id ? {
             label: 'Persistent ID',
-            value: /^https?:\/\//.exec(item.persistent_id) !== null ?
-              <Link href={item.persistent_id} className="underline cursor-pointer text-blue-600" target="_blank">{item.persistent_id}</Link>
-              : item.persistent_id,
+            value: /^https?:\/\//.exec(item.c2m2_file.persistent_id) !== null ?
+              <Link href={item.c2m2_file.persistent_id} className="underline cursor-pointer text-blue-600" target="_blank">{item.c2m2_file.persistent_id}</Link>
+              : item.c2m2_file.persistent_id,
           } : null,
-          process.env.PUBLIC_URL && item.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${props.params.id}` } : null,
-          item.size_in_bytes ? {
+          process.env.PUBLIC_URL && item.c2m2_file.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${item.id}` } : null,
+          item.c2m2_file.size_in_bytes ? {
             label: 'Size in Bytes',
-            value: item.size_in_bytes.toLocaleString(),
+            value: item.c2m2_file.size_in_bytes.toLocaleString(),
           } : null,
-          { label: 'File Format', value: item.file_format },
-          { label: 'Assay Type', value: item.assay_type },
-          { label: 'Data Type', value: item.data_type },
+          { label: 'File Format', value: item.c2m2_file.file_format },
+          { label: 'Assay Type', value: item.c2m2_file.assay_type },
+          { label: 'Data Type', value: item.c2m2_file.data_type },
         ]}
       />
       <script
@@ -88,14 +89,14 @@ export default async function Page(props: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context":"http://schema.org",
           "@type":"Dataset",
-          "name":item.node.label,
-          "description":item.node.description,
+          "name":item.label,
+          "description":item.description,
           "keywords":[
             metadata.keywords,
-            item.node.dcc?.short_label,
-            item.assay_type,
-            item.data_type,
-            item.file_format,
+            item.dcc?.short_label,
+            item.c2m2_file.assay_type,
+            item.c2m2_file.data_type,
+            item.c2m2_file.file_format,
           ].join(', '),
           "includedInDataCatalog": {
             "@type": "DataCatalog",
@@ -112,19 +113,19 @@ export default async function Page(props: PageProps) {
             "name":"Common Fund Data Ecosystem (CFDE) Data Resource Center (DRC)",
             "url":"https://info.cfde.cloud"
           },
-          "creator": item.node.dcc ? {
+          "creator": item.dcc ? {
             "@type": "Organization",
-            "name": item.node.dcc.label,
-            "url": item.node.dcc.homepage || `https://info.cfde.cloud/dcc/${item.node.dcc.short_label}`
+            "name": item.dcc.label,
+            "url": item.dcc.homepage || `https://info.cfde.cloud/dcc/${item.dcc.short_label}`
           } : undefined,
-          "distribution": item.access_url ? [
+          "distribution": item.c2m2_file.access_url ? [
             {
               "@type":"DataDownload",
-              name: item.node.label,
-              description: item.node.description,
-              measurementMethod: item.assay_type,
-              contentUrl: item.access_url,
-              contentSize: item.size_in_bytes ? BigInt(item.size_in_bytes).toString() : undefined,
+              name: item.label,
+              description: item.description,
+              measurementMethod: item.c2m2_file.assay_type,
+              contentUrl: item.c2m2_file.access_url,
+              contentSize: item.c2m2_file.size_in_bytes ? BigInt(item.c2m2_file.size_in_bytes).toString() : undefined,
             },
           ] : undefined,
         }) }}
