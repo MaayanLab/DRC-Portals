@@ -386,7 +386,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
 
 
 
-export function generateFilterClauseFromtParam(t: { type: string; entity_type: string | null; }[] | undefined, tablename: string): SQL {
+export function generateFilterClauseFromtParam(t: { type: string; entity_type: string; }[] | undefined, tablename: string): SQL {
   let filters = [] as SQL[];
 
   if (t) {
@@ -459,13 +459,13 @@ export function getDCCAbbr(iconKey: string): string {
 }
 interface FilterParam {
   type: string;
-  entity_type: string | null;
+  entity_type: string;
 }
 
 export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchStr: string | undefined): string {
   if (filtParams !== undefined) {
     const entityTypes = filtParams.map(param => {
-      if (param.type === "dcc" && param.entity_type !== null) {
+      if (param.type === "dcc" && param.entity_type) {
         return getDCCAbbr(param.entity_type);
       } else {
         return param.entity_type || "";

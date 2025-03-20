@@ -28,7 +28,7 @@ entity_helper = TableHelper('entity_node', ('id', 'type',), pk_columns=('id',))
 kg_relation_helper = TableHelper('kg_relation_node', ('id',), pk_columns=('id',))
 kg_assertion_helper = TableHelper('kg_assertion', ('id', 'dcc_id', 'relation_id', 'source_id', 'target_id', 'SAB', 'evidence',), pk_columns=('id',))
 gene_helper = TableHelper('gene_entity', ('id', 'entrez', 'ensembl',), pk_columns=('id',))
-node_helper = TableHelper('node', ('id', 'type', 'entity_type', 'label', 'description', 'dcc_id', 'pagerank'), pk_columns=('id',), add_columns=('pagerank',))
+node_helper = TableHelper('node', ('id', 'slug', 'type', 'entity_type', 'label', 'description', 'dcc_id', 'pagerank'), pk_columns=('id',), add_columns=('pagerank',))
 
 for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
   with kg_assertion_helper.writer() as kg_assertion:
@@ -48,6 +48,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                     if gene_id not in genes:
                       genes[gene_id] = dict(
                         id=gene_id,
+                        slug=gene_ensembl,
                         type='entity',
                         entity_type='gene',
                         label=gene_labels[gene_ensembl],
@@ -75,6 +76,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                     entities[entity_id] = dict(
                       id=entity_id,
                       type='entity',
+                      slug=entity_id,
                       entity_type=entity_type,
                       label=entity_label,
                       description=entity_description or f"A {entity_type.lower()} in the knowledge graph",
@@ -136,7 +138,9 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                       if relation_id not in kg_relations:
                         kg_relations[relation_id] = dict(
                           id=relation_id,
+                          slug=assertion['relation'],
                           type='kg_relation',
+                          entity_type='',
                           label=assertion['relation'],
                           description="A relationship in the knowledge graph",
                           pagerank=1,

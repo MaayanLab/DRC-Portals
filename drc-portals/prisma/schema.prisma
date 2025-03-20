@@ -273,8 +273,9 @@ enum NodeType {
 model Node {
   dcc_id      String?
   id          String                   @id @db.Uuid
+  slug        String
   type        NodeType
-  entity_type String?
+  entity_type String                   @default("")
   label       String
   description String
   searchable  Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english'::regconfig, ((label || ' '::text) || description))"))
@@ -295,6 +296,7 @@ model Node {
   @@index([pagerank(sort: Desc)], map: "node_pagerank", type: BTree)
   @@index([searchable], map: "node_searchable_fts", type: Gin)
   @@map("node")
+  @@unique([type, entity_type, slug])
 }
 
 model EntityNode {
@@ -538,6 +540,11 @@ model Center {
   icon              String?
   grant_num         String?
   active            Boolean   @default(true)
+  project_title     String @default("")
+  principal_investigators  Json?
+  institution       Json?
+  press_release     Json?
+  video_tutorial    String?
   outreach          CenterOutreach[]
   publication       CenterPublications[]
 
@@ -554,11 +561,11 @@ model CenterOutreach {
 }
 
 model CenterPublications {
-  publication_id  String    @id
+  publication_id  String
   center_id    String
   center       Center    @relation(fields: [center_id], references: [id])
-  outreach     Publication  @relation(fields: [publication_id], references: [id])
-
+  publication     Publication  @relation(fields: [publication_id], references: [id])
+  @@id([publication_id, center_id])
   @@map("center_publications")
 }
 

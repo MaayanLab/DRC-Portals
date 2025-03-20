@@ -54,7 +54,7 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
         ...(fileAsset ? {...fileAsset, size: fileAsset.size?.toString()} : codeAsset ?? {})
       },
     ],
-  }, msg => {helpers.logger.debug(msg)})
+  }, msg => {helpers.logger.info(msg)})
   helpers.abortSignal?.throwIfAborted()
   helpers.logger.info(`Registering FAIR assessment for ${payload.link}...`)
   await prisma.fairAssessment.create({

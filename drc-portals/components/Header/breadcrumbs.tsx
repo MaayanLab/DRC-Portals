@@ -13,17 +13,17 @@ export default function NavBreadcrumbs() {
         let path_split = path.replace("/", "").split("/")
         const format_path_split = path_split.map(p => decodeURIComponent(p).replace('_', ' '))
         if (path_split[0] === 'data' && path_split[1] === 'processed') {
-            format_path_split[1] = type_to_string(decodeURIComponent(path_split[1]), null)
+            format_path_split[1] = type_to_string(decodeURIComponent(path_split[1]), '')
             if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', decodeURIComponent(path_split[3]))
-            if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), null)
+            if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), '')
         }
         if (path_split[0] === 'data' && path_split[1] === 'search') {
             if (path_split[3] === 'entity' && path_split[4]) format_path_split[4] = type_to_string('entity', decodeURIComponent(path_split[4]))
-            if (path_split[3]) format_path_split[3] = type_to_string(decodeURIComponent(path_split[3]), null)
+            if (path_split[3]) format_path_split[3] = type_to_string(decodeURIComponent(path_split[3]), '')
         }
         if (path_split[0] === 'search') {
             if (path_split[2] === 'entity' && path_split[3]) format_path_split[3] = type_to_string('entity', decodeURIComponent(path_split[3]))
-            if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), null)
+            if (path_split[2]) format_path_split[2] = type_to_string(decodeURIComponent(path_split[2]), '')
         }
         if (path_split[0] === 'submit'){
             if (format_path_split[1] === 'form') {
