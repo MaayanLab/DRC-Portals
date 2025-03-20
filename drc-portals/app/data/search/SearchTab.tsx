@@ -11,7 +11,7 @@ import Tab from '@mui/material/Tab'
 export default function SearchTabs(props: React.PropsWithChildren<{
   type_counts: {
     type: NodeType | 'processed' | 'c2m2';
-    entity_type: string | null;
+    entity_type: string;
     count: number;
   }[],
   defaultSType: string,

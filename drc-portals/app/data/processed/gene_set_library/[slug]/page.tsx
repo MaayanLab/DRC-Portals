@@ -10,55 +10,56 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import modules from "./modules";
 
-type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+type PageProps = { params: { slug: string }, searchParams: Record<string, string | string[] | undefined> }
 
-const getItem = cache((id: string) => prisma.geneSetLibraryNode.findUnique({
-  where: { id },
+const getItem = cache((slug: string) => prisma.node.findUnique({
+  where: { type_entity_type_slug: { type: 'gene_set_library', entity_type: '', slug: decodeURIComponent(slug) } },
   select: {
-    dcc_asset_link: true,
-    dcc_asset: {
+    id: true,
+    label: true,
+    description: true,
+    dcc: {
       select: {
-        fileAsset: {
+        short_label: true,
+        label: true,
+        icon: true,
+      }
+    },
+    gene_set_library: {
+      select: {
+        dcc_asset_link: true,
+        dcc_asset: {
           select: {
-            filename: true,
+            fileAsset: {
+              select: {
+                filename: true,
+              },
+            },
           },
         },
-      },
-    },
-    _count: {
-      select: {
-        gene_sets: true,
-        genes: true,
-      }
-    },
-    node: {
-      select: {
-        label: true,
-        description: true,
-        dcc: {
+        _count: {
           select: {
-            short_label: true,
-            label: true,
-            icon: true,
+            gene_sets: true,
+            genes: true,
           }
         },
-      }
+      },
     },
   },
 }))
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = type_to_string('gene_set_library', null)
-  const item = await getItem(props.params.id)
-  if (!item) return {}
+  const title = type_to_string('gene_set_library', '')
+  const item = await getItem(props.params.slug)
+  if (!item?.gene_set_library) return {}
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | ${title} | ${item.node.label}`,
-    description: item.node.description,
+    title: `${parentMetadata.title?.absolute} | ${title} | ${item.label}`,
+    description: item.description,
     keywords: [
       title,
-      item.node.label,
-      item.node.dcc?.short_label,
+      item.label,
+      item.dcc?.short_label,
       parentMetadata.keywords,
     ].join(', '),
   }
@@ -68,10 +69,10 @@ export default async function Page(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const library = await getItem(props.params.id)
-  if (!library) return notFound()
+  const library = await getItem(props.params.slug)
+  if (!library?.gene_set_library) return notFound()
   const library_sets = await prisma.geneSetLibraryNode.findUnique({
-    where: { id: props.params.id },
+    where: { id: library.id },
     select: {
       _count: {
         select: {
@@ -89,6 +90,7 @@ export default async function Page(props: PageProps) {
           id: true,
           node: {
             select: {
+              slug: true,
               type: true,
               label: true,
               description: true,
@@ -113,18 +115,18 @@ export default async function Page(props: PageProps) {
   if (!library_sets) return notFound()
   return (
     <LandingPageLayout
-      icon={library.node.dcc?.icon ? { href: `/info/dcc/${library.node.dcc.short_label}`, src: library.node.dcc.icon, alt: library.node.dcc.label } : undefined}
-      title={library.node.label}
-      subtitle={type_to_string('gene_set_library', null)}
-      description={format_description(library.node.description)}
+      icon={library.dcc?.icon ? { href: `/info/dcc/${library.dcc.short_label}`, src: library.dcc.icon, alt: library.dcc.label } : undefined}
+      title={library.label}
+      subtitle={type_to_string('gene_set_library', '')}
+      description={format_description(library.description)}
       metadata={[
-        ...library.node.dcc?.label ? [
-          { label: 'Project', value: <Link href={`/info/dcc/${library.node.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{library.node.dcc.label}</Link> },
-          { label: 'Asset', value:  <Link href={`/data/matrix/${library.node.dcc.short_label}#XMT`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
+        ...library.dcc?.label ? [
+          { label: 'Project', value: <Link href={`/info/dcc/${library.dcc.short_label}`} className="underline cursor-pointer text-blue-600">{library.dcc.label}</Link> },
+          { label: 'Asset', value:  <Link href={`/data/matrix/${library.dcc.short_label}#XMT`} className="underline cursor-pointer text-blue-600">Asset Page</Link> },
         ] : [],
-        { label: 'Gene coverage', value: library._count.genes.toLocaleString() },
-        { label: 'Gene sets', value: library._count.gene_sets.toLocaleString() },
-        { label: 'Download', value: <Link href={library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.dcc_asset_link}</Link> },
+        { label: 'Gene coverage', value: library.gene_set_library._count.genes.toLocaleString() },
+        { label: 'Gene sets', value: library.gene_set_library._count.gene_sets.toLocaleString() },
+        { label: 'Download', value: <Link href={library.gene_set_library.dcc_asset_link} className="underline cursor-pointer text-blue-600">{library.gene_set_library.dcc_asset_link}</Link> },
       ]}
     >
     <Grid container sx={{paddingTop: 5, paddingBottom: 5}}>
@@ -133,8 +135,8 @@ export default async function Page(props: PageProps) {
       </Grid>
       <Grid item xs={12} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {modules
-          .filter(({ compatible }) => compatible({ id: props.params.id, node: library.node, access_url: library.dcc_asset_link, filename: library.dcc_asset.fileAsset?.filename ?? `${library.node.label}.gmt` }))
-          .map(({ button: ModButton }, i) => <ModButton key={i} item={{ id: props.params.id, node: library.node, access_url: library.dcc_asset_link, filename: library.dcc_asset.fileAsset?.filename ?? `${library.node.label}.gmt` }} />)}
+          .filter(({ compatible }) => library.gene_set_library && compatible({ id: library.id, node: library, access_url: library.gene_set_library.dcc_asset_link, filename: library.gene_set_library.dcc_asset.fileAsset?.filename ?? `${library.label}.gmt` }))
+          .map(({ button: ModButton }, i) => library.gene_set_library && <ModButton key={i} item={{ id: library.id, node: library, access_url: library.gene_set_library.dcc_asset_link, filename: library.gene_set_library.dcc_asset.fileAsset?.filename ?? `${library.label}.gmt` }} />)}
       </Grid>
     </Grid>
       <SearchablePagedTable
@@ -148,7 +150,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={library_sets.gene_sets.map(gene_set => [
-          <LinkedTypedNode type="gene_set" id={gene_set.id} label={gene_set.node.label} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type="gene_set" slug={gene_set.node.slug} label={gene_set.node.label} search={searchParams.q ?? ''} />,
           format_description(gene_set.node.description),
         ])}
       />

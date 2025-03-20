@@ -9,7 +9,7 @@ import ErrorRedirect from "./ErrorRedirect";
 export default async function Page(props: { search: string }) {
   const { data: [results] = [undefined], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     count: number,
-    type_counts: {type: NodeType | 'processed' | 'c2m2', entity_type: string | null, count: number}[],
+    type_counts: {type: NodeType | 'processed' | 'c2m2', entity_type: string, count: number}[],
   }>>`
     with results as (
       select "type", "entity_type", count(*) as count
@@ -27,7 +27,7 @@ export default async function Page(props: { search: string }) {
   `)
   if (error) console.error(error)
   if (!results?.count) return <FancyTab id="processed" label="Processed Data" hidden />
-  results.type_counts.splice(0, 0, { type: 'processed', entity_type: null, count: results.count })
+  results.type_counts.splice(0, 0, { type: 'processed', entity_type: '', count: results.count })
   return Object.values(results.type_counts).map(result => (
     <FancyTab
       key={`${result.type}-${result.entity_type}`}

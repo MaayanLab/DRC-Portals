@@ -3,18 +3,21 @@ import { human_readable, useSanitizedSearchParams } from "@/app/data/processed/u
 import { Prisma } from "@prisma/client";
 import SearchablePagedTable, { LinkedTypedNode, SearchablePagedTableCellIcon } from "@/app/data/processed/SearchablePagedTable";
 import { safeAsync } from "@/utils/safe";
+import { getItem } from "../item";
 
-export default async function Page(props: { params: { entity_type: string, id: string }, searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Page(props: { params: { entity_type: string, slug: string }, searchParams: Record<string, string | string[] | undefined> }) {
   const searchParams = useSanitizedSearchParams(props)
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
+  const node = await getItem(props.params)
+  if (!node) return null
   const { data: [results] = [], error } = await safeAsync(() => prisma.$queryRaw<Array<{
     assertions: {
       id: string,
       evidence: Prisma.JsonValue,
-      source: { id: string, type: string, label: string },
-      relation: { id: string, label: string },
-      target: { id: string, type: string, label: string },
+      source: { slug: string, type: string, label: string },
+      relation: { slug: string, label: string },
+      target: { slug: string, type: string, label: string },
       dcc: { short_label: string, icon: string, label: string },
     }[],
     n_filtered_assertions: number,
@@ -29,9 +32,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
         "kg_assertion"."target_id",
         "kg_assertion"."dcc_id"
       from "kg_assertion"
-      where
-      "kg_assertion"."source_id" = ${props.params.id}::uuid
-      or "kg_assertion"."target_id" = ${props.params.id}::uuid
+      where "kg_assertion"."source_id" = ${node.id}::uuid or "kg_assertion"."target_id" = ${node.id}::uuid
     ), kg_assertion_fs as (
       select *
       from kg_assertion_f
@@ -48,7 +49,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
         kg_assertion_fs."evidence",
         (
           select jsonb_build_object(
-            'id', "entity_node"."id",
+            'slug', "node"."slug",
             'type', "entity_node".type,
             'label', "node".label
           )
@@ -58,7 +59,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
         ) as source,
         (
           select jsonb_build_object(
-            'id', "kg_relation_node"."id",
+            'slug', "node"."slug",
             'label', "node".label
           )
           from "kg_relation_node"
@@ -67,7 +68,7 @@ export default async function Page(props: { params: { entity_type: string, id: s
         ) as relation,
         (
           select jsonb_build_object(
-            'id', "entity_node"."id",
+            'slug', "node"."slug",
             'type', "entity_node".type,
             'label', "node".label
           )
@@ -112,9 +113,9 @@ export default async function Page(props: { params: { entity_type: string, id: s
       ]}
       rows={results.assertions.map(assertion => [
         assertion.dcc?.icon ? <SearchablePagedTableCellIcon href={`/info/dcc/${assertion.dcc.short_label}`} src={assertion.dcc.icon} alt={assertion.dcc.label} /> : null,
-        <LinkedTypedNode type="entity" entity_type={assertion.source.type} id={assertion.source.id} focus={assertion.source.id === props.params.id} label={assertion.source.label} />,
-        <LinkedTypedNode type="kg_relation" id={assertion.relation.id} label={human_readable(assertion.relation.label)} search={searchParams.q ?? ''} />,
-        <LinkedTypedNode type="entity" entity_type={assertion.target.type} id={assertion.target.id} focus={assertion.target.id === props.params.id} label={assertion.target.label} />,
+        <LinkedTypedNode type="entity" entity_type={assertion.source.type} slug={assertion.source.slug} focus={assertion.source.slug === props.params.slug} label={assertion.source.label} />,
+        <LinkedTypedNode type="kg_relation" slug={assertion.relation.slug} label={human_readable(assertion.relation.label)} search={searchParams.q ?? ''} />,
+        <LinkedTypedNode type="entity" entity_type={assertion.target.type} slug={assertion.target.slug} focus={assertion.target.slug === props.params.slug} label={assertion.target.label} />,
         assertion.evidence?.toString(),
       ])}
     />

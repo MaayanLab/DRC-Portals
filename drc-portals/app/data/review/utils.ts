@@ -82,7 +82,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
       ]).transform(ss => {
         if (!ss) return undefined;
         const [type, entity_type] = ss.split(':');
-        return { type, entity_type: entity_type ? entity_type : null };
+        return { type, entity_type };
       }),
       p: z.union([
         z.array(z.string()).transform(ps => +ps[ps.length - 1]),
@@ -100,7 +100,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
         z.undefined(),
       ]).transform(ts => ts ? ts.map(t => {
         const [type, entity_type] = t.split(':');
-        return { type, entity_type: entity_type ? entity_type : null };
+        return { type, entity_type };
       }) : undefined),
       et: z.union([
         z.array(z.string()),
@@ -108,7 +108,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
         z.undefined(),
       ]).transform(ts => ts ? ts.map(t => {
         const [type, entity_type] = t.split(':');
-        return { type, entity_type: entity_type ? entity_type : null };
+        return { type, entity_type };
       }) : undefined),
       schema_name: z.string().optional(),
       table_name: z.string().optional(),

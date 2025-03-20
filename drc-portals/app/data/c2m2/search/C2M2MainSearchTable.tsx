@@ -12,7 +12,7 @@ interface C2M2MainSearchTableProps {
     p: number;
     r: number;
     count?: number;
-    t?: { type: string; entity_type: string | null; }[] | undefined;
+    t?: { type: string; entity_type: string; }[] | undefined;
     columns: React.ReactNode[];
     rows: RowType[];
     tablePrefix: string;

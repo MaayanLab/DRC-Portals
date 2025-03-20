@@ -29,7 +29,7 @@ interface ExpandableTableProps {
         q?: string | null | undefined;
         p: number;
         r: number;
-        t?: { type: string; entity_type: string | null; }[] | undefined;
+        t?: { type: string; entity_type: string; }[] | undefined;
     };
     count: number;
     colNames: string[];
