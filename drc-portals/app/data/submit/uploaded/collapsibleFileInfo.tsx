@@ -23,6 +23,44 @@ import { generateInsignia } from './FairshakeInsignia';
 import { assessAsset } from './assessAsset';
 
 
+export function FairAssessmentLogDialogButton({ log }: { log: string }) {
+    const [open, setOpen] = React.useState(false);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    return (
+        <React.Fragment>
+            <button className="text-blue-600" onClick={handleClickOpen}>view logs</button>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                fullWidth
+                maxWidth="lg"
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"FAIR Assessment Logs"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        These are the logs that occurred while assessing your asset for FAIRness. Please contact us if you're having trouble deciphering them.
+                    </DialogContentText>
+                    <textarea className="w-full overflow-auto whitespace-nowrap font-mono" rows={20}>{log}</textarea>
+                </DialogContent>
+                <DialogActions>
+                    <Button color="secondary" onClick={handleClose}>OK</Button>
+                </DialogActions>
+            </Dialog>
+        </React.Fragment>
+    );
+}
 
 export function CollapsibleArrow({ open, setOpen }: { open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>> }) {
     return (
@@ -84,7 +122,11 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                     </TableRow>
                     <TableRow>
                         <TableCell variant="head" align="left" style={{ width: 200 }}>FAIR Assessment</TableCell>
-                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'} {props.role === 'ADMIN' ? <button className="text-blue-600" onClick={() => {assessAsset(props.fileInfo)}}>trigger run</button> : null}</TableCell>
+                        <TableCell>
+                            {props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'}
+                            {props.role === 'ADMIN' && <>&nbsp;<button className="text-blue-600" onClick={() => {assessAsset(props.fileInfo)}}>trigger run</button></>}
+                            {props.fairAssessment?.log && <>&nbsp;<FairAssessmentLogDialogButton log={props.fairAssessment.log} /></>}
+                        </TableCell>
                     </TableRow>
                 </Table>
             </Box>}
@@ -133,7 +175,11 @@ export function FileInfo(props: FileAssetInfo | CodeAssetInfo) {
                         </>}
                     <TableRow>
                         <TableCell variant="head" align="left" style={{ width: 200 }}>FAIR Assessment</TableCell>
-                        <TableCell>{props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'} {props.role === 'ADMIN' ? <button className="text-blue-600" onClick={() => {assessAsset(props.fileInfo)}}>trigger run</button> : null}</TableCell>
+                        <TableCell>
+                            {props.fairAssessment ? props.fairAssessment.timestamp.toLocaleString() : 'Pending'}
+                            {props.role === 'ADMIN' && <>&nbsp;<button className="text-blue-600" onClick={() => {assessAsset(props.fileInfo)}}>trigger run</button></>}
+                            {props.fairAssessment?.log && <>&nbsp;<FairAssessmentLogDialogButton log={props.fairAssessment.log} /></>}
+                        </TableCell>
                     </TableRow>
                 </Table>
             </Box>}

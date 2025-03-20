@@ -27,6 +27,7 @@ from ontology.obo import OBOOntology
 from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
 import traceback
+import subprocess
 import logging; logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
 
@@ -371,14 +372,15 @@ def traverse_datasets(hdf_file):
 
 def c2m2_fair(directory):
     """Run FAIR Assessment for a C2M2 file asset given its filepath"""
-    try: 
-        CFDE = create_offline_client(
-            *(
+    try:
+        package, *more_packages = (
             deep_find(directory, 'C2M2_datapackage.json')
             | deep_find(directory, 'datapackage.json')
-            ),
-            cachedir=directory,
         )
+        if more_packages:
+            print(f"Assessing {package=}, but also found {more_packages=}")
+        subprocess.check_call([sys.executable, '-m', 'frictionless', 'validate', package], stdout=sys.stdout, stderr=sys.stderr)
+        CFDE = create_offline_client(package, cachedir=directory)
         result = assess(CFDE, rubric='drc2024', full=False)
         rubric = {}
         for index, row in result.iterrows():
