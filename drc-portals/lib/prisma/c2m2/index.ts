@@ -16,5 +16,17 @@ export default singleton('prisma-c2m2', () => {
     })
     return prisma
   }
-  return new PrismaClient()
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.C2M2_DATABASE_URL || process.env.DATABASE_URL,
+      },
+    },
+  }).$extends({
+    query: {
+      $allOperations({ args, query, operation }) {
+        return query(args).catch(e => console.error(`[exception in prisma-c2m2 op ${operation}]: ${e}`))
+      },
+    },
+  })
 })

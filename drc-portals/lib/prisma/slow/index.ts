@@ -27,5 +27,11 @@ export default singleton('prisma-slow', () => {
         url: process.env.PDP_DATABASE_URL || process.env.DATABASE_URL,
       },
     },
+  }).$extends({
+    query: {
+      $allOperations({ args, query, operation }) {
+        return query(args).catch(e => console.error(`[exception in prisma-slow op ${operation}]: ${e}`))
+      },
+    },
   })
 })
