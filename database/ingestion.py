@@ -15,6 +15,8 @@ from ingest_common import (
   dcc_usecase_path,
   usecase_path,
   news_path,
+  get_clean_path,
+  write_clean_file,
 )
 
 cur = connection.cursor()
@@ -93,7 +95,24 @@ cur.execute('''
   with no data;
 ''')
 
-with open(publications_path(), 'r') as fr:
+# If a column has "[""something 1"", ""something 2""]", the copy_from will throw error. Then, based on:
+# https://stackoverflow.com/questions/73623152/psycopg2-copy-from-is-inserting-data-with-double-quotes-when-whitespace-is-pre
+# Try the below style: 
+# Ref: https://www.psycopg.org/docs/cursor.html#cursor.copy_expert
+# Ref: https://www.postgresql.org/docs/8.2/sql-copy.html
+# with open('test.csv') as f:
+#    cur.copy_expert('COPY test_csv FROM stdin WITH CSV', f)
+# Or just clean the input file and use copy_from
+
+# clean the input file: it may contain (including extra double quotes): "[""text 1"", ""TEXT 2""]"
+# Note: publications_path is a function whereas publications_path_clean is Path object
+# publications_path() is a Path object
+publications_path_clean = get_clean_path(publications_path())
+write_clean_file(publications_path(), publications_path_clean, ['keywords'])
+
+# Now, use publications_path_clean instead of publications_path
+#with open(publications_path(), 'r') as fr: # original line
+with open(publications_path_clean, 'r') as fr:
     columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'publication_tmp',
       columns=columns,
@@ -102,8 +121,8 @@ with open(publications_path(), 'r') as fr:
     )
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured
+    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured, keywords)
+      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured, keywords
       from publication_tmp
       on conflict (id)
         do update
@@ -125,7 +144,8 @@ cur.execute('''
             carousel_link = excluded.carousel_link,
             carousel_description = excluded.carousel_description,
             image = excluded.image,
-            featured = excluded.featured
+            featured = excluded.featured,
+            keywords = excluded.keywords
     ;
   ''')
 cur.execute('drop table publication_tmp;')
@@ -167,7 +187,11 @@ cur.execute('''
   with no data;
 ''')
 
-with open(outreach_path(), 'r') as fr:
+outreach_path_clean = get_clean_path(outreach_path())
+write_clean_file(outreach_path(), outreach_path_clean, ['tags', 'agenda'])
+
+#with open(outreach_path(), 'r') as fr:
+with open(outreach_path_clean, 'r') as fr:
     columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'outreach_tmp',
       columns=columns,
