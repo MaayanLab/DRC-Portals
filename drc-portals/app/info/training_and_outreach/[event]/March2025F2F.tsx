@@ -40,7 +40,7 @@ export default function March2024F2F () {
 			</Grid>
 
 			<Grid item xs={12} sm={7} className="flex justify-center items-center">
-				<Image src='/img/poster-winners.png' alt='f2f' width={450} height={450}/>
+				{/* <Image src='/img/poster-winners.png' alt='f2f' width={450} height={450}/> */}
 			</Grid>
 		</Grid>
 	)
