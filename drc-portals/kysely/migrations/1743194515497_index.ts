@@ -1,0 +1,39 @@
+import { sql, type Kysely } from 'kysely'
+
+export async function up(db: Kysely<any>): Promise<void> {
+	await db.schema.withSchema('pdp')
+		.createIndex('entity_type_idx')
+		.on('_entity')
+		.column('type')
+		.execute()
+	await db.schema.withSchema('pdp')
+		.createIndex('entity_pagerank_idx')
+		.on('_entity')
+		.column('pagerank desc')
+		.execute()
+	await db.schema.withSchema('pdp')
+		.createIndex('entity_fts_idx')
+		.on('_entity')
+		.using('gin')
+		.expression(sql`jsonb_to_tsvector('english', attributes, '"all"')`)
+		.execute()
+	await db.schema.withSchema('pdp')
+		.createIndex('edge_predicate_idx')
+		.on('_edge')
+		.column('predicate')
+		.execute()
+	await db.schema.withSchema('pdp')
+		.createIndex('edge_target_id_source_id_idx')
+		.on('_edge')
+		.column('target_id')
+		.column('source_id')
+		.execute()
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+	await db.schema.withSchema('pdp').dropIndex('entity_type_idx').execute()
+	await db.schema.withSchema('pdp').dropIndex('entity_pagerank_idx').execute()
+	await db.schema.withSchema('pdp').dropIndex('entity_fts_idx').execute()
+	await db.schema.withSchema('pdp').dropIndex('edge_predicate_idx').execute()
+	await db.schema.withSchema('pdp').dropIndex('edge_target_id_source_id_idx').execute()
+}
