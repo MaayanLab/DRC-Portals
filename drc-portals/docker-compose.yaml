@@ -5,11 +5,11 @@ services:
     platform: linux/amd64
     image: maayanlab/drc-portal:0.16.2
     deploy:
-      replicas: 2
+      replicas: 3
       resources:
         reservations:
-          cpus: '1.0'
-          memory: 2048M
+          cpus: '2.0'
+          memory: 6144M
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
