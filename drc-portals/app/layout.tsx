@@ -26,11 +26,11 @@ export default function RootLayout({
         <AppProgressProvider>
           <ThemeRegistry options={{ key: 'mui' }}>
             <NextAuthProvider>
-              <AdministrationDirectives />
               <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
                 {/* <Grid item><Header/></Grid> */}
                 {children}
               </Grid>
+              <AdministrationDirectives />
             </NextAuthProvider>
           </ThemeRegistry>
         </AppProgressProvider>
