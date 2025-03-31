@@ -6,6 +6,8 @@
 
 */
 -- AlterTable
+set statement_timeout = 0;
+
 ALTER TABLE "node" ADD COLUMN     "slug" TEXT;
 
 UPDATE "node" SET "slug" = "id"::TEXT;
