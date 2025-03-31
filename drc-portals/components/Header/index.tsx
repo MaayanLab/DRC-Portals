@@ -58,8 +58,8 @@ const info_nav = [
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},
   {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
-  {title: "What's New?", href: "/info/news"},
-  // {title: "About", href: "/info/coming_soon"},
+//   {title: "What's New?", href: "/info/news"},
+  {title: "About", href: "/info/about"},
 ]
 
 const data_nav = [
