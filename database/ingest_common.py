@@ -110,6 +110,10 @@ def ensure_file_factory(url, path):
 # Fetch data for ingest
 dcc_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv', 'DCC.tsv')
 dcc_publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_publications.tsv', 'dcc_publications.tsv')
+centers_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_centers.tsv', 'Centers.tsv')
+center_publication_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_center_publications.tsv', 'Center_Publication.tsv')
+r03_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_r03s.tsv', 'R03.tsv')
+r03_publication_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_r03_publications.tsv', 'R03_Publication.tsv')
 publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_publications.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_outreach.tsv', 'outreach.tsv')

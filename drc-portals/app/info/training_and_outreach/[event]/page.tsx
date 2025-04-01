@@ -3,6 +3,7 @@ import Icon from '@mdi/react';
 import { mdiHelpRhombusOutline } from '@mdi/js';
 
 import March2024F2F from "./March2024F2F";
+import March2025F2F from "./March2025F2F";
 import CFDEWebinarSeries from "./CFDEWebinarSeries";
 import FOG from './FOG.mdx'
 import Fall2024 from './Fall2024.mdx'
@@ -14,6 +15,8 @@ export default async function OutreachEvent ({params}: {
 }) {
 	if (params.event === "2024-march-all-hands-meeting") {
 		return <March2024F2F />
+	} else if (params.event === "2025-march-all-hands-meeting") {
+		return <March2025F2F />
 	} else if (params.event === "cfde-webinar-series") {
 		return <CFDEWebinarSeries />
 	} else if (params.event === "festival-of-genomics") {

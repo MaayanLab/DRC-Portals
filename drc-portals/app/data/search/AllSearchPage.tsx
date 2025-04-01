@@ -27,7 +27,7 @@ export default async function Page(props: { search: string, type: string, entity
   const searchParams = useSanitizedSearchParams({ searchParams: {...props.searchParams, q: props.search } })
   const offset = (searchParams.p - 1)*searchParams.r
   const limit = searchParams.r
-  const filterClause = searchParams.et ? Prisma_join([
+  const filterClause = searchParams.et ? Prisma.sql`(${Prisma_join([
     // when DCC is available, we'll filter by entities per-dcc
     searchParams.et.some(t => t.type === 'dcc')
       ? Prisma_join(
@@ -56,7 +56,7 @@ export default async function Page(props: { search: string, type: string, entity
         ` : Prisma.empty}
       )
     `), ' or '),
-  ], ' or ') : Prisma.empty
+  ], ' or ')})` : Prisma.empty
   const [results] = searchParams.q ? await prisma.$queryRaw<Array<{
     items: {slug: string, type: NodeType, entity_type: string, label: string, description: string, dcc: { short_label: string, icon: string, label: string } | null}[],
     filter_count: number,

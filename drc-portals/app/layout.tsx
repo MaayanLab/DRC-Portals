@@ -5,6 +5,7 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { Grid } from '@mui/material'
 import AppProgressProvider from '@/utils/progressbar'
+import AdministrationDirectives from '@/components/misc/AdministrationDirectives'
 
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
@@ -29,6 +30,7 @@ export default function RootLayout({
                 {/* <Grid item><Header/></Grid> */}
                 {children}
               </Grid>
+              <AdministrationDirectives />
             </NextAuthProvider>
           </ThemeRegistry>
         </AppProgressProvider>

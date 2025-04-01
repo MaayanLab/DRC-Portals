@@ -490,6 +490,7 @@ model FairAssessment {
   type      String
   link      String
   dccAsset  DccAsset @relation(fields: [link], references: [link], onDelete: Cascade)
+  log       String?
   rubric    Json
   timestamp DateTime @default(now())
 
