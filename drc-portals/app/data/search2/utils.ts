@@ -1,63 +1,91 @@
 import { db } from '@/lib/kysely'
-import { CompiledQuery, Selectable, sql } from 'kysely'
+import { Selectable, sql } from 'kysely'
 import { DB } from 'kysely-codegen'
-
-/**
- * estimate how many rows a statement will return
- */
-async function count_estimate(q: CompiledQuery) {
-  const { rows } = await sql<{ Plan: { 'Plan Rows': number } }[]>`EXPLAIN (FORMAT JSON) ${q}`.execute(db)
-  return rows[0][0]['Plan']['Plan Rows']
-}
-
-/**
- * unordered fts search for entities
- */
-function search_entity_unordered(search: string) {
-  return db
-    .selectFrom('pdp.entity')
-    .where(sql`jsonb_to_tsvector('english', attributes, '"all"')`, '@@', sql`websearch_to_tsquery('english', ${search})`)
-}
 
 /**
  * estimate how many results the fts search yields
  */
-async function search_entity_count_estimate(search: string) {
-  return await count_estimate(search_entity_unordered(search).compile())
+async function search_entity_instant_estimate(search: string) {
+  const { rows } = await sql<{ 'QUERY PLAN': { Plan: { 'Plan Rows': number } }[] }>`EXPLAIN (FORMAT JSON) select * from pdp.entity where searchable @@ websearch_to_tsquery('english', ${search})`.execute(db)
+  return rows[0]['QUERY PLAN'][0]['Plan']['Plan Rows']
+}
+
+async function search_entity_quick_estimate(search: string) {
+  const { rows: [{count}] } = await sql<{ count: string | number }>`select count(id) from pdp.entity where searchable @@ websearch_to_tsquery('english', ${search}) limit 100`.execute(db)
+  return Number(count)
 }
 
 /**
  * When the fts index does not sufficiently reduce the results, we should use the order by index and filter by fts
  */
-function search_entity_v1(search: string) {
+function search_entity_v1(search: string, offset: number, limit: number) {
   return db
-    .selectFrom('pdp.entity')
-    .where(sql`jsonb_to_tsvector('english', attributes, '"all"')`, '@@', sql`websearch_to_tsquery('english', ${search})`)
-    .orderBy('pagerank desc')
+    .with('entity', q => q
+      .selectFrom('pdp.entity')
+      .select(['id', 'type', 'slug', 'attributes'])
+      .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+      .orderBy('pagerank desc')
+      .offset(offset)
+      .limit(limit)
+    )
+    .selectFrom('entity')
 }
 
 /**
  * When the fts index can sufficiently reduce the results, we should use it and order by in memory
  */
-function search_entity_v2(search: string) {
+function search_entity_v2(search: string, offset: number, limit: number) {
   return db
-    .with('fts', q => q
+    .with('entity_filtered', q => q
       .selectFrom('pdp.entity')
       .selectAll()
-      .where(sql`jsonb_to_tsvector('english', attributes, '"all"')`, '@@', sql`websearch_to_tsquery('english', ${search})`)
+      .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+      .offset(0)
     )
-    .selectFrom('fts')
-    .orderBy('pagerank desc')
+    .with('entity', q => q
+      .selectFrom('entity_filtered')
+      .select(['id', 'type', 'slug', 'attributes'])
+      .orderBy('entity_filtered.pagerank desc')
+      .offset(offset)
+      .limit(limit)
+    )
+    .selectFrom('entity')
 }
 
 /**
  * choose the search method based on count estimate
  */
-export async function search_entity(search: string) {
-  if ((await search_entity_count_estimate(search)) < 1000) {
-    return search_entity_v2(search)
+export async function search_entity(search: string, offset: number, limit: number) {
+  const instantEstimatedCount = await search_entity_instant_estimate(search)
+  const quickEstimatedCount = /*(instantEstimatedCount > 1000) ? await search_entity_quick_estimate(search) :*/ null
+  if (instantEstimatedCount === 0) {
+    return {
+      instantEstimatedCount,
+      quickEstimatedCount,
+      items: []
+    }
+  } else if (instantEstimatedCount < 1000 || (quickEstimatedCount && quickEstimatedCount < 100)) {
+    return {
+      instantEstimatedCount,
+      quickEstimatedCount,
+      items: await search_entity_v2(search, offset, limit)
+        .selectAll('entity')
+        .leftJoin('pdp.edge as e', j => j.onRef('e.source_id', '=', 'entity.id').on('e.predicate', '=', 'id_namespace'))
+        .leftJoin('pdp.entity as target', j => j.onRef('target.id', '=', 'e.target_id'))
+        .select(sql`target.attributes->>'name'`.as('id_namespace'))
+        .execute(),
+    }
   } else {
-    return search_entity_v1(search)
+    return {
+      instantEstimatedCount,
+      quickEstimatedCount,
+      items: await search_entity_v1(search, offset, limit)
+        .selectAll('entity')
+        .leftJoin('pdp.edge as e', j => j.onRef('e.source_id', '=', 'entity.id').on('e.predicate', '=', 'id_namespace'))
+        .leftJoin('pdp.entity as target', j => j.onRef('target.id', '=', 'e.target_id'))
+        .select(sql`target.attributes->>'name'`.as('id_namespace'))
+        .execute(),
+    }
   }
 }
 
