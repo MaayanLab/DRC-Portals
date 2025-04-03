@@ -3,6 +3,7 @@ import { z } from 'zod'
 import SearchPage from '@/app/data/search/SearchPage'
 import AllSearchPage from '@/app/data/search/AllSearchPage'
 import { SearchQueryComponent as C2M2SearchQueryComponent} from '@/app/data/c2m2/search/SearchQueryComponent'
+import ErrorRedirect from '../../ErrorRedirect'
 
 type PageProps = { params: { search: string, type?: string | string[] }, searchParams: Record<string, string> }
 
@@ -15,10 +16,7 @@ export default function Page(props: PageProps) {
   ]).safeParse(props.params.type)
   if (!params.success) notFound()
   if (params.data.type === 'c2m2') {
-    return <C2M2SearchQueryComponent
-      search={decodeURIComponent(props.params.search)}
-      searchParams={props.searchParams}
-    />
+    return <ErrorRedirect error="No results" />
   } else if (params.data.type === 'processed') {
     return <AllSearchPage
       search={decodeURIComponent(props.params.search)}
