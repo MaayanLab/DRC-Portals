@@ -720,3 +720,8 @@ export function generateOrderByString(rankColname: string = 'rank') {
     "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name";
   return OrderByString;
 }
+
+export function update_q_to_exclude_gender(q: string | undefined){
+  const newq: string = q + "-gender";
+  return newq;
+}

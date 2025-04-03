@@ -6,7 +6,7 @@ import { generateFilterQueryString } from '@/app/data/c2m2/utils';
 import { Typography } from '@mui/material'; // Add CircularProgress for loading state
 import Link from "@/utils/link";
 import { getDCCIcon, getdccCFlink, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
-import { RowType } from '../utils';
+import { RowType, update_q_to_exclude_gender } from '../utils';
 import { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 
@@ -53,6 +53,7 @@ interface C2M2SearchResult {
 }
 
 export default async function C2M2MainSearchTableComponent({ searchParams, main_table }: { searchParams: any, main_table: string }): Promise<JSX.Element> {
+    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In C2M2MainTableComponent");
     console.log("q = " + searchParams.q);
 

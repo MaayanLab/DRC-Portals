@@ -1,5 +1,5 @@
 // SearchQueryComponent.tsx
-import { generateFilterQueryString } from '@/app/data/c2m2/utils';
+import { generateFilterQueryString, update_q_to_exclude_gender } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams } from "@/app/data/c2m2/utils";
 import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet"
@@ -56,6 +56,7 @@ type PageProps = { search: string, searchParams: Record<string, string> }
 const doQueryCount = React.cache(async (props: PageProps) => {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return null;
+  searchParams.q = update_q_to_exclude_gender(searchParams.q);
 
   // Prepare the filter clause, similar to the original doQuery function
   const filterClause = generateFilterQueryString(searchParams, "allres_full");
@@ -120,6 +121,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
 
 // THis has the original query
 const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
+  searchParams.q = update_q_to_exclude_gender(searchParams.q);
   console.log("In doQueryTotalFilteredCount");
 
   if (!searchParams.q) return;
@@ -282,6 +284,8 @@ export async function SearchQueryComponentTab(props: { search: string }) {
 export async function SearchQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return
+
+  searchParams.q = update_q_to_exclude_gender(searchParams.q);
 
   //const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
   const filterClause = generateFilterQueryString(searchParams, main_table);

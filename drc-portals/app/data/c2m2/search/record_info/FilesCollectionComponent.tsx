@@ -6,6 +6,7 @@ import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneA
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
+import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 interface FileColTableResult {
     count_file_col: number;
@@ -83,6 +84,7 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function FilesCollectionTableComponent({ searchParams, filterClause, fileColTblOffset, limit, file_count_limit_col }: { searchParams: any, filterClause: SQL, fileColTblOffset: number, limit: number, file_count_limit_col: number }): Promise<JSX.Element> {
+    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In FilesColTableComponent");
     console.log("q = " + searchParams.q);
     try {

@@ -6,6 +6,8 @@ import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFil
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Paper, Grid, Typography, Card, CardContent } from "@mui/material";
 
+import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
+
 /* Even though subject information is also included, the variables names are still based on the string Biosample or biosample*/
 interface BiosampleTableResult {
     biosamples_table_full: {
@@ -71,6 +73,7 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function BiosamplesTableComponent({ searchParams, filterClause, bioSamplTblOffset, limit }: { searchParams: any, filterClause: SQL, bioSamplTblOffset: number, limit: number }): Promise<JSX.Element> {
+    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In BiosampleTableComponent");
     console.log("q = " + searchParams.q);
 
