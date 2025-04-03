@@ -1,5 +1,5 @@
 import { db } from '@/lib/kysely'
-import { Selectable, sql } from 'kysely'
+import { CommonTableExpressionNode, QueryCreator, Selectable, sql } from 'kysely'
 import { DB } from 'kysely-codegen'
 
 /**
@@ -18,75 +18,54 @@ async function search_entity_quick_estimate(search: string) {
 /**
  * When the fts index does not sufficiently reduce the results, we should use the order by index and filter by fts
  */
-function search_entity_v1(search: string, offset: number, limit: number) {
+function search_entity_v1(db: QueryCreator<DB>, search: string) {
   return db
-    .with('entity', q => q
-      .selectFrom('pdp.entity')
-      .select(['id', 'type', 'slug', 'attributes'])
-      .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
-      .orderBy('pagerank desc')
-      .offset(offset)
-      .limit(limit)
-    )
-    .selectFrom('entity')
+    .selectFrom('pdp.entity as search_entity')
+    .where('search_entity.searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+    .orderBy('search_entity.pagerank desc')
 }
 
 /**
  * When the fts index can sufficiently reduce the results, we should use it and order by in memory
  */
-function search_entity_v2(search: string, offset: number, limit: number) {
+function search_entity_v2(db: QueryCreator<DB>, search: string) {
   return db
-    .with('entity_filtered', q => q
+    .with('search_entity_filtered', q => q
       .selectFrom('pdp.entity')
       .selectAll()
       .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
       .offset(0)
     )
-    .with('entity', q => q
-      .selectFrom('entity_filtered')
-      .select(['id', 'type', 'slug', 'attributes'])
-      .orderBy('entity_filtered.pagerank desc')
-      .offset(offset)
-      .limit(limit)
-    )
-    .selectFrom('entity')
+    .selectFrom('search_entity_filtered as search_entity')
+    .orderBy('search_entity.pagerank desc')
 }
 
 /**
  * choose the search method based on count estimate
  */
-export async function search_entity(search: string, offset: number, limit: number) {
-  const instantEstimatedCount = await search_entity_instant_estimate(search)
-  const quickEstimatedCount = /*(instantEstimatedCount > 1000) ? await search_entity_quick_estimate(search) :*/ null
-  if (instantEstimatedCount === 0) {
-    return {
-      instantEstimatedCount,
-      quickEstimatedCount,
-      items: []
-    }
-  } else if (instantEstimatedCount < 1000 || (quickEstimatedCount && quickEstimatedCount < 100)) {
-    return {
-      instantEstimatedCount,
-      quickEstimatedCount,
-      items: await search_entity_v2(search, offset, limit)
-        .selectAll('entity')
-        .leftJoin('pdp.edge as e', j => j.onRef('e.source_id', '=', 'entity.id').on('e.predicate', '=', 'id_namespace'))
-        .leftJoin('pdp.entity as target', j => j.onRef('target.id', '=', 'e.target_id'))
-        .select(sql`target.attributes->>'name'`.as('id_namespace'))
-        .execute(),
-    }
+export function search_entity(db: QueryCreator<DB>, search: string, estimate: number) {
+  if (estimate < 1000) {
+    return search_entity_v2(db, search)
   } else {
-    return {
-      instantEstimatedCount,
-      quickEstimatedCount,
-      items: await search_entity_v1(search, offset, limit)
-        .selectAll('entity')
-        .leftJoin('pdp.edge as e', j => j.onRef('e.source_id', '=', 'entity.id').on('e.predicate', '=', 'id_namespace'))
-        .leftJoin('pdp.entity as target', j => j.onRef('target.id', '=', 'e.target_id'))
-        .select(sql`target.attributes->>'name'`.as('id_namespace'))
-        .execute(),
-    }
+    return search_entity_v1(db, search)
   }
+}
+
+export async function search_entity_filters(search: string) {
+  sql`
+    explain analyze
+    select source_predicate_target_count.predicate, sum(source_predicate_target_count.source_count)
+    from (
+      select target.id
+      from pdp.entity target
+      where target.searchable @@ websearch_to_tsquery('english', 'project')
+    ) target inner join (
+      select e.target_id, e.predicate, count(e.source_id) as source_count
+      from pdp.edge e
+      group by e.target_id, e.predicate
+    ) source_predicate_target_count on source_predicate_target_count.target_id = target.id
+    group by source_predicate_target_count.predicate
+  `.execute(db)
 }
 
 /**
