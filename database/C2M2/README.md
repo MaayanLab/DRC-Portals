@@ -16,7 +16,7 @@
 
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
 server_label=
-server_label=_dbserver
+#server_label=_dbserver
 
 # Uncomment one from below for env_file_name; not utilizing actively since .py files other than dburl.py have not been edited for this
 env_file_name=.env
