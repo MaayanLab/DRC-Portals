@@ -6,3 +6,4 @@ data
 fair
 fairshake.ipynb
 ingest/**
+sanitize_tables_for_keywords.sql
