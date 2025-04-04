@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import CryptoJS from 'crypto-js';
 import SQL from '@/lib/prisma/raw';
 import { z } from 'zod';
-import {filesize} from 'filesize';
+import { filesize } from 'filesize';
 
 
 export interface MetadataItem {
@@ -311,7 +311,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name',
           'ncbi_taxonomy_name', 'anatomy_name', 'biofluid_name', 'gene_name', 'protein_name', 'compound_name',
           'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name'];
-        
+
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate upper and lower cases
           typeFilters[t.type].push(SQL.template`"${SQL.raw(schemaname)}"."${SQL.raw(tablename)}"."${SQL.assert_in(t.type, valid_colnames)}" ILIKE ${t.entity_type}`);
@@ -661,62 +661,70 @@ export function formatFileSize(bytes: number, locale = 'en-US') {
 
 // generate a string of columna names (separated by comma) to use in sql query for selecting column
 export function generateSelectColumnsStringPlain(tablename: string = '') {
-  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".")  : '';
+  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".") : '';
 
   // decorate and sanitize using SQL.template and SQL.raw
 
-  const colnames: string[] = ['dcc_name', 'dcc_abbreviation', 'dcc_short_label', 
-    'project_local_id', 'taxonomy_name', 'taxonomy_id', 'disease_name', 'disease', 'anatomy_name', 
-    'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein', 
-    'compound_name', 'compound', 'data_type_name', 'data_type', 'assay_type_name', 'assay_type', 
+  const colnames: string[] = ['dcc_name', 'dcc_abbreviation', 'dcc_short_label',
+    'project_local_id', 'taxonomy_name', 'taxonomy_id', 'disease_name', 'disease', 'anatomy_name',
+    'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein',
+    'compound_name', 'compound', 'data_type_name', 'data_type', 'assay_type_name', 'assay_type', 'subject_ethnicity_name',
+    'subject_ethnicity', 'subject_sex_name', 'subject_sex', 'subject_race_name', 'subject_race',
     'project_name', 'project_persistent_id'];
-    
+
   const colnamesStringArray = colnames.map(col => tablenameWithDot + col);
   return colnamesStringArray.join(", ");
 }
 
 // generate a string of columna names (separated by comma) to use in sql query for selecting column with modification
 export function generateSelectColumnsStringModified(tablename: string = '') {
-  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".")  : '';
+  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".") : '';
 
   // decorate and sanitize using SQL.template and SQL.raw
-  const colnamesString = 
-  "allres_full.dcc_name AS dcc_name," +
-  "allres_full.dcc_abbreviation AS dcc_abbreviation," + 
-  "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label," +
-  "COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id," +
-  "COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name," +
-  "SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id," +
-  "COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name," +
-  "REPLACE(allres_full.disease, ':', '_') AS disease," +
-  "COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name," +
-  "REPLACE(allres_full.anatomy, ':', '_') AS anatomy," +
-  "COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name," +
-  "REPLACE(allres_full.biofluid, ':', '_') AS biofluid," +
-  "COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name," +
-  "allres_full.gene AS gene," +
-  "COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name," +
-  "allres_full.protein AS protein," +
-  "COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name," +
-  "allres_full.substance_compound AS compound," +
-  "COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name," +
-  "REPLACE(allres_full.data_type_id, ':', '_') AS data_type," +
-  "COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name," +
-  "REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type," +
-  "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
-  "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
-  "allres_full.project_persistent_id AS project_persistent_id";
+  const colnamesString =
+    "allres_full.dcc_name AS dcc_name," +
+    "allres_full.dcc_abbreviation AS dcc_abbreviation," +
+    "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label," +
+    "COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id," +
+    "COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name," +
+    "SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id," +
+    "COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name," +
+    "REPLACE(allres_full.disease, ':', '_') AS disease," +
+    "COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name," +
+    "REPLACE(allres_full.anatomy, ':', '_') AS anatomy," +
+    "COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name," +
+    "REPLACE(allres_full.biofluid, ':', '_') AS biofluid," +
+    "COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name," +
+    "allres_full.gene AS gene," +
+    "COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name," +
+    "allres_full.protein AS protein," +
+    "COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name," +
+    "allres_full.substance_compound AS compound," +
+    "COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name," +
+    "REPLACE(allres_full.data_type_id, ':', '_') AS data_type," +
+    "COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name," +
+    "REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type," +
+    "COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name," +
+    "allres_full.subject_ethnicity AS subject_ethnicity," +
+    "COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name," +
+    "allres_full.subject_sex AS subject_sex," +
+    "COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name," +
+    "allres_full.subject_race AS subject_race," +
+    "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
+    "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
+    "allres_full.project_persistent_id AS project_persistent_id";
 
   return colnamesString;
 }
 
 // generate order by string
 export function generateOrderByString(rankColname: string = 'rank') {
-  let orderByRankStr = ((rankColname) && (rankColname.length >0)) ? rankColname + " DESC, " : '';
+  let orderByRankStr = ((rankColname) && (rankColname.length > 0)) ? rankColname + " DESC, " : '';
 
   // decorate and sanitize using SQL.template and SQL.raw
   const OrderByString: string = orderByRankStr +
-  "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, " +
-    "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name";
+    "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, " +
+    "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, " +
+    "subject_ethnicity_name, subject_sex_name, subject_race_name";
   return OrderByString;
 }
