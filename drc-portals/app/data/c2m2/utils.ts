@@ -728,3 +728,8 @@ export function generateOrderByString(rankColname: string = 'rank') {
     "subject_ethnicity_name, subject_sex_name, subject_race_name";
   return OrderByString;
 }
+
+export function update_q_to_exclude_gender(q: string | undefined){
+  const newq: string = q + "-gender";
+  return newq;
+}

@@ -26,7 +26,7 @@ class TableHelper:
     with tempfile.TemporaryDirectory() as tmpdir:
       path = pathlib.Path(tmpdir)/(self.tablename+'.tsv')
       with path.open('w') as fw:
-        yield csv.DictWriter(fw, self.columns, delimiter='\t', escapechar='\\', doublequote=False)
+        yield csv.DictWriter(fw, self.columns, delimiter='\t', escapechar='\\', doublequote=False, restval='NULL')
       print(f"inserting {self.tablename}...")
       with connection.cursor() as cur:
         cur.execute('set statement_timeout = 0')
@@ -38,7 +38,8 @@ class TableHelper:
         with path.open('r') as fr:
           cur.copy_from(fr, f"{self.tablename}_tmp",
             columns=self.columns,
-            null='',
+            #null='',
+            null='NULL',
             sep='\t',
           )
         update_set = ','.join([

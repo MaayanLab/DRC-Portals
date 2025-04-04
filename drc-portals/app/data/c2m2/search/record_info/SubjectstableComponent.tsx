@@ -6,6 +6,7 @@ import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFil
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
+import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 interface SubjectTableResult {
     subjects_table_full: {
@@ -43,6 +44,7 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function SubjectsTableComponent({ searchParams, filterClause, subTblOffset, limit }: { searchParams: any, filterClause: SQL, subTblOffset: number, limit: number }): Promise<JSX.Element> {
+    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In SubjectsTableComponent");
     console.log("q = " + searchParams.q);
 

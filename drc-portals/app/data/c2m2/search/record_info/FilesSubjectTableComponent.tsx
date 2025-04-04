@@ -6,6 +6,7 @@ import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneA
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
+import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 interface FileSubTableResult {
     file_sub_table: {
@@ -83,6 +84,7 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function FilesSubjectTableComponent({ searchParams, filterClause, fileSubTblOffset, limit, file_count_limit_sub }: { searchParams: any, filterClause: SQL, fileSubTblOffset: number, limit: number, file_count_limit_sub: number }): Promise<JSX.Element> {
+    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In FilesSubTableComponent");
     console.log("q = " + searchParams.q);
 

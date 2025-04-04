@@ -13,6 +13,7 @@ import FilesSubjectTableComponent from "./FilesSubjectTableComponent";
 import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
 import FilesCollectionTableComponent from "./FilesCollectionComponent";
 import React from "react";
+import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 const file_count_limit = 200000;
 const file_count_limit_proj = file_count_limit; // 500000;
@@ -25,6 +26,7 @@ type PageProps = { params: { id: string }, searchParams: Record<string, string |
 
 export async function RecordInfoQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props);
+  searchParams.q = update_q_to_exclude_gender(searchParams.q);
   console.log("In RecordInfoQueryComponent");
 
   try {
@@ -41,10 +43,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const offset = (searchParams.p - 1) * searchParams.r;
     const limit = searchParams.r;
 
+    searchParams.q = update_q_to_exclude_gender(searchParams.q);
+
     // console.log("In function fetchRecordInfoQueryResuts");
-
-
-
 
     console.log("******");
     console.log("q = " + searchParams.q + " p = " + searchParams.p + " offset = " + offset + " limit = " + limit);

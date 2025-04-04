@@ -150,8 +150,10 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                         ))
                       else:
                         kg_relations[relation_id]['pagerank'] += 1
-                      if assertion['evidence_class'] == 'nan':
-                        assertion['evidence_class'] = None
+                      if assertion['evidence_class'] == 'nan' or assertion['evidence_class'] == '':
+                        #assertion['evidence_class'] = None
+                        #print(assertion)
+                        assertion['evidence_class'] = 'null'
                       if assertion['evidence_class']:
                         try:
                           assertion['evidence_class'] = json.loads(assertion['evidence_class'])
