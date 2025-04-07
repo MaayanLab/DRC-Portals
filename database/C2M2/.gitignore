@@ -3,4 +3,11 @@ log_dbserver
 ingest
 main_pg_dump_log_*.log
 *.log
+scripts_ran/
+sanitize_C2M2_tables_for_keywords.sql
+gen_sql_select_count_delete_statements.sh
+sql_select_count_delete_keywords_statements.sql
+extract_keyword_phrases.sh
+lines_from_dcc_files_with_keywords.txt
+lines_from_dcc_files_with_phrase_around_keywords.txt
 
