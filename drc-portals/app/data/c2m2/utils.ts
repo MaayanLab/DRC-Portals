@@ -728,3 +728,26 @@ export function generateOrderByString(rankColname: string = 'rank') {
     "subject_ethnicity_name, subject_sex_name, subject_race_name";
   return OrderByString;
 }
+
+/* export function update_q_to_exclude_gender(q: string | undefined) {
+  const newq: string = q + "-gender";
+  return newq;
+} */
+
+export function generateFilterStringsForURL(): string {
+  return (
+    `'|project_local_id:', allres.project_local_id, ` +
+    `'|disease_name:', allres.disease_name, ` +
+    `'|ncbi_taxonomy_name:', allres.taxonomy_name, ` +
+    `'|anatomy_name:', allres.anatomy_name, ` +
+    `'|biofluid_name:', allres.biofluid_name, ` +
+    `'|gene_name:', allres.gene_name, ` +
+    `'|protein_name:', allres.protein_name, ` +
+    `'|compound_name:', allres.compound_name, ` +
+    `'|data_type_name:', allres.data_type_name, ` +
+    `'|assay_type_name:', allres.assay_type_name, ` +
+    `'|subject_ethnicity_name:', allres.subject_ethnicity_name, ` +
+    `'|subject_sex_name:', allres.subject_sex_name, ` +
+    `'|subject_race_name:', allres.subject_race_name`
+  );
+}
