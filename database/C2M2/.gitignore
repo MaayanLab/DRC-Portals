@@ -3,7 +3,5 @@ log_dbserver
 ingest
 main_pg_dump_log_*.log
 *.log
-sanitize_C2M2_tables_for_keywords.sql
-scripts_ran/scripts_[0-9][0-9][0-9][0-9][0-9][0-9]
-
+scripts_ran
 

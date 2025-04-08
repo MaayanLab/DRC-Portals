@@ -1,15 +1,3 @@
-/* =============== DCC short label: GTEx =============== */
-select count(*) from c2m2.file_in_collection where file_id_namespace IN ('adult_gtex', 'egtex');
-select count(*) from c2m2.subject_role_taxonomy where subject_id_namespace IN ('adult_gtex');
-select count(*) from c2m2.file where id_namespace IN ('adult_gtex', 'egtex');
-select count(*) from c2m2.biosample_from_subject where biosample_id_namespace IN ('adult_gtex');
-select count(*) from c2m2.collection_in_collection where superset_collection_id_namespace IN ('adult_gtex', 'egtex');
-select count(*) from c2m2.collection_defined_by_project where collection_id_namespace IN ('adult_gtex', 'egtex');
-select count(*) from c2m2.project where id_namespace IN ('gtex', 'adult_gtex', 'egtex');
-select count(*) from c2m2.biosample where id_namespace IN ('adult_gtex');
-select count(*) from c2m2.subject where id_namespace IN ('adult_gtex');
-select count(*) from c2m2.collection where id_namespace IN ('adult_gtex', 'egtex');
-select count(*) from c2m2.project_in_project where parent_project_id_namespace IN ('gtex');
 /* =============== DCC short label: HMP =============== */
 select count(*) from c2m2.biosample_in_collection where biosample_id_namespace IN ('tag:hmpdacc.org,2022-04-04:');
 select count(*) from c2m2.biosample_disease where biosample_id_namespace IN ('tag:hmpdacc.org,2022-04-04:');
@@ -60,22 +48,18 @@ select count(*) from c2m2.biosample where id_namespace IN ('tag:motrpac-data.org
 select count(*) from c2m2.subject where id_namespace IN ('tag:motrpac-data.org,2023:');
 select count(*) from c2m2.collection where id_namespace IN ('tag:motrpac-data.org,2023:');
 select count(*) from c2m2.subject_in_collection where subject_id_namespace IN ('tag:motrpac-data.org,2023:');
-/* =============== DCC short label: GlyGen =============== */
-select count(*) from c2m2.file_describes_collection where file_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.project_in_project where parent_project_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_taxonomy where collection_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection where id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.file where id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_anatomy where collection_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_defined_by_project where collection_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_compound where collection_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.project where id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_protein where collection_id_namespace IN ('https://www.data.glygen.org/');
-/* =============== DCC short label: Bridge2AI =============== */
-select count(*) from c2m2.file where id_namespace IN ('https://cm4ai.org');
-select count(*) from c2m2.project where id_namespace IN ('https://cm4ai.org');
-select count(*) from c2m2.subject where id_namespace IN ('https://cm4ai.org');
-select count(*) from c2m2.collection where id_namespace IN ('https://cm4ai.org');
+/* =============== DCC short label: KidsFirst =============== */
+select count(*) from c2m2.file where id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.subject_role_taxonomy where subject_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.project where id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.project_in_project where parent_project_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.subject where id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.biosample where id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.biosample_from_subject where biosample_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.file_describes_subject where file_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.file_describes_biosample where file_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.subject_disease where subject_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.biosample_disease where biosample_id_namespace IN ('kidsfirst:');
 /* =============== DCC short label: GTEx =============== */
 select count(*) from c2m2.file_in_collection where file_id_namespace IN ('egtex', 'adult_gtex');
 select count(*) from c2m2.subject_role_taxonomy where subject_id_namespace IN ('adult_gtex');
@@ -152,28 +136,16 @@ select count(*) from c2m2.collection where id_namespace IN ('tag:sennetconsortiu
 select count(*) from c2m2.project where id_namespace IN ('tag:sennetconsortium.org,2025:');
 select count(*) from c2m2.subject where id_namespace IN ('tag:sennetconsortium.org,2025:');
 /* =============== DCC short label: GlyGen =============== */
-select count(*) from c2m2.file_describes_collection where file_id_namespace IN ('https://www.data.glygen.org/');
+select count(*) from c2m2.project where id_namespace IN ('https://www.data.glygen.org/');
 select count(*) from c2m2.project_in_project where parent_project_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_taxonomy where collection_id_namespace IN ('https://www.data.glygen.org/');
+select count(*) from c2m2.file_describes_collection where file_id_namespace IN ('https://www.data.glygen.org/');
 select count(*) from c2m2.collection where id_namespace IN ('https://www.data.glygen.org/');
 select count(*) from c2m2.file where id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_anatomy where collection_id_namespace IN ('https://www.data.glygen.org/');
+select count(*) from c2m2.collection_taxonomy where collection_id_namespace IN ('https://www.data.glygen.org/');
+select count(*) from c2m2.collection_protein where collection_id_namespace IN ('https://www.data.glygen.org/');
 select count(*) from c2m2.collection_defined_by_project where collection_id_namespace IN ('https://www.data.glygen.org/');
 select count(*) from c2m2.collection_compound where collection_id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.project where id_namespace IN ('https://www.data.glygen.org/');
-select count(*) from c2m2.collection_protein where collection_id_namespace IN ('https://www.data.glygen.org/');
-/* =============== DCC short label: KidsFirst =============== */
-select count(*) from c2m2.subject_role_taxonomy where subject_id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.subject_disease where subject_id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.file_describes_biosample where file_id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.file where id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.biosample_from_subject where biosample_id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.project where id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.biosample_disease where biosample_id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.biosample where id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.file_describes_subject where file_id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.subject where id_namespace IN ('kidsfirst:');
-select count(*) from c2m2.project_in_project where parent_project_id_namespace IN ('kidsfirst:');
+select count(*) from c2m2.collection_anatomy where collection_id_namespace IN ('https://www.data.glygen.org/');
 /* =============== DCC short label: IDG =============== */
 select count(*) from c2m2.collection_disease where collection_id_namespace IN ('https://druggablegenome.net/cfde_idg_tcrd_diseases');
 select count(*) from c2m2.file_in_collection where file_id_namespace IN ('https://www.druggablegenome.net/', 'https://druggablegenome.net/cfde_idg_tcrd_diseases', 'https://druggablegenome.net/cfde_idg_drugcentral_drugs', 'https://druggablegenome.net/cfde_idg_tcrd_targets');

@@ -17,6 +17,7 @@ export async function POST(request: Request) {
 
     // Validate q and filterClause
     const queryParam = typeof q === 'string' ? q : '';
+
     console.log("queryParam = " + queryParam);
     const filterClause = generateFilterClauseFromtParam(t, "allres_full"); // Adjust tablename as needed
 

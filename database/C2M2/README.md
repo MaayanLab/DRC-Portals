@@ -14,6 +14,9 @@
 
 # Be in the folder database/C2M2
 
+# To do a quick check if each DCC has only one valid C2M2 package listed in the file ingest/DccAssets.tsv
+ ./get_current_notdeleted_C2M2_list.sh ingest/DccAssets.tsv
+
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
 server_label=
 #server_label=_dbserver
@@ -27,8 +30,9 @@ logdir=log${server_label}
 mkdir -p ${logdir}
 ymd=$(date +%y%m%d); 
 date_div=$(echo "============= `date` =============");
-scripts_ran_dir=scripts_ran/scripts_${ymd};mkdir -p ${scripts_ran_dir}
+scripts_ran_dir=scripts_ran/scripts_${ymd}; mkdir -p ${scripts_ran_dir}; mkdir -p ${scripts_ran_dir}/ingest
 cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/.
+cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
 
 # id_namespace_dcc_id should be created after the core c2m2 tables have been created, because the py script to ingest into c2m2 deletes and recreates the c2m2 schema.
 #NOT here: # psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o ${logdir}/log_create_id_namespace_dcc_id.log
@@ -44,7 +48,7 @@ cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/
 # and to 1 if in the SchemaUpdate folder.
 mkdir -p ${logdir}
 date_div=$(echo "============= `date` =============");
-python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; echo ${date_div} > ${logf}; 
+python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; echo ${date_div} >> ${logf}; 
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log; 
 egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log;
@@ -84,6 +88,7 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 #python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} 4DN GlyGen HuBMAP KidsFirst Metabolomics SPARC
 # Example: For December 2024
 #python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} SPARC GlyGen
+#python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} GlyGen
 # The above run provides additional instructions at the end for more crosschecks 
 # between data in tables in the c2m2 schema and the tables in the DCC-name-specific schema.
 
