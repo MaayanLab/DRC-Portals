@@ -751,3 +751,35 @@ export function generateFilterStringsForURL(): string {
     `'|subject_race_name:', allres.subject_race_name`
   );
 }
+
+// generate a string of columna names (separated by comma) to use in sql query for selecting column with modification
+export function generateSelectColumnsForFileQuery(tablename: string = '') {
+  let tablenameWithDot = ((tablename) && (tablename.length > 0)) ? (tablename + ".") : '';
+
+  // decorate and sanitize using SQL.template and SQL.raw
+  const colnamesString =
+  tablenameWithDot + ".dcc_name" +
+  tablenameWithDot + ".dcc_abbreviation" +
+  tablenameWithDot + ".project_local_id" +
+  tablenameWithDot + ".project_id_namespace" +
+  tablenameWithDot + ".ncbi_taxonomy_name as taxonomy_name" +
+  tablenameWithDot + ".subject_role_taxonomy_taxonomy_id as taxonomy_id" +
+  tablenameWithDot + ".disease_name" +
+  tablenameWithDot + ".disease" +
+  tablenameWithDot + ".anatomy_name" +
+  tablenameWithDot + ".anatomy" +
+  tablenameWithDot + ".biofluid_name" +
+  tablenameWithDot + ".biofluid" +
+  tablenameWithDot + ".gene" +
+  tablenameWithDot + ".gene_name" +
+  tablenameWithDot + ".protein" +
+  tablenameWithDot + ".protein_name" +
+  tablenameWithDot + ".substance_compound as compound" +
+  tablenameWithDot + ".compound_name" +
+  tablenameWithDot + ".data_type_id AS data_type" +
+  tablenameWithDot + ".data_type_name" +
+  tablenameWithDot + ".assay_type_id AS assay_type" +
+  tablenameWithDot + ".assay_type_name" ;
+
+  return colnamesString;
+}

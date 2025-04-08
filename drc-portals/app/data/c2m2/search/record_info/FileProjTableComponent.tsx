@@ -6,7 +6,6 @@ import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneA
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
-import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 interface FileProjTableResult {
     file_table_full: {
@@ -82,7 +81,6 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function FilesProjTableComponent({ searchParams, filterClause, fileProjTblOffset, limit, file_count_limit_proj }: { searchParams: any, filterClause: SQL, fileProjTblOffset: number, limit: number, file_count_limit_proj: number }): Promise<JSX.Element> {
-    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In FilesProjTableComponent");
     console.log("q = " + searchParams.q);
 

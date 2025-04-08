@@ -6,7 +6,6 @@ import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneA
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
-import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 interface FileBiosTableResult {
     file_bios_table_full: {
@@ -84,7 +83,6 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function FilesBiosampleTableComponent({ searchParams, filterClause, fileBiosTblOffset, limit, file_count_limit_bios }: { searchParams: any, filterClause: SQL, fileBiosTblOffset: number, limit: number, file_count_limit_bios: number }): Promise<JSX.Element> {
-    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In FilesBiosTableComponent");
     console.log("q = " + searchParams.q);
 

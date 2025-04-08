@@ -6,7 +6,6 @@ import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFil
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
-import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 interface CollectionTableResult {
     collections_table_full: {
@@ -44,7 +43,6 @@ const renderMetadataValue = (item: MetadataItem) => {
 };
 
 export default async function CollectionsTableComponent({ searchParams, filterClause, colTblOffset, limit }: { searchParams: any, filterClause: SQL, colTblOffset: number, limit: number }): Promise<JSX.Element> {
-    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In CollectionsTableComponent");
     console.log("q = " + searchParams.q);
 
