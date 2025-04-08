@@ -6,6 +6,7 @@ import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneA
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
+import { generateSelectColumnsForFileQuery } from "@/app/data/c2m2/utils";
 
 interface FileProjTableResult {
     file_table_full: {
@@ -84,6 +85,9 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
     console.log("In FilesProjTableComponent");
     console.log("q = " + searchParams.q);
 
+    const ColumnsForFileQuery = generateSelectColumnsForFileQuery("allres_full");
+    console.log("ColumnsForFileQuery: " + ColumnsForFileQuery);
+
     try {
         const query = SQL.template`
             WITH allres_full AS (
@@ -95,30 +99,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
                 ORDER BY rank DESC
             ), 
             unique_info AS ( /* has extra fields, but OK in case needed later*/
-            SELECT DISTINCT 
-                allres_full.dcc_name,
-                allres_full.dcc_abbreviation,
-                allres_full.project_local_id, 
-                allres_full.project_id_namespace,
-                allres_full.ncbi_taxonomy_name as taxonomy_name,
-                allres_full.subject_role_taxonomy_taxonomy_id as taxonomy_id,
-                allres_full.disease_name,
-                allres_full.disease,
-                allres_full.anatomy_name,
-                allres_full.anatomy,
-                allres_full.biofluid_name,
-                allres_full.biofluid,
-                allres_full.gene, 
-                allres_full.gene_name,
-                allres_full.protein, 
-                allres_full.protein_name,
-                allres_full.substance_compound as compound, 
-                allres_full.compound_name,
-                allres_full.data_type_id AS data_type, 
-                allres_full.data_type_name,
-                allres_full.assay_type_id AS assay_type, /****/
-                allres_full.assay_type_name /****/
-            FROM allres_full
+            SELECT DISTINCT ${SQL.raw(ColumnsForFileQuery)} FROM allres_full
         ),
             /* create file_table_keycol */
             /* Mano: 2024/05/03: below using file_table_keycol instead of file_table (since file_count_limit is applied) */
