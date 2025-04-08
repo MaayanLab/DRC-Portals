@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';; // Ensure React and useStat
 import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw';
 import { generateFilterQueryString, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from '@/app/data/c2m2/utils';
+import { generateFilterStringsForURL } from '@/app/data/c2m2/utils';
 import { Typography } from '@mui/material'; // Add CircularProgress for loading state
 import Link from "@/utils/link";
 import { getDCCIcon, getdccCFlink, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
-import { RowType, update_q_to_exclude_gender } from '../utils';
+import { RowType } from '../utils';
 import { SearchablePagedTableCellIcon, PreviewButton, Description } from "@/app/data/c2m2/SearchablePagedTable";
 import C2M2MainSearchTable from './C2M2MainSearchTable';
 
@@ -53,13 +54,13 @@ interface C2M2SearchResult {
 }
 
 export default async function C2M2MainSearchTableComponent({ searchParams, main_table }: { searchParams: any, main_table: string }): Promise<JSX.Element> {
-    searchParams.q = update_q_to_exclude_gender(searchParams.q);
     console.log("In C2M2MainTableComponent");
     console.log("q = " + searchParams.q);
 
     const selectColumns = generateSelectColumnsStringModified("allres_full");
     const selectColumnsPlain = generateSelectColumnsStringPlain();
     const orderByClause = generateOrderByString();
+    const FilterStringsForURL = generateFilterStringsForURL();
 
     try {
         if (!searchParams.q) return <Typography>No query specified</Typography>;
@@ -91,19 +92,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                 SELECT allres.*,
                 /* SELECT distinct allres.* except rank, DID NOT WORK ; difference of 0.002 vs 0.00204 is leading to two identical records being listed */ 
                 concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
-                '|project_local_id:', allres.project_local_id, 
-                '|disease_name:', allres.disease_name, 
-                '|ncbi_taxonomy_name:', allres.taxonomy_name, 
-                '|anatomy_name:', allres.anatomy_name, 
-                '|biofluid_name:', allres.biofluid_name,
-                '|gene_name:', allres.gene_name, 
-                '|protein_name:', allres.protein_name,
-                '|compound_name:', allres.compound_name, 
-                '|data_type_name:', allres.data_type_name, 
-                '|assay_type_name:', allres.assay_type_name,
-                '|subject_ethnicity_name:', allres.subject_ethnicity_name, 
-                '|subject_sex_name:', allres.subject_sex_name, 
-                '|subject_race_name:', allres.subject_race_name 
+                ${SQL.raw(FilterStringsForURL)}
                 ) AS record_info_url
                 FROM allres
             ),

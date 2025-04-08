@@ -13,7 +13,6 @@ import FilesSubjectTableComponent from "./FilesSubjectTableComponent";
 import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
 import FilesCollectionTableComponent from "./FilesCollectionComponent";
 import React from "react";
-import { update_q_to_exclude_gender } from "@/app/data/c2m2/utils";
 
 const file_count_limit = 200000;
 const file_count_limit_proj = file_count_limit; // 500000;
@@ -26,7 +25,6 @@ type PageProps = { params: { id: string }, searchParams: Record<string, string |
 
 export async function RecordInfoQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props);
-  searchParams.q = update_q_to_exclude_gender(searchParams.q);
   console.log("In RecordInfoQueryComponent");
 
   try {
@@ -42,8 +40,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
   try {
     const offset = (searchParams.p - 1) * searchParams.r;
     const limit = searchParams.r;
-
-    searchParams.q = update_q_to_exclude_gender(searchParams.q);
 
     // console.log("In function fetchRecordInfoQueryResuts");
 
@@ -195,7 +191,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               subject_race_name, subject_race, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
               allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
-            /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, biofluid_name, project_name, project_description, rank*/
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
               protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name /*rank DESC*/
           ) 
