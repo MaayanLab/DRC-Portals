@@ -1,16 +1,16 @@
 // SearchQueryComponent.tsx
 import { generateFilterQueryString, update_q_to_exclude_gender } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
-import { useSanitizedSearchParams } from "@/app/data/c2m2/utils";
-import FilterSet, { FilterObject } from "@/app/data/c2m2/FilterSet"
+import { useSanitizedSearchParams, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from "@/app/data/c2m2/utils";
+
 
 import ListingPageLayout from "../ListingPageLayout";
 import { Button } from "@mui/material";
-import { redirect } from "next/navigation";
+
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import Link from "@/utils/link";
-import { getDCCIcon, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
+
 import SQL from '@/lib/prisma/raw';
 import C2M2MainTableComponent from './C2M2MainTableComponent';
 import { FancyTab } from '@/components/misc/FancyTabs';
@@ -29,8 +29,7 @@ import SubjectSexFilterComponent from './SubjectSexFilterComponent';
 import SubjectRaceFilterComponent from './SubjectRaceFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
-import DownloadAllButton from '../DownloadAllButton';
-import c2m2 from '@/lib/prisma/c2m2';
+
 
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
 // Do not delete the abive comment line
@@ -47,8 +46,9 @@ export const main_table = 'ffl_biosample_collection_cmp'; // 'ffl_biosample_coll
 
 type PageProps = { search: string, searchParams: Record<string, string> }
 
-
-
+const selectColumns = generateSelectColumnsStringModified("allres_full");
+const selectColumnsPlain = generateSelectColumnsStringPlain();
+const orderByClause = generateOrderByString();
 
 
 // Adding a specialized query for count purpose only.
@@ -60,7 +60,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
 
   // Prepare the filter clause, similar to the original doQuery function
   const filterClause = generateFilterQueryString(searchParams, "allres_full");
-
+  
   // Query to fetch the count of records only
   const [result] = await prisma.$queryRaw<Array<{
     count: number;
@@ -69,42 +69,12 @@ const doQueryCount = React.cache(async (props: PageProps) => {
     allres AS (
       SELECT DISTINCT
           ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, 
-          allres_full.dcc_name AS dcc_name,
-          allres_full.dcc_abbreviation AS dcc_abbreviation,
-          SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-          COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
-          COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-          SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-          COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-          REPLACE(allres_full.disease, ':', '_') AS disease,
-          COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-          REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-          COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-          REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
-          COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-          allres_full.gene AS gene,
-          COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
-          allres_full.protein AS protein,
-          COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
-          allres_full.substance_compound AS compound,
-          COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
-          REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-          COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
-          REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
-          COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
-          allres_full.subject_ethnicity AS subject_ethnicity,
-          COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
-          allres_full.subject_sex AS subject_sex,
-          COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
-          allres_full.subject_race AS subject_race,
-          COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
-              SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-          allres_full.project_persistent_id AS project_persistent_id
+          ${SQL.raw(selectColumns)}
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      ORDER BY  rank DESC,  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-          protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name
+      ORDER BY  ${SQL.raw(orderByClause)}/* rank DESC,  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
+          protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name */
   ),
     
     
@@ -118,6 +88,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
 
   return result?.count ?? 0;
 });
+
 
 // THis has the original query
 const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
@@ -141,37 +112,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
     allres_exp AS (
       SELECT /* DISTINCT */
         ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
-        allres_full.dcc_name AS dcc_name,
-        allres_full.dcc_abbreviation AS dcc_abbreviation,
-        SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-        COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
-        COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-        SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-        COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-        REPLACE(allres_full.disease, ':', '_') AS disease,
-        COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-        REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-        COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-        REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
-        COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-        allres_full.gene AS gene,
-        COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
-        allres_full.protein AS protein,
-        COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
-        allres_full.substance_compound AS compound,
-        COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
-        REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-        COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
-        REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
-        COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
-        allres_full.subject_ethnicity AS subject_ethnicity,
-        COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
-        allres_full.subject_sex AS subject_sex,
-        COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
-        allres_full.subject_race AS subject_race,
-        COALESCE(allres_full.project_name,    concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
-          SPLIT_PART(allres_full.dcc_abbreviation, '_', 1)) ) AS project_name,
-        allres_full.project_persistent_id as project_persistent_id
+        ${SQL.raw(selectColumns)}
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} as allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
@@ -180,39 +121,10 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
     allres AS (
       SELECT DISTINCT 
         rank,
-        dcc_name,
-        dcc_abbreviation,
-        dcc_short_label,
-        project_local_id,
-        taxonomy_name,
-        taxonomy_id,
-        disease_name,
-        disease,
-        anatomy_name,
-        anatomy,
-        biofluid_name,
-        biofluid,
-        gene_name,
-        gene,
-        protein_name,
-        protein,
-        compound_name,
-        compound,
-        data_type_name,
-        data_type,
-        assay_type_name,
-        assay_type,
-        subject_ethnicity_name,
-        subject_ethnicity,
-        subject_sex_name,
-        subject_sex,
-        subject_race_name,
-        subject_race,
-        project_name,
-        project_persistent_id
+        ${SQL.raw(selectColumnsPlain)}
       FROM allres_exp 
-      ORDER BY rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-        protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name
+      ORDER BY ${SQL.raw(orderByClause)}/* rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
+        protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name */
       OFFSET ${super_offset}
       LIMIT ${super_limit} 
     ),

@@ -24,6 +24,8 @@ bundle_collection_id_namespace VARCHAR DEFAULT '',
 bundle_collection_local_id VARCHAR DEFAULT '', 
 dbgap_study_id VARCHAR DEFAULT '', 
 access_url VARCHAR DEFAULT '',
+dbgap_study_id VARCHAR DEFAULT '', 
+access_url VARCHAR DEFAULT '',
 PRIMARY KEY(id_namespace, local_id)
 );
 
