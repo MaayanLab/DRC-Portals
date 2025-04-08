@@ -121,8 +121,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
         rank,
         ${SQL.raw(selectColumnsPlain)}
       FROM allres_exp 
-      ORDER BY ${SQL.raw(orderByClause)}/* rank DESC, dcc_short_label, project_name , disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-        protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name */
+      ORDER BY ${SQL.raw(orderByClause)}
       OFFSET ${super_offset}
       LIMIT ${super_limit} 
     ),
