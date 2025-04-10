@@ -23,11 +23,11 @@ done < "${inf}" >> "${outf}"
 
 echo "" >> "${outf}"
 
-while read -r table; do
-    echo "SELECT COUNT(*) FROM c2m2.$table WHERE searchable @@ websearch_to_tsquery('english', :'keywords');"
-done < "${inf}" >> "${outf}"
-
-echo "" >> "${outf}"
+#while read -r table; do
+#    echo "SELECT COUNT(*) FROM c2m2.$table WHERE searchable @@ websearch_to_tsquery('english', :'keywords');"
+#done < "${inf}" >> "${outf}"
+#
+#echo "" >> "${outf}"
 
 while read -r table; do
     echo "SELECT * FROM c2m2.$table WHERE searchable @@ websearch_to_tsquery('english', :'keywords');"

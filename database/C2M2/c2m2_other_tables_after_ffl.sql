@@ -56,4 +56,3 @@ WITH
 DELETE FROM c2m2.record_info_tparam WHERE tparam IS NULL OR tparam = '';
 ALTER TABLE c2m2.record_info_tparam ADD CONSTRAINT id_unique UNIQUE (id);
 ALTER TABLE c2m2.record_info_tparam ADD CONSTRAINT id_pkey PRIMARY KEY (id);
-

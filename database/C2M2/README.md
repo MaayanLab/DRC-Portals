@@ -25,6 +25,7 @@ server_label=
 env_file_name=.env
 #env_file_name=.env_pgcontainer
 
+# Take a back up of the scripts and a few other key files
 # logdir should not have any spaces
 logdir=log${server_label}
 mkdir -p ${logdir}
@@ -33,6 +34,15 @@ date_div=$(echo "============= `date` =============");
 scripts_ran_dir=scripts_ran/scripts_${ymd}; mkdir -p ${scripts_ran_dir}; mkdir -p ${scripts_ran_dir}/ingest
 cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/.
 cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
+
+###########################
+# To get the list of files and lines with specific keywords 
+./extract_keyword_phrases.sh lines_from_dcc_files_with_keywords.txt lines_from_dcc_files_with_phrase_around_keywords.txt
+
+#To replace any specific words with another words in the tsv files directly, before ingesting
+./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s
+# IMPORTANT:  See also the file CV/subject_sex*.tsv* in this regard for a deleted line in CV/subject_sex.tsv
+###########################
 
 # id_namespace_dcc_id should be created after the core c2m2 tables have been created, because the py script to ingest into c2m2 deletes and recreates the c2m2 schema.
 #NOT here: # psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -o ${logdir}/log_create_id_namespace_dcc_id.log
@@ -52,6 +62,16 @@ python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log; 
 egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log;
+
+# If onew wanted to print the sql statements to find records or their counts with matching keywords,
+# one could use the linux command: this is generally for information purposes only unless the delete 
+# statements are also printed.
+./gen_sql_select_count_delete_statements.sh fk_referenced_tables.txt sql_select_count_delete_keywords_statements.sql
+
+# To sanitize the C2M2 tables by deleting records with matching keywords
+logf=${logdir}/log_sanitize_C2M2_tables_for_keywords.log
+psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
+echo ${date_div} >> ${logf};
 
 # Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc. This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too). This script can be run as (upon starting psql shell, or equivalent command):
 # \i create_id_namespace_dcc_id.sql
@@ -126,7 +146,7 @@ psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_tables.sql
 # A version without biosample ID and related, in an effort to lower the number of rows in the main table being searched
 # *.sql and *_cmp.sql can be run in parallel
 logf=${logdir}/log_bios_ffl_cmp.log
-psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1_cmp.sql -L ${logf};
+psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1_cmp.sql -L ${logf}
 echo ${date_div} >> ${logf};
 #
 logf=${logdir}/log_col_ffl_cmp.log
@@ -152,10 +172,11 @@ logf=${logdir}/log_ingest_slim.log
 psql "$(python3 dburl.py)" -a -f ingest_slim.sql -o ${logf}
 echo ${date_div} >> ${logf};
 
-# In the table c2m2.file, add the column access_url
-logf=${logdir}/log_create_access_urls.log
-psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logf}
-echo ${date_div} >> ${logf};
+## In the table c2m2.file, add the column access_url
+## Now this is already added in the C2M2 schema, so, do not run these lines
+#logf=${logdir}/log_create_access_urls.log
+#psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logf}
+#echo ${date_div} >> ${logf};
 
 # To create additional indexes on some tables for faster query
 logf=${logdir}/log_c2m2_other_indexes.log

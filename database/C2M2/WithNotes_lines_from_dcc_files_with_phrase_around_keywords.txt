@@ -7,7 +7,7 @@ RGwSs: Replace "genders" with "sexes"
 DNC: Do not change
 Delete-SQL: Delete the record in SQL
 
-DND: Do not delete the record in SQL: ensure in SQL that these records are not drooped: need to figure 
+DND: Do not delete the record in SQL: ensure in SQL that these records are not dropped: need to figure 
 out the logic (if it is  just a few IDs hard-code them in the sql script)
 
 ***: some comment worth further review

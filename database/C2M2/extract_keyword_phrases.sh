@@ -28,9 +28,13 @@ kwf=$1
 egrep -r -i -e "${keywords_pipesep_string}" $search_path > "$kwf"
 echo -e "Wrote grepped lines to the file $kwf";
 
-exit 0
+#exit 0
 
-#Then to find only specific words and up to 5 words before and after the target word (so that it is easy 
+# To replace gender with sex and women with females (account for case and plural forms) 
+# in the tsv files accounting for word boundary. This is now called in the README.md
+# ./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s
+
+# Then to find only specific words and up to 5 words before and after the target word (so that it is easy 
 # to understand the context without having to read the whole project description, etc).
 
 #keywords=("gender" "inclusion" "diversity" "equity" "lgbt" "women")
