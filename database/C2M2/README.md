@@ -173,7 +173,9 @@ psql "$(python3 dburl.py)" -a -f ingest_slim.sql -o ${logf}
 echo ${date_div} >> ${logf};
 
 ## In the table c2m2.file, add the column access_url
-## Now this is already added in the C2M2 schema, so, do not run these lines
+## Now this is already added in the C2M2 schema, so, do not run these lines. To check prefixes usied in 
+## persistent_id and access_url:
+## drc=# select distinct id_namespace, SPLIT_PART(persistent_id, ':', 1) as persistent_id_prefix, SPLIT_PART (access_url, ':', 1) as access_url_prefix from c2m2.file where persistent_id like '%:%' OR access_url like '%:%' limit 100;
 #logf=${logdir}/log_create_access_urls.log
 #psql "$(python3 dburl.py)" -a -f create_access_urls.sql -o ${logf}
 #echo ${date_div} >> ${logf};
