@@ -8,9 +8,8 @@ psql -h localhost -U drc -d drc -p [5432|5433] -a -f c2m2_other_tables.sql
 --- This script generates other tables from the basic c2m2 tables (or other tables)
 
 --- effect of analysis_type on count
-select count(*) FROM (select distinct project_id_namespace, project_local_id, data_type, assaY_type, file_format FROM c2m2.file);
-
-select count(*) FROM (select distinct project_id_namespace, project_local_id, data_type, assaY_type, file_format, analysis_type FROM c2m2.file);
+--- select count(*) FROM (select distinct project_id_namespace, project_local_id, data_type, assaY_type, file_format FROM c2m2.file);
+--- select count(*) FROM (select distinct project_id_namespace, project_local_id, data_type, assaY_type, file_format, analysis_type FROM c2m2.file);
 -------------------------------------------------------------------------------
 --- project_data_type: include assay_type as well since both data_type and assay_type are coming from the
 --- c2m2.file table.
@@ -24,7 +23,7 @@ select distinct
     c2m2.assay_type.id as assay_type_id, c2m2.assay_type.name as assay_type_name, 
     c2m2.assay_type.description as assay_type_description,
     c2m2.file_format.id as file_format_id, c2m2.file_format.name as file_format_name, 
-    c2m2.file_format.description as file_format_description
+    c2m2.file_format.description as file_format_description,
     c2m2.analysis_type.id as analysis_type_id, c2m2.analysis_type.name as analysis_type_name, 
     c2m2.analysis_type.description as analysis_type_description
 from 
@@ -53,7 +52,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'project_data_type'
     AND indexname = 'project_data_type_idx') THEN
         CREATE INDEX project_data_type_idx ON c2m2.project_data_type USING
-        btree(project_id_namespace, project_local_id, assay_type, data_type, analysis_type, file_format);
+        btree(project_id_namespace, project_local_id, assay_type_id, data_type_id, analysis_type_id, file_format_id);
     END IF;
 END $$;
 
@@ -90,6 +89,17 @@ END $$;
 select count(*) from c2m2.file_describes_collection;
 select count(*) from c2m2.file_in_collection;
 select count(*) from c2m2.file_describes_in_collection;
+--- Is there overlap
+--- RAISE NOTICE 'Count of same/overlapping records between file_describes_collection and file_in_collection';
+select count(*) from (select c2m2.file_describes_collection.file_id_namespace, c2m2.file_describes_collection.file_local_id, 
+c2m2.file_describes_collection.collection_id_namespace, c2m2.file_describes_collection.collection_local_id 
+from c2m2.file_describes_collection, c2m2.file_in_collection
+where
+c2m2.file_describes_collection.file_id_namespace = c2m2.file_in_collection.file_id_namespace AND
+c2m2.file_describes_collection.file_local_id = c2m2.file_in_collection.file_local_id AND
+c2m2.file_describes_collection.collection_id_namespace = c2m2.file_in_collection.collection_id_namespace AND
+c2m2.file_describes_collection.collection_local_id = c2m2.file_in_collection.collection_local_id);
+
 -------------------------------------------------------------------------------
 
 

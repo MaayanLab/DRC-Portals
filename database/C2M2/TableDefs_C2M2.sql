@@ -652,8 +652,8 @@ ALTER TABLE c2m2.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY
 --- Adding COLUMN searchable to all tables
 
 --- Adding COLUMN searchable to table c2m2.file
-ALTER TABLE c2m2.file ADD COLUMN searchable tsvector;
-UPDATE c2m2.file SET searchable = to_tsvector(concat_ws('|', '', c2m2.file.sha256, c2m2.file.md5, c2m2.file.filename, c2m2.file.file_format, c2m2.file.compression_format, c2m2.file.data_type, c2m2.file.assay_type, c2m2.file.analysis_type, c2m2.file.mime_type, c2m2.file.dbgap_study_id));
+ALTER TABLE c2m2.file ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.file SET searchable = concat_ws('|', '', c2m2.file.local_id, c2m2.file.project_local_id, c2m2.file.persistent_id, c2m2.file.sha256, c2m2.file.md5, c2m2.file.filename, c2m2.file.file_format, c2m2.file.compression_format, c2m2.file.data_type, c2m2.file.assay_type, c2m2.file.analysis_type, c2m2.file.mime_type, c2m2.file.bundle_collection_local_id, c2m2.file.dbgap_study_id, c2m2.file.access_url);
 
 DO $$
 BEGIN
@@ -665,8 +665,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biosample
-ALTER TABLE c2m2.biosample ADD COLUMN searchable tsvector;
-UPDATE c2m2.biosample SET searchable = to_tsvector(concat_ws('|', '', c2m2.biosample.sample_prep_method, c2m2.biosample.anatomy, c2m2.biosample.biofluid));
+ALTER TABLE c2m2.biosample ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample SET searchable = concat_ws('|', '', c2m2.biosample.local_id, c2m2.biosample.project_local_id, c2m2.biosample.persistent_id, c2m2.biosample.sample_prep_method, c2m2.biosample.anatomy, c2m2.biosample.biofluid);
 
 DO $$
 BEGIN
@@ -678,8 +678,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject
-ALTER TABLE c2m2.subject ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject SET searchable = to_tsvector(concat_ws('|', '', c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity, c2m2.subject.age_at_enrollment));
+ALTER TABLE c2m2.subject ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject SET searchable = concat_ws('|', '', c2m2.subject.local_id, c2m2.subject.project_local_id, c2m2.subject.persistent_id, c2m2.subject.granularity, c2m2.subject.sex, c2m2.subject.ethnicity, c2m2.subject.age_at_enrollment);
 
 DO $$
 BEGIN
@@ -691,8 +691,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.dcc
-ALTER TABLE c2m2.dcc ADD COLUMN searchable tsvector;
-UPDATE c2m2.dcc SET searchable = to_tsvector(concat_ws('|', '', c2m2.dcc.id, c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, c2m2.dcc.dcc_description, c2m2.dcc.contact_email, c2m2.dcc.contact_name, c2m2.dcc.dcc_url));
+ALTER TABLE c2m2.dcc ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.dcc SET searchable = concat_ws('|', '', c2m2.dcc.id, c2m2.dcc.dcc_name, c2m2.dcc.dcc_abbreviation, c2m2.dcc.dcc_description, c2m2.dcc.contact_email, c2m2.dcc.contact_name, c2m2.dcc.dcc_url, c2m2.dcc.project_local_id);
 
 DO $$
 BEGIN
@@ -704,8 +704,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.project
-ALTER TABLE c2m2.project ADD COLUMN searchable tsvector;
-UPDATE c2m2.project SET searchable = to_tsvector(concat_ws('|', '', c2m2.project.abbreviation, c2m2.project.name, c2m2.project.description));
+ALTER TABLE c2m2.project ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.project SET searchable = concat_ws('|', '', c2m2.project.local_id, c2m2.project.persistent_id, c2m2.project.abbreviation, c2m2.project.name, c2m2.project.description);
 
 DO $$
 BEGIN
@@ -717,8 +717,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.project_in_project
-ALTER TABLE c2m2.project_in_project ADD COLUMN searchable tsvector;
-UPDATE c2m2.project_in_project SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.project_in_project ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.project_in_project SET searchable = concat_ws('|', '', c2m2.project_in_project.parent_project_local_id, c2m2.project_in_project.child_project_local_id);
 
 DO $$
 BEGIN
@@ -730,8 +730,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection
-ALTER TABLE c2m2.collection ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection.abbreviation, c2m2.collection.name, c2m2.collection.description, c2m2.collection.has_time_series_data));
+ALTER TABLE c2m2.collection ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection SET searchable = concat_ws('|', '', c2m2.collection.local_id, c2m2.collection.persistent_id, c2m2.collection.abbreviation, c2m2.collection.name, c2m2.collection.description, c2m2.collection.has_time_series_data);
 
 DO $$
 BEGIN
@@ -743,8 +743,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_in_collection
-ALTER TABLE c2m2.collection_in_collection ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_in_collection SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.collection_in_collection ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_in_collection SET searchable = concat_ws('|', '', c2m2.collection_in_collection.superset_collection_local_id, c2m2.collection_in_collection.subset_collection_local_id);
 
 DO $$
 BEGIN
@@ -756,8 +756,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.file_describes_collection
-ALTER TABLE c2m2.file_describes_collection ADD COLUMN searchable tsvector;
-UPDATE c2m2.file_describes_collection SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.file_describes_collection ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.file_describes_collection SET searchable = concat_ws('|', '', c2m2.file_describes_collection.file_local_id, c2m2.file_describes_collection.collection_local_id);
 
 DO $$
 BEGIN
@@ -769,8 +769,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_defined_by_project
-ALTER TABLE c2m2.collection_defined_by_project ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_defined_by_project SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.collection_defined_by_project ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_defined_by_project SET searchable = concat_ws('|', '', c2m2.collection_defined_by_project.collection_local_id, c2m2.collection_defined_by_project.project_local_id);
 
 DO $$
 BEGIN
@@ -782,8 +782,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.file_in_collection
-ALTER TABLE c2m2.file_in_collection ADD COLUMN searchable tsvector;
-UPDATE c2m2.file_in_collection SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.file_in_collection ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.file_in_collection SET searchable = concat_ws('|', '', c2m2.file_in_collection.file_local_id, c2m2.file_in_collection.collection_local_id);
 
 DO $$
 BEGIN
@@ -795,8 +795,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biosample_in_collection
-ALTER TABLE c2m2.biosample_in_collection ADD COLUMN searchable tsvector;
-UPDATE c2m2.biosample_in_collection SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.biosample_in_collection ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_in_collection SET searchable = concat_ws('|', '', c2m2.biosample_in_collection.biosample_local_id, c2m2.biosample_in_collection.collection_local_id);
 
 DO $$
 BEGIN
@@ -808,8 +808,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject_in_collection
-ALTER TABLE c2m2.subject_in_collection ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject_in_collection SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.subject_in_collection ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject_in_collection SET searchable = concat_ws('|', '', c2m2.subject_in_collection.subject_local_id, c2m2.subject_in_collection.collection_local_id);
 
 DO $$
 BEGIN
@@ -821,8 +821,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.file_describes_biosample
-ALTER TABLE c2m2.file_describes_biosample ADD COLUMN searchable tsvector;
-UPDATE c2m2.file_describes_biosample SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.file_describes_biosample ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.file_describes_biosample SET searchable = concat_ws('|', '', c2m2.file_describes_biosample.file_local_id, c2m2.file_describes_biosample.biosample_local_id);
 
 DO $$
 BEGIN
@@ -834,8 +834,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.file_describes_subject
-ALTER TABLE c2m2.file_describes_subject ADD COLUMN searchable tsvector;
-UPDATE c2m2.file_describes_subject SET searchable = to_tsvector(concat_ws('|', ''));
+ALTER TABLE c2m2.file_describes_subject ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.file_describes_subject SET searchable = concat_ws('|', '', c2m2.file_describes_subject.file_local_id, c2m2.file_describes_subject.subject_local_id);
 
 DO $$
 BEGIN
@@ -847,8 +847,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biosample_from_subject
-ALTER TABLE c2m2.biosample_from_subject ADD COLUMN searchable tsvector;
-UPDATE c2m2.biosample_from_subject SET searchable = to_tsvector(concat_ws('|', '', c2m2.biosample_from_subject.age_at_sampling));
+ALTER TABLE c2m2.biosample_from_subject ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_from_subject SET searchable = concat_ws('|', '', c2m2.biosample_from_subject.biosample_local_id, c2m2.biosample_from_subject.subject_local_id, c2m2.biosample_from_subject.age_at_sampling);
 
 DO $$
 BEGIN
@@ -860,8 +860,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biosample_disease
-ALTER TABLE c2m2.biosample_disease ADD COLUMN searchable tsvector;
-UPDATE c2m2.biosample_disease SET searchable = to_tsvector(concat_ws('|', '', c2m2.biosample_disease.association_type, c2m2.biosample_disease.disease));
+ALTER TABLE c2m2.biosample_disease ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_disease SET searchable = concat_ws('|', '', c2m2.biosample_disease.biosample_local_id, c2m2.biosample_disease.association_type, c2m2.biosample_disease.disease);
 
 DO $$
 BEGIN
@@ -873,8 +873,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject_disease
-ALTER TABLE c2m2.subject_disease ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject_disease SET searchable = to_tsvector(concat_ws('|', '', c2m2.subject_disease.association_type, c2m2.subject_disease.disease));
+ALTER TABLE c2m2.subject_disease ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject_disease SET searchable = concat_ws('|', '', c2m2.subject_disease.subject_local_id, c2m2.subject_disease.association_type, c2m2.subject_disease.disease);
 
 DO $$
 BEGIN
@@ -886,8 +886,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_disease
-ALTER TABLE c2m2.collection_disease ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_disease SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_disease.disease));
+ALTER TABLE c2m2.collection_disease ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_disease SET searchable = concat_ws('|', '', c2m2.collection_disease.collection_local_id, c2m2.collection_disease.disease);
 
 DO $$
 BEGIN
@@ -899,8 +899,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_phenotype
-ALTER TABLE c2m2.collection_phenotype ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_phenotype SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_phenotype.phenotype));
+ALTER TABLE c2m2.collection_phenotype ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_phenotype SET searchable = concat_ws('|', '', c2m2.collection_phenotype.collection_local_id, c2m2.collection_phenotype.phenotype);
 
 DO $$
 BEGIN
@@ -912,8 +912,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_gene
-ALTER TABLE c2m2.collection_gene ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_gene SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_gene.gene));
+ALTER TABLE c2m2.collection_gene ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_gene SET searchable = concat_ws('|', '', c2m2.collection_gene.collection_local_id, c2m2.collection_gene.gene);
 
 DO $$
 BEGIN
@@ -925,8 +925,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_compound
-ALTER TABLE c2m2.collection_compound ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_compound SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_compound.compound));
+ALTER TABLE c2m2.collection_compound ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_compound SET searchable = concat_ws('|', '', c2m2.collection_compound.collection_local_id, c2m2.collection_compound.compound);
 
 DO $$
 BEGIN
@@ -938,8 +938,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_substance
-ALTER TABLE c2m2.collection_substance ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_substance SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_substance.substance));
+ALTER TABLE c2m2.collection_substance ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_substance SET searchable = concat_ws('|', '', c2m2.collection_substance.collection_local_id, c2m2.collection_substance.substance);
 
 DO $$
 BEGIN
@@ -951,8 +951,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_taxonomy
-ALTER TABLE c2m2.collection_taxonomy ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_taxonomy SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_taxonomy.taxon));
+ALTER TABLE c2m2.collection_taxonomy ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_taxonomy SET searchable = concat_ws('|', '', c2m2.collection_taxonomy.collection_local_id, c2m2.collection_taxonomy.taxon);
 
 DO $$
 BEGIN
@@ -964,8 +964,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_anatomy
-ALTER TABLE c2m2.collection_anatomy ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_anatomy SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_anatomy.anatomy));
+ALTER TABLE c2m2.collection_anatomy ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_anatomy SET searchable = concat_ws('|', '', c2m2.collection_anatomy.collection_local_id, c2m2.collection_anatomy.anatomy);
 
 DO $$
 BEGIN
@@ -977,8 +977,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_biofluid
-ALTER TABLE c2m2.collection_biofluid ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_biofluid SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_biofluid.biofluid));
+ALTER TABLE c2m2.collection_biofluid ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_biofluid SET searchable = concat_ws('|', '', c2m2.collection_biofluid.collection_local_id, c2m2.collection_biofluid.biofluid);
 
 DO $$
 BEGIN
@@ -990,8 +990,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.collection_protein
-ALTER TABLE c2m2.collection_protein ADD COLUMN searchable tsvector;
-UPDATE c2m2.collection_protein SET searchable = to_tsvector(concat_ws('|', '', c2m2.collection_protein.protein));
+ALTER TABLE c2m2.collection_protein ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_protein SET searchable = concat_ws('|', '', c2m2.collection_protein.collection_local_id, c2m2.collection_protein.protein);
 
 DO $$
 BEGIN
@@ -1003,8 +1003,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject_phenotype
-ALTER TABLE c2m2.subject_phenotype ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject_phenotype SET searchable = to_tsvector(concat_ws('|', '', c2m2.subject_phenotype.association_type, c2m2.subject_phenotype.phenotype));
+ALTER TABLE c2m2.subject_phenotype ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject_phenotype SET searchable = concat_ws('|', '', c2m2.subject_phenotype.subject_local_id, c2m2.subject_phenotype.association_type, c2m2.subject_phenotype.phenotype);
 
 DO $$
 BEGIN
@@ -1016,8 +1016,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biosample_substance
-ALTER TABLE c2m2.biosample_substance ADD COLUMN searchable tsvector;
-UPDATE c2m2.biosample_substance SET searchable = to_tsvector(concat_ws('|', '', c2m2.biosample_substance.substance));
+ALTER TABLE c2m2.biosample_substance ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_substance SET searchable = concat_ws('|', '', c2m2.biosample_substance.biosample_local_id, c2m2.biosample_substance.substance);
 
 DO $$
 BEGIN
@@ -1029,8 +1029,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject_substance
-ALTER TABLE c2m2.subject_substance ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject_substance SET searchable = to_tsvector(concat_ws('|', '', c2m2.subject_substance.substance));
+ALTER TABLE c2m2.subject_substance ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject_substance SET searchable = concat_ws('|', '', c2m2.subject_substance.subject_local_id, c2m2.subject_substance.substance);
 
 DO $$
 BEGIN
@@ -1042,8 +1042,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biosample_gene
-ALTER TABLE c2m2.biosample_gene ADD COLUMN searchable tsvector;
-UPDATE c2m2.biosample_gene SET searchable = to_tsvector(concat_ws('|', '', c2m2.biosample_gene.gene));
+ALTER TABLE c2m2.biosample_gene ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_gene SET searchable = concat_ws('|', '', c2m2.biosample_gene.biosample_local_id, c2m2.biosample_gene.gene);
 
 DO $$
 BEGIN
@@ -1055,8 +1055,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.phenotype_gene
-ALTER TABLE c2m2.phenotype_gene ADD COLUMN searchable tsvector;
-UPDATE c2m2.phenotype_gene SET searchable = to_tsvector(concat_ws('|', '', c2m2.phenotype_gene.phenotype, c2m2.phenotype_gene.gene));
+ALTER TABLE c2m2.phenotype_gene ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.phenotype_gene SET searchable = concat_ws('|', '', c2m2.phenotype_gene.phenotype, c2m2.phenotype_gene.gene);
 
 DO $$
 BEGIN
@@ -1068,8 +1068,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.phenotype_disease
-ALTER TABLE c2m2.phenotype_disease ADD COLUMN searchable tsvector;
-UPDATE c2m2.phenotype_disease SET searchable = to_tsvector(concat_ws('|', '', c2m2.phenotype_disease.phenotype, c2m2.phenotype_disease.disease));
+ALTER TABLE c2m2.phenotype_disease ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.phenotype_disease SET searchable = concat_ws('|', '', c2m2.phenotype_disease.phenotype, c2m2.phenotype_disease.disease);
 
 DO $$
 BEGIN
@@ -1081,8 +1081,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject_race
-ALTER TABLE c2m2.subject_race ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject_race SET searchable = to_tsvector(concat_ws('|', '', c2m2.subject_race.race));
+ALTER TABLE c2m2.subject_race ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject_race SET searchable = concat_ws('|', '', c2m2.subject_race.subject_local_id, c2m2.subject_race.race);
 
 DO $$
 BEGIN
@@ -1094,8 +1094,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.subject_role_taxonomy
-ALTER TABLE c2m2.subject_role_taxonomy ADD COLUMN searchable tsvector;
-UPDATE c2m2.subject_role_taxonomy SET searchable = to_tsvector(concat_ws('|', '', c2m2.subject_role_taxonomy.role_id, c2m2.subject_role_taxonomy.taxonomy_id));
+ALTER TABLE c2m2.subject_role_taxonomy ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.subject_role_taxonomy SET searchable = concat_ws('|', '', c2m2.subject_role_taxonomy.subject_local_id, c2m2.subject_role_taxonomy.role_id, c2m2.subject_role_taxonomy.taxonomy_id);
 
 DO $$
 BEGIN
@@ -1107,8 +1107,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.assay_type
-ALTER TABLE c2m2.assay_type ADD COLUMN searchable tsvector;
-UPDATE c2m2.assay_type SET searchable = to_tsvector(concat_ws('|', '', c2m2.assay_type.id, c2m2.assay_type.name, c2m2.assay_type.description, c2m2.assay_type.synonyms));
+ALTER TABLE c2m2.assay_type ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.assay_type SET searchable = concat_ws('|', '', c2m2.assay_type.id, c2m2.assay_type.name, c2m2.assay_type.description, c2m2.assay_type.synonyms);
 
 DO $$
 BEGIN
@@ -1120,8 +1120,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.analysis_type
-ALTER TABLE c2m2.analysis_type ADD COLUMN searchable tsvector;
-UPDATE c2m2.analysis_type SET searchable = to_tsvector(concat_ws('|', '', c2m2.analysis_type.id, c2m2.analysis_type.name, c2m2.analysis_type.description, c2m2.analysis_type.synonyms));
+ALTER TABLE c2m2.analysis_type ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.analysis_type SET searchable = concat_ws('|', '', c2m2.analysis_type.id, c2m2.analysis_type.name, c2m2.analysis_type.description, c2m2.analysis_type.synonyms);
 
 DO $$
 BEGIN
@@ -1133,8 +1133,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.ncbi_taxonomy
-ALTER TABLE c2m2.ncbi_taxonomy ADD COLUMN searchable tsvector;
-UPDATE c2m2.ncbi_taxonomy SET searchable = to_tsvector(concat_ws('|', '', c2m2.ncbi_taxonomy.id, c2m2.ncbi_taxonomy.clade, c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, c2m2.ncbi_taxonomy.synonyms));
+ALTER TABLE c2m2.ncbi_taxonomy ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.ncbi_taxonomy SET searchable = concat_ws('|', '', c2m2.ncbi_taxonomy.id, c2m2.ncbi_taxonomy.clade, c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, c2m2.ncbi_taxonomy.synonyms);
 
 DO $$
 BEGIN
@@ -1146,8 +1146,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.anatomy
-ALTER TABLE c2m2.anatomy ADD COLUMN searchable tsvector;
-UPDATE c2m2.anatomy SET searchable = to_tsvector(concat_ws('|', '', c2m2.anatomy.id, c2m2.anatomy.name, c2m2.anatomy.description, c2m2.anatomy.synonyms));
+ALTER TABLE c2m2.anatomy ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.anatomy SET searchable = concat_ws('|', '', c2m2.anatomy.id, c2m2.anatomy.name, c2m2.anatomy.description, c2m2.anatomy.synonyms);
 
 DO $$
 BEGIN
@@ -1159,8 +1159,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.biofluid
-ALTER TABLE c2m2.biofluid ADD COLUMN searchable tsvector;
-UPDATE c2m2.biofluid SET searchable = to_tsvector(concat_ws('|', '', c2m2.biofluid.id, c2m2.biofluid.name, c2m2.biofluid.description, c2m2.biofluid.synonyms));
+ALTER TABLE c2m2.biofluid ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biofluid SET searchable = concat_ws('|', '', c2m2.biofluid.id, c2m2.biofluid.name, c2m2.biofluid.description, c2m2.biofluid.synonyms);
 
 DO $$
 BEGIN
@@ -1172,8 +1172,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.file_format
-ALTER TABLE c2m2.file_format ADD COLUMN searchable tsvector;
-UPDATE c2m2.file_format SET searchable = to_tsvector(concat_ws('|', '', c2m2.file_format.id, c2m2.file_format.name, c2m2.file_format.description, c2m2.file_format.synonyms));
+ALTER TABLE c2m2.file_format ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.file_format SET searchable = concat_ws('|', '', c2m2.file_format.id, c2m2.file_format.name, c2m2.file_format.description, c2m2.file_format.synonyms);
 
 DO $$
 BEGIN
@@ -1185,8 +1185,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.data_type
-ALTER TABLE c2m2.data_type ADD COLUMN searchable tsvector;
-UPDATE c2m2.data_type SET searchable = to_tsvector(concat_ws('|', '', c2m2.data_type.id, c2m2.data_type.name, c2m2.data_type.description, c2m2.data_type.synonyms));
+ALTER TABLE c2m2.data_type ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.data_type SET searchable = concat_ws('|', '', c2m2.data_type.id, c2m2.data_type.name, c2m2.data_type.description, c2m2.data_type.synonyms);
 
 DO $$
 BEGIN
@@ -1198,8 +1198,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.disease
-ALTER TABLE c2m2.disease ADD COLUMN searchable tsvector;
-UPDATE c2m2.disease SET searchable = to_tsvector(concat_ws('|', '', c2m2.disease.id, c2m2.disease.name, c2m2.disease.description, c2m2.disease.synonyms));
+ALTER TABLE c2m2.disease ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.disease SET searchable = concat_ws('|', '', c2m2.disease.id, c2m2.disease.name, c2m2.disease.description, c2m2.disease.synonyms);
 
 DO $$
 BEGIN
@@ -1211,8 +1211,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.phenotype
-ALTER TABLE c2m2.phenotype ADD COLUMN searchable tsvector;
-UPDATE c2m2.phenotype SET searchable = to_tsvector(concat_ws('|', '', c2m2.phenotype.id, c2m2.phenotype.name, c2m2.phenotype.description, c2m2.phenotype.synonyms));
+ALTER TABLE c2m2.phenotype ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.phenotype SET searchable = concat_ws('|', '', c2m2.phenotype.id, c2m2.phenotype.name, c2m2.phenotype.description, c2m2.phenotype.synonyms);
 
 DO $$
 BEGIN
@@ -1224,8 +1224,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.compound
-ALTER TABLE c2m2.compound ADD COLUMN searchable tsvector;
-UPDATE c2m2.compound SET searchable = to_tsvector(concat_ws('|', '', c2m2.compound.id, c2m2.compound.name, c2m2.compound.description, c2m2.compound.synonyms));
+ALTER TABLE c2m2.compound ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.compound SET searchable = concat_ws('|', '', c2m2.compound.id, c2m2.compound.name, c2m2.compound.description, c2m2.compound.synonyms);
 
 DO $$
 BEGIN
@@ -1237,8 +1237,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.substance
-ALTER TABLE c2m2.substance ADD COLUMN searchable tsvector;
-UPDATE c2m2.substance SET searchable = to_tsvector(concat_ws('|', '', c2m2.substance.id, c2m2.substance.name, c2m2.substance.description, c2m2.substance.synonyms, c2m2.substance.compound));
+ALTER TABLE c2m2.substance ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.substance SET searchable = concat_ws('|', '', c2m2.substance.id, c2m2.substance.name, c2m2.substance.description, c2m2.substance.synonyms, c2m2.substance.compound);
 
 DO $$
 BEGIN
@@ -1250,8 +1250,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.gene
-ALTER TABLE c2m2.gene ADD COLUMN searchable tsvector;
-UPDATE c2m2.gene SET searchable = to_tsvector(concat_ws('|', '', c2m2.gene.id, c2m2.gene.name, c2m2.gene.description, c2m2.gene.synonyms, c2m2.gene.organism));
+ALTER TABLE c2m2.gene ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.gene SET searchable = concat_ws('|', '', c2m2.gene.id, c2m2.gene.name, c2m2.gene.description, c2m2.gene.synonyms, c2m2.gene.organism);
 
 DO $$
 BEGIN
@@ -1263,8 +1263,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.protein
-ALTER TABLE c2m2.protein ADD COLUMN searchable tsvector;
-UPDATE c2m2.protein SET searchable = to_tsvector(concat_ws('|', '', c2m2.protein.id, c2m2.protein.name, c2m2.protein.description, c2m2.protein.synonyms, c2m2.protein.organism));
+ALTER TABLE c2m2.protein ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.protein SET searchable = concat_ws('|', '', c2m2.protein.id, c2m2.protein.name, c2m2.protein.description, c2m2.protein.synonyms, c2m2.protein.organism);
 
 DO $$
 BEGIN
@@ -1276,8 +1276,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.protein_gene
-ALTER TABLE c2m2.protein_gene ADD COLUMN searchable tsvector;
-UPDATE c2m2.protein_gene SET searchable = to_tsvector(concat_ws('|', '', c2m2.protein_gene.protein, c2m2.protein_gene.gene));
+ALTER TABLE c2m2.protein_gene ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.protein_gene SET searchable = concat_ws('|', '', c2m2.protein_gene.protein, c2m2.protein_gene.gene);
 
 DO $$
 BEGIN
@@ -1289,8 +1289,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.sample_prep_method
-ALTER TABLE c2m2.sample_prep_method ADD COLUMN searchable tsvector;
-UPDATE c2m2.sample_prep_method SET searchable = to_tsvector(concat_ws('|', '', c2m2.sample_prep_method.id, c2m2.sample_prep_method.name, c2m2.sample_prep_method.description, c2m2.sample_prep_method.synonyms));
+ALTER TABLE c2m2.sample_prep_method ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.sample_prep_method SET searchable = concat_ws('|', '', c2m2.sample_prep_method.id, c2m2.sample_prep_method.name, c2m2.sample_prep_method.description, c2m2.sample_prep_method.synonyms);
 
 DO $$
 BEGIN
@@ -1302,8 +1302,8 @@ BEGIN
 END $$;
 
 --- Adding COLUMN searchable to table c2m2.id_namespace
-ALTER TABLE c2m2.id_namespace ADD COLUMN searchable tsvector;
-UPDATE c2m2.id_namespace SET searchable = to_tsvector(concat_ws('|', '', c2m2.id_namespace.id, c2m2.id_namespace.abbreviation, c2m2.id_namespace.name, c2m2.id_namespace.description));
+ALTER TABLE c2m2.id_namespace ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.id_namespace SET searchable = concat_ws('|', '', c2m2.id_namespace.id, c2m2.id_namespace.abbreviation, c2m2.id_namespace.name, c2m2.id_namespace.description);
 
 DO $$
 BEGIN

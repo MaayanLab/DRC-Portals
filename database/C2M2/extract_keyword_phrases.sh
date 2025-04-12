@@ -28,6 +28,10 @@ kwf=$1
 egrep -r -i -e "${keywords_pipesep_string}" $search_path > "$kwf"
 echo -e "Wrote grepped lines to the file $kwf";
 
+# To find which files have these:
+# grep diversity lines_from_dcc_files_with_keywords.txt |cut -d':' -f1|sort|uniq
+# grep diversity "$kwf" |cut -d':' -f1|sort|uniq
+
 #exit 0
 
 # To replace gender with sex and women with females (account for case and plural forms) 

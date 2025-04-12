@@ -15,8 +15,13 @@ search_path="$1"
 # To replace gender with sex and women with females (account for case and plural forms) 
 # in the tsv files accounting for word boundary
 find ${search_path} -type f -name "*.tsv" -print0 | while IFS= read -r -d '' file; do
-    perl -i -pe 's/\bgenders\b/sexes/g; s/\bGenders\b/Sexes/g; s/\bgender\b/sex/g; s/\bGender\b/Sex/g;' "$file"
-    # To also replace Women by Females, & Woman by Female, 
-    perl -i -pe 's/\bWomen\b/Females/g; s/\bwomen\b/females/g; s/\bWoman\b/Female/g; s/\bwoman\b/female/g;' "$file"
+    echo -e "======== File:${file} =======";
+    # perl -i -pe 's/\bgenders\b/sexes/g; s/\bGenders\b/Sexes/g; s/\bgender\b/sex/g; s/\bGender\b/Sex/g;' "$file"
+    # To also replace Women by Females, & Woman by Female
+    # Mano: 2025/04/11: Don't replace Women
+    # perl -i -pe 's/\bWomen\b/Females/g; s/\bwomen\b/females/g; s/\bWoman\b/Female/g; s/\bwoman\b/female/g;' "$file"
+    # Replace diversity with 'intrinsic variation'
+    # perl -i -pe 's/\bdiversity\b/intrinsic variation/g; s/\bchemodiversity\b/chemo intrinsic variation/g;' "$file"
+    perl -i -pe 's/\bchemodiversity\b/chemo intrinsic variation/g;' "$file"
 done
 

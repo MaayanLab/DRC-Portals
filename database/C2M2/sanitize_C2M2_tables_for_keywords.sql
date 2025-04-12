@@ -92,95 +92,174 @@ Then delete the records with these keywords
     keywords text := 'gender OR inclusion OR diversity OR equity OR lgbt OR women OR trans';
 */
 
-BEGIN;
 -------------------------
-    DO $$
-    DECLARE
-        schema_name text;
-        tablename text;
-        --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet'];  -- your schema names
-        schemas text[] := ARRAY['metabolomics'];  -- your schema names
-        --- schemas text[] := ARRAY['c2m2'];  -- your schema names
+--- First, define the procedure
+CREATE OR REPLACE PROCEDURE delete_matching_rows(
+    schema_name TEXT,
+    table_name TEXT,
+    keyword TEXT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    full_sql TEXT;
+BEGIN
+    full_sql := format('DELETE FROM %I.%I WHERE searchable ILIKE %L',
+                       schema_name, table_name, '%' || keyword || '%');
 
-        --- To get the names all schemas
-        /* 
-        SELECT '{' || string_agg(quote_literal(schema_name), ', ') || '}' AS schema_array
-        FROM information_schema.schemata
-        WHERE catalog_name = 'drc' AND (schema_name NOT IN ('pg_catalog', 'information_schema', 'public', 'c2m2', 'ercc', 'slim') AND schema_name NOT ILIKE 'pg_%');    
-        */
+    RAISE NOTICE 'Executing: %', full_sql;
+    EXECUTE full_sql;
 
-        /* 
-        Exclude biosample, file and subject as they don't have any columns like 
-        name, description, abbreviation or synonym 
-        */
+    COMMIT;  -- This works inside a procedure
+END;
+$$;
 
-        /* 
-        Note that the searchable column does not include information from the columns
-        id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes
-        */
+-------------------------
+        DO $$
+        DECLARE
+            test_only BOOLEAN := TRUE; --- or FALSE
+            schema_name text;
+            table_name text;
+            keyword_from_array text;
+            --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet'];  -- your schema names
+            schemas text[] := ARRAY['motrpac'];  -- your schema names
+            --- schemas text[] := ARRAY['c2m2'];  -- your schema names
 
-        tables text[] := ARRAY['analysis_type', 'anatomy', 'assay_type', 'biofluid', /* 'biosample', */
-                                'collection', 'compound', 'data_type', 'disease', /* 'file', */ 'file_format',
-                                'gene', 'id_namespace', 'ncbi_taxonomy', 'phenotype', 'project', 'protein',
-                                'sample_prep_method', /* 'subject', */ 'substance'];
-        keywords text := 'gender OR inclusion OR diversity OR equity OR lgbt OR women OR trans';
+            --- To get the names all schemas
+            /* 
+            SELECT '{' || string_agg(quote_literal(schema_name), ', ') || '}' AS schema_array
+            FROM information_schema.schemata
+            WHERE catalog_name = 'drc' AND (schema_name NOT IN ('pg_catalog', 'information_schema', 'public', 'c2m2', 'ercc', 'slim') AND schema_name NOT ILIKE 'pg_%');    
+            */
 
-    BEGIN
-        FOREACH schema_name IN ARRAY schemas
-        LOOP
-            RAISE NOTICE 'Processing schema: %', schema_name;
-            FOREACH tablename IN ARRAY tables
+            /* 
+            Note that the searchable column does not include information from the columns
+            id_namespace$|creation_time|size_in_bytes
+            */
+
+            tables text[] := ARRAY['analysis_type', 'anatomy', 'assay_type', 'biofluid', 'biosample',
+                                    'collection', 'compound', 'data_type', 'disease', 'file', 'file_format',
+                                    'gene', 'id_namespace', 'ncbi_taxonomy', 'phenotype', 'project', 'protein',
+                                    'sample_prep_method', 'subject', 'substance'];
+            keywords text := 'gender OR inclusion OR diversity OR equity OR lgbt OR trans-gen OR transgen'; ---  OR women 
+            --- If use trans for exclusion, entire MoTrPAC data is gone as project name is: Molecular Transducers of Physical Acitivity Consortium
+            keywords_array text[] := ARRAY['gender', 'inclusion', 'diversity', 'equity', 'lgbt', 'trans-gen', 'transgen']; ---  OR women 
+            keywords_array_wildcard text[];
+
+            tbl RECORD;
+            row_count BIGINT;
+
+        BEGIN
+            keywords_array_wildcard := ARRAY(SELECT '%' || k || '%' FROM unnest(keywords_array) AS k);
+
+            FOREACH schema_name IN ARRAY schemas
             LOOP
-                RAISE NOTICE '    Processing table: %.%', schema_name, table_name;
-                EXECUTE format(
-                    'DELETE FROM %I.%I WHERE searchable @@ websearch_to_tsquery(''english'', %L);',
-                    schema_name, tablename, keywords
-                );
+                RAISE NOTICE 'Processing schema: %', schema_name;
+                -------------------------------------------------------
+                ----------------------
+                RAISE NOTICE '---- Before deletion ----';
+                FOR tbl IN (SELECT tablename FROM pg_tables WHERE schemaname = schema_name)
+                LOOP
+                    EXECUTE format('SELECT COUNT(*) FROM %I.%I', schema_name, tbl.tablename) INTO row_count;
+                    RAISE NOTICE 'Table %.%, Row count: %', schema_name, tbl.tablename, row_count;
+                END LOOP;
+                ----------------------
+
+                FOREACH table_name IN ARRAY tables
+                LOOP
+                    RAISE NOTICE '    Processing table: %.%', schema_name, table_name;
+                    --- RAISE NOTICE '      Before deletion';
+                    --- EXECUTE format('SELECT count(*) FROM %I.%I;', schema_name, table_name);
+                    --- BEGIN --- FOR Transaction control
+                        --- SAVEPOINT loop_point;
+                    
+                        --- EXECUTE format('DELETE FROM %I.%I WHERE searchable @@ websearch_to_tsquery(''english'', %L) RETURNING *',
+                        ---    schema_name, table_name, keywords);
+                    FOREACH keyword_from_array IN ARRAY keywords_array
+                    LOOP
+                        IF NOT test_only THEN
+                            --- EXECUTE format('DELETE FROM %I.%I WHERE searchable @@ websearch_to_tsquery(''english'', %L) RETURNING *',
+                            ---    schema_name, table_name, keyword_from_array);
+                            --- EXECUTE format('DELETE FROM %I.%I WHERE searchable ilike %L',
+                            ---    schema_name, table_name, '%' || keyword_from_array || '%' );
+                            --- Call stored procedure
+                            CALL delete_matching_rows(schema_name, table_name, keyword_from_array);
+                            --- RAISE NOTICE '      Only testing';
+                        ELSE
+                            RAISE NOTICE '      Only testing';
+                        END IF;
+                    END LOOP;
+
+                        --- RELEASE SAVEPOINT loop_point;
+                        --- ROLLBACK TO SAVEPOINT loop_point;
+                    --- ROLLBACK; --- FOR Transaction control
+                    --- COMMIT; --- FOR Transaction control
+                    --- END; --- FOR Transaction control
+                END LOOP;
+
+                ----------------------
+                RAISE NOTICE '---- After deletion ----';
+                FOR tbl IN (SELECT tablename FROM pg_tables WHERE schemaname = schema_name)
+                LOOP
+                    EXECUTE format('SELECT COUNT(*) FROM %I.%I', schema_name, tbl.tablename) INTO row_count;
+                    RAISE NOTICE 'Table %.%, Row count: %', schema_name, tbl.tablename, row_count;
+                END LOOP;
+                FOR tbl IN (SELECT tablename FROM pg_tables WHERE schemaname = schema_name)
+                LOOP
+                    --- EXECUTE format('SELECT COUNT(*) FROM %I.%I WHERE searchable @@ websearch_to_tsquery(''english'', %L)',
+                    ---    schema_name, table_name, keywords) INTO row_count;
+                    EXECUTE format('SELECT COUNT(*) FROM %I.%I WHERE searchable ILIKE ANY ($1)',
+                        schema_name, table_name) INTO row_count USING keywords_array_wildcard;                        
+                    RAISE NOTICE '                Table %.%, Row count with keywords: %', schema_name, tbl.tablename, row_count;
+                END LOOP;
+                ----------------------
+                -------------------------------------------------------
             END LOOP;
-        END LOOP;
-    END $$;
+            --- RAISE NOTICE 'Done Processing tables in schemas';
+        END $$;
 -------------------------
 
---- ROLLBACK;
-COMMIT;
+--- RAISE EXCEPTION 'Currently in testing phase, exiting now!';
 
-RAISE NOTICE 'Done Processing tables in schemas';
-RAISE EXCEPTION 'Currently in testing phase, exiting now!';
+/* Quck count checks before and after (if ingested in two different containers)
+\set sch 'metabolomics'
+select count(*) from :sch.file; select count(*) from :sch.subject; select count(*) from :sch.biosample; select count(*) from :sch.collection; select count(*) from :sch.project;
+
+--- To get counts with any keywords in specific tables
+select count(*) from c2m2.project where searchable ilike any (ARRAY['%gender%', '%inclusion%', '%diversity%', '%equity%', '%lgbt%', '%trans-gen%', '%transgen%']);
+
+*/
 
 --- ############################################################################
 /* Last: 
 Some very specific deletions
 */
 
+/*
 DO $$
-    DECLARE
-        num     drop_specific_rows_from_c2M2_tables := 0;
-    BEGIN
-
+DECLARE
+    drop_specific_rows_from_c2M2_tables INT := 0;
+BEGIN
     IF drop_specific_rows_from_c2M2_tables > 0 THEN
-
         BEGIN;
         DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3';
-        DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender incongruence
         DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender incongruence
         DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender dysphoria
 
         --- ROLLBACK;
         COMMIT;
-
     END IF;
 END $$;
-
+*/
 --- #############################################################################
 
-
+/*
 DO $$
-    DECLARE
-        num     drop_specific_rows_from_public_tables := 0;
-    BEGIN
+DECLARE
+    drop_specific_rows_from_public_tables INT := 0;
+BEGIN
 
     IF drop_specific_rows_from_public_tables > 0 THEN
-
         BEGIN;
 
         --- from the node table
@@ -196,5 +275,6 @@ DO $$
         COMMIT;
     END IF;
 END $$;
+*/
 
 set max_parallel_workers to 0;

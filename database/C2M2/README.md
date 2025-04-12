@@ -40,7 +40,13 @@ cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
 ./extract_keyword_phrases.sh lines_from_dcc_files_with_keywords.txt lines_from_dcc_files_with_phrase_around_keywords.txt
 
 #To replace any specific words with another words in the tsv files directly, before ingesting
-./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s
+logf=${logdir}/log_replace_gender_sex_women_female_in_tsvfiles.log
+./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s 2>&1 | tee ${logf};
+echo ${date_div} >> ${logf};
+./extract_keyword_phrases.sh cleaned_lines_from_dcc_files_with_keywords.txt cleaned_lines_from_dcc_files_with_phrase_around_keywords.txt
+#for file in $(find ingest/c2m2s -type f -name "*.tsv"); do egrep -i -e "sex" ${file}|wc -l; done
+#for file in $(find ingest/c2m2s -type f -name "*.tsv"); do egrep -i -e "gender" ${file}; done
+
 # IMPORTANT:  See also the file CV/subject_sex*.tsv* in this regard for a deleted line in CV/subject_sex.tsv
 ###########################
 
@@ -69,8 +75,12 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log
 ./gen_sql_select_count_delete_statements.sh fk_referenced_tables.txt sql_select_count_delete_keywords_statements.sql
 
 # To sanitize the C2M2 tables by deleting records with matching keywords
-logf=${logdir}/log_sanitize_C2M2_tables_for_keywords.log
-psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
+date_div=$(echo "============= `date` =============");
+logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2_2.log
+#logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
+# psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
+psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql 2>&1 | tee ${logf};
+#psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql;
 echo ${date_div} >> ${logf};
 
 # Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc. This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too). This script can be run as (upon starting psql shell, or equivalent command):
@@ -104,6 +114,7 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 DCC1=Metabolomics
 DCC2=4DN
 python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} ${DCC1} ${DCC2}
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} MoTrPAC
 # Example: For June 2024
 #python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} 4DN GlyGen HuBMAP KidsFirst Metabolomics SPARC
 # Example: For December 2024

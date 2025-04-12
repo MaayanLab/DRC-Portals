@@ -41,9 +41,12 @@ exit_after_creating_empty_tsvs = 0
 fkeycon_include_on_delete_cascade_str = " ON DELETE CASCADE" # or ""
 
 add_searchable_column = 1
+index_searchable = 1
 searchable_colname = "searchable"
 # Define the exclusion patterns, if none, put some junk string so that no columns excluded
-searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes' #r'^project_|_id$|temp'
+#searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes' #r'^project_|_id$|temp'
+# Need to be able to exlcude records with keywords in IDs as well, so include those columns
+searchable_col_exclude_pattern = r'id_namespace$|creation_time|size_in_bytes' #r'^project_|_id$|temp'
 
 actually_ingest_tables = actually_create_schema * actually_ingest_tables
 
@@ -231,7 +234,9 @@ def gen_searchable_index_query(schema_name, table_name, searchable_colname, debu
 def gen_add_searchable_col_query(schema_name, table_name, column_names, searchable_colname, searchable_col_exclude_pattern, debug):
     schema_table_name = f"{schema_name}.{table_name}"
 
-    add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} tsvector;";
+    # Do not use tsvector, use plain text
+    # add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} tsvector;";
+    add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} VARCHAR DEFAULT '';";
 
     if(debug > 0):
         print(f"column_names: {column_names}") 
@@ -245,9 +250,10 @@ def gen_add_searchable_col_query(schema_name, table_name, column_names, searchab
     column_names_comma_sep_str = ', '.join(column_names_with_schema_table_name);
     add_comma_str = ', ' if (len(filtered_columns) > 0) else ''
     # Add empty string as default so that searchable column will get added
-    add_searchable_col_str2_part1 = f"UPDATE {schema_table_name} SET {searchable_colname} = to_tsvector(concat_ws('|', ''{add_comma_str}";
+    # add_searchable_col_str2_part1 = f"UPDATE {schema_table_name} SET {searchable_colname} = to_tsvector(concat_ws('|', ''{add_comma_str}";
+    add_searchable_col_str2_part1 = f"UPDATE {schema_table_name} SET {searchable_colname} = concat_ws('|', ''{add_comma_str}";
     add_searchable_col_str2_part2 =  column_names_comma_sep_str;
-    add_searchable_col_str2_part3 = "));";
+    add_searchable_col_str2_part3 = ");"; # "));";
     if(debug > 1):
         print(f"add_searchable_col_str1: {add_searchable_col_str1}") 
         print(f"add_searchable_col_str2_part1: {add_searchable_col_str2_part1}");
@@ -829,14 +835,15 @@ if(add_searchable_column == 1):
                 conn.commit();
 
             # Add index on searchable
-            try:
-                cursor.execute(searchable_index_query);
-                print(f"Index creation on searchable column successful.{newline}");
-            except Exception as fsu_siq_e:
-                print(f"Error executing the query{newline}{searchable_index_query}: {fsu_siq_e}");
-            finally:
-                # Commit the changes 
-                conn.commit();
+            if(index_searchable>0):
+                try:
+                    cursor.execute(searchable_index_query);
+                    print(f"Index creation on searchable column successful.{newline}");
+                except Exception as fsu_siq_e:
+                    print(f"Error executing the query{newline}{searchable_index_query}: {fsu_siq_e}");
+                finally:
+                    # Commit the changes 
+                    conn.commit();
 
 t5 = time.time();
 print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add COLUMN {searchable_colname}: {t5-t4} seconds.{newline}");
