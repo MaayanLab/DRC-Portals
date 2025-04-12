@@ -60,17 +60,17 @@ select count(*) from c2m2.ffl_biosample_collection;
 select count(*) from c2m2.ffl_biosample;
 select count(*) from c2m2.ffl_collection;
 
-select project_id_namespace,count(*) from c2m2.ffl_biosample_collection_cmp group by project_id_namespace;
-select dcc_name,count(*) from c2m2.ffl_biosample_collection_cmp group by dcc_name;
+select project_id_namespace,count(*) from c2m2.ffl_biosample_collection group by project_id_namespace;
+select dcc_name,count(*) from c2m2.ffl_biosample_collection group by dcc_name;
 
 --- Count w.r.t. a subset of columns: 
 --- This should be same in the two tables with/without file_format_name and analysis_type_name
 select count(*) from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-    compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_cmp);
+    compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample);
 select count(*) from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-    compound_name, data_type_name, assay_type_name from c2m2.ffl_collection_cmp);
+    compound_name, data_type_name, assay_type_name from c2m2.ffl_collection);
 select count(*) from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-    compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_collection_cmp);
+    compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_collection);
 
 select count(*) FROM c2m2.ffl_biosample_collection WHERE searchable @@ websearch_to_tsquery('english', 'liver');
 select count(*) FROM c2m2.ffl_biosample WHERE searchable @@ websearch_to_tsquery('english', 'liver');
