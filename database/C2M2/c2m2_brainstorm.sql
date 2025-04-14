@@ -187,6 +187,21 @@ f.data_type = 'ILX:0793824' and fdc.collection_local_id = 'COL_P31946-1_GLY_0000
 --- https://data.cfde.cloud/c2m2/search/record_info?q=COL_P31946-1_GLY_000001&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:1433B_HUMAN|compound_name:Unspecified|data_type_name:Protein%20name%20(UniProt)|assay_type_name:Unspecified
 --- lists files with collections
 
+
+/* 2025/03/05: To add filters: subject_ethnicity, subject_sex, subject_race
+
+How many rows have this information
+drc=> select count(*) from (select subject_ethnicity, subject_sex, subject_race from c2m2.ffl_biosample_collection_cmp where ((subject_sex is not null) OR (subject_ethnicity is not null) OR (subject_race is not null)));
+ 857184
+
+Compared to:
+drc=> select count(*) from c2m2.ffl_biosample_collection_cmp;
+ 3682069
+
+So, expect about 25% increase in the number of records in the search resoults.
+
+*/
+
 /* 
 To make file_format filter available on the main search results page, 
 without including it in ffl_biosample_collection* tables, include it 

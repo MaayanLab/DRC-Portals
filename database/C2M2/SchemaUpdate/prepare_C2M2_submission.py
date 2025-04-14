@@ -10,7 +10,7 @@
 # publication in the CFDE portal.
 # 
 # Creation date: 2020-05-17
-# Lastmod date unless I forgot to change it: 2024-11-27
+# Lastmod date unless I forgot to change it: 2025-02-25
 # 
 ##########################################################################################
 
@@ -1329,7 +1329,7 @@ def checkChecksums(  ):
 
             line = line.rstrip('\r\n')
 
-            ( id_namespace, local_id, project_id_namespace, project_local_id, persistent_id, creation_time, size_in_bytes, uncompressed_size_in_bytes, sha256, md5, filename, file_format, compression_format, data_type, assay_type, analysis_type, mime_type, bundle_collection_id_namespace, bundle_collection_local_id, dbgap_study_id ) = re.split(r'\t', line)
+            ( id_namespace, local_id, project_id_namespace, project_local_id, persistent_id, creation_time, size_in_bytes, uncompressed_size_in_bytes, sha256, md5, filename, file_format, compression_format, data_type, assay_type, analysis_type, mime_type, bundle_collection_id_namespace, bundle_collection_local_id, dbgap_study_id, access_url) = re.split(r'\t', line)
 
             if persistent_id != '' and sha256 == '' and md5 == '':
                 

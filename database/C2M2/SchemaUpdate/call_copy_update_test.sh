@@ -12,6 +12,14 @@
 # append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
 # OR, in one line:
 # ./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
+# Another example
+# For file.tsv access_url update
+# mock access_url related data in file.tsv.
+#./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_access_url.sh \
+# append_random_access_url_to_file.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
+# OR, in one line:
+#./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_access_url.sh append_random_access_url_to_file.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
+
 
 # The above command started many copies of the above command, printing:
 # /bin/bash: warning: shell level (1000) too high, resetting to 1

@@ -5,6 +5,8 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import DownloadButton from "../../DownloadButton";
+import { generateSelectColumnsForFileQuery } from "@/app/data/c2m2/utils";
 
 interface FileColTableResult {
     count_file_col: number;
@@ -84,6 +86,9 @@ const renderMetadataValue = (item: MetadataItem) => {
 export default async function FilesCollectionTableComponent({ searchParams, filterClause, fileColTblOffset, limit, file_count_limit_col }: { searchParams: any, filterClause: SQL, fileColTblOffset: number, limit: number, file_count_limit_col: number }): Promise<JSX.Element> {
     console.log("In FilesColTableComponent");
     console.log("q = " + searchParams.q);
+
+    const ColumnsForFileQuery = generateSelectColumnsForFileQuery("allres_full");
+    
     try {
         const query = SQL.template`
         WITH allres_full AS (
@@ -95,30 +100,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             ORDER BY rank DESC
         ), 
         unique_info AS (
-            SELECT DISTINCT 
-                allres_full.dcc_name,
-                allres_full.dcc_abbreviation,
-                allres_full.project_local_id, 
-                allres_full.project_id_namespace,
-                allres_full.ncbi_taxonomy_name as taxonomy_name,
-                allres_full.subject_role_taxonomy_taxonomy_id as taxonomy_id,
-                allres_full.disease_name,
-                allres_full.disease,
-                allres_full.anatomy_name,
-                allres_full.anatomy,
-                allres_full.biofluid_name,
-                allres_full.biofluid,
-                allres_full.gene, 
-                allres_full.gene_name,
-                allres_full.protein, 
-                allres_full.protein_name,
-                allres_full.substance_compound as compound, 
-                allres_full.compound_name,
-                allres_full.data_type_id AS data_type, 
-                allres_full.data_type_name,
-                allres_full.assay_type_id AS assay_type, /****/
-                allres_full.assay_type_name /****/
-            FROM allres_full
+            SELECT DISTINCT ${SQL.raw(ColumnsForFileQuery)} FROM allres_full
         ),
         col_info AS (
             SELECT DISTINCT 
@@ -236,6 +218,12 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
 
         const fileColTableTitle = fileCol_table_label_base + ": " + get_partial_list_string(countFileCol, count_file_col_table_withlimit, file_count_limit_col);
         const category = categories[0];
+        const downloadData = category?.metadata
+            ? category.metadata
+                .filter(item => item && item.value !== null)  // Only include items with a non-null value
+                .map(item => ({ [item.label]: item.value }))  // Create an object with label as the key and value as the value
+            : []; // If category is not present, return an empty array
+
         return (
             <Grid container spacing={0} direction="column" sx={{ maxWidth: '100%' }}>
                 {category && (
@@ -255,6 +243,15 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
                                 ))}
                             </CardContent>
                         </Card>
+                    </Grid>
+                )}
+                {countFileCol === 1 && (
+                    <Grid item xs={12}>
+                        <DownloadButton
+                            data={downloadData}
+                            filename={downloadFilename}
+                            name="Download Metadata"
+                        />
                     </Grid>
                 )}
                 <Grid item xs={12} sx={{ maxWidth: '100%' }}>

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Call syntax: be in the correct folder: database
+# Call syntax: be in the correct folder: C2M2
 # ./gen_ingest_slim_script.sh ingest_slim.sql
 
 if [[ $# -lt 1 ]]; then

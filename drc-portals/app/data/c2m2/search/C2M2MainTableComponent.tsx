@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';; // Ensure React and useState are imported
 import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw';
-import { generateFilterQueryString } from '@/app/data/c2m2/utils';
+import { generateFilterQueryString, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from '@/app/data/c2m2/utils';
+import { generateFilterStringsForURL } from '@/app/data/c2m2/utils';
 import { Typography } from '@mui/material'; // Add CircularProgress for loading state
 import Link from "@/utils/link";
 import { getDCCIcon, getdccCFlink, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
@@ -12,6 +13,8 @@ import C2M2MainSearchTable from './C2M2MainSearchTable';
 
 interface C2M2SearchResult {
     records: {
+        /* searchable: string, */
+        rank: number,
         dcc_name: string,
         dcc_abbreviation: string,
         dcc_short_label: string,
@@ -33,6 +36,12 @@ interface C2M2SearchResult {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
+        subject_ethnicity_name: string, 
+        subject_ethnicity: string, 
+        subject_sex_name: string, 
+        subject_sex: string, 
+        subject_race_name: string,
+        subject_race: string,
         project_name: string,
         project_persistent_id: string,
         count: number,
@@ -48,6 +57,11 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
     console.log("In C2M2MainTableComponent");
     console.log("q = " + searchParams.q);
 
+    const selectColumns = generateSelectColumnsStringModified("allres_full");
+    const selectColumnsPlain = generateSelectColumnsStringPlain();
+    const orderByClause = generateOrderByString();
+    const FilterStringsForURL = generateFilterStringsForURL();
+
     try {
         if (!searchParams.q) return <Typography>No query specified</Typography>;
 
@@ -62,54 +76,24 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             WITH 
             allres AS (
                 SELECT DISTINCT
+                    /* allres_full.searchable AS searchable, */
                     ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
-                    allres_full.dcc_name AS dcc_name,
-                    allres_full.dcc_abbreviation AS dcc_abbreviation,
-                    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-                    COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id,
-                    COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-                    SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-                    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-                    REPLACE(allres_full.disease, ':', '_') AS disease,
-                    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-                    REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-                    COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-                    REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
-                    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-                    allres_full.gene AS gene,
-                    COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
-                    allres_full.protein AS protein,
-                    COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
-                    allres_full.substance_compound AS compound,
-                    COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
-                    REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-                    COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
-                    REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
-                    COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
-                        SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-                    allres_full.project_persistent_id AS project_persistent_id
+                    ${SQL.raw(selectColumns)}
                 FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                     ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-                ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-                    protein_name, compound_name, data_type_name, assay_type_name
+                ORDER BY ${SQL.raw(orderByClause)} /*rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
+                    protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name */
                 OFFSET ${offset} 
                 LIMIT 100
             ),
 
             allres_filtered AS (
-                SELECT  allres.*, 
+                SELECT allres.*,
+                /* SELECT distinct allres.* except rank, DID NOT WORK ; difference of 0.002 vs 0.00204 is leading to two identical records being listed */ 
                 concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
-                '|project_local_id:', allres.project_local_id, 
-                '|disease_name:', allres.disease_name, 
-                '|ncbi_taxonomy_name:', allres.taxonomy_name, 
-                '|anatomy_name:', allres.anatomy_name, 
-                '|biofluid_name:', allres.biofluid_name,
-                '|gene_name:', allres.gene_name, 
-                '|protein_name:', allres.protein_name,
-                '|compound_name:', allres.compound_name, 
-                '|data_type_name:', allres.data_type_name, 
-                '|assay_type_name:', allres.assay_type_name) AS record_info_url
+                ${SQL.raw(FilterStringsForURL)}
+                ) AS record_info_url
                 FROM allres
             ),
             filtered_count AS (
@@ -121,9 +105,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                 FROM allres_filtered
                 LIMIT ${limit}
             )
-            
-            
-            
+
             SELECT
             (SELECT COALESCE(jsonb_agg(allres_limited.*), '[]'::jsonb) AS records FROM allres_limited), 
             (SELECT count FROM filtered_count) AS filter_count
@@ -139,6 +121,9 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         // Assuming you want to process the first result in the array
         const result = results[0];
         const records = result?.records ?? [];
+
+        // For debug:
+        console.log("records: ", records);
 
         if (records.length === 0) {
             return <div><Typography>No results found</Typography></div>;

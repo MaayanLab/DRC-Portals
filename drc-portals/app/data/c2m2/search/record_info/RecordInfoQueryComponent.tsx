@@ -3,8 +3,7 @@ import { format_description, pluralize, type_to_string } from "@/app/data/proces
 import { MetadataItem, getDCCIcon, getdccCFlink, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
-import ExpandableTable from "../../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, generateHashedJSONFilename, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent from "./BiosamplesTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
@@ -44,9 +43,6 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     // console.log("In function fetchRecordInfoQueryResuts");
 
-
-
-
     console.log("******");
     console.log("q = " + searchParams.q + " p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
     // Declare different offsets for all the tables and this is needed to fine grain pagination
@@ -79,7 +75,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     // Generate the query clause for filters
 
     const filterClause = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
-
+    console.log("generated FilterClause in RecordInfoQuery");
     // To measure time taken by different parts
     const t0: number = performance.now();
 
@@ -107,6 +103,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
+        subject_ethnicity_name: string,
+        subject_ethnicity: string,
+        subject_sex_name: string,
+        subject_sex: string,
+        subject_race_name: string,
+        subject_race: string,
         project_name: string,
         project_persistent_id: string,
         project_local_id: string,
@@ -152,11 +154,14 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               allres_full.substance_compound AS compound,
               COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
               REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-              /**** COALESCE(c2m2.project_data_type.assay_type_name, 'Unspecified') AS assay_type_name,
-              REPLACE(c2m2.project_data_type.assay_type_id, ':', '_') AS assay_type, ****/
               COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
               REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
-              /* allres_full.project_name AS project_name, */
+              COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
+              allres_full.subject_ethnicity AS subject_ethnicity,
+              COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
+              allres_full.subject_sex AS subject_sex,
+              COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
+              allres_full.subject_race AS subject_race,
               COALESCE(allres_full.project_name, 
                 concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
               c2m2.project.persistent_id AS project_persistent_id,
@@ -182,12 +187,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
               anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
+              data_type, assay_type_name, assay_type, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
+              subject_race_name, subject_race, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
               allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
-            /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, biofluid_name, project_name, project_description, rank*/
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-              protein_name, compound_name, data_type_name, assay_type_name /*rank DESC*/
+              protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name /*rank DESC*/
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
@@ -200,18 +205,136 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
 
 
-    // The following items are present in metadata
+
+    //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
+    // The following items are present in metadata and downloadMetadata
+    const downloadMetadata = {
+      project: {
+        id: resultsRec?.project_local_id || "",
+        name: resultsRec?.project_name || "",
+        url: resultsRec?.project_persistent_id || null,
+        description: resultsRec?.project_description ?? ""
+      },
+      dcc: {
+        name: resultsRec?.dcc_name || "",
+        abbreviation: resultsRec?.dcc_abbreviation || "",
+        short_label: resultsRec?.dcc_short_label || "",
+        // url: resultsRec?.dcc_short_label ? `/info/dcc/${getdccCFlink(resultsRec?.dcc_short_label)}` : "",
+      },
+      taxonomy: resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified"
+        ? {
+          id: resultsRec.taxonomy_id,
+          name: resultsRec.taxonomy_name,
+          url: `https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`,
+          description: resultsRec.taxonomy_description || null,
+        }
+        : null,
+      sampleSource: resultsRec?.anatomy_name && resultsRec.anatomy_name !== "Unspecified"
+        ? {
+          id: resultsRec.anatomy,
+          name: resultsRec.anatomy_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.anatomy}`,
+          description: resultsRec.anatomy_description || null,
+        }
+        : null,
+      biofluid: resultsRec?.biofluid_name && resultsRec.biofluid_name !== "Unspecified"
+        ? {
+          id: resultsRec.biofluid,
+          name: resultsRec.biofluid_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.biofluid}`,
+          description: resultsRec.biofluid_description || null,
+        }
+        : null,
+      disease: resultsRec?.disease_name && resultsRec.disease_name !== "Unspecified"
+        ? {
+          id: resultsRec.disease,
+          name: resultsRec.disease_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.disease}`,
+          description: resultsRec.disease_description || null,
+        }
+        : null,
+      gene: resultsRec?.gene_name && resultsRec.gene_name !== "Unspecified"
+        ? {
+          id: resultsRec.gene,
+          name: resultsRec.gene_name,
+          url: `http://www.ensembl.org/id/${resultsRec.gene}`,
+          description: resultsRec.gene_description ? capitalizeFirstLetter(resultsRec.gene_description) : null,
+        }
+        : null,
+      protein: resultsRec?.protein_name && resultsRec.protein_name !== "Unspecified"
+        ? {
+          id: resultsRec.protein,
+          name: resultsRec.protein_name,
+          url: `https://www.uniprot.org/uniprotkb/${resultsRec.protein}`,
+          description: resultsRec.protein_description ? capitalizeFirstLetter(resultsRec.protein_description) : null,
+        }
+        : null,
+      compound: resultsRec?.compound_name && resultsRec.compound_name !== "Unspecified"
+        ? {
+          id: resultsRec.compound,
+          name: resultsRec.compound_name,
+          url: `http://www.ensembl.org/id/${resultsRec.compound}`,
+          description: resultsRec.compound_description ? capitalizeFirstLetter(resultsRec.compound_description) : null,
+        }
+        : null,
+      data_type: resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.data_type,
+          name: resultsRec.data_type_name,
+          url:
+            resultsRec.data_type?.includes("ILX_") || resultsRec.data_type?.includes("ilx_")
+              ? `http://uri.interlex.org/${resultsRec.data_type.toLowerCase()}`
+              : `http://edamontology.org/${resultsRec.data_type}`,
+        }
+        : null,
+      assay_type: resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.assay_type,
+          name: resultsRec.assay_type_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`,
+        }
+        : null,
+      subject_ethnicity: resultsRec?.subject_ethnicity_name && resultsRec.subject_ethnicity_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_ethnicity,
+          name: resultsRec.subject_ethnicity_name
+        }
+        : null,
+      subject_sex: resultsRec?.subject_sex_name && resultsRec.subject_sex_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_sex,
+          name: resultsRec.subject_sex_name
+        }
+        : null,
+      subject_race: resultsRec?.subject_race_name && resultsRec.subject_race_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_race,
+          name: resultsRec.subject_race_name
+        }
+        : null,
+    };
+
+    // Remove null values
+    const filteredMetadata = Object.fromEntries(
+      Object.entries(downloadMetadata).filter(([_, v]) => v !== null)
+    );
 
 
 
+
+    const downloadFilename = generateHashedJSONFilename("Metadata_", searchParams);
     const metadata: (MetadataItem | null)[] = [
       { label: 'Project ID', value: projectLocalId },
       resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)
         ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
         : resultsRec?.project_persistent_id ? { label: 'Project URL', value: resultsRec?.project_persistent_id } : null,
+      {
+        label: 'DCC',
+        value: resultsRec?.dcc_name
+      },
       {
         label: 'Taxonomy',
         value: resultsRec?.taxonomy_name && resultsRec?.taxonomy_name !== "Unspecified"
@@ -296,10 +419,28 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.assay_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.assay_type_name)}
           </Link>
-          : /* resultsRec?.data_type_name || */ ''
+          : ''
       },
-
+      {
+        label: 'Subject ethnicity',
+        value: resultsRec?.subject_ethnicity_name && resultsRec?.subject_ethnicity_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_ethnicity_name)
+          : ''
+      },
+      {
+        label: 'Subject sex',
+        value: resultsRec?.subject_sex_name && resultsRec?.subject_sex_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_sex_name)
+          : ''
+      },
+      {
+        label: 'Subject race',
+        value: resultsRec?.subject_race_name && resultsRec?.subject_race_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_race_name)
+          : ''
+      },
     ];
+
 
 
     // const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
@@ -316,6 +457,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         subtitle={""}
         description={format_description(resultsRec?.project_description ?? "")}
         metadata={metadata}
+        downloadMetadata={filteredMetadata}
+        downloadFilename={downloadFilename}
       //categories={categories}
       >
         <React.Suspense fallback={<>Loading..</>}>
@@ -349,7 +492,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
 
         <React.Suspense fallback={<>Loading..</>}>
-          <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col} />
+          <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileColTblOffset} file_count_limit_col={file_count_limit_col} />
         </React.Suspense>
       </LandingPageLayout>
     )

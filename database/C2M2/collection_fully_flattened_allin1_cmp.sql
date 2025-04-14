@@ -53,6 +53,9 @@ END $$;
 */
 
 
+
+
+
 DROP TABLE IF EXISTS c2m2.ffl_collection_cmp;
 CREATE TABLE c2m2.ffl_collection_cmp as (
 select distinct
@@ -99,6 +102,8 @@ select distinct
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
     c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name, c2m2.project_data_type.assay_type_description,
+    c2m2.project_data_type.file_format_id, c2m2.project_data_type.file_format_name, c2m2.project_data_type.file_format_description,
+    c2m2.project_data_type.analysis_type_id, c2m2.project_data_type.analysis_type_name, c2m2.project_data_type.analysis_type_description,
 
     c2m2.collection_taxonomy.taxon, /** **/
     c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, 
@@ -162,6 +167,8 @@ select distinct
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
     c2m2.project_data_type.assay_type_id as assay_type_id, c2m2.project_data_type.assay_type_name as assay_type_name, 
+    c2m2.project_data_type.file_format_id as file_format_id, c2m2.project_data_type.file_format_name as file_format_name,
+    c2m2.project_data_type.analysis_type_id as analysis_type_id, c2m2.project_data_type.analysis_type_name as analysis_type_name, 
 
     c2m2.collection_taxonomy.taxon as subject_role_taxonomy_taxonomy_id, /** **/ /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
@@ -454,6 +461,8 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     c2m2.project.persistent_id, c2m2.project.creation_time, c2m2.project.name, c2m2.project.abbreviation,
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name,
     c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name,
+    c2m2.project_data_type.file_format_id, c2m2.project_data_type.file_format_name,
+    c2m2.project_data_type.analysis_type_id, c2m2.project_data_type.analysis_type_name, 
     c2m2.collection_taxonomy.taxon, c2m2.ncbi_taxonomy.name, c2m2.collection.persistent_id, 
     c2m2.collection.creation_time, c2m2.collection.name, c2m2.collection.abbreviation,
     c2m2.collection.has_time_series_data, sample_prep_method_name, subject_race, subject_race_name, 
@@ -503,7 +512,7 @@ BEGIN
         CREATE INDEX ffl_collection_cmp_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_collection_cmp USING 
         --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name, assay_type_name);
         btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-        compound_name, data_type_name, assay_type_name);
+        compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name);
     END IF;
 END $$;
 
