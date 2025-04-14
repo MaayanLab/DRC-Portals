@@ -13,14 +13,14 @@ export function LinkedTypedNode({
   type,
   label,
   search,
-  entity_type = null,
+  entity_type = '',
   focus = false,
 }: {
   slug: string,
   type: NodeType,
   label: string,
   search?: string,
-  entity_type?: string | null,
+  entity_type?: string,
   focus?: boolean,
 }) {
   return (
