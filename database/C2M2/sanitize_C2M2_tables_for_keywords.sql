@@ -267,6 +267,7 @@ BEGIN
 
     IF drop_specific_rows_from_public_tables > 0 THEN
         BEGIN;
+        --- start transaction;
 
         --- from the node table
         \set node_id '0e48e7a8-52d9-5fea-ade5-a2eb8eab0d21'
@@ -277,10 +278,17 @@ BEGIN
         DELETE FROM entity_node where id = :'node_id';
         DELETE FROM node where id = :'node_id';
 
+        update node
+        set description = replace(description, ' diversity ', ' intrinsic variation ')
+        where description like '% diversity %';
+
         --- ROLLBACK;
         COMMIT;
     END IF;
 END $$;
+*/
+
+
 */
 
 set max_parallel_workers to 0;
