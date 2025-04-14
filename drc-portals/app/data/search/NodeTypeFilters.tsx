@@ -11,6 +11,6 @@ export default async function NodeTypeFilters({ q }: { q: string }) {
     group by "node"."type"
   `
   return result.map((type_count) =>
-    <SearchFilter key={`${type_count.type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, ''))} color={type_to_color(type_count.type, null)} />
+    <SearchFilter key={`${type_count.type}`} id={type_count.type} count={type_count.count} label={pluralize(type_to_string(type_count.type, ''))} color={type_to_color(type_count.type, '')} />
   )
 }
