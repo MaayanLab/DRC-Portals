@@ -38,7 +38,7 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
 
   // 🧠 Convert filters to array (if needed)
   const filterElements = React.Children.toArray(props.filters);
-  const maxVisible = 8;
+  const maxVisible = 9;
   const visibleFilters = showAllFilters ? filterElements : filterElements.slice(0, maxVisible);
   const showMoreButton = filterElements.length > maxVisible;
 
