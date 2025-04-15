@@ -46,12 +46,14 @@ export async function POST(request: Request) {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
-        subject_ethnicity_name: string, 
-        subject_ethnicity: string, 
-        subject_sex_name: string, 
-        subject_sex: string, 
+        subject_ethnicity_name: string,
+        subject_ethnicity: string,
+        subject_sex_name: string,
+        subject_sex: string,
         subject_race_name: string,
         subject_race: string,
+        file_format_name: string,
+        file_format: string,
         project_name: string,
         project_persistent_id: string,
         count: number,
@@ -93,6 +95,8 @@ export async function POST(request: Request) {
           allres_full.subject_sex AS subject_sex,
           COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
           allres_full.subject_race AS subject_race,
+          COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name,
+          REPLACE(allres_full.file_format_id, ':', '_') AS file_format,
           COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', 
               SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
           allres_full.project_persistent_id AS project_persistent_id
@@ -100,7 +104,7 @@ export async function POST(request: Request) {
       WHERE searchable @@ websearch_to_tsquery('english', ${queryParam})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
       ORDER BY rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-          protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name
+          protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name, file_format_name
   ),
       allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres),
       allres_filtered AS (
@@ -112,7 +116,7 @@ export async function POST(request: Request) {
         '|', 'gene_name:', allres.gene_name, '|', 'protein_name:', allres.protein_name,
         '|', 'compound_name:', allres.compound_name, '|', 'data_type_name:', allres.data_type_name,
         '|assay_type_name:', allres.assay_type_name, '|subject_ethnicity_name:', allres.subject_ethnicity_name, 
-        '|subject_sex_name:', allres.subject_sex_name, '|subject_race_name:', allres.subject_race_name 
+        '|subject_sex_name:', allres.subject_sex_name, '|subject_race_name:', allres.subject_race_name, '|file_format_name:', allres.file_format_name
       ) AS record_info_url
         FROM allres
       )

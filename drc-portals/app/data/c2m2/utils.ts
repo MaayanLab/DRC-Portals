@@ -288,7 +288,8 @@ export const tableToName = [
   { table: 'subject_race', label: 'Subject - Race' },
   { table: 'subject_role_taxonomy', label: 'Subject Role Taxonomy' },
   { table: 'subject_substance', label: 'Subject - Substance' },
-  { table: 'substance', label: 'Substance' }
+  { table: 'substance', label: 'Substance' },
+  { table: 'file_format', label: 'File Format' }
 ];
 
 export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
@@ -310,7 +311,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         // ${t.entity_type.replace(/'/g, "''")} is not needed: ${t.entity_type} is enough.
         const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name',
           'ncbi_taxonomy_name', 'anatomy_name', 'biofluid_name', 'gene_name', 'protein_name', 'compound_name',
-          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name'];
+          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name', 'file_format_name'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate upper and lower cases
@@ -347,15 +348,13 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
       }
       if (t.entity_type) {
 
-        const valid_colnames_old: string[] = ['dcc', 'disease',
-          'taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type'];
+
         // Note that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate  upper case and lower case entity names
@@ -400,7 +399,7 @@ export function generateFilterClauseFromtParam(t: { type: string; entity_type: s
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format'];
 
         if (item.entity_type !== "Unspecified") {
           typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" ILIKE ${item.entity_type}`);
@@ -669,7 +668,7 @@ export function generateSelectColumnsStringPlain(tablename: string = '') {
     'project_local_id', 'taxonomy_name', 'taxonomy_id', 'disease_name', 'disease', 'anatomy_name',
     'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein',
     'compound_name', 'compound', 'data_type_name', 'data_type', 'assay_type_name', 'assay_type', 'subject_ethnicity_name',
-    'subject_ethnicity', 'subject_sex_name', 'subject_sex', 'subject_race_name', 'subject_race',
+    'subject_ethnicity', 'subject_sex_name', 'subject_sex', 'subject_race_name', 'subject_race', 'file_format_name', 'file_format',
     'project_name', 'project_persistent_id'];
 
   const colnamesStringArray = colnames.map(col => tablenameWithDot + col);
@@ -710,6 +709,8 @@ export function generateSelectColumnsStringModified(tablename: string = '') {
     "allres_full.subject_sex AS subject_sex," +
     "COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name," +
     "allres_full.subject_race AS subject_race," +
+    "COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name," +
+    "REPLACE(allres_full.file_format_id, ':', '_') AS file_format," +
     "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
     "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
     "allres_full.project_persistent_id AS project_persistent_id";
@@ -725,7 +726,7 @@ export function generateOrderByString(rankColname: string = 'rank') {
   const OrderByString: string = orderByRankStr +
     "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, " +
     "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, " +
-    "subject_ethnicity_name, subject_sex_name, subject_race_name";
+    "subject_ethnicity_name, subject_sex_name, subject_race_name, file_format_name ";
   return OrderByString;
 }
 
@@ -748,7 +749,8 @@ export function generateFilterStringsForURL(): string {
     `'|assay_type_name:', allres.assay_type_name, ` +
     `'|subject_ethnicity_name:', allres.subject_ethnicity_name, ` +
     `'|subject_sex_name:', allres.subject_sex_name, ` +
-    `'|subject_race_name:', allres.subject_race_name`
+    `'|subject_race_name:', allres.subject_race_name, ` +
+    `'|file_format_name', allres.file_format_name `
   );
 }
 
@@ -758,29 +760,37 @@ export function generateSelectColumnsForFileQuery(tablename: string = '') {
 
   // decorate and sanitize using SQL.template and SQL.raw
   const colnamesString =
-  tablenameWithDot + "dcc_name," +
-  tablenameWithDot + "dcc_abbreviation," +
-  tablenameWithDot + "project_local_id," +
-  tablenameWithDot + "project_id_namespace," +
-  tablenameWithDot + "ncbi_taxonomy_name as taxonomy_name," +
-  tablenameWithDot + "subject_role_taxonomy_taxonomy_id as taxonomy_id," +
-  tablenameWithDot + "disease_name," +
-  tablenameWithDot + "disease," +
-  tablenameWithDot + "anatomy_name," +
-  tablenameWithDot + "anatomy," +
-  tablenameWithDot + "biofluid_name," +
-  tablenameWithDot + "biofluid," +
-  tablenameWithDot + "gene," +
-  tablenameWithDot + "gene_name," +
-  tablenameWithDot + "protein," +
-  tablenameWithDot + "protein_name," +
-  tablenameWithDot + "substance_compound as compound," +
-  tablenameWithDot + "compound_name," +
-  tablenameWithDot + "data_type_id AS data_type," +
-  tablenameWithDot + "data_type_name," +
-  tablenameWithDot + "assay_type_id AS assay_type," +
-  tablenameWithDot + "assay_type_name" 
-;
+    tablenameWithDot + "dcc_name," +
+    tablenameWithDot + "dcc_abbreviation," +
+    tablenameWithDot + "project_local_id," +
+    tablenameWithDot + "project_id_namespace," +
+    tablenameWithDot + "ncbi_taxonomy_name as taxonomy_name," +
+    tablenameWithDot + "subject_role_taxonomy_taxonomy_id as taxonomy_id," +
+    tablenameWithDot + "disease_name," +
+    tablenameWithDot + "disease," +
+    tablenameWithDot + "anatomy_name," +
+    tablenameWithDot + "anatomy," +
+    tablenameWithDot + "biofluid_name," +
+    tablenameWithDot + "biofluid," +
+    tablenameWithDot + "gene," +
+    tablenameWithDot + "gene_name," +
+    tablenameWithDot + "protein," +
+    tablenameWithDot + "protein_name," +
+    tablenameWithDot + "substance_compound as compound," +
+    tablenameWithDot + "compound_name," +
+    tablenameWithDot + "data_type_id AS data_type," +
+    tablenameWithDot + "data_type_name," +
+    tablenameWithDot + "assay_type_id AS assay_type," +
+    tablenameWithDot + "assay_type_name, " +
+    tablenameWithDot + "subject_sex_id AS subject_sex," +
+    tablenameWithDot + "subject_sex_name, " +
+    tablenameWithDot + "subject_race_id AS subject_race," +
+    tablenameWithDot + "subject_race_name, " +
+    tablenameWithDot + "subject_ethnicity_id AS subject_ethnicity," +
+    tablenameWithDot + "subject_ethnicity_name, " +
+    tablenameWithDot + "file_format_id AS file_format," +
+    tablenameWithDot + "file_format_name"
+    ;
 
   return colnamesString;
 }
