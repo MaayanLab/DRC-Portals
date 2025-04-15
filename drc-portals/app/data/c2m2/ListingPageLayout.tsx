@@ -1,8 +1,7 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { Paper, Grid, Typography, Button, Box } from "@mui/material";
-import { useRouter, useSearchParams } from '@/utils/navigation'; // Import useRouter and useSearchParams
-import DownloadButton from "./DownloadButton";
+import { useRouter, useSearchParams } from '@/utils/navigation';
 import { get_partial_list_string } from "@/app/data/c2m2/utils";
 
 export default function ListingPageLayout(props: React.PropsWithChildren<{
@@ -10,43 +9,38 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
   filtered_count?: number,
   all_count_limit?: number,
   searchText?: string,
-  filters?: React.ReactNode,
+  filters?: React.ReactNode[] | React.ReactNode, // Modified type
   footer?: React.ReactNode,
   data?: { [key: string]: string | bigint | number; }[],
   downloadFileName?: string;
 }>) {
-  const router = useRouter(); // Initialize useRouter
-  const searchParams = useSearchParams(); // Initialize useSearchParams
-  // const partial_list_string = get_partial_list_string(props.filtered_count ?? 0, props.count ?? 0, props.all_count_limit ?? 0);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const partial_list_string = props.filtered_count?.toLocaleString();
-
-  // Track if there are filters in the URL
   const [filtersPresent, setFiltersPresent] = useState(false);
+  const [showAllFilters, setShowAllFilters] = useState(false);
 
-  // Function to determine if there are any 't' parameters in the URL
   const checkFilters = () => {
-    const tParam = searchParams.get('t'); // Get the 't' parameter
-    return tParam !== null && tParam.trim() !== ''; // Check if 't' is present and not empty
+    const tParam = searchParams.get('t');
+    return tParam !== null && tParam.trim() !== '';
   };
 
-  // Use useEffect to update filtersPresent whenever the URL changes
   useEffect(() => {
-    setFiltersPresent(checkFilters()); // Update filtersPresent when the component renders or URL changes
-  }, [searchParams]); // Trigger effect on URL changes
+    setFiltersPresent(checkFilters());
+  }, [searchParams]);
 
-  // Handle reset filters action
   const handleReset = () => {
     const baseUrl = window.location.pathname;
-    const updatedParams = new URLSearchParams(window.location.search); // Get the current search parameters
-
-    // Clear all filters by deleting 't' parameter
+    const updatedParams = new URLSearchParams(window.location.search);
     updatedParams.delete('t');
-    // Optionally delete 'q' parameter if needed
-    // updatedParams.delete('q');
-
-    // Redirect to the updated URL
     router.push(`${baseUrl}?${updatedParams.toString()}`);
   };
+
+  // 🧠 Convert filters to array (if needed)
+  const filterElements = React.Children.toArray(props.filters);
+  const maxVisible = 8;
+  const visibleFilters = showAllFilters ? filterElements : filterElements.slice(0, maxVisible);
+  const showMoreButton = filterElements.length > maxVisible;
 
   return (
     <Grid container justifyContent={"center"} spacing={2}>
@@ -57,29 +51,53 @@ export default function ListingPageLayout(props: React.PropsWithChildren<{
 
         {props.filters && (
           <Grid item xs={12} sm={3}>
-            <Paper sx={{ background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px" }} elevation={0}>
+            <Paper
+              sx={{
+                background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)",
+                height: '100%',
+                padding: "12px 24px"
+              }}
+              elevation={0}
+            >
               <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
                 <Typography variant="h5">Results found: </Typography>
                 <Typography variant="h5"> {`${partial_list_string}`} </Typography>
               </div>
 
-              {/* Use a Box to align Filter and Reset All button on the same row */}
-              <div>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  <Typography variant="h5">Filters</Typography>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Typography variant="h5">Filters</Typography>
+                <Button
+                  onClick={handleReset}
+                  variant="outlined"
+                  color="secondary"
+                  sx={{ marginLeft: 2 }}
+                  disabled={!filtersPresent}
+                >
+                  Reset All
+                </Button>
+              </Box>
+
+              <div className="flex flex-col text-cyan-700 text-lg mt-2">
+                {visibleFilters}
+                {showMoreButton && !showAllFilters && (
                   <Button
-                    onClick={handleReset}
-                    variant="outlined"
-                    color="secondary"
-                    sx={{ marginLeft: 2 }} // Add some margin for spacing
-                    disabled={!filtersPresent} // Disable if no 't' parameters
+                    variant="contained"
+                    color="primary"
+                    size="medium"
+                    onClick={() => setShowAllFilters(true)}
+                    sx={{
+                      mt: 2,
+                      fontWeight: 'bold',
+                      textTransform: 'none',
+                      boxShadow: 2,
+                      borderRadius: 2,
+                      alignSelf: 'flex-start',
+                    }}
                   >
-                    Reset All
+                    + More filters
                   </Button>
-                </Box>
-              </div>
-              <div className="flex flex-col text-cyan-700 text-lg">
-                {props.filters}
+                )}
+
               </div>
             </Paper>
           </Grid>
