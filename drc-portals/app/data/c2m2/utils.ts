@@ -717,7 +717,74 @@ export function generateSelectColumnsStringModified(tablename: string = '') {
 
   return colnamesString;
 }
+// generate RecordInfoComponentQueryString
+export function groupByRecordInfoQueryString(tablename: string = '') {
 
+  /* dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
+                anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
+                data_type, assay_type_name, assay_type, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
+                subject_race_name, subject_race, file_format_name, project_name, c2m2.project.persistent_id, 
+                allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
+                protein_description, compound_description, taxonomy_description */
+  const groupByString = "dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease,  anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name," +
+    "gene, protein_name, protein, compound_name, compound, data_type_name, data_type, assay_type_name, assay_type, subject_ethnicity_name," +
+    "subject_ethnicity, subject_sex_name, subject_sex, subject_race_name, subject_race, file_format_name, project_name, c2m2.project.persistent_id, " +
+    "allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, protein_description," +
+    "compound_description, taxonomy_description";
+
+  return groupByString;
+}
+
+
+export function generateRecordInfoColnamesString(tablename: string = '') {
+  const colnamesString =
+    "allres_full.dcc_name AS dcc_name," +
+    "allres_full.dcc_abbreviation AS dcc_abbreviation," +
+    "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label," +
+    "COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id," +
+    "COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name," +
+    "SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id," +
+    "COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name," +
+    "REPLACE(allres_full.disease, ':', '_') AS disease," +
+    "COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name," +
+    "REPLACE(allres_full.anatomy, ':', '_') AS anatomy," +
+    "COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name," +
+    "REPLACE(allres_full.biofluid, ':', '_') AS biofluid," +
+    "COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name," +
+    "allres_full.gene AS gene," +
+    "COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name," +
+    "allres_full.protein AS protein," +
+    "COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name," +
+    "allres_full.substance_compound AS compound," +
+    "COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name," +
+    "REPLACE(allres_full.data_type_id, ':', '_') AS data_type," +
+    "COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name," +
+    "REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type," +
+    "COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name," +
+    "allres_full.subject_ethnicity AS subject_ethnicity," +
+    "COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name," +
+    "allres_full.subject_sex AS subject_sex," +
+    "COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name," +
+    "allres_full.subject_race AS subject_race," +
+    "COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name," +
+    "REPLACE(allres_full.file_format_id, ':', '_') AS file_format," +
+    "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
+    "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
+    "allres_full.project_persistent_id AS project_persistent_id," +
+    "allres_full.project_local_id AS project_local_id," +
+    "c2m2.project.description AS project_description," +
+    "c2m2.anatomy.description AS anatomy_description," +
+    "c2m2.biofluid.description AS biofluid_description," +
+    "c2m2.disease.description AS disease_description," +
+    "c2m2.gene.description AS gene_description," +
+    "c2m2.protein.description AS protein_description," +
+    "c2m2.compound.description AS compound_description," +
+    "c2m2.ncbi_taxonomy.description AS taxonomy_description," +
+    "c2m2.file_format.description AS file_format_description,"
+
+  return colnamesString;
+
+}
 // generate order by string
 export function generateOrderByString(rankColname: string = 'rank') {
   let orderByRankStr = ((rankColname) && (rankColname.length > 0)) ? rankColname + " DESC, " : '';
@@ -729,6 +796,7 @@ export function generateOrderByString(rankColname: string = 'rank') {
     "subject_ethnicity_name, subject_sex_name, subject_race_name, file_format_name ";
   return OrderByString;
 }
+
 
 /* export function update_q_to_exclude_gender(q: string | undefined) {
   const newq: string = q + "-gender";
@@ -750,7 +818,7 @@ export function generateFilterStringsForURL(): string {
     `'|subject_ethnicity_name:', allres.subject_ethnicity_name, ` +
     `'|subject_sex_name:', allres.subject_sex_name, ` +
     `'|subject_race_name:', allres.subject_race_name, ` +
-    `'|file_format_name', allres.file_format_name `
+    `'|file_format_name:', allres.file_format_name `
   );
 }
 
@@ -782,11 +850,11 @@ export function generateSelectColumnsForFileQuery(tablename: string = '') {
     tablenameWithDot + "data_type_name," +
     tablenameWithDot + "assay_type_id AS assay_type," +
     tablenameWithDot + "assay_type_name, " +
-    tablenameWithDot + "subject_sex_id AS subject_sex," +
+    // tablenameWithDot + "subject_sex_id AS subject_sex," +
     tablenameWithDot + "subject_sex_name, " +
-    tablenameWithDot + "subject_race_id AS subject_race," +
+    //tablenameWithDot + "subject_race_id AS subject_race," +
     tablenameWithDot + "subject_race_name, " +
-    tablenameWithDot + "subject_ethnicity_id AS subject_ethnicity," +
+    // tablenameWithDot + "subject_ethnicity_id AS subject_ethnicity," +
     tablenameWithDot + "subject_ethnicity_name, " +
     tablenameWithDot + "file_format_id AS file_format," +
     tablenameWithDot + "file_format_name"

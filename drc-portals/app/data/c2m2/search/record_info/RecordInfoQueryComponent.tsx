@@ -103,6 +103,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
+        file_format_name: string,
+        file_format: string,
         subject_ethnicity_name: string,
         subject_ethnicity: string,
         subject_sex_name: string,
@@ -156,6 +158,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
               REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
               COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
               REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
+              COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name,
+              REPLACE(allres_full.file_format_id, ':', '_') AS file_format,
               COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
               allres_full.subject_ethnicity AS subject_ethnicity,
               COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
@@ -187,12 +191,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
               anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, assay_type_name, assay_type, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
+              data_type, assay_type_name, assay_type, file_format_name, file_format, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
               subject_race_name, subject_race, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
               allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
               protein_description, compound_description, taxonomy_description
             ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-              protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name /*rank DESC*/
+              protein_name, compound_name, data_type_name, assay_type_name, file_format_name, subject_ethnicity_name, subject_sex_name, subject_race_name /*rank DESC*/
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
@@ -209,6 +213,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
+    console.log("resultsRec = ", resultsRec);
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
     // The following items are present in metadata and downloadMetadata
     const downloadMetadata = {
@@ -295,6 +300,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           id: resultsRec.assay_type,
           name: resultsRec.assay_type_name,
           url: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`,
+        }
+        : null,
+      file_format: resultsRec?.file_format_name && resultsRec.file_format_name !== "Unspecified"
+        ? {
+          id: resultsRec.file_format,
+          name: resultsRec.file_format_name
         }
         : null,
       subject_ethnicity: resultsRec?.subject_ethnicity_name && resultsRec.subject_ethnicity_name != "Unspecified"
@@ -418,6 +429,14 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         value: resultsRec?.assay_type_name && resultsRec?.assay_type_name !== "Unspecified"
           ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.assay_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.assay_type_name)}
+          </Link>
+          : ''
+      },
+      {
+        label: 'File format',
+        value: resultsRec?.file_format_name && resultsRec?.file_format_name !== "Unspecified"
+          ? <Link href={`http://edamontology.org/${resultsRec?.file_format}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.file_format_name)}
           </Link>
           : ''
       },
