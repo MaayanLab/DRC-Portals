@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma/c2m2";
-import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
-import { MetadataItem, getDCCIcon, getdccCFlink, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
+import { format_description } from "@/app/data/processed/utils"
+import { MetadataItem, getDCCIcon, getdccCFlink, generateRecordInfoColnamesString, generateFilterQueryStringForRecordInfo } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
-import { capitalizeFirstLetter, isURL, generateHashedJSONFilename, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, generateHashedJSONFilename, useSanitizedSearchParams, groupByRecordInfoQueryString, orderByRecordInfoQueryString } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent from "./BiosamplesTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
@@ -75,6 +75,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     // Generate the query clause for filters
 
     const filterClause = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
+    const selectCols = generateRecordInfoColnamesString();
+    const groupByString = groupByRecordInfoQueryString();
+    const orderByString = orderByRecordInfoQueryString();
     console.log("generated FilterClause in RecordInfoQuery");
     // To measure time taken by different parts
     const t0: number = performance.now();
@@ -137,47 +140,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ),
           allres AS (
             SELECT DISTINCT
-              allres_full.dcc_name AS dcc_name,
-              allres_full.dcc_abbreviation AS dcc_abbreviation,
-              SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-              COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-              SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-              COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-              REPLACE(allres_full.disease, ':', '_') AS disease,
-              COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-              REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-              COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-              REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
-              COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-              allres_full.gene AS gene,
-              COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
-              allres_full.protein AS protein,
-              COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
-              allres_full.substance_compound AS compound,
-              COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
-              REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-              COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
-              REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
-              COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name,
-              REPLACE(allres_full.file_format_id, ':', '_') AS file_format,
-              COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name,
-              allres_full.subject_ethnicity AS subject_ethnicity,
-              COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name,
-              allres_full.subject_sex AS subject_sex,
-              COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name,
-              allres_full.subject_race AS subject_race,
-              COALESCE(allres_full.project_name, 
-                concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-              c2m2.project.persistent_id AS project_persistent_id,
-              allres_full.project_local_id AS project_local_id,
-              c2m2.project.description AS project_description,
-              c2m2.anatomy.description AS anatomy_description,
-              c2m2.biofluid.description AS biofluid_description,
-              c2m2.disease.description AS disease_description,
-              c2m2.gene.description AS gene_description,
-              c2m2.protein.description AS protein_description,
-              c2m2.compound.description AS compound_description,
-              c2m2.ncbi_taxonomy.description AS taxonomy_description,
+              ${SQL.raw(selectCols)}
               COUNT(*)::INT AS count
             FROM allres_full 
             LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
@@ -189,14 +152,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
             LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
-            GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-              anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, assay_type_name, assay_type, file_format_name, file_format, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
-              subject_race_name, subject_race, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-              allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
-              protein_description, compound_description, taxonomy_description
-            ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-              protein_name, compound_name, data_type_name, assay_type_name, file_format_name, subject_ethnicity_name, subject_sex_name, subject_race_name /*rank DESC*/
+            GROUP BY ${SQL.raw(groupByString)}
+            ORDER BY ${SQL.raw(orderByString)}
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
