@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw';
 import { generateFilterQueryString, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from '@/app/data/c2m2/utils';
 import { generateFilterStringsForURL } from '@/app/data/c2m2/utils';
-import { Typography } from '@mui/material'; // Add CircularProgress for loading state
+import { Tooltip, Typography } from '@mui/material'; // Add CircularProgress for loading state
 import Link from "@/utils/link";
 import { getDCCIcon, getdccCFlink, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
 import { RowType } from '../utils';
@@ -148,9 +148,33 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             previewButton: <PreviewButton href={res.record_info_url} alt="More details about this result" />,
             //dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${res.dcc_short_label}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
             dccIcon: <SearchablePagedTableCellIcon href={`/info/dcc/${getdccCFlink(res.dcc_short_label)}`} src={getDCCIcon(res.dcc_short_label)} alt={res.dcc_short_label} />,
-            projectName: (res.project_persistent_id && isURL(res.project_persistent_id))
-                ? <Typography color="secondary"><Link href={`${res.project_persistent_id}`} className="underline cursor-pointer" target="_blank"><u>{res.project_name}</u></Link></Typography>
-                : <Description description={res.project_name} />,
+            projectName: (res.project_persistent_id && isURL(res.project_persistent_id)) ? (
+                <Tooltip title={res.project_name} arrow>
+                    <Typography
+                        color="secondary"
+                        sx={{ display: 'inline-block', maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                    >
+                        <Link
+                        href={res.project_persistent_id}
+                        className="underline cursor-pointer"
+                        target="_blank"
+                        >
+                        <u>{res.project_name}</u>
+                        </Link>
+                    </Typography>
+                </Tooltip>
+
+
+              ) : (
+                <Tooltip title={res.project_name} arrow>
+                  <span style={{ display: 'inline-block', maxWidth: '100%' }}>
+                    <Description description={res.project_name} />
+                  </span>
+                </Tooltip>
+              ),
+              
+                
+                /* : <Description description={res.project_name} />, */
             attributes: (
                 <>
                     {res.taxonomy_name !== "Unspecified" && (

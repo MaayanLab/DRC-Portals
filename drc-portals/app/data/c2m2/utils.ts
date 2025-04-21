@@ -482,6 +482,29 @@ export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchS
   }
 }
 
+const biosamplesSubjectTable: { [key: string]: string } = {
+  "biosample_local_id": "Biosample ID",
+  "project_local_id": "Project ID",
+  "biosample_persistent_id": "Persistent ID",
+  "biosample_creation_time": "Creation time",
+  "sample_prep_method_name": "Sample prep method",
+  "disease_association_type_name": "Disease association (in all biosamples)",
+  "biosample_age_at_sampling": "Age at sampling (in years)",
+  "gene_name": "Gene",
+  "substance_name": "Substance",
+  "subject_local_id": "Subject ID",
+  "subject_race_name": "Race",
+  "subject_granularity_name": "Granularity",
+  "subject_sex_name": "Sex",
+  "subject_ethnicity_name": "Ethnicity",
+  "subject_role_name": "Role",
+  "subject_age_at_enrollment": "Age at enrollment"
+};
+
+export function getNameFromBiosampleSubjectTable(iconKey: string): string {
+  console.log("Icon key = " + iconKey);
+  return biosamplesSubjectTable[iconKey] || "";
+}
 
 const biosamplesTable: { [key: string]: string } = {
   "biosample_local_id": "Biosample ID",

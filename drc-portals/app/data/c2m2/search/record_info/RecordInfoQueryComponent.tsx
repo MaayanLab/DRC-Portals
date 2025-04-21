@@ -6,6 +6,7 @@ import Link from "@/utils/link";
 import { capitalizeFirstLetter, isURL, generateHashedJSONFilename, useSanitizedSearchParams, groupByRecordInfoQueryString, orderByRecordInfoQueryString } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent from "./BiosamplesTableComponent";
+import BiosamplesSubjectTableComponent from "./BiosamplesSubjectsTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
 import CollectionsTableComponent from "./CollectionsTableComponent";
 import FilesProjTableComponent from "./FileProjTableComponent";
@@ -49,6 +50,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
     const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
     // console.log("bioSamplTbl_p = " + bioSamplTbl_p + " bioSamplTblOffset = " + bioSamplTblOffset);
+    const bioSamplSubTbl_p = searchParams.bioSamplSubTbl_p !== undefined ? searchParams.bioSamplSubTbl_p : searchParams.p;
+    const bioSamplSubTblOffset = (bioSamplSubTbl_p - 1) * limit;
+    // console.log("bioSamplSubTbl_p = " + bioSamplSubTbl_p + " bioSamplSubTblOffset = " + bioSamplSubTblOffset);
     const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
     const colTblOffset = (colTbl_p - 1) * limit;
     // console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
@@ -437,14 +441,18 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         downloadFilename={downloadFilename}
       //categories={categories}
       >
-        <React.Suspense fallback={<>Loading..</>}>
+        {/* <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
-        </React.Suspense>
-
-
+        </React.Suspense> */}
+        
         <React.Suspense fallback={<>Loading..</>}>
-          <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
+          <BiosamplesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplSubTblOffset={bioSamplSubTblOffset} />
         </React.Suspense>
+
+
+        {/* <React.Suspense fallback={<>Loading..</>}>
+          <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
+        </React.Suspense> */}
 
 
         <React.Suspense fallback={<>Loading..</>}>
