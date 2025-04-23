@@ -440,7 +440,7 @@ export type SearchParamsType = z.infer<typeof searchParamsSchema>;
 
 const dccAbbrTable: { [key: string]: string } = {
   "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
-  "The Extracellular Communication Consortium Data Coordination Center": "ERCC",
+  "The Extracellular Communication Consortium Data Coordination Center": "ExRNA",
   "Genotype-Tissue Expression Project": "GTEx",
   "GlyGen": "GlyGen",
   "The Human Microbiome Project": "HMP",
@@ -485,7 +485,7 @@ export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchS
 const biosamplesSubjectTable: { [key: string]: string } = {
   "biosample_local_id": "Biosample ID",
   "project_local_id": "Project ID",
-  "biosample_persistent_id": "Persistent ID",
+  "biosample_persistent_id": "Biosamples Persistent ID",
   "biosample_creation_time": "Creation time",
   "sample_prep_method_name": "Sample prep method",
   "disease_association_type_name": "Disease association (in all biosamples)",
