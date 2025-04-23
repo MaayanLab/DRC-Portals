@@ -264,6 +264,14 @@ export async function SearchQueryComponent(props: PageProps) {
             </React.Suspense>
 
             <React.Suspense fallback={<>Loading..</>}>
+              <FileFormatFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
               <SubjectEthnicityFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
@@ -275,13 +283,7 @@ export async function SearchQueryComponent(props: PageProps) {
               <SubjectRaceFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <FileFormatFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
 
 
           </>
