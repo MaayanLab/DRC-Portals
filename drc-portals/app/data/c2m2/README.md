@@ -277,3 +277,28 @@ https://data.cfde.cloud/c2m2/search/record_info?q=triple%20negative%20breast%20c
 
 #### Further apply Data type filter as Gene Expression Data
 https://data.cfde.cloud/c2m2/search/record_info?q=triple%20negative%20breast%20cancer&t=dcc_name:Library%20of%20Integrated%20Network-based%20Cellular%20Signatures|project_local_id:LINCS%20phase%202|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:breast|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Gene%20expression%20profile|assay_type_name:landmark%20transcript%20profiling%20assay
+
+### Example of queries with subject_ethnicity, subject_sex and subject_race filters
+
+#### Search for: latino male down syndrome, and then apply several filters:
+https://data.cfde.cloud/search/latino%20male%20down%20syndrome/c2m2?t=dcc%3AThe+Gabriella+Miller+Kids+First+Pediatric+Research+Program|disease%3ADown+syndrome|ncbi_taxonomy%3AHomo+sapiens|subject_ethnicity%3AHispanic+or+Latino|subject_sex%3AMale|data_type%3AExpression+data&p=1
+
+and proceed to the record_info page:
+
+https://data.cfde.cloud/c2m2/search/record_info?q=latino%20male%20down%20syndrome&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_Z6MWD3H0|disease_name:Down%20syndrome|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Expression%20data|assay_type_name:RNA%20sequencing%20assay|subject_ethnicity_name:Hispanic%20or%20Latino|subject_sex_name:Male|subject_race_name:Unspecified
+
+#### Search metabolic disease male, and apply several filters:
+https://data.cfde.cloud/search/metabolic%20disease%20male/c2m2?t=disease%3Aasthma%7Canatomy%3Alung&p=1
+(please note that after applying the two filters, Subject sex filter disappears)
+
+Follow one record:
+https://data.cfde.cloud/c2m2/search/record_info?q=metabolic%20disease%20male&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001570|disease_name:asthma|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:lung|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified
+
+#### Search hispanic female cancer, and apply some filters:
+https://data.cfde.cloud/search/hispanic%20female%20cancer/c2m2 -->
+
+https://data.cfde.cloud/search/hispanic%20female%20cancer/c2m2?p=1&t=subject_ethnicity%3AHispanic+or+Latino%7Cassay_type%3Aexome+sequencing+assay%7Csubject_sex%3AFemale%7Cdata_type%3ASequence+variations%7Canatomy%3Abrain
+
+and follow one record:
+
+https://data.cfde.cloud/c2m2/search/record_info?q=hispanic%20female%20cancer&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_8Y99QZJJ|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:brain|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Sequence%20variations|assay_type_name:exome%20sequencing%20assay|subject_ethnicity_name:Hispanic%20or%20Latino|subject_sex_name:Female|subject_race_name:Unspecified

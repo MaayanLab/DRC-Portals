@@ -202,6 +202,41 @@ cur.execute('drop table r03_tmp;')
 connection.commit()
 print("ingested r03")
 
+# tools
+cur = connection.cursor()
+# cur.execute('DELETE FROM partnership_publications')
+# cur.execute('DELETE FROM dcc_publications')
+cur.execute('DELETE FROM tools')
+cur.execute('''
+  create table tool_tmp
+  as table tools
+  with no data;
+''')
+
+with open(tools_path(), 'r') as fr:
+    columns = next(fr).strip().split('\t')
+    cur.copy_from(fr, 'tool_tmp',
+      columns=columns,
+      null='',
+      sep='\t',
+    )
+
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+    insert into tools (%s)
+      select %s
+      from tool_tmp
+      on conflict (id)
+        do update
+        set %s
+    ;
+  '''%(column_string, column_string, set_string))
+cur.execute('drop table tool_tmp;')
+
+connection.commit()
+print("ingested tools")
+
 # Publication
 publication_columns = ["title", "journal", "authors", "year", "page", "volume", "issue", "pmid", "pmcid", "doi", "landmark", "tool_id", "carousel", "carousel_title", "carousel_link", "carousel_description", "image", "featured", "keywords" ]
 dcc_publication_columns = ["publication_id", "dcc_id"]
@@ -373,39 +408,6 @@ connection.commit()
 
 print("ingested publications")
 
-# tools
-cur = connection.cursor()
-# cur.execute('DELETE FROM partnership_publications')
-# cur.execute('DELETE FROM dcc_publications')
-cur.execute('DELETE FROM tools')
-cur.execute('''
-  create table tool_tmp
-  as table tools
-  with no data;
-''')
-
-with open(tools_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'tool_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
-
-column_string = ", ".join(columns)
-set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
-cur.execute('''
-    insert into tools (%s)
-      select %s
-      from tool_tmp
-      on conflict (id)
-        do update
-        set %s
-    ;
-  '''%(column_string, column_string, set_string))
-cur.execute('drop table tool_tmp;')
-
-connection.commit()
 
 ## Outreach
 outreach_columns = ["title", "short_description", "description", "tags", "agenda", "featured", "active", "start_date", "end_date", "application_start", "application_end", "link", "image", "carousel", "carousel_description", "cfde_specific", "flyer"]

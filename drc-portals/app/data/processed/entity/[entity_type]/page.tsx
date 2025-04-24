@@ -9,7 +9,7 @@ import { safeAsync } from "@/utils/safe";
 type PageProps = { params: { entity_type: string }, searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('entity', props.params.entity_type))
+  const title = pluralize(type_to_string('entity', decodeURIComponent(props.params.entity_type)))
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title}`,
@@ -26,6 +26,7 @@ export default async function Page(props: PageProps) {
       id: string,
       type: string,
       node: {
+        slug: string,
         type: NodeType,
         label: string,
         description: string,
@@ -50,6 +51,7 @@ export default async function Page(props: PageProps) {
         "entity_node"."id",
         "entity_node"."type",
         jsonb_build_object(
+          'slug', items."slug",
           'type', items."type",
           'label', items."label",
           'description', items."description"
@@ -83,7 +85,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={results?.items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={item.node.label} entity_type={decodeURIComponent(props.params.entity_type)} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type={item.node.type} slug={item.node.slug} label={item.node.label} entity_type={decodeURIComponent(props.params.entity_type)} search={searchParams.q ?? ''} />,
           format_description(item.node.description),
         ]) ?? []}
       />

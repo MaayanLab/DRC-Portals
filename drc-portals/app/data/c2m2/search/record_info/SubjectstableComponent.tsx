@@ -5,6 +5,7 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromSubjectTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import DownloadButton from "../../DownloadButton";
 
 interface SubjectTableResult {
     subjects_table_full: {
@@ -124,10 +125,16 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
 
         const downloadFilename = generateHashedJSONFilename("SubjectTable_", searchParams);
         const categories: Category[] = [];
-
+        
 
         addCategoryColumns(staticSubjectColumns, getNameFromSubjectTable, "Subjects", categories);
         const category = categories[0];
+        const downloadData = category?.metadata
+            ? category.metadata
+                .filter(item => item && item.value !== null)  // Only include items with a non-null value
+                .map(item => ({ [item.label]: item.value }))  // Create an object with label as the key and value as the value
+            : []; // If category is not present, return an empty array
+
 
         return (
             <Grid container spacing={0} direction="column">
@@ -148,6 +155,15 @@ export default async function SubjectsTableComponent({ searchParams, filterClaus
                                 ))}
                             </CardContent>
                         </Card>
+                    </Grid>
+                )}
+                {countSub === 1 && (
+                    <Grid item xs={12}>
+                        <DownloadButton
+                            data={downloadData}
+                            filename={downloadFilename}
+                            name="Download Metadata"
+                        />
                     </Grid>
                 )}
                 <Grid item xs={12}>

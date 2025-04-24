@@ -1,17 +1,16 @@
-'use client'
+'use client';
 import React from 'react';
 import Button from '@mui/material/Button';
-import DownloadIcon from '@mui/icons-material/Download'; // Ensure you have @mui/icons-material installed
+import DownloadIcon from '@mui/icons-material/Download';
 
 interface DownloadButtonProps {
-  data?: { [key: string]: string | bigint | number }[];
+  data?: object | object[]; // Accepts both an object and an array of objects
   filename?: string;
   name?: string;
 }
 
-const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.json', name = 'Download'}) => {
-  if (!data || data.length == 0) return null; // Render nothing if data is undefined
-  
+const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.json', name = 'Download' }) => {
+  if (!data || (Array.isArray(data) && data.length === 0)) return null; // Handle empty data
 
   const handleDownload = () => {
     // Convert data to JSON format
@@ -23,21 +22,16 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
-    document.body.appendChild(a); // Append the link to the body
-    a.click(); // Trigger the download
-    document.body.removeChild(a); // Clean up
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
     // Revoke the blob URL
     URL.revokeObjectURL(url);
   };
 
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      startIcon={<DownloadIcon />}
-      onClick={handleDownload}
-    >
+    <Button variant="contained" color="primary" startIcon={<DownloadIcon />} onClick={handleDownload}>
       {name}
     </Button>
   );
