@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-import { DCC } from "@prisma/client";
 
 import InteractiveNavModal from "./modal";
 import InteractiveNavComponent from "./interactive";
