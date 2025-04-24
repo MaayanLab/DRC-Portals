@@ -68,7 +68,7 @@ async function getC2M2FileUrl(object_id: string, access_id: string) {
     return { url: object.data.access_url }
   }
   // supported by us
-  const compat = /^(http):\/\//.exec(object.data.access_url)
+  const compat = /^(http|ftps):\/\//.exec(object.data.access_url)
   if (compat !== null) {
     return { url: `${process.env.PUBLIC_URL}/ga4gh/drs/v1/objects/${object_id}/access/${access_id}/${compat[1]}` }
   }
