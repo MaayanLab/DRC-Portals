@@ -1,17 +1,30 @@
 import { db } from '@/lib/kysely'
-import { CommonTableExpressionNode, QueryCreator, Selectable, sql } from 'kysely'
+import { QueryCreator, Selectable, sql } from 'kysely'
 import { DB } from 'kysely-codegen'
 
 /**
  * estimate how many results the fts search yields
  */
-async function search_entity_instant_estimate(search: string) {
+export async function search_entity_instant_estimate(search: string) {
   const { rows } = await sql<{ 'QUERY PLAN': { Plan: { 'Plan Rows': number } }[] }>`EXPLAIN (FORMAT JSON) select * from pdp.entity where searchable @@ websearch_to_tsquery('english', ${search})`.execute(db)
   return rows[0]['QUERY PLAN'][0]['Plan']['Plan Rows']
 }
 
-async function search_entity_quick_estimate(search: string) {
-  const { rows: [{count}] } = await sql<{ count: string | number }>`select count(id) from pdp.entity where searchable @@ websearch_to_tsquery('english', ${search}) limit 100`.execute(db)
+export async function search_entity_partial_exact(search: string, limit: number, cursor?: { pagerank: string, slug: string }) {
+  const { count } = await db.
+    with('items', qb => qb.
+      selectFrom('pdp.entity')
+      .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+      .select('id')
+      .$if(cursor !== undefined, qb => {
+        if (!cursor) return qb
+        return qb.where('pagerank', '<', cursor.pagerank).where('slug', '>', cursor.slug)
+      })
+      .limit(limit)
+    )
+    .selectFrom('items')
+    .select(s => s.fn.countAll().as('count'))
+    .executeTakeFirstOrThrow()
   return Number(count)
 }
 
@@ -23,6 +36,7 @@ function search_entity_v1(db: QueryCreator<DB>, search: string) {
     .selectFrom('pdp.entity as search_entity')
     .where('search_entity.searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
     .orderBy('search_entity.pagerank desc')
+    .orderBy('search_entity.slug asc')
 }
 
 /**
@@ -38,6 +52,7 @@ function search_entity_v2(db: QueryCreator<DB>, search: string) {
     )
     .selectFrom('search_entity_filtered as search_entity')
     .orderBy('search_entity.pagerank desc')
+    .orderBy('search_entity.slug asc')
 }
 
 /**
@@ -51,21 +66,27 @@ export function search_entity(db: QueryCreator<DB>, search: string, estimate: nu
   }
 }
 
-export async function search_entity_filters(search: string) {
-  sql`
-    explain analyze
-    select source_predicate_target_count.predicate, sum(source_predicate_target_count.source_count)
-    from (
-      select target.id
-      from pdp.entity target
-      where target.searchable @@ websearch_to_tsquery('english', 'project')
-    ) target inner join (
-      select e.target_id, e.predicate, count(e.source_id) as source_count
-      from pdp.edge e
-      group by e.target_id, e.predicate
-    ) source_predicate_target_count on source_predicate_target_count.target_id = target.id
-    group by source_predicate_target_count.predicate
-  `.execute(db)
+export async function search_entity_filters(db: QueryCreator<DB>, search: string, estimate: number) {
+  return await db
+    .with('predicate_counts', w => w
+      .selectFrom('pdp.edge as e')
+      .where('e.source_id', 'in', s =>
+        search_entity(s as any, search, estimate)
+          .select('id')
+          .clearOrderBy()
+      )
+      .groupBy(['e.predicate', 'target_id'])
+      .select(['e.predicate', 'target_id', s => s.fn.count('e.source_id').as('count')])
+      .orderBy('count desc')
+      .having(s=>s.fn.count('e.source_id'), '>', 1)
+    )
+    .selectFrom('predicate_counts as pc')
+    .innerJoin('pdp.entity as target', 'target.id', 'pc.target_id')
+    .select('pc.predicate')
+    .select('pc.count')
+    .select('target.type')
+    .select(sql<string>`target.attributes->>'name'`.as('name'))
+    .execute()
 }
 
 /**
