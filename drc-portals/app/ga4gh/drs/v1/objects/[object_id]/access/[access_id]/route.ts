@@ -54,6 +54,7 @@ async function getC2M2FileUrl(object_id: string, access_id: string) {
     },
   }))
   if (!object?.data?.access_url) return null
+  // DRS passthrough
   if (object.data.access_url.startsWith('drs://')) {
     // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
     const upstreamDRS = object.data.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
@@ -62,7 +63,17 @@ async function getC2M2FileUrl(object_id: string, access_id: string) {
     else if (req.status === 404) return null
     else return req
   }
-  return { url: object.data.access_url }
+  // supported by DRS
+  if (/^(s3|gs|ftp|gsiftp|globus|htsget|https|file):\/\//.exec(object.data.access_url) !== null) {
+    return { url: object.data.access_url }
+  }
+  // supported by us
+  const compat = /^(http):\/\//.exec(object.data.access_url)
+  if (compat !== null) {
+    return { url: `${process.env.PUBLIC_URL}/ga4gh/drs/v1/objects/${object_id}/access/${access_id}/${compat[1]}` }
+  }
+  // unsupported
+  return null
 }
 
 export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
