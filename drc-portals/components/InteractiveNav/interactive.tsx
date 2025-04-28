@@ -145,19 +145,14 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 			homepage: "https://commonfund.nih.gov/somatic-mosaicism-across-human-tissues-smaht"
 		},
 		{
-			short_label: "ComPASS",
-			icon: "/img/interactive/compass.svg",
-			homepage: "https://commonfund.nih.gov/compass"
-		},
-		{
 			short_label: "NPH",
 			icon: "/img/interactive/nph.png",
 			homepage: "https://commonfund.nih.gov/nutritionforprecisionhealth"
 		}
 	]
 	
-	const additional_label = ['NPH', 'ComPASS', 'SMaHT']
-	const ordering = [ "Kids First", "A2CPS", "HuBMAP", "ComPASS", "4DN", "LINCS", "IDG", "NPH", 
+	const additional_label = ['NPH', 'SMaHT']
+	const ordering = [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", "NPH", 
 		"GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",]
 	const all_dccs: {[key:string]: any} = [...dccs, ...additional].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
 	const pie_chunk = 2*Math.PI/(ordering.length)
