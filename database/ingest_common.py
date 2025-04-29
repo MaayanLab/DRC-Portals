@@ -89,6 +89,48 @@ connection = psycopg2.connect(
 )
 
 #%%
+import uuid
+import json
+import contextlib
+import df2pg
+from datetime import datetime
+from tqdm.auto import tqdm
+
+class ExEncoder(json.JSONEncoder):
+  def default(self, o):
+    import decimal
+    if isinstance(o, decimal.Decimal):
+      return str(o)
+    elif isinstance(o, datetime):
+      return o.isoformat()
+    elif isinstance(o, uuid.UUID):
+      return str(o)
+    return super(ExEncoder, self).default(o)
+
+@contextlib.contextmanager
+def pdp_helper():
+  entities = {}
+  edges = {}
+  def upsert_entity(type, attributes, slug=None):
+    id = str(uuid5(uuid0, json.dumps({'@id': slug, '@type': type, **attributes} if slug else {'@type': type, **attributes}, sort_keys=True, cls=ExEncoder)))
+    entities[id] = dict(id=id, slug=slug or id, type=type, attributes=json.dumps(attributes, cls=ExEncoder))
+    return id
+  def upsert_edge(source_id, predicate, target_id):
+    edges[''.join((source_id, predicate, target_id))] = dict(source_id=source_id, predicate=predicate, target_id=target_id)
+    return id
+  yield type('pdp', tuple(), dict(upsert_edge=upsert_edge, upsert_entity=upsert_entity))
+  df2pg.copy_from_records(
+    connection,
+    'pdp.entity_ingest',
+    tqdm(entities.values(), desc='Ingesting entities...'),
+  )
+  df2pg.copy_from_records(
+    connection,
+    'pdp.edge_ingest',
+    tqdm(edges.values(), desc='Ingesting edges...'),
+  )
+
+#%%
 # Fetch assets to ingest
 
 # TODO: I think the dcc label should be preserved instead of a uuid in this tsv..
