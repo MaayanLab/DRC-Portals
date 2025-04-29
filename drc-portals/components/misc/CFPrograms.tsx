@@ -15,7 +15,7 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
         active: true,
         short_label: {
           in: [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", 
-            "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA",]
+            "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA", 'SCGE']
           
         }
       }

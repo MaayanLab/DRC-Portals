@@ -26,7 +26,7 @@ export default async function About() {
     ]
     const additional_label = ['NPH', 'SMaHT']
     const ordering = [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", "NPH", 
-      "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",].sort()
+      "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SCGE", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",].sort()
     const all_dccs: {[key:string]: any} = [...dccs, ...additional].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
 	
     return (
