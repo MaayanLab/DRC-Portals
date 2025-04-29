@@ -36,6 +36,8 @@ interface C2M2SearchResult {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
+        file_format_name: string,
+        file_format: string,
         subject_ethnicity_name: string, 
         subject_ethnicity: string, 
         subject_sex_name: string, 
@@ -82,8 +84,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                 FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
                 WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
                     ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-                ORDER BY ${SQL.raw(orderByClause)} /*rank DESC, dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-                    protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name */
+                ORDER BY ${SQL.raw(orderByClause)} 
                 OFFSET ${offset} 
                 LIMIT 100
             ),
@@ -243,6 +244,13 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                         <>
                             <span>Assay type: </span>
                             <Link href={`http://purl.obolibrary.org/obo/${res.assay_type}`} target="_blank"><i><u>{capitalizeFirstLetter(res.assay_type_name)}</u></i></Link>
+                            <br />
+                        </>
+                    )}
+                    {res.file_format_name !== "Unspecified" && (
+                        <>
+                            <span>File format: </span>
+                            <Link href={`http://edamontology.org/${res.file_format}`} target="_blank"><i><u>{capitalizeFirstLetter(res.file_format_name)}</u></i></Link>
                             <br />
                         </>
                     )}
