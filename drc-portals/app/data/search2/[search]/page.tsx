@@ -11,12 +11,16 @@ import { db } from "@/lib/kysely";
 
 function itemLabel (item: { type: string | null, attributes: any, pagerank: number | null }) {
   if (item.type === 'file') return item.attributes.filename
-  return item.attributes.name
+  return item.attributes.name ?? item.attributes.label
 }
 function itemDescription (item: { type: string | null, attributes: any | null, pagerank: number | null }) {
   if (item.type === 'file') return `A ${item.attributes.mime_type} file from ${item.attributes.project_local_id}`
-  if (item.attributes.description.length > 100) return `${item.attributes.description.slice(0, 100)}...`
-  return `${item.attributes.description}`
+  if (item.attributes.description) {
+    if (item.attributes.description.length > 100) return `${item.attributes.description.slice(0, 100)}...`
+    return `${item.attributes.description}`
+  } else {
+    return JSON.stringify(item.attributes)
+  }
 }
 
 export default async function Page(props: { params: { search: string }, searchParams: Record<string, string> }) {
@@ -78,8 +82,8 @@ export default async function Page(props: { params: { search: string }, searchPa
           rows={items.map(item => {
             const href = `/data/processed/${item.type}/${item.slug}`
             return [
-              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string('entity', item.type)} />,
-              <LinkedTypedNode type={'entity'} entity_type={item.type} id={item.id} label={itemLabel(item)} search={searchParams.q ?? ''} />,
+              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string(item.type, '')} />,
+              <LinkedTypedNode type={item.type} entity_type={''} id={item.id} label={itemLabel(item)} search={searchParams.q ?? ''} />,
               <Description description={itemDescription(item)} search={searchParams.q ?? ''} />,
             ]
           }) ?? []}

@@ -70,8 +70,8 @@ export async function up(db: Kysely<any>): Promise<void> {
 
 		create table pdp._edge (
 			predicate varchar not null,
-			source_id uuid references pdp._entity (id),
-			target_id uuid references pdp._entity (id),
+			source_id uuid references pdp._entity (id) on delete cascade,
+			target_id uuid references pdp._entity (id) on delete cascade,
 			primary key (target_id, source_id, predicate)
 		) partition by list (predicate);
 

@@ -1,4 +1,5 @@
 import { db } from '@/lib/kysely'
+import { count, estimate_count, select_distinct_loose_indexscan } from '@/lib/kysely/utils'
 import { QueryCreator, Selectable, sql } from 'kysely'
 import { DB } from 'kysely-codegen'
 
@@ -6,26 +7,23 @@ import { DB } from 'kysely-codegen'
  * estimate how many results the fts search yields
  */
 export async function search_entity_instant_estimate(search: string) {
-  const { rows } = await sql<{ 'QUERY PLAN': { Plan: { 'Plan Rows': number } }[] }>`EXPLAIN (FORMAT JSON) select * from pdp.entity where searchable @@ websearch_to_tsquery('english', ${search})`.execute(db)
-  return rows[0]['QUERY PLAN'][0]['Plan']['Plan Rows']
+  return await estimate_count(db
+    .selectFrom('pdp.entity')
+    .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+  )
 }
 
 export async function search_entity_partial_exact(search: string, limit: number, cursor?: { pagerank: string, slug: string }) {
-  const { count } = await db.
-    with('items', qb => qb.
-      selectFrom('pdp.entity')
-      .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
-      .select('id')
-      .$if(cursor !== undefined, qb => {
-        if (!cursor) return qb
-        return qb.where('pagerank', '<', cursor.pagerank).where('slug', '>', cursor.slug)
-      })
-      .limit(limit)
-    )
-    .selectFrom('items')
-    .select(s => s.fn.countAll().as('count'))
-    .executeTakeFirstOrThrow()
-  return Number(count)
+  return Number(await count(db
+    .selectFrom('pdp.entity')
+    .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+    .select('id')
+    .$if(cursor !== undefined, qb => {
+      if (!cursor) return qb
+      return qb.where('pagerank', '<', cursor.pagerank).where('slug', '>', cursor.slug)
+    })
+    .limit(limit)
+  ))
 }
 
 /**
@@ -89,53 +87,46 @@ export async function search_entity_filters(db: QueryCreator<DB>, search: string
     .execute()
 }
 
-/**
- * fast select distinct predicate where source_id = entity
- */
-async function entity_target_predicates(entity: string) {
-  return await sql<{ 'predicate': Selectable<DB['pdp.edge']>['predicate'] }>`
-    WITH RECURSIVE t AS (
-      (SELECT edge.predicate FROM
-        pdp.edge
-        where edge.source_id = ${entity}
-        ORDER BY predicate LIMIT 1)
-    UNION ALL
-      SELECT (SELECT edge.predicate FROM
-              pdp.edge
-              where edge.source_id = ${entity}
-              and edge.predicate > t.predicate ORDER BY predicate LIMIT 1)
-      FROM t
-      WHERE t.predicate IS NOT NULL
-    )
-    SELECT predicate
-    FROM t
-    WHERE predicate IS NOT NULL
-  `.execute(db)
+export async function getParentTypeCounts(source_id: string) {
+  const parentPredicates = await select_distinct_loose_indexscan(db
+    .selectFrom('pdp._edge as e')
+    .select('e.predicate as value')
+    .where('e.source_id', '=', source_id)
+    .orderBy('e.predicate')
+  )
+  return await Promise.all(parentPredicates.map(async ({ value: predicate }) => {
+    const q = db
+      .selectFrom('pdp.edge as e')
+      .where('e.source_id','=',source_id)
+      .where('e.predicate', '=', predicate)
+      .select('e.target_id')
+    return {
+      predicate,
+      count: await count(q.limit(100)),
+      estimate: await estimate_count(q),
+    }
+  }))
 }
 
-/**
- * fast select distinct predicate where target_id = entity
- */
-async function entity_source_predicates(entity: string) {
-  // like select distinct edge.predicate from 
-  return await sql<{ 'predicate': Selectable<DB['pdp.edge']>['predicate'] }>`
-    WITH RECURSIVE t AS (
-      (SELECT edge.predicate FROM
-        pdp.edge
-        where edge.target_id = ${entity}
-        ORDER BY predicate LIMIT 1)
-    UNION ALL
-      SELECT (SELECT edge.predicate FROM
-              pdp.edge
-              where edge.target_id = ${entity}
-              and edge.predicate > t.predicate ORDER BY predicate LIMIT 1)
-      FROM t
-      WHERE t.predicate IS NOT NULL
-    )
-    SELECT predicate
-    FROM t
-    WHERE predicate IS NOT NULL
-  `.execute(db)
+export async function getChildTypeCounts(target_id: string) {
+  const childPredicates = await select_distinct_loose_indexscan(db
+    .selectFrom('pdp._edge as e')
+    .select('e.predicate as value')
+    .where('e.target_id', '=', target_id)
+    .orderBy('e.predicate')
+  )
+  return await Promise.all(childPredicates.map(async ({ value: predicate }) => {
+    const q = db
+      .selectFrom('pdp.edge as e')
+      .where('e.target_id','=',target_id)
+      .where('e.predicate', '=', predicate)
+      .select('e.source_id')
+    return {
+      predicate,
+      count: await count(q.limit(100)),
+      estimate: await estimate_count(q),
+    }
+  }))
 }
 
 function entity_target(entity: string, predicate: string) {
