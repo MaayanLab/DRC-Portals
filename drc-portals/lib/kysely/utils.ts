@@ -46,3 +46,13 @@ export async function count<O extends {}>(expr: Expression<O>) {
     .executeTakeFirstOrThrow()
   return count
 }
+
+export async function cursor<O extends {}>(expr: Expression<O>, then: { move?: number, fetch: number }) {
+  return await db.transaction().execute(async (db) => {
+    await sql`declare tmp_cur cursor for ${expr};`.execute(db)
+    if (then.move) await sql`move forward ${sql.raw(`${then.move}`)} in tmp_cur;`.execute(db)
+    const results = await sql<O>`fetch ${sql.raw(`${then.fetch}`)} from tmp_cur;`.execute(db)
+    await sql`close tmp_cur;`.execute(db)
+    return results.rows
+  })
+}

@@ -8,6 +8,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import { type_to_string, useSanitizedSearchParams } from "@/app/data/processed/utils"
 import KGNode from '@/public/img/icons/KGNode.png'
 import { db } from "@/lib/kysely";
+import { cursor } from '@/lib/kysely/utils'
 
 function itemLabel (item: { type: string | null, attributes: any, pagerank: number | null }) {
   if (item.type === 'file') return item.attributes.filename
@@ -28,17 +29,18 @@ export default async function Page(props: { params: { search: string }, searchPa
   const [page,pagerank,slug] = 'c' in props.searchParams ? props.searchParams['c'].split(':') : [0, 0, '']
   const offset = (searchParams.p - 1 - Number(page))*searchParams.r
   const limit = searchParams.r
-  let cursor: { pagerank: string, slug: string } | undefined
+  let cur: { pagerank: string, slug: string } | undefined
   const instantEstimatedCount = await search_entity_instant_estimate(searchParams.q as string)
-  const partialExactCount = await search_entity_partial_exact(searchParams.q as string, 100, cursor)
-  const items = await search_entity(db, searchParams.q || '', instantEstimatedCount)
-    .$if(cursor !== undefined, qb => {
-      if (!cursor) return qb
-      return qb.where('pagerank', '<', cursor.pagerank).where('slug', '>', cursor.slug)
-    })
-    .limit(limit)
-    .selectAll()
-    .execute()
+  const partialExactCount = await search_entity_partial_exact(searchParams.q as string, 100, cur)
+  const items = await cursor(
+    search_entity(db, searchParams.q || '', instantEstimatedCount)
+      .$if(cursor !== undefined, qb => {
+        if (!cur) return qb
+        return qb.where('pagerank', '<', cur.pagerank).where('slug', '>', cur.slug)
+      })
+      .selectAll(),
+    { move: Number(offset), fetch: Number(limit) }
+  )
   // const filters = await search_entity_filters(db, searchParams.q as string, instantEstimatedCount)
   return <>{/*JSON.stringify(filters)*/}
       <ListingPageLayout
