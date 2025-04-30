@@ -18,6 +18,7 @@ export async function search_entity_partial_exact(search: string, limit: number,
     .selectFrom('pdp.entity')
     .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
     .select('id')
+    .orderBy('id')
     .$if(cursor !== undefined, qb => {
       if (!cursor) return qb
       return qb.where('pagerank', '<', cursor.pagerank).where('slug', '>', cursor.slug)
