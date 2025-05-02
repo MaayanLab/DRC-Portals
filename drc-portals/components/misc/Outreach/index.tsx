@@ -29,11 +29,16 @@ import { Tooltip, IconButton, Avatar, CardActions } from "@mui/material"
 import { ClientCheckbox } from "./ClientCheckBox"
 import dynamic from "next/dynamic"
 const ClientExpander = dynamic(()=>(import('./ClientExpander')), {ssr: false})
-export type OutreachWithDCC = Prisma.OutreachGetPayload<{
+export type OutreachWithDCCAndCenter = Prisma.OutreachGetPayload<{
   include: {
       dccs: {
         include: {
-          dcc: true
+          dcc: true,
+        }
+      },
+      centers: {
+        include: {
+          center: true,
         }
       }
   }
@@ -80,7 +85,7 @@ const same_date = (start_date:Date|null, end_date:Date|null) => {
 }
 
 const OutreachComponent = ({outreach, filter, now, expand_filter=false, past_count, past_limit}: {
-  outreach: OutreachWithDCC[], 
+  outreach: OutreachWithDCCAndCenter[], 
   featured: Boolean,
   orientation?: 'horizontal' | 'vertical',
   now: Date,
@@ -251,6 +256,11 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
             include: {
                 dcc: true
             }
+        },
+        centers: {
+          include: {
+              center: true
+          }
         }
       },
       where: {
@@ -317,6 +327,11 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
             include: {
                 dcc: true
             }
+        },
+        centers: {
+          include: {
+              center: true
+          }
         }
       },
     }): []
@@ -336,6 +351,11 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
             include: {
                 dcc: true
             }
+        },
+        centers: {
+          include: {
+              center: true
+          }
         }
       },
     })
@@ -403,9 +423,15 @@ async function Outreach({featured=true, orientation='horizontal', searchParams}:
             include: {
                 dcc: true
             }
+        },
+        centers: {
+          include: {
+              center: true
+          }
         }
       },
     }): []
+    // console.log(current)
     return (
       <ClientExpander>
         <Grid container spacing={1} sx={{marginTop: 2}}>
