@@ -25,11 +25,11 @@ export const OutreachCard = ({e, expanded=false, parsedParams}: {e: OutreachWith
     console.log(e.centers)
     return (
         <Card sx={{height: "100%", display: "flex", flexDirection: "column"}}>
-            {tags.length > 0 && <Container
-                sx={{
-                    position: "relative",
-                    minHeight: 35,
-                }}
+            {tags.length > 0 && <Stack
+                direction={"row"}
+                spacing={1}
+                sx={{padding: 1}}
+                alignItems={"center"}
             >
                 {tags.map((tag, i)=> {
                     const {tags = [], ...rest } = parsedParams
@@ -41,16 +41,44 @@ export const OutreachCard = ({e, expanded=false, parsedParams}: {e: OutreachWith
                     }
                     return (
                         <Link key={tag} href={`/info/training_and_outreach?filter=${JSON.stringify(query)}`}>
-                            <Chip variant="filled" sx={{ textTransform: "capitalize", backgroundColor: tag === "internship"? "tertiary.main": "primary.main", color: tag === "internship"?"#FFF":"secondary.main", minWidth: 150, borderRadius: 2, position: "absolute", top: 5, left: 5}} size="small" key={i} label={tag?.toString()}/>
+                            <Chip variant="filled" sx={{ textTransform: "capitalize", backgroundColor: tag === "internship"? "tertiary.main": "primary.main", color: tag === "internship"?"#FFF":"secondary.main", borderRadius: 2}} size="small" key={i} label={tag?.toString()}/>
                         </Link>
                     )
                 })}
+                {e.centers.map(({center})=>(
+                    <div key={center.short_label} className="flex items-center justify-center relative">
+                        <Link href={`/info/center/${center.short_label}`}>
+                            <Tooltip title={center.short_label}>
+                                <IconButton sx={{minHeight: 60, minWidth: 60}}>
+                                    {center.icon ? 
+                                        <Image src={center.icon || ''} alt={center.id} fill={true} style={{objectFit: "contain"}}/>:
+                                        <Avatar>{center.label[0]}</Avatar>
+                                    }
+                                </IconButton>
+                            </Tooltip>
+                        </Link>
+                    </div>
+                ))}
+                {e.dccs.map(({dcc})=>(
+                    <div key={dcc.short_label} className="flex items-center justify-center relative">
+                        <Link href={`/info/dcc/${dcc.short_label}`}>
+                            <Tooltip title={dcc.short_label}>
+                                <IconButton sx={{minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 50: 40, minWidth: ["Metabolomics", "GTEx", "SPARC"].indexOf(dcc.short_label || '') === -1 ? 60: 40}}>
+                                    {dcc.icon ? 
+                                        <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{objectFit: "contain"}}/>:
+                                        <Avatar>{dcc.label[0]}</Avatar>
+                                    }
+                                </IconButton>
+                            </Tooltip>
+                        </Link>
+                    </div>
+                ))}
                 {/* <Image src={e.image} alt={e.title} width={400} height={300}/> */}
-            </Container>}
+            </Stack>}
             <div className="flex flex-grow flex-row justify-center"
                 style={{
                 overflow: "hidden",  
-                minHeight: 120,
+                minHeight: 100,
                 position: "relative",
                 zIndex: 2, 
                 }}
@@ -58,27 +86,27 @@ export const OutreachCard = ({e, expanded=false, parsedParams}: {e: OutreachWith
                 <Image src={e.image || ''} alt={e.title} fill={true} style={{objectFit: "contain"}}/>
                 {/* <Image src={e.image} alt={e.title} width={400} height={300}/> */}
             </div>
-            <CardContent sx={{flexGrow: 1}}>
+            <CardContent sx={{flexGrow: 1, paddingBottom: 0}}>
                 <Typography variant={"h5"} color="secondary">{e.title}</Typography>
                 <Stack>
                 {(e.start_date && e.end_date && start_date === end_date)  ?
-                    <Typography variant="caption">{e.start_date.toLocaleString('default', {  weekday: 'short', month: 'short',  day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })} to {e.end_date.toLocaleString('default', {hour: '2-digit', minute: '2-digit' })}</Typography>:
+                    <Typography variant="caption">{e.start_date.toLocaleString('default', {  weekday: 'short', month: 'short',  day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })} to {e.end_date.toLocaleString('default', {hour: '2-digit', minute: '2-digit' })}{e.recurring &&  <i>, Recurring activity</i>}</Typography>:
                     (e.start_date && e.end_date && start_month === end_month) ?
-                    <Typography variant="caption">{e.start_date.toLocaleString('default', { month: 'short',  day: '2-digit'})} - {e.end_date.getDate()}, {e.end_date.getFullYear()}</Typography>:
+                    <Typography variant="caption">{e.start_date.toLocaleString('default', { month: 'short',  day: '2-digit'})} - {e.end_date.getDate()}, {e.end_date.getFullYear()}{e.recurring &&  <i>, Recurring activity</i>}</Typography>:
                     (e.start_date && e.end_date && start_month !== end_month) ?
-                    <Typography variant="caption">{e.start_date.toLocaleString('default', { month: 'short',  day: '2-digit', year: 'numeric'})} - {e.end_date.toLocaleString('default', { month: 'short',  day: '2-digit', year: 'numeric'})}</Typography>:
-                    (e.start_date && !e.end_date) ? <Typography variant="caption">{e.start_date.toLocaleString('default', {  weekday: 'short', month: 'short',  day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</Typography>:
-                    (!e.start_date && e.end_date) ? <Typography variant="caption">Through {e.end_date.toLocaleString('default', {  month: 'short',  day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</Typography>: null
+                    <Typography variant="caption">{e.start_date.toLocaleString('default', { month: 'short',  day: '2-digit', year: 'numeric'})} - {e.end_date.toLocaleString('default', { month: 'short',  day: '2-digit', year: 'numeric'})}{e.recurring &&  <i>, Recurring activity</i>}</Typography>:
+                    (e.start_date && !e.end_date) ? <Typography variant="caption">{e.start_date.toLocaleString('default', {  weekday: 'short', month: 'short',  day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}{e.recurring &&  <i>, Recurring activity</i>}</Typography>:
+                    (!e.start_date && e.end_date) ? <Typography variant="caption">Through {e.end_date.toLocaleString('default', {  month: 'short',  day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}{e.recurring &&  <i>, Recurring activity</i>}</Typography>: null
                 }
                 {(e.application_start && e.application_end && e.application_end < now) ? <Typography variant="caption">Application period has ended</Typography> :
                 (e.application_start && e.application_end && start_app === end_app) ? <Typography variant="caption">Application period: {e.application_start.toLocaleString('default', { month: 'short',  day: '2-digit'})} - {e.application_end.getDate()}, {e.application_end.getFullYear()}</Typography>:
                 (e.application_start && e.application_end && start_app !== end_app) ?
                     <Typography variant="caption">Application period: {e.application_start.toLocaleString('default', { month: 'short',  day: '2-digit'})} - {e.application_end.toLocaleString('default', { month: 'short',  day: '2-digit', year: 'numeric'})}</Typography>        
                 :null}
-                {e.schedule &&  <Typography variant="caption">{e.schedule}</Typography>}
-                {e.recurring &&  <Typography variant="caption"><i>Recurring activity</i></Typography>}
+                {e.schedule &&  <Typography variant="caption">{e.schedule}{e.recurring &&  <i>, Recurring activity</i>}</Typography>}
+                {/* {e.recurring &&  <Typography variant="caption"><i>Recurring activity</i></Typography>} */}
             </Stack>
-            {hosts.length > 0 && 
+            {/* {hosts.length > 0 && 
             <div className="flex items-center gap-1">
                 <div><Typography variant="body2" color="secondary"><b>Hosted by:</b></Typography></div>
                         {e.centers.map(({center})=>(
@@ -111,10 +139,10 @@ export const OutreachCard = ({e, expanded=false, parsedParams}: {e: OutreachWith
                         ))}
                         
             </div>
-            }
+            } */}
             {expanded && <MarkdownPlain markdown={e.description}/>}
             </CardContent>
-            <CardActions sx={{justifyContent: "flex-end"}}>
+            <CardActions sx={{justifyContent: "flex-end", paddingTop: 0, marginTop: -1}}>
                 {/* {e.recurring && <Tooltip title={"Recurring Activity"}><Icon style={{color: }} path={mdiRepeat} size={1} /></Tooltip>} */}
                 <ExportCalendar event={e} />
                 {!expanded && <ExpandButton e={e} parsedParams={parsedParams}/>}
