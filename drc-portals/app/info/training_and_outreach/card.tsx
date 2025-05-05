@@ -22,7 +22,6 @@ export const OutreachCard = ({e, expanded=false, parsedParams}: {e: OutreachWith
     const start_app = e.application_start?.toLocaleString('default', { month: 'short', year: 'numeric'})
     const end_app = e.application_end?.toLocaleString('default', { month: 'short', year: 'numeric'})
     const hosts = [...e.dccs, ...e.centers]
-    console.log(e.centers)
     return (
         <Card sx={{height: "100%", display: "flex", flexDirection: "column"}}>
             {tags.length > 0 && <Stack

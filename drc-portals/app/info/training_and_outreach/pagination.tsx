@@ -7,7 +7,6 @@ import usePathname from "@/utils/pathname"
 export const PaginationComponent = ({count, limit, parsedParams}: {count: number, limit: number, parsedParams: OutreachParams}) => {
 const router = useRouter()
 const pathname = usePathname()
-console.log(parsedParams)
 return	(
 	<Pagination page={parsedParams.page || 1} count={Math.ceil((count as number)/(limit || 6))}
 		onChange={(e, page)=>{
