@@ -5,7 +5,7 @@ export default function Standards() {
   return (
     <Grid container direction="row">
       <Grid item xs={12} >
-        <Typography sx={{ml:3, mt:2, color: "secondary.dark"}} variant="h2">
+        <Typography sx={{ml:3, mt:2}} color="secondary" variant="h2">
           Documentation
         </Typography>
       </Grid>

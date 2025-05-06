@@ -64,7 +64,7 @@ export default async function DataMatrix() {
   )).sort((a,b) => b.numAssets - a.numAssets)
   return (
     <Container maxWidth="xl">
-      <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>METADATA & PROCESSED DATA MATRIX</Typography>
+      <Typography variant="h2" color="secondary" sx={{mt:2}} gutterBottom>Metadata & Processed Data Matrix</Typography>
       <Typography color="#666666" fontSize="11.5pt" sx={{mt:2, mb:2}}>
         The CFDE Metadata and Processed Data Matrix provides access to files and 
         other assets produced by Common Fund (CF) Data Coordination Centers (DCCs) 

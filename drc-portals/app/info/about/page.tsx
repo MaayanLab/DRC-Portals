@@ -32,7 +32,7 @@ export default async function About() {
     return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Typography variant={'h3'}>
+        <Typography variant={'h2'} color="secondary">
           The Common Fund Data Ecosystem (CFDE) Program Snapshot
         </Typography>
       </Grid>

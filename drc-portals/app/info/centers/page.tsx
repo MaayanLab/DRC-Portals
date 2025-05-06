@@ -37,9 +37,9 @@ export default async function CenterLanding() {
     });
 
     return (
-        <Grid container spacing={1} sx={{ marginTop: 2, marginX: '0.5rem' }}>
+        <Grid container spacing={2} sx={{ marginTop: 2, marginX: '0.5rem' }}>
             <Grid item xs={12}>
-                <Typography variant="h3" color="secondary">Common Fund Data Ecosystem Centers</Typography>
+                <Typography variant="h2" color="secondary">Common Fund Data Ecosystem Centers</Typography>
                 <Box sx={{ lineHeight: 0.5, marginY: 1 }}>
                     <Typography variant='caption' color="secondary" >
                         The NIH Common Fund (CF) programs have produced transformative datasets, databases, methods, bioinformatics tools and workflows that are significantly advancing biomedical research in the United States and worldwide. Currently, CF programs are mostly isolated. However, integrating data from across CF programs has the potential for synergistic discoveries. In addition, since CF programs have a time limit of 10 years, sustainability of the widely used CF digital resources after the programs expire is critical. To address these challenges, the NIH established the Common Fund Data Ecosystem (CFDE) program which has been recently approved to continue to its second new phase. For the second phase of the CFDE five centers were established.

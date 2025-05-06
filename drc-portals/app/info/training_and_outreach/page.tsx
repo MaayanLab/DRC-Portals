@@ -282,7 +282,7 @@ export default async function OutreachPage ({ searchParams }: {
     
     return <Grid container spacing={2}>
         <Grid item xs={12}>
-            <Typography variant={"h2"}>Training and Outreach Activities</Typography>
+            <Typography variant={"h2"} color="secondary">Training and Outreach Activities</Typography>
         </Grid>
         <Grid item xs={12} sx={{justifyContent: "flex-end"}}>
             <FilterBox parsedParams={parsedParams}/>

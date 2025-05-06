@@ -169,7 +169,7 @@ export default async function PartnershipPage() {
     return (
         <Grid container spacing={2} sx={{ marginTop: 2 }}>
             <Grid item xs={12}>
-                <Typography variant="h3" color="secondary">CFDE Partnerships</Typography>
+                <Typography variant="h2" color="secondary">CFDE Partnerships</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Typography variant="body2">
