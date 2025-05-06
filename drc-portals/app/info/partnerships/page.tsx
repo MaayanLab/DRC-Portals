@@ -167,7 +167,6 @@ export default async function PartnershipPage() {
         },
         orderBy: [{ dccs: { _count: 'desc' } }, { title: 'asc' }, { id: 'asc' }],
     })
-    console.log(active_partnerships)
     return (
         <Grid container spacing={2} sx={{ marginTop: 2 }}>
             <Grid item xs={12}>
