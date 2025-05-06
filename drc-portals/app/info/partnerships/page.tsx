@@ -6,13 +6,15 @@ import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/CardActions'
+import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
 import Tooltip from "@mui/material/Tooltip";
 import { Prisma } from "@prisma/client";
-import MasonryClient from "@/components/misc/MasonryClient";
+import { mdiPageNextOutline } from '@mdi/js';
+import Icon from '@mdi/react';
+
 type PartnershipsWithDCC = Prisma.PartnershipsGetPayload<{
     include: {
         dccs: {
@@ -42,7 +44,7 @@ const PartnershipCard = ({ partnership }: { partnership: PartnershipsWithDCC }) 
         const comp = <Grid item key={dcc.short_label} className="flex items-center justify-center relative">
             <Link href={`/info/dcc/${dcc.short_label}`}>
                 <Tooltip title={dcc.short_label}>
-                    <IconButton sx={{ minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 70 : 40, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 60 : 40 }}>
+                    <IconButton sx={{ minHeight: ["Metabolomics", "GTEx", "LINCS"].indexOf(dcc.short_label || '') === -1 ? 50 : 30, minWidth: ["Metabolomics", "GTex"].indexOf(dcc.short_label || '') === -1 ? 50 : 30 }}>
                         {dcc.icon ?
                             <Image src={dcc.icon || ''} alt={dcc.id} fill={true} style={{ objectFit: "contain" }} /> :
                             <Avatar>{dcc.label[0]}</Avatar>
@@ -55,7 +57,7 @@ const PartnershipCard = ({ partnership }: { partnership: PartnershipsWithDCC }) 
         else dccs.push(comp)
     }
     return (
-        <Card sx={{ paddingLeft: 2, paddingRight: 2 }}>
+        <Card sx={{ paddingLeft: 2, paddingRight: 2, height: "100%" }}>
             <CardHeader
                 avatar={partnership.image ?
                     <Image alt={partnership.id} width={80} height={80} src={partnership.image} /> :
@@ -88,11 +90,11 @@ const PartnershipCard = ({ partnership }: { partnership: PartnershipsWithDCC }) 
                         </Grid>
                     }
                     {partnership.publications.length > 0 &&
-                        <Grid item xs={12} className="flex items-center">
+                        <Grid item xs={12} className="flex items-center ">
                             <Typography variant="body2" color="secondary"><b>Publication{partnership.publications.length > 1 && 's'}:</b></Typography>
                             {partnership.publications.map(({ publication }) => (
                                 <Link key={publication.id} target="_blank" rel="noopener noreferrer" href={`https://www.doi.org/${publication.doi}`}>
-                                    <Button color="secondary"><Typography variant="body2" color="secondary">{publication.doi}</Typography></Button>
+                                    <Button color="secondary" ><Icon path={mdiPageNextOutline} size={1} /></Button>
                                 </Link>
                             ))}
                         </Grid>
@@ -112,7 +114,7 @@ const PartnershipCard = ({ partnership }: { partnership: PartnershipsWithDCC }) 
                     {partnership.website &&
                         <Grid item xs={12}>
                             <Link href={partnership.website}>
-                                <Button color="secondary">
+                                <Button color="secondary" endIcon={<Icon path={mdiPageNextOutline} size={1} />} sx={{ml: -2}}>
                                     <Typography variant="body2" color="secondary">GO TO WEBSITE</Typography>
                                 </Button>
                             </Link>
@@ -179,23 +181,19 @@ export default async function PartnershipPage() {
             <Grid item xs={12}>
                 <Typography variant="h4" color="secondary">Active CFDE Partnerships</Typography>
             </Grid>
-            <Grid item xs={12}>
-                <MasonryClient defaultHeight={1500}>
-                    {active_partnerships.map(partnership => (
-                        <PartnershipCard key={partnership.id} partnership={partnership} />
-                    ))}
-                </MasonryClient>
-            </Grid>
+            {active_partnerships.map(partnership => (
+                <Grid item xs={12} md={4} key={partnership.id} >
+                    <PartnershipCard partnership={partnership} />
+                </Grid>
+            ))}
             <Grid item xs={12}>
                 <Typography variant="h4" color="secondary">Past CFDE Partnerships</Typography>
             </Grid>
-            <Grid item xs={12}>
-                <MasonryClient defaultHeight={1500}>
-                    {completed_partnerships.map(partnership => (
-                        <PartnershipCard key={partnership.id} partnership={partnership} />
-                    ))}
-                </MasonryClient>
-            </Grid>
+            {completed_partnerships.map(partnership => (
+                <Grid item xs={12} md={4} key={partnership.id} >
+                    <PartnershipCard partnership={partnership} />
+                </Grid>
+            ))}
         </Grid>
     )
 }
