@@ -3,12 +3,13 @@
 import { Tabs } from "@mui/base/Tabs";
 import HubIcon from "@mui/icons-material/Hub";
 import TableChartIcon from "@mui/icons-material/TableChart";
-import { AlertColor, SelectChangeEvent } from "@mui/material";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { AlertColor, Box } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
 
-import { fetchPathwaySearch } from "@/lib/neo4j/api";
+import { fetchPathwaySearch, fetchPathwaySearchCount } from "@/lib/neo4j/api";
 import {
   PathwayNode,
+  PathwaySearchCountResult,
   PathwaySearchResult,
   PathwaySearchResultRow,
 } from "@/lib/neo4j/types";
@@ -20,6 +21,9 @@ import {
   PathwayResultTabPanel,
   TableViewContainer,
 } from "../../constants/pathway-search";
+import { ColumnData } from "../../interfaces/pathway-search";
+import { Order } from "../../types/pathway-search";
+import { getColumnDataFromTree } from "../../utils/pathway-search";
 import { downloadBlob } from "../../utils/shared";
 
 import AlertSnackbar from "../shared/AlertSnackbar";
@@ -41,6 +45,9 @@ export default function GraphPathwayResults(
   const [count, setCount] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(PATHWAY_SEARCH_DEFAULT_LIMIT);
+  const [order, setOrder] = useState<Order>();
+  const [orderBy, setOrderBy] = useState<number>();
+  const [columns, setColumns] = useState<ColumnData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
@@ -49,10 +56,34 @@ export default function GraphPathwayResults(
   const getPathwaySearchResults = async (
     tree: PathwayNode,
     page?: number,
-    limit?: number
+    limit?: number,
+    orderByKey?: string,
+    orderByProp?: string,
+    order?: Order
   ): Promise<{ data: PathwaySearchResult; status: number }> => {
     const query = btoa(JSON.stringify(tree));
-    const response = await fetchPathwaySearch(query, page, limit);
+    const response = await fetchPathwaySearch(
+      query,
+      page,
+      limit,
+      orderByKey,
+      orderByProp,
+      order
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
+    }
+
+    return { data: await response.json(), status: response.status };
+  };
+
+  const getPathwaySearchCount = async (
+    tree: PathwayNode
+  ): Promise<{ data: PathwaySearchCountResult; status: number }> => {
+    const query = btoa(JSON.stringify(tree));
+    const response = await fetchPathwaySearchCount(query);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -66,12 +97,21 @@ export default function GraphPathwayResults(
     async (newPage: number) => {
       setPage(newPage);
       setLoading(true);
-      const { data } = await getPathwaySearchResults(tree, newPage, limit);
+      const { data } =
+        orderBy !== undefined && order !== undefined
+          ? await getPathwaySearchResults(
+              tree,
+              newPage,
+              limit,
+              columns[orderBy].key,
+              columns[orderBy].displayProp,
+              order
+            )
+          : await getPathwaySearchResults(tree, newPage, limit);
       setLoading(false);
       setPaths(data.paths);
-      setCount(data.count);
     },
-    [tree, limit]
+    [tree, limit, columns, orderBy, order]
   );
 
   const handleLimitChange = useCallback(
@@ -80,30 +120,112 @@ export default function GraphPathwayResults(
         setLimit(newLimit);
         setPage(1); // Reset the table to the first page
         setLoading(true);
-        const { data } = await getPathwaySearchResults(tree, 1, newLimit);
-        setLoading(false);
+
+        const columnData = orderBy === undefined ? undefined : columns[orderBy];
+        const { data } = await getPathwaySearchResults(
+          tree,
+          page,
+          newLimit,
+          columnData?.key,
+          columnData?.displayProp,
+          order
+        );
+
         setPaths(data.paths);
-        setCount(data.count);
       } catch {
         updateSnackbar(
           true,
           "An error occurred updating table limit. Please try again later.",
           "error"
         );
+      } finally {
+        setLoading(false);
       }
     },
-    [tree, page]
+    [tree, page, columns, orderBy, order]
   );
 
-  const handleDownloadAllClicked = async () => {
-    const { data } = await getPathwaySearchResults(tree);
+  const handleOrderByChange = useCallback(
+    async (column: number | undefined, order: Order) => {
+      try {
+        setOrder(order);
+        setOrderBy(column);
+        setLoading(true);
+
+        const columnData = column === undefined ? undefined : columns[column];
+        const { data } = await getPathwaySearchResults(
+          tree,
+          page,
+          limit,
+          columnData?.key,
+          columnData?.displayProp,
+          order
+        );
+
+        setPaths(data.paths);
+      } catch (e) {
+        updateSnackbar(
+          true,
+          "An error occurred updating table order. Please try again later.",
+          "error"
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tree, limit, page, columns]
+  );
+
+  const handleColumnChange = useCallback(
+    async (changedColumn: number, changes: Partial<ColumnData>) => {
+      try {
+        const newColumns = columns.map((col, idx) =>
+          idx === changedColumn ? { ...col, ...changes } : { ...col }
+        );
+        setColumns(newColumns);
+        setLoading(true);
+
+        const columnData =
+          orderBy === undefined ? undefined : newColumns[orderBy];
+        const { data } = await getPathwaySearchResults(
+          tree,
+          page,
+          limit,
+          columnData?.key,
+          columnData?.displayProp,
+          order
+        );
+        setPaths(data.paths);
+      } catch (e) {
+        updateSnackbar(
+          true,
+          "An error occurred updating table order. Please try again later.",
+          "error"
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tree, limit, page, columns, orderBy, order]
+  );
+
+  const handleDownloadAllClicked = useCallback(async () => {
+    const columnData = orderBy === undefined ? undefined : columns[orderBy];
+    const { data } = await getPathwaySearchResults(
+      tree,
+      undefined,
+      undefined,
+      columnData?.key,
+      columnData?.displayProp,
+      order
+    );
     const jsonString = JSON.stringify(
       data.paths.map((row) =>
         row.filter((element) => !isRelationshipResult(element))
       )
     );
     downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
-  };
+  }, [tree, columns, orderBy, order]);
 
   const updateSnackbar = (open: boolean, msg: string, severity: AlertColor) => {
     setSnackbarMsg(msg);
@@ -113,15 +235,19 @@ export default function GraphPathwayResults(
 
   useEffect(() => {
     setLoading(true);
-    getPathwaySearchResults(tree, page, limit).then(({ data }) => {
+    setColumns(getColumnDataFromTree(tree));
+    Promise.all([
+      getPathwaySearchResults(tree, page, limit),
+      getPathwaySearchCount(tree),
+    ]).then(([searchResult, countResult]) => {
       setLoading(false);
-      setPaths(data.paths);
-      setCount(data.count);
+      setPaths(searchResult.data.paths);
+      setCount(countResult.data.total);
     });
   }, [tree]);
 
   return (
-    <>
+    <Box sx={{ position: "relative", height: "inherit" }}>
       <Tabs defaultValue={0} style={{ width: "100%", height: "100%" }}>
         <TabsList>
           <Tab value={0} disabled={loading}>
@@ -146,9 +272,14 @@ export default function GraphPathwayResults(
                 limit={limit}
                 page={page}
                 count={count}
+                order={order}
+                orderBy={orderBy}
+                columns={columns}
                 onReturnBtnClick={onReturnBtnClick}
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
+                onOrderByChange={handleOrderByChange}
+                onColumnChange={handleColumnChange}
                 onDownloadAll={handleDownloadAllClicked}
               ></TableView>
             )}
@@ -171,6 +302,6 @@ export default function GraphPathwayResults(
         horizontal={"center"}
         handleClose={() => setSnackbarOpen(false)}
       />
-    </>
+    </Box>
   );
 }

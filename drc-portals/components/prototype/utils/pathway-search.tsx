@@ -1,14 +1,30 @@
+import {
+  BIOSAMPLE_LABEL,
+  BIOSAMPLE_RELATED_LABELS,
+  COLLECTION_LABEL,
+  DCC_LABEL,
+  FILE_LABEL,
+  FILE_RELATED_LABELS,
+  ID_NAMESPACE_LABEL,
+  PROJECT_LABEL,
+  SUBJECT_LABEL,
+  SUBJECT_RELATED_LABELS,
+  TERM_LABELS,
+} from "@/lib/neo4j/constants";
 import { Direction } from "@/lib/neo4j/enums";
-import { PathwayNode } from "@/lib/neo4j/types";
+import { NodeResult, PathwayNode } from "@/lib/neo4j/types";
 
 import { NODE_CLASS_MAP } from "../constants/shared";
 import {
+  ColumnData,
   PathwaySearchEdge,
   PathwaySearchEdgeData,
   PathwaySearchNode,
   PathwaySearchNodeData,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
+
+import { getExternalLinkElement, getOntologyLink } from "./shared";
 
 export const isPathwaySearchEdgeElement = (
   element: PathwaySearchElement
@@ -170,3 +186,161 @@ export const deepCopyPathwaySearchEdge = (
   ),
   data: { ...edge.data, ...data },
 });
+
+export const getColumnDataFromTree = (tree: PathwayNode): ColumnData[] => {
+  const nodeIds = new Set<string>();
+  const nodes: PathwayNode[] = [];
+
+  const getQueryFromTree = (node: PathwayNode) => {
+    if (!nodeIds.has(node.id)) {
+      nodeIds.add(node.id);
+      nodes.push(node);
+    }
+
+    if (node.children.length === 0) {
+      return;
+    } else if (node.children.length === 1) {
+      getQueryFromTree(node.children[0]);
+    } else {
+      node.children
+        // Parse children with the fewest children first
+        .sort((a, b) => a.children.length - b.children.length)
+        .forEach((child) => {
+          getQueryFromTree(child);
+        });
+    }
+  };
+
+  // Recursively set the nodes array in tree traversal order
+  getQueryFromTree(tree);
+
+  const labelCounts = new Map<string, number>();
+  let columns: ColumnData[] = nodes.map((node) => {
+    const nodeId = node.id;
+    const label = node.label;
+    const labelCount = labelCounts.get(label);
+    let postfix, valueGetter, displayProp;
+
+    if (labelCount === undefined) {
+      postfix = 1;
+      labelCounts.set(label, postfix);
+    } else {
+      postfix = labelCount + 1;
+      labelCounts.set(label, postfix);
+    }
+
+    const getPropFromNodeResult = (node: NodeResult, property: string) => {
+      try {
+        return Object.hasOwn(node.properties, property)
+          ? String(node.properties[property])
+          : "null";
+      } catch {
+        return "null";
+      }
+    };
+
+    const linkRegex =
+      /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
+    if (
+      [
+        ...TERM_LABELS,
+        ...FILE_RELATED_LABELS,
+        ...SUBJECT_RELATED_LABELS,
+        ...BIOSAMPLE_RELATED_LABELS,
+      ].includes(label)
+    ) {
+      displayProp = "name";
+      valueGetter = (node: NodeResult, displayProp: string) => {
+        const displayText = getPropFromNodeResult(node, displayProp);
+        const ontologyLink = getOntologyLink(label, node.properties.id);
+        return getExternalLinkElement(ontologyLink, displayText);
+      };
+    } else if ([PROJECT_LABEL, COLLECTION_LABEL, FILE_LABEL].includes(label)) {
+      displayProp = "local_id";
+      valueGetter = (node: NodeResult, displayProp: string) => {
+        const displayText = getPropFromNodeResult(node, displayProp);
+        const link =
+          node.properties.persistent_id || node.properties.access_url;
+        if (link !== undefined && linkRegex.test(link)) {
+          return getExternalLinkElement(link, displayText);
+        } else {
+          return displayText;
+        }
+      };
+    } else if (label === DCC_LABEL) {
+      displayProp = "abbreviation";
+      valueGetter = (node: NodeResult, displayProp: string) => {
+        const url = node.properties.url;
+        const displayText = getPropFromNodeResult(node, displayProp);
+        if (url !== undefined) {
+          if (linkRegex.test(url)) {
+            return getExternalLinkElement(url, displayText);
+          } else {
+            return displayText;
+          }
+        } else {
+          return displayText;
+        }
+      };
+    } else if (label === ID_NAMESPACE_LABEL) {
+      displayProp = "name";
+      valueGetter = (node: NodeResult, displayProp: string) => {
+        const url = node.properties.id;
+        const displayText = getPropFromNodeResult(node, displayProp);
+        if (url !== undefined) {
+          return getExternalLinkElement(url, displayText);
+        } else {
+          return displayText;
+        }
+      };
+    } else if ([SUBJECT_LABEL, BIOSAMPLE_LABEL].includes(label)) {
+      displayProp = "local_id";
+      valueGetter = (node: NodeResult, displayProp: string) =>
+        getPropFromNodeResult(node, displayProp);
+    } else {
+      displayProp = "undefined";
+      valueGetter = () => "null";
+    }
+
+    return {
+      key: nodeId,
+      label,
+      displayProp,
+      postfix,
+      valueGetter,
+    };
+  });
+
+  return columns.map((col) => {
+    return {
+      ...col,
+      postfix:
+        (labelCounts.get(col.label) as number) === 1 ? undefined : col.postfix,
+    };
+  });
+};
+
+export const getPropertyListFromNodeLabel = (nodeLabel: string) => {
+  if (
+    [
+      ...TERM_LABELS,
+      ...FILE_RELATED_LABELS,
+      ...SUBJECT_RELATED_LABELS,
+      ...BIOSAMPLE_RELATED_LABELS,
+    ].includes(nodeLabel)
+  ) {
+    return ["id", "name"];
+  } else if (
+    [PROJECT_LABEL, COLLECTION_LABEL, FILE_LABEL].includes(nodeLabel)
+  ) {
+    return ["persistent_id", "access_url", "local_id"];
+  } else if (nodeLabel === DCC_LABEL) {
+    return ["name", "abbreviation", "url", "contact_email"];
+  } else if (nodeLabel === ID_NAMESPACE_LABEL) {
+    return ["name", "abbreviation"];
+  } else if ([SUBJECT_LABEL, BIOSAMPLE_LABEL].includes(nodeLabel)) {
+    return ["local_id"];
+  } else {
+    return [];
+  }
+};

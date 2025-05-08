@@ -8,11 +8,7 @@ const GRAPH_C2M2_READER_USERNAME =
 const GRAPH_C2M2_READER_PASSWORD =
   process.env.GRAPH_C2M2_READER_PASSWORD || "password";
 
-export const initDriver = async (
-  uri: string,
-  username: string,
-  password: string
-) => {
+const initDriver = async (uri: string, username: string, password: string) => {
   driver = neo4j.driver(
     uri,
     neo4j.auth.basic(username, password),

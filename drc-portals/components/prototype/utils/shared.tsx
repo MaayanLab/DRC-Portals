@@ -132,14 +132,6 @@ export const labelInFactoryMapFilter = (label: string) => {
   return true;
 };
 
-export const typeInFactoryMapFilter = (type: string) => {
-  if (!TYPE_TO_FACTORY_MAP.has(type)) {
-    console.warn(`Type "${type}" not found in relationship factory map!`);
-    return false;
-  }
-  return true;
-};
-
 export const downloadBlob = (data: string, type: string, filename: string) => {
   const blob = new Blob([data], { type });
   const url = URL.createObjectURL(blob);

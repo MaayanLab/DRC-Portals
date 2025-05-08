@@ -1,8 +1,15 @@
 "use client";
 
 import { Grid } from "@mui/material";
-import { EventObject } from "cytoscape";
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { Core, EventObject } from "cytoscape";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { PathwaySearchResultRow } from "@/lib/neo4j/types";
 
@@ -61,6 +68,7 @@ export default function GraphView(cmpProps: GraphViewProps) {
   const [entityDetails, setEntityDetails] = useState<
     CytoscapeNodeData | undefined
   >(undefined);
+  const cyRef = useRef<Core>();
 
   const resetLegend = useCallback(() => {
     if (elements.length === 0) {
@@ -259,6 +267,7 @@ export default function GraphView(cmpProps: GraphViewProps) {
         sx={{ position: "relative", height: "100%", width: "100%" }}
       >
         <CytoscapeChart
+          cyRef={cyRef}
           elements={elements}
           layout={EULER_LAYOUT}
           stylesheet={DEFAULT_STYLESHEET}

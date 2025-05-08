@@ -1,15 +1,23 @@
 "use client";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DownloadIcon from "@mui/icons-material/Download";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   Box,
   Button,
   Checkbox,
   CircularProgress,
   FormControl,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
   MenuItem,
   Pagination,
   PaginationItem,
@@ -22,62 +30,44 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { visuallyHidden } from "@mui/utils";
+import { NestedMenuItem } from "mui-nested-menu";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
-import {
-  BIOSAMPLE_LABEL,
-  BIOSAMPLE_RELATED_LABELS,
-  COLLECTION_LABEL,
-  DCC_LABEL,
-  FILE_LABEL,
-  FILE_RELATED_LABELS,
-  ID_NAMESPACE_LABEL,
-  PROJECT_LABEL,
-  SUBJECT_LABEL,
-  SUBJECT_RELATED_LABELS,
-  TERM_LABELS,
-} from "@/lib/neo4j/constants";
 import { NodeResult, PathwaySearchResultRow } from "@/lib/neo4j/types";
 import { isRelationshipResult } from "@/lib/neo4j/utils";
 
 import {
-  downloadBlob,
-  getExternalLinkElement,
-  getOntologyLink,
-} from "@/components/prototype/utils/shared";
-import {
   PATHWAY_SEARCH_LIMIT_CHOICES,
   StyledDataCell,
+  StyledHeaderCell,
+  StyledHeaderCellWithDivider,
   StyledTableCell,
 } from "@/components/prototype/constants/pathway-search";
+import { ColumnData } from "@/components/prototype/interfaces/pathway-search";
+import { Order } from "@/components/prototype/types/pathway-search";
+import { getPropertyListFromNodeLabel } from "@/components/prototype/utils/pathway-search";
+import { downloadBlob } from "@/components/prototype/utils/shared";
 
 import ReturnBtn from "../ReturnBtn";
-
-interface ColumnData {
-  pathIdx: number;
-  key: string;
-  header: string;
-  valueGetter: (node: NodeResult) => ReactNode;
-}
 
 interface TableViewProps {
   data: PathwaySearchResultRow[];
   limit: number;
   page: number;
   count: number;
+  order: Order;
+  orderBy: number | undefined;
+  columns: ColumnData[];
   onReturnBtnClick: () => void;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
+  onOrderByChange: (column: number | undefined, order: Order) => void;
+  onColumnChange: (column: number, changes: Partial<ColumnData>) => void;
   onDownloadAll: () => Promise<void>;
 }
 
@@ -86,31 +76,87 @@ export default function TableView(cmpProps: TableViewProps) {
     data,
     limit,
     page,
+    order,
+    orderBy,
+    columns,
     count,
     onReturnBtnClick,
     onPageChange,
     onLimitChange,
+    onOrderByChange,
+    onColumnChange,
     onDownloadAll,
   } = cmpProps;
   const MAX_PAGE = Math.ceil(count / limit);
   const JUMP_TO_PAGE_DEFAULT_LABEL = "Jump to Page";
-  const [columns, setColumns] = useState<ColumnData[]>([]);
   const [selected, setSelected] = useState<boolean[]>(
     new Array(data.length).fill(false)
   );
+  const [sortedColumn, setSortedColumn] = useState(orderBy);
   const [downloading, setDownloading] = useState(false);
   const [jumpToPageVal, setJumpToPageVal] = useState(page.toString());
   const [jumpToPageError, setJumpToPageError] = useState(false);
   const [jumpToPageHelperText, setJumpToPageHelperText] = useState<
     string | undefined
   >();
+  const [colMenuAnchorEl, setColMenuAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+  const [colMenuColumn, setColMenuColumn] = useState<number>();
+  const colMenuOpen = Boolean(colMenuAnchorEl);
 
-  const handleCheckboxChange = (rowIdx: number) => {
-    setSelected(
-      selected.map((rowChecked, idx) =>
-        idx === rowIdx ? !rowChecked : rowChecked
-      )
+  const getColumnHeaderText = (column: ColumnData) => {
+    return (
+      column.label +
+      (column.postfix === undefined ? "" : `-${column.postfix}`) +
+      `.${column.displayProp}`
     );
+  };
+
+  const handleCheckboxChange = useCallback(
+    (rowIdx: number) => {
+      setSelected(
+        selected.map((rowChecked, idx) =>
+          idx === rowIdx ? !rowChecked : rowChecked
+        )
+      );
+    },
+    [selected]
+  );
+
+  const handleColSort = (column: number | undefined, order: Order) => {
+    setSortedColumn(column);
+    onOrderByChange(column, order);
+  };
+
+  const handleColMenuClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    column: number
+  ) => {
+    setColMenuColumn(column);
+    setColMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleColMenuClose = () => {
+    setColMenuAnchorEl(null);
+  };
+
+  const colMenuFnWrapper = <Args extends any[]>(
+    fn: (...args: Args) => void,
+    ...args: Args
+  ) => {
+    fn(...args);
+    handleColMenuClose();
+  };
+
+  const handleColMenuSort = (column: number | undefined, order: Order) => {
+    colMenuFnWrapper(handleColSort, column, order);
+  };
+
+  const handleColMenuPropertyUpdate = (column: number, property: string) => {
+    colMenuFnWrapper(onColumnChange, column, {
+      displayProp: property,
+    });
   };
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,6 +166,24 @@ export default function TableView(cmpProps: TableViewProps) {
       setSelected(new Array(data.length).fill(false));
     }
   };
+
+  const handleSortBtnClicked = useCallback(
+    (event: React.MouseEvent<unknown>, column: number) => {
+      let newOrder: Order = undefined;
+      let newOrderBy: number | undefined = column;
+
+      if (sortedColumn === column) {
+        if (order === "asc") newOrder = "desc"; // order column by desc
+        else if (order === "desc") newOrderBy = undefined; // unorder column
+        else newOrder = "asc"; // order column by asc
+      } else {
+        newOrder = "asc"; // order column by asc
+      }
+
+      handleColSort(newOrderBy, newOrder);
+    },
+    [order, sortedColumn]
+  );
 
   const handleDownloadSelectedClicked = useCallback(() => {
     const jsonString = JSON.stringify(
@@ -163,124 +227,6 @@ export default function TableView(cmpProps: TableViewProps) {
     onLimitChange(Number(event.target.value));
   };
 
-  useEffect(() => {
-    let newColumns = [];
-    if (data.length > 0) {
-      const firstRow = data[0];
-
-      const labelCounts = new Map<string, number>();
-      for (let i = 0; i < firstRow.length; i++) {
-        const element = firstRow[i];
-        if (!isRelationshipResult(element)) {
-          const nodeLabel =
-            element.labels.length > 0 ? element.labels[0] : "Unknown";
-          const labelCount = labelCounts.get(nodeLabel);
-          let colPostfix;
-
-          if (labelCount === undefined) {
-            colPostfix = 1;
-            labelCounts.set(nodeLabel, colPostfix);
-          } else {
-            colPostfix = labelCount + 1;
-            labelCounts.set(nodeLabel, colPostfix);
-          }
-
-          const linkRegex =
-            /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
-          let valueGetter;
-          if (
-            [
-              ...TERM_LABELS,
-              ...FILE_RELATED_LABELS,
-              ...SUBJECT_RELATED_LABELS,
-              ...BIOSAMPLE_RELATED_LABELS,
-            ].includes(nodeLabel)
-          ) {
-            valueGetter = (node: NodeResult) => {
-              const ontologyLink = getOntologyLink(
-                nodeLabel,
-                node.properties.id
-              );
-              return getExternalLinkElement(ontologyLink, node.properties.name);
-            };
-          } else if (
-            [PROJECT_LABEL, COLLECTION_LABEL, FILE_LABEL].includes(nodeLabel)
-          ) {
-            valueGetter = (node: NodeResult) => {
-              const val =
-                node.properties.persistent_id || node.properties.access_url;
-              if (val !== undefined) {
-                if (linkRegex.test(val)) {
-                  return getExternalLinkElement(
-                    val,
-                    node.properties.local_id || val
-                  );
-                } else {
-                  return val;
-                }
-              } else {
-                return node.properties.local_id || "Unknown";
-              }
-            };
-          } else if (nodeLabel === DCC_LABEL) {
-            valueGetter = (node: NodeResult) => {
-              const url = node.properties.url;
-              const data =
-                node.properties.abbreviation ||
-                node.properties.name ||
-                "Unknown";
-              if (url !== undefined) {
-                if (linkRegex.test(url)) {
-                  return getExternalLinkElement(url, data);
-                } else {
-                  return data;
-                }
-              } else {
-                return data;
-              }
-            };
-          } else if (nodeLabel === ID_NAMESPACE_LABEL) {
-            valueGetter = (node: NodeResult) => {
-              const url = node.properties.id;
-              const data =
-                node.properties.abbreviation ||
-                node.properties.name ||
-                node.properties.id ||
-                "Unknown";
-              if (url !== undefined) {
-                return getExternalLinkElement(url, data);
-              } else {
-                return data;
-              }
-            };
-          } else if ([SUBJECT_LABEL, BIOSAMPLE_LABEL].includes(nodeLabel)) {
-            valueGetter = (node: NodeResult) =>
-              node.properties.local_id || "Unknown";
-          } else {
-            valueGetter = () => "Unknown";
-          }
-
-          newColumns.push({
-            pathIdx: i,
-            key: `${nodeLabel}_${colPostfix}`.toLowerCase(),
-            header: `${nodeLabel}-${colPostfix}`,
-            valueGetter,
-          });
-        }
-      }
-
-      newColumns = newColumns.map((col) => {
-        const [label, _] = col.header.split("-");
-        return {
-          ...col,
-          header: (labelCounts.get(label) as number) === 1 ? label : col.header,
-        };
-      });
-
-      setColumns(newColumns);
-    }
-  }, [data]);
-
   return (
     <>
       {/* Start table */}
@@ -290,12 +236,12 @@ export default function TableView(cmpProps: TableViewProps) {
         variant="rounded-top"
         sx={{ flexGrow: 1 }}
       >
-        <Table stickyHeader size="small">
-          <TableHead>
+        <Table size="small" sx={{ borderCollapse: "separate" }}>
+          <TableHead sx={{ position: "sticky", top: "0px", zIndex: 4 }}>
             <TableRow>
-              <StyledTableCell
+              <StyledHeaderCell
                 padding="checkbox"
-                sx={{ position: "sticky", left: 0, zIndex: 4 }}
+                sx={{ position: "sticky", left: 0, zIndex: 3 }}
               >
                 <Checkbox
                   indeterminate={
@@ -308,29 +254,50 @@ export default function TableView(cmpProps: TableViewProps) {
                   checked={selected.every((val) => val)}
                   onChange={handleSelectAllClick}
                 />
-              </StyledTableCell>
+              </StyledHeaderCell>
               {/* width: 1% forces minimal use of space */}
-              <StyledTableCell sx={{ width: "1%" }}>
+              <StyledHeaderCellWithDivider
+                sx={{ width: "1%", padding: "6px 10px" }}
+              >
                 <Typography variant="body1">#</Typography>
-              </StyledTableCell>
-              {columns.map((col) => (
-                <StyledDataCell key={col.key}>
-                  <Typography variant="body1">{col.header}</Typography>
-                </StyledDataCell>
+              </StyledHeaderCellWithDivider>
+              {columns.map((col, idx) => (
+                <StyledHeaderCellWithDivider key={col.key}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <TableSortLabel
+                      disabled={false}
+                      active={sortedColumn === idx && order !== undefined}
+                      direction={sortedColumn === idx ? order : "asc"}
+                      onClick={(event) => handleSortBtnClicked(event, idx)}
+                    >
+                      {getColumnHeaderText(col)}
+                      {sortedColumn === idx ? (
+                        <Box component="span" sx={visuallyHidden}>
+                          {order === "desc"
+                            ? "sorted descending"
+                            : "sorted ascending"}
+                        </Box>
+                      ) : null}
+                    </TableSortLabel>
+                    <IconButton
+                      size="small"
+                      onClick={(event) => handleColMenuClick(event, idx)}
+                    >
+                      <MoreVertIcon fontSize="inherit" />
+                    </IconButton>
+                  </Box>
+                </StyledHeaderCellWithDivider>
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody sx={{ zIndex: 4 }}>
             {data.map((row, i) => (
               <TableRow key={`row-${i}`}>
                 <StyledTableCell
                   padding="checkbox"
-                  sx={{
-                    position: "sticky",
-                    left: 0,
-                    zIndex: 3,
-                    background: "white",
-                  }}
+                  sx={{ position: "sticky", left: 0, zIndex: 3 }}
                 >
                   <Checkbox
                     checked={selected[i]}
@@ -338,11 +305,16 @@ export default function TableView(cmpProps: TableViewProps) {
                   />
                 </StyledTableCell>
                 <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
-                {columns.map((col, j) => (
-                  <StyledDataCell key={j}>
-                    {col.valueGetter(row[col.pathIdx] as NodeResult)}
-                  </StyledDataCell>
-                ))}
+                {row
+                  .filter((col) => !isRelationshipResult(col))
+                  .map((nodeCol, j) => (
+                    <StyledDataCell key={j}>
+                      {columns[j].valueGetter(
+                        nodeCol as NodeResult,
+                        columns[j].displayProp
+                      )}
+                    </StyledDataCell>
+                  ))}
               </TableRow>
             ))}
           </TableBody>
@@ -440,6 +412,60 @@ export default function TableView(cmpProps: TableViewProps) {
 
         <ReturnBtn onClick={onReturnBtnClick} />
       </Stack>
+      <Menu
+        id="col-menu"
+        anchorEl={colMenuAnchorEl}
+        open={colMenuOpen}
+        onClose={handleColMenuClose}
+      >
+        {colMenuColumn !== undefined ? (
+          <NestedMenuItem
+            rightIcon={<KeyboardArrowRightIcon />}
+            parentMenuOpen={colMenuOpen}
+            renderLabel={() => "Set column property"}
+            sx={{ paddingX: "16px" }}
+          >
+            {getPropertyListFromNodeLabel(columns[colMenuColumn].label).map(
+              (property, idx) => (
+                <MenuItem
+                  key={`column-menu-prop-select-${idx}`}
+                  onClick={() =>
+                    handleColMenuPropertyUpdate(colMenuColumn, property)
+                  }
+                >
+                  {property}
+                </MenuItem>
+              )
+            )}
+          </NestedMenuItem>
+        ) : null}
+        {colMenuColumn !== sortedColumn ||
+        order === undefined ||
+        order === "desc" ? (
+          <MenuItem onClick={() => handleColMenuSort(colMenuColumn, "asc")}>
+            <ListItemIcon>
+              <ArrowUpwardIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Sort by ASC</ListItemText>
+          </MenuItem>
+        ) : null}
+        {colMenuColumn !== sortedColumn ||
+        order === undefined ||
+        order === "asc" ? (
+          <MenuItem onClick={() => handleColMenuSort(colMenuColumn, "desc")}>
+            <ListItemIcon>
+              <ArrowDownwardIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Sort by DESC</ListItemText>
+          </MenuItem>
+        ) : null}
+        {colMenuColumn === sortedColumn && order !== undefined ? (
+          <MenuItem onClick={() => handleColMenuSort(undefined, undefined)}>
+            <ListItemIcon />
+            <ListItemText>Unsort</ListItemText>
+          </MenuItem>
+        ) : null}
+      </Menu>
     </>
   );
 }

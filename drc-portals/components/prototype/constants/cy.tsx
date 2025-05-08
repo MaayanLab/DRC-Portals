@@ -218,6 +218,20 @@ export const EULER_LAYOUT = {
   maxSimulationTime: 8000,
 };
 
+export const KLAY_LAYOUT = {
+  name: "klay",
+  animate: true,
+  animationDuration: 1000,
+  animationEasing: "ease-out",
+  padding: 4,
+  nodeDimensionsIncludeLabels: true,
+  klay: {
+    spacing: 40,
+    direction: "RIGHT",
+    nodePlacement: "LINEAR_SEGMENTS",
+  },
+};
+
 const DEFAULT_NODE_SELECTOR_STYLES: any[] = [
   {
     selector: "node",
@@ -267,6 +281,8 @@ const DEFAULT_EDGE_SELECTOR_STYLES: any[] = [
       "text-background-opacity": SOLID_OPACITY,
       // so the transition is selected when its label/name is selected
       "text-events": "yes",
+      "text-max-width": `36px`,
+      "text-wrap": "wrap",
     },
   },
   {
@@ -1738,8 +1754,11 @@ const SCHEMA_EDGES = [
 const SCHEMA_ADMIN_NODE_ITEM = "Admin Node";
 const SCHEMA_CONTAINER_NODE_ITEM = "Container Node";
 const SCHEMA_FILE_NODE_ITEM = "File Node";
+const SCHEMA_FILE_RELATED_NODE_ITEM = "File Related Node";
 const SCHEMA_BIOSAMPLE_NODE_ITEM = "Biosample Node";
+const SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM = "Biosample Related Node";
 const SCHEMA_SUBJECT_NODE_ITEM = "Subject Node";
+const SCHEMA_SUBJECT_RELATED_NODE_ITEM = "Subject Related Node";
 const SCHEMA_TERM_NODE_ITEM = "Term Node";
 export const SCHEMA_RELATIONSHIP_ITEM = "Relationship";
 
@@ -1767,12 +1786,30 @@ export const SCHEMA_LEGEND = new Map<string, ReactNode>(
       <CircleIcon sx={{ color: FILE_NODE_COLOR }} fontSize="small" />,
     ],
     [
+      SCHEMA_FILE_RELATED_NODE_ITEM,
+      <CircleIcon sx={{ color: FILE_RELATED_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
       SCHEMA_SUBJECT_NODE_ITEM,
       <CircleIcon sx={{ color: SUBJECT_NODE_COLOR }} fontSize="small" />,
     ],
     [
+      SCHEMA_SUBJECT_RELATED_NODE_ITEM,
+      <CircleIcon
+        sx={{ color: SUBJECT_RELATED_NODE_COLOR }}
+        fontSize="small"
+      />,
+    ],
+    [
       SCHEMA_BIOSAMPLE_NODE_ITEM,
       <CircleIcon sx={{ color: BIOSAMPLE_NODE_COLOR }} fontSize="small" />,
+    ],
+    [
+      SCHEMA_BIOSAMPLE_RELATED_NODE_ITEM,
+      <CircleIcon
+        sx={{ color: BIOSAMPLE_RELATED_NODE_COLOR }}
+        fontSize="small"
+      />,
     ],
     [
       SCHEMA_TERM_NODE_ITEM,
@@ -1841,7 +1878,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.container-relationship",
     style: {
-      color: CONTAINER_NODE_COLOR,
       "line-color": CONTAINER_NODE_COLOR,
       "target-arrow-color": CONTAINER_NODE_COLOR,
     },
@@ -1849,7 +1885,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.file-relationship",
     style: {
-      color: FILE_NODE_COLOR,
       "line-color": FILE_NODE_COLOR,
       "target-arrow-color": FILE_NODE_COLOR,
     },
@@ -1857,7 +1892,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.file-related-relationship",
     style: {
-      color: FILE_RELATED_NODE_COLOR,
       "line-color": FILE_RELATED_NODE_COLOR,
       "target-arrow-color": FILE_RELATED_NODE_COLOR,
     },
@@ -1865,7 +1899,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.subject-relationship",
     style: {
-      color: SUBJECT_NODE_COLOR,
       "line-color": SUBJECT_NODE_COLOR,
       "target-arrow-color": SUBJECT_NODE_COLOR,
     },
@@ -1873,7 +1906,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.subject-related-relationship",
     style: {
-      color: SUBJECT_RELATED_NODE_COLOR,
       "line-color": SUBJECT_RELATED_NODE_COLOR,
       "target-arrow-color": SUBJECT_RELATED_NODE_COLOR,
     },
@@ -1881,7 +1913,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.biosample-relationship",
     style: {
-      color: BIOSAMPLE_NODE_COLOR,
       "line-color": BIOSAMPLE_NODE_COLOR,
       "target-arrow-color": BIOSAMPLE_NODE_COLOR,
     },
@@ -1889,7 +1920,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.biosample-related-relationship",
     style: {
-      color: BIOSAMPLE_RELATED_NODE_COLOR,
       "line-color": BIOSAMPLE_RELATED_NODE_COLOR,
       "target-arrow-color": BIOSAMPLE_RELATED_NODE_COLOR,
     },
@@ -1897,7 +1927,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: "edge.term-relationship",
     style: {
-      color: TERM_NODE_COLOR,
       "line-color": TERM_NODE_COLOR,
       "target-arrow-color": TERM_NODE_COLOR,
     },

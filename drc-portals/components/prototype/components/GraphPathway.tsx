@@ -1,16 +1,19 @@
 "use client";
 
-import { AlertColor, Grid } from "@mui/material";
+import { AlertColor, Box } from "@mui/material";
 
-import { NodeSingular } from "cytoscape";
-import { ChangeEvent, useCallback, useMemo, useState } from "react";
+import { EventObjectNode, NodeSingular } from "cytoscape";
+import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
+import { fetchPathwaySearchCount } from "@/lib/neo4j/api";
+import { createPathwaySearchAllPathsCypher } from "@/lib/neo4j/cypher";
 import { Direction } from "@/lib/neo4j/enums";
+import { parsePathwayTree } from "@/lib/neo4j/utils";
 import {
   NodeResult,
   PathwayNode,
-  PathwaySearchResultRow,
+  PathwaySearchCountResult,
 } from "@/lib/neo4j/types";
 
 import { BASIC_SEARCH_ERROR_MSG } from "../constants/search-bar";
@@ -47,6 +50,8 @@ export default function GraphPathway() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
+  const [loadingNodes, setLoadingNodes] = useState<string[]>([]);
+  const countsAbortControllerRef = useRef(new AbortController());
   const pathwayContextValue: PathwaySearchContextProps = useMemo(
     () => ({ tree }),
     [tree]
@@ -55,20 +60,111 @@ export default function GraphPathway() {
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
 
+  const getPathwaySearchCount = async (
+    tree: PathwayNode
+  ): Promise<{ data: PathwaySearchCountResult; status: number }> => {
+    const query = btoa(JSON.stringify(tree));
+    const response = await fetchPathwaySearchCount(query, {
+      signal: countsAbortControllerRef.current.signal,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
+    }
+
+    return { data: await response.json(), status: response.status };
+  };
+
+  const abortCountsRequest = () => {
+    const abortController = countsAbortControllerRef.current;
+    if (abortController !== undefined) {
+      abortController.abort("Cancelling counts request.");
+      countsAbortControllerRef.current = new AbortController();
+    }
+  };
+
   const updateSnackbar = (open: boolean, msg: string, severity: AlertColor) => {
     setSnackbarMsg(msg);
     setSnackbarOpen(open);
     setSnackbarSeverity(severity);
   };
 
-  const handleReset = useCallback(() => {
+  const resetPathway = () => {
+    setTree(undefined);
+    abortCountsRequest();
     setSearchElements([]);
-  }, []);
+  };
+
+  const updateCounts = (
+    candidateSearchElements: PathwaySearchElement[],
+    loadingElements: string[],
+    fallbackElements: PathwaySearchElement[]
+  ) => {
+    // We create the new tree with the success candidate elements to include them in the count query
+    const newTree = createTree(candidateSearchElements) as PathwayNode;
+    const abortController = countsAbortControllerRef.current;
+
+    // Temporarily set the elements to the loading list, and update the counting state
+    setLoadingNodes(loadingElements);
+
+    getPathwaySearchCount(newTree)
+      .then(({ data }) => {
+        const { counts } = data;
+        setSearchElements([
+          ...candidateSearchElements.map((element) => {
+            if (isPathwaySearchEdgeElement(element)) {
+              const matched = Object.hasOwn(counts, element.data.id);
+              return deepCopyPathwaySearchEdge(element, {
+                count: matched ? counts[element.data.id] : 0,
+              });
+            } else {
+              const matched = Object.hasOwn(counts, element.data.id);
+              return deepCopyPathwaySearchNode(
+                element,
+                {
+                  count: matched ? counts[element.data.id] : 0,
+                },
+                [],
+                ["loading"]
+              );
+            }
+          }),
+        ]);
+        setTree(newTree);
+      })
+      .catch((e) => {
+        // Only set an error if it wasn't because we manually aborted the request
+        if (!abortController.signal.aborted) {
+          console.error(e);
+          setSearchElements(fallbackElements); // Only fallback if we don't know what caused the error
+          updateSnackbar(
+            true,
+            "An error occurred fetching counts for the current pathway.",
+            "error"
+          );
+        }
+      })
+      .finally(() => {
+        setLoadingNodes([]);
+      });
+  };
 
   const updatePathNode = useCallback(
     (node: PathwaySearchNode) => {
-      // Update search elements with the updated node and a copy of the rest
-      const newElements = [
+      // Take a snapshot of the original state in case the API request fails for any reason
+      const fallbackElements = [
+        ...searchElements.map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element)
+            : deepCopyPathwaySearchNode(element)
+        ),
+      ];
+
+      const loadingElements = [node.data.id];
+
+      // On success, search elements include the updated node and a copy of the rest
+      const candidateSearchElements = [
         deepCopyPathwaySearchNode(node),
         ...searchElements
           .filter((el) => el.data.id !== node.data.id)
@@ -78,8 +174,7 @@ export default function GraphPathway() {
               : deepCopyPathwaySearchNode(element)
           ),
       ];
-      setSearchElements(newElements);
-      setTree(createTree(newElements));
+      updateCounts(candidateSearchElements, loadingElements, fallbackElements);
     },
     [searchElements]
   );
@@ -165,9 +260,47 @@ export default function GraphPathway() {
     }
   };
 
+  const handleCopyCypher = async () => {
+    if (tree !== undefined) {
+      const treeParseResult = parsePathwayTree(tree);
+
+      try {
+        await navigator.clipboard.writeText(
+          createPathwaySearchAllPathsCypher(treeParseResult, false, false)
+        );
+        updateSnackbar(
+          true,
+          "Pathway Cypher query copied to clipboard.",
+          "success"
+        );
+      } catch (error) {
+        console.error(error);
+        updateSnackbar(
+          true,
+          "An error occurred copying pathway Cypher query to clipboard.",
+          "error"
+        );
+      }
+    } else {
+      updateSnackbar(true, "No data to copy.", "warning");
+    }
+  };
+
   const handleConnectionSelected = useCallback(
-    (item: ConnectionMenuItem) => {
-      const newElements = [
+    (item: ConnectionMenuItem, event: EventObjectNode) => {
+      // Take a snapshot of the original state in case the API request fails for any reason
+      const fallbackElements = [
+        ...searchElements.map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element)
+            : deepCopyPathwaySearchNode(element)
+        ),
+      ];
+
+      const loadingElements = [event.target.data("id")];
+
+      const candidateSearchElements = [
+        // The newly connected node
         createPathwaySearchNode(
           {
             id: item.nodeId,
@@ -176,11 +309,8 @@ export default function GraphPathway() {
           },
           ["path-element"]
         ),
-        ...searchElements.map((element) =>
-          isPathwaySearchEdgeElement(element)
-            ? deepCopyPathwaySearchEdge(element)
-            : deepCopyPathwaySearchNode(element)
-        ),
+        ...fallbackElements,
+        // And the newly connected edge
         createPathwaySearchEdge(
           {
             id: item.edgeId,
@@ -196,8 +326,7 @@ export default function GraphPathway() {
             : ["path-element"]
         ),
       ];
-      setTree(createTree(newElements));
-      setSearchElements(newElements);
+      updateCounts(candidateSearchElements, loadingElements, fallbackElements);
     },
     [searchElements]
   );
@@ -254,7 +383,51 @@ export default function GraphPathway() {
   );
 
   const handlePruneConfirm = useCallback(() => {
-    const newElements = [
+    const pruneRoot =
+      searchElements.filter(
+        (element) =>
+          // Element is the root node and is a prune candiate
+          !isPathwaySearchEdgeElement(element) &&
+          element.classes?.includes("prune-candidate") &&
+          element.data.id === tree?.id
+      ).length > 0;
+
+    if (pruneRoot) {
+      // Don't need to set new elements and calculate count if the entire pathway is pruned!
+      resetPathway();
+      return;
+    }
+
+    // Take a snapshot of the original state in case the API request fails for any reason
+    const fallbackElements = [
+      ...searchElements.map((element) =>
+        isPathwaySearchEdgeElement(element)
+          ? deepCopyPathwaySearchEdge(
+              element,
+              undefined,
+              [],
+              ["prune-candidate"]
+            )
+          : deepCopyPathwaySearchNode(
+              element,
+              undefined,
+              [],
+              ["prune-candidate"]
+            )
+      ),
+    ];
+
+    const loadingElements = [
+      ...searchElements
+        .filter(
+          (element) =>
+            !element.classes?.includes("prune-candidate") &&
+            !isPathwaySearchEdgeElement(element)
+        )
+        .map((element) => element.data.id),
+    ];
+
+    const candidateSearchElements = [
       ...searchElements
         .filter((element) => !element.classes?.includes("prune-candidate"))
         .map((element) =>
@@ -263,9 +436,9 @@ export default function GraphPathway() {
             : deepCopyPathwaySearchNode(element)
         ),
     ];
-    setSearchElements(newElements);
-    setTree(createTree(newElements));
-  }, [searchElements]);
+
+    updateCounts(candidateSearchElements, loadingElements, fallbackElements);
+  }, [tree, searchElements]);
 
   const handlePruneCancel = useCallback(() => {
     const newElements = [
@@ -284,14 +457,7 @@ export default function GraphPathway() {
   }, [searchElements]);
 
   return (
-    <Grid
-      container
-      spacing={1}
-      xs={12}
-      sx={{
-        height: "640px",
-      }}
-    >
+    <Box sx={{ height: "640px" }}>
       {showResults && tree !== undefined ? (
         <GraphPathwayResults
           tree={tree}
@@ -301,16 +467,18 @@ export default function GraphPathway() {
         <PathwaySearchContext.Provider value={pathwayContextValue}>
           <GraphPathwaySearch
             elements={searchElements}
+            loadingNodes={loadingNodes}
             onConnectionSelected={handleConnectionSelected}
             onPruneSelected={handlePruneSelected}
             onPruneConfirm={handlePruneConfirm}
             onPruneCancel={handlePruneCancel}
             onDownload={handleExport}
             onUpload={handleImport}
+            onCopyCypher={handleCopyCypher}
             onSearchBarSubmit={handleSearchBarSubmit}
             onSearchBtnClick={handleSearchBtnClick}
             onSelectedNodeChange={handleSelectedNodeChange}
-            onReset={handleReset}
+            onReset={resetPathway}
           />
         </PathwaySearchContext.Provider>
       )}
@@ -323,6 +491,6 @@ export default function GraphPathway() {
         horizontal={"center"}
         handleClose={() => setSnackbarOpen(false)}
       />
-    </Grid>
+    </Box>
   );
 }

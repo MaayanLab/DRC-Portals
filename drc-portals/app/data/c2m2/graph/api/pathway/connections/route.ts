@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     if (body.targetNodeIds === undefined) {
       return Response.json(
         {
-          error: 'Request body missing required property "nodeId"',
+          error: 'Request body missing required property "targetNodeIds"',
         },
         { status: 400 }
       );

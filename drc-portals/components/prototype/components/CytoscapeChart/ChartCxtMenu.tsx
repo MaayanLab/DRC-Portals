@@ -40,6 +40,13 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
           transition
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
+          onContextMenu={(e) => {
+            // This should prevent the non-Mac OS issue of the context menu appearing after the custom menu appears
+            if (Math.abs(e.timeStamp - event.originalEvent.timeStamp) < 50) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }}
           anchorEl={{
             getBoundingClientRect: () => {
               return new DOMRect(position.x, position.y, 0, 0);

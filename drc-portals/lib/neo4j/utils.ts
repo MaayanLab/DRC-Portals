@@ -11,10 +11,7 @@ import {
 import { createConnectionPattern } from "./cypher";
 import {
   NodeResult,
-  PathElement,
   PathwayNode,
-  PathwayRelationship,
-  RelationshipPathElement,
   RelationshipResult,
   TreeParseResult,
 } from "./types";
@@ -32,19 +29,6 @@ export const isValidLucene = (input: string) => {
     return false;
   }
   return true;
-};
-
-export const neo4jSafeUUID = () => {
-  let uuid = v4();
-  const alphabets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSTUVWXYZ";
-
-  if (/^\d/.test(uuid)) {
-    const randomAlphabet =
-      alphabets[Math.floor(Math.random() * alphabets.length)];
-    uuid = randomAlphabet + uuid.slice(1);
-  }
-
-  return uuid.replace(/\-/g, "_");
 };
 
 export const createNodeReprStr = (varName: string) => {
@@ -65,18 +49,12 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
-export const createPropReprStr = (props: { [key: string]: any }) => {
+const createPropReprStr = (props: { [key: string]: any }) => {
   const propStrs: string[] = [];
   Object.entries(props).forEach(([key, value]) => {
     propStrs.push(`${key}: ${JSON.stringify(value)}`);
   });
   return `{${propStrs.join(", ")}}`;
-};
-
-export const isRelationshipElement = (
-  option: PathElement
-): option is RelationshipPathElement => {
-  return (option as RelationshipPathElement).direction !== undefined;
 };
 
 export const isRelationshipResult = (
@@ -85,37 +63,7 @@ export const isRelationshipResult = (
   return (element as RelationshipResult).type !== undefined;
 };
 
-export const getParamsForBrowser = (params: Object) => {
-  return `:param [{${Object.keys(params).join(
-    ", "
-  )}}] => { RETURN ${Object.entries(params)
-    .map(([key, value]) => {
-      if (typeof value === "number") {
-        return `${value} AS ${key}`;
-      } else if (typeof value === "string") {
-        return `"${value}" AS ${key}`;
-      } else if (Array.isArray(value)) {
-        return `[${value
-          .map((v) => {
-            if (typeof v === "number") {
-              return `${v}`;
-            } else if (typeof v === "string") {
-              return `"${value}"`;
-            }
-          })
-          .join(", ")}] AS ${key}`;
-      }
-    })
-    .join(", ")} }`;
-};
-
-export const isPathwayRelationshipElement = (
-  element: PathwayNode | PathwayRelationship
-): element is PathwayRelationship => {
-  return (element as PathwayRelationship).direction !== undefined;
-};
-
-export const getUniqueTypeFromNodes = (source: string, dest: string) => {
+const getUniqueTypeFromNodes = (source: string, dest: string) => {
   const uniqOutgoingCnxns = UNIQUE_PAIR_OUTGOING_CONNECTIONS.get(source);
 
   if (uniqOutgoingCnxns !== undefined) {
@@ -130,6 +78,7 @@ export const getUniqueTypeFromNodes = (source: string, dest: string) => {
   }
 };
 
+// TODO: Add leaf patterns first, and only once they are exhausted move on to branches
 export const parsePathwayTree = (
   tree: PathwayNode,
   convertRelsToUniq = false
@@ -237,7 +186,7 @@ export const parsePathwayTree = (
   };
 };
 
-export const getRelevantIdCounts = (
+const getRelevantIdCounts = (
   treeParseResult: TreeParseResult,
   targetNodeId?: string
 ) => {

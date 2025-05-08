@@ -1,5 +1,5 @@
 import { TabPanel as BaseTabPanel } from "@mui/base/TabPanel";
-import { Box, Paper, TableCell, styled, tableCellClasses } from "@mui/material";
+import { Box, Paper, TableCell, styled } from "@mui/material";
 
 export const NodeFiltersContainer = styled(Box)({
   flexGrow: 1,
@@ -42,17 +42,31 @@ export const TableViewContainer = styled(Paper)(() => ({
 }));
 
 export const StyledTableCell = styled(TableCell)(() => ({
-  [`&.${tableCellClasses.root}`]: {
-    color: "#2D5986",
-    height: "38px",
-    overflow: "hidden",
-    textAlign: "left",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#CAD2E9",
-    fontWeight: "bold",
+  color: "#2D5986",
+  height: "38px",
+  overflow: "hidden",
+  padding: "6px 5px 6px 10px",
+  textAlign: "left",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  backgroundColor: "#FFF",
+}));
+
+export const StyledHeaderCell = styled(StyledTableCell)(() => ({
+  backgroundColor: "#CAD2E9",
+  fontWeight: "bold",
+}));
+
+export const StyledHeaderCellWithDivider = styled(StyledHeaderCell)(() => ({
+  position: "relative",
+  ["&:not(:last-child)::after"]: {
+    content: `""`,
+    position: "absolute",
+    top: "25%",
+    bottom: "25%",
+    right: "0",
+    width: "1px",
+    backgroundColor: "#2D5986",
   },
 }));
 

@@ -14,7 +14,7 @@ export default function PathwaySearchBarInput(
     <TextField
       {...inputParams}
       color="secondary"
-      label="Search CV Terms"
+      label='Search CV Terms ("diabetes", "human", etc...)'
       InputProps={{
         ...inputParams.InputProps,
         sx: {

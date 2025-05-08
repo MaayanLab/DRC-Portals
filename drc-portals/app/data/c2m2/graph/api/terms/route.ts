@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (!isValidLucene(query)) {
+  const phrase = `"${query}"`;
+  const fuzzy = query
+    .split(" ")
+    .map((tok) => `${tok}~`)
+    .join(" ");
+
+  if (!isValidLucene(phrase) && !isValidLucene(fuzzy)) {
     return Response.json(
       {
         error: "Query string is not valid. Query must parse as valid Lucene.",
@@ -36,7 +42,8 @@ export async function GET(request: NextRequest) {
       getDriver(),
       getTermsCypher(),
       {
-        query,
+        phrase,
+        fuzzy,
         limit: 10,
       }
     );

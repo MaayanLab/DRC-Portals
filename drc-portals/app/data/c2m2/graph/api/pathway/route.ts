@@ -1,10 +1,7 @@
 import { NextRequest } from "next/server";
 
-import {
-  createPathwaySearchAllPathsCountCypher,
-  createPathwaySearchAllPathsCypher,
-} from "@/lib/neo4j/cypher";
-import { executeRead, executeReadOne, getDriver } from "@/lib/neo4j/driver";
+import { createPathwaySearchAllPathsCypher } from "@/lib/neo4j/cypher";
+import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import {
   NodeResult,
   PathwayNode,
@@ -14,13 +11,24 @@ import {
 } from "@/lib/neo4j/types";
 import { parsePathwayTree } from "@/lib/neo4j/utils";
 
+const MAX_LIMIT = 1000;
+
 export async function POST(request: NextRequest) {
-  const body: { tree: string; page?: number; limit?: number } =
-    await request.json();
+  const body: {
+    tree: string;
+    page?: number;
+    limit?: number;
+    orderByKey?: string;
+    orderByProp?: string;
+    order?: "asc" | "desc";
+  } = await request.json();
   let treeParseResult: TreeParseResult;
   let tree: PathwayNode;
   let page: number | undefined = undefined;
   let limit: number | undefined = undefined;
+  let orderByKey: string | undefined = undefined;
+  let orderByProp: string | undefined = undefined;
+  let order: "asc" | "desc" | undefined = undefined;
 
   if (body === null) {
     return Response.json(
@@ -35,8 +43,29 @@ export async function POST(request: NextRequest) {
     page = body.page;
   }
 
+  if (body.orderByKey !== undefined && typeof body.orderByKey === "string") {
+    orderByKey = body.orderByKey;
+  }
+
+  if (body.orderByProp !== undefined && typeof body.orderByProp === "string") {
+    orderByProp = body.orderByProp;
+  }
+
+  if (body.order !== undefined && typeof body.order === "string") {
+    order = body.order;
+  }
+
   if (body.limit !== undefined && typeof body.limit === "number") {
     limit = body.limit;
+
+    if (limit > MAX_LIMIT) {
+      return Response.json(
+        {
+          error: `The provided limit exceeds the maximum allowed value of ${MAX_LIMIT}. Please provide a lower limit.`,
+        },
+        { status: 400 }
+      );
+    }
   }
 
   try {
@@ -61,27 +90,24 @@ export async function POST(request: NextRequest) {
         ? limit * (page - 1) // Page is 1-indexed!
         : undefined;
 
-    const [pathwaySearchResultCount, pathwaySearchResult] = await Promise.all([
-      executeReadOne<{ count: number }>(
-        driver,
-        createPathwaySearchAllPathsCountCypher(treeParseResult)
+    const pathwaySearchResult = await executeRead<{
+      [key: string]: NodeResult | RelationshipResult;
+    }>(
+      driver,
+      createPathwaySearchAllPathsCypher(
+        treeParseResult,
+        skip !== undefined,
+        limit !== undefined,
+        orderByKey,
+        orderByProp,
+        order
       ),
-      executeRead<{ [key: string]: NodeResult | RelationshipResult }>(
-        driver,
-        createPathwaySearchAllPathsCypher(
-          treeParseResult,
-          skip !== undefined,
-          limit !== undefined
-        ),
-        {
-          limit,
-          skip,
-        }
-      ),
-    ]);
+      {
+        limit,
+        skip,
+      }
+    );
 
-    const count = pathwaySearchResultCount.get("count");
-    const partialContent = pathwaySearchResult.length < count;
     const paths: PathwaySearchResultRow[] = pathwaySearchResult.map((record) =>
       Object.values(record.toObject())
     );
@@ -89,9 +115,8 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         paths,
-        count,
       },
-      { status: partialContent ? 206 : 200 }
+      { status: 200 }
     );
   } catch (error) {
     return Response.json(

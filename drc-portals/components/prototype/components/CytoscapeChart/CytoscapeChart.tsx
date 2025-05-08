@@ -10,19 +10,18 @@ import {
 } from "@mui/material";
 import { Instance } from "@popperjs/core";
 import {
-  Core,
   ElementDefinition,
   EventObject,
   EventObjectEdge,
   EventObjectNode,
   LayoutOptions,
-  Layouts,
-  NodeSingular,
   Position,
+  // @ts-ignore
   Stylesheet,
 } from "cytoscape";
 import cytoscape from "cytoscape";
 import euler from "cytoscape-euler";
+import klay from "cytoscape-klay";
 import {
   CSSProperties,
   ReactNode,
@@ -35,30 +34,23 @@ import {
 import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
-import {
-  ChartRadialMenuItemProps,
-  ChartRadialMenuPosition,
-  CytoscapeEvent,
-  CytoscapeNodeData,
-} from "../../interfaces/cy";
+import { CytoscapeEvent, CytoscapeNodeData } from "../../interfaces/cy";
 import { PositionOffsets } from "../../interfaces/shared";
-import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
-import {
-  createNodeTooltip,
-  rebindEventHandlers,
-  setChartCursor,
-} from "../../utils/cy";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
+import { createNodeTooltip, rebindEventHandlers } from "../../utils/cy";
 
 import { ChartCxtMenu } from "./ChartCxtMenu";
 import ChartLegend from "./ChartLegend";
-import { ChartRadialMenu } from "./ChartRadialMenu";
 import ChartToolbar from "./ChartToolbar";
 import { ChartTooltip } from "./ChartTooltip";
 import "./CytoscapeChart.css";
 
+// @ts-ignore
 cytoscape.use(euler);
+cytoscape.use(klay);
 
 interface CytoscapeChartProps {
+  cyRef: CytoscapeReference;
   elements: ElementDefinition[];
   layout: LayoutOptions;
   stylesheet: string | Stylesheet | Stylesheet[];
@@ -70,12 +62,10 @@ interface CytoscapeChartProps {
   tooltipBoxStyleProps?: CSSProperties;
   tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
-  customAnimations?: AnimationFn[];
   staticCxtMenuItems?: ReactNode[];
   nodeCxtMenuItems?: ReactNode[];
   edgeCxtMenuItems?: ReactNode[];
   canvasCxtMenuItems?: ReactNode[];
-  radialMenuItems?: ChartRadialMenuItemProps[];
   legend?: Map<string, ReactNode>;
   autoungrabify?: boolean;
   boxSelectionEnabled?: boolean;
@@ -86,6 +76,7 @@ interface CytoscapeChartProps {
 
 export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const {
+    cyRef,
     elements,
     layout,
     stylesheet,
@@ -97,12 +88,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     tooltipBoxStyleProps,
     tooltipContentProps,
     customTools,
-    customAnimations,
     staticCxtMenuItems,
     nodeCxtMenuItems,
     edgeCxtMenuItems,
     canvasCxtMenuItems,
-    radialMenuItems,
     legend,
     autoungrabify,
     boxSelectionEnabled,
@@ -122,18 +111,9 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
   const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
-  const [radialMenuOpen, setRadialMenuOpen] = useState(false);
-  const [radialMenuNode, setRadialMenuNode] = useState<NodeSingular>();
-  const cyRef = useRef<Core>();
-  const cyLayoutRef = useRef<Layouts>();
   const contextMenuPosRef = useRef<Position>({
     x: 0,
     y: 0,
-  });
-  const radialMenuPosRef = useRef<ChartRadialMenuPosition>({
-    x: 0,
-    y: 0,
-    r: 0,
   });
   const tooltipPositionRef = useRef<Position>({
     x: 0,
@@ -149,18 +129,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const handleContextMenuClose = () => {
     setContextMenuOpen(false);
-  };
-
-  const handleRadialMenuClick = () => {
-    setRadialMenuOpen(false);
-  };
-
-  const handleRadialMenuItemClick = () => {
-    setRadialMenuOpen(false);
-  };
-
-  const handleRadialMenuClickAway = () => {
-    setRadialMenuOpen(false);
   };
 
   const handleContextMenu = useCallback(
@@ -197,39 +165,28 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setShowToolbarHiddenTooltip(false);
   }, [toolbarHidden]);
 
-  const handleHoverNode = useCallback(
-    (event: EventObjectNode) => {
-      if (radialMenuItems !== undefined) {
-        setChartCursor(event.cy, "pointer");
-      }
+  const handleHoverNode = (event: EventObjectNode) => {
+    event.target.addClass("hovered");
 
-      event.target.addClass("hovered");
+    // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
+    // handled here
+    setNodeHoverTimerId(
+      setTimeout(() => {
+        tooltipPositionRef.current = {
+          x: event.originalEvent.clientX,
+          y: event.originalEvent.clientY,
+        };
 
-      // Note that Cytoscape.js does not support a :hover selector for nodes, so any on-hover styles we want to apply would need to be
-      // handled here
-      setNodeHoverTimerId(
-        setTimeout(() => {
-          tooltipPositionRef.current = {
-            x: event.originalEvent.clientX,
-            y: event.originalEvent.clientY,
-          };
-
-          if (popperRef.current != null) {
-            popperRef.current.update();
-          }
-          setHoveredNode(event.target.data());
-        }, 500)
-      );
-    },
-    [radialMenuItems]
-  );
+        if (popperRef.current != null) {
+          popperRef.current.update();
+        }
+        setHoveredNode(event.target.data());
+      }, 500)
+    );
+  };
 
   const handleBlurNode = useCallback(
     (event: EventObjectNode) => {
-      if (radialMenuItems !== undefined) {
-        setChartCursor(event.cy, "default");
-      }
-
       event.target.removeClass("hovered");
 
       if (nodeHoverTimerId !== null) {
@@ -238,7 +195,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       }
       setHoveredNode(null);
     },
-    [radialMenuItems, nodeHoverTimerId]
+    [nodeHoverTimerId]
   );
 
   const handleHoverEdge = (event: EventObjectEdge) => {
@@ -319,54 +276,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [canvasCxtMenuItems]
   );
 
-  const openRadialMenuAtNode = (node: NodeSingular) => {
-    const nodePos = node.renderedPosition();
-    setRadialMenuOpen(true);
-    setRadialMenuNode(node);
-    radialMenuPosRef.current = {
-      x: nodePos.x,
-      y: nodePos.y,
-      r: node.renderedOuterWidth() / 2,
-    };
-  };
-
-  const handleTapNode = useCallback(
-    (event: EventObjectNode) => {
-      // Normally we open the radial menu when a node is selected via the user tapping it. However, if the menu is then closed without
-      // *deselecting* the node (for example by clicking somewhere outside of the canvas), they won't be able to reopen the radial menu
-      // until the node is deselected. We get around this by introducing this edge case.
-      if (
-        event.target.selected() &&
-        !radialMenuOpen &&
-        radialMenuItems !== undefined
-      ) {
-        openRadialMenuAtNode(event.target);
-      }
-    },
-    [radialMenuOpen, radialMenuItems]
-  );
-
-  const handleTapSelectNode = useCallback(
-    (event: EventObjectNode) => {
-      if (radialMenuItems !== undefined) {
-        openRadialMenuAtNode(event.target);
-      }
-    },
-    [radialMenuItems]
-  );
-
-  const handleTapEnd = () => {
-    setRadialMenuOpen(false);
-  };
-
-  const handleDragPan = () => {
-    setRadialMenuOpen(false);
-  };
-
-  const handleZoom = () => {
-    setRadialMenuOpen(false);
-  };
-
   const clearCloseNodeCxtTimer = useCallback(() => {
     if (closeNodeCxtTimerId !== null) {
       clearTimeout(closeNodeCxtTimerId);
@@ -379,7 +288,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     clearCloseNodeCxtTimer();
 
     contextMenuPosRef.current = {
-      x: event.originalEvent.clientX,
+      x: event.originalEvent.clientX + 3, // Need a bit of extra spacing to prevent a premature mouseleave event
       y: event.originalEvent.clientY,
     };
     openNodeCxt(event);
@@ -417,11 +326,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
             { event: "cxttap", target: "edge", callback: openEdgeCxt },
           ]
         : []),
-      { event: "tap", target: "node", callback: handleTapNode },
-      { event: "tapend", callback: handleTapEnd },
-      { event: "tapselect", target: "node", callback: handleTapSelectNode },
-      { event: "dragpan", callback: handleDragPan },
-      { event: "zoom", callback: handleZoom },
       ...(hoverCxtMenuEnabled
         ? [
             {
@@ -449,41 +353,8 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       openCanvasCxt,
       openNodeCxt,
       openEdgeCxt,
-      handleTapSelectNode,
     ]
   );
-
-  const runLayout = useCallback(() => {
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      // Stop any existing animations
-      cy.stop();
-
-      // We haven't started the first layout yet
-      if (cyLayoutRef.current === undefined) {
-        // Create a new layout and set the ref
-        cyLayoutRef.current = cy.layout(layout);
-
-        // Run the layout
-        cyLayoutRef.current.run();
-      } else {
-        // Stop the existing layout (it may already be stopped)
-        cyLayoutRef.current.stop();
-
-        // Reset the ref
-        cyLayoutRef.current = cy.layout(layout);
-
-        // Start the new layout
-        cyLayoutRef.current.run();
-      }
-
-      // Run the custom animations
-      if (customAnimations !== undefined) {
-        // TODO: It would be good to have a "Stop Animation" listener if the animation can signal that it should be manually stopped
-        customAnimations.forEach((fn) => fn(cy));
-      }
-    }
-  }, [layout, customAnimations]);
 
   useEffect(() => {
     const prevCustomEvents = prevCustomEventsRef.current;
@@ -498,17 +369,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     rebindEventHandlers(cyRef, prevDefaultEvents, newDefaultEvents);
     prevDefaultEventsRef.current = newDefaultEvents;
   }, [defaultEvents]);
-
-  useEffect(() => {
-    // We need to rerun the layout when the elements change, otherwise they won't be drawn properly
-    runLayout();
-  }, [elements]);
-
-  // TODO: This is clearly redundant with the elements effect, but since we may be changing layout independent of the elements in the
-  // future, I think this should stay as is
-  useEffect(() => {
-    runLayout();
-  }, [layout]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -531,19 +391,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     }
   }, [hoveredNode, tooltipBoxStyleProps, tooltipContentProps]);
 
-  useEffect(() => {
-    // Make sure the cursor style on the chart is reset whenever the radial menu is opened/closed
-    const cy = cyRef.current;
-    if (cy !== undefined) {
-      setChartCursor(cy, "default");
-    }
-
-    if (!radialMenuOpen) {
-      // Make sure the radial menu node is reset anytime the menu is closed
-      setRadialMenuNode(undefined);
-    }
-  }, [radialMenuOpen]);
-
   return (
     <>
       <ClickAwayListener onClickAway={hideTooltip}>
@@ -554,8 +401,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           popperRef={popperRef}
         >
           <ChartContainer variant="outlined">
+            {/* @ts-ignore */}
             <CytoscapeComponent
               className="cy"
+              // @ts-ignore
               cy={(cy) => (cyRef.current = cy)}
               elements={elements}
               layout={layout}
@@ -565,18 +414,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
               autoungrabify={autoungrabify}
               boxSelectionEnabled={boxSelectionEnabled}
             />
-            {radialMenuItems === undefined ||
-            radialMenuNode === undefined ? null : (
-              <ChartRadialMenu
-                open={radialMenuOpen}
-                node={radialMenuNode}
-                position={radialMenuPosRef.current}
-                menuItems={radialMenuItems}
-                onMenuClick={handleRadialMenuClick}
-                onMenuItemClick={handleRadialMenuItemClick}
-                onClickAway={handleRadialMenuClickAway}
-              ></ChartRadialMenu>
-            )}
           </ChartContainer>
         </ChartTooltip>
       </ClickAwayListener>

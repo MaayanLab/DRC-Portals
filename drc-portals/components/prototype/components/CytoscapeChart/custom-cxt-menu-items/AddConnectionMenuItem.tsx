@@ -4,7 +4,8 @@ import ErrorIcon from "@mui/icons-material/Error";
 import HubIcon from "@mui/icons-material/Hub";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import WarningIcon from "@mui/icons-material/Warning";
-import { Box, CircularProgress, MenuItem, Tooltip } from "@mui/material";
+import { Box, CircularProgress, Tooltip } from "@mui/material";
+import { EventObjectNode } from "cytoscape";
 import { NestedMenuItem } from "mui-nested-menu";
 import {
   ReactNode,
@@ -31,7 +32,10 @@ import ChartCxtMenuItem from "../ChartCxtMenuItem";
 
 interface AddConnectionMenuItemProps {
   elements: PathwaySearchElement[];
-  onConnectionSelected: (item: ConnectionMenuItem) => void;
+  onConnectionSelected: (
+    item: ConnectionMenuItem,
+    event: EventObjectNode
+  ) => void;
 }
 
 export default function AddConnectionMenuItem(
@@ -194,7 +198,7 @@ export default function AddConnectionMenuItem(
             </Box>
           </Box>
         )}
-        action={(event) => onConnectionSelected(item)}
+        action={(event) => onConnectionSelected(item, event)}
       ></ChartCxtMenuItem>
     ),
     [onConnectionSelected]

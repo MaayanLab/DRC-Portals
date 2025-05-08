@@ -1,4 +1,7 @@
+import { ReactNode } from "react";
+
 import { Direction } from "@/lib/neo4j/enums";
+import { NodeResult } from "@/lib/neo4j/types";
 
 export interface PathwaySearchNodeData {
   id: string;
@@ -34,4 +37,12 @@ export interface ConnectionMenuItem {
   source: string;
   target: string;
   direction: Direction;
+}
+
+export interface ColumnData {
+  key: string;
+  label: string;
+  displayProp: string;
+  postfix?: number;
+  valueGetter: (node: NodeResult, displayProp: string) => ReactNode;
 }

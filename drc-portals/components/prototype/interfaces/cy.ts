@@ -5,10 +5,8 @@ import {
   EventNames,
   NodeDataDefinition,
   NodeDefinition,
-  NodeSingular,
   Selector,
 } from "cytoscape";
-import { ReactNode } from "react";
 
 // TODO: I think we may want to extend this with a more strongly typed version where the props are not optional. For the graph search
 // visualizations, it just doesn't make sense for those props to be missing
@@ -43,16 +41,4 @@ export interface CytoscapeEvent {
   target?: Selector;
   // TODO: Could require additional params here for the CytoscapeChart component objects (e.g. the tooltipPositionRef, popperRef, etc.)
   callback: EventHandler;
-}
-
-export interface ChartRadialMenuPosition {
-  x: number;
-  y: number;
-  r: number;
-}
-
-export interface ChartRadialMenuItemProps {
-  key: string;
-  content: ReactNode;
-  onClick: (node: NodeSingular) => void;
 }

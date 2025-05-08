@@ -136,7 +136,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
         );
 
         try {
-          const response = await fetchCVTerms(`"${input}"`, {
+          const response = await fetchCVTerms(`${input}`, {
             signal: abortControllerRef.current?.signal,
           });
           const data: CVTermsResult[] = await response.json();

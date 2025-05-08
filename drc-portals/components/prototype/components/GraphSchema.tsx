@@ -1,6 +1,8 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import { Box } from "@mui/material";
+import { Core } from "cytoscape";
+import { useRef } from "react";
 
 import {
   SCHEMA_ELEMENTS,
@@ -14,6 +16,8 @@ import { downloadChartPNG } from "../utils/cy";
 import CytoscapeChart from "./CytoscapeChart/CytoscapeChart";
 
 export default function GraphSchema() {
+  const cyRef = useRef<Core>();
+
   const customTools: CustomToolbarFnFactory[] = [
     (cyRef: CytoscapeReference) =>
       downloadChartPNG(
@@ -24,17 +28,10 @@ export default function GraphSchema() {
   ];
 
   return (
-    <Grid
-      container
-      item
-      spacing={1}
-      xs={12}
-      sx={{
-        height: "640px",
-      }}
-    >
-      <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
+    <Box sx={{ height: "100%" }}>
+      <Box sx={{ position: "relative", height: "inherit" }}>
         <CytoscapeChart
+          cyRef={cyRef}
           elements={SCHEMA_ELEMENTS}
           layout={SCHEMA_LAYOUT}
           stylesheet={SCHEMA_STYLESHEET}
@@ -47,7 +44,7 @@ export default function GraphSchema() {
           customTools={customTools}
           tooltipContentProps={{ noWrap: false }}
         ></CytoscapeChart>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 }

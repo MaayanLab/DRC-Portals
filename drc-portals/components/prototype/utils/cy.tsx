@@ -10,7 +10,6 @@ import {
   TypographyProps,
 } from "@mui/material";
 import {
-  Core,
   EventObject,
   EventObjectEdge,
   EventObjectNode,
@@ -127,17 +126,6 @@ export const createCytoscapeElements = (
   });
 
   return [...nodes, ...edges];
-};
-
-export const getNeo4jLabelFromCyNode = (event: EventObjectNode) => {
-  const nodeNeo4jData = event.target.data("neo4j");
-  let nodeLabel = "Unknown";
-
-  if (nodeNeo4jData !== undefined && Array.isArray(nodeNeo4jData.labels)) {
-    nodeLabel = nodeNeo4jData.labels[0] || "Unknown";
-  }
-
-  return nodeLabel;
 };
 
 export const createNodeLabels = (node: CytoscapeNodeData) => {
@@ -490,12 +478,5 @@ export const rebindEventHandlers = (
         cy.bind(handler.event, handler.callback);
       }
     });
-  }
-};
-
-export const setChartCursor = (cy: Core, cursor: string) => {
-  const container = cy.container();
-  if (container !== null) {
-    container.style.cursor = cursor;
   }
 };

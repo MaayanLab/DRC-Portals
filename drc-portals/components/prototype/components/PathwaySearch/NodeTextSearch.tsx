@@ -60,6 +60,7 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
 
     // Only emit to the parent when an option is selected from the dropdown, or the field is cleared
     if (reason === "selectOption" || reason === "clear") {
+      abortCVTermRequest();
       onChange(value || "");
     }
   };

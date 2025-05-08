@@ -4,13 +4,14 @@ import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import HubIcon from "@mui/icons-material/Hub";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
   Button,
+  Divider,
   Fab,
-  Grid,
   IconButton,
   Paper,
   Snackbar,
@@ -30,6 +31,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -38,7 +40,7 @@ import { NodeResult } from "@/lib/neo4j/types";
 
 import {
   PATHWAY_SEARCH_STYLESHEET,
-  EULER_LAYOUT,
+  KLAY_LAYOUT,
   NODE_BORDER_WIDTH,
 } from "../../constants/cy";
 import {
@@ -52,7 +54,7 @@ import {
   ConnectionMenuItem,
   PathwaySearchNode,
 } from "../../interfaces/pathway-search";
-import { AnimationFn, CustomToolbarFnFactory } from "../../types/cy";
+import { CustomToolbarFnFactory } from "../../types/cy";
 import { PathwaySearchElement } from "../../types/pathway-search";
 import { isPathwaySearchEdgeElement } from "../../utils/pathway-search";
 
@@ -65,15 +67,20 @@ import PathwayNodeFilters from "./PathwayNodeFilters";
 
 interface GraphPathwaySearchProps {
   elements: PathwaySearchElement[];
+  loadingNodes: string[];
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
-  onConnectionSelected: (item: ConnectionMenuItem) => void;
+  onConnectionSelected: (
+    item: ConnectionMenuItem,
+    event: EventObjectNode
+  ) => void;
   onPruneSelected: (node: NodeSingular) => void;
   onPruneConfirm: () => void;
   onPruneCancel: () => void;
   onReset: () => void;
   onDownload: () => void;
   onUpload: (files: ChangeEvent<HTMLInputElement>) => void;
+  onCopyCypher: () => void;
   onSelectedNodeChange: (
     node: PathwaySearchNode | undefined,
     reason: string
@@ -83,6 +90,7 @@ interface GraphPathwaySearchProps {
 export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const {
     elements,
+    loadingNodes,
     onConnectionSelected,
     onPruneSelected,
     onPruneConfirm,
@@ -90,6 +98,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onReset,
     onDownload,
     onUpload,
+    onCopyCypher,
     onSearchBarSubmit,
     onSearchBtnClick,
     onSelectedNodeChange,
@@ -97,8 +106,85 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const [selectedNode, setSelectedNode] = useState<PathwaySearchNode>();
   const [showFilters, setShowFilters] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const cyRef = useRef<Core>();
+  const animationControllerRef = useRef(new AbortController());
+  const layout = useMemo(
+    () => ({
+      ...KLAY_LAYOUT,
+      klay: {
+        ...KLAY_LAYOUT.klay,
+        spacing:
+          Math.max(
+            0,
+            ...elements
+              .filter(isPathwaySearchEdgeElement)
+              .map((edge) => edge.data.displayLabel.length)
+          ) + 40,
+      },
+    }),
+    [elements]
+  );
   const PATHWAY_SEARCH_ZOOM = 4;
   const PATHWAY_SEARCH_MAX_ZOOM = 4;
+
+  const stopLoadingAnimation = () => {
+    const animationController = animationControllerRef.current;
+    if (animationController !== undefined) {
+      animationController.abort("Stopping node loading animation.");
+      animationControllerRef.current = new AbortController();
+    }
+  };
+
+  const playLoadingAnimation = async () => {
+    const animate = async () => {
+      const animationController = animationControllerRef.current;
+      while (true) {
+        if (animationController.signal.aborted) {
+          break;
+        }
+
+        const cy = cyRef.current;
+        if (cy !== undefined) {
+          const nodesToAnimate = cy.collection(
+            loadingNodes.map((nodeId) => cy.getElementById(nodeId))
+          );
+
+          // Cytoscape crashes if you try to animate empty collections
+          if (nodesToAnimate.size() > 0) {
+            nodesToAnimate.style({
+              "border-opacity": 1,
+              "border-width": 0,
+            });
+
+            const animationPromises = nodesToAnimate.map((node) => {
+              // For some reason the position props are non-optional in the argument type definition for `animation`, but they are actually
+              // optional. This ignore suppresses that warning.
+              // @ts-ignore
+              const ani = node.animation({
+                style: {
+                  "border-opacity": 0,
+                  "border-width": NODE_BORDER_WIDTH * 2,
+                },
+                easing: "ease-out-cubic",
+                duration: 1000,
+              });
+              return ani.play().promise("complete");
+            });
+
+            // Wait for all nodes to finish animating, then loop
+            await Promise.all(animationPromises).then(() => {
+              // Remove style bypasses created by the animation
+              nodesToAnimate.style({
+                "border-opacity": null,
+                "border-width": null,
+              });
+            });
+          }
+        }
+      }
+    };
+    await animate();
+  };
 
   const handleSelectedNodeChange = useCallback(
     (id: string | undefined, cy: Core) => {
@@ -133,6 +219,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         };
         setSelectedNode(newSelectedNode);
         onSelectedNodeChange(newSelectedNode, "update");
+        setShowFilters(false);
       }
     },
     [selectedNode, onSelectedNodeChange]
@@ -158,6 +245,16 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     handleSelectedNodeChange(undefined, event.cy);
   };
 
+  const handlePruneSnackbarCanceled = () => {
+    setSnackbarOpen(false);
+    onPruneCancel();
+  };
+
+  const handlePruneSnackbarConfirm = () => {
+    setSnackbarOpen(false);
+    onPruneConfirm();
+  };
+
   const customTools: CustomToolbarFnFactory[] = useMemo(
     () => [
       () => {
@@ -166,6 +263,25 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             <Tooltip title="Start Over" arrow>
               <IconButton aria-label="start-over" onClick={handleReset}>
                 <RestartAltIcon />
+              </IconButton>
+            </Tooltip>
+          </Fragment>
+        );
+      },
+      () => (
+        <Divider
+          key="pathway-search-chart-toolbar-divider-0"
+          orientation="vertical"
+          variant="middle"
+          flexItem
+        />
+      ),
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-cypher-query">
+            <Tooltip title="Copy Cypher Query" arrow>
+              <IconButton aria-label="cypher-query" onClick={onCopyCypher}>
+                <HubIcon />
               </IconButton>
             </Tooltip>
           </Fragment>
@@ -205,7 +321,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         );
       },
     ],
-    [handleReset, onDownload, onUpload]
+    [handleReset, onDownload, onUpload, onCopyCypher]
   );
 
   const customEvents: CytoscapeEvent[] = useMemo(
@@ -274,49 +390,6 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     [handleSelectedNodeChange]
   );
 
-  const customAnimations: AnimationFn[] = [
-    // Node loading animation
-    (cy: cytoscape.Core) => {
-      const loop = () => {
-        const loadingNodes = cy.elements("node.loading");
-
-        // Cytoscape crashes if you try to animate empty collections
-        if (loadingNodes.size() > 0) {
-          loadingNodes.style({
-            "border-opacity": 1,
-            "border-width": 0,
-          });
-
-          const animationPromises = loadingNodes.map((node) => {
-            // For some reason the position props are non-optional in the argument type definition for `animation`, but they are actually
-            // optional. This ignore suppresses that warning.
-            // @ts-ignore
-            const ani = node.animation({
-              style: {
-                "border-opacity": 0,
-                "border-width": NODE_BORDER_WIDTH * 2,
-              },
-              easing: "ease-out-cubic",
-              duration: 1000,
-            });
-            return ani.play().promise("complete");
-          });
-
-          // Wait for all nodes to finish animating, then loop
-          Promise.all(animationPromises).then(() => {
-            // Remove style bypasses created by the animation
-            loadingNodes.style({
-              "border-opacity": null,
-              "border-width": null,
-            });
-            loop();
-          });
-        }
-      };
-      loop();
-    },
-  ];
-
   const nodeCxtMenuItems: ReactNode[] = useMemo(
     () => [
       <AddConnectionMenuItem
@@ -369,8 +442,17 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     }
   }, [elements]);
 
+  useEffect(() => {
+    stopLoadingAnimation();
+
+    // If loadingNodes changed and isn't empty, play the loading animation with the new elements
+    if (loadingNodes.length !== 0) {
+      playLoadingAnimation();
+    }
+  }, [loadingNodes]);
+
   return (
-    <Grid item xs={12} sx={{ position: "relative", height: "inherit" }}>
+    <Box sx={{ position: "relative", height: "inherit" }}>
       {elements.length === 0 ? (
         <SearchBarContainer>
           <PathwaySearchBar onSubmit={onSearchBarSubmit}></PathwaySearchBar>
@@ -400,15 +482,15 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         </NodeFiltersContainer>
       ) : null}
       <CytoscapeChart
+        cyRef={cyRef}
         elements={elements}
-        layout={EULER_LAYOUT}
+        layout={layout}
         stylesheet={PATHWAY_SEARCH_STYLESHEET}
         cxtMenuEnabled={false}
         tooltipEnabled={false}
-        hoverCxtMenuEnabled={true}
+        hoverCxtMenuEnabled={loadingNodes.length === 0}
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
-        customAnimations={customAnimations}
         nodeCxtMenuItems={nodeCxtMenuItems}
         autoungrabify={true}
         boxSelectionEnabled={false}
@@ -422,7 +504,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           vertical: "bottom",
           horizontal: "center",
         }}
-        onClose={() => setSnackbarOpen(false)}
+        onClose={handlePruneSnackbarCanceled}
       >
         <Paper
           variant="outlined"
@@ -443,26 +525,20 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
               sx={{ marginRight: 1 }}
               variant="contained"
               color="secondary"
-              onClick={() => {
-                setSnackbarOpen(false);
-                onPruneConfirm();
-              }}
+              onClick={handlePruneSnackbarConfirm}
             >
               Confirm
             </Button>
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {
-                setSnackbarOpen(false);
-                onPruneCancel();
-              }}
+              onClick={handlePruneSnackbarCanceled}
             >
               Cancel
             </Button>
           </Box>
         </Paper>
       </Snackbar>
-    </Grid>
+    </Box>
   );
 }

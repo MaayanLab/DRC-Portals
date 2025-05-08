@@ -26,6 +26,7 @@ import {
 import {
   PATHWAY_SEARCH_LIMIT_CHOICES,
   StyledDataCell,
+  StyledHeaderCell,
   StyledTableCell,
 } from "@/components/prototype/constants/pathway-search";
 
@@ -58,18 +59,12 @@ export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
-              <StyledTableCell
-                padding="checkbox"
-                sx={{ backgroundColor: "#CAD2E9" }}
-              >
+              <StyledHeaderCell padding="checkbox">
                 <Checkbox disabled indeterminate={false} checked={false} />
-              </StyledTableCell>
+              </StyledHeaderCell>
 
               {columns.map((_, idx) => (
-                <StyledDataCell
-                  key={`header-${idx}`}
-                  sx={{ backgroundColor: "#CAD2E9" }}
-                />
+                <StyledHeaderCell key={`header-${idx}`} />
               ))}
             </TableRow>
           </TableHead>

@@ -171,15 +171,15 @@ export const SUBJECT_RELATED_NODE_CLASS = "subject-related-node";
 export const TERM_NODE_CLASS = "term-node";
 
 // Entity styles
-export const ADMIN_NODE_COLOR = "#C78100";
+export const ADMIN_NODE_COLOR = "#c78100";
 export const CONTAINER_NODE_COLOR = "#4c8eda";
-export const FILE_NODE_COLOR = "#8F8F8F";
-export const SUBJECT_NODE_COLOR = "#DA6C93";
-export const BIOSAMPLE_NODE_COLOR = "#A47ECD";
+export const FILE_NODE_COLOR = "#f16565";
+export const SUBJECT_NODE_COLOR = "#da6c93";
+export const BIOSAMPLE_NODE_COLOR = "#a47ecd";
 export const TERM_NODE_COLOR = "#569480";
-export const FILE_RELATED_NODE_COLOR = TERM_NODE_COLOR;
-export const SUBJECT_RELATED_NODE_COLOR = TERM_NODE_COLOR;
-export const BIOSAMPLE_RELATED_NODE_COLOR = TERM_NODE_COLOR;
+export const FILE_RELATED_NODE_COLOR = "#209cbc";
+export const SUBJECT_RELATED_NODE_COLOR = "#b28b5c";
+export const BIOSAMPLE_RELATED_NODE_COLOR = "#4aa553";
 
 // Entity text styles
 export const ADMIN_TEXT_COLOR = "#000";

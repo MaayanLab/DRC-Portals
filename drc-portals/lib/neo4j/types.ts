@@ -19,27 +19,6 @@ export interface SubGraph {
   relationships: RelationshipResult[];
 }
 
-export interface NodeOutgoingRelsResult {
-  outgoingLabels: string[];
-  outgoingType: string;
-  count: number;
-}
-
-export interface NodeIncomingRelsResult {
-  incomingLabels: string[];
-  incomingType: string;
-  count: number;
-}
-
-export interface NodeAllRelsResults {
-  outgoing: NodeOutgoingRelsResult[];
-  incoming: NodeIncomingRelsResult[];
-}
-
-export interface SynoynmsResult {
-  synonym: string;
-}
-
 export interface CVTermsResult {
   synonym: string;
   cvTerm: NodeResult;
@@ -49,35 +28,7 @@ export interface CVTermsWithLabelResult {
   names: string[];
 }
 
-export interface BasePropFilter {
-  name: string;
-  operator: string;
-  value: PropValue;
-  paramName: string;
-}
-
-export interface BasePathElement {
-  name: string;
-  key?: string;
-  filters: BasePropFilter[];
-}
-
-export interface NodePathElement extends BasePathElement {
-  limit?: number;
-}
-
-export interface RelationshipPathElement extends BasePathElement {
-  direction: Direction;
-}
-
-export interface SearchPath {
-  id: string;
-  elements: PathElement[];
-  skip: number;
-  limit: number;
-}
-
-export interface PathwayRelationship {
+interface PathwayRelationship {
   id: string;
   type: string;
   direction: Direction;
@@ -123,12 +74,14 @@ export type PathwaySearchResultRow = (NodeResult | RelationshipResult)[];
 
 export interface PathwaySearchResult {
   paths: PathwaySearchResultRow[];
-  count: number;
 }
 
-export type PropValue = string | number;
-
-export type PathElement = NodePathElement | RelationshipPathElement;
+export interface PathwaySearchCountResult {
+  total: number;
+  counts: {
+    [key: string]: number;
+  };
+}
 
 export type PredicateFn = (
   variableName: string,
