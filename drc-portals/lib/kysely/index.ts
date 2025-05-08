@@ -14,6 +14,12 @@ const dialect = new PostgresDialect({
 
 export const db = new Kysely<DB>({
   dialect,
-  log: process.env.NODE_ENV === 'development' ? ['query'] : undefined,
+  log(evt) {
+    if (process.env.NODE_ENV === 'development') {
+      if (evt.queryDurationMillis > 100) {
+        console.log(`kysely:query: duration: ${evt.queryDurationMillis} query: ${evt.query.sql}`)
+      }
+    }
+  }
 })
 

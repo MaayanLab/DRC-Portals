@@ -12,7 +12,7 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
     return ''
   }, [pathname])
   return (
-    <SearchForm action="/data/search">
+    <SearchForm action="/data/search2">
       <SearchField q={q} {...props} />
     </SearchForm>
   )

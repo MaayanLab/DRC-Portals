@@ -1,4 +1,5 @@
-import { search_entity, search_entity_instant_estimate, search_entity_partial_exact } from "../utils";
+import React from 'react'
+import { search_entity, search_entity_filters, search_entity_instant_estimate, search_entity_partial_exact } from "../utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -10,18 +11,26 @@ import KGNode from '@/public/img/icons/KGNode.png'
 import { db } from "@/lib/kysely";
 import { cursor } from '@/lib/kysely/utils'
 
-function itemLabel (item: { type: string | null, attributes: any, pagerank: number | null }) {
-  if (item.type === 'file') return item.attributes.filename
-  return item.attributes.name ?? item.attributes.label
+function itemLabel (item: any) {
+  if (item['@type'] === 'file') return item.filename
+  if (item['@type'] === 'dcc') return item.short_label
+  return item.name ?? item.label
 }
-function itemDescription (item: { type: string | null, attributes: any | null, pagerank: number | null }) {
-  if (item.type === 'file') return `A ${item.attributes.mime_type} file from ${item.attributes.project_local_id}`
-  if (item.attributes.description) {
-    if (item.attributes.description.length > 100) return `${item.attributes.description.slice(0, 100)}...`
-    return `${item.attributes.description}`
+function itemDescription (item: any) {
+  if (item['@type'] === 'file') return `A ${item.mime_type} file from ${item.project_local_id}`
+  if (item.description) {
+    if (item.description.length > 100) return `${item.description.slice(0, 100)}...`
+    return `${item.description}`
   } else {
-    return JSON.stringify(item.attributes)
+    return JSON.stringify(item)
   }
+}
+
+export async function EntityFilters(props: { search: string, instantEstimatedCount: number }) {
+  const filters = await search_entity_filters(db, props.search, props.instantEstimatedCount)
+  return <>
+    {filters.map(filter => <div key={filter.entity['@id']}>{itemLabel(filter.entity)} ({Number(filter.count) < 100 ? `${filter.count}` : Number(filter.estimate) > 100 ? `~${filter.estimate}` : `100+`})</div>)}
+  </>
 }
 
 export default async function Page(props: { params: { search: string }, searchParams: Record<string, string> }) {
@@ -41,13 +50,15 @@ export default async function Page(props: { params: { search: string }, searchPa
       .selectAll(),
     { move: Number(offset), fetch: Number(limit) }
   )
-  // const filters = await search_entity_filters(db, searchParams.q as string, instantEstimatedCount)
-  return <>{/*JSON.stringify(filters)*/}
+  return <>
       <ListingPageLayout
         count={partialExactCount < 100 ? partialExactCount : instantEstimatedCount}
         maxCount={100}
         filters={
           <>
+            <React.Suspense fallback={null}>
+              <EntityFilters search={searchParams.q as string} instantEstimatedCount={instantEstimatedCount} />
+            </React.Suspense>
             {/* <span className="has-[.not-empty:empty]:hidden">
               <Typography className="subtitle1">Program</Typography>
               <span className="not-empty flex flex-col">
@@ -82,11 +93,11 @@ export default async function Page(props: { params: { search: string }, searchPa
             <>Description</>,
           ]}
           rows={items.map(item => {
-            const href = `/data/processed/${item.type}/${item.slug}`
+            const href = `/data/search2/entity/${item.entity['@type']}/${item.entity['@id']}`
             return [
-              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string(item.type, '')} />,
-              <LinkedTypedNode type={item.type} entity_type={''} id={item.id} label={itemLabel(item)} search={searchParams.q ?? ''} />,
-              <Description description={itemDescription(item)} search={searchParams.q ?? ''} />,
+              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={type_to_string(item.entity['@type'], '')} />,
+              <LinkedTypedNode type={item.entity['@type']} entity_type={''} id={item.entity['@id']} label={itemLabel(item.entity)} search={searchParams.q ?? ''} />,
+              <Description description={itemDescription(item.entity)} search={searchParams.q ?? ''} />,
             ]
           }) ?? []}
         />

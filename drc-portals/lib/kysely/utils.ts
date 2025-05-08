@@ -12,7 +12,7 @@ export async function select_distinct_loose_indexscan<T>(expr: Expression<{ valu
         .selectFrom(sql<{ value: string }>`${expr}`.as('tbl'))
         .select('value')
         .orderBy('value')
-        .limit(1)
+        .limit(sql`1`)
         .as('value')
       )
       .unionAll(qb => qb
@@ -20,9 +20,9 @@ export async function select_distinct_loose_indexscan<T>(expr: Expression<{ valu
         .select(s => s
           .selectFrom(sql<{ value: string }>`${expr}`.as('tbl_r'))
           .select('value')
-          .where('tbl_r.value', '>', 't.value')
+          .whereRef('tbl_r.value', '>', 't.value')
           .orderBy('value')
-          .limit(1)
+          .limit(sql`1`)
           .as('value')
         )
         .where('t.value', 'is not', null)

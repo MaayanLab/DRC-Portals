@@ -1,6 +1,6 @@
 import { db } from '@/lib/kysely'
 import { count, estimate_count, select_distinct_loose_indexscan } from '@/lib/kysely/utils'
-import { QueryCreator, Selectable, sql } from 'kysely'
+import { QueryCreator, sql } from 'kysely'
 import { DB } from 'kysely-codegen'
 
 /**
@@ -8,17 +8,16 @@ import { DB } from 'kysely-codegen'
  */
 export async function search_entity_instant_estimate(search: string) {
   return await estimate_count(db
-    .selectFrom('pdp.entity')
+    .selectFrom('pdp.entity_complete')
     .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
   )
 }
 
 export async function search_entity_partial_exact(search: string, limit: number, cursor?: { pagerank: string, slug: string }) {
   return Number(await count(db
-    .selectFrom('pdp.entity')
+    .selectFrom('pdp.entity_complete')
     .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
     .select('id')
-    .orderBy('id')
     .$if(cursor !== undefined, qb => {
       if (!cursor) return qb
       return qb.where('pagerank', '<', cursor.pagerank).where('slug', '>', cursor.slug)
@@ -32,7 +31,7 @@ export async function search_entity_partial_exact(search: string, limit: number,
  */
 function search_entity_v1(db: QueryCreator<DB>, search: string) {
   return db
-    .selectFrom('pdp.entity as search_entity')
+    .selectFrom('pdp.entity_complete as search_entity')
     .where('search_entity.searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
     .orderBy('search_entity.pagerank desc')
     .orderBy('search_entity.slug asc')
@@ -44,10 +43,10 @@ function search_entity_v1(db: QueryCreator<DB>, search: string) {
 function search_entity_v2(db: QueryCreator<DB>, search: string) {
   return db
     .with('search_entity_filtered', q => q
-      .selectFrom('pdp.entity')
+      .selectFrom('pdp.entity_complete')
       .selectAll()
       .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
-      .offset(0)
+      .offset(sql`0`)
     )
     .selectFrom('search_entity_filtered as search_entity')
     .orderBy('search_entity.pagerank desc')
@@ -66,26 +65,51 @@ export function search_entity(db: QueryCreator<DB>, search: string, estimate: nu
 }
 
 export async function search_entity_filters(db: QueryCreator<DB>, search: string, estimate: number) {
-  return await db
-    .with('predicate_counts', w => w
-      .selectFrom('pdp.edge as e')
-      .where('e.source_id', 'in', s =>
-        search_entity(s as any, search, estimate)
-          .select('id')
-          .clearOrderBy()
-      )
-      .groupBy(['e.predicate', 'target_id'])
-      .select(['e.predicate', 'target_id', s => s.fn.count('e.source_id').as('count')])
-      .orderBy('count desc')
-      .having(s=>s.fn.count('e.source_id'), '>', 1)
-    )
-    .selectFrom('predicate_counts as pc')
-    .innerJoin('pdp.entity as target', 'target.id', 'pc.target_id')
-    .select('pc.predicate')
-    .select('pc.count')
-    .select('target.type')
-    .select(sql<string>`target.attributes->>'name'`.as('name'))
+  const predicate = 'id_namespace'
+  const parent_type = 'id_namespace'
+  const parents = await db.selectFrom('pdp.entity')
+    .where('type', '=', parent_type)
+    .select('slug')
+    .select('attributes')
     .execute()
+  const searchPredicates = await Promise.all(
+    parents.map(async (parent) => {
+      const q = search_entity(db, search, estimate)
+        .clearOrderBy()
+        .select('id')
+        .where('entity', '@>', {[predicate]: { '@type': parent_type, '@id': parent.slug }})
+      return {
+        entity: {
+          '@type': parent_type,
+          '@id': parent.slug,
+          ...parent.attributes as object,
+        },
+        count: await count(q.limit(sql`100`)),
+        estimate: await estimate_count(q),
+      }
+    })
+  )
+  return searchPredicates.filter(({ count }) => Number(count) > 0)
+  // return await db
+  //   .with('predicate_counts', w => w
+  //     .selectFrom('pdp.edge as e')
+  //     .where('e.source_id', 'in', s =>
+  //       search_entity(s as any, search, estimate)
+  //         .select('id')
+  //         .clearOrderBy()
+  //     )
+  //     .groupBy(['e.predicate', 'target_id'])
+  //     .select(['e.predicate', 'target_id', s => s.fn.count('e.source_id').as('count')])
+  //     .orderBy('count desc')
+  //     .having(s=>s.fn.count('e.source_id'), '>', 1)
+  //   )
+  //   .selectFrom('predicate_counts as pc')
+  //   .innerJoin('pdp.entity as target', 'target.id', 'pc.target_id')
+  //   .select('pc.predicate')
+  //   .select('pc.count')
+  //   .select('target.type')
+  //   .select(sql<string>`target.attributes->>'name'`.as('name'))
+  //   .execute()
 }
 
 export async function getParentTypeCounts(source_id: string) {
@@ -103,7 +127,7 @@ export async function getParentTypeCounts(source_id: string) {
       .select('e.target_id')
     return {
       predicate,
-      count: await count(q.limit(100)),
+      count: await count(q.limit(sql`100`)),
       estimate: await estimate_count(q),
     }
   }))
@@ -124,7 +148,7 @@ export async function getChildTypeCounts(target_id: string) {
       .select('e.source_id')
     return {
       predicate,
-      count: await count(q.limit(100)),
+      count: await count(q.limit(sql`100`)),
       estimate: await estimate_count(q),
     }
   }))
