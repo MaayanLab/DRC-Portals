@@ -52,14 +52,18 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
   };
 
   const handleOnChange = (
-    event: SyntheticEvent,
+    event: SyntheticEvent | MouseEvent,
     value: string | null,
-    reason: AutocompleteChangeReason
+    reason: AutocompleteChangeReason | "clicked"
   ) => {
     setValue(value);
 
     // Only emit to the parent when an option is selected from the dropdown, or the field is cleared
-    if (reason === "selectOption" || reason === "clear") {
+    if (
+      reason === "selectOption" ||
+      reason === "clicked" || // This happens when the selected option's label is equal to the value in the text field
+      reason === "clear"
+    ) {
       abortCVTermRequest();
       onChange(value || "");
     }
@@ -109,6 +113,7 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
         {...optionProps}
         onClick={(event: MouseEvent) => {
           optionProps.onClick(event);
+          handleOnChange(event, option, "clicked");
         }}
       >
         {loading ? (
