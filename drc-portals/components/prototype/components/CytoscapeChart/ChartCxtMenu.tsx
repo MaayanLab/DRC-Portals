@@ -52,6 +52,7 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
               return new DOMRect(position.x, position.y, 0, 0);
             },
           }}
+          sx={{ zIndex: 5 }}
         >
           {({ TransitionProps }) => (
             <Grow
