@@ -9,7 +9,7 @@ export default function ChatPage() {
         CFDE Chatbot
       </Typography>
       <Typography variant="subtitle1" color="secondary" className="p-3">
-        The CFDE chatbot utilizes the OpenAI Assistants API with registred
+        The CFDE chatbot utilizes the OpenAI Assistants API with registered
         workflows implemented in the{" "}
         <Link
           href={"https://playbook-workflow-builder.cloud/"}

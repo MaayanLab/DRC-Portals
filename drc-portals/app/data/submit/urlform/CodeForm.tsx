@@ -95,7 +95,9 @@ export const assetOptions = [
                 <br></br>
                 <b>SmartAPI: </b> This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features additional metadata elements and value sets to promote the interoperability of RESTful APIs. See the <Link href="https://github.com/SmartAPI/smartAPI-Specification/blob/534f778052f98ec49088e1c7f22b53914a52f8d7/versions/3.0.0.md#versions" color="secondary" target="_blank">SmartAPI specifications</Link> specifications for more information on how to deposit your API into SmartAPI.
                 <br></br>
-                <b>OpenAPI:</b> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/a1c2b7523a29574308f4bf1e3909a43262a5a6b2/versions/3.1.0.md" color="secondary" target="_blank" >current OpenAPI Specs</Link> for more information on how to generate your DCC OpenAPI document.</Typography>,
+                <b>OpenAPI:</b> The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written in YAML or JSON. See  the <Link href="https://github.com/OAI/OpenAPI-Specification/blob/a1c2b7523a29574308f4bf1e3909a43262a5a6b2/versions/3.1.0.md" color="secondary" target="_blank" >current OpenAPI Specs</Link> for more information on how to generate your DCC OpenAPI document.
+                <br />
+                <b>Chatbot specifications:</b> A manifest file located at the API's base url: `.well-known/ai-plugin.json` containing metadata and OpenAPI specifications which can be used to develop a chat plugin for large language models. These plugins allow the large language models to function as specialized chatbots that have access to the exposed API endpoints described in the manifest files and can call these APIs based on user input. See ChatGPT plugins documentation for more information on how to develop chatbot specifications. <a href="https://github.com/openai/plugins-quickstart/blob/3096542ef96b77f93d6b13a0ea105641c3763284/.well-known/ai-plugin.json" target="_blank">ai-plugin specs template</a></Typography>,
         example: <Link href="https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview" color="secondary">exRNA openAPI link </Link>
     },
     {
@@ -110,9 +112,10 @@ export const assetOptions = [
     },
     {
         asset:
-            'Chatbot Specifications',
-        description: <Typography fontSize={12}>Chatbot specifications URL is a link to a manifest file containing metadata and OpenAPI specifications which can be used to develop a chat plugin for large language models. These plugins allow the large language models to function as specialized chatbots that have access to the exposed API endpoints described in the manifest files and can call these APIs based on user input. See <Link color="secondary" href="https://platform.openai.com/docs/plugins" target="_blank">ChatGPT plugins documentation</Link> for more information on how to develop chatbot specifications.</Typography>,
-        example: <Link href="https://github.com/openai/plugins-quickstart/blob/3096542ef96b77f93d6b13a0ea105641c3763284/.well-known/ai-plugin.json" color="secondary" target="_blank">ai-plugin specs template</Link>
+            'Models',
+        description: <Typography fontSize={12}>Models are resources that aren't quite apps but are being developed by DCCs and useful for a variety of tasks. These models range from mathematical models of biological systems to foundation models for biology.
+        A link to the model should be provided, ideally the link is a DOI, and/or in a standardized public repository like HuggingFace for machine learning models.</Typography>,
+        example: <Link href="https://models.physiomeproject.org/e/cba/BG_ABC.cellml/view" color="secondary" target="_blank">ABC Transport Model</Link>
     },
     {
         asset: 'Apps URL',

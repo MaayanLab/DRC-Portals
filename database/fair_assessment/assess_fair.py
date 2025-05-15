@@ -9,7 +9,7 @@ import pathlib
 from uuid import UUID, uuid5
 import zipfile
 from df2pg import OnConflictSpec, copy_from_records
-from fairshake import PWB_metanode_fair, api_fair, apps_urls_fair, attribute_tables_fair, c2m2_fair, chatbot_specs_fair, code_assets_fair_assessment, entity_page_fair, etl_fair, file_assets_fair_assessment, kg_assertions_fair, xmt_fair
+from fairshake import PWB_metanode_fair, api_fair, apps_urls_fair, attribute_tables_fair, c2m2_fair, models_fair, code_assets_fair_assessment, entity_page_fair, etl_fair, file_assets_fair_assessment, kg_assertions_fair, xmt_fair
 from ingest_common import (
   TableHelper,
   connection,
@@ -40,8 +40,8 @@ def assess_dcc_asset(row):
             rubric = api_fair(row)
         if asset_type == 'Apps URL':
             rubric = apps_urls_fair(row['link'])
-        if asset_type == 'Chatbot Specifications':
-            rubric = chatbot_specs_fair(row['link'])
+        if asset_type == 'Models':
+            rubric = models_fair(row)
     else: 
         asset_type = row['filetype']
         row['dcc_short_label'] = row['link'].split('/')[3]

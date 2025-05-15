@@ -27,7 +27,7 @@ async function getDccNumAssets(dcc_id: string, ft: string, is_code: boolean) {
 
 const columns = [
   'C2M2', 'XMT', 'KG Assertions', 'Attribute Tables', 
-  'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URLs'
+  'ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Models', 'Apps URLs'
 ]
 
 export default async function DataMatrix() {
@@ -55,7 +55,7 @@ export default async function DataMatrix() {
     api: await getDccNumAssets(item.id, 'API', true),
     ent: await getDccNumAssets(item.id, 'Entity Page Template', true),
     pwb: await getDccNumAssets(item.id, 'PWB Metanodes', true), 
-    chat: await getDccNumAssets(item.id, 'Chatbot Specs', true),
+    model: await getDccNumAssets(item.id, 'Models', true),
     apps: await getDccNumAssets(item.id, 'Apps URL', true),
   })))
   // sort by most to least assets
@@ -83,8 +83,7 @@ export default async function DataMatrix() {
         Interoperability and code assets include links to extract-transform-load 
         (ETL) scripts, API specifications, entity pages, 
         CFDE <Link color="#3470e5" href="https://playbook-workflow-builder.cloud/" target="_blank">
-        Playbook Workflow Builder</Link> (PWB) metanode specifications, chatbot 
-        specifications and app URLs. 
+        Playbook Workflow Builder</Link> (PWB) metanode specifications, models and app URLs. 
         <br /> <br />
         For more information about any of the asset types, please refer to 
         the <Link href="/info/documentation" color="#3470e5">DOCUMENTATION</Link> section
@@ -119,7 +118,7 @@ export default async function DataMatrix() {
               <Typography variant="subtitle1" color="secondary.dark">DCC</Typography>
             </TableCell>
             {columns.map((item, idx) => {
-              const code_assets = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Chatbot Specs', 'Apps URLs']
+              const code_assets = ['ETL', 'API', 'Entity Pages', 'PWB Metanodes', 'Models', 'Apps URLs']
               const bgColor = (code_assets.includes(item)) ? '#dbe0f0' : '#c8d2e9'
               return (
                 <TableCell key={idx} align="center" 
@@ -189,8 +188,8 @@ export default async function DataMatrix() {
                       </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
                   <TableCell sx={{ border:0 }} align="center"> {
-                    item.data.chat ? (
-                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ChatbotSpecs')}>
+                    item.data.model ? (
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#Models')}>
                         <LaunchIcon color='secondary' />
                       </Link>) : (<Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>)
                   } </TableCell>
@@ -274,8 +273,8 @@ export default async function DataMatrix() {
                   }
                   {  
                     item.data.chat && 
-                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#ChatbotSpecs')}>
-                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Chatbot Specs</Button>
+                      <Link href={"/info/dcc/".concat(item.data.dcc).concat('#Models')}>
+                        <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Models</Button>
                       </Link>
                   }
                   {  
