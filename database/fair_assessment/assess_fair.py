@@ -41,7 +41,7 @@ def assess_dcc_asset(row):
         if asset_type == 'Apps URL':
             rubric = apps_urls_fair(row['link'])
         if asset_type == 'Models':
-            rubric = models_fair(row['link'])
+            rubric = models_fair(row)
     else: 
         asset_type = row['filetype']
         row['dcc_short_label'] = row['link'].split('/')[3]

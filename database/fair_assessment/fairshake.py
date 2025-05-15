@@ -277,7 +277,7 @@ def api_fair(row):
         except: traceback.print_exc(file=sys.stderr)
         split_url = urlsplit(aiplugin_link)
         try:
-            webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc + split_url.path.partition('/.well_known/')[0])
+            webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc + split_url.path.partition('/.well-known/')[0])
             webpage_response.raise_for_status()
             html = webpage_response.text
             soup = BeautifulSoup(html, features="html.parser")
