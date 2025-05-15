@@ -12,12 +12,15 @@ RUN set -x \
 
 RUN npm install n -g && n 21
 
-ADD database/ database/
+ADD database/requirements.txt database/requirements.txt
+ADD database/fair_assessment/requirements.txt database/fair_assessment/requirements.txt
 RUN set -x \
-  && python -m pip install --break-system-packages \
-    -r database/requirements.txt \
-    -r database/fair_assessment/requirements.txt
+&& python -m pip install --break-system-packages \
+-r database/requirements.txt \
+-r database/fair_assessment/requirements.txt
 
+ADD database/*.py database/
+ADD database/fair_assessment/ database/fair_assessment/
 ADD drc-portals/ drc-portals/
 WORKDIR /app/drc-portals
 RUN npm i
