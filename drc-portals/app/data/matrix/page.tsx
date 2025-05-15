@@ -272,7 +272,7 @@ export default async function DataMatrix() {
                       </Link>
                   }
                   {  
-                    item.data.chat && 
+                    item.data.model && 
                       <Link href={"/info/dcc/".concat(item.data.dcc).concat('#Models')}>
                         <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Models</Button>
                       </Link>
@@ -283,7 +283,7 @@ export default async function DataMatrix() {
                         <Button sx={{marginLeft: -2}} color="secondary" endIcon={<LaunchIcon color='secondary' />}>Apps URL</Button>
                       </Link>
                   }
-                  {(!item.data.chat && !item.data.pwb && !item.data.ent && !item.data.api && !item.data.etl && !item.data.apps) &&
+                  {(!item.data.model && !item.data.pwb && !item.data.ent && !item.data.api && !item.data.etl && !item.data.apps) &&
                         <Typography fontSize='11pt' fontStyle='italic' color='tertiary'>Coming soon</Typography>
                     }
                 </Stack>
