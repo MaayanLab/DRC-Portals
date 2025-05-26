@@ -120,6 +120,7 @@ if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 # Load C2M2 schema from JSON file
 c2m2Schema = 'C2M2_datapackage.json'
 #c2m2Schema = 'C2M2_datapackage_biofluid.json'
+#c2m2Schema = 'C2M2_datapackage_PTM.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
 
