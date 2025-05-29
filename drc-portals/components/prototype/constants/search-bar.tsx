@@ -11,4 +11,4 @@ export const SearchBarContainer = styled(Box)({
 });
 
 export const BASIC_SEARCH_ERROR_MSG =
-  "An error occured during your search. Please try again later.";
+  "An error occurred during your search. Please try again later.";

@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     return Response.json(
       {
         message:
-          "An error occured trying to expand the node. Please try again later.",
+          "An error occurred trying to expand the node. Please try again later.",
         error,
         params: { input: query },
       },

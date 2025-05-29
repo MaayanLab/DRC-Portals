@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         error: e,
-        message: "An error occured during the search. Please try again later.",
+        message: "An error occurred during the search. Please try again later.",
       },
       { status: 400 }
     );
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return Response.json(
       {
-        message: "An error occured during the search. Please try again later.",
+        message: "An error occurred during the search. Please try again later.",
         error,
         params: {
           tree,
