@@ -16,6 +16,10 @@ files=(
     "add_subject_collection_pids.cypher"
     "add_subject_file_pids.cypher"
     "add_subject_project_pid.cypher"
+    "add_subject_ethnicity_synonyms.cypher"
+    "add_subject_granularity_synonyms.cypher"
+    "add_subject_race_synonyms.cypher"
+    "add_subject_sex_synonyms.cypher"
 )
 
 # Iterate over the array of filenames
