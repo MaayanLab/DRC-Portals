@@ -249,6 +249,7 @@ export default function GraphPathway() {
               // Make sure the parsed json conforms to the expected PathwaySearchElement[] shape before setting the new searchElements
               z.array(PathwaySearchElementSchema).parse(json);
               setSearchElements(json);
+              setTree(createTree(json));
               updateSnackbar(true, PATHWAY_DATA_PARSE_SUCCESS, "success");
             }
           } catch (parseError) {
