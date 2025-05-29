@@ -27,6 +27,26 @@ export const getTermsCypher = () => `
     LIMIT $limit
   `;
 
+export const filterTermBySynonyms = (term: string) => `
+    CALL {
+      WITH ${term}
+      CALL db.index.fulltext.queryNodes('synonymIdx', $phrase)
+      YIELD node AS s
+      WITH s, ${term}
+      LIMIT $limit
+      MATCH (s)<-[:HAS_SYNONYM]-(${term})
+      RETURN ${term} AS term
+      UNION ALL
+      WITH ${term}
+      CALL db.index.fulltext.queryNodes('synonymIdx', $fuzzy)
+      YIELD node AS s
+      WITH s, ${term}
+      LIMIT $limit
+      MATCH (s)<-[:HAS_SYNONYM]-(${term})
+      RETURN ${term} AS term
+    }
+  `;
+
 export const getTermsFromLabelCypher = (label: string) => `
   MATCH (term:${escapeCypherString(label)})
   WITH term.name AS name

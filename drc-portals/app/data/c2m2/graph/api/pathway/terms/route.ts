@@ -1,10 +1,13 @@
 import { NextRequest } from "next/server";
 
+import { TERM_LABELS } from "@/lib/neo4j/constants";
+import { filterTermBySynonyms } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
 import {
   escapeCypherString,
   getOptimizedMatches,
+  isValidLucene,
   parsePathwayTree,
 } from "@/lib/neo4j/utils";
 
@@ -17,6 +20,7 @@ export async function POST(request: NextRequest) {
     await request.json();
   let tree: PathwayNode;
   let treeParseResult: TreeParseResult;
+  let nodeLabel: string;
 
   if (body === null) {
     return Response.json(
@@ -45,14 +49,16 @@ export async function POST(request: NextRequest) {
 
   try {
     treeParseResult = parsePathwayTree(tree, false);
-
-    if (!treeParseResult.nodeIds.has(body.nodeId)) {
+    const node = treeParseResult.nodes.find((v) => v.id === body.nodeId);
+    if (node === undefined) {
       return Response.json(
         {
           message: `Node ID ${body.nodeId} does not exist in the provided tree.`,
         },
         { status: 422 }
       );
+    } else {
+      nodeLabel = node.label;
     }
   } catch (e) {
     return Response.json(
@@ -67,20 +73,57 @@ export async function POST(request: NextRequest) {
   try {
     const queryStmts = getOptimizedMatches(treeParseResult, body.nodeId, true);
     const escapedNodeId = escapeCypherString(body.nodeId);
-    const query = [
-      ...queryStmts,
-      ...(body.filter === null
-        ? []
-        : [`WHERE lower(${escapedNodeId}.name) CONTAINS lower($filter)`]),
-      `RETURN DISTINCT ${escapedNodeId}.name AS name`,
-      "ORDER BY size(name) ASC",
-      "LIMIT $limit",
-    ].join("\n");
+    const query = [...queryStmts];
     const driver = getDriver();
-    const result = await executeRead<{ name: string }>(driver, query, {
-      filter: body.filter,
-      limit: PATHWAY_TERMS_LIMIT,
-    });
+    let result;
+
+    if (body.filter !== null && TERM_LABELS.includes(nodeLabel)) {
+      const phrase = `"${body.filter}"`;
+      const fuzzy = body.filter
+        .split(" ")
+        .map((tok) => `${tok}~`)
+        .join(" ");
+
+      if (!isValidLucene(phrase) && !isValidLucene(fuzzy)) {
+        return Response.json(
+          {
+            error:
+              "Query string is not valid. Query must parse as valid Lucene.",
+            query,
+          },
+          { status: 400 }
+        );
+      }
+
+      query.push(
+        ...[
+          filterTermBySynonyms(escapedNodeId),
+          `RETURN DISTINCT term.name AS name`,
+          `ORDER BY size(name) ASC`,
+          "LIMIT $limit",
+        ]
+      );
+      result = await executeRead<{ name: string }>(driver, query.join("\n"), {
+        phrase,
+        fuzzy,
+        limit: PATHWAY_TERMS_LIMIT,
+      });
+    } else {
+      query.push(
+        ...[
+          ...(body.filter === null
+            ? []
+            : [`WHERE lower(${escapedNodeId}.name) CONTAINS lower($filter)`]),
+          `RETURN DISTINCT ${escapedNodeId}.name AS name`,
+          "ORDER BY size(name) ASC",
+          "LIMIT $limit",
+        ]
+      );
+      result = await executeRead<{ name: string }>(driver, query.join("\n"), {
+        filter: body.filter,
+        limit: PATHWAY_TERMS_LIMIT,
+      });
+    }
 
     return Response.json(
       result.map((record) => record.toObject().name, { status: 200 })
