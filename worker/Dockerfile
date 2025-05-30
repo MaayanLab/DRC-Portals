@@ -1,18 +1,20 @@
 # expected to have the parent directory as context
 
-FROM node:21
+FROM python:3.11
 
 WORKDIR /app
 
 RUN set -x \
-  && apt-get update \
-  && apt-get install -y \
-    python3 \
-    python3-pip
+    && apt-get update \
+    && apt-get install -y \
+      software-properties-common \
+      npm
+
+RUN npm install n -g && n 21
 
 ADD database/ database/
 RUN set -x \
-  && pip install --break-system-packages \
+  && python -m pip install --break-system-packages \
     -r database/requirements.txt \
     -r database/fair_assessment/requirements.txt
 
@@ -20,6 +22,6 @@ ADD drc-portals/ drc-portals/
 WORKDIR /app/drc-portals
 RUN npm i
 
-ENV PYTHON_BIN=python3
+ENV PYTHON_BIN=python
 ENV DATABASE_URL ""
 CMD ["npm", "run", "worker"]

@@ -8,7 +8,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import SearchablePagedTable, { Description } from './SearchablePagedTable';
 import DownloadButton from './DownloadButton';
 import DRSBundleButton from './DRSBundleButton';
-import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable } from './utils';
+import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, getNameFromBiosampleSubjectTable } from './utils';
 import Link from '@/utils/link';
 import { RowType, formatFileSize } from './utils';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
@@ -29,7 +29,7 @@ interface ExpandableTableProps {
         q?: string | null | undefined;
         p: number;
         r: number;
-        t?: { type: string; entity_type: string | null; }[] | undefined;
+        t?: { type: string; entity_type: string; }[] | undefined;
     };
     count: number;
     colNames: string[];
@@ -55,6 +55,7 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
 
     const tableFunctions: TableFunctionIndex = {
         bioSamplTbl: getNameFromBiosampleTable,
+        bioSamplSubTbl: getNameFromBiosampleSubjectTable,
         subTbl: getNameFromSubjectTable,
         colTbl: getNameFromCollectionTable,
         fileProjTbl: getNameFromFileProjTable,

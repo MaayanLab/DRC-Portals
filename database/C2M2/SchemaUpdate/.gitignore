@@ -3,3 +3,5 @@ log_dbserver
 ingest
 .env
 empty_tsvs
+blank_non-auto-generated_C2M2_tables
+

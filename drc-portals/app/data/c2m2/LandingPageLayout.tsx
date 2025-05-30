@@ -85,7 +85,7 @@ export default function LandingPageLayout(props: LandingPageLayoutProps) {
       <Grid item xs={12}>
       <DownloadButton
         data={props.downloadMetadata}
-        filename={`${props.downloadFilename}.json`}
+        filename={props.downloadFilename}
         name="Download Metadata"
       />
       </Grid>

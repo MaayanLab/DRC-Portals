@@ -33,7 +33,7 @@ As the site evolves, changes may be made to the database. For the most part you 
 # Below, select the correct server/port/user or use dburl.py
 #psql -h [localhost|server] -U [drc|drcadmin] -d drc  -p [5432|5433|5434] -a -f drop_drc_tables_from_public_schema.sql; 
 #or, assuming ../database/C2M2 exists
-psql "$(python3 ../database/C2M2/dburl.py)" -a -f drop_drc_tables_from_public_schema.sql; 
+psql "$(python3 ../database/C2M2/dburl.py)" -a -f drop_drc_tables_from_public_schema.sql -L log_drop_drc_public_tables.log; 
 
 # get the latest changes
 git pull

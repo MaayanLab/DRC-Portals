@@ -21,6 +21,7 @@ import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from "@/components/misc/ReadMore";
 import {OutreachComponent} from "@/components/misc/Outreach/featured";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
+    const now = new Date()
     const dcc = await prisma.dCC.findFirst({
         where: {
             short_label: decodeURI(params.dcc),
@@ -47,6 +48,30 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                 select: {
                     outreach: true
                 },
+                where: {
+                    outreach: {
+                        OR: [
+                            {
+                              end_date: {
+                                gte: now
+                              }
+                            },
+                            {
+                              end_date: null,
+                              start_date: {
+                                gte: now
+                              }
+                            },
+                            {
+                              application_start: {
+                                gte: now
+                              },
+                              end_date: null,
+                              start_date: null,
+                            },
+                          ]
+                    }
+                },
                 orderBy: {
                     outreach: {
                         start_date: { sort: 'desc', nulls: 'last' },
@@ -56,7 +81,6 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             },
         }
     })
-    const now = new Date()
     const outreach = dcc?.outreach || []
     const publications = dcc?.publications.map(i=>i.publication) || []
     if (!dcc) return notFound()

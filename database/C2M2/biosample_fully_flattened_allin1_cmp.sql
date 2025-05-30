@@ -1,5 +1,8 @@
 --- 2024/08/30: Collection description is needed in searchable, so may be make an array of biosample IDs 
 --- and do distinct on that and then count it ------------ NEED TO THINK MORE
+--- 2025/04/10: Since now there is a searchable column in tables used in the join too, let us name 
+--- it searchable_tmp first then later change the column name searchable_tmp to searchable.
+
 set statement_timeout = 0;
 set max_parallel_workers to 4;
 /* DO NOT DELETE ANY OF THE COMMENTS */
@@ -99,6 +102,8 @@ select distinct
 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, c2m2.project_data_type.data_type_description,
     c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name, c2m2.project_data_type.assay_type_description,
+    c2m2.project_data_type.file_format_id, c2m2.project_data_type.file_format_name, c2m2.project_data_type.file_format_description,
+    c2m2.project_data_type.analysis_type_id, c2m2.project_data_type.analysis_type_name, c2m2.project_data_type.analysis_type_description,
 
     c2m2.subject_role_taxonomy.taxonomy_id,
     c2m2.ncbi_taxonomy.name, c2m2.ncbi_taxonomy.description, 
@@ -127,7 +132,7 @@ select distinct
     c2m2.phenotype_association_type.name, c2m2.phenotype_association_type.description,
     c2m2.phenotype.name, c2m2.phenotype.description, c2m2.phenotype.synonyms
 
-    )) as searchable,
+    )) as searchable_tmp,
     --- sample_prep_method, anatomy, biosample_disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
     /**? c2m2.biosample.id_namespace as biosample_id_namespace, c2m2.biosample.local_id as biosample_local_id,  ?**/
     c2m2.project.id_namespace as project_id_namespace, c2m2.project.local_id as project_local_id, /* was from c2m2.biosample */
@@ -162,6 +167,8 @@ select distinct
 
     c2m2.project_data_type.data_type_id as data_type_id, c2m2.project_data_type.data_type_name as data_type_name, 
     c2m2.project_data_type.assay_type_id as assay_type_id, c2m2.project_data_type.assay_type_name as assay_type_name, 
+    c2m2.project_data_type.file_format_id as file_format_id, c2m2.project_data_type.file_format_name as file_format_name,
+    c2m2.project_data_type.analysis_type_id as analysis_type_id, c2m2.project_data_type.analysis_type_name as analysis_type_name, 
 
     c2m2.subject_role_taxonomy.taxonomy_id as subject_role_taxonomy_taxonomy_id, /* use shorter name: taxonomy_id? */
     c2m2.ncbi_taxonomy.name as ncbi_taxonomy_name,
@@ -458,7 +465,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     --- Use the column name from the original table if a null value is not used
     --- For null columns, use the name of the column in the resulting table; likely no null columns here
     GROUP BY 
-    searchable, c2m2.project.id_namespace, c2m2.project.local_id, c2m2.biosample.sample_prep_method, 
+    searchable_tmp, c2m2.project.id_namespace, c2m2.project.local_id, c2m2.biosample.sample_prep_method, 
     c2m2.biosample.anatomy, c2m2.biosample.biofluid, c2m2.disease_association_type.id, c2m2.disease.id, c2m2.subject.id_namespace,  
     c2m2.subject.local_id, c2m2.biosample_from_subject.age_at_sampling, c2m2.biosample_gene.gene, 
     c2m2.collection.id_namespace, c2m2.collection.local_id, c2m2.biosample_substance.substance, 
@@ -468,6 +475,8 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     c2m2.project.persistent_id, c2m2.project.creation_time, c2m2.project.name, c2m2.project.abbreviation, 
     c2m2.project_data_type.data_type_id, c2m2.project_data_type.data_type_name, 
     c2m2.project_data_type.assay_type_id, c2m2.project_data_type.assay_type_name, 
+    c2m2.project_data_type.file_format_id, c2m2.project_data_type.file_format_name,
+    c2m2.project_data_type.analysis_type_id, c2m2.project_data_type.analysis_type_name, 
     c2m2.subject_role_taxonomy.taxonomy_id, c2m2.ncbi_taxonomy.name, c2m2.collection.persistent_id, 
     c2m2.collection.creation_time, c2m2.collection.name, c2m2.collection.abbreviation,
     c2m2.collection.has_time_series_data, c2m2.sample_prep_method.name, c2m2.subject_race.race, 
@@ -483,6 +492,9 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     */
 
 );
+
+---- --- Change the column name searchable_tmp to searchable.
+ALTER TABLE c2m2.ffl_biosample_cmp RENAME COLUMN searchable_tmp TO searchable;
 
 DO $$ 
 BEGIN
@@ -516,7 +528,7 @@ BEGIN
         CREATE INDEX ffl_biosample_cmp_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_biosample_cmp USING 
         --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name, assay_type_name);
         btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-        compound_name, data_type_name, assay_type_name);
+        compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name);
     END IF;
 END $$;
 

@@ -36,7 +36,7 @@ function ensureSanitaryFiletype(filetype: string) {
 }
 
 function ensureSanitaryFilename(filename: string) {
-    return filename.replaceAll(/\.{2,}/g, '.').replaceAll(/\//g, '-')
+    return encodeURIComponent(filename.replaceAll(/\.{2,}/g, '.').replaceAll(/\//g, '-'))
 }
 
 export const createPresignedUrl = async (props: { dcc: string, filetype: string, filename: string, checksumHash: string }) => {
@@ -107,7 +107,7 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
     }
     if (dcc === null) throw new Error('Failed to find DCC')
 
-    const S3Link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
+    const S3Link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${ensureSanitaryFiletype(filetype)}/${new Date().toJSON().slice(0, 10)}/${ensureSanitaryFilename(filename)}`
     const fileAsset = await prisma.dccAsset.findMany({
         where: {
           link: S3Link,
@@ -168,7 +168,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     }
     if (dcc === null) throw new Error('Failed to find DCC')
 
-    const link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${filetype}/${new Date().toJSON().slice(0, 10)}/${filename}`
+    const link = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${dcc.short_label?.replaceAll(' ', '')}/${ensureSanitaryFiletype(filetype)}/${new Date().toJSON().slice(0, 10)}/${ensureSanitaryFilename(filename)}`
     await prisma.dccAsset.updateMany({
         where: {
             dcc_id: {in: archive.map(i=>i.dcc_id)},

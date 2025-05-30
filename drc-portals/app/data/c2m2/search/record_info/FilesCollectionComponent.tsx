@@ -6,6 +6,7 @@ import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneA
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
+import { generateSelectColumnsForFileQuery } from "@/app/data/c2m2/utils";
 
 interface FileColTableResult {
     count_file_col: number;
@@ -85,6 +86,9 @@ const renderMetadataValue = (item: MetadataItem) => {
 export default async function FilesCollectionTableComponent({ searchParams, filterClause, fileColTblOffset, limit, file_count_limit_col }: { searchParams: any, filterClause: SQL, fileColTblOffset: number, limit: number, file_count_limit_col: number }): Promise<JSX.Element> {
     console.log("In FilesColTableComponent");
     console.log("q = " + searchParams.q);
+
+    const ColumnsForFileQuery = generateSelectColumnsForFileQuery("allres_full");
+
     try {
         const query = SQL.template`
         WITH allres_full AS (
@@ -96,30 +100,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             ORDER BY rank DESC
         ), 
         unique_info AS (
-            SELECT DISTINCT 
-                allres_full.dcc_name,
-                allres_full.dcc_abbreviation,
-                allres_full.project_local_id, 
-                allres_full.project_id_namespace,
-                allres_full.ncbi_taxonomy_name as taxonomy_name,
-                allres_full.subject_role_taxonomy_taxonomy_id as taxonomy_id,
-                allres_full.disease_name,
-                allres_full.disease,
-                allres_full.anatomy_name,
-                allres_full.anatomy,
-                allres_full.biofluid_name,
-                allres_full.biofluid,
-                allres_full.gene, 
-                allres_full.gene_name,
-                allres_full.protein, 
-                allres_full.protein_name,
-                allres_full.substance_compound as compound, 
-                allres_full.compound_name,
-                allres_full.data_type_id AS data_type, 
-                allres_full.data_type_name,
-                allres_full.assay_type_id AS assay_type, /****/
-                allres_full.assay_type_name /****/
-            FROM allres_full
+            SELECT DISTINCT ${SQL.raw(ColumnsForFileQuery)} FROM allres_full
         ),
         col_info AS (
             SELECT DISTINCT 
@@ -134,7 +115,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                     AND f.project_id_namespace = ui.project_id_namespace
                                     AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/
-                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL))  /****/
+                                    AND ((f.file_format = ui.file_format) OR (f.file_format IS NULL AND ui.file_format IS NULL)) ) /****/
           ),
           file_col_table_keycol AS (
               SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,
