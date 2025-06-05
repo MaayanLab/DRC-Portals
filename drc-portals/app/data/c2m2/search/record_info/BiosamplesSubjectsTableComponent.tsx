@@ -2,13 +2,13 @@ import prisma from "@/lib/prisma/c2m2";
 import SQL from '@/lib/prisma/raw';
 import React from 'react';
 import Link from "@/utils/link";
-import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromBiosampleTable, Category } from "@/app/data/c2m2/utils";
+import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromBiosampleSubjectTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Paper, Grid, Typography, Card, CardContent } from "@mui/material";
 
 /* Even though subject information is also included, the variables names are still based on the string Biosample or biosample*/
-interface BiosampleTableResult {
-    biosamples_table_full: {
+interface BiosampleSubjectTableResult {
+    biosamples_sub_table_full: {
         biosample_id_namespace: string,
         biosample_local_id: string,
         project_id_namespace: string,
@@ -32,7 +32,7 @@ interface BiosampleTableResult {
         subject_role_name: string,
         subject_age_at_enrollment: string
     }[];
-    biosamples_table: {
+    biosamples_sub_table: {
         biosample_id_namespace: string,
         biosample_local_id: string,
         project_id_namespace: string,
@@ -70,8 +70,8 @@ const renderMetadataValue = (item: MetadataItem) => {
     return item.value;
 };
 
-export default async function BiosamplesTableComponent({ searchParams, filterClause, bioSamplTblOffset, limit }: { searchParams: any, filterClause: SQL, bioSamplTblOffset: number, limit: number }): Promise<JSX.Element> {
-    console.log("In BiosampleTableComponent");
+export default async function BiosamplesSubjectTableComponent({ searchParams, filterClause, bioSamplSubTblOffset, limit }: { searchParams: any, filterClause: SQL, bioSamplSubTblOffset: number, limit: number }): Promise<JSX.Element> {
+    console.log("In BiosampleSubjectTableComponent");
     console.log("q = " + searchParams.q);
 
     try {
@@ -84,27 +84,7 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
             ),
-            /****Not used allres AS (
-                SELECT DISTINCT
-                    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-                    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-                    COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-                    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-                    allres_full.project_local_id AS project_local_id,
-                    c2m2.project.persistent_id AS project_persistent_id,
-                    COUNT(*)::INT AS count,
-                    COUNT(DISTINCT biosample_local_id)::INT AS count_bios
-                FROM allres_full 
-                LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
-                    allres_full.project_local_id = c2m2.project.local_id) 
-                LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
-                LEFT JOIN c2m2.biofluid ON (allres_full.biofluid = c2m2.biofluid.id)
-                LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
-                LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
-                GROUP BY disease_name, anatomy_name, biofluid_name, gene_name, allres_full.project_local_id, c2m2.project.persistent_id
-                ORDER BY disease_name, anatomy_name, biofluid_name, gene_name
-            ), ****/
-            biosamples_table AS (
+            biosamples_sub_table AS (
                 SELECT DISTINCT
                     allres_full.biosample_id_namespace,
                     allres_full.biosample_local_id,
@@ -130,26 +110,26 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                     allres_full.subject_age_at_enrollment
                 FROM allres_full
             ),
-            biosamples_table_limited AS (
+            biosamples_sub_table_limited AS (
                 SELECT * 
-                FROM biosamples_table
-                OFFSET ${bioSamplTblOffset}
+                FROM biosamples_sub_table
+                OFFSET ${bioSamplSubTblOffset}
                 LIMIT ${limit}
             ),
             count_bios AS (
                 SELECT COUNT(*)::INT AS count
-                FROM biosamples_table
+                FROM biosamples_sub_table
             )
             SELECT
                 (SELECT count FROM count_bios) AS count_bios,
-                (SELECT COALESCE(jsonb_agg(biosamples_table_limited.*), '[]'::jsonb) FROM biosamples_table_limited) AS biosamples_table,
-                (SELECT COALESCE(jsonb_agg(biosamples_table.*), '[]'::jsonb) FROM biosamples_table) AS biosamples_table_full
+                (SELECT COALESCE(jsonb_agg(biosamples_sub_table_limited.*), '[]'::jsonb) FROM biosamples_sub_table_limited) AS biosamples_sub_table,
+                (SELECT COALESCE(jsonb_agg(biosamples_sub_table.*), '[]'::jsonb) FROM biosamples_sub_table) AS biosamples_sub_table_full
         `.toPrismaSql();
 
         const t0: number = performance.now();
-        const results = await prisma.$queryRaw<BiosampleTableResult[]>(query);
+        const results = await prisma.$queryRaw<BiosampleSubjectTableResult[]>(query);
         const t1: number = performance.now();
-        console.log("Elapsed time for BiosamplesTableComponent queries: ", t1 - t0, " milliseconds");
+        console.log("Elapsed time for BiosamplesSubjectTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
             return <div></div>;
@@ -159,45 +139,47 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
         const firstResult = results[0];
 
         const countBios = firstResult.count_bios ?? 0;
-        const biosamplesTable = firstResult.biosamples_table ?? [];
-        const biosamplesTableFull = firstResult.biosamples_table_full ?? [];
+        const biosamplesSubTable = firstResult.biosamples_sub_table ?? [];
+        const biosamplesSubTableFull = firstResult.biosamples_sub_table_full ?? [];
 
-        if (biosamplesTable.length === 0 || biosamplesTableFull.length === 0) {
-            return <div>No biosamples data found.</div>;
+        if (biosamplesSubTable.length === 0 || biosamplesSubTableFull.length === 0) {
+            return <div>No biosamples/subject data found.</div>;
         }
 
-        const biosample_table_columnsToIgnore: string[] = [
+        const biosample_sub_table_columnsToIgnore: string[] = [
             'anatomy_name', 'biofluid_name', 'disease_name', 'project_local_id',
-            'project_id_namespace'
+            'project_id_namespace',  'subject_id_namespace', 'biosample_id_namespace'
         ];
 
-        const biosampleTableTitle = "Biosamples: " + countBios;
+        
+
+        const biosampleSubjectTableTitle = "Biosamples and Subjects: " + countBios;
 
         const {
-            prunedData: biosamplePrunedData,
-            columnNames: bioSampleColNames,
-            dynamicColumns: dynamicBiosampleColumns,
-            staticColumns: staticBiosampleColumns
+            prunedData: biosampleSubPrunedData,
+            columnNames: bioSampleSubColNames,
+            dynamicColumns: dynamicBiosampleSubColumns,
+            staticColumns: staticBiosampleSubColumns
         } = pruneAndRetrieveColumnNames(
-            biosamplesTable,
-            biosamplesTableFull,
-            biosample_table_columnsToIgnore
+            biosamplesSubTable,
+            biosamplesSubTableFull,
+            biosample_sub_table_columnsToIgnore
         );
 
         // Add 'id' column with 'row-<index>' format
-        const biosamplePrunedDataWithId = biosamplePrunedData.map((row, index) => ({ ...row, id: index }));
-        const biosamples_table_full_withId = biosamplesTableFull
-            ? biosamplesTableFull.map((row, index) => ({ ...row, id: index }))
+        const biosampleSubjectPrunedDataWithId = biosampleSubPrunedData.map((row, index) => ({ ...row, id: index }));
+        const biosamples_sub_table_full_withId = biosamplesSubTableFull
+            ? biosamplesSubTableFull.map((row, index) => ({ ...row, id: index }))
             : [];
 
-        const downloadFilename = generateHashedJSONFilename("BiosampleTable_", searchParams);
+        const downloadFilename = generateHashedJSONFilename("BiosampleSubjectTable_", searchParams);
         const categories: Category[] = [];
 
 
-        addCategoryColumns(staticBiosampleColumns, getNameFromBiosampleTable, "Biosamples", categories);
+        addCategoryColumns(staticBiosampleSubColumns, getNameFromBiosampleSubjectTable, "Biosamples/Subjects", categories);
         const category = categories[0];
 
-        console.log("Biosample Category = " + category);
+        console.log("Biosample Subject Category = " + category);
 
         return (
             <Grid container spacing={0} direction="column">
@@ -222,23 +204,23 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 )}
                 <Grid item xs={12}>
                     <ExpandableTable
-                        data={biosamplePrunedDataWithId}
-                        full_data={biosamples_table_full_withId}
+                        data={biosampleSubjectPrunedDataWithId}
+                        full_data={biosamples_sub_table_full_withId}
                         downloadFileName={downloadFilename}
-                        tableTitle={biosampleTableTitle}
+                        tableTitle={biosampleSubjectTableTitle}
                         searchParams={searchParams}
                         count={countBios}
-                        colNames={dynamicBiosampleColumns}
-                        dynamicColumns={dynamicBiosampleColumns}
-                        tablePrefix="bioSamplTbl"
+                        colNames={dynamicBiosampleSubColumns}
+                        dynamicColumns={dynamicBiosampleSubColumns}
+                        tablePrefix="bioSamplSubTbl"
                     />
                 </Grid>
             </Grid>
         );
 
     } catch (error) {
-        console.error("Error fetching Biosamples table:", error);
-        return <div>Error fetching Biosamples table: {(error as Error).message}</div>;
+        console.error("Error fetching Biosamples/Subjects table:", error);
+        return <div>Error fetching Biosamples and Subjects table: {(error as Error).message}</div>;
     }
 
 }

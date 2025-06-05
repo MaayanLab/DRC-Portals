@@ -7,6 +7,9 @@ psql -h localhost -U drc -d drc -p [5432|5433] -a -f c2m2_other_tables.sql
 
 --- This script generates other tables from the basic c2m2 tables (or other tables)
 
+--- effect of analysis_type on count
+--- select count(*) FROM (select distinct project_id_namespace, project_local_id, data_type, assaY_type, file_format FROM c2m2.file);
+--- select count(*) FROM (select distinct project_id_namespace, project_local_id, data_type, assaY_type, file_format, analysis_type FROM c2m2.file);
 -------------------------------------------------------------------------------
 --- project_data_type: include assay_type as well since both data_type and assay_type are coming from the
 --- c2m2.file table.
@@ -18,19 +21,39 @@ select distinct
     c2m2.data_type.id as data_type_id, c2m2.data_type.name as data_type_name, 
     c2m2.data_type.description as data_type_description,
     c2m2.assay_type.id as assay_type_id, c2m2.assay_type.name as assay_type_name, 
-    c2m2.assay_type.description as assay_type_description
+    c2m2.assay_type.description as assay_type_description,
+    c2m2.file_format.id as file_format_id, c2m2.file_format.name as file_format_name, 
+    c2m2.file_format.description as file_format_description,
+    c2m2.analysis_type.id as analysis_type_id, c2m2.analysis_type.name as analysis_type_name, 
+    c2m2.analysis_type.description as analysis_type_description
 from 
-    (select distinct project_id_namespace, project_local_id, data_type, assay_type from c2m2.file
+    (select distinct project_id_namespace, project_local_id, data_type, assay_type, file_format, analysis_type from c2m2.file
     ) tmp
     left join c2m2.data_type
         on (tmp.data_type = c2m2.data_type.id)
     left join c2m2.assay_type
         on (tmp.assay_type = c2m2.assay_type.id)
+    left join c2m2.file_format
+        on (tmp.file_format = c2m2.file_format.id)
+    left join c2m2.analysis_type
+        on (tmp.analysis_type = c2m2.analysis_type.id)
 );
 
 DO $$ 
 BEGIN
     ALTER TABLE c2m2.project_data_type ADD COLUMN pk_id serial PRIMARY KEY;
+END $$;
+
+-------------------------------------------------------------------------------
+--- c2m2.project_data_type table: index on project_id_namespace, project_local_id, assay_type, data_type, etc
+DO $$
+BEGIN
+    DROP INDEX IF EXISTS project_data_type_idx;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'project_data_type'
+    AND indexname = 'project_data_type_idx') THEN
+        CREATE INDEX project_data_type_idx ON c2m2.project_data_type USING
+        btree(project_id_namespace, project_local_id, assay_type_id, data_type_id, analysis_type_id, file_format_id);
+    END IF;
 END $$;
 
 --- test
@@ -66,6 +89,17 @@ END $$;
 select count(*) from c2m2.file_describes_collection;
 select count(*) from c2m2.file_in_collection;
 select count(*) from c2m2.file_describes_in_collection;
+--- Is there overlap
+--- RAISE NOTICE 'Count of same/overlapping records between file_describes_collection and file_in_collection';
+select count(*) from (select c2m2.file_describes_collection.file_id_namespace, c2m2.file_describes_collection.file_local_id, 
+c2m2.file_describes_collection.collection_id_namespace, c2m2.file_describes_collection.collection_local_id 
+from c2m2.file_describes_collection, c2m2.file_in_collection
+where
+c2m2.file_describes_collection.file_id_namespace = c2m2.file_in_collection.file_id_namespace AND
+c2m2.file_describes_collection.file_local_id = c2m2.file_in_collection.file_local_id AND
+c2m2.file_describes_collection.collection_id_namespace = c2m2.file_in_collection.collection_id_namespace AND
+c2m2.file_describes_collection.collection_local_id = c2m2.file_in_collection.collection_local_id);
+
 -------------------------------------------------------------------------------
 
 

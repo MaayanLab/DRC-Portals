@@ -3,13 +3,13 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.15.0
+    image: maayanlab/drc-portal:0.17.0
     deploy:
-      replicas: 2
+      replicas: 3
       resources:
         reservations:
-          cpus: '1.0'
-          memory: 1024M
+          cpus: '2.0'
+          memory: 6144M
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ports:
@@ -39,7 +39,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.13.16
+    image: maayanlab/drc-portal-dev:0.13.17
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -74,7 +74,7 @@ services:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.12.1
+    image: maayanlab/drc-portal-worker:0.16.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:

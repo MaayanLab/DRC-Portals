@@ -15,7 +15,14 @@ from ingest_common import (
   dcc_usecase_path,
   usecase_path,
   news_path,
+  centers_path,
+  center_publication_path,
+  r03_path,
+  r03_publication_path
 )
+import io
+import pandas as pd
+import csv
 
 cur = connection.cursor()
 cur.execute('''
@@ -51,10 +58,154 @@ cur.execute('''
 cur.execute('drop table dcc_tmp;')
 connection.commit()
 
+# Partnerships
+cur = connection.cursor()
+
+cur.execute('''
+	DELETE FROM dcc_partnerships;
+''')
+
+cur.execute('''
+	DELETE FROM partnership_publications;
+''')
+
+cur.execute('''
+	DELETE FROM partnerships;
+''') 
+
+cur.execute('''
+	create table partnerships_tmp
+	as table partnerships
+	with no data;
+''')
+
+partnership_df = pd.read_csv(partnerships_path(), sep="\t", index_col=0)
+s_buf = io.StringIO()
+partnership_df.to_csv(s_buf, header=True, sep="\t", quoting=csv.QUOTE_NONE)
+s_buf.seek(0)
+columns = next(s_buf).strip().split('\t')
+print(columns)
+cur.copy_from(s_buf, 'partnerships_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+		insert into partnerships (%s)
+			select %s
+			from partnerships_tmp
+			on conflict (id)
+				do update
+				set %s
+		;
+	'''%(column_string, column_string, set_string))
+cur.execute('drop table partnerships_tmp;')
+
+cur = connection.cursor()
+cur.execute('''
+	create table dcc_partnerships_tmp
+	as table dcc_partnerships
+	with no data;
+''')
+
+dcc_partnership_df = pd.read_csv(dcc_partnerships_path(), sep="\t")
+d_buf = io.StringIO()
+dcc_partnership_df.to_csv(d_buf, header=True, sep="\t", index=None)
+d_buf.seek(0)
+
+columns = next(d_buf).strip().split('\t')
+cur.copy_from(d_buf, 'dcc_partnerships_tmp',
+			columns=columns,
+			null='',
+			sep='\t',
+		)
+
+column_string = ", ".join(columns)
+
+cur.execute('''
+		insert into dcc_partnerships (%s)
+			select %s
+			from dcc_partnerships_tmp
+			on conflict 
+				do nothing
+		;
+	'''%(column_string, column_string))
+cur.execute('drop table dcc_partnerships_tmp;')
+connection.commit()
+print("Ingested Partnerships")
+
+# centers
+cur.execute('''
+	create table centers_tmp
+	as table centers
+	with no data;
+''')
+
+center_df = pd.read_csv(centers_path(), sep="\t", index_col=0)
+p_buf = io.StringIO()
+center_df.to_csv(p_buf, header=True, quoting=csv.QUOTE_NONE, sep="\t", escapechar='\\')
+p_buf.seek(0)
+columns = next(p_buf).strip().split('\t')
+cur.copy_from(p_buf, 'centers_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+		insert into centers (%s)
+			select %s
+			from centers_tmp
+			on conflict (id)
+				do update
+				set %s
+		;
+	'''%(column_string, column_string, set_string))
+cur.execute('drop table centers_tmp;')
+print("Ingested Centers")
+
+# R03s
+
+cur = connection.cursor()
+
+cur.execute('''
+  create table r03_tmp
+  as table r03
+  with no data;
+''')
+r03_df = pd.read_csv(r03_path(), sep="\t", index_col=0)
+s_buf = io.StringIO()
+r03_df.to_csv(s_buf, header=True, sep="\t", quoting=csv.QUOTE_NONE)
+s_buf.seek(0)
+columns = next(s_buf).strip().split('\t')
+cur.copy_from(s_buf, 'r03_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
+cur.execute('''
+    insert into r03 (%s)
+      select %s
+      from r03_tmp
+      on conflict (id)
+        do update
+        set %s
+    ;
+  '''%(column_string, column_string, set_string))
+cur.execute('drop table r03_tmp;')
+
+connection.commit()
+print("ingested r03")
+
 # tools
 cur = connection.cursor()
-cur.execute('DELETE FROM partnership_publications')
-cur.execute('DELETE FROM dcc_publications')
+# cur.execute('DELETE FROM partnership_publications')
+# cur.execute('DELETE FROM dcc_publications')
 cur.execute('DELETE FROM tools')
 cur.execute('''
   create table tool_tmp
@@ -84,52 +235,66 @@ cur.execute('''
 cur.execute('drop table tool_tmp;')
 
 connection.commit()
+print("ingested tools")
 
 # Publication
+publication_columns = ["title", "journal", "authors", "year", "page", "volume", "issue", "pmid", "pmcid", "doi", "landmark", "tool_id", "carousel", "carousel_title", "carousel_link", "carousel_description", "image", "featured", "keywords" ]
+dcc_publication_columns = ["publication_id", "dcc_id"]
+center_publication_columns = ["publication_id", "center_id"]
+partnership_publication_columns = ["publication_id", "partnership_id"]
+r03_publication_columns = ["publication_id", "r03_id"]
+
 cur = connection.cursor()
+cur.execute('''
+  DELETE FROM dcc_publications;
+''')
+
+cur.execute('''
+  DELETE FROM partnership_publications;
+''')
+
+cur.execute('''
+  DELETE FROM r03_publications;
+''')
+
+cur.execute('''
+	DELETE FROM center_publications;
+''')
+
+cur.execute('''
+  DELETE FROM publications;
+''')
+
 cur.execute('''
   create table publication_tmp
   as table publications
   with no data;
 ''')
 
-with open(publications_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'publication_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
+publication_df = pd.read_csv(publications_path(), sep="\t", index_col=0)
+p_buf = io.StringIO()
+publication_df.to_csv(p_buf, header=True, quoting=csv.QUOTE_NONE, sep="\t")
+
+p_buf.seek(0)
+columns = next(p_buf).strip().split('\t')
+cur.copy_from(p_buf, 'publication_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 
 cur.execute('''
-    insert into publications (id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured)
-      select id, title, year, page, volume, issue, journal, pmid, pmcid, doi, authors, landmark, tool_id, carousel, carousel_title, carousel_link, carousel_description, image, featured
+    insert into publications (%s)
+      select %s
       from publication_tmp
       on conflict (id)
         do update
-        set id = excluded.id,
-            title = excluded.title,
-            year = excluded.year,
-            page = excluded.page,
-            volume = excluded.volume,
-            issue = excluded.issue,
-            journal = excluded.journal,
-            pmid = excluded.pmid,
-            pmcid = excluded.pmcid,
-            doi = excluded.doi,
-            authors = excluded.authors,
-            landmark = excluded.landmark,
-            tool_id = excluded.tool_id,
-            carousel = excluded.carousel,
-            carousel_title = excluded.carousel_title,
-            carousel_link = excluded.carousel_link,
-            carousel_description = excluded.carousel_description,
-            image = excluded.image,
-            featured = excluded.featured
+        set %s
     ;
-  ''')
+  '''%(column_string, column_string, set_string))
 cur.execute('drop table publication_tmp;')
-connection.commit()
 
 cur = connection.cursor()
 cur.execute('''
@@ -137,15 +302,16 @@ cur.execute('''
   as table dcc_publications
   with no data;
 ''')
-
-with open(dcc_publications_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'dcc_publication_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
-
+dcc_publication_df = pd.read_csv(dcc_publications_path(), sep="\t")
+d_buf = io.StringIO()
+dcc_publication_df.to_csv(d_buf, header=True, sep="\t", index=None)
+d_buf.seek(0)
+columns = next(d_buf).strip().split('\t')
+cur.copy_from(d_buf, 'dcc_publication_tmp',
+	columns=dcc_publication_columns,
+	null='',
+	sep='\t',
+)
 cur.execute('''
     insert into dcc_publications (publication_id, dcc_id)
       select publication_id, dcc_id
@@ -155,56 +321,136 @@ cur.execute('''
     ;
   ''')
 cur.execute('drop table dcc_publication_tmp;')
+
+cur.execute('''
+  create table center_publication_tmp
+  as table center_publications
+  with no data;
+''')
+
+center_publication_df = pd.read_csv(center_publication_path(), sep="\t")
+center_buf = io.StringIO()
+center_publication_df.to_csv(center_buf, header=True, sep="\t", index=None)
+center_buf.seek(0)
+columns = next(center_buf).strip().split('\t')
+cur.copy_from(center_buf, 'center_publication_tmp',
+	columns=center_publication_columns,
+	null='',
+	sep='\t',
+)
+cur.execute('''
+    insert into center_publications (publication_id, center_id)
+      select publication_id, center_id
+      from center_publication_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table center_publication_tmp;')
+
+cur = connection.cursor()
+cur.execute('''
+  create table partnership_publication_tmp
+  as table partnership_publications
+  with no data;
+''')
+
+partnership_publication_df = pd.read_csv(partnership_publications_path(), sep="\t")
+part_buf = io.StringIO()
+partnership_publication_df.to_csv(part_buf, header=True, sep="\t", index=None)
+part_buf.seek(0)
+partnership_publication_columns = next(part_buf).strip().split('\t')
+cur.copy_from(part_buf, 'partnership_publication_tmp',
+	columns=partnership_publication_columns,
+	null='',
+	sep='\t',
+)
+cur.execute('''
+    insert into partnership_publications (publication_id, partnership_id)
+      select publication_id, partnership_id
+      from partnership_publication_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table partnership_publication_tmp;')
+
+
+cur = connection.cursor()
+cur.execute('''
+  create table r03_publication_tmp
+  as table r03_publications
+  with no data;
+''')
+r03_publication_df = pd.read_csv(r03_publication_path(), sep="\t")
+r_buf = io.StringIO()
+r03_publication_df.to_csv(r_buf, header=True, sep="\t", index=None)
+r_buf.seek(0)
+columns = next(r_buf).strip().split('\t')
+cur.copy_from(r_buf, 'r03_publication_tmp',
+	columns=r03_publication_columns,
+	null='',
+	sep='\t',
+)
+
+cur.execute('''
+    insert into r03_publications (publication_id, r03_id)
+      select publication_id, r03_id
+      from r03_publication_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table r03_publication_tmp;')
+
+
 connection.commit()
+
+print("ingested publications")
+
+
+## Outreach
+outreach_columns = ["title", "short_description", "description", "tags", "agenda", "featured", "active", "start_date", "end_date", "application_start", "application_end", "link", "image", "carousel", "carousel_description", "cfde_specific", "flyer"]
+dcc_outreach_columns = ["outreach_id", "dcc_id"]
 
 cur = connection.cursor()
 
-cur.execute('DELETE FROM dcc_outreach')
-cur.execute('DELETE FROM outreach')
+cur.execute('''
+  DELETE FROM dcc_outreach;
+''')
+
+cur.execute('''
+  DELETE FROM outreach;
+''') 
 cur.execute('''
   create table outreach_tmp
   as table outreach
   with no data;
 ''')
 
-with open(outreach_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'outreach_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
+o_buf = io.StringIO()
+outreach_df = pd.read_csv(outreach_path(), sep="\t", index_col=0)
+outreach_df.to_csv(o_buf, header=True, quoting=csv.QUOTE_NONE, sep="\t")
+o_buf.seek(0)
+columns = next(o_buf).strip().split('\t')
+cur.copy_from(o_buf, 'outreach_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
+column_string = ", ".join(columns)
+set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 
 cur.execute('''
-    insert into outreach (id, title, short_description, description, tags, agenda, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer)
-      select id, title, short_description, description, tags, agenda, featured,active,
-       start_date, end_date, application_start, application_end, link, image, carousel, cfde_specific, flyer
+    insert into outreach (%s)
+      select %s
       from outreach_tmp
       on conflict (id)
         do update
-        set id = excluded.id,
-            title = excluded.title,
-            short_description = excluded.short_description,
-            description = excluded.description,
-            tags = excluded.tags,
-            agenda = excluded.agenda,
-            featured = excluded.featured,
-            active = excluded.active,
-            start_date = excluded.start_date,
-            end_date = excluded.end_date,
-            application_start = excluded.application_start,
-            application_end = excluded.application_end,
-            link = excluded.link,
-            image = excluded.image,
-            carousel = excluded.carousel,
-            cfde_specific = excluded.cfde_specific,
-            flyer = excluded.flyer
+        set %s
     ;
-  ''')
+  '''%(column_string, column_string, set_string))
 cur.execute('drop table outreach_tmp;')
-connection.commit()
-
 
 cur = connection.cursor()
 cur.execute('''
@@ -212,14 +458,16 @@ cur.execute('''
   as table dcc_outreach
   with no data;
 ''')
-
-with open(dcc_outreach_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'dcc_outreach_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
+d_buf = io.StringIO()
+dcc_outreach_df = pd.read_csv(dcc_outreach_path(), sep="\t")
+dcc_outreach_df.to_csv(d_buf, header=True, sep="\t", index=None)
+d_buf.seek(0)
+columns = next(d_buf).strip().split('\t')
+cur.copy_from(d_buf, 'dcc_outreach_tmp',
+	columns=dcc_outreach_columns,
+	null='',
+	sep='\t',
+)
 
 cur.execute('''
     insert into dcc_outreach (outreach_id, dcc_id)
@@ -232,95 +480,8 @@ cur.execute('''
 cur.execute('drop table dcc_outreach_tmp;')
 connection.commit()
 
-## Partnerships
+print("Ingested outreach and webinars")
 
-cur = connection.cursor()
-cur.execute('DELETE FROM dcc_partnerships')
-cur.execute('DELETE FROM partnership_publications')
-cur.execute('DELETE FROM partnerships')
-
-cur.execute('''
-  create table partnerships_tmp
-  as table partnerships
-  with no data;
-''')
-
-with open(partnerships_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'partnerships_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
-
-cur.execute('''
-    insert into partnerships (id, title, description, status, website, image)
-      select id, title, description, status, website, image
-      from partnerships_tmp
-      on conflict (id)
-        do update
-        set id = excluded.id,
-            title = excluded.title,
-            description = excluded.description,
-            status = excluded.status,
-            website = excluded.website,
-            image = excluded.image
-    ;
-  ''')
-cur.execute('drop table partnerships_tmp;')
-connection.commit()
-
-cur = connection.cursor()
-cur.execute('''
-  create table dcc_partnerships_tmp
-  as table dcc_partnerships
-  with no data;
-''')
-
-with open(dcc_partnerships_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'dcc_partnerships_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
-
-cur.execute('''
-    insert into dcc_partnerships (partnership_id, dcc_id)
-      select partnership_id, dcc_id
-      from dcc_partnerships_tmp
-      on conflict 
-        do nothing
-    ;
-  ''')
-cur.execute('drop table dcc_partnerships_tmp;')
-connection.commit()
-
-cur = connection.cursor()
-cur.execute('''
-  create table partnership_publications_tmp
-  as table partnership_publications
-  with no data;
-''')
-
-with open(partnership_publications_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'partnership_publications_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
-
-cur.execute('''
-    insert into partnership_publications (partnership_id, publication_id)
-      select partnership_id, publication_id
-      from partnership_publications_tmp
-      on conflict 
-        do nothing
-    ;
-  ''')
-cur.execute('drop table partnership_publications_tmp;')
-connection.commit()
 
 # Use Cases
 
@@ -338,14 +499,16 @@ cur.execute('''
   as table usecase
   with no data;
 ''')
-
-with open(usecase_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'usecase_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
+usecase_df = pd.read_csv(usecase_path(), sep="\t", index_col=0)
+u_buf = io.StringIO()
+usecase_df.to_csv(u_buf, header=True, quoting=csv.QUOTE_NONE, sep="\t")
+u_buf.seek(0)
+columns = next(u_buf).strip().split('\t')
+cur.copy_from(u_buf, 'usecase_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
 column_string = ", ".join(columns)
 set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 cur.execute('''
@@ -368,13 +531,17 @@ cur.execute('''
 ''')
 
 
-with open(dcc_usecase_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'dcc_usecase_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
+
+d_buf = io.StringIO()
+dcc_usecase_df = pd.read_csv(dcc_usecase_path(), sep="\t")
+dcc_usecase_df.to_csv(d_buf, header=True, index=None, sep="\t")
+d_buf.seek(0)
+columns = next(d_buf).strip().split('\t')
+cur.copy_from(d_buf, 'dcc_usecase_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
 
 column_string = ", ".join(columns)
 
@@ -388,6 +555,7 @@ cur.execute('''
   '''%(column_string, column_string))
 cur.execute('drop table dcc_usecase_tmp;')
 connection.commit()
+
 
 
 # DCC Assets
@@ -466,8 +634,10 @@ cur.execute('''
   ''')
 cur.execute('drop table code_assets_tmp;')
 connection.commit()
-
+print("ingested assets")
 ## news
+
+cur = connection.cursor()
 
 cur.execute('''
   create table news_tmp
@@ -475,13 +645,16 @@ cur.execute('''
   with no data;
 ''')
 
-with open(news_path(), 'r') as fr:
-    columns = next(fr).strip().split('\t')
-    cur.copy_from(fr, 'news_tmp',
-      columns=columns,
-      null='',
-      sep='\t',
-    )
+s_buf = io.StringIO()
+news_df = pd.read_csv(news_path(), sep="\t", index_col=0)
+news_df.to_csv(s_buf, header=True, sep="\t", quoting=csv.QUOTE_NONE)
+s_buf.seek(0)
+columns = next(s_buf).strip().split('\t')
+cur.copy_from(s_buf, 'news_tmp',
+	columns=columns,
+	null='',
+	sep='\t',
+)
 column_string = ", ".join(columns)
 set_string = ",\n".join(["%s = excluded.%s"%(i,i) for i in columns])
 cur.execute('''
@@ -495,6 +668,8 @@ cur.execute('''
   '''%(column_string, column_string, set_string))
 cur.execute('drop table news_tmp;')
 
+connection.commit()
+print("ingested news")
 
 cur.close()
 connection.close()

@@ -4,6 +4,7 @@ import Image from "@/utils/image"
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
+import Box from '@mui/material/Box'
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -12,14 +13,14 @@ import Paper from '@mui/material/Paper'
 import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
-import Outreach from "@/components/misc/Outreach/featured"
 import Icon from '@mdi/react';
-import { mdiArrowRight } from "@mdi/js"
+import { mdiArrowRight, mdiYoutube } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import { ResponsivePaper } from "./styled"
-import { Box } from "@mui/material"
+import InteractiveNav from "@/components/InteractiveNav"
+
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
@@ -27,6 +28,7 @@ export default async function Home() {
     },
     take: 5
   })
+
   return (
     <main>
       <Grid container spacing={2} alignItems={"center"}>
@@ -69,8 +71,44 @@ export default async function Home() {
                     borderColor: "tertiary.main"
                   }}>
                       <Stack spacing={2}>
-                        <Link href="/info/training_and_outreach"><Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
-                        <Outreach orientation="vertical" size={1}/> 
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
+                        <div style={{marginLeft: 40}}>
+                          <InteractiveNav/>
+                        </div>
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
+                        <Box sx={{width: 233}}>
+                          <Image src="/img/workbench.png" alt="workbench" width={233} height={233}/>
+                        </Box>
+                        <div className="flex justify-start">
+                          <div>
+                            <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.biorxiv.org/content/10.1101/2025.02.04.636535v1"}>
+                                <Typography variant="caption"><b>READ PAPER</b></Typography>
+                              </Link>
+                            </Button>
+                            
+                          </div>
+                        </div>
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">RECENT PRESENTATION</Typography>
+                        <Typography color="secondary" variant="h5" sx={{width: 233}}>Omics Tools Webinar Series: GeneSetCart</Typography>
+                        <Box sx={{width: 233}}>
+                          <Image src="/img/genesetcart_webinar.png" alt="gsc" width={233} height={233}/>
+                        </Box>
+                        <Stack direction={"row"} spacing={1}>
+                            <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://genesetcart.cfde.cloud/"}>
+                                <Typography variant="caption"><b>GeneSetCart</b></Typography>
+                              </Link>
+                            </Button>
+                            <Button  color="secondary" endIcon={<Icon path={mdiYoutube} size={1} />} sx={{marginLeft: -2}}>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=yp0pfpJt1_M"}>
+                                YOUTUBE
+                              </Link>
+                            </Button>
+                          </Stack>
+
+                        {/* <Link href="/info/training_and_outreach"><Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
+                        <Outreach orientation="vertical" size={1}/>  */}
                         {/* <Link href="/info/training_and_outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}
                         <Paper elevation={0}>
                           <Stack>

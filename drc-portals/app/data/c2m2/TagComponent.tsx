@@ -31,12 +31,12 @@ const TagComponent = ({
     onReset,
 }: {
     q?: string;
-    t?: { type: string; entity_type: string | null; }[] | undefined;
+    t?: { type: string; entity_type: string; }[] | undefined;
     onReset?: () => void;
 }) => {
     const router = useRouter();
 
-    const handleDelete = (tagToDelete: { type: string; entity_type: string | null }) => {
+    const handleDelete = (tagToDelete: { type: string; entity_type: string }) => {
         let baseUrl = window.location.pathname;
         let updatedParams = new URLSearchParams(window.location.search);
 
@@ -81,7 +81,7 @@ const TagComponent = ({
         if (!t) return null;
 
         // Group tags by their type
-        const tagGroups: { [key: string]: { type: string; entity_type: string | null }[] } = {};
+        const tagGroups: { [key: string]: { type: string; entity_type: string }[] } = {};
         t.forEach(tag => {
             if (!tagGroups[tag.type]) {
                 tagGroups[tag.type] = [];

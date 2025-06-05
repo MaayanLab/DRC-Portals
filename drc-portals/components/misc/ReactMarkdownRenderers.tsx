@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import React from "react";
 
 export function LinkRenderer(props: any) {
@@ -45,5 +46,39 @@ export function H3Renderer(props: any) {
     <h3 className="prose font-semibold text-xl my-4" id={slug}>
       {props.children}
     </h3>
+  )
+}
+
+export function TableRenderer(props: any) {
+  return (
+    <div className="overflow-auto">
+      <table className="table table-auto" style={props.style}>
+        {props.children}
+      </table>
+    </div>
+  )
+}
+
+export function ThRenderer(props: any) {
+  return (
+    <th className="whitespace-nowrap" style={props.style}>
+      {props.children}
+    </th>
+  )
+}
+
+export function PRenderer(props: any) {
+  return (
+    <Typography variant={"subtitle2"} sx={{marginBottom: 2, textAlign: "justify"}}>
+      {props.children}
+    </Typography>
+  )
+}
+
+export function PRendererNarrow(props: any) {
+  return (
+    <Typography variant={"subtitle2"} sx={{marginBottom: 2, textAlign: "justify", width: 233}}>
+      {props.children}
+    </Typography>
   )
 }

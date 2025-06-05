@@ -38,10 +38,15 @@ write_empty_tsvs = 0
 add_missing_columns_for_SchemaUpdate = 1
 exit_after_creating_empty_tsvs = 0
 
+fkeycon_include_on_delete_cascade_str = " ON DELETE CASCADE" # or ""
+
 add_searchable_column = 1
+index_searchable = 1
 searchable_colname = "searchable"
 # Define the exclusion patterns, if none, put some junk string so that no columns excluded
-searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|access_url|size_in_bytes' #r'^project_|_id$|temp'
+#searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes' #r'^project_|_id$|temp'
+# Need to be able to exlcude records with keywords in IDs as well, so include those columns
+searchable_col_exclude_pattern = r'id_namespace$|creation_time|size_in_bytes' #r'^project_|_id$|temp'
 
 actually_ingest_tables = actually_create_schema * actually_ingest_tables
 
@@ -115,6 +120,7 @@ if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 # Load C2M2 schema from JSON file
 c2m2Schema = 'C2M2_datapackage.json'
 #c2m2Schema = 'C2M2_datapackage_biofluid.json'
+#c2m2Schema = 'C2M2_datapackage_PTM.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
 
@@ -212,6 +218,54 @@ def warn_column_names_different(column_names_in_schema, column_names_in_df, debu
         print(column_names_in_schema);
         print(f"Columns names of the table <{table_name}> as listed in tsv file/Pandas dataframe:");
         print(column_names_in_df);
+
+#==========================================================================================
+# query string to add index
+def gen_searchable_index_query(schema_name, table_name, searchable_colname, debug, newline, tabchar):
+    index_name_str = f"{schema_name}_{table_name}_idx_searchable"
+    sidx_str1 = f"DO $${newline}BEGIN{newline}{tabchar}DROP INDEX IF EXISTS {index_name_str};"
+    sidx_str2 = f"{tabchar}IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = '{schema_name}' AND tablename = '{table_name}' "
+    sidx_str3 = f"{tabchar}AND indexname = '{index_name_str}') THEN"
+    sidx_str4 = f"{tabchar}{tabchar}CREATE INDEX {index_name_str} ON {schema_name}.{table_name} USING gin({searchable_colname});"
+    sidx_str5 = f"{tabchar}END IF;{newline}END $$;"
+    searchable_index_query = f"{sidx_str1}{newline}{sidx_str2}{newline}{sidx_str3}{newline}{sidx_str4}{newline}{sidx_str5}";
+    return searchable_index_query
+
+#==========================================================================================
+def gen_add_searchable_col_query(schema_name, table_name, column_names, searchable_colname, searchable_col_exclude_pattern, debug):
+    schema_table_name = f"{schema_name}.{table_name}"
+
+    # Do not use tsvector, use plain text
+    # add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} tsvector;";
+    add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} VARCHAR DEFAULT '';";
+
+    if(debug > 0):
+        print(f"column_names: {column_names}") 
+        print(f"searchable_col_exclude_pattern: {searchable_col_exclude_pattern}") 
+
+    # Exclude columns matching any of the patterns
+    filtered_columns = [col for col in column_names if not re.search(searchable_col_exclude_pattern, col)]
+
+    column_names_with_schema_table_name = [f"{schema_table_name}.{col}" for col in filtered_columns]
+
+    column_names_comma_sep_str = ', '.join(column_names_with_schema_table_name);
+    add_comma_str = ', ' if (len(filtered_columns) > 0) else ''
+    # Add empty string as default so that searchable column will get added
+    # add_searchable_col_str2_part1 = f"UPDATE {schema_table_name} SET {searchable_colname} = to_tsvector(concat_ws('|', ''{add_comma_str}";
+    add_searchable_col_str2_part1 = f"UPDATE {schema_table_name} SET {searchable_colname} = concat_ws('|', ''{add_comma_str}";
+    add_searchable_col_str2_part2 =  column_names_comma_sep_str;
+    add_searchable_col_str2_part3 = ");"; # "));";
+    if(debug > 1):
+        print(f"add_searchable_col_str1: {add_searchable_col_str1}") 
+        print(f"add_searchable_col_str2_part1: {add_searchable_col_str2_part1}");
+        print(f"add_searchable_col_str2_part2: {add_searchable_col_str2_part2}");
+        print(f"add_searchable_col_str2_part3: {add_searchable_col_str2_part3}");
+
+    add_searchable_col_str2 = f"{add_searchable_col_str2_part1}{add_searchable_col_str2_part2}{add_searchable_col_str2_part3}";
+    # Execute the SQL statement to add the column
+    addcol_query = f"{add_searchable_col_str1}{newline}{add_searchable_col_str2}{newline}"
+    return addcol_query
+
 #==========================================================================================
 
 t0 = time.time();
@@ -659,6 +713,7 @@ qf.write('\n/* Add foreign key constraints */\n');
 
 # Handle foreign keys
 # How variable names are constructed: fk: foreign key, str: string, cnt: counter
+fk_referenced_tables = [];
 for resource in package.resources:
     table_name = resource.name
     schema_table_name = f"{schema_name}.{table_name}"
@@ -670,6 +725,7 @@ for resource in package.resources:
     for fk in fks:
         fkcnt = fkcnt + 1;
         table2_name = fk["reference"]["resource"]; # name of the other table
+        fk_referenced_tables.append(table2_name);
         cl1 = fk["fields"]; # column names from current table
         cl2 = fk["reference"]["fields"]; # column names from other table
         if(debug > 1):
@@ -683,7 +739,8 @@ for resource in package.resources:
         cl2_str = ', '.join(cl2)
         fkname = f"fk_{table_name}_{table2_name}_{fkcnt}"
         fkstr0_drop = f"ALTER TABLE {schema_name}.{table_name} DROP CONSTRAINT IF EXISTS {fkname};{newline}";
-        fk_query = f"{fkstr0_drop}{fkstr0} {fkname} FOREIGN KEY ({cl1_str}) REFERENCES {schema_name}.{table2_name} ({cl2_str});"
+        fk_query = f"{fkstr0_drop}{fkstr0} {fkname} FOREIGN KEY ({cl1_str}) REFERENCES {schema_name}.{table2_name} ({cl2_str})"
+        fk_query = f"{fk_query}{fkeycon_include_on_delete_cascade_str};"
         if(debug > 0): print(fk_query)
         # Execute the SQL statement to create the table
         if(actually_ingest_tables == 1):
@@ -691,6 +748,14 @@ for resource in package.resources:
         qf.write(fk_query);     qf.write("\n")
     
     qf.write("\n")
+
+# write unique fk_referenced_tables to a file for later use
+fk_referenced_tables = sorted(set(fk_referenced_tables))
+# Write to file
+fkref_file = "fk_referenced_tables.txt"
+with open(fkref_file, "w", encoding="utf-8") as fkref:
+    for item in fk_referenced_tables:
+        fkref.write(item + "\n")
 
 t3 = time.time();
 print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add foreign constraints: {t3-t2} seconds.{newline}");
@@ -743,40 +808,24 @@ if(add_searchable_column == 1):
     for resource in package.resources:
         table_name = resource.name
         schema_table_name = f"{schema_name}.{table_name}"
-        if(debug > 0): print(f" ----------- Adding COLUMN {searchable_colname} to table {schema_table_name} ----------");
-
-        qf.write(f"--- Adding COLUMN {searchable_colname} to table {schema_table_name}{newline}");
-
-        add_searchable_col_str1=f"ALTER TABLE {schema_table_name} ADD COLUMN {searchable_colname} tsvector;";
         table_fields = resource.schema.fields
         column_names = [field.name for field in table_fields]
+        if(debug > 0): print(f" ----------- Adding COLUMN {searchable_colname} to table {schema_table_name} ----------");
 
-        if(debug > 0):
-            print(f"column_names: {column_names}") 
-            print(f"searchable_col_exclude_pattern: {searchable_col_exclude_pattern}") 
+        qf.write(f"{newline}--- Adding COLUMN {searchable_colname} to table {schema_table_name}{newline}");
 
-        # Exclude columns matching any of the patterns
-        filtered_columns = [col for col in column_names if not re.search(searchable_col_exclude_pattern, col)]
-
-        column_names_with_schema_table_name = [f"{schema_table_name}.{col}" for col in filtered_columns]
-
-        column_names_comma_sep_str = ', '.join(column_names_with_schema_table_name)
-        add_searchable_col_str2_part1 = f"UPDATE {schema_table_name} SET {searchable_colname} = to_tsvector(concat_ws('|', ";
-        add_searchable_col_str2_part2 =  column_names_comma_sep_str;
-        add_searchable_col_str2_part3 = "));";
-        if(debug > 1):
-            print(f"add_searchable_col_str1: {add_searchable_col_str1}") 
-            print(f"add_searchable_col_str2_part1: {add_searchable_col_str2_part1}");
-            print(f"add_searchable_col_str2_part2: {add_searchable_col_str2_part2}");
-            print(f"add_searchable_col_str2_part3: {add_searchable_col_str2_part3}");
-
-        add_searchable_col_str2 = f"{add_searchable_col_str2_part1}{add_searchable_col_str2_part2}{add_searchable_col_str2_part3}";
         # Execute the SQL statement to add the column
-        addcol_query = f"{add_searchable_col_str1}{newline}{add_searchable_col_str2}{newline}"
+        addcol_query = gen_add_searchable_col_query(schema_name, table_name, column_names, searchable_colname, searchable_col_exclude_pattern, debug)
         if(debug > 0): print(addcol_query)
-        qf.write(addcol_query);     qf.write("\n");
-        if(actually_ingest_tables == 1):
-            cursor.execute(addcol_query);
+        qf.write(addcol_query);     qf.write("\n"); 
+
+        # query string to add index
+        searchable_index_query = gen_searchable_index_query(schema_name, table_name, searchable_colname, debug, newline, tabchar)
+        if(debug > 0): print(searchable_index_query)
+        qf.write(searchable_index_query);     qf.write("\n"); 
+
+        if((actually_ingest_tables == 1)):
+            #cursor.execute(addcol_query);
             try:
                 cursor.execute(addcol_query);
                 print(f"Update successful.{newline}");
@@ -785,6 +834,17 @@ if(add_searchable_column == 1):
             finally:
                 # Commit the changes 
                 conn.commit();
+
+            # Add index on searchable
+            if(index_searchable>0):
+                try:
+                    cursor.execute(searchable_index_query);
+                    print(f"Index creation on searchable column successful.{newline}");
+                except Exception as fsu_siq_e:
+                    print(f"Error executing the query{newline}{searchable_index_query}: {fsu_siq_e}");
+                finally:
+                    # Commit the changes 
+                    conn.commit();
 
 t5 = time.time();
 print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Time taken to add COLUMN {searchable_colname}: {t5-t4} seconds.{newline}");

@@ -72,26 +72,6 @@ export default async function BiosamplesTableComponent({ searchParams, filterCla
                 ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
                 ORDER BY rank DESC
             ),
-            /****Not used allres AS (
-                SELECT DISTINCT
-                    COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-                    COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-                    COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-                    COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-                    allres_full.project_local_id AS project_local_id,
-                    c2m2.project.persistent_id AS project_persistent_id,
-                    COUNT(*)::INT AS count,
-                    COUNT(DISTINCT biosample_local_id)::INT AS count_bios
-                FROM allres_full 
-                LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
-                    allres_full.project_local_id = c2m2.project.local_id) 
-                LEFT JOIN c2m2.anatomy ON (allres_full.anatomy = c2m2.anatomy.id)
-                LEFT JOIN c2m2.biofluid ON (allres_full.biofluid = c2m2.biofluid.id)
-                LEFT JOIN c2m2.disease ON (allres_full.disease = c2m2.disease.id)
-                LEFT JOIN c2m2.gene ON (allres_full.gene = c2m2.gene.id)
-                GROUP BY disease_name, anatomy_name, biofluid_name, gene_name, allres_full.project_local_id, c2m2.project.persistent_id
-                ORDER BY disease_name, anatomy_name, biofluid_name, gene_name
-            ), ****/
             biosamples_table AS (
                 SELECT DISTINCT
                     allres_full.biosample_id_namespace,
