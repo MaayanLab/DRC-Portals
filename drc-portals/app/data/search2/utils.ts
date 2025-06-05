@@ -31,6 +31,17 @@ export async function search_entity_partial_exact(search: string, limit: number,
  */
 function search_entity_v1(db: QueryCreator<DB>, search: string) {
   return db
+    .selectFrom('pdp._entity as search_entity')
+    .where('search_entity.searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+    .orderBy('search_entity.pagerank desc')
+    .orderBy('search_entity.slug asc')
+}
+
+/**
+ * When the fts index does not sufficiently reduce the results, we should use the order by index and filter by fts
+ */
+function search_entity_complete_v1(db: QueryCreator<DB>, search: string) {
+  return db
     .selectFrom('pdp.entity_complete as search_entity')
     .where('search_entity.searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
     .orderBy('search_entity.pagerank desc')
@@ -41,6 +52,22 @@ function search_entity_v1(db: QueryCreator<DB>, search: string) {
  * When the fts index can sufficiently reduce the results, we should use it and order by in memory
  */
 function search_entity_v2(db: QueryCreator<DB>, search: string) {
+  return db
+    .with('search_entity_filtered', q => q
+      .selectFrom('pdp._entity')
+      .select(['id', 'pagerank', 'slug'])
+      .where('searchable', '@@', sql<string>`websearch_to_tsquery('english', ${search})`)
+      .offset(sql`0`)
+    )
+    .selectFrom('search_entity_filtered as search_entity')
+    .orderBy('search_entity.pagerank desc')
+    .orderBy('search_entity.slug asc')
+}
+
+/**
+ * When the fts index can sufficiently reduce the results, we should use it and order by in memory
+ */
+function search_entity_complete_v2(db: QueryCreator<DB>, search: string) {
   return db
     .with('search_entity_filtered', q => q
       .selectFrom('pdp.entity_complete')
@@ -64,6 +91,13 @@ export function search_entity(db: QueryCreator<DB>, search: string, estimate: nu
   }
 }
 
+export function search_entity_complete(db: QueryCreator<DB>, search: string, estimate: number) {
+  if (estimate < 1000) {
+    return search_entity_complete_v2(db, search)
+  } else {
+    return search_entity_complete_v1(db, search)
+  }
+}
 export async function search_entity_filters(db: QueryCreator<DB>, search: string, estimate: number) {
   const predicate = 'id_namespace'
   const parent_type = 'id_namespace'
@@ -74,9 +108,9 @@ export async function search_entity_filters(db: QueryCreator<DB>, search: string
     .execute()
   const searchPredicates = await Promise.all(
     parents.map(async (parent) => {
-      const q = search_entity(db, search, estimate)
+      const q = search_entity_complete(db, search, estimate)
         .clearOrderBy()
-        .select('id')
+        .select('search_entity.id')
         .where('entity', '@>', {[predicate]: { '@type': parent_type, '@id': parent.slug }})
       return {
         entity: {
@@ -152,20 +186,4 @@ export async function getChildTypeCounts(target_id: string) {
       estimate: await estimate_count(q),
     }
   }))
-}
-
-function entity_target(entity: string, predicate: string) {
-  return db
-    .selectFrom('pdp.edge')
-    .innerJoin('pdp.entity', j => j.onRef('pdp.edge.target_id', '=', 'pdp.entity.id'))
-    .where('pdp.edge.predicate', '=', predicate)
-    .where('pdp.edge.source_id', '=', entity)
-}
-
-function entity_source(entity: string, predicate: string) {
-  return db
-    .selectFrom('pdp.edge')
-    .innerJoin('pdp.entity', j => j.onRef('pdp.edge.source_id', '=', 'pdp.entity.id'))
-    .where('pdp.edge.predicate', '=', predicate)
-    .where('pdp.edge.target_id', '=', entity)
 }

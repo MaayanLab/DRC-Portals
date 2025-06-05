@@ -4,14 +4,18 @@ import { getChildTypeCounts, getParentTypeCounts } from "../../../utils";
 
 async function Parents(props: { id: string, predicate: string }) {
   const items = await db
-    .selectFrom('pdp.edge as e')
-    .innerJoin('pdp.entity as target', j => j.onRef('target.id', '=', 'e.target_id'))
-    .where('e.source_id', '=', props.id)
-    .where('e.predicate', '=', props.predicate)
-    .select(['target.slug', 'target.type', 'target.attributes'])
-    .orderBy('target.pagerank')
-    .orderBy('target.slug')
-    .limit(10)
+    .with('targets', cte => cte
+      .selectFrom('pdp._edge as e')
+      .where('e.source_id', '=', props.id)
+      .where('e.predicate', '=', props.predicate)
+      .orderBy('e.target_pagerank', 'desc')
+      .orderBy('e.target_slug', 'asc')
+      .select('e.target_id')
+      .limit(10)
+    )
+    .selectFrom('targets as t')
+    .innerJoin('pdp.entity as e', j => j.onRef('t.target_id', '=', 'e.id'))
+    .select(['e.slug', 'e.type', 'e.attributes'])
     .execute()
   return <div className="flex flex-col overflow-auto">
     {items.map(item =>
@@ -21,18 +25,22 @@ async function Parents(props: { id: string, predicate: string }) {
 }
 
 async function Children(props: { id: string, predicate: string }) {
-  const items = await db
     // IDEA -- if we have neighbors in the json we can use a gin index to find
     // .selectFrom('pdp.entity_complete as source')
     // .where('source.entity', '<@', JSON.stringify({ [props.predicate]: { '@id': props.id } }))
-    .selectFrom('pdp.edge as e')
-    .innerJoin('pdp.entity as source', j => j.onRef('source.id', '=', 'e.source_id'))
-    .where('e.target_id', '=', props.id)
-    .where('e.predicate', '=', props.predicate)
-    .select(['source.slug', 'source.type', 'source.attributes'])
-    .orderBy('source.pagerank')
-    .orderBy('source.slug')
-    .limit(10)
+  const items = await db
+    .with('sources', cte => cte
+      .selectFrom('pdp._edge as e')
+      .where('e.target_id', '=', props.id)
+      .where('e.predicate', '=', props.predicate)
+      .orderBy('e.source_pagerank', 'desc')
+      .orderBy('e.source_slug', 'asc')
+      .select('e.source_id')
+      .limit(10)
+    )
+    .selectFrom('sources as s')
+    .innerJoin('pdp.entity as e', j => j.onRef('s.source_id', '=', 'e.id'))
+    .select(['e.slug', 'e.type', 'e.attributes'])
     .execute()
   return <div className="flex flex-col overflow-auto">
     {items.map(item =>
