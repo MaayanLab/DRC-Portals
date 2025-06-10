@@ -85,9 +85,9 @@ function search_entity_complete_v2(db: QueryCreator<DB>, search: string) {
  */
 export function search_entity(db: QueryCreator<DB>, search: string, estimate: number) {
   if (estimate < 1000) {
-    return search_entity_v2(db, search)
+    return search_entity_complete_v2(db, search)
   } else {
-    return search_entity_v1(db, search)
+    return search_entity_complete_v1(db, search)
   }
 }
 
@@ -99,31 +99,49 @@ export function search_entity_complete(db: QueryCreator<DB>, search: string, est
   }
 }
 export async function search_entity_filters(db: QueryCreator<DB>, search: string, estimate: number) {
-  const predicate = 'id_namespace'
-  const parent_type = 'id_namespace'
-  const parents = await db.selectFrom('pdp.entity')
-    .where('type', '=', parent_type)
-    .select('slug')
-    .select('attributes')
-    .execute()
+  const predicate_types = [
+    // { predicate: 'disease', parent_type: 'disease' },
+    // { predicate: 'species', parent_type: 'species' },
+    // { predicate: 'anatomy', parent_type: 'anatomy' },
+    // { predicate: 'gene', parent_type: 'gene' },
+    // { predicate: 'protein', parent_type: 'protein' },
+    // { predicate: 'compound', parent_type: 'compound' },
+    { predicate: 'data_type', parent_type: 'data_type' },
+    { predicate: 'assay_type', parent_type: 'assay_type' },
+    { predicate: 'id_namespace', parent_type: 'id_namespace' },
+  ]
   const searchPredicates = await Promise.all(
-    parents.map(async (parent) => {
-      const q = search_entity_complete(db, search, estimate)
-        .clearOrderBy()
-        .select('search_entity.id')
-        .where('entity', '@>', {[predicate]: { '@type': parent_type, '@id': parent.slug }})
-      return {
-        entity: {
-          '@type': parent_type,
-          '@id': parent.slug,
-          ...parent.attributes as object,
-        },
-        count: await count(q.limit(sql`100`)),
-        estimate: await estimate_count(q),
-      }
-    })
+    predicate_types
+      .map(async ({ predicate, parent_type }) => {
+        const parents = await db.selectFrom('pdp.entity')
+          .where('type', '=', parent_type)
+          .select('slug')
+          .select('attributes')
+          .execute()
+        const filters = await Promise.all(parents.map(async (parent) => {
+          const q = search_entity_complete(db, search, estimate)
+            .clearOrderBy()
+            .select('search_entity.id')
+            .where('entity', '@>', {[predicate]: { '@type': parent_type, '@id': parent.slug }})
+          return {
+            entity: {
+              '@type': parent_type,
+              '@id': parent.slug,
+              ...parent.attributes as object,
+            },
+            count: await count(q.limit(sql`100`)),
+            estimate: await estimate_count(q),
+          }
+        }))
+        filters.sort((a, b) => Math.max(b.estimate, Number(b.count)) - Math.max(a.estimate, Number(a.count)))
+        return {
+          predicate,
+          parent_type,
+          filters
+        }
+      })
   )
-  return searchPredicates.filter(({ count }) => Number(count) > 0)
+  return searchPredicates.map(({ filters, ...rest }) => ({ ...rest, filters: filters.filter(({ count }) => Number(count) > 0) }))
   // return await db
   //   .with('predicate_counts', w => w
   //     .selectFrom('pdp.edge as e')

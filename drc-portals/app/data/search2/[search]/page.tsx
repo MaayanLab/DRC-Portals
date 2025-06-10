@@ -27,9 +27,12 @@ function itemDescription (item: any) {
 }
 
 export async function EntityFilters(props: { search: string, instantEstimatedCount: number }) {
-  const filters = await search_entity_filters(db, props.search, props.instantEstimatedCount)
+  const parent_filters = await search_entity_filters(db, props.search, props.instantEstimatedCount)
   return <>
-    {filters.map(filter => <div key={filter.entity['@id']}>{itemLabel(filter.entity)} ({Number(filter.count) < 100 ? `${filter.count}` : Number(filter.estimate) > 100 ? `~${filter.estimate}` : `100+`})</div>)}
+    {parent_filters.map(({ parent_type, predicate, filters }) => filters.length > 0 && <>
+      <div key={`${parent_type}-${predicate}`} className="font-bold">{predicate}</div>
+      {filters.map(filter => <a key={filter.entity['@id']} href={`/data/search2/${encodeURIComponent(`${props.search} ${filter.entity['@type']}:${filter.entity['@id']}`)}`}>{itemLabel(filter.entity)} ({Number(filter.count) < 100 ? `${filter.count}` : Number(filter.estimate) > 100 ? `~${filter.estimate}` : `100+`})</a>)}
+    </>)}
   </>
 }
 
@@ -41,16 +44,16 @@ export default async function Page(props: { params: { search: string }, searchPa
   let cur: { pagerank: string, slug: string } | undefined
   const instantEstimatedCount = await search_entity_instant_estimate(searchParams.q as string)
   const partialExactCount = await search_entity_partial_exact(searchParams.q as string, 100, cur)
-  const items = await //cursor(
-    db.with('search_entity', db =>
-    search_entity(db, searchParams.q || '', instantEstimatedCount)
-      .$if(cursor !== undefined, qb => {
-        if (!cur) return qb
-        return qb.where('pagerank', '<', cur.pagerank).where('slug', '>', cur.slug)
-      })
-      .select('search_entity.id')
-      .offset(offset)
-      .limit(limit)
+  const items = await db//cursor(
+    .with('search_entity', db =>
+      search_entity(db, searchParams.q || '', instantEstimatedCount)
+        .$if(cursor !== undefined, qb => {
+          if (!cur) return qb
+          return qb.where('pagerank', '<', cur.pagerank).where('slug', '>', cur.slug)
+        })
+        .select('search_entity.id')
+        .offset(offset)
+        .limit(limit)
     )
     .selectFrom('search_entity')
     .innerJoin('pdp.entity_complete', j=>j.onRef('entity_complete.id', '=', 'search_entity.id'))
