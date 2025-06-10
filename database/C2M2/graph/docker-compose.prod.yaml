@@ -1,6 +1,6 @@
 services:
   neo4j:
-    image: neo4j:5.22.0-enterprise-bullseye
+    image: neo4j:5.22.0-community-bullseye
     container_name: drc-portals-neo4j-prod
     restart: unless-stopped
     ports:
