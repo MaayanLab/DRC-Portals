@@ -298,7 +298,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     setCloseNodeCxtTimerId(
       setTimeout(() => {
         handleContextMenuClose();
-      }, 100)
+      }, 250)
     );
   };
 
@@ -307,7 +307,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   };
 
   const handleCxtMenuMouseLeave = () => {
-    handleContextMenuClose();
+    setCloseNodeCxtTimerId(
+      setTimeout(() => {
+        handleContextMenuClose();
+      }, 250)
+    );
   };
 
   const defaultEvents: CytoscapeEvent[] = useMemo(
