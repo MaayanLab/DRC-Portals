@@ -1,0 +1,155 @@
+MATCH (n:AnalysisType)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Anatomy)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:SubjectEthnicity)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:SubjectSex)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:SubjectGranularity)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:SubjectRace)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:SubjectRole)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:SamplePrepMethod)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:DCC)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:IDNamespace)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:DataType)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:FileFormat)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Phenotype)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:AssayType)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Disease)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:NCBITaxonomy)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Project)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Gene)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Substance)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Subject)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Compound)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Protein)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Collection)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Synonym)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:Biosample)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
+MATCH (n:File)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;

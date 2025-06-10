@@ -82,26 +82,17 @@ files=(
     "relationship_uuid_constraints.cypher"
 )
 
-# Make sure the C2M2 database exists before putting any data into it
-printf '%s\n' "[$(date)] Creating the C2M2 database..."
-./init_c2m2_db.sh
+# Load env vars
+source .env
 
 # Iterate over the array of filenames
 for filename in "${files[@]}"; do
     # Check if it's a file
-    if [ -f "/import/cypher/$filename" ]; then
+    if [ -f "./cypher/$filename" ]; then
         printf '%s\n' "[$(date)] Loading file $filename..."
-        cypher-shell -p $PASSWORD -u $USERNAME -d $GRAPH_C2M2_DBNAME -a $DB_ADDRESS -f "/import/cypher/$filename"
+        cypher-shell -p $PASSWORD -u $USERNAME -d $GRAPH_C2M2_DBNAME -a $DB_ADDRESS -f "./cypher/$filename"
     fi
 done
 
 printf '%s\n' "[$(date)] Applying revisions..."
-./apply_revisions.sh
-
-# Make sure the C2M2 database is read-only once the data has been written
-printf '%s\n' "[$(date)] Setting C2M2 database as read only..."
-cypher-shell -p $PASSWORD -u $USERNAME -a $DB_ADDRESS "ALTER DATABASE $GRAPH_C2M2_DBNAME SET ACCESS READ ONLY"
-
-# Create a read only user for the C2M2 database if it doesn't already exist
-printf '%s\n' "[$(date)] Creating C2M2 readonly user..."
-./init_c2m2_user.sh
+bash ./apply_revisions.sh
