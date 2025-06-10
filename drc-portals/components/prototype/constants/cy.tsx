@@ -126,9 +126,7 @@ const getSegmentPropsWithPoints = (
   target: Position,
   invertDistances?: boolean[]
 ) => {
-  if (invertDistances === undefined) {
-    invertDistances = Array(controlPoints.length).fill(false);
-  }
+  const invertDistancesResolved = invertDistances !== undefined ? invertDistances : Array(controlPoints.length).fill(false);
 
   const weights: number[] = [];
   const distances: number[] = [];
@@ -136,7 +134,7 @@ const getSegmentPropsWithPoints = (
   controlPoints.forEach((cp, i) => {
     weights.push(getSegmentWeight(source, cp, target));
     distances.push(
-      getSegmentDistance(source, cp, target) * (invertDistances[i] ? -1 : 1)
+      getSegmentDistance(source, cp, target) * (invertDistancesResolved[i] ? -1 : 1)
     );
   });
 

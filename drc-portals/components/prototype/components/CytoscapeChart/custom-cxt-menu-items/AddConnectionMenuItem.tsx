@@ -156,7 +156,7 @@ export default function AddConnectionMenuItem(
                 }
               }
             })
-            .filter((v) => v !== undefined)
+            .filter((v): v is Exclude<typeof v, undefined> => v !== undefined)
             .map(createConnectionMenuItem)
         );
       } catch (error) {

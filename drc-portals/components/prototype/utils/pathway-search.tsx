@@ -25,6 +25,7 @@ import {
 import { PathwaySearchElement } from "../types/pathway-search";
 
 import { getExternalLinkElement, getOntologyLink } from "./shared";
+import set_difference from "@/utils/set";
 
 export const isPathwaySearchEdgeElement = (
   element: PathwaySearchElement
@@ -63,12 +64,12 @@ export const createTree = (elements: PathwaySearchElement[]) => {
   const sources = new Set<string>();
   const targets = new Set<string>();
   elements
-    .filter((el) => isPathwaySearchEdgeElement(el))
+    .filter(isPathwaySearchEdgeElement)
     .forEach((edge) => {
       sources.add(edge.data.source);
       targets.add(edge.data.target);
     });
-  const rootNodes = sources.difference(targets);
+  const rootNodes = set_difference(sources, targets);
 
   if (rootNodes.size !== 1) {
     console.error(
@@ -92,9 +93,7 @@ export const createTree = (elements: PathwaySearchElement[]) => {
     let parentEdge: PathwaySearchEdge | undefined = undefined;
     const childIds = new Set<string>();
 
-    for (const edge of elements.filter((el) =>
-      isPathwaySearchEdgeElement(el)
-    )) {
+    for (const edge of elements.filter(isPathwaySearchEdgeElement)) {
       if (edge.data.target === root.data.id) {
         parentEdge = edge;
       }
