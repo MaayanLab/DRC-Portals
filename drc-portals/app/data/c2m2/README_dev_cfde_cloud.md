@@ -301,4 +301,34 @@ https://dev.cfde.cloud/data/search/hispanic%20female%20cancer/c2m2?p=1&t=subject
 
 and follow one record:
 
+
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=hispanic%20female%20cancer&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_8Y99QZJJ|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:brain|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Sequence%20variations|assay_type_name:exome%20sequencing%20assay|subject_ethnicity_name:Hispanic%20or%20Latino|subject_sex_name:Female|subject_race_name:Unspecified
+
+### Search sepsis and apply filters:
+https://dev.cfde.cloud/data/search/sepsis/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cncbi_taxonomy%3AMus+musculus%7Cbiofluid%3Ablood%7Cbiofluid%3Aperitoneal+fluid%7Cfile_format%3ATextual+format
+
+
+### Search for mitochondria and apply filters
+https://dev.cfde.cloud/data/search/mitochondria/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cprotein%3AHUMMR_HUMAN%7Cprotein%3ADBLOH_HUMAN
+
+#### Search for schizophrenia and add filters:
+https://dev.cfde.cloud/data/search/schizophrenia/c2m2?p=1&t=data_type%3AMass+spectrometry+data
+
+
+#### Search for celiac disease and apply filters:
+https://dev.cfde.cloud/data/search/celiac%20disease/c2m2?t=anatomy%3Amyenteric+nerve+plexus%7Cdata_type%3AGene+expression+profile&p=1
+
+### Search for mitral valve and apply filters
+https://dev.cfde.cloud/data/search/mitral%20valve/c2m2?t=anatomy%3Aleft+cardiac+atrium%7Cassay_type%3AChIP-seq+assay%7Cassay_type%3Achromatin+interaction+analysis+by+paired-end+tag+sequencing+assay&p=1
+
+### Search for aorta and apply filters
+https://dev.cfde.cloud/data/search/aorta/c2m2?t=anatomy%3Aascending+aorta&p=1
+
+### Search for ChIP seq and cancer as filter -  you get mass spectromentry assay but the description contains ChIP-seq! Cannot do much about it.
+https://dev.cfde.cloud/data/search/ChIP%20seq/c2m2?t=disease%3Acancer&p=1
+
+### Search for mass spectrometry and apply filters:
+https://dev.cfde.cloud/data/search/mass%20spectrometry/c2m2?t=assay_type%3Atargeted%2C+drug-modulated%2C+mass+spectrometry-based+protein+phoshporylation-state+assay&p=1
+
+### Search for menstrual cycle and add filters:
+https://dev.cfde.cloud/data/search/menstrual%20cycle/c2m2?t=compound%3AAcetaminophen&p=1
