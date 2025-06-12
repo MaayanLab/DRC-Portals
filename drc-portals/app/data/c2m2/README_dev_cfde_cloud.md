@@ -311,11 +311,11 @@ https://dev.cfde.cloud/data/search/sepsis/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapien
 ### Search for mitochondria and apply filters
 https://dev.cfde.cloud/data/search/mitochondria/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cprotein%3AHUMMR_HUMAN%7Cprotein%3ADBLOH_HUMAN
 
-#### Search for schizophrenia and add filters:
+### Search for schizophrenia and add filters:
 https://dev.cfde.cloud/data/search/schizophrenia/c2m2?p=1&t=data_type%3AMass+spectrometry+data
 
 
-#### Search for celiac disease and apply filters:
+### Search for celiac disease and apply filters:
 https://dev.cfde.cloud/data/search/celiac%20disease/c2m2?t=anatomy%3Amyenteric+nerve+plexus%7Cdata_type%3AGene+expression+profile&p=1
 
 ### Search for mitral valve and apply filters
