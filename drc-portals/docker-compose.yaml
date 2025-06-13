@@ -39,7 +39,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.13.17
+    image: maayanlab/drc-portal-dev:0.19.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -68,6 +68,10 @@ services:
       - OPENAI_API_KEY
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
       - ASSISTANT_ID
+      - NEO4J_URL
+      - GRAPH_C2M2_DBNAME
+      - GRAPH_C2M2_READER_USERNAME
+      - GRAPH_C2M2_READER_PASSWORD
 
   drc-portal-worker:
     build:
