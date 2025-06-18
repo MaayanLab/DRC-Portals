@@ -9,9 +9,7 @@ import {
 } from '@mui/material';
 import * as htmlToImage from 'html-to-image';
 
-// ====================
 // Types
-// ====================
 export type PageProps = {
   searchParams: Record<string, string>;
   tab?: boolean;
@@ -36,9 +34,7 @@ type DataItem = {
   'Projects count': number;
 };
 
-// ====================
-// Constants
-// ====================
+// Option lists
 const speciesOptions = ['Mus musculus', 'Homo sapiens', 'Rattus norvegicus'];
 const programOptions = ['MW', 'Glygen', 'LINCS', '4DN'];
 const fileFormatOptions = ['CSV', 'TSV', 'Zip'];
@@ -64,9 +60,7 @@ const yAxisOptions: YAxisField[] = [
 
 const groupByOptions: GroupByField[] = ['Disease', 'Anatomy'];
 
-// ====================
-// Dummy Data
-// ====================
+// Dummy data
 const dummyData: DataItem[] = [
   {
     name: 'MW',
@@ -130,9 +124,7 @@ const dummyData: DataItem[] = [
   },
 ];
 
-// ====================
-// Utilities
-// ====================
+// Color generator
 const generateColors = (keys: string[]): Record<string, string> => {
   const colorMap: Record<string, string> = {};
   const count = keys.length;
@@ -143,6 +135,7 @@ const generateColors = (keys: string[]): Record<string, string> => {
   return colorMap;
 };
 
+// Grouping logic
 const groupAndAggregate = (
   data: DataItem[],
   xAxis: string,
@@ -167,9 +160,7 @@ const groupAndAggregate = (
   }));
 };
 
-// ====================
 // Component
-// ====================
 export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }) => {
   const [xAxis, setXAxis] = useState(xAxisOptions[0]);
   const [yAxis, setYAxis] = useState<YAxisField>('Subjects count');
@@ -182,35 +173,23 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
   const colorMap = generateColors(groupValues);
   const chartData = groupAndAggregate(dummyData, xAxis, yAxis, groupBy);
 
-  // Download handler
   const handleDownload = () => {
     if (!chartRef.current) return;
 
     const node = chartRef.current;
 
-    if (downloadFormat === 'png') {
-      htmlToImage.toPng(node)
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'summary_chart.png';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((err) => {
-          console.error('Failed to save PNG image', err);
-        });
-    } else if (downloadFormat === 'svg') {
-      htmlToImage.toSvg(node)
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'summary_chart.svg';
-          link.href = 'data:image/svg+xml;base64,' + btoa(dataUrl);
-          link.click();
-        })
-        .catch((err) => {
-          console.error('Failed to save SVG image', err);
-        });
-    }
+    const downloadFn = downloadFormat === 'svg' ? htmlToImage.toSvg : htmlToImage.toPng;
+
+    downloadFn(node)
+      .then((dataUrl: string) => {
+        const link = document.createElement('a');
+        link.download = `summary_chart.${downloadFormat}`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error('Failed to export image', err);
+      });
   };
 
   return (
@@ -225,10 +204,16 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
                 data={chartData}
-                margin={{ top: 20, right: 60, left: 0, bottom: 80 }}
+                margin={{ top: 20, right: 60, left: 0, bottom: 100 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xAxis} label={{ value: xAxis, position: 'bottom', offset: 20 }} />
+                <XAxis
+                  dataKey={xAxis}
+                  label={{ value: xAxis, position: 'bottom', offset: 20 }}
+                  angle={-40}
+                  textAnchor="end"
+                  interval={0}
+                />
                 <YAxis label={{ value: yAxis, angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Legend verticalAlign="top" />
@@ -238,6 +223,7 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
                     dataKey={group}
                     name={group}
                     fill={colorMap[group]}
+                    stackId="a"
                     isAnimationActive={false}
                   />
                 ))}
@@ -306,8 +292,7 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
           </FormControl>
         </Grid>
 
-        {/* Download controls */}
-        <Grid item xs={12} sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Grid item xs={12} sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel>Download Format</InputLabel>
             <Select
