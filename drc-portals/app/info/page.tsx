@@ -89,19 +89,19 @@ export default async function Home() {
                             
                           </div>
                         </div>
-                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">RECENT PRESENTATION</Typography>
-                        <Typography color="secondary" variant="h5" sx={{width: 233}}>Omics Tools Webinar Series: GeneSetCart</Typography>
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">FEATURED TOOL</Typography>
+                        <Typography color="secondary" variant="h5" sx={{width: 233}}>Playbook Workflow Builder: Construct Bioinformatics Workflows Without Coding</Typography>
                         <Box sx={{width: 233}}>
-                          <Image src="/img/genesetcart_webinar.png" alt="gsc" width={233} height={233}/>
+                          <Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/pwb-w-062025.png" alt="gsc" width={233} height={233}/>
                         </Box>
                         <Stack direction={"row"} spacing={1}>
                             <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              <Link target="_blank" rel="noopener noreferrer" href={"https://genesetcart.cfde.cloud/"}>
-                                <Typography variant="caption"><b>GeneSetCart</b></Typography>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://playbook-workflow-builder.cloud"}>
+                                <Typography variant="caption"><b>PWB</b></Typography>
                               </Link>
                             </Button>
                             <Button  color="secondary" endIcon={<Icon path={mdiYoutube} size={1} />} sx={{marginLeft: -2}}>
-                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=yp0pfpJt1_M"}>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=mHXCdX0kfHE"}>
                                 YOUTUBE
                               </Link>
                             </Button>
