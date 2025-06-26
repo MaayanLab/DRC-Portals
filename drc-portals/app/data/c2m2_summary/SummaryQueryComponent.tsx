@@ -15,214 +15,152 @@ export type PageProps = {
   tab?: boolean;
 };
 
-type GroupByField = 'Disease' | 'Anatomy';
-type YAxisField = 'Subjects count' | 'Biosamples count' | 'Files count' | 'Projects count';
+type YAxisField =
+  | 'Subjects count'
+  | 'Biosamples count'
+  | 'Files count'
+  | 'Projects count'
+  | 'Collections count';
 
 type DataItem = {
-  name: string;
-  Disease: string;
-  Anatomy: string;
-  Species: string;
-  'Common Fund Program': string;
-  'File format': string;
-  'Data type': string;
-  'Assay type': string;
-  'Compression format': string;
-  'Subjects count': number;
-  'Biosamples count': number;
-  'Files count': number;
-  'Projects count': number;
+  [key: string]: string | number;
 };
 
-// Option lists
-const speciesOptions = ['Mus musculus', 'Homo sapiens', 'Rattus norvegicus'];
-const programOptions = ['MW', 'Glygen', 'LINCS', '4DN'];
-const fileFormatOptions = ['CSV', 'TSV', 'Zip'];
-const dataTypeOptions = ['Gene expression data', 'Mass spectrometry', 'Matrix', 'Report'];
-const assayTypeOptions = ['GCMS', 'LCMS', 'MS'];
-const compressionFormatOptions = ['gzip', 'zip', 'bz2'];
+// Axis definitions per Y-axis
+const axisOptionsMap: Record<YAxisField, string[]> = {
+  'Subjects count': ['dcc', 'species', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
+  'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'sample_prep_method', 'disease'],
+  'Files count': ['dcc (id_namespace)', 'file_format', 'assay_type', 'analysis_type', 'data_type', 'compression_format'],
+  'Collections count': ['dcc', 'anatomy', 'biofluid', 'disease', 'phenotype'],
+  'Projects count': ['dcc'],
+};
 
-const xAxisOptions = [
-  'Species',
-  'Common Fund Program',
-  'File format',
-  'Data type',
-  'Assay type',
-  'Compression format',
-];
-
-const yAxisOptions: YAxisField[] = [
-  'Subjects count',
-  'Biosamples count',
-  'Files count',
-  'Projects count',
-];
-
-const groupByOptions: GroupByField[] = ['Disease', 'Anatomy'];
-
-// Dummy data
+// Dummy data (make sure each has every possible field)
 const dummyData: DataItem[] = [
   {
-    name: 'MW',
-    Disease: 'Cancer',
-    Anatomy: 'Lung',
-    Species: 'Mus musculus',
-    'Common Fund Program': 'MW',
-    'File format': 'CSV',
-    'Data type': 'Gene expression data',
-    'Assay type': 'GCMS',
-    'Compression format': 'gzip',
+    dcc: 'MW',
+    species: 'Mus musculus',
+    ethnicity: 'Asian',
+    sex: 'Male',
+    race: 'White',
+    disease: 'Cancer',
+    granularity: 'Tissue',
+    role: 'Patient',
+    anatomy: 'Lung',
+    biofluid: 'Plasma',
+    sample_prep_method: 'Prep A',
+    'dcc (id_namespace)': 'MW001',
+    file_format: 'CSV',
+    assay_type: 'GCMS',
+    analysis_type: 'Primary',
+    data_type: 'Gene expression',
+    compression_format: 'gzip',
+    phenotype: 'Diabetic',
     'Subjects count': 100,
     'Biosamples count': 80,
     'Files count': 300,
     'Projects count': 5,
+    'Collections count': 12,
   },
   {
-    name: 'Glygen1',
-    Disease: 'Diabetes',
-    Anatomy: 'Liver',
-    Species: 'Homo sapiens',
-    'Common Fund Program': 'Glygen',
-    'File format': 'TSV',
-    'Data type': 'Mass spectrometry',
-    'Assay type': 'LCMS',
-    'Compression format': 'zip',
+    dcc: 'Glygen',
+    species: 'Homo sapiens',
+    ethnicity: 'Hispanic',
+    sex: 'Female',
+    race: 'Black',
+    disease: 'Diabetes',
+    granularity: 'Cell',
+    role: 'Control',
+    anatomy: 'Liver',
+    biofluid: 'Serum',
+    sample_prep_method: 'Prep B',
+    'dcc (id_namespace)': 'GLY001',
+    file_format: 'TSV',
+    assay_type: 'LCMS',
+    analysis_type: 'Secondary',
+    data_type: 'Mass spectrometry',
+    compression_format: 'zip',
+    phenotype: 'Obese',
     'Subjects count': 200,
     'Biosamples count': 100,
     'Files count': 400,
     'Projects count': 8,
-  },
-  {
-    name: 'LINCS1',
-    Disease: 'Cancer',
-    Anatomy: 'Heart',
-    Species: 'Rattus norvegicus',
-    'Common Fund Program': 'LINCS',
-    'File format': 'Zip',
-    'Data type': 'Matrix',
-    'Assay type': 'MS',
-    'Compression format': 'bz2',
-    'Subjects count': 150,
-    'Biosamples count': 90,
-    'Files count': 350,
-    'Projects count': 6,
-  },
-  {
-    name: '4DN1',
-    Disease: 'Diabetes',
-    Anatomy: 'Lung',
-    Species: 'Homo sapiens',
-    'Common Fund Program': '4DN',
-    'File format': 'CSV',
-    'Data type': 'Report',
-    'Assay type': 'GCMS',
-    'Compression format': 'gzip',
-    'Subjects count': 120,
-    'Biosamples count': 70,
-    'Files count': 320,
-    'Projects count': 7,
+    'Collections count': 22,
   },
 ];
 
-// Color generator
+// Color utility
 const generateColors = (keys: string[]): Record<string, string> => {
-  const colorMap: Record<string, string> = {};
   const count = keys.length;
-  keys.forEach((key, i) => {
-    const hue = (i * 360) / count;
-    colorMap[key] = `hsl(${hue}, 60%, 55%)`;
-  });
-  return colorMap;
+  return keys.reduce((map, key, i) => {
+    map[key] = `hsl(${(i * 360) / count}, 60%, 55%)`;
+    return map;
+  }, {} as Record<string, string>);
 };
 
-// Grouping logic
+// Aggregation logic
 const groupAndAggregate = (
   data: DataItem[],
   xAxis: string,
   yAxis: YAxisField,
-  groupBy: GroupByField
+  groupBy?: string
 ) => {
-  const resultMap: Record<string, Record<string, number>> = {};
-
+  const map: Record<string, Record<string, number>> = {};
   data.forEach((item) => {
-    const xValue = item[xAxis as keyof DataItem] as string;
-    const groupValue = item[groupBy];
-
-    if (!resultMap[xValue]) resultMap[xValue] = {};
-    if (!resultMap[xValue][groupValue]) resultMap[xValue][groupValue] = 0;
-
-    resultMap[xValue][groupValue] += item[yAxis];
+    const xVal = item[xAxis] ?? 'Unknown';
+    const groupVal = groupBy ? item[groupBy] ?? 'Other' : 'value';
+    map[xVal] ??= {};
+    map[xVal][groupVal] = (map[xVal][groupVal] || 0) + (item[yAxis] as number);
   });
-
-  return Object.entries(resultMap).map(([xValue, groupCounts]) => ({
-    [xAxis]: xValue,
-    ...groupCounts,
-  }));
+  return Object.entries(map).map(([x, groups]) => ({ [xAxis]: x, ...groups }));
 };
 
 // Component
-export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }) => {
-  const [xAxis, setXAxis] = useState(xAxisOptions[0]);
+export const SummaryQueryComponent: React.FC<PageProps> = () => {
   const [yAxis, setYAxis] = useState<YAxisField>('Subjects count');
-  const [groupBy, setGroupBy] = useState<GroupByField>('Disease');
+  const [xAxis, setXAxis] = useState(axisOptionsMap[yAxis][0]);
+  const [groupBy, setGroupBy] = useState(axisOptionsMap[yAxis][1] || '');
   const [downloadFormat, setDownloadFormat] = useState<'png' | 'svg'>('png');
 
   const chartRef = useRef<HTMLDivElement>(null);
-
-  const groupValues = Array.from(new Set(dummyData.map((d) => d[groupBy])));
+  const xOptions = axisOptionsMap[yAxis];
+  const showGroup = yAxis !== 'Projects count';
+  const groupOptions = xOptions.filter((x) => x !== xAxis);
+  const groupValues = showGroup ? Array.from(new Set(dummyData.map((d) => d[groupBy] ?? 'Other'))) : ['value'];
   const colorMap = generateColors(groupValues);
-  const chartData = groupAndAggregate(dummyData, xAxis, yAxis, groupBy);
+  const chartData = groupAndAggregate(dummyData, xAxis, yAxis, showGroup ? groupBy : undefined);
 
   const handleDownload = () => {
     if (!chartRef.current) return;
-
-    const node = chartRef.current;
-
-    const downloadFn = downloadFormat === 'svg' ? htmlToImage.toSvg : htmlToImage.toPng;
-
-    downloadFn(node)
-      .then((dataUrl: string) => {
-        const link = document.createElement('a');
-        link.download = `summary_chart.${downloadFormat}`;
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.error('Failed to export image', err);
-      });
+    const fn = downloadFormat === 'svg' ? htmlToImage.toSvg : htmlToImage.toPng;
+    fn(chartRef.current).then((url: string) => {
+      const link = document.createElement('a');
+      link.download = `summary_chart.${downloadFormat}`;
+      link.href = url;
+      link.click();
+    });
   };
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Summary Query Chart
-      </Typography>
+      <Typography variant="h6" gutterBottom>Summary Query Chart</Typography>
 
       <Grid container spacing={2}>
         <Grid item xs={10}>
           <div ref={chartRef}>
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={chartData}
-                margin={{ top: 20, right: 60, left: 0, bottom: 100 }}
-              >
+              <BarChart data={chartData} margin={{ top: 20, right: 60, bottom: 100 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey={xAxis}
-                  label={{ value: xAxis, position: 'bottom', offset: 20 }}
-                  angle={-40}
-                  textAnchor="end"
-                  interval={0}
-                />
+                <XAxis dataKey={xAxis} angle={-40} textAnchor="end" interval={0} />
                 <YAxis label={{ value: yAxis, angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Legend verticalAlign="top" />
-                {groupValues.map((group) => (
+                {groupValues.map((g) => (
                   <Bar
-                    key={group}
-                    dataKey={group}
-                    name={group}
-                    fill={colorMap[group]}
+                    key={g}
+                    dataKey={g}
+                    name={g}
+                    fill={colorMap[g]}
                     stackId="a"
                     isAnimationActive={false}
                   />
@@ -232,29 +170,24 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
           </div>
         </Grid>
 
-        <Grid item xs={2}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Group by</InputLabel>
-            <Select
-              value={groupBy}
-              label="Group by"
-              onChange={(e) => setGroupBy(e.target.value as GroupByField)}
-            >
-              {groupByOptions.map((opt) => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {groupValues.map((group) => (
-            <Box key={group} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Box sx={{ width: 16, height: 16, bgcolor: colorMap[group], mr: 1 }} />
-              <Typography variant="body2">{group}</Typography>
-            </Box>
-          ))}
-        </Grid>
+        {showGroup && (
+          <Grid item xs={2}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Group by</InputLabel>
+              <Select value={groupBy} onChange={(e) => setGroupBy(e.target.value)}>
+                {groupOptions.map((opt) => (
+                  <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {groupValues.map((val) => (
+              <Box key={val} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Box sx={{ width: 16, height: 16, bgcolor: colorMap[val], mr: 1 }} />
+                <Typography variant="body2">{val}</Typography>
+              </Box>
+            ))}
+          </Grid>
+        )}
       </Grid>
 
       <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -263,13 +196,15 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
             <InputLabel>x-axis</InputLabel>
             <Select
               value={xAxis}
-              label="x-axis"
-              onChange={(e) => setXAxis(e.target.value)}
+              onChange={(e) => {
+                const newX = e.target.value;
+                setXAxis(newX);
+                const nextGroup = axisOptionsMap[yAxis].find((f) => f !== newX);
+                setGroupBy(nextGroup || '');
+              }}
             >
-              {xAxisOptions.map((opt) => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
+              {xOptions.map((opt) => (
+                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -280,30 +215,37 @@ export const SummaryQueryComponent: React.FC<PageProps> = ({ searchParams, tab }
             <InputLabel>y-axis</InputLabel>
             <Select
               value={yAxis}
-              label="y-axis"
-              onChange={(e) => setYAxis(e.target.value as YAxisField)}
+              onChange={(e) => {
+                const val = e.target.value as YAxisField;
+                setYAxis(val);
+                const xOpts = axisOptionsMap[val];
+                setXAxis(xOpts[0]);
+                setGroupBy(xOpts[1] || '');
+              }}
             >
-              {yAxisOptions.map((opt) => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
+              {Object.keys(axisOptionsMap).map((opt) => (
+                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
               ))}
             </Select>
           </FormControl>
         </Grid>
+      </Grid>
 
-        <Grid item xs={12} sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <FormControl sx={{ minWidth: 120 }}>
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid item xs={6}>
+          <FormControl fullWidth>
             <InputLabel>Download Format</InputLabel>
             <Select
               value={downloadFormat}
-              label="Download Format"
               onChange={(e) => setDownloadFormat(e.target.value as 'png' | 'svg')}
             >
               <MenuItem value="png">PNG</MenuItem>
               <MenuItem value="svg">SVG</MenuItem>
             </Select>
           </FormControl>
+        </Grid>
+
+        <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
           <Button variant="contained" onClick={handleDownload}>
             Download Chart
           </Button>
