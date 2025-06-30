@@ -40,8 +40,8 @@ const axisInfo: Record<string, {
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const x_axis = searchParams.get('x_axis') || 'anatomy';
-  const group_by = searchParams.get('group_by');
+  const x_axis = searchParams.get('x_axis') ?? 'anatomy';
+  const group_by: string = searchParams.get('group_by') ?? '';
   const y_axis = searchParams.get('y_axis') || 'biosample';
 
   try {
@@ -60,13 +60,15 @@ export async function GET(req: Request) {
     let countField = 'COUNT(*)::int AS count';
 
     // Always join for x_axis label if needed
-    if (axisInfo[x_axis].join) joins.push(axisInfo[x_axis].join);
+    const joinClause = axisInfo[x_axis].join;
+    if (typeof joinClause === 'string') joins.push(joinClause);
 
     // If group_by provided, add its join and fields
     if (group_by) {
       selectFields.push(`COALESCE(${axisInfo[group_by].name}, 'Unspecified') AS ${group_by}`);
       groupFields.push(axisInfo[group_by].id, axisInfo[group_by].name);
-      if (axisInfo[group_by].join) joins.push(axisInfo[group_by].join);
+      const gJoin = axisInfo[group_by].join;
+      if (typeof gJoin === 'string') joins.push(gJoin);
     }
 
     // If either axis is disease, join biosample_disease

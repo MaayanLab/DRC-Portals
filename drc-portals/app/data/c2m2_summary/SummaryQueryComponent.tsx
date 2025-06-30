@@ -18,7 +18,7 @@ type YAxisField =
   | 'Collections count';
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
-  'Subjects count': ['dcc', 'species', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
+  'Subjects count': ['dcc', 'taxonomy_id', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
   'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'sample_prep_method', 'disease'],
   'Files count': ['dcc (id_namespace)', 'file_format', 'assay_type', 'analysis_type', 'data_type', 'compression_format'],
   'Collections count': ['dcc', 'anatomy', 'biofluid', 'disease', 'phenotype'],
