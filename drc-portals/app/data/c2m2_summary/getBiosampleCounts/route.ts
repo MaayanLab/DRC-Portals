@@ -5,107 +5,105 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+// Info for each axis: id, label, join (if needed)
+const axisInfo: Record<string, { 
+  id: string; 
+  name: string; 
+  join?: string; 
+}> = {
+  anatomy: {
+    id: 'b.anatomy',
+    name: 'a.name',
+    join: 'LEFT JOIN c2m2.anatomy a ON a.id = b.anatomy',
+  },
+  biofluid: {
+    id: 'b.biofluid',
+    name: 'f.name',
+    join: 'LEFT JOIN c2m2.biofluid f ON f.id = b.biofluid',
+  },
+  sample_prep_method: {
+    id: 'b.sample_prep_method',
+    name: 's.name',
+    join: 'LEFT JOIN c2m2.sample_prep_method s ON s.id = b.sample_prep_method',
+  },
+  dcc: {
+    id: 'b.id_namespace',
+    name: 'i.dcc_short_label',
+    join: 'LEFT JOIN c2m2.id_namespace_dcc_id i ON i.id_namespace_id = b.id_namespace',
+  },
+  disease: {
+    id: 'bd.disease',
+    name: 'd.name',
+    join: 'LEFT JOIN c2m2.disease d ON d.id = bd.disease',
+  },
+};
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const x_axis = searchParams.get('x_axis') || 'anatomy';
-  const group_by = searchParams.get('group_by') || 'disease';
+  const group_by = searchParams.get('group_by');
   const y_axis = searchParams.get('y_axis') || 'biosample';
 
   try {
-    let query = '';
-    const values: any[] = [];
+    // Validate axes
+    if (!axisInfo[x_axis]) {
+      return NextResponse.json({ error: `Unsupported x_axis: ${x_axis}` }, { status: 400 });
+    }
+    if (group_by && !axisInfo[group_by]) {
+      return NextResponse.json({ error: `Unsupported group_by: ${group_by}` }, { status: 400 });
+    }
 
-    // anatomy + disease
-    if (x_axis === 'anatomy' && group_by === 'disease') {
-      query = `
-        SELECT
-          COALESCE(a.name, 'Unspecified') AS anatomy,
-          COALESCE(d.name, 'Unspecified') AS disease,
-          tmp.count::int AS count
-        FROM (
-          SELECT b.anatomy, bd.disease, COUNT(*) AS count
-          FROM c2m2.biosample b
-          LEFT JOIN c2m2.biosample_disease bd
-            ON b.local_id = bd.biosample_local_id
-            AND b.id_namespace = bd.biosample_id_namespace
-          GROUP BY b.anatomy, bd.disease
-        ) tmp
-        LEFT JOIN c2m2.anatomy a ON a.id = tmp.anatomy
-        LEFT JOIN c2m2.disease d ON d.id = tmp.disease
-        ORDER BY tmp.count DESC, a.name, d.name
-        LIMIT 50;
-      `;
+    let selectFields = [`COALESCE(${axisInfo[x_axis].name}, 'Unspecified') AS ${x_axis}`];
+    let groupFields = [axisInfo[x_axis].id, axisInfo[x_axis].name];
+    let joins: string[] = [];
+    let from = 'FROM c2m2.biosample b';
+    let countField = 'COUNT(*)::int AS count';
+
+    // Always join for x_axis label if needed
+    if (axisInfo[x_axis].join) joins.push(axisInfo[x_axis].join);
+
+    // If group_by provided, add its join and fields
+    if (group_by) {
+      selectFields.push(`COALESCE(${axisInfo[group_by].name}, 'Unspecified') AS ${group_by}`);
+      groupFields.push(axisInfo[group_by].id, axisInfo[group_by].name);
+      if (axisInfo[group_by].join) joins.push(axisInfo[group_by].join);
     }
-    // anatomy + sample_prep_method
-    else if (x_axis === 'anatomy' && group_by === 'sample_prep_method') {
-      query = `
-        SELECT
-          COALESCE(a.name, 'Unspecified') AS anatomy,
-          COALESCE(s.name, 'Unspecified') AS sample_prep_method,
-          COUNT(*)::int AS count
-        FROM c2m2.biosample b
-        LEFT JOIN c2m2.anatomy a ON a.id = b.anatomy
-        LEFT JOIN c2m2.sample_prep_method s ON s.id = b.sample_prep_method
-        GROUP BY b.anatomy, a.name, b.sample_prep_method, s.name
-        ORDER BY COUNT(*) DESC, a.name, s.name
-        LIMIT 50;
-      `;
-    }
-    // anatomy + biofluid
-    else if (x_axis === 'anatomy' && group_by === 'biofluid') {
-      query = `
-        SELECT
-          COALESCE(a.name, 'Unspecified') AS anatomy,
-          COALESCE(f.name, 'Unspecified') AS biofluid,
-          COUNT(*)::int AS count
-        FROM c2m2.biosample b
-        LEFT JOIN c2m2.anatomy a ON a.id = b.anatomy
-        LEFT JOIN c2m2.biofluid f ON f.id = b.biofluid
-        GROUP BY b.anatomy, b.biofluid, a.name, f.name
-        ORDER BY COUNT(*) DESC, a.name, f.name
-        LIMIT 50;
-      `;
-    }
-    // anatomy + dcc
-    else if (x_axis === 'anatomy' && group_by === 'dcc') {
-      query = `
-        SELECT
-          COALESCE(a.name, 'Unspecified') AS anatomy,
-          COALESCE(i.dcc_short_label, 'Unspecified') AS dcc,
-          COUNT(*)::int AS count
-        FROM c2m2.biosample b
-        LEFT JOIN c2m2.anatomy a ON a.id = b.anatomy
-        LEFT JOIN c2m2.id_namespace_dcc_id i ON i.id_namespace_id = b.id_namespace
-        GROUP BY b.anatomy, a.name, b.id_namespace, i.dcc_short_label
-        ORDER BY COUNT(*) DESC, a.name, i.dcc_short_label
-        LIMIT 50;
-      `;
-    }
-    // unsupported
-    else {
-      return NextResponse.json(
-        { error: `Unsupported combination: x_axis=${x_axis}, group_by=${group_by}` },
-        { status: 400 }
+
+    // If either axis is disease, join biosample_disease
+    if ((x_axis === 'disease' || group_by === 'disease')) {
+      // Only add this join if not already present
+      joins.unshift(
+        'LEFT JOIN c2m2.biosample_disease bd ON b.local_id = bd.biosample_local_id AND b.id_namespace = bd.biosample_id_namespace'
       );
     }
 
-    const result = await pool.query(query, values);
+    // Remove duplicate joins
+    joins = Array.from(new Set(joins));
+
+    // Compose SQL
+    const query = `
+      SELECT
+        ${selectFields.join(', ')},
+        ${countField}
+      ${from}
+      ${joins.length ? joins.join('\n') : ''}
+      GROUP BY ${groupFields.join(', ')}
+      ORDER BY count DESC, ${selectFields.map(f => f.split(' AS ')[1]).join(', ')}
+      LIMIT 50;
+    `;
+
+    const result = await pool.query(query);
     const rawRows = result.rows;
 
     // Convert to chart-friendly format
     const groupedData: Record<string, Record<string, number>> = {};
-
     for (const row of rawRows) {
       const xValue = row[x_axis] || 'Unspecified';
-      const groupValue = row[group_by] || 'Unspecified';
+      const groupValue = group_by ? (row[group_by] || 'Unspecified') : 'value';
       const count = row.count;
-
-      if (!groupedData[xValue]) {
-        groupedData[xValue] = {};
-      }
+      if (!groupedData[xValue]) groupedData[xValue] = {};
       groupedData[xValue][groupValue] = count;
     }
-
     const chartData = Object.entries(groupedData).map(([xVal, groupCounts]) => ({
       [x_axis]: xVal,
       ...groupCounts,
