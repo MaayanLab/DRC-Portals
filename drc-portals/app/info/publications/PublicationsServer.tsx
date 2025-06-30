@@ -67,14 +67,14 @@ export default async function PublicationsServer({
       },
     })
     return (
-        <div>
-          <Grid sx={{marginBottom:4}}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sx={{marginBottom:4}}>
             <Typography variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Landmark Publications</Typography>
           </Grid> 
-            {/* <PublicationsClient count={count} q={q} dccs={dccs.map(i=>i.short_label || '')}> */}
+          <Grid item xs={12}>
               <PublicationComponent publications={publications}/>
-            {/* </PublicationsClient> */}
-        </div>
+            </Grid>
+        </Grid>
     )
   }
 

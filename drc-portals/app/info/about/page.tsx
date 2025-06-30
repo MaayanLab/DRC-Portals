@@ -18,27 +18,21 @@ export default async function About() {
         homepage: "https://commonfund.nih.gov/somatic-mosaicism-across-human-tissues-smaht"
       },
       {
-        label: "Community Partnerships to Advance Science for Society",
-        short_label: "ComPASS",
-        icon: "/img/interactive/compass.svg",
-        homepage: "https://commonfund.nih.gov/compass"
-      },
-      {
         short_label: "NPH",
         label: "Nutrition for Precision Health",
         icon: "/img/interactive/nph.png",
         homepage: "https://commonfund.nih.gov/nutritionforprecisionhealth"
       }
     ]
-    const additional_label = ['NPH', 'ComPASS', 'SMaHT']
-    const ordering = [ "Kids First", "A2CPS", "HuBMAP", "ComPASS", "4DN", "LINCS", "IDG", "NPH", 
-      "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",].sort()
+    const additional_label = ['NPH', 'SMaHT']
+    const ordering = [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", "NPH", 
+      "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SCGE", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",].sort()
     const all_dccs: {[key:string]: any} = [...dccs, ...additional].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
 	
     return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Typography variant={'h3'}>
+        <Typography variant={'h2'} color="secondary">
           The Common Fund Data Ecosystem (CFDE) Program Snapshot
         </Typography>
       </Grid>

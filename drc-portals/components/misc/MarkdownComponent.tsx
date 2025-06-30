@@ -73,4 +73,8 @@ const Markdown = async ({src, markdown}: {src?:string, markdown?:string}) => {
     return <MarkdownToJSX options={{wrapper: 'article', overrides}}>{md}</MarkdownToJSX>
 }
 
+export const MarkdownPlain =  ({markdown}: {markdown:string}) => {
+    return <MarkdownToJSX options={{wrapper: 'article', overrides}}>{markdown}</MarkdownToJSX>
+}
+
 export default Markdown

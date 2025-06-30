@@ -18,6 +18,7 @@ import os
 import glob
 import math
 import h5py
+import yaml
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlsplit
@@ -209,40 +210,99 @@ def etl_fair(link):
 def api_fair(row):
     """Run FAIR Assessment for a given API asset given its row from code assets table"""
     fairshake_openapi = 0
-    fairshake_license = 0
-    fairshake_contact = 0
+    fairshake_license = None
+    fairshake_contact = None
     fairshake_smartapi = 0
-    fairshake_persistent_url = 0 
-    if row['openAPISpec'] == True: 
-        fairshake_openapi = 1
-    if row['smartAPISpec'] == True: 
-        fairshake_smartapi = 1
+    fairshake_persistent_url = 0
+    fairshake_aiplugin_compatible = [0] * 6
+    fairshake_aiplugin_contact = None
+    fairshake_aiplugin_valid_openapi_link = None
+    fairshake_ogp = [0] * 4
+    openapi_metadata = None
+    aiplugin_link = None
+    if row['smartAPISpec'] == True:
         smartapi_link = row['link'].replace('/ui/', '/api/metadata/') if 'smart-api.info' in row['link'] else row['smartAPIURL'].replace('/ui/', '/api/metadata/')
         try:
-            api_response = requests.get(smartapi_link).json()
-            metadata = api_response['info']
-            if 'contact' in metadata:
-                fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
-            if 'license' in metadata and 'name' in metadata['license']:
-                fairshake_license = 1 if metadata['license']['name'] != '' else 0
-                return {"Documented with OpenAPI": fairshake_openapi,
-                "Usage License specified": fairshake_license,  
-                "Contact information available": fairshake_contact,
-                "Published in Smart API": fairshake_smartapi,
-                "Persistent URL": fairshake_persistent_url}
+            response = requests.get(smartapi_link)
+            response.raise_for_status()
+            openapi_metadata = response.json()
+            fairshake_openapi = 1
+            fairshake_smartapi = 1
         except KeyboardInterrupt: raise
-        except:
-            import traceback; traceback.print_exc()
-            return {"Documented with OpenAPI": fairshake_openapi,
-                    "Usage License specified": fairshake_license,  
-                    "Contact information available": fairshake_contact,
-                    "Published in Smart API": fairshake_smartapi,
-                    "Persistent URL": fairshake_persistent_url}
-    rubric = {"Documented with OpenAPI": fairshake_openapi,
-                "Usage License specified": fairshake_license,  
-                "Contact information available": fairshake_contact,
-                "Published in Smart API": fairshake_smartapi,
-                "Persistent URL": fairshake_persistent_url}
+        except: fairshake_smartapi = 0
+    elif row['openAPISpec'] == True:
+        try:
+            response = requests.get(row['link'])
+            response.raise_for_status()
+            openapi_metadata = yaml.safe_load(response.text())
+            fairshake_openapi = 1
+        except KeyboardInterrupt: raise
+        except: fairshake_openapi = 0
+    #
+    if openapi_metadata:
+        try: aiplugin_link = f"{openapi_metadata['servers'][0]['url']}/.well-known/ai-plugin.json"
+        except KeyboardInterrupt: raise
+        except: aiplugin_link = None
+        #
+        metadata = openapi_metadata['info']
+        if 'contact' in metadata:
+            fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
+        if 'license' in metadata and 'name' in metadata['license']:
+            fairshake_license = 1 if metadata['license']['name'] != '' else 0
+    else:
+        aiplugin_link = f"{row['link']}/.well-known/ai-plugin.json"
+    #
+    if aiplugin_link:
+        try:
+            response = requests.get(aiplugin_link)
+            response.raise_for_status()
+            chatbot_specs = response.json()
+            # check if ai-plugin compatible
+            required_plugin_fields = ['schema_version', 'name_for_human', 'name_for_model', 'description_for_model', 'description_for_human', 'api']
+            for index, field in enumerate(required_plugin_fields): 
+                if field in chatbot_specs: 
+                    fairshake_aiplugin_compatible[index] = 1
+            if 'api' in chatbot_specs and chatbot_specs['api']['type'] == 'openapi':
+                if chatbot_specs['api']['url'] == row['link'].rstrip('/'):
+                    fairshake_aiplugin_valid_openapi_link = 1
+                else:
+                    try:
+                        openapi_json_response = requests.get(chatbot_specs['api']['url'])
+                        openapi_json_response.raise_for_status()
+                    except KeyboardInterrupt: raise
+                    except: fairshake_aiplugin_valid_openapi_link = 0
+                    else: fairshake_aiplugin_valid_openapi_link = 1
+            fairshake_aiplugin_contact = 1 if 'contact_email' in chatbot_specs else 0
+        except KeyboardInterrupt: raise
+        except: traceback.print_exc(file=sys.stderr)
+        split_url = urlsplit(aiplugin_link)
+        try:
+            webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc + split_url.path.partition('/.well-known/')[0])
+            webpage_response.raise_for_status()
+            html = webpage_response.text
+            soup = BeautifulSoup(html, features="html.parser")
+            ogp_title = soup.find('meta', property="og:title")
+            ogp_type = soup.find('meta', property="og:type")
+            ogp_image = soup.find('meta', property="og:image")
+            ogp_url = soup.find('meta', property="og:url")
+            ogp_req_metadata = [ogp_title, ogp_type, ogp_image, ogp_url ]
+            for index, ogp_req in enumerate(ogp_req_metadata): 
+                if ogp_req:
+                    fairshake_ogp[index] = 1
+        except KeyboardInterrupt: raise
+        except: traceback.print_exc(file=sys.stderr)
+
+    rubric = {
+        "Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
+        "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
+        "Chatbot specs contain contact information": fairshake_aiplugin_contact,
+        "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_aiplugin_valid_openapi_link, 
+        "Documented with OpenAPI": fairshake_openapi,
+        "Usage License specified": fairshake_license,  
+        "Contact information available": fairshake_contact,
+        "Published in Smart API": fairshake_smartapi,
+        "Persistent URL": fairshake_persistent_url,
+    }
     return rubric
 
 def apps_urls_fair(apps_url): 
@@ -274,56 +334,23 @@ def apps_urls_fair(apps_url):
     return rubric
 
 
-def chatbot_specs_fair(chatbot_specs_url):
-    """Run FAIR Assessment for a given chatbot specification asset given its URL""" 
-    fairshake_persistent_url = 0 
-    fairshake_aiplugin_compatible = [0] * 6
-    fairshake_valid_openapi_link = 0
-    fairshake_contact = 0
-    fairshake_ogp = [0] * 4
+def models_fair(row):
+    """Run FAIR Assessment for a given model asset given its URL""" 
+    fairshake_persistent_url = 0
+    fairshake_valid_link = None
+    split_url = urlsplit(row['link'])
+    fairshake_persistent_url = 1 if split_url.netloc in {'doi.org'} else 0
     try:
-        response = requests.get(chatbot_specs_url)
+        response = requests.get(row['link'])
         response.raise_for_status()
-        chatbot_specs = response.json()
-        # check if ai-plugin compatible
-        required_plugin_fields = ['schema_version', 'name_for_human', 'name_for_model', 'description_for_model', 'description_for_human', 'api']
-        for index, field in enumerate(required_plugin_fields): 
-            if field in chatbot_specs: 
-                fairshake_aiplugin_compatible[index] = 1
-        if 'api' in chatbot_specs and chatbot_specs['api']['type'] == 'openapi':
-            try:
-                openapi_json_response = requests.get(chatbot_specs['api']['url'])
-                openapi_json_response.raise_for_status()
-            except KeyboardInterrupt: raise
-            except: fairshake_valid_openapi_link = 0
-            else: fairshake_valid_openapi_link = 1
-        fairshake_contact = 1 if 'contact_email' in chatbot_specs else 0
     except KeyboardInterrupt: raise
-    except: traceback.print_exc(file=sys.stderr)
-    split_url = urlsplit(chatbot_specs_url)
-    try:
-        webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
-        webpage_response.raise_for_status()
-        html = webpage_response.text
-        soup = BeautifulSoup(html, features="html.parser")
-        ogp_title = soup.find('meta', property="og:title")
-        ogp_type = soup.find('meta', property="og:type")
-        ogp_image = soup.find('meta', property="og:image")
-        ogp_url = soup.find('meta', property="og:url")
-        ogp_req_metadata = [ogp_title, ogp_type, ogp_image, ogp_url ]
-        for index, ogp_req in enumerate(ogp_req_metadata): 
-            if ogp_req:
-                fairshake_ogp[index] = 1
-    except KeyboardInterrupt: raise
-    except: traceback.print_exc(file=sys.stderr)
-    rubric = {"Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
-              "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_valid_openapi_link, 
-              "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
-            "Chatbot specs contain contact information": fairshake_contact,
-            "Persistent URL": fairshake_persistent_url}
+    except: fairshake_valid_link = 0
+    else: fairshake_valid_link = 1
+    rubric = {
+        "Link is valid": fairshake_valid_link,
+        "Persistent URL": fairshake_persistent_url,
+    }
     return rubric
-
-    
 
 def check_ontology_in_term(term):
     """Return boolean defining if a term contains an ontological reference eg RO:922340"""
