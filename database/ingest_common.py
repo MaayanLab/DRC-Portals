@@ -139,7 +139,8 @@ def current_dcc_assets():
     how='inner',
   )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
-  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  #dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   return dcc_assets
 
 def current_code_assets():
@@ -150,7 +151,7 @@ def current_code_assets():
     right_on='link',
     how='inner',
   )
-  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   return dcc_assets
 
 #%%

@@ -18,7 +18,9 @@ from ingest_common import (
   centers_path,
   center_publication_path,
   r03_path,
-  r03_publication_path
+  r03_publication_path,
+  get_clean_path,
+  write_clean_file
 )
 import io
 import pandas as pd
@@ -213,7 +215,12 @@ cur.execute('''
   with no data;
 ''')
 
-with open(tools_path(), 'r') as fr:
+
+tools_path_clean = get_clean_path(tools_path())
+write_clean_file(tools_path(), tools_path_clean, ['tutorial'])
+# Now, use tools_path_clean instead of tools_path
+# with open(tools_path(), 'r') as fr: # original line
+with open(tools_path_clean, 'r') as fr:
     columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'tool_tmp',
       columns=columns,
