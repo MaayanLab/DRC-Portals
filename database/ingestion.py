@@ -217,11 +217,12 @@ cur.execute('''
 ''')
 
 
-tools_path_clean = get_clean_path(tools_path())
-write_clean_file(tools_path(), tools_path_clean, ['tutorial'])
-# Now, use tools_path_clean instead of tools_path
-# with open(tools_path(), 'r') as fr: # original line
-with open(tools_path_clean, 'r') as fr:
+# Keep the lines with tools_path_clean commented, can use temporarily if needed
+#tools_path_clean = get_clean_path(tools_path())
+#write_clean_file(tools_path(), tools_path_clean, ['tutorial'])
+## Now, use tools_path_clean instead of tools_path
+#with open(tools_path_clean, 'r') as fr:
+with open(tools_path(), 'r') as fr: # original line
     columns = next(fr).strip().split('\t')
     cur.copy_from(fr, 'tool_tmp',
       columns=columns,
