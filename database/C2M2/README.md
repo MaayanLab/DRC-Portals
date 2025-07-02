@@ -15,7 +15,11 @@
 # Be in the folder database/C2M2
 
 # To do a quick check if each DCC has only one valid C2M2 package listed in the file ingest/DccAssets.tsv
- ./get_current_notdeleted_C2M2_list.sh ingest/DccAssets.tsv
+# If not already downloaded: can do: bring in folder ingest: (see also ../ingest_common.py for the URL and file names)
+# wget https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv && mv current_dcc_assets.tsv DccAssets.tsv
+# OR
+# curl https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv -o "DccAssets.tsv"
+./get_current_notdeleted_C2M2_list.sh ingest/DccAssets.tsv
 
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
 server_label=
@@ -37,13 +41,13 @@ cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
 
 ###########################
 # To get the list of files and lines with specific keywords 
-./extract_keyword_phrases.sh lines_from_dcc_files_with_keywords.txt lines_from_dcc_files_with_phrase_around_keywords.txt
+./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
 
 #To replace any specific words with another words in the tsv files directly, before ingesting
 logf=${logdir}/log_replace_gender_sex_women_female_in_tsvfiles.log
 ./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s 2>&1 | tee ${logf};
 echo ${date_div} >> ${logf};
-./extract_keyword_phrases.sh cleaned_lines_from_dcc_files_with_keywords.txt cleaned_lines_from_dcc_files_with_phrase_around_keywords.txt
+./extract_keyword_phrases.sh kwlog/cleaned_lines_from_dcc_files_with_keywords.txt kwlog/cleaned_lines_from_dcc_files_with_phrase_around_keywords.txt
 #for file in $(find ingest/c2m2s -type f -name "*.tsv"); do egrep -i -e "sex" ${file}|wc -l; done
 #for file in $(find ingest/c2m2s -type f -name "*.tsv"); do egrep -i -e "gender" ${file}; done
 
