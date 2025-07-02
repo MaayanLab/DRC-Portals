@@ -5,6 +5,7 @@ from ingest_common import (
   dcc_publications_path,
   outreach_path,
   dcc_outreach_path,
+  center_outreach_path,
   dcc_assets_path,
   file_assets_path,
   code_assets_path,
@@ -427,8 +428,13 @@ cur.execute('''
 ''')
 
 cur.execute('''
+  DELETE FROM center_outreach;
+''')
+
+cur.execute('''
   DELETE FROM outreach;
 ''') 
+
 cur.execute('''
   create table outreach_tmp
   as table outreach
@@ -485,6 +491,38 @@ cur.execute('''
     ;
   ''')
 cur.execute('drop table dcc_outreach_tmp;')
+
+
+cur = connection.cursor()
+cur.execute('''
+  create table center_outreach_tmp
+  as table center_outreach
+  with no data;
+''')
+c_buf = io.StringIO()
+center_outreach_columns = ["outreach_id", "center_id"]
+center_outreach_df = pd.read_csv(center_outreach_path(), sep="\t")
+center_outreach_df.to_csv(c_buf, header=True, sep="\t", index=None)
+c_buf.seek(0)
+columns = next(c_buf).strip().split('\t')
+cur.copy_from(c_buf, 'center_outreach_tmp',
+	columns=center_outreach_columns,
+	null='',
+	sep='\t',
+)
+
+cur.execute('''
+    insert into center_outreach (outreach_id, center_id)
+      select outreach_id, center_id
+      from center_outreach_tmp
+      on conflict 
+        do nothing
+    ;
+  ''')
+cur.execute('drop table center_outreach_tmp;')
+connection.commit()
+
+
 connection.commit()
 
 print("Ingested outreach and webinars")
