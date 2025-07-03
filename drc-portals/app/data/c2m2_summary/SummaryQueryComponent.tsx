@@ -18,9 +18,9 @@ type YAxisField =
   | 'Collections count';
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
-  'Subjects count': ['dcc', 'taxonomy_id', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
+  'Subjects count': ['dcc', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
   'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'sample_prep_method', 'disease'],
-  'Files count': ['dcc (id_namespace)', 'file_format', 'assay_type', 'analysis_type', 'data_type', 'compression_format'],
+  'Files count': ['dcc', 'file_format', 'assay_type', 'analysis_type', 'data_type', 'compression_format'],
   'Collections count': ['dcc', 'anatomy', 'biofluid', 'disease', 'phenotype'],
   'Projects count': ['dcc'],
 };
@@ -63,11 +63,31 @@ const SummaryQueryComponent = () => {
           y_axis: yAxis.toLowerCase().replace(/ /g, ''), // e.g. 'biosamplescount'
           group_by: groupBy
         });
-        const url = `/data/c2m2_summary/getBiosampleCounts?${params.toString()}`;
+
+        // Choose endpoint based on yAxis
+        let endpoint = '';
+        if (yAxis === 'Subjects count') {
+          endpoint = '/data/c2m2_summary/getSubjectCounts';
+        } else if (yAxis === 'Biosamples count') {
+          endpoint = '/data/c2m2_summary/getBiosampleCounts';
+        } else if (yAxis === 'Files count') {
+            endpoint = '/data/c2m2_summary/getFileCounts';
+        } else {
+          // You can add more endpoints for other yAxis values if needed
+          setError('Endpoint not implemented for this count type.');
+          setChartData([]);
+          setLoading(false);
+          return;
+        }
+
+        const url = `${endpoint}?${params.toString()}`;
         const res = await fetch(url);
         const text = await res.text();
+        console.log('API raw response:', text); // in your frontend
+
         try {
           const json = JSON.parse(text);
+          
           if (!json.data) throw new Error('No data in response');
           setChartData(json.data);
         } catch (e) {
@@ -186,7 +206,6 @@ const SummaryQueryComponent = () => {
               overflowX: 'auto',
               overflowY: 'hidden',
               pr: 2,
-              // Set a minWidth if you want the chart to always be at least a certain width
             }}
           >
             <Box sx={{ width: Math.max(600, chartData.length * 80) }}>
