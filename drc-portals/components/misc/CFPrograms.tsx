@@ -15,7 +15,7 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
         active: true,
         short_label: {
           in: [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", 
-            "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA",]
+            "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA", 'SCGE']
           
         }
       }
@@ -27,17 +27,12 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
         homepage: "https://commonfund.nih.gov/somatic-mosaicism-across-human-tissues-smaht"
       },
       {
-        short_label: "ComPASS",
-        icon: "/img/interactive/compass.svg",
-        homepage: "https://commonfund.nih.gov/compass"
-      },
-      {
         short_label: "NPH",
         icon: "/img/interactive/nph.png",
         homepage: "https://commonfund.nih.gov/nutritionforprecisionhealth"
       }
     ]
-    const additional_label = ['NPH', 'ComPASS', 'SMaHT']
+    const additional_label = ['NPH', 'SMaHT']
     return (
       <Grid container direction="row" spacing={2} justifyContent={"center"} sx={{marginTop: 5}}>
         {[...dccs, ...additional].map(dcc=>(

@@ -22,17 +22,20 @@ const shuffle = (array: DCC[]) => {
 
 
 export default async function DCCLanding() {
-    const dccs = shuffle(await prisma.dCC.findMany({
+    const dccs = await prisma.dCC.findMany({
         where: {
             cfde_partner: true,
             active: true
+        },
+        orderBy: {
+            short_label: 'asc'
         }
-    }))
+    })
 
     return (
-        <Grid container spacing={1} sx={{marginTop: 2}}>
+        <Grid container spacing={2} sx={{marginTop: 2}}>
             <Grid item xs={12}>
-                <Typography variant="h3" color="secondary">Common Fund Programs Partnered with the CFDE</Typography>
+                <Typography variant="h2" color="secondary">Common Fund Programs Partnered with the CFDE</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Box sx={{ minHeight: 253 }}>

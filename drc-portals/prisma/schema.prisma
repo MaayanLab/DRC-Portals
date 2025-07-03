@@ -94,6 +94,9 @@ model Outreach {
   description       String
   tags              Json
   agenda            Json?
+  recurring         Boolean       @default(false)
+  ical              String?
+  schedule          String?
   featured          Boolean       @default(false)
   active            Boolean       @default(false)
   carousel          Boolean       @default(false)

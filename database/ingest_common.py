@@ -117,6 +117,7 @@ r03_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files
 r03_publication_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_r03_publications.tsv', 'R03_Publication.tsv')
 publications_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_publications.tsv', 'publications.tsv')
 dcc_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_outreach.tsv', 'dcc_outreach.tsv')
+center_outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_center_outreach.tsv', 'center_outreach.tsv')
 outreach_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_outreach.tsv', 'outreach.tsv')
 dcc_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv', 'DccAssets.tsv')
 file_assets_path = ensure_file_factory('https://cfde-drc.s3.amazonaws.com/database/files/current_file_assets.tsv', 'FileAssets.tsv')
@@ -139,7 +140,8 @@ def current_dcc_assets():
     how='inner',
   )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
-  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  #dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   return dcc_assets
 
 def current_code_assets():
@@ -150,7 +152,7 @@ def current_code_assets():
     right_on='link',
     how='inner',
   )
-  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
+  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   return dcc_assets
 
 #%%

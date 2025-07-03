@@ -2,7 +2,7 @@
 #
 # Call syntax: be in the correct folder: C2M2
 # ./extract_keyword_phrases.sh <outfile1.txt> <outfile2.txt>
-# ./extract_keyword_phrases.sh lines_from_dcc_files_with_keywords.txt lines_from_dcc_files_with_phrase_around_keywords.txt
+# ./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
 
 if [[ $# -lt 2 ]]; then
         echo -e "Usage: $0 <outfile1.txt> <outfile2.txt>";
@@ -23,13 +23,13 @@ IFS=$OLD_IFS
 
 search_path=ingest/c2m2s
 
-#kwf=lines_from_dcc_files_with_keywords.txt
+#kwf=kwlog/lines_from_dcc_files_with_keywords.txt
 kwf=$1
 egrep -r -i -e "${keywords_pipesep_string}" $search_path > "$kwf"
 echo -e "Wrote grepped lines to the file $kwf";
 
 # To find which files have these:
-# grep diversity lines_from_dcc_files_with_keywords.txt |cut -d':' -f1|sort|uniq
+# grep diversity kwlog/lines_from_dcc_files_with_keywords.txt |cut -d':' -f1|sort|uniq
 # grep diversity "$kwf" |cut -d':' -f1|sort|uniq
 
 #exit 0
@@ -43,7 +43,7 @@ echo -e "Wrote grepped lines to the file $kwf";
 
 #keywords=("gender" "inclusion" "diversity" "equity" "lgbt" "women")
 
-#opf=lines_from_dcc_files_with_phrase_around_keywords.txt
+#opf=kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
 opf=$2
 
 option=3

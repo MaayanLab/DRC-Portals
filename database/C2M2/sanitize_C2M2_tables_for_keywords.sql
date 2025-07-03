@@ -52,7 +52,7 @@ substance
 
 /*
 To find all such words in all files in ingest/c2m2s folder: use grep -r: write in a shell script extract_keyword_phrases.sh
-# ./extract_keyword_phrases.sh lines_from_dcc_files_with_keywords.txt lines_from_dcc_files_with_phrase_around_keywords.txt
+# ./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
 */
 
 --- Construct the sql array using the linux shell command, then copy paste the output into this file below

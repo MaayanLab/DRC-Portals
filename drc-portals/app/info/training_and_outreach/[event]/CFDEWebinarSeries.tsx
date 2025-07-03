@@ -10,7 +10,7 @@ import { Grid,
 	Divider
 } from "@mui/material";
 import prisma from "@/lib/prisma";
-import { OutreachWithDCC } from "@/components/misc/Outreach";
+import { OutreachWithDCCAndCenter } from "@/components/misc/Outreach";
 import Link from "@/utils/link";
 
 import Icon from '@mdi/react';
@@ -52,7 +52,7 @@ const Summary = ({section}: {section: AgendaType}) => (
 
 )
 
-const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
+const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCCAndCenter}) => {
 	const presenters: Array<AgendaType> = []
 	if (Array.isArray(webinar.agenda)) {
 		for (const item of webinar.agenda as Array<AgendaType>) {
@@ -101,7 +101,7 @@ const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 	)
 }
 
-const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
+const PastWebinar = ({webinar}: {webinar: OutreachWithDCCAndCenter}) => {
 	const presenters: Array<AgendaType> = []
 	if (Array.isArray(webinar.agenda)) {
 		for (const item of webinar.agenda as Array<AgendaType>) {
@@ -174,6 +174,11 @@ const CFDEWebinarSeries = async () => {
 				include: {
 					dcc: true
 				}
+			},
+			centers: {
+				include: {
+					center: true
+				}
 			}
 		},
 	})
@@ -188,6 +193,11 @@ const CFDEWebinarSeries = async () => {
 			dccs: {
 				include: {
 					dcc: true
+				}
+			},
+			centers: {
+				include: {
+					center: true
 				}
 			}
 		},

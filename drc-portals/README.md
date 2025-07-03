@@ -4,7 +4,7 @@
 ```bash
 # prepare .env file & review
 cp .env.example .env
-# start database
+# start database if not already running
 #  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
 docker-compose up -d drc-portal-postgres
 # install node modules

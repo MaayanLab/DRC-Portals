@@ -71,13 +71,19 @@ for table in tables:
 			df['creator'] = ''
 		filename = 'current/%s_%s.tsv'%(now, table)
 		s3_filename = filename.replace('current/', 'database/files/')
-		df.to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
+		if not table == "code_assets":
+			df.to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
+		else:
+			df.replace(r'\r+|\n+|\t+', '', regex=True).to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 		upload_file(filename, bucket, s3_filename)
 		filename = 'current/current_%s.tsv'%(table)
 		s3_filename = filename.replace('current/', 'database/files/')
-		df.to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
+		if not table == "code_assets":
+			df.to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
+		else:
+			df.replace(r'\r+|\n+|\t+', '', regex=True).to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 		upload_file(filename, bucket, s3_filename)
 	except Exception as e:
-		print(e)
-		cur.rollback()
+		print(f"failed {table}", e)
+		# cur.rollback()
 		cur.close()
