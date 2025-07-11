@@ -8,6 +8,8 @@ import CFDEWebinarSeries from "./CFDEWebinarSeries";
 import FOG from './FOG.mdx'
 import Fall2024 from './Fall2024.mdx'
 import ASHG2024 from './ASHG2024.mdx'
+import { EventPage } from "./event_page";
+import { validate as isValidUUID } from 'uuid';
 export default async function OutreachEvent ({params}: {
 	params: {
 		event: string
@@ -25,6 +27,8 @@ export default async function OutreachEvent ({params}: {
 		return <Fall2024 />
 	}else if (params.event === "ashg-2024") {
 		return <ASHG2024 />
+	} else if (isValidUUID(params.event)) {
+		return <EventPage id={params.event}/>
 	}
 	else {
 		return (

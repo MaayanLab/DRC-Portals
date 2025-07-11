@@ -9,3 +9,4 @@ requests
 SQLAlchemy==1.4.36
 pandas==2.1.4
 tqdm
+pyyaml

@@ -1,7 +1,7 @@
 "use client"
 import { useMemo, useState } from "react";
 import Link from "@/utils/link";
-import { Button, Divider, Chip, Stack, Grid } from "@mui/material";
+import { Button, Divider, Grid } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import ExportCitation from "./ExportCitation";
 import Filters from "./Filters";
@@ -118,65 +118,10 @@ export default function PublicationComponent({ publications }: { publications: P
                                 { pub.pmcid && 
                                     <ExportCitation pmcid={`${pub.pmcid}`}/>
                                 }
-                                {pub.landmark &&
-                                    <Chip label={"Landmark"} color="secondary" sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }} />
-                                }
-                                {pub.centers && pub.centers.length > 0 &&
-                                    <>
-                                        <Chip label="Center" color="secondary" sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }} onClick={() => window.open('/info/centers', '_blank')} clickable />
-                                        {pub.centers.map((c) => (
-                                            <Chip
-                                                key={c.center.id}
-                                                label={c.center.short_label}
-                                                color="secondary"
-                                                sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }}
-                                                onClick={() => window.open(`/info/centers/${c.center.short_label}`, '_blank')} clickable
-                                            />
-                                        ))}
-                                    </>
-                                }
-                                {(pub.dccs).map(({ dcc }) => (
-                                    <Chip key={dcc.short_label} label={dcc.short_label} color="secondary" sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }} onClick={() => window.open(`/info/dcc/${dcc.short_label}`, '_blank')} clickable />
-                                ))
-                                }
-                                {pub.r03s && pub.r03s.length > 0 && (
-                                    pub.r03s.map((r03, index) => (
-                                        <Chip key={index} label={'R03'} color="secondary" sx={{ borderRadius: 2, paddingLeft: 0, paddingRight: 0 }} onClick={() => window.open('/info/r03', '_blank')} clickable />
-                                    ))
-                                )}
 
                             </div>
                             {/* Keywords */}
-                            <Stack
-                                direction="row"
-                                className="flex flex-wrap gap-1 max-w-full mt-2"
-                                sx={{
-                                    flexWrap: 'wrap',
-                                    gap: '4px',
-                                    maxWidth: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'flex-start'
-                                }}
-                            >
-                                {pub.keywords && (
-                                    (pub.keywords as string[]).map((keyword, idx) => (
-                                        <Chip
-                                            key={idx}
-                                            label={toCamelCase(keyword)}
-                                            color="primary"
-                                            size="small"
-                                            sx={{
-                                                borderRadius: 2,
-                                                fontSize: '0.75rem',
-                                                height: '24px',
-                                                '& .MuiChip-label': {
-                                                    padding: '0 4px'
-                                                }
-                                            }}
-                                        />
-                                    ))
-                                )}
-                            </Stack>
+                            
                         </>
                     </div>
                     <Divider/>
