@@ -165,6 +165,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   return (
     <Autocomplete
       freeSolo
+      openOnFocus={true}
       value={value}
       options={options}
       onChange={handleOnChange}
@@ -172,6 +173,11 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
       renderInput={handleRenderInput}
       renderOption={handleRenderOption}
       filterOptions={(x) => x}
+      ListboxProps={{
+        style: {
+          maxHeight: "280px",
+        },
+      }}
       sx={{
         borderRadius: "4px",
         width: "auto",

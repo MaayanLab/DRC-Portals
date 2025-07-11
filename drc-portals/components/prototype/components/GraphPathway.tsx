@@ -3,7 +3,15 @@
 import { AlertColor, Box } from "@mui/material";
 
 import { EventObjectNode, NodeSingular } from "cytoscape";
-import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { z } from "zod";
 
 import { fetchPathwaySearchCount } from "@/lib/neo4j/api";
@@ -56,6 +64,7 @@ export default function GraphPathway() {
     () => ({ tree }),
     [tree]
   );
+  const searchParams = useSearchParams();
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
@@ -456,6 +465,19 @@ export default function GraphPathway() {
     setSearchElements(newElements);
     setTree(createTree(newElements));
   }, [searchElements]);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+
+    if (q !== null) {
+      try {
+        const initialNode: NodeResult = JSON.parse(atob(decodeURI(q)));
+        handleSearchBarSubmit(initialNode);
+      } catch {
+        updateSnackbar(true, "Could not read data from URL params!", "warning");
+      }
+    }
+  }, [searchParams]);
 
   return (
     <Box sx={{ height: "640px" }}>

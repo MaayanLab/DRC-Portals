@@ -1,5 +1,5 @@
-import GraphLayout from "./layout";
+import { redirect } from "next/navigation";
 
-export default async function Page() {
-  return <GraphLayout />;
+export default function Page() {
+  return redirect("/data/graph/search");
 }

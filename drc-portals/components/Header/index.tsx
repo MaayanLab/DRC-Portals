@@ -3,7 +3,7 @@
 import AppBar from '@mui/material/AppBar'
 import Container from '@mui/material/Container'
 
-import { 
+import {
 	Grid,
 	Toolbar,
 	Stack,
@@ -34,11 +34,11 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 	  <UserComponent session={session}/>
 	</>
   )}
-  
+
   export const BottomNav = ({nav, path}: {path: '/info'|'/data', nav: Array<{href: string, title: string}>}) => {
 	return nav.map(({title, href})=>(
 	  <Grid item key={title}>
-		{ href.indexOf('http') > -1 ? 
+		{ href.indexOf('http') > -1 ?
 		  <Link href={href} target="_blank" rel="noopener noreferrer">
 			<Typography variant="nav">{title}</Typography>
 		  </Link>:
@@ -49,7 +49,7 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 	  </Grid>
 	))
   }
-  
+
 const info_nav = [
   {title: "Home", href: "/info"},
   {title: "CF Programs", href: "/info/dcc"},
@@ -64,13 +64,13 @@ const info_nav = [
 
 const data_nav = [
 	{title: "Search", href: "/data"},
+	{title: "Graph", href: "/data/graph"},
 	{title: "Chatbot", href: "/data/chat"},
 	{title: "Data Matrix", href: "/data/matrix"},
 	{title: "Use Cases", href: "/data/usecases"},
 	{title: "Tools & Workflows", href: "/data/tools_and_workflows"},
 	{title: "Submit", href: "/data/submit"},
-	{title: "Documentation", href: "/info/documentation"},
-	
+	{title: "Documentation", href: "/info/documentation"}
   ]
 
 export default async function Header({path}: {path: "/info" | "/data"}) {
@@ -89,12 +89,12 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
 					<TopNav path={path} session={session}/>
 					</Stack>
 				</Grid>
-				<Grid item xs={12}> 
+				<Grid item xs={12}>
 					<Grid container alignItems={"center"} spacing={2}>
 						<BottomNav nav={nav} path={path}/>
 					</Grid>
 				</Grid>
-          
+
 				<Grid item xs={12} className='flex items-center'>
 					<div className='flex flex-grow'><NavBreadcrumbs/></div>{path === "/data" && <SearchParamSearchField />}
 				</Grid>

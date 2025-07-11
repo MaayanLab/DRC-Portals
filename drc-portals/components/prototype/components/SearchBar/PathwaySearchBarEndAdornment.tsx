@@ -14,7 +14,7 @@ export default function PathwaySearchBarEndAdornment() {
         position: "absolute",
       }}
     >
-      <TransparentIconButton>
+      <TransparentIconButton disabled>
         <SearchIcon />
       </TransparentIconButton>
     </div>
