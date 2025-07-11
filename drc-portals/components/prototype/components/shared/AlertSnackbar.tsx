@@ -28,6 +28,7 @@ export default function AlertSnackbar(cmpProps: AlertSnackbarProps) {
       }}
       autoHideDuration={autoHideDuration}
       onClose={handleClose}
+      sx={{ position: "absolute" }}
     >
       <Alert sx={{ width: "100%" }} severity={severity} onClose={handleClose}>
         {message}

@@ -210,21 +210,29 @@ export default function GraphPathwayResults(
   );
 
   const handleDownloadAllClicked = useCallback(async () => {
-    const columnData = orderBy === undefined ? undefined : columns[orderBy];
-    const { data } = await getPathwaySearchResults(
-      tree,
-      undefined,
-      undefined,
-      columnData?.key,
-      columnData?.displayProp,
-      order
-    );
-    const jsonString = JSON.stringify(
-      data.paths.map((row) =>
-        row.filter((element) => !isRelationshipResult(element))
-      )
-    );
-    downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
+    try {
+      const columnData = orderBy === undefined ? undefined : columns[orderBy];
+      const { data } = await getPathwaySearchResults(
+        tree,
+        undefined,
+        undefined,
+        columnData?.key,
+        columnData?.displayProp,
+        order
+      );
+      const jsonString = JSON.stringify(
+        data.paths.map((row) =>
+          row.filter((element) => !isRelationshipResult(element))
+        )
+      );
+      downloadBlob(jsonString, "application/json", "c2m2-graph-data.json");
+    } catch (e) {
+      updateSnackbar(
+        true,
+        "An error occurred downloading table data. Please try again later.",
+        "error"
+      );
+    }
   }, [tree, columns, orderBy, order]);
 
   const updateSnackbar = (open: boolean, msg: string, severity: AlertColor) => {

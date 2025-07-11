@@ -505,6 +505,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           horizontal: "center",
         }}
         onClose={handlePruneSnackbarCanceled}
+        sx={{ position: "absolute" }}
       >
         <Paper
           variant="outlined"
@@ -514,6 +515,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             alignItems: "center",
             justifyContent: "space-between",
             borderColor: CFDE_DARK_BLUE,
+            backgroundColor: "#E7F3F5",
             padding: 1,
           }}
         >
@@ -531,8 +533,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             </Button>
             <Button
               variant="contained"
-              color="primary"
               onClick={handlePruneSnackbarCanceled}
+              sx={{ backgroundColor: "#FFF" }}
             >
               Cancel
             </Button>

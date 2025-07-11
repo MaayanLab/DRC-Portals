@@ -480,7 +480,7 @@ export default function GraphPathway() {
   }, [searchParams]);
 
   return (
-    <Box sx={{ height: "640px" }}>
+    <Box sx={{ height: "640px", position: "relative" }}>
       {showResults && tree !== undefined ? (
         <GraphPathwayResults
           tree={tree}
