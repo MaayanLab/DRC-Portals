@@ -2,30 +2,39 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
 import {
   Box, Grid, FormControl, InputLabel, MenuItem, Select, Typography, Button,
   CircularProgress, Alert, Switch, FormControlLabel
 } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
 import * as htmlToImage from 'html-to-image';
 
-// Utility: Convert JSON array to CSV string (handles commas/quotes)
-function jsonToCsv(data: any[]): string {
-  if (!data.length) return '';
-  const keys = Object.keys(data[0]);
-  const escape = (val: any) =>
-    typeof val === 'string' && (val.includes(',') || val.includes('"') || val.includes('\n'))
-      ? `"${val.replace(/"/g, '""')}"`
-      : val ?? '';
-  const header = keys.join(',');
-  const rows = data.map(row => keys.map(k => escape(row[k])).join(','));
-  return [header, ...rows].join('\n');
+// Tooltip payload entry type
+interface PayloadEntry {
+  name: string;
+  value: number | string;
+  color: string;
 }
 
-// Custom scrollable tooltip for Recharts
-const CustomScrollableTooltip = ({ active, payload, label }) => {
+// Tooltip props type
+interface CustomScrollableTooltipProps {
+  active?: boolean;
+  payload?: PayloadEntry[];
+  label?: string;
+}
+
+const CustomScrollableTooltip: React.FC<CustomScrollableTooltipProps> = ({ active, payload, label }) => {
   if (!active || !payload || payload.length === 0) return null;
+
+  // Sort payload descending by value
+  const sortedPayload = [...payload].sort((a, b) => {
+    const aVal = typeof a.value === 'number' ? a.value : Number(a.value);
+    const bVal = typeof b.value === 'number' ? b.value : Number(b.value);
+    return bVal - aVal;
+  });
+
   return (
     <div
       style={{
@@ -42,7 +51,7 @@ const CustomScrollableTooltip = ({ active, payload, label }) => {
     >
       <div style={{ fontWeight: 600, marginBottom: 6 }}>{label}</div>
       <div>
-        {payload.map((entry, idx) => (
+        {sortedPayload.map((entry, idx) => (
           <div key={idx} style={{ color: entry.color, marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
             <span>{entry.name}</span>
             <span style={{ marginLeft: 12 }}>{entry.value}</span>
@@ -70,18 +79,20 @@ const axisOptionsMap: Record<YAxisField, string[]> = {
 
 const patternId = "dottedUnspecified";
 
-const SummaryQueryComponent = () => {
+const minBarWidth = 60; // px, adjust as needed
+const minChartWidth = 600; // px
+
+const SummaryQueryComponent: React.FC = () => {
   const [yAxis, setYAxis] = useState<YAxisField>('Biosamples count');
   const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosamples count'][0]);
   const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosamples count'][1] || '');
   const [downloadFormat, setDownloadFormat] = useState<'png' | 'svg' | 'csv' | 'json'>('png');
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<Record<string, number | string | undefined>[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showUnspecified, setShowUnspecified] = useState<boolean>(true);
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
-  // Dropdown logic
   useEffect(() => {
     const axes = axisOptionsMap[yAxis];
     setXAxis(axes[0]);
@@ -97,7 +108,6 @@ const SummaryQueryComponent = () => {
   const xOptions = axisOptionsMap[yAxis];
   const groupOptions = xOptions.filter((opt) => opt !== xAxis);
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -146,7 +156,6 @@ const SummaryQueryComponent = () => {
     fetchData();
   }, [yAxis, xAxis, groupBy]);
 
-  // Group keys
   const groupValues = groupBy ? Array.from(
     chartData.reduce<Set<string>>((set, item) => {
       Object.keys(item).forEach((key) => {
@@ -156,7 +165,6 @@ const SummaryQueryComponent = () => {
     }, new Set())
   ) : ['value'];
 
-  // Color map
   const generateColors = (keys: string[]) => {
     const count = Math.max(keys.length, 1);
     return keys.reduce((map, key, i) => {
@@ -166,18 +174,17 @@ const SummaryQueryComponent = () => {
   };
   const colorMap = generateColors(groupValues);
 
-  // Clean data for log scale (all bar values > 0)
   const cleanedChartData = chartData.map(row => {
-    const newRow: any = { ...row };
+    const newRow: Record<string, string | number | undefined> = { ...row };
     Object.keys(newRow).forEach(key => {
-      if (key !== xAxis && (newRow[key] == null || newRow[key] <= 0)) {
+      const val = newRow[key];
+      if (key !== xAxis && typeof val === 'number' && val <= 0) {
         newRow[key] = 1;
       }
     });
     return newRow;
   });
 
-  // Split data for two plots
   const topPlotData = cleanedChartData.map(row => {
     const newRow = { ...row };
     Object.keys(newRow).forEach(key => {
@@ -186,15 +193,13 @@ const SummaryQueryComponent = () => {
     return newRow;
   });
   const bottomPlotData = cleanedChartData.map(row => {
-    const onlyUnspecified = { [xAxis]: row[xAxis], Unspecified: row['Unspecified'] };
+    const onlyUnspecified: Record<string, number | string | undefined> = { [xAxis]: row[xAxis], Unspecified: row['Unspecified'] };
     return onlyUnspecified;
   });
 
-  // Bar keys for each plot
   const topPlotGroups = groupValues.filter(g => g !== 'Unspecified');
   const bottomPlotGroups = groupValues.includes('Unspecified') ? ['Unspecified'] : [];
 
-  // Download logic (PNG/SVG for both plots together)
   const handleDownload = () => {
     if (downloadFormat === 'csv') {
       if (!chartData.length) return;
@@ -226,6 +231,42 @@ const SummaryQueryComponent = () => {
     });
   };
 
+  function jsonToCsv(data: Record<string, number | string | undefined>[]): string {
+    if (!data.length) return '';
+    const keys = Object.keys(data[0]);
+    const escape = (val: unknown) =>
+      typeof val === 'string' && (val.includes(',') || val.includes('"') || val.includes('\n'))
+        ? `"${val.replace(/"/g, '""')}"`
+        : val ?? '';
+    const header = keys.join(',');
+    const rows = data.map(row => keys.map(k => escape(row[k])).join(','));
+    return [header, ...rows].join('\n');
+  }
+
+  const handleYAxisChange = (event: SelectChangeEvent<YAxisField>) => {
+    setYAxis(event.target.value as YAxisField);
+  };
+
+  const handleXAxisChange = (event: SelectChangeEvent<string>) => {
+    setXAxis(event.target.value);
+  };
+
+  const handleGroupByChange = (event: SelectChangeEvent<string>) => {
+    setGroupBy(event.target.value);
+  };
+
+  const handleDownloadFormatChange = (event: SelectChangeEvent<'png' | 'svg' | 'csv' | 'json'>) => {
+    setDownloadFormat(event.target.value as 'png' | 'svg' | 'csv' | 'json');
+  };
+
+  // Calculate chart width for horizontal scroll
+  const topChartWidth = Math.max(topPlotData.length * minBarWidth, minChartWidth);
+  const bottomChartWidth = Math.max(bottomPlotData.length * minBarWidth, minChartWidth);
+
+  // Height logic: if no Unspecified, top plot uses the full height
+  const hasUnspecified = showUnspecified && bottomPlotGroups.length > 0;
+  const topPlotHeight = hasUnspecified ? 300 : 500;
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>Summary Query Chart</Typography>
@@ -237,7 +278,7 @@ const SummaryQueryComponent = () => {
             <InputLabel>Y-axis (Count Type)</InputLabel>
             <Select
               value={yAxis}
-              onChange={(e) => setYAxis(e.target.value as YAxisField)}
+              onChange={handleYAxisChange}
             >
               {Object.keys(axisOptionsMap).map((opt) => (
                 <MenuItem key={opt} value={opt}>{opt}</MenuItem>
@@ -250,7 +291,7 @@ const SummaryQueryComponent = () => {
             <InputLabel>X-axis</InputLabel>
             <Select
               value={xAxis}
-              onChange={(e) => setXAxis(e.target.value)}
+              onChange={handleXAxisChange}
             >
               {xOptions.map((opt) => (
                 <MenuItem key={opt} value={opt}>{opt}</MenuItem>
@@ -263,7 +304,7 @@ const SummaryQueryComponent = () => {
             <InputLabel>Group by</InputLabel>
             <Select
               value={groupBy}
-              onChange={(e) => setGroupBy(e.target.value)}
+              onChange={handleGroupByChange}
             >
               {groupOptions.map((opt) => (
                 <MenuItem key={opt} value={opt}>{opt}</MenuItem>
@@ -276,7 +317,7 @@ const SummaryQueryComponent = () => {
             <InputLabel>Download Format</InputLabel>
             <Select
               value={downloadFormat}
-              onChange={(e) => setDownloadFormat(e.target.value as 'png' | 'svg' | 'csv' | 'json')}
+              onChange={handleDownloadFormatChange}
             >
               <MenuItem value="png">PNG</MenuItem>
               <MenuItem value="svg">SVG</MenuItem>
@@ -320,9 +361,11 @@ const SummaryQueryComponent = () => {
       {!loading && !error && (
         <Box ref={chartContainerRef}>
           {/* Top Plot */}
-          <Box sx={{ height: showUnspecified ? 300 : 500, transition: 'height 0.3s' }}>
-            <ResponsiveContainer width="100%" height="100%">
+          <Box sx={{ width: '100%', overflowX: 'auto' }}>
+            <div style={{ width: topChartWidth }}>
               <BarChart
+                width={topChartWidth}
+                height={topPlotHeight}
                 data={topPlotData}
                 margin={{ top: 30, right: 40, bottom: 100, left: 60 }}
               >
@@ -358,14 +401,16 @@ const SummaryQueryComponent = () => {
                   />
                 ))}
               </BarChart>
-            </ResponsiveContainer>
+            </div>
           </Box>
           {/* Bottom Plot: Only Unspecified */}
-          {showUnspecified && bottomPlotGroups.length > 0 && (
-            <Box sx={{ height: 200, mt: 2 }}>
+          {hasUnspecified && (
+            <Box sx={{ width: '100%', overflowX: 'auto', mt: 2 }}>
               <Typography variant="subtitle2" align="center" sx={{ mb: 1 }}>Unspecified Only</Typography>
-              <ResponsiveContainer width="100%" height="100%">
+              <div style={{ width: bottomChartWidth }}>
                 <BarChart
+                  width={bottomChartWidth}
+                  height={200}
                   data={bottomPlotData}
                   margin={{ top: 10, right: 40, bottom: 40, left: 60 }}
                 >
@@ -398,7 +443,7 @@ const SummaryQueryComponent = () => {
                     isAnimationActive={false}
                   />
                 </BarChart>
-              </ResponsiveContainer>
+              </div>
             </Box>
           )}
         </Box>
