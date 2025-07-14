@@ -60,8 +60,11 @@ const Subheader = () => {
 	const subpaths = (pathname.split("/")).slice(1)
 	if (typeof subheader === 'undefined') return null
 	else {
-		let subheader_props = null
-		let default_options = null
+		let subheader_props: null | {
+                    url_field: string,
+                    query_field: string,
+                } = null
+		let default_options: null | {[key: string]: any} = null
 		let disableLibraryLimit = false
 		const subpaths = (pathname.split("/")).slice(1)
 		for (const tab of schema.header.tabs) {
