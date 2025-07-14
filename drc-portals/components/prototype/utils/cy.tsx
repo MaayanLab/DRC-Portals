@@ -66,6 +66,7 @@ const createCytoscapeNode = (
 ): CytoscapeNode => {
   const nodeLabel = node.labels[0];
   return {
+    group: "nodes",
     classes: [NODE_CLASS_MAP.get(nodeLabel) || "", ...(classes || [])],
     data: {
       id: node.uuid,
@@ -86,6 +87,7 @@ const createCytoscapeEdge = (
 ): CytoscapeEdge => {
   return {
     classes,
+    group: "edges",
     data: {
       id: relationship.uuid,
       source: relationship.startUUID,
