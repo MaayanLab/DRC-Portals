@@ -76,7 +76,7 @@ services:
   drc-portal-app-gse:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-gse:0.18.6
+    image: maayanlab/drc-portal-gse:0.18.7
     deploy:
       replicas: 3
       resources:
