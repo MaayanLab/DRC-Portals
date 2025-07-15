@@ -116,13 +116,13 @@ const InteractiveButtons = ({
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
                 <LibraryPicker 
                     parsedParams={parsedParams}
                     libraries_list={libraries_list || []}
                     fullWidth={false}
                 />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12}>
                 <Stack direction={"row"} alignItems={"center"}>
                     <Tooltip title={"Bar view"}>
