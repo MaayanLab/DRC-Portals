@@ -71,7 +71,7 @@ export const EnrichrTermSearch = ({setInput}: {setInput: Function}) => {
 
     return (
         <Stack direction={'column'} spacing={1} justifyContent={'flex-start'} alignItems={'flex-start'}>
-            <Typography variant={'subtitle2'}> Search an Enrichr term and expand it to a gene set:</Typography>
+            <Typography variant={'subtitle2'}> Fetch annotated gene sets from Enrichr</Typography>
             <Autocomplete
                 id="enrichr-term"
                 options={options.sort((a, b) => -b.library.localeCompare(a.library))}
