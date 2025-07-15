@@ -26,6 +26,7 @@ import { useQueryState, parseAsJson } from "next-usequerystate"
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import schema from './schema.json'
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -34,14 +35,13 @@ const LibraryPicker = ({
 	parsedParams,
 	libraries_list,
 	fullWidth,
-	disableLibraryLimit
 }: {
 	fullWidth: boolean,
-    disableLibraryLimit?: boolean,
     libraries_list: Array<string>,
     parsedParams: EnrichmentParams,
 	fullscreen?: 'true'
 }) => {
+	const disableLibraryLimit = true
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
@@ -60,7 +60,14 @@ const LibraryPicker = ({
 	};
 	const open = Boolean(anchorEl);
 	const id = open ? 'simple-popper' : undefined;
-	let libraries = query.libraries || parsedParams.libraries || []
+	let default_options: null | {libraries?: {name: string, limit?: number}[], [key:string]: any} = null
+	for (const tab of schema.header.tabs) {
+		if (pathname.replace("/data", "") === tab.endpoint) { 
+			default_options = tab.props?.default_options
+		}
+
+	}
+	let libraries = query.libraries || parsedParams.libraries || default_options?.libraries || []
 
 	return (
 		<Grid container spacing={1}>

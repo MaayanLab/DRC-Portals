@@ -28,7 +28,7 @@ export default async function Home({searchParams}: {
 }) {
 	let props
 	for (const tab of schema.header.tabs) {
-		if ("/gse" === tab.endpoint) props = tab.props
+		if ("/enrichment" === tab.endpoint) props = tab.props
 	}
 
 	const query_parser = parseAsJson<EnrichmentParams>().withDefault(props?.default_options || {})

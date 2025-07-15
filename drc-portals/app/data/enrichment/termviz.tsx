@@ -54,7 +54,7 @@ const TermViz = ({elements, tooltip_templates_edges, tooltip_templates_nodes, vi
 	const sorted_entries = Object.values(entries).sort((a,b)=>a["pval"]-b["pval"])
 	if (sorted_entries.length === 0) return <Typography variant="h5">No Results Found</Typography>
 	else {
-		if (view === 'network' || !view) return (
+		if (view === 'network') return (
 			<Cytoscape 
 				elements={elements}
 				tooltip_templates_edges={tooltip_templates_edges}
@@ -66,7 +66,7 @@ const TermViz = ({elements, tooltip_templates_edges, tooltip_templates_nodes, vi
 		else if (view === "table") return (
 			<NetworkTable sorted_entries={sorted_entries} columns={columns}/>
 		) 
-		else if (view === "bar") return(
+		else if (view === "bar" || !view) return(
 			<EnrichmentBar data={sorted_entries}
 				max={sorted_entries[0]["value"]}
 				min={sorted_entries[sorted_entries.length - 1]["value"]}

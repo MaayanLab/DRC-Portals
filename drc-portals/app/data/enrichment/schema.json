@@ -678,8 +678,8 @@
                 }
             ],
             "templates": {
-                "singular": "${gene} is down-regulated in ${term} perturbational signatures.",
-                "multiple": "${genes} are down-regulated in ${term} perturbational signatures."
+                "singular": "${gene} is down-regulated in perturbational signatures of ${term}.",
+                "multiple": "${genes} are down-regulated in perturbational signatures of ${term}."
             }
         },
         {
@@ -953,8 +953,8 @@
                 }
             ],
             "templates": {
-                "singular": "${gene} is up-regulated in ${term} perturbational signatures.",
-                "multiple": "${genes} are up-regulated in ${term} perturbational signatures."
+                "singular": "${gene} is up-regulated in perturbational signatures of ${term}.",
+                "multiple": "${genes} are up-regulated in perturbational signatures of ${term}."
             }
         },
         {
@@ -1540,7 +1540,7 @@
         },
         "tabs": [
             {
-                "endpoint": "/gse",
+                "endpoint": "/enrichment",
                 "label": "Enrichment Analysis",
                 "type": "page",
                 "component": "Enrichment",

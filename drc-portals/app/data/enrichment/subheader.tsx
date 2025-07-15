@@ -65,10 +65,13 @@ const Subheader = () => {
                     query_field: string,
                 } = null
 		let default_options: null | {[key: string]: any} = null
-		let disableLibraryLimit = false
+		let disableLibraryLimit = true
 		const subpaths = (pathname.split("/")).slice(1)
 		for (const tab of schema.header.tabs) {
-			if (pathname.replace("/data", "") === tab.endpoint) subheader_props = tab.props?.subheader
+			if (pathname.replace("/data", "") === tab.endpoint) { 
+				subheader_props = tab.props?.subheader
+				default_options = tab.props.default_options
+			}
 
 		}
 		if (subheader_props === null) return null

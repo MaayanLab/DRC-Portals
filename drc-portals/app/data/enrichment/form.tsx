@@ -28,7 +28,6 @@ import { NetworkSchema, EnrichmentParams } from './types';
 import { useQueryState, parseAsJson } from 'next-usequerystate';
 
 const GeneSetForm = ({
-    disableLibraryLimit,  
     example,
     libraries_list,
     parsedParams,
@@ -552,7 +551,6 @@ const GeneSetForm = ({
                                 <LibraryPicker parsedParams={parsedParams}
                                     libraries_list={libraries_list}
                                     fullWidth={fullWidth}
-                                    disableLibraryLimit={disableLibraryLimit || true}
                                 />
                             </Grid>
                             <Grid item xs={12}>

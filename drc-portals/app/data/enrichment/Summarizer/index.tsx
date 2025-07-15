@@ -1,5 +1,5 @@
 import React from 'react'
-import { makeTemplate } from '../helper';
+import { makeTemplate, precise } from '../helper';
 import Box from '@mui/material/Box';
 
 import CircularProgress from '@mui/material/CircularProgress';
@@ -35,7 +35,6 @@ export const Summarizer = ({elements, augmented}: {elements: NetworkSchema | nul
 			templates[edge] = template
 		}
 	}
-
     const node_type: {[key: string]: string} = {}
 	const resource_relations: {[key: string]: {[key: string]: {
 		relation?: string,
@@ -47,6 +46,7 @@ export const Summarizer = ({elements, augmented}: {elements: NetworkSchema | nul
 		gene_list?: string[],
 		genes?: string,
 		term?: string,
+		pval?: number
 	}}} = {}
 	const node_label: {[key:string]: string} = {}
 		
@@ -54,7 +54,7 @@ export const Summarizer = ({elements, augmented}: {elements: NetworkSchema | nul
 		for (const i of elements.nodes) {
 			if (i.data.kind !== "Relation") {
 				node_type[i.data.id] = i.data.kind
-				node_label[i.data.id] = i.data.label
+				node_label[i.data.id] = `${i.data.label}${i.data.pval?" (pval: " + precise(i.data.pval) + ")": ""}`
 			}
 		}
 		for (const i of elements.edges) {
@@ -139,7 +139,7 @@ export const Summarizer = ({elements, augmented}: {elements: NetworkSchema | nul
     return  (
 		<ClientSummarizer>
 			<Box sx={style}>
-				<Typography variant="h5">{augmented ? "Free text summary of the augmented subnetwork": "Free text summary of the subnetwork"}</Typography>
+				<Typography variant="h5">{augmented ? "Free text summary of the augmented subnetwork": "Free text summary of the subnetwork"} automatically generated from text templates</Typography>
 				{summary === "null" ? <CircularProgress/>: 
 					<Box sx={{padding: 10, border: "1px solid", marginTop: 10, height: 400, overflow: "auto"}}>
 						<Typography variant="subtitle1">{summary}</Typography>

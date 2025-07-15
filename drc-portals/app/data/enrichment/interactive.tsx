@@ -84,7 +84,6 @@ const InteractiveButtons = ({
     const router = useRouter()
     const pathname = usePathname()
     const [edge_labels, setEdgeLabels] = useQueryState('edge_labels')
-    // const [view, setView] = useQueryState('view')
 	const [layout, setLayout] = useQueryState('layout')
 	const [legend, setLegend] = useQueryState('legend')
     const [tooltip, setTooltip] = useQueryState('tooltip')
@@ -122,18 +121,29 @@ const InteractiveButtons = ({
                     parsedParams={parsedParams}
                     libraries_list={libraries_list || []}
                     fullWidth={false}
-                    disableLibraryLimit={disableLibraryLimit || true}
                 />
             </Grid>
             <Grid item xs={12}>
                 <Stack direction={"row"} alignItems={"center"}>
-                    <Tooltip title={"Network view"}>
+                    <Tooltip title={"Bar view"}>
                         <IconButton
                             onClick={()=>{
                                 const {view, ...query} = searchParams
                                 router_push(router, pathname, query)
+                                // setView('bar')
                             }}
-                            sx={{borderRadius: 5, background: (view === "network" || !view) ? "#e0e0e0": "none"}}
+                            sx={{borderRadius: 5, background: (view === "bar" || view === undefined) ? "#e0e0e0": "none"}}
+                        >
+                            <Icon path={mdiPoll} rotate={90} size={0.8} />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={"Network view"}>
+                        <IconButton
+                            onClick={()=>{
+                                const {view, ...query} = searchParams
+                                router_push(router, pathname, {...query, view: "network"})
+                            }}
+                            sx={{borderRadius: 5, background: (view === "network") ? "#e0e0e0": "none"}}
                         >
                             <Icon path={mdiGraph} size={0.8} />
                         </IconButton>
@@ -148,18 +158,6 @@ const InteractiveButtons = ({
                             sx={{borderRadius: 5, background: (view === "table") ? "#e0e0e0": "none"}}
                         >
                             <Icon path={mdiTable} size={0.8} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={"Bar view"}>
-                        <IconButton
-                            onClick={()=>{
-                                const {view, ...query} = searchParams
-                                router_push(router, pathname, {...query, view: "bar"})
-                                // setView('bar')
-                            }}
-                            sx={{borderRadius: 5, background: view === "bar" ? "#e0e0e0": "none"}}
-                        >
-                            <Icon path={mdiPoll} rotate={90} size={0.8} />
                         </IconButton>
                     </Tooltip>
                     <Divider sx={{backgroundColor: "secondary.main", height: 20, borderRightWidth: 1}} orientation="vertical"/>
@@ -177,7 +175,7 @@ const InteractiveButtons = ({
                     </Tooltip>
                     <Tooltip title={tooltip ? "Hide tooltip": "Show tooltip"}>
                         <IconButton
-                            disabled={elements===null && (view !== undefined && view !== "network")}
+                            disabled={elements===null || (view !== "network")}
                             onClick={()=>{
                                 if (tooltip) setTooltip(null)
                                 else setTooltip('true')
@@ -192,7 +190,7 @@ const InteractiveButtons = ({
                             aria-controls={anchorEl!==null ? 'basic-menu' : undefined}
                             aria-haspopup="true"
                             aria-expanded={anchorEl!==null ? 'true' : undefined}
-                            disabled={view !== undefined && view !== "network"}
+                            disabled={view !== "network"}
                         >
                             <FlipCameraAndroidIcon/>
                         </IconButton>
@@ -221,7 +219,7 @@ const InteractiveButtons = ({
                     </Menu>
                     <Tooltip title={edge_labels ? "Hide edge labels": "Show edge labels"}>
                         <IconButton
-                            disabled={view !== undefined && view !== "network"}
+                            disabled={view !== "network"}
                             onClick={()=>{
                                 if (edge_labels) setEdgeLabels(null)
                                 else setEdgeLabels('true')
@@ -233,7 +231,7 @@ const InteractiveButtons = ({
                         </IconButton>
                     </Tooltip>
                     <Divider sx={{backgroundColor: "secondary.main", height: 20, borderRightWidth: 1}} orientation="vertical"/>
-                    <Tooltip title={`Download ${(view === "network" || !view) ? "graph": "bar graph"} as an image file`}>
+                    <Tooltip title={`Download ${(view === "network") ? "graph": "bar graph"} as an image file`}>
                         <IconButton onClick={(e)=>handleClickMenu(e, setAnchorEl)}
                             disabled={view === 'table'}
                             aria-controls={anchorEl!==null ? 'basic-menu' : undefined}
@@ -358,7 +356,7 @@ const InteractiveButtons = ({
                     {additional_link_button && 
                         <Tooltip title={"Additional Links"}>
                             <IconButton 
-                                disabled={view !== undefined && view !== "network"}
+                                disabled={ view !== "network"}
                                 onClick={()=>{
                                     setGeneLinksOpen(!geneLinksOpen)
                                     setAugmentOpen(false)
@@ -368,7 +366,7 @@ const InteractiveButtons = ({
                             </IconButton>
                         </Tooltip>
                     }
-                    <Tooltip title={parsedParams.augment ? "Modify augmented network": "Augment network using co-expressed genes"}>
+                    <Tooltip title={parsedParams.augment ? "Reset network": "Augment network using co-expressed genes"}>
                         <IconButton
                             disabled={(!parsedParams.augment && gene_count > 100)}
                             onClick={()=>{
@@ -384,7 +382,7 @@ const InteractiveButtons = ({
                     <Divider sx={{backgroundColor: "secondary.main", height: 20, borderRightWidth: 1}} orientation="vertical"/>
                     <Tooltip title={!legend ? "Show legend": "Hide legend"}>
                         <IconButton
-                            disabled={(view !== undefined && view !== "network")}
+                            disabled={(view !== "network")}
                             onClick={()=>{
                                 if (legend) {
                                     setLegend(null)

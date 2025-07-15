@@ -67,7 +67,7 @@ const info_nav = [
 
 const data_nav = [
 	{title: "Search", href: "/data"},
-	{title: "Enrichment", href: "/data/gse"},
+	{title: "Enrichment", href: "/data/enrichment"},
 	{title: "Chatbot", href: "/data/chat"},
 	{title: "Data Matrix", href: "/data/matrix"},
 	{title: "Use Cases", href: "/data/usecases"},
@@ -108,7 +108,7 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
 	  <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
 		<Stack spacing={1}>
 			<DRCDrawer path={path} nav={nav} session={session}/>
-			{path === "/data" && <SearchParamSearchField />}
+			{(path === "/data") && <SearchParamSearchField />}
 		</Stack>
 	  </Box>
     </Container>
