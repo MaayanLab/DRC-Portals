@@ -35,15 +35,11 @@ services:
       - OPENAI_API_KEY
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
       - ASSISTANT_ID
-      - NEXT_PUBLIC_GSE
-      - NEXT_PUBLIC_ENRICHR_URL
-      - NEXT_PUBLIC_TURL
-      - NEXT_PUBLIC_TURL
 
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.19.0
+    image: maayanlab/drc-portal-dev:0.19.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -76,10 +72,6 @@ services:
       - GRAPH_C2M2_DBNAME
       - GRAPH_C2M2_READER_USERNAME
       - GRAPH_C2M2_READER_PASSWORD
-      - NEXT_PUBLIC_GSE
-      - NEXT_PUBLIC_ENRICHR_URL
-      - NEXT_PUBLIC_TURL_URL
-      - NEXT_PUBLIC_TURL
 
   drc-portal-app-gse:
     build: .
