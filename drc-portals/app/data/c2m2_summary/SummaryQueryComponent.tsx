@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Box, Grid, Typography, Select, MenuItem, FormControl, InputLabel,
-  Button, CircularProgress, Alert, Switch, FormControlLabel
+  Box, Grid, Typography, FormControl, InputLabel, Select, MenuItem,
+  Button, CircularProgress, Alert, Switch, FormControlLabel,
+  IconButton, Badge
 } from '@mui/material';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
-} from 'recharts';
-import * as htmlToImage from 'html-to-image';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { v4 as uuidv4 } from 'uuid';
+import { useCart } from './CartContext';
+import { CartDrawer } from './CartDrawer';
+import { C2M2BarChart } from './C2M2BarChart';
 
 type YAxisField =
   | 'Subjects count'
@@ -16,6 +18,14 @@ type YAxisField =
   | 'Files count'
   | 'Projects count'
   | 'Collections count';
+
+interface ChartRow {
+  [key: string]: string | number | undefined;
+}
+
+interface DescriptionResponse {
+  description: string;
+}
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
   'Subjects count': ['dcc', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
@@ -25,142 +35,71 @@ const axisOptionsMap: Record<YAxisField, string[]> = {
   'Projects count': ['dcc'],
 };
 
-const patternId = 'dottedUnspecified';
 const minBarWidth = 60;
 const minChartWidth = 600;
 
 const SummaryQueryComponent: React.FC = () => {
   const [yAxis, setYAxis] = useState<YAxisField>('Biosamples count');
-  const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosamples count'][0]);
-  const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosamples count'][1] || '');
-  const [downloadFormat, setDownloadFormat] = useState<'png' | 'svg' | 'csv' | 'json'>('png');
-  const [chartData, setChartData] = useState<Record<string, number | string | undefined>[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [xAxis, setXAxis] = useState(axisOptionsMap['Biosamples count'][0]);
+  const [groupBy, setGroupBy] = useState(axisOptionsMap['Biosamples count'][1] || '');
+  const [chartData, setChartData] = useState<ChartRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showUnspecified, setShowUnspecified] = useState<boolean>(true);
-  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [showUnspecified, setShowUnspecified] = useState(true);
 
-  // Description state
   const [plotDescription, setPlotDescription] = useState('');
   const [loadingDescription, setLoadingDescription] = useState(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
 
-  // Update xAxis and groupBy when yAxis changes
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { addToCart, cart } = useCart();
+
   useEffect(() => {
     const axes = axisOptionsMap[yAxis];
     setXAxis(axes[0]);
-    setGroupBy(axes.length > 1 ? axes[1] : '');
+    setGroupBy(axes[1] || '');
   }, [yAxis]);
 
-  // Update groupBy when xAxis changes
   useEffect(() => {
     const axes = axisOptionsMap[yAxis];
-    const newGroupOptions = axes.filter(opt => opt !== xAxis);
-    setGroupBy(newGroupOptions[0] || '');
+    const groupOptions = axes.filter(opt => opt !== xAxis);
+    setGroupBy(groupOptions[0] || '');
   }, [xAxis, yAxis]);
 
   const xOptions = axisOptionsMap[yAxis];
   const groupOptions = xOptions.filter(opt => opt !== xAxis);
 
-  // Fetch chart data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-
+      const params = new URLSearchParams({
+        x_axis: xAxis,
+        y_axis: yAxis.toLowerCase().replace(/\s/g, ''),
+        group_by: groupBy
+      });
+      const endpointMap: Partial<Record<YAxisField, string>> = {
+        'Subjects count': '/data/c2m2_summary/getSubjectCounts',
+        'Biosamples count': '/data/c2m2_summary/getBiosampleCounts',
+        'Files count': '/data/c2m2_summary/getFileCounts',
+        'Collections count': '/data/c2m2_summary/getCollectionCounts',
+        'Projects count': '/data/c2m2_summary/getProjectCounts'
+      };
+      const endpoint = endpointMap[yAxis];
       try {
-        const params = new URLSearchParams({
-          x_axis: xAxis,
-          y_axis: yAxis.toLowerCase().replace(/ /g, ''),
-          group_by: groupBy
-        });
-
-        let endpoint = '';
-        switch (yAxis) {
-          case 'Subjects count':
-            endpoint = '/data/c2m2_summary/getSubjectCounts';
-            break;
-          case 'Biosamples count':
-            endpoint = '/data/c2m2_summary/getBiosampleCounts';
-            break;
-          case 'Files count':
-            endpoint = '/data/c2m2_summary/getFileCounts';
-            break;
-          case 'Collections count':
-            endpoint = '/data/c2m2_summary/getCollectionCounts';
-            break;
-          default:
-            setError('Unsupported Y-axis type');
-            setChartData([]);
-            setLoading(false);
-            return;
-        }
-
-        const res = await fetch(`${endpoint}?${params.toString()}`);
-        const text = await res.text();
-        const json = JSON.parse(text);
-
-        if (!json.data) throw new Error('No data in response');
-        setChartData(json.data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Unknown error');
-        setChartData([]);
+        const response = await fetch(`${endpoint}?${params.toString()}`);
+        const json = await response.json();
+        setChartData(json?.data || []);
+      } catch (err) {
+        setError('Failed to fetch chart data');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [yAxis, xAxis, groupBy]);
 
-  // Generate plot description
-  const handleGenerateDescription = async () => {
-    setLoadingDescription(true);
-    setDescriptionError(null);
-    setPlotDescription('');
-
-    try {
-      const response = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ yAxis, xAxis, groupBy }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch description');
-      }
-
-      const data = await response.json();
-      setPlotDescription(data.description || 'No description returned.');
-    } catch (err: unknown) {
-      setDescriptionError(err instanceof Error ? err.message : 'Failed to fetch description');
-    } finally {
-      setLoadingDescription(false);
-    }
-  };
-
-  const groupValues = groupBy
-    ? Array.from(
-        chartData.reduce<Set<string>>((set, item) => {
-          Object.keys(item).forEach(key => {
-            if (key !== xAxis) set.add(key);
-          });
-          return set;
-        }, new Set())
-      )
-    : ['value'];
-
-  const generateColors = (keys: string[]) => {
-    const count = Math.max(keys.length, 1);
-    return keys.reduce((map, key, i) => {
-      map[key] = `hsl(${(i * 360) / count}, 60%, 55%)`;
-      return map;
-    }, {} as Record<string, string>);
-  };
-
-  const colorMap = generateColors(groupValues);
-
+  // Data cleaning (like your original)
   const cleanedChartData = chartData.map(row => {
     const newRow = { ...row };
     Object.keys(newRow).forEach(key => {
@@ -172,42 +111,76 @@ const SummaryQueryComponent: React.FC = () => {
     return newRow;
   });
 
-  const topPlotData = cleanedChartData.map(row => {
-    const newRow = { ...row };
-    if ('Unspecified' in newRow) delete newRow['Unspecified'];
-    return newRow;
-  });
+  const groupValues = groupBy
+    ? Array.from(
+        cleanedChartData.reduce<Set<string>>((set, item) => {
+          Object.keys(item).forEach(key => {
+            if (key !== xAxis) set.add(key);
+          });
+          return set;
+        }, new Set())
+      )
+    : ['value'];
 
-  const bottomPlotData = cleanedChartData.map(row => ({
-    [xAxis]: row[xAxis],
-    Unspecified: row['Unspecified']
-  }));
+  const colorMap = groupValues.reduce((map, key, i) => {
+    map[key] = key === 'Unspecified'
+      ? '#8e99ab'
+      : `hsl(${(i * 360) / groupValues.length}, 60%, 55%)`;
+    return map;
+  }, {} as Record<string, string>);
 
-  const topPlotGroups = groupValues.filter(g => g !== 'Unspecified');
-  const bottomPlotGroups = groupValues.includes('Unspecified') ? ['Unspecified'] : [];
+  // Button & Description logic
+  const plotDescriptionPrompt = `Describe the main findings of the chart${
+    showUnspecified
+      ? ', and also describe any visible trends in the "Unspecified Only" sub-chart shown below (which displays the "Unspecified" category for each X-axis value).'
+      : '.'
+  }`;
 
-  const topChartWidth = Math.max(topPlotData.length * minBarWidth, minChartWidth);
-  const bottomChartWidth = Math.max(bottomPlotData.length * minBarWidth, minChartWidth);
-  const hasUnspecified = showUnspecified && bottomPlotGroups.length > 0;
-  const topPlotHeight = hasUnspecified ? 300 : 500;
+  const handleGenerateDescription = async () => {
+    setLoadingDescription(true);
+    setDescriptionError(null);
+    try {
+      const res = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ yAxis, xAxis, groupBy, prompt: plotDescriptionPrompt })
+      });
+      const data: DescriptionResponse = await res.json();
+      setPlotDescription(data.description);
+    } catch (err: any) {
+      setDescriptionError(err.message || 'Failed to fetch description');
+    } finally {
+      setLoadingDescription(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: uuidv4(),
+      yAxis,
+      xAxis,
+      groupBy,
+      chartData,
+      plotDescription,
+      showUnspecified
+    });
+  };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>Summary Query Chart</Typography>
-
-      {/* Dropdowns */}
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={3}>
+    <Box sx={{ p: 3, position: 'relative' }}>
+      <Typography variant="h5" gutterBottom>Summary Query Chart</Typography>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>Y-axis</InputLabel>
             <Select value={yAxis} onChange={e => setYAxis(e.target.value as YAxisField)}>
-              {Object.keys(axisOptionsMap).map(opt => (
-                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+              {Object.keys(axisOptionsMap).map(key => (
+                <MenuItem key={key} value={key}>{key}</MenuItem>
               ))}
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>X-axis</InputLabel>
             <Select value={xAxis} onChange={e => setXAxis(e.target.value)}>
@@ -217,9 +190,9 @@ const SummaryQueryComponent: React.FC = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <FormControl fullWidth>
-            <InputLabel>Group by</InputLabel>
+            <InputLabel>Group By</InputLabel>
             <Select value={groupBy} onChange={e => setGroupBy(e.target.value)}>
               {groupOptions.map(opt => (
                 <MenuItem key={opt} value={opt}>{opt}</MenuItem>
@@ -229,101 +202,77 @@ const SummaryQueryComponent: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Chart Controls */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+      {/* Control row */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <FormControlLabel
-          control={
-            <Switch
-              checked={showUnspecified}
-              onChange={() => setShowUnspecified(v => !v)}
-              color="primary"
-            />
-          }
-          label="Show Unspecified Plot"
+          control={<Switch checked={showUnspecified} onChange={() => setShowUnspecified(!showUnspecified)} />}
+          label="Show Unspecified"
         />
+        <Box sx={{ ml: 'auto', display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="medium"
+            onClick={handleGenerateDescription}
+            disabled={loadingDescription}
+          >
+            Generate Description
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="medium"
+            onClick={handleAddToCart}
+            disabled={chartData.length === 0 || !plotDescription}
+          >
+            Add to Cart
+          </Button>
+          <IconButton color="primary" aria-label="cart" onClick={() => setDrawerOpen(true)} sx={{ ml: 1 }}>
+            <Badge badgeContent={cart.length} color="secondary">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+        </Box>
       </Box>
 
-      {/* Loading/Error */}
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
+      {/* Main charts */}
+      {loading && <Box sx={{ py: 6, textAlign: 'center' }}><CircularProgress /></Box>}
       {error && <Alert severity="error">{error}</Alert>}
-
-      {/* Chart */}
       {!loading && !error && (
-        <Box ref={chartContainerRef}>
-          {/* Top Plot */}
-          <Box sx={{ width: '100%', overflowX: 'auto' }}>
-            <div style={{ width: topChartWidth }}>
-              <BarChart
-                width={topChartWidth}
-                height={topPlotHeight}
-                data={topPlotData}
-                margin={{ top: 30, right: 40, bottom: 100, left: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xAxis} angle={-40} textAnchor="end" interval={0} height={70} />
-                <YAxis scale="log" domain={[1, 'auto']} allowDataOverflow />
-                <Tooltip />
-                {topPlotGroups.map(g => (
-                  <Bar key={g} dataKey={g} fill={colorMap[g]} stackId="a" />
-                ))}
-              </BarChart>
-            </div>
-          </Box>
-
-          {/* Bottom Plot */}
-          {hasUnspecified && (
-            <Box sx={{ width: '100%', overflowX: 'auto', mt: 2 }}>
-              <Typography align="center" variant="subtitle2" sx={{ mb: 1 }}>Unspecified Only</Typography>
-              <div style={{ width: bottomChartWidth }}>
-                <BarChart
-                  width={bottomChartWidth}
-                  height={200}
-                  data={bottomPlotData}
-                  margin={{ top: 10, right: 40, bottom: 40, left: 60 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey={xAxis} angle={-40} textAnchor="end" interval={0} height={50} />
-                  <YAxis scale="log" domain={[1, 'auto']} allowDataOverflow />
-                  <Tooltip />
-                  <Bar dataKey="Unspecified" fill="#8884d8" stackId="a" />
-                </BarChart>
-              </div>
-            </Box>
-          )}
-
-          {/* Generate Description Button */}
-          <Box sx={{ mt: 3 }}>
-            <Button variant="contained" onClick={handleGenerateDescription} disabled={loadingDescription}>
-              Generate Description
-            </Button>
-          </Box>
-
-          {/* Description Output */}
-          {(loadingDescription || descriptionError || plotDescription) && (
-            <Box
-              sx={{
-                mt: 2,
-                p: 2,
-                border: '1px solid #ccc',
-                borderRadius: 1,
-                maxHeight: 150,
-                overflowY: 'auto',
-                backgroundColor: '#fafafa',
-                fontSize: 14,
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {loadingDescription && <Typography>Loading description...</Typography>}
-              {descriptionError && <Typography color="error">{descriptionError}</Typography>}
-              {!loadingDescription && !descriptionError && plotDescription}
-            </Box>
-          )}
+        <Box sx={{ mb: 2 }}>
+          <C2M2BarChart
+            data={cleanedChartData}
+            xAxis={xAxis}
+            groupValues={groupValues}
+            colorMap={colorMap}
+            showUnspecified={showUnspecified}
+            minBarWidth={minBarWidth}
+            minChartWidth={minChartWidth}
+          />
         </Box>
       )}
+
+      {(plotDescription || loadingDescription || descriptionError) && (
+        <Box
+          sx={{
+            mt: 3,
+            p: 2,
+            border: '1px solid #ccc',
+            borderRadius: 1,
+            maxHeight: 150,
+            overflowY: 'auto',
+            backgroundColor: '#fafafa',
+            whiteSpace: 'pre-wrap',
+            fontSize: 14
+          }}
+        >
+          {loadingDescription && <Typography>Loading plot description...</Typography>}
+          {descriptionError && <Typography color="error">{descriptionError}</Typography>}
+          {!loadingDescription && !descriptionError && plotDescription}
+        </Box>
+      )}
+
+      <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </Box>
   );
 };
