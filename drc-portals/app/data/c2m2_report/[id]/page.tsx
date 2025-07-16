@@ -56,6 +56,9 @@ export default function C2M2ReportPage() {
       <Typography variant="h4" gutterBottom>
         Saved Report
       </Typography>
+      <Typography paragraph sx={{ mb: 4 }}>
+              {INTRODUCTION}
+      </Typography>
       {reportCharts.map((item) => {
         // Group logic like SummaryQueryComponent
         const groupValues = item.groupBy
@@ -80,9 +83,7 @@ export default function C2M2ReportPage() {
 
         return (
           <Box key={item.id} sx={{ mb: 6 }}>
-            <Typography paragraph sx={{ mb: 4 }}>
-              {INTRODUCTION}
-            </Typography>
+            
             <Typography variant="h6" sx={{ mb: 1 }}>
               {item.yAxis} vs {item.xAxis}
               {item.groupBy && ` (grouped by ${item.groupBy})`}

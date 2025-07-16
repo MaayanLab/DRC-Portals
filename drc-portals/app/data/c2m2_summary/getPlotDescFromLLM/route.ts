@@ -5,6 +5,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export async function POST(req: NextRequest) {
+  console.log("In getPlotDescFromLLM");
   try {
     const { yAxis, xAxis, groupBy } = await req.json();
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
 Describe what kind of data this chart shows and what insights it might reveal.`;
 
     const response = await ai.models.generateContent({
-      model: 'models/gemini-1.5-flash', // <-- Use a supported model!
+      model: 'models/gemini-1.5-flash',
       contents: [
         {
           role: 'user',
@@ -34,7 +35,23 @@ Describe what kind of data this chart shows and what insights it might reveal.`;
     }
 
     return NextResponse.json({ description: text.trim() });
-  } catch (error) {
+  } catch (error: any) {
+    // Gracefully handle Gemini 503 'model overloaded' errors
+    const errorMsg = error?.error?.message || error?.message || '';
+    if (
+      error?.error?.code === 503 ||
+      errorMsg.includes('The model is overloaded') ||
+      errorMsg.includes('503')
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Gemini is temporarily overloaded. Please try again in a few moments.'
+        },
+        { status: 503 }
+      );
+    }
+
+    // Log and handle unexpected errors
     console.error('Gemini API error:', error);
     return NextResponse.json({ error: 'Failed to generate description' }, { status: 500 });
   }

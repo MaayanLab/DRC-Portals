@@ -1,6 +1,8 @@
+// SummaryQueryComponent.tsx
+
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Box, Grid, Typography, FormControl, InputLabel, Select, MenuItem,
   Button, CircularProgress, Alert, Switch, FormControlLabel,
@@ -11,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
 import { C2M2BarChart } from './C2M2BarChart';
+import PlotDescriptionEditor from './PlotDescriptionEditor';
 
 type YAxisField =
   | 'Subjects count'
@@ -24,7 +27,8 @@ interface ChartRow {
 }
 
 interface DescriptionResponse {
-  description: string;
+  description?: string;
+  error?: string;
 }
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
@@ -40,19 +44,23 @@ const minChartWidth = 600;
 
 const SummaryQueryComponent: React.FC = () => {
   const [yAxis, setYAxis] = useState<YAxisField>('Biosamples count');
-  const [xAxis, setXAxis] = useState(axisOptionsMap['Biosamples count'][0]);
-  const [groupBy, setGroupBy] = useState(axisOptionsMap['Biosamples count'][1] || '');
+  const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosamples count'][0]);
+  const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosamples count'][1] || '');
   const [chartData, setChartData] = useState<ChartRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showUnspecified, setShowUnspecified] = useState(true);
+  const [showUnspecified, setShowUnspecified] = useState<boolean>(true);
 
-  const [plotDescription, setPlotDescription] = useState('');
-  const [loadingDescription, setLoadingDescription] = useState(false);
+  const [plotDescription, setPlotDescription] = useState<string>('');
+  const [loadingDescription, setLoadingDescription] = useState<boolean>(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
   const { addToCart, cart } = useCart();
+
+  const descriptionTimeoutId = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const axes = axisOptionsMap[yAxis];
@@ -66,18 +74,20 @@ const SummaryQueryComponent: React.FC = () => {
     setGroupBy(groupOptions[0] || '');
   }, [xAxis, yAxis]);
 
-  const xOptions = axisOptionsMap[yAxis];
-  const groupOptions = xOptions.filter(opt => opt !== xAxis);
+  const xOptions: string[] = axisOptionsMap[yAxis];
+  const groupOptions: string[] = xOptions.filter(opt => opt !== xAxis);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
+
       const params = new URLSearchParams({
         x_axis: xAxis,
         y_axis: yAxis.toLowerCase().replace(/\s/g, ''),
         group_by: groupBy
       });
+
       const endpointMap: Partial<Record<YAxisField, string>> = {
         'Subjects count': '/data/c2m2_summary/getSubjectCounts',
         'Biosamples count': '/data/c2m2_summary/getBiosampleCounts',
@@ -85,23 +95,36 @@ const SummaryQueryComponent: React.FC = () => {
         'Collections count': '/data/c2m2_summary/getCollectionCounts',
         'Projects count': '/data/c2m2_summary/getProjectCounts'
       };
+
       const endpoint = endpointMap[yAxis];
+
+      if (!endpoint) {
+        setError('Invalid endpoint for selected Y-axis.');
+        return;
+      }
+
       try {
         const response = await fetch(`${endpoint}?${params.toString()}`);
         const json = await response.json();
         setChartData(json?.data || []);
-      } catch (err) {
+      } catch {
         setError('Failed to fetch chart data');
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [yAxis, xAxis, groupBy]);
 
-  // Data cleaning (like your original)
+  useEffect(() => {
+    setPlotDescription('');
+    setDescriptionError(null);
+    setIsEditing(false);
+  }, [yAxis, xAxis, groupBy]);
+
   const cleanedChartData = chartData.map(row => {
-    const newRow = { ...row };
+    const newRow: ChartRow = { ...row };
     Object.keys(newRow).forEach(key => {
       const val = newRow[key];
       if (key !== xAxis && typeof val === 'number' && val <= 0) {
@@ -129,26 +152,53 @@ const SummaryQueryComponent: React.FC = () => {
     return map;
   }, {} as Record<string, string>);
 
-  // Button & Description logic
   const plotDescriptionPrompt = `Describe the main findings of the chart${
     showUnspecified
-      ? ', and also describe any visible trends in the "Unspecified Only" sub-chart shown below (which displays the "Unspecified" category for each X-axis value).'
+      ? ', and also describe any visible trends in the "Unspecified Only" sub-chart shown below.'
       : '.'
   }`;
 
   const handleGenerateDescription = async () => {
     setLoadingDescription(true);
+    setIsEditing(false);
     setDescriptionError(null);
+    setPlotDescription('');
+
+    // Set timeout fallback
+    if (descriptionTimeoutId.current) clearTimeout(descriptionTimeoutId.current);
+
+    descriptionTimeoutId.current = setTimeout(() => {
+      setLoadingDescription(false);
+      setDescriptionError('Description generation took too long. Please fill it in manually.');
+      setIsEditing(true);
+      setPlotDescription('');
+    }, 15000);
+
     try {
       const res = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ yAxis, xAxis, groupBy, prompt: plotDescriptionPrompt })
       });
+
       const data: DescriptionResponse = await res.json();
-      setPlotDescription(data.description);
-    } catch (err: any) {
-      setDescriptionError(err.message || 'Failed to fetch description');
+
+      if (descriptionTimeoutId.current) clearTimeout(descriptionTimeoutId.current);
+
+      if (data.error) {
+        setDescriptionError(data.error);
+        setIsEditing(true);
+      } else {
+        const text = data.description || '';
+        setPlotDescription(text);
+        setIsEditing(false);
+        setDescriptionError(null);
+      }
+    } catch {
+      if (descriptionTimeoutId.current) clearTimeout(descriptionTimeoutId.current);
+      setDescriptionError('Failed to generate a description. Please write it manually.');
+      setIsEditing(true);
+      setPlotDescription('');
     } finally {
       setLoadingDescription(false);
     }
@@ -167,14 +217,15 @@ const SummaryQueryComponent: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, position: 'relative' }}>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>Summary Query Chart</Typography>
+
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>Y-axis</InputLabel>
             <Select value={yAxis} onChange={e => setYAxis(e.target.value as YAxisField)}>
-              {Object.keys(axisOptionsMap).map(key => (
+              {(Object.keys(axisOptionsMap) as YAxisField[]).map(key => (
                 <MenuItem key={key} value={key}>{key}</MenuItem>
               ))}
             </Select>
@@ -202,32 +253,19 @@ const SummaryQueryComponent: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Control row */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <FormControlLabel
           control={<Switch checked={showUnspecified} onChange={() => setShowUnspecified(!showUnspecified)} />}
           label="Show Unspecified"
         />
         <Box sx={{ ml: 'auto', display: 'flex', gap: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="medium"
-            onClick={handleGenerateDescription}
-            disabled={loadingDescription}
-          >
+          <Button variant="contained" onClick={handleGenerateDescription} disabled={loadingDescription}>
             Generate Description
           </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            size="medium"
-            onClick={handleAddToCart}
-            disabled={chartData.length === 0 || !plotDescription}
-          >
+          <Button variant="contained" onClick={handleAddToCart} disabled={!plotDescription || chartData.length === 0}>
             Add to Cart
           </Button>
-          <IconButton color="primary" aria-label="cart" onClick={() => setDrawerOpen(true)} sx={{ ml: 1 }}>
+          <IconButton color="primary" onClick={() => setDrawerOpen(true)}>
             <Badge badgeContent={cart.length} color="secondary">
               <ShoppingCartIcon />
             </Badge>
@@ -235,41 +273,51 @@ const SummaryQueryComponent: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Main charts */}
       {loading && <Box sx={{ py: 6, textAlign: 'center' }}><CircularProgress /></Box>}
       {error && <Alert severity="error">{error}</Alert>}
       {!loading && !error && (
-        <Box sx={{ mb: 2 }}>
-          <C2M2BarChart
-            data={cleanedChartData}
-            xAxis={xAxis}
-            groupValues={groupValues}
-            colorMap={colorMap}
-            showUnspecified={showUnspecified}
-            minBarWidth={minBarWidth}
-            minChartWidth={minChartWidth}
-          />
+        <C2M2BarChart
+          data={cleanedChartData}
+          xAxis={xAxis}
+          groupValues={groupValues}
+          colorMap={colorMap}
+          showUnspecified={showUnspecified}
+          minBarWidth={minBarWidth}
+          minChartWidth={minChartWidth}
+        />
+      )}
+
+      {loadingDescription && (
+        <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <CircularProgress size={20} />
+          <Typography variant="body2">Generating description... please wait</Typography>
         </Box>
       )}
 
-      {(plotDescription || loadingDescription || descriptionError) && (
-        <Box
-          sx={{
-            mt: 3,
-            p: 2,
-            border: '1px solid #ccc',
-            borderRadius: 1,
-            maxHeight: 150,
-            overflowY: 'auto',
-            backgroundColor: '#fafafa',
-            whiteSpace: 'pre-wrap',
-            fontSize: 14
-          }}
-        >
-          {loadingDescription && <Typography>Loading plot description...</Typography>}
-          {descriptionError && <Typography color="error">{descriptionError}</Typography>}
-          {!loadingDescription && !descriptionError && plotDescription}
+      {/* Show either the description or the editor */}
+      {plotDescription && !isEditing && (
+        <Box sx={{ mt: 3, whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', p: 2, borderRadius: 1 }}>
+          <Typography variant="subtitle1">Plot Description</Typography>
+          <Typography sx={{ mt: 1 }}>{plotDescription}</Typography>
+          <Button variant="outlined" onClick={() => setIsEditing(true)}>Edit</Button>
         </Box>
+      )}
+
+      {isEditing && (
+        <PlotDescriptionEditor
+          initialValue={plotDescription}
+          onSave={(val) => {
+            setPlotDescription(val);
+            setIsEditing(false);
+            setDescriptionError(null);
+          }}
+          onCancel={() => {
+            setIsEditing(false);
+            setDescriptionError(null);
+          }}
+          error={!!descriptionError}
+          helperText={descriptionError || 'Please enter the description manually.'}
+        />
       )}
 
       <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
