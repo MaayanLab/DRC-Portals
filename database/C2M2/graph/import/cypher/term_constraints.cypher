@@ -1,6 +1,7 @@
 CREATE CONSTRAINT constraint_AnalysisType_id IF NOT EXISTS FOR (n:AnalysisType) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT constraint_Anatomy_id IF NOT EXISTS FOR (n:Anatomy) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT constraint_AssayType_id IF NOT EXISTS FOR (n:AssayType) REQUIRE n.id IS UNIQUE;
+CREATE CONSTRAINT constraint_Biofluid_id IF NOT EXISTS FOR (n:Biofluid) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT constraint_Compound_id IF NOT EXISTS FOR (n:Compound) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT constraint_DataType_id IF NOT EXISTS FOR (n:DataType) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT constraint_Disease_id IF NOT EXISTS FOR (n:Disease) REQUIRE n.id IS UNIQUE;

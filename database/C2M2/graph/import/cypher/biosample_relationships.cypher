@@ -8,6 +8,9 @@ CALL {
 	OPTIONAL MATCH (anatomy:Anatomy {id: row.anatomy})
 	MERGE (biosample)-[:SAMPLED_FROM {_uuid: randomUUID()}]->(anatomy)
 	WITH biosample, row
+	OPTIONAL MATCH (biofluid:Biofluid {id: row.biofluid})
+	MERGE (biosample)-[:SAMPLED_FROM {_uuid: randomUUID()}]->(biofluid)
+	WITH biosample, row
 	OPTIONAL MATCH (sample_prep_method:SamplePrepMethod {id: row.sample_prep_method})
 	MERGE (biosample)-[:PREPPED_VIA {_uuid: randomUUID()}]->(sample_prep_method)
 	WITH biosample, row
