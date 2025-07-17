@@ -12,7 +12,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { v4 as uuidv4 } from 'uuid';
 import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
-import { C2M2BarChart } from './C2M2BarChart';
+import  C2M2BarChart  from './C2M2BarChart';
 import PlotDescriptionEditor from './PlotDescriptionEditor';
 
 type YAxisField =

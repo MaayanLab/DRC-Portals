@@ -2,12 +2,38 @@
 
 import React, { useState } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip
 } from 'recharts';
 import {
   Box, Typography, RadioGroup, FormControlLabel, Radio,
   TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper
 } from '@mui/material';
+import PieChartModal from './PieChartModal'; // Adjust path if needed
+
+// ---------- CustomTooltip for all bars ----------
+const CustomTooltip: React.FC<{ active?: boolean }> = ({ active }) => {
+  if (active) {
+    return (
+      <Box
+        sx={{
+          background: '#fff',
+          border: '1px solid #aaa',
+          borderRadius: 1,
+          p: 1,
+          minWidth: 160,
+          textAlign: 'center',
+          fontWeight: 500,
+        }}
+      >
+        <Typography>
+          Click the bar to view Pie plot
+        </Typography>
+      </Box>
+    );
+  }
+  return null;
+};
+// ---------- End CustomTooltip ----------
 
 export interface C2M2BarChartProps {
   data: Record<string, number | string | undefined>[];
@@ -19,7 +45,7 @@ export interface C2M2BarChartProps {
   minChartWidth?: number;
 }
 
-export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
+const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   data,
   xAxis,
   groupValues,
@@ -29,6 +55,9 @@ export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   minChartWidth = 600,
 }) => {
   const [view, setView] = useState<'bar' | 'table'>('bar');
+  const [pieModalOpen, setPieModalOpen] = useState(false);
+  const [pieData, setPieData] = useState<{ name: string; value: number }[]>([]);
+  const [pieTitle, setPieTitle] = useState('');
 
   const topPlotGroups = groupValues.filter(g => g !== 'Unspecified');
   const bottomPlotGroups = groupValues.includes('Unspecified') ? ['Unspecified'] : [];
@@ -53,6 +82,34 @@ export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
     ...groupValues.filter(g => showUnspecified || g !== 'Unspecified'),
   ];
 
+  // Pie popup logic
+  const handleViewPie = (xValue: string, isUnspecified: boolean) => {
+    const row = data.find(r => r[xAxis] === xValue);
+    if (!row) return;
+    if (!isUnspecified) {
+      const pieBreakdown = groupValues
+        .filter(g => showUnspecified || g !== 'Unspecified')
+        .filter(g => g !== xAxis)
+        .filter(g => g !== 'Unspecified')
+        .map(g => ({
+          name: g,
+          value: typeof row[g] === 'number' ? (row[g] as number) : 0,
+        }))
+        .filter(d => d.value > 0);
+      setPieData(pieBreakdown);
+      setPieTitle(`${xAxis}: ${xValue}`);
+    } else {
+      setPieData([
+        {
+          name: 'Unspecified',
+          value: typeof row['Unspecified'] === 'number' ? (row['Unspecified'] as number) : 0,
+        }
+      ]);
+      setPieTitle(`${xAxis}: ${xValue} (Unspecified)`);
+    }
+    setPieModalOpen(true);
+  };
+
   return (
     <Box>
       {/* View Toggle */}
@@ -70,7 +127,7 @@ export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
 
       {view === 'bar' && (
         <>
-          {/* Main Stacked Chart (unchanged) */}
+          {/* Main Stacked Chart */}
           <Box sx={{ width: '100%', overflowX: 'auto' }}>
             <div style={{ width: topChartWidth }}>
               <BarChart
@@ -82,13 +139,27 @@ export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey={xAxis} angle={-40} textAnchor="end" interval={0} height={70} />
                 <YAxis scale="log" domain={[1, 'auto']} allowDataOverflow />
-                <Tooltip />
+                <RechartsTooltip
+                  content={<CustomTooltip />}
+                  cursor={{ fill: 'rgba(100,100,255,0.07)' }}
+                />
                 {topPlotGroups.map(g => (
-                  <Bar key={g} dataKey={g} fill={colorMap[g]} stackId="a" />
+                  <Bar
+                    key={g}
+                    dataKey={g}
+                    fill={colorMap[g]}
+                    stackId="a"
+                    style={{ cursor: 'pointer' }}
+                    onClick={(_, index) => {
+                      const xValue = topPlotData[index][xAxis] as string;
+                      handleViewPie(xValue, false);
+                    }}
+                  />
                 ))}
               </BarChart>
             </div>
           </Box>
+
           {/* Unspecified Only */}
           {hasUnspecified && (
             <Box sx={{ width: '100%', overflowX: 'auto', mt: 2 }}>
@@ -105,8 +176,20 @@ export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey={xAxis} angle={-40} textAnchor="end" interval={0} height={50} />
                   <YAxis scale="log" domain={[1, 'auto']} allowDataOverflow />
-                  <Tooltip />
-                  <Bar dataKey="Unspecified" fill={colorMap['Unspecified'] || '#8884d8'} stackId="a" />
+                  <RechartsTooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: 'rgba(100,100,255,0.04)' }}
+                  />
+                  <Bar
+                    dataKey="Unspecified"
+                    fill={colorMap['Unspecified'] || '#8884d8'}
+                    stackId="a"
+                    style={{ cursor: 'pointer' }}
+                    onClick={(_, index) => {
+                      const xValue = bottomPlotData[index][xAxis] as string;
+                      handleViewPie(xValue, true);
+                    }}
+                  />
                 </BarChart>
               </div>
             </Box>
@@ -158,6 +241,17 @@ export const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
           </Table>
         </TableContainer>
       )}
+
+      {/* PieChart Modal */}
+      <PieChartModal
+        open={pieModalOpen}
+        onClose={() => setPieModalOpen(false)}
+        data={pieData}
+        title={pieTitle}
+        colorMap={colorMap}
+      />
     </Box>
   );
 };
+
+export default C2M2BarChart;
