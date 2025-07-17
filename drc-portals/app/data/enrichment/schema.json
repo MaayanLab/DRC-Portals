@@ -1631,6 +1631,10 @@
                             {
                                 "name": "HuBMAP_ASCTplusB_augmented_2022",
                                 "limit": 5
+                            },
+                            {
+                                "name": "LINCS_L1000_CRISPR_KO_Consensus_Sigs",
+                                "limit": 5
                             }
                         ]
                     },
