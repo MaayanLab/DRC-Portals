@@ -12,10 +12,9 @@ from tqdm.auto import tqdm
 from datetime import datetime
 import re
 from urllib.parse import urlsplit
-from deriva_datapackage import create_offline_client
+from deriva_datapackage import create_sqlite_client
 from c2m2_assessment.__main__ import assess
 import os
-import glob
 import math
 import h5py
 import yaml
@@ -410,8 +409,15 @@ def c2m2_fair(directory):
             package, *more_packages = packages
         if len(packages) > 1:
             print(f"Assessing {package=}, but also found {more_packages=}")
-        subprocess.check_call([sys.executable, '-m', 'frictionless', 'validate', package], stdout=sys.stdout, stderr=sys.stderr)
-        CFDE = create_offline_client(package, cachedir=directory)
+        package_pathlib = pathlib.Path(package)
+        os.chdir(package_pathlib.parent)
+        # make sure we have the right name
+        if package_pathlib.name != 'C2M2_datapackage.json':
+            package_pathlib = package_pathlib.rename('C2M2_datapackage.json')
+        # run our validation script (which also indexes the database)
+        subprocess.check_call([sys.executable, '-m', 'cfde_c2m2', 'validate'], stdout=sys.stdout, stderr=sys.stderr)
+        # re-use indexed database for fair assessment
+        CFDE = create_sqlite_client('sqlite:///C2M2_datapackage.sqlite')
         result = assess(CFDE, rubric='drc2024', full=False)
         rubric = {}
         for index, row in result.iterrows():
