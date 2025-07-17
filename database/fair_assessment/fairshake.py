@@ -36,7 +36,7 @@ def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
   * Credit to Daniel J. B. Clarke, Amanda Charbonneau - https://github.com/MaayanLab/appyter-catalog/blob/main/appyters/CFDE-C2M2-FAIR-Assessment/C2M2Assessment.ipynb
   '''
-  return set(glob.glob(os.path.join(root, '**', file), recursive=True))
+  return set(pathlib.Path(root).rglob(file))
 
 def find_between_r( s, first, last ):
     try:
@@ -400,11 +400,15 @@ def traverse_datasets(hdf_file):
 def c2m2_fair(directory):
     """Run FAIR Assessment for a C2M2 file asset given its filepath"""
     try:
-        package, *more_packages = (
+        packages = (
             deep_find(directory, 'C2M2_datapackage.json')
             | deep_find(directory, 'datapackage.json')
         )
-        if more_packages:
+        if not packages:
+            raise RuntimeError(f"Couldn't locate C2M2_datapackage.json")
+        else:
+            package, *more_packages = packages
+        if len(packages) > 1:
             print(f"Assessing {package=}, but also found {more_packages=}")
         subprocess.check_call([sys.executable, '-m', 'frictionless', 'validate', package], stdout=sys.stdout, stderr=sys.stderr)
         CFDE = create_offline_client(package, cachedir=directory)
