@@ -37,8 +37,7 @@ services:
       - ASSISTANT_ID
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
-      - NEXT_PUBLIC_TURL
-      - NEXT_PUBLIC_TURL
+      - TURL_CRED
 
   drc-portal-app-dev:
     build: .
@@ -78,8 +77,7 @@ services:
       - GRAPH_C2M2_READER_PASSWORD
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
-      - NEXT_PUBLIC_TURL
-      - NEXT_PUBLIC_TURL
+      - TURL_CRED
   drc-portal-worker:
     build:
       context: ..

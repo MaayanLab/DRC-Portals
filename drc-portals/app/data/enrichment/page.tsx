@@ -119,8 +119,8 @@ export default async function Home({searchParams}: {
             }
         }
         const payload = {
-            'url': `https://data.cfde.cloud/gse?q=${searchParams.q}`,
-            'apikey': process.env.NEXT_PUBLIC_TURL  
+            'url': `https://data.cfde.cloud/enrichment?q=${searchParams.q}`,
+            'apikey': process.env.TURL_CRED  
         }
         console.log("Getting short url")
         const request = await fetch("https://maayanlab.cloud/turl/api/register", {
