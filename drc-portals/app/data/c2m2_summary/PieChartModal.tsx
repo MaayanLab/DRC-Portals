@@ -13,15 +13,14 @@ export interface PieChartModalProps {
   colorMap: Record<string, string>;
 }
 
-// Layout: Pie to the left, legend on the right, horizontal scroll appears if legend is too wide.
-// Legend shows label and value, e.g., brain [873]
+// Layout: Pie to the left, legend on the right.
 
 const modalStyle = {
   position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 560,              // ensures both pie and at least one legend column are visible
+  width: 560,
   maxWidth: '95vw',
   bgcolor: 'background.paper',
   borderRadius: 2,
@@ -29,18 +28,24 @@ const modalStyle = {
   p: 4,
 };
 
+type LegendItem = {
+  display: string;
+  color: string;
+  id: string;
+};
+
 const PieChartModal: React.FC<PieChartModalProps> = ({
   open, onClose, data, title, colorMap,
 }) => {
   // Prepare custom legend: split into columns of ~8 items each.
   const maxPerCol = 8;
-  const legendItems = data.map(d => ({
+  const legendItems: LegendItem[] = data.map(d => ({
     display: `${d.name} [${d.value}]`,
     color: colorMap[d.name] || '#8884d8',
-    id: d.name,
+    id: String(d.name),
   }));
-  const colCount = Math.ceil(legendItems.length / maxPerCol);
-  const columns: typeof legendItems[][] = [];
+  // FIX: Just use LegendItem[][], or let TS infer columns is LegendItem[][]
+  const columns: LegendItem[][] = [];
   for (let i = 0; i < legendItems.length; i += maxPerCol) {
     columns.push(legendItems.slice(i, i + maxPerCol));
   }
