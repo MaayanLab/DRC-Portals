@@ -1,5 +1,3 @@
-// SummaryQueryComponent.tsx
-
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -12,9 +10,10 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { v4 as uuidv4 } from 'uuid';
 import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
-import  C2M2BarChart  from './C2M2BarChart';
+import C2M2BarChart from './C2M2BarChart';
 import PlotDescriptionEditor from './PlotDescriptionEditor';
 
+// ------ Types ------
 type YAxisField =
   | 'Subjects count'
   | 'Biosamples count'
@@ -30,6 +29,7 @@ interface DescriptionResponse {
   description?: string;
   error?: string;
 }
+// -------------------
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
   'Subjects count': ['dcc', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
@@ -123,6 +123,7 @@ const SummaryQueryComponent: React.FC = () => {
     setIsEditing(false);
   }, [yAxis, xAxis, groupBy]);
 
+  //--- 0-to-1 value fix ---
   const cleanedChartData = chartData.map(row => {
     const newRow: ChartRow = { ...row };
     Object.keys(newRow).forEach(key => {
@@ -152,19 +153,26 @@ const SummaryQueryComponent: React.FC = () => {
     return map;
   }, {} as Record<string, string>);
 
-  const plotDescriptionPrompt = `Describe the main findings of the chart${
-    showUnspecified
-      ? ', and also describe any visible trends in the "Unspecified Only" sub-chart shown below.'
-      : '.'
-  }`;
+  // Prompt for LLM
+  const getChartPrompt = () => {
+    let out = `Generate a concise description of a bar chart with the following parameters:
+- Y-axis: ${yAxis}
+- X-axis: ${xAxis}`;
+    if (groupBy) out += `\n- Group by: ${groupBy}`;
+    out += `
+Describe what kind of data this chart shows and what insights it might reveal.`;
+    if (showUnspecified) out += `
+If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
+    return out;
+  };
 
+  // LLM handle
   const handleGenerateDescription = async () => {
     setLoadingDescription(true);
     setIsEditing(false);
     setDescriptionError(null);
     setPlotDescription('');
 
-    // Set timeout fallback
     if (descriptionTimeoutId.current) clearTimeout(descriptionTimeoutId.current);
 
     descriptionTimeoutId.current = setTimeout(() => {
@@ -175,10 +183,12 @@ const SummaryQueryComponent: React.FC = () => {
     }, 15000);
 
     try {
+      const prompt = getChartPrompt();
+
       const res = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ yAxis, xAxis, groupBy, prompt: plotDescriptionPrompt })
+        body: JSON.stringify({ prompt })
       });
 
       const data: DescriptionResponse = await res.json();
@@ -204,11 +214,13 @@ const SummaryQueryComponent: React.FC = () => {
     }
   };
 
+  // --- ADD TO CART updated to new SavedBarChart type ---
   const handleAddToCart = () => {
     addToCart({
       id: uuidv4(),
-      yAxis,
+      chartType: 'bar',
       xAxis,
+      yAxis,
       groupBy,
       chartData,
       plotDescription,
@@ -262,7 +274,11 @@ const SummaryQueryComponent: React.FC = () => {
           <Button variant="contained" onClick={handleGenerateDescription} disabled={loadingDescription}>
             Generate Description
           </Button>
-          <Button variant="contained" onClick={handleAddToCart} disabled={!plotDescription || chartData.length === 0}>
+          <Button
+            variant="contained"
+            onClick={handleAddToCart}
+            disabled={!plotDescription || chartData.length === 0}
+          >
             Add to Cart
           </Button>
           <IconButton color="primary" onClick={() => setDrawerOpen(true)}>
