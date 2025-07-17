@@ -8,6 +8,7 @@ import {
   ANALYSIS_TYPE_LABEL,
   ANATOMY_LABEL,
   ASSAY_TYPE_LABEL,
+  BIOFLUID_LABEL,
   COMPOUND_LABEL,
   DATA_TYPE_LABEL,
   DISEASE_LABEL,
@@ -157,6 +158,9 @@ export const getOntologyLink = (label: string, id: string) => {
       } else {
         return `http://purl.obolibrary.org/obo/UBERON_${id_num}`;
       }
+    }
+    case BIOFLUID_LABEL: {
+      return `http://purl.obolibrary.org/obo/UBERON_${id_num}`;
     }
     case COMPOUND_LABEL:
       if (id[0] === "G") {
