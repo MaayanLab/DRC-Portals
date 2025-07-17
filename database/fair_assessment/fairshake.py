@@ -36,7 +36,7 @@ def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
   * Credit to Daniel J. B. Clarke, Amanda Charbonneau - https://github.com/MaayanLab/appyter-catalog/blob/main/appyters/CFDE-C2M2-FAIR-Assessment/C2M2Assessment.ipynb
   '''
-  return set(pathlib.Path(root).rglob(file))
+  return set(map(str, pathlib.Path(root).rglob(file)))
 
 def find_between_r( s, first, last ):
     try:
