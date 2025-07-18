@@ -117,7 +117,7 @@ $$;
 -------------------------
         DO $$
         DECLARE
-            test_only BOOLEAN := TRUE; --- OR TRUE; --- or FALSE
+            test_only BOOLEAN := FALSE; --- OR TRUE; --- or FALSE
             schema_name text;
             table_name text;
             keyword_from_array text;
@@ -128,8 +128,8 @@ $$;
             */
             --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap'];  -- your schema names
             --- schemas text[] := ARRAY['idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet'];  -- your schema names
-            schemas text[] := ARRAY['motrpac'];  -- your schema names
-            --- schemas text[] := ARRAY['c2m2'];  --- BE CAREFUL WITH THIS ONE AS THIS IS THE MAIN SCHEMA -- your schema names
+            --- schemas text[] := ARRAY['motrpac'];  -- your schema names
+            schemas text[] := ARRAY['c2m2'];  --- BE CAREFUL WITH THIS ONE AS THIS IS THE MAIN SCHEMA -- your schema names
 
             --- To get the names all schemas
             /* 
@@ -289,6 +289,6 @@ END $$;
 */
 
 
-*/
+---*/
 
 set max_parallel_workers to 0;
