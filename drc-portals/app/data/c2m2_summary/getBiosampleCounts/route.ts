@@ -91,7 +91,7 @@ export async function GET(req: Request) {
       ${joins.length ? joins.join('\n') : ''}
       GROUP BY ${groupFields.join(', ')}
       ORDER BY count DESC, ${selectFields.map(f => f.split(' AS ')[1]).join(', ')}
-      LIMIT 50;
+      ;
     `;
 
     const result = await pool.query(query);
