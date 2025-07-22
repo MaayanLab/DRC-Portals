@@ -83,12 +83,12 @@ export default function C2M2ReportPage() {
 
         return (
           <Box key={item.id} sx={{ mb: 6 }}>
-            
+
             <Typography variant="h6" sx={{ mb: 1 }}>
               {item.yAxis} vs {item.xAxis}
               {item.groupBy && ` (grouped by ${item.groupBy})`}
             </Typography>
-            
+
             <C2M2BarChart
               data={item.chartData}
               xAxis={item.xAxis}
