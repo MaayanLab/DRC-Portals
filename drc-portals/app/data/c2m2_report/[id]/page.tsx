@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Box, Typography, CircularProgress, Divider } from '@mui/material'
-import { getReport } from '../reportStorage'
-import { C2M2BarChart } from '../../c2m2_summary/C2M2BarChart'
+import { getReport } from '@/app/data/c2m2_report/reportStorage'
+import C2M2BarChart from '@/app/data/c2m2_summary/C2M2BarChart'
 
 interface SavedChart {
   id: string
@@ -83,12 +83,12 @@ export default function C2M2ReportPage() {
 
         return (
           <Box key={item.id} sx={{ mb: 6 }}>
-            
+
             <Typography variant="h6" sx={{ mb: 1 }}>
               {item.yAxis} vs {item.xAxis}
               {item.groupBy && ` (grouped by ${item.groupBy})`}
             </Typography>
-            
+
             <C2M2BarChart
               data={item.chartData}
               xAxis={item.xAxis}

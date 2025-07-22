@@ -40,7 +40,7 @@ const PieChartModal: React.FC<PieChartModalProps> = ({
     id: d.name,
   }));
   const colCount = Math.ceil(legendItems.length / maxPerCol);
-  const columns: typeof legendItems[][] = [];
+  const columns: typeof legendItems[] = [];
   for (let i = 0; i < legendItems.length; i += maxPerCol) {
     columns.push(legendItems.slice(i, i + maxPerCol));
   }
