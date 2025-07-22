@@ -145,9 +145,10 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
 
         const cy = cyRef.current;
         if (cy !== undefined) {
-          const nodesToAnimate = cy.collection(
-            loadingNodes.map((nodeId) => cy.getElementById(nodeId))
-          );
+          const nodesToAnimate = loadingNodes.reduce(
+            (prev, curr) => cy.getElementById(curr).union(prev),
+            cy.collection()
+          )
 
           // Cytoscape crashes if you try to animate empty collections
           if (nodesToAnimate.size() > 0) {

@@ -118,6 +118,13 @@ CALL {
     SET new = properties(old)
 } IN TRANSACTIONS OF 10000 ROWS;
 
+MATCH (collection:Collection)-[old:CONTAINS]->(n:Biofluid)
+CALL {
+    WITH collection, old, n
+    MERGE (collection)-[new:COLLECTION_CONTAINS_BIOFLUID]->(n)
+    SET new = properties(old)
+} IN TRANSACTIONS OF 10000 ROWS;
+
 MATCH (collection:Collection)-[old:CONTAINS]->(n:Compound)
 CALL {
     WITH collection, old, n
@@ -185,6 +192,13 @@ MATCH (biosample:Biosample)-[old:SAMPLED_FROM]->(n:Anatomy)
 CALL {
     WITH biosample, old, n
     MERGE (biosample)-[new:BIOSAMPLE_SAMPLED_FROM_ANATOMY]->(n)
+    SET new = properties(old)
+} IN TRANSACTIONS OF 10000 ROWS;
+
+MATCH (biosample:Biosample)-[old:SAMPLED_FROM]->(n:Biofluid)
+CALL {
+    WITH biosample, old, n
+    MERGE (biosample)-[new:BIOSAMPLE_SAMPLED_FROM_BIOFLUID]->(n)
     SET new = properties(old)
 } IN TRANSACTIONS OF 10000 ROWS;
 

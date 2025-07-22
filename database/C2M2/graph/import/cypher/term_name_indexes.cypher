@@ -1,6 +1,7 @@
 CREATE TEXT INDEX node_text_index_AnalysisType_name FOR (n:AnalysisType) ON (n.name);
 CREATE TEXT INDEX node_text_index_Anatomy_name FOR (n:Anatomy) ON (n.name);
 CREATE TEXT INDEX node_text_index_AssayType_name FOR (n:AssayType) ON (n.name);
+CREATE TEXT INDEX node_text_index_Biofluid_name FOR (n:Biofluid) ON (n.name);
 CREATE TEXT INDEX node_text_index_Compound_name FOR (n:Compound) ON (n.name);
 CREATE TEXT INDEX node_text_index_DataType_name FOR (n:DataType) ON (n.name);
 CREATE TEXT INDEX node_text_index_Disease_name FOR (n:Disease) ON (n.name);

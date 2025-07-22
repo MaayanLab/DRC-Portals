@@ -8,6 +8,7 @@ import {
   ANATOMY_LABEL,
   ASSAY_TYPE_LABEL,
   ASSOCIATED_WITH_TYPE,
+  BIOFLUID_LABEL,
   BIOSAMPLE_LABEL,
   COLLECTION_LABEL,
   COMPOUND_LABEL,
@@ -126,7 +127,10 @@ const getSegmentPropsWithPoints = (
   target: Position,
   invertDistances?: boolean[]
 ) => {
-  const invertDistancesResolved = invertDistances !== undefined ? invertDistances : Array(controlPoints.length).fill(false);
+  const invertDistancesResolved =
+    invertDistances !== undefined
+      ? invertDistances
+      : Array(controlPoints.length).fill(false);
 
   const weights: number[] = [];
   const distances: number[] = [];
@@ -134,7 +138,8 @@ const getSegmentPropsWithPoints = (
   controlPoints.forEach((cp, i) => {
     weights.push(getSegmentWeight(source, cp, target));
     distances.push(
-      getSegmentDistance(source, cp, target) * (invertDistancesResolved[i] ? -1 : 1)
+      getSegmentDistance(source, cp, target) *
+        (invertDistancesResolved[i] ? -1 : 1)
     );
   });
 
@@ -470,6 +475,7 @@ const SUBJECT_GRANULARITY_NODE_ID = "subject-granularity-label";
 const BIOSAMPLE_NODE_ID = "biosample-label";
 const SAMPLE_PREP_METHOD_NODE_ID = "sample-prep-method-label";
 const SUBSTANCE_NODE_ID = "substance-label";
+const BIOFLUID_NODE_ID = "biofluid-label";
 const COMPOUND_NODE_ID = "compound-label";
 const PROTEIN_NODE_ID = "protein-label";
 const NCBI_TAXONOMY_NODE_ID = "ncbi-taxonomy-label";
@@ -528,6 +534,8 @@ const BIOSAMPLE_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID =
   "biosample-associated-with-substance";
 const BIOSAMPLE_ASSOCIATED_WITH_GENE_EDGE_ID = "biosample-associated-with-gene";
 const BIOSAMPLE_SAMPLED_FROM_SUBJECT_EDGE_ID = "biosample-sampled-from-subject";
+const BIOSAMPLE_SAMPLED_FROM_BIOFLUID_EDGE_ID =
+  "biosample-sampled-from-biofluid";
 const SUBSTANCE_ASSOCIATED_WITH_COMPOUND_EDGE_ID =
   "substance-associated-with-compound";
 const PROTEIN_HAS_SOURCE_TAXONOMY_EDGE_ID = "protein-has-source-taxonomy";
@@ -543,9 +551,9 @@ const ANALYSIS_TYPE_POS = { x: 215, y: -38 };
 const ASSAY_TYPE_POS = { x: -1 * ANALYSIS_TYPE_POS.x, y: ANALYSIS_TYPE_POS.y };
 const FILE_FORMAT_POS = { x: 150, y: -70 };
 const DATA_TYPE_POS = { x: -1 * FILE_FORMAT_POS.x, y: FILE_FORMAT_POS.y };
-const BIOSAMPLE_POS = { x: 230, y: 500 };
+const BIOSAMPLE_POS = { x: 230, y: 566 };
 const SUBJECT_POS = { x: -1 * BIOSAMPLE_POS.x, y: BIOSAMPLE_POS.y };
-const SUBJECT_ETHNICITY_POS = { x: SUBJECT_POS.x - 175, y: 580 };
+const SUBJECT_ETHNICITY_POS = { x: SUBJECT_POS.x - 175, y: SUBJECT_POS.y + 80 };
 const SUBJECT_SEX_POS = {
   x: SUBJECT_POS.x - 100,
   y: SUBJECT_ETHNICITY_POS.y + 32,
@@ -557,7 +565,7 @@ const SUBJECT_GRANULARITY_POS = {
 };
 const SAMPLE_PREP_METHOD_POS = {
   x: COLLECTION_POS.x,
-  y: SUBJECT_SEX_POS.y,
+  y: BIOSAMPLE_POS.y + 80,
 };
 
 const DISEASE_POS = { x: 0, y: COLLECTION_POS.y };
@@ -579,14 +587,18 @@ const SUBSTANCE_POS = {
   x: DISEASE_POS.x,
   y: DISEASE_POS.y + TERM_NODE_Y_SPACING * 2,
 };
-const ANATOMY_POS = {
-  x: NCBI_TAXONOMY_POS.x,
+const BIOFLUID_POS = {
+  x: DISEASE_POS.x,
   y: DISEASE_POS.y + TERM_NODE_Y_SPACING * 3,
 };
-const ALL_TERMS_NODE_POS = { x: 450, y: 250 };
+const ANATOMY_POS = {
+  x: NCBI_TAXONOMY_POS.x,
+  y: DISEASE_POS.y + TERM_NODE_Y_SPACING * 4,
+};
+const ALL_TERMS_NODE_POS = { x: 450, y: COLLECTION_POS.y };
 const ARTIFICIAL_COLLECTION_NODE_POS = {
   x: -1 * ALL_TERMS_NODE_POS.x,
-  y: ALL_TERMS_NODE_POS.y,
+  y: COLLECTION_POS.y,
 };
 
 const ID_NAMESPACE_CONTAINS_PROJECT_SOURCE_DEG = -90;
@@ -833,6 +845,19 @@ const BIOSAMPLE_SAMPLED_FROM_ANATOMY_SOURCE_POS = getEdgePoint(
 const BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS = getEdgePoint(
   ANATOMY_POS,
   BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_DEG,
+  SCHEMA_NODE_RADIUS
+);
+
+const BIOSAMPLE_SAMPLED_FROM_BIOFLUID_SOURCE_DEG = -90;
+const BIOSAMPLE_SAMPLED_FROM_BIOFLUID_TARGET_DEG = 90;
+const BIOSAMPLE_SAMPLED_FROM_BIOFLUID_SOURCE_POS = getEdgePoint(
+  BIOSAMPLE_POS,
+  BIOSAMPLE_SAMPLED_FROM_BIOFLUID_SOURCE_DEG,
+  SCHEMA_NODE_RADIUS
+);
+const BIOSAMPLE_SAMPLED_FROM_BIOFLUID_TARGET_POS = getEdgePoint(
+  BIOFLUID_POS,
+  BIOSAMPLE_SAMPLED_FROM_BIOFLUID_TARGET_DEG,
   SCHEMA_NODE_RADIUS
 );
 
@@ -1237,6 +1262,22 @@ const SCHEMA_NODES = [
         properties: {
           description:
             "A PubChem 'substance' term (specific formulation of chemical materials) directly referenced by a C2M2 submission.",
+        },
+      },
+    },
+  },
+  {
+    classes: [NODE_CLASS_MAP.get(BIOFLUID_LABEL) || ""],
+    position: BIOFLUID_POS,
+    locked: true,
+    data: {
+      id: BIOFLUID_NODE_ID,
+      label: BIOFLUID_LABEL,
+      neo4j: {
+        labels: [BIOFLUID_LABEL],
+        properties: {
+          description:
+            "An UBERON term directly referenced by a C2M2 submission.",
         },
       },
     },
@@ -1708,6 +1749,15 @@ const SCHEMA_EDGES = [
       id: BIOSAMPLE_SAMPLED_FROM_ANATOMY_EDGE_ID,
       source: BIOSAMPLE_NODE_ID,
       target: ANATOMY_NODE_ID,
+      label: SAMPLED_FROM_TYPE,
+    },
+  },
+  {
+    classes: ["term-relationship"],
+    data: {
+      id: BIOSAMPLE_SAMPLED_FROM_BIOFLUID_EDGE_ID,
+      source: BIOSAMPLE_NODE_ID,
+      target: BIOFLUID_NODE_ID,
       label: SAMPLED_FROM_TYPE,
     },
   },
@@ -2705,6 +2755,34 @@ export const SCHEMA_STYLESHEET: any[] = [
           },
         ],
         BIOSAMPLE_SAMPLED_FROM_ANATOMY_TARGET_POS,
+        [true, false]
+      ),
+    },
+  },
+  {
+    selector: `edge#${BIOSAMPLE_SAMPLED_FROM_BIOFLUID_EDGE_ID}`,
+    style: {
+      label: "",
+      "target-label": "data(label)",
+      "target-text-offset": 75,
+      "curve-style": "round-segments",
+      "radius-type": "arc-radius",
+      "edge-distances": "endpoints",
+      "source-endpoint": `${BIOSAMPLE_SAMPLED_FROM_BIOFLUID_SOURCE_DEG}deg`,
+      "target-endpoint": `${BIOSAMPLE_SAMPLED_FROM_BIOFLUID_TARGET_DEG}deg`,
+      ...getSegmentPropsWithPoints(
+        BIOSAMPLE_SAMPLED_FROM_BIOFLUID_SOURCE_POS,
+        [
+          {
+            x: TERM_NODE_X_SPACING,
+            y: BIOSAMPLE_SAMPLED_FROM_BIOFLUID_SOURCE_POS.y,
+          },
+          {
+            x: TERM_NODE_X_SPACING,
+            y: BIOSAMPLE_SAMPLED_FROM_BIOFLUID_TARGET_POS.y,
+          },
+        ],
+        BIOSAMPLE_SAMPLED_FROM_BIOFLUID_TARGET_POS,
         [true, false]
       ),
     },
