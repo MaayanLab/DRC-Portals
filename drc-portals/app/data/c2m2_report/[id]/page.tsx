@@ -3,11 +3,11 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Box, Typography, CircularProgress, Divider, Button } from '@mui/material'
-import { getReport } from '../reportStorage'
-import C2M2BarChart from '../../c2m2_summary/C2M2BarChart'
-import C2M2PieChart from '../../c2m2_summary/C2M2PieChart'
-import { SavedChart } from '../../c2m2_summary/CartContext'
-import { generateChartTitle } from '../../c2m2_summary/_utils/chartUtils' // <--- added import
+import { getReport } from '@/app/data/c2m2_report/reportStorage'
+import C2M2BarChart from '@/app/data/c2m2_summary/C2M2BarChart'
+import C2M2PieChart from '@/app/data/c2m2_summary/C2M2PieChart'
+import { SavedChart } from '@/app/data/c2m2_summary/CartContext'
+import { generateChartTitle } from '@/app/data/c2m2_summary/_utils/chartUtils' // <--- added import
 
 const INTRODUCTION = `
 Building on the C2M2 framework, this report presents a series of visual summaries ...
