@@ -15,10 +15,11 @@
 # Be in the folder database/C2M2
 
 # To do a quick check if each DCC has only one valid C2M2 package listed in the file ingest/DccAssets.tsv
-# If not already downloaded: can do: bring in folder ingest: (see also ../ingest_common.py for the URL and file names)
+# If not already downloaded: can do: be in folder ingest: (see also ../ingest_common.py for the URL and file names)
 # wget https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv && mv current_dcc_assets.tsv DccAssets.tsv
 # OR
 # curl https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv -o "DccAssets.tsv"
+# Then be in C2M2 folder (cd ..)
 ./get_current_notdeleted_C2M2_list.sh ingest/DccAssets.tsv
 
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
@@ -29,9 +30,10 @@ server_label=
 env_file_name=.env
 #env_file_name=.env_pgcontainer
 
+logdir=log${server_label}
+
 # Take a back up of the scripts and a few other key files
 # logdir should not have any spaces
-logdir=log${server_label}
 mkdir -p ${logdir}
 ymd=$(date +%y%m%d); 
 date_div=$(echo "============= `date` =============");
@@ -39,11 +41,16 @@ scripts_ran_dir=scripts_ran/scripts_${ymd}; mkdir -p ${scripts_ran_dir}; mkdir -
 cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/.
 cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
 
-###########################
+########################### clean up by key words
+# Run these after the zip files have been downloaded in the folders inside the ingest/c2m2s folder using the commands
+# scripts populateC2M2FromS3.py or call_populateC2M2FromS3_DCCnameASschema.sh
+# In the file populateC2M2FromS3.py, set actually_ingest_tables = 0 for this; later set it to 1 to actually ingest
+#
 # To get the list of files and lines with specific keywords 
 ./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
 
 #To replace any specific words with another words in the tsv files directly, before ingesting
+# Please check the lines in the script replace_gender_sex_women_female_in_tsvfiles to see which keywords are being replaced by what
 logf=${logdir}/log_replace_gender_sex_women_female_in_tsvfiles.log
 ./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s 2>&1 | tee ${logf};
 echo ${date_div} >> ${logf};
@@ -73,7 +80,7 @@ python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log
 egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log; 
 egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log;
 
-# If onew wanted to print the sql statements to find records or their counts with matching keywords,
+# If one wanted to print the sql statements to find records or their counts with matching keywords,
 # one could use the linux command: this is generally for information purposes only unless the delete 
 # statements are also printed.
 ./gen_sql_select_count_delete_statements.sh fk_referenced_tables.txt sql_select_count_delete_keywords_statements.sql

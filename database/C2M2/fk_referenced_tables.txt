@@ -7,6 +7,7 @@ collection
 compound
 data_type
 disease
+domain_location
 file
 file_format
 gene
@@ -15,6 +16,9 @@ ncbi_taxonomy
 phenotype
 project
 protein
+ptm
+ptm_subtype
+ptm_type
 sample_prep_method
 subject
 substance

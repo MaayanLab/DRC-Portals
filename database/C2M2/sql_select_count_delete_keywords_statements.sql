@@ -10,6 +10,7 @@ DELETE FROM c2m2.collection WHERE searchable @@ websearch_to_tsquery('english', 
 DELETE FROM c2m2.compound WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.data_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.disease WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+DELETE FROM c2m2.domain_location WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.file WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.file_format WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.gene WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
@@ -18,30 +19,12 @@ DELETE FROM c2m2.ncbi_taxonomy WHERE searchable @@ websearch_to_tsquery('english
 DELETE FROM c2m2.phenotype WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.project WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.protein WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+DELETE FROM c2m2.ptm WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+DELETE FROM c2m2.ptm_subtype WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+DELETE FROM c2m2.ptm_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.sample_prep_method WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.subject WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 DELETE FROM c2m2.substance WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-
-SELECT COUNT(*) FROM c2m2.analysis_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.anatomy WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.assay_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.biofluid WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.biosample WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.collection WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.compound WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.data_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.disease WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.file WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.file_format WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.gene WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.id_namespace WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.ncbi_taxonomy WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.phenotype WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.project WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.protein WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.sample_prep_method WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.subject WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
-SELECT COUNT(*) FROM c2m2.substance WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 
 SELECT * FROM c2m2.analysis_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.anatomy WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
@@ -52,6 +35,7 @@ SELECT * FROM c2m2.collection WHERE searchable @@ websearch_to_tsquery('english'
 SELECT * FROM c2m2.compound WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.data_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.disease WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+SELECT * FROM c2m2.domain_location WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.file WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.file_format WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.gene WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
@@ -60,6 +44,9 @@ SELECT * FROM c2m2.ncbi_taxonomy WHERE searchable @@ websearch_to_tsquery('engli
 SELECT * FROM c2m2.phenotype WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.project WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.protein WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+SELECT * FROM c2m2.ptm WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+SELECT * FROM c2m2.ptm_subtype WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
+SELECT * FROM c2m2.ptm_type WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.sample_prep_method WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.subject WHERE searchable @@ websearch_to_tsquery('english', :'keywords');
 SELECT * FROM c2m2.substance WHERE searchable @@ websearch_to_tsquery('english', :'keywords');

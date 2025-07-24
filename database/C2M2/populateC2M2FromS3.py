@@ -30,6 +30,10 @@ import gc
 import urllib.parse
 from dotenv import load_dotenv
 
+# To only download DccAssets.tsv and not actually ingest, set:
+# actually_ingest_tables = 0
+
+
 # debug
 debug = 1
 actually_create_schema = 1

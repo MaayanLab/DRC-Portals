@@ -436,6 +436,59 @@ description VARCHAR DEFAULT '',
 PRIMARY KEY(id)
 );
 
+CREATE TABLE c2m2.collection_ptm (
+collection_id_namespace VARCHAR NOT NULL, 
+collection_local_id VARCHAR NOT NULL, 
+ptm VARCHAR NOT NULL,
+PRIMARY KEY(collection_id_namespace, collection_local_id, ptm)
+);
+
+CREATE TABLE c2m2.biosample_ptm (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+ptm VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, ptm)
+);
+
+CREATE TABLE c2m2.ptm (
+id VARCHAR NOT NULL, 
+protein VARCHAR NOT NULL, 
+site_one VARCHAR NOT NULL, 
+aa_site_one VARCHAR NOT NULL, 
+site_two VARCHAR DEFAULT '', 
+aa_site_two VARCHAR DEFAULT '', 
+site_type VARCHAR DEFAULT '', 
+ptm_type VARCHAR DEFAULT '', 
+ptm_subtype VARCHAR DEFAULT '', 
+domain_location VARCHAR DEFAULT '', 
+domain_type VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+
+CREATE TABLE c2m2.ptm_type (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+
+CREATE TABLE c2m2.ptm_subtype (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+
+CREATE TABLE c2m2.domain_location (
+id VARCHAR NOT NULL, 
+name VARCHAR NOT NULL, 
+description VARCHAR DEFAULT '', 
+synonyms VARCHAR DEFAULT '',
+PRIMARY KEY(id)
+);
+
 
 /* Add foreign key constraints */
 ALTER TABLE c2m2.file DROP CONSTRAINT IF EXISTS fk_file_id_namespace_1;
@@ -646,6 +699,26 @@ ALTER TABLE c2m2.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_protein_
 ALTER TABLE c2m2.protein_gene ADD CONSTRAINT  fk_protein_gene_protein_1 FOREIGN KEY (protein) REFERENCES c2m2.protein (id) ON DELETE CASCADE;
 ALTER TABLE c2m2.protein_gene DROP CONSTRAINT IF EXISTS fk_protein_gene_gene_2;
 ALTER TABLE c2m2.protein_gene ADD CONSTRAINT  fk_protein_gene_gene_2 FOREIGN KEY (gene) REFERENCES c2m2.gene (id) ON DELETE CASCADE;
+
+
+
+ALTER TABLE c2m2.collection_ptm DROP CONSTRAINT IF EXISTS fk_collection_ptm_collection_1;
+ALTER TABLE c2m2.collection_ptm ADD CONSTRAINT  fk_collection_ptm_collection_1 FOREIGN KEY (collection_id_namespace, collection_local_id) REFERENCES c2m2.collection (id_namespace, local_id) ON DELETE CASCADE;
+ALTER TABLE c2m2.collection_ptm DROP CONSTRAINT IF EXISTS fk_collection_ptm_ptm_2;
+ALTER TABLE c2m2.collection_ptm ADD CONSTRAINT  fk_collection_ptm_ptm_2 FOREIGN KEY (ptm) REFERENCES c2m2.ptm (id) ON DELETE CASCADE;
+
+ALTER TABLE c2m2.biosample_ptm DROP CONSTRAINT IF EXISTS fk_biosample_ptm_biosample_1;
+ALTER TABLE c2m2.biosample_ptm ADD CONSTRAINT  fk_biosample_ptm_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES c2m2.biosample (id_namespace, local_id) ON DELETE CASCADE;
+ALTER TABLE c2m2.biosample_ptm DROP CONSTRAINT IF EXISTS fk_biosample_ptm_ptm_2;
+ALTER TABLE c2m2.biosample_ptm ADD CONSTRAINT  fk_biosample_ptm_ptm_2 FOREIGN KEY (ptm) REFERENCES c2m2.ptm (id) ON DELETE CASCADE;
+
+ALTER TABLE c2m2.ptm DROP CONSTRAINT IF EXISTS fk_ptm_ptm_type_1;
+ALTER TABLE c2m2.ptm ADD CONSTRAINT  fk_ptm_ptm_type_1 FOREIGN KEY (ptm_type) REFERENCES c2m2.ptm_type (id) ON DELETE CASCADE;
+ALTER TABLE c2m2.ptm DROP CONSTRAINT IF EXISTS fk_ptm_ptm_subtype_2;
+ALTER TABLE c2m2.ptm ADD CONSTRAINT  fk_ptm_ptm_subtype_2 FOREIGN KEY (ptm_subtype) REFERENCES c2m2.ptm_subtype (id) ON DELETE CASCADE;
+ALTER TABLE c2m2.ptm DROP CONSTRAINT IF EXISTS fk_ptm_domain_location_3;
+ALTER TABLE c2m2.ptm ADD CONSTRAINT  fk_ptm_domain_location_3 FOREIGN KEY (domain_location) REFERENCES c2m2.domain_location (id) ON DELETE CASCADE;
+
 
 
 
@@ -1311,5 +1384,83 @@ BEGIN
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'id_namespace' 
 	AND indexname = 'c2m2_id_namespace_idx_searchable') THEN
 		CREATE INDEX c2m2_id_namespace_idx_searchable ON c2m2.id_namespace USING gin(searchable);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.collection_ptm
+ALTER TABLE c2m2.collection_ptm ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.collection_ptm SET searchable = concat_ws('|', '', c2m2.collection_ptm.collection_local_id, c2m2.collection_ptm.ptm);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_collection_ptm_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_ptm' 
+	AND indexname = 'c2m2_collection_ptm_idx_searchable') THEN
+		CREATE INDEX c2m2_collection_ptm_idx_searchable ON c2m2.collection_ptm USING gin(searchable);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.biosample_ptm
+ALTER TABLE c2m2.biosample_ptm ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_ptm SET searchable = concat_ws('|', '', c2m2.biosample_ptm.biosample_local_id, c2m2.biosample_ptm.ptm);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_biosample_ptm_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_ptm' 
+	AND indexname = 'c2m2_biosample_ptm_idx_searchable') THEN
+		CREATE INDEX c2m2_biosample_ptm_idx_searchable ON c2m2.biosample_ptm USING gin(searchable);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.ptm
+ALTER TABLE c2m2.ptm ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.ptm SET searchable = concat_ws('|', '', c2m2.ptm.id, c2m2.ptm.protein, c2m2.ptm.site_one, c2m2.ptm.aa_site_one, c2m2.ptm.site_two, c2m2.ptm.aa_site_two, c2m2.ptm.site_type, c2m2.ptm.ptm_type, c2m2.ptm.ptm_subtype, c2m2.ptm.domain_location, c2m2.ptm.domain_type);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_ptm_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ptm' 
+	AND indexname = 'c2m2_ptm_idx_searchable') THEN
+		CREATE INDEX c2m2_ptm_idx_searchable ON c2m2.ptm USING gin(searchable);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.ptm_type
+ALTER TABLE c2m2.ptm_type ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.ptm_type SET searchable = concat_ws('|', '', c2m2.ptm_type.id, c2m2.ptm_type.name, c2m2.ptm_type.description, c2m2.ptm_type.synonyms);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_ptm_type_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ptm_type' 
+	AND indexname = 'c2m2_ptm_type_idx_searchable') THEN
+		CREATE INDEX c2m2_ptm_type_idx_searchable ON c2m2.ptm_type USING gin(searchable);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.ptm_subtype
+ALTER TABLE c2m2.ptm_subtype ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.ptm_subtype SET searchable = concat_ws('|', '', c2m2.ptm_subtype.id, c2m2.ptm_subtype.name, c2m2.ptm_subtype.description, c2m2.ptm_subtype.synonyms);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_ptm_subtype_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ptm_subtype' 
+	AND indexname = 'c2m2_ptm_subtype_idx_searchable') THEN
+		CREATE INDEX c2m2_ptm_subtype_idx_searchable ON c2m2.ptm_subtype USING gin(searchable);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.domain_location
+ALTER TABLE c2m2.domain_location ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.domain_location SET searchable = concat_ws('|', '', c2m2.domain_location.id, c2m2.domain_location.name, c2m2.domain_location.description, c2m2.domain_location.synonyms);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_domain_location_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'domain_location' 
+	AND indexname = 'c2m2_domain_location_idx_searchable') THEN
+		CREATE INDEX c2m2_domain_location_idx_searchable ON c2m2.domain_location USING gin(searchable);
 	END IF;
 END $$;
