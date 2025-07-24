@@ -87,7 +87,7 @@ export default function GraphHome() {
                         sx={{ textTransform: "uppercase" }}
                         color="secondary"
                       >
-                        Quickstart
+                        Quickstart Guide
                       </Button>
                     </Link>
 
@@ -96,7 +96,7 @@ export default function GraphHome() {
                         sx={{ textTransform: "uppercase" }}
                         color="secondary"
                       >
-                        Documentation
+                        Detailed Documentation
                       </Button>
                     </Link>
                   </div>
