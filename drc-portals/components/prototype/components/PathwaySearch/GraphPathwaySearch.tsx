@@ -4,7 +4,7 @@ import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import HubIcon from "@mui/icons-material/Hub";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -282,7 +282,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           <Fragment key="pathway-search-chart-toolbar-cypher-query">
             <Tooltip title="Copy Cypher Query" arrow>
               <IconButton aria-label="cypher-query" onClick={onCopyCypher}>
-                <HubIcon />
+                <ContentCopyIcon />
               </IconButton>
             </Tooltip>
           </Fragment>
