@@ -6,7 +6,7 @@
 #
 # Please note that if new columns or tables are added to the schema then that 
 # will require cfde-c2m2 init and possibly, cfde-c2m2 prepare separately on 
-# respective packages before trying this script.
+# respective packages before trying this script. We can explore if they can be added here.
 #
 # Call syntax: ./run_validations_with_minorupdated_schema.sh 2>&1 | tee ${logf} "master_validation_log_$(date +%y%m%d).log"
 # Call syntax: ./run_validations_with_minorupdated_schema.sh <updated_json.json> 2>&1 | tee ${logf} "master_validation_log_$(date +%y%m%d).log"
@@ -66,6 +66,9 @@ for dir in "${matching_dirs[@]}"; do
     echo "Using datapackage JSON: $datapackage_json"
     echo "Backup JSON (if needed): $datapackage_backup_json"
     echo "FixedJSON source: $fixed_json"
+
+    # Include cfde-c2m2 init and prepare too??
+    # cfde-c2m2 init && cfde-c2m2 prepare
 
     # Backup existing datapackage JSON
     if [[ -f "$datapackage_json" ]]; then
