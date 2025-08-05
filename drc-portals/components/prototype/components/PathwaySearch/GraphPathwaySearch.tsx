@@ -37,7 +37,7 @@ import {
   useState,
 } from "react";
 
-import { FILTER_LABELS } from "@/lib/neo4j/constants";
+import { ADMIN_LABELS, FILTER_LABELS } from "@/lib/neo4j/constants";
 import { NodeResult } from "@/lib/neo4j/types";
 
 import {
@@ -242,6 +242,8 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const showFilterNode = (event: EventObjectNode) =>
     FILTER_LABELS.has(event.target.data("dbLabel"));
 
+  const showExpandNode = (event: EventObjectNode) => !ADMIN_LABELS.includes(event.target.data("dbLabel"));
+
   const handlePruneNodeSelected = (event: EventObjectNode) => {
     setSnackbarOpen(true);
     onPruneSelected(event.target);
@@ -421,6 +423,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         key="chart-cxt-add-connection"
         elements={elements}
         onConnectionSelected={onConnectionSelected}
+        showFn={showExpandNode}
       ></AddConnectionMenuItem>,
       <ChartCxtMenuItem
         key="chart-cxt-show-filters"

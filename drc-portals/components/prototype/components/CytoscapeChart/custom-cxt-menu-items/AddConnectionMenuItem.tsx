@@ -5,7 +5,7 @@ import HubIcon from "@mui/icons-material/Hub";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import WarningIcon from "@mui/icons-material/Warning";
 import { Box, CircularProgress, Tooltip } from "@mui/material";
-import { EventObjectNode } from "cytoscape";
+import { EventObject, EventObjectNode } from "cytoscape";
 import { NestedMenuItem } from "mui-nested-menu";
 import {
   ReactNode,
@@ -36,12 +36,13 @@ interface AddConnectionMenuItemProps {
     item: ConnectionMenuItem,
     event: EventObjectNode
   ) => void;
+  showFn?: (event: EventObject) => boolean;
 }
 
 export default function AddConnectionMenuItem(
   cmpProps: AddConnectionMenuItemProps
 ) {
-  const { elements, onConnectionSelected } = cmpProps;
+  const { elements, onConnectionSelected, showFn } = cmpProps;
   const [loading, setLoading] = useState(false);
   const [getConnectionsError, setGetConnectionsError] =
     useState<boolean>(false);
@@ -49,6 +50,11 @@ export default function AddConnectionMenuItem(
   const [gotConnections, setGotConnections] = useState(false);
   const abortControllerRef = useRef(new AbortController());
   const context = useContext(ChartCxtMenuContext);
+  const showItem = useRef(
+    // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
+    // result of, for example, closing the menu
+    context !== null && (showFn === undefined || showFn(context.event))
+  );
 
   const getRightIcon = useCallback(() => {
     if (loading) {
@@ -221,7 +227,7 @@ export default function AddConnectionMenuItem(
     };
   }, []);
 
-  return context !== null ? (
+  return context !== null && showItem.current ? (
     <NestedMenuItem
       onClick={onMenuClicked}
       rightIcon={getRightIcon()}
