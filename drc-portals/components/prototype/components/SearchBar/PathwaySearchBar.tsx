@@ -23,8 +23,11 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   const [value, setValue] = useState<string>("");
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showNoOptions, setShowNoOptions] = useState(false);
   const abortControllerRef = useRef(new AbortController());
   const cvTermsMap = useRef(new Map<string, NodeResult>());
+
+  const NO_OPTIONS_TEXT = "No terms found";
 
   const abortCVTermRequest = () => {
     const abortController = abortControllerRef.current;
@@ -82,26 +85,19 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
     state: AutocompleteRenderOptionState
   ) => {
     const { key, ...optionProps } = props;
-    return (
-      <Box
-        key={key}
-        component="li"
-        sx={{ display: "flex" }}
-        {...optionProps}
-        onClick={(event: MouseEvent) => {
-          if (cvTermsMap.current !== undefined) {
-            const cvTerm = cvTermsMap.current.get(option);
-            submit(cvTerm);
-          }
-          optionProps.onClick(event);
-        }}
-      >
-        {loading ? (
+    let content;
+
+    if (loading) {
+      content = (
           <Skeleton
             variant="text"
             width={SEARCH_PLACEHOLDER_OPTIONS[state.index]}
           />
-        ) : (
+        );
+    } else if (showNoOptions) {
+      content = option;
+    } else {
+      content = (
           <Box
             display="flex"
             sx={{
@@ -117,7 +113,24 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
               )}
             </Box>
           </Box>
-        )}
+        );
+    }
+
+    return (
+      <Box
+        key={key}
+        component="li"
+        sx={{ display: "flex" }}
+        {...optionProps}
+        onClick={(event: MouseEvent) => {
+          if (cvTermsMap.current !== undefined) {
+            const cvTerm = cvTermsMap.current.get(option);
+            submit(cvTerm);
+          }
+          optionProps.onClick(event);
+        }}
+      >
+        {content}
       </Box>
     );
   };
@@ -140,12 +153,19 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
             signal: abortControllerRef.current?.signal,
           });
           const data: CVTermsResult[] = await response.json();
-          if (cvTermsMap.current !== undefined) {
-            cvTermsMap.current.clear();
-            data.forEach((row) => {
-              cvTermsMap.current.set(row.synonym, row.cvTerm);
-            });
-            setOptions(Array.from(cvTermsMap.current.keys()));
+
+          if (data.length === 0) {
+            setShowNoOptions(true);
+            setOptions([NO_OPTIONS_TEXT]);
+          } else {
+            if (cvTermsMap.current !== undefined) {
+              cvTermsMap.current.clear();
+              data.forEach((row) => {
+                cvTermsMap.current.set(row.synonym, row.cvTerm);
+              });
+              setShowNoOptions(false);
+              setOptions(Array.from(cvTermsMap.current.keys()));
+            }
           }
         } catch (error) {
           console.error(error);
@@ -168,6 +188,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
       openOnFocus={true}
       value={value}
       options={options}
+      getOptionDisabled={() => showNoOptions}
       onChange={handleOnChange}
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
