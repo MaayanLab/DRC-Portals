@@ -4,6 +4,7 @@ import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import HelpIcon from '@mui/icons-material/Help';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
@@ -13,6 +14,7 @@ import {
   Divider,
   Fab,
   IconButton,
+  Link,
   Paper,
   Snackbar,
   Tooltip,
@@ -321,7 +323,29 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           </Fragment>
         );
       },
+      () => (
+        <Divider
+          key="pathway-search-chart-toolbar-divider-0"
+          orientation="vertical"
+          variant="middle"
+          flexItem
+        />
+      ),
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-help">
+            <Tooltip title="Help" arrow>
+              <Link href="/data/graph/help">
+                <IconButton aria-label="pathway-help" component="label">
+                  <HelpIcon />
+                </IconButton>
+              </Link>
+            </Tooltip>
+          </Fragment>
+        );
+      },
     ],
+
     [handleReset, onDownload, onUpload, onCopyCypher]
   );
 
