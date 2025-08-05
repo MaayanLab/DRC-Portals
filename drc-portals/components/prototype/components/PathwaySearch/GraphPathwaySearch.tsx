@@ -264,7 +264,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         return (
           <Fragment key="pathway-search-chart-toolbar-reset-search">
             <Tooltip title="Start Over" arrow>
-              <IconButton aria-label="start-over" onClick={handleReset}>
+              <IconButton aria-label="start-over" disabled={elements.length === 0} onClick={handleReset}>
                 <RestartAltIcon />
               </IconButton>
             </Tooltip>
@@ -346,7 +346,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       },
     ],
 
-    [handleReset, onDownload, onUpload, onCopyCypher]
+    [elements, handleReset, onDownload, onUpload, onCopyCypher]
   );
 
   const customEvents: CytoscapeEvent[] = useMemo(
