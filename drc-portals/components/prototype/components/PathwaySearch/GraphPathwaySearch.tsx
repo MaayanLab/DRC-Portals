@@ -327,7 +327,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       },
       () => (
         <Divider
-          key="pathway-search-chart-toolbar-divider-0"
+          key="pathway-search-chart-toolbar-divider-1"
           orientation="vertical"
           variant="middle"
           flexItem
