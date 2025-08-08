@@ -47,6 +47,7 @@ fkeycon_include_on_delete_cascade_str = " ON DELETE CASCADE" # or ""
 add_searchable_column = 1
 index_searchable = 1
 searchable_colname = "searchable"
+varchar_gin_trgm_ops_str="gin_trgm_ops" # or ""
 # Define the exclusion patterns, if none, put some junk string so that no columns excluded
 #searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes' #r'^project_|_id$|temp'
 # Need to be able to exlcude records with keywords in IDs as well, so include those columns
@@ -230,7 +231,7 @@ def gen_searchable_index_query(schema_name, table_name, searchable_colname, debu
     sidx_str1 = f"DO $${newline}BEGIN{newline}{tabchar}DROP INDEX IF EXISTS {index_name_str};"
     sidx_str2 = f"{tabchar}IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = '{schema_name}' AND tablename = '{table_name}' "
     sidx_str3 = f"{tabchar}AND indexname = '{index_name_str}') THEN"
-    sidx_str4 = f"{tabchar}{tabchar}CREATE INDEX {index_name_str} ON {schema_name}.{table_name} USING gin({searchable_colname});"
+    sidx_str4 = f"{tabchar}{tabchar}CREATE INDEX {index_name_str} ON {schema_name}.{table_name} USING gin({searchable_colname}{varchar_gin_trgm_ops_str});"
     sidx_str5 = f"{tabchar}END IF;{newline}END $$;"
     searchable_index_query = f"{sidx_str1}{newline}{sidx_str2}{newline}{sidx_str3}{newline}{sidx_str4}{newline}{sidx_str5}";
     return searchable_index_query
