@@ -543,6 +543,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
 
 DO $$ 
 BEGIN
+    --- Do not add pk_id column as primary key since union is taken later between ffl_biosample and ffl_collection
     DROP INDEX IF EXISTS ffl_biosample_idx_searchable;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample' 
     AND indexname = 'ffl_biosample_idx_searchable') THEN

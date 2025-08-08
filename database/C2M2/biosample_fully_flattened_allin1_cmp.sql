@@ -543,6 +543,7 @@ ALTER TABLE c2m2.ffl_biosample_cmp RENAME COLUMN searchable_tmp TO searchable;
 
 DO $$ 
 BEGIN
+    --- Do not add pk_id column as primary key since union is taken later between ffl_biosample_cmp and ffl_collection_cmp
     DROP INDEX IF EXISTS ffl_biosample_cmp_idx_searchable;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ffl_biosample_cmp' 
     AND indexname = 'ffl_biosample_cmp_idx_searchable') THEN
