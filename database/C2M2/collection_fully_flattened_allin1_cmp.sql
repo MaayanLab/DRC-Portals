@@ -62,7 +62,8 @@ select distinct
 --- COLUMNS TO SHOW TO USER ---
     -- concatenate all and save to_tsvector as searchable
     -- Decided to exclude subject.local_id, biosample_from_subject.age_at_sampling and subject.age_at_enrollment from searchable
-    to_tsvector(concat_ws('|', 
+    --- Mano: 2025/08/04: Now using concat_ws('|', concat_ws('|',....), concat_ws('|',....)) as now we have more than 100 columns.
+    to_tsvector(concat_ws('|', concat_ws('|', 
     /**? null, null, ?**/ /* c2m2.biosample.id_namespace, c2m2.biosample.local_id, */
     c2m2.collection_defined_by_project.project_id_namespace, c2m2.collection_defined_by_project.project_local_id, 
     /**? null, null, ?**/ /** c2m2.biosample.persistent_id, c2m2.biosample.creation_time,  **/
@@ -130,9 +131,14 @@ select distinct
     --- Mano: 2024/02/13
     null, /** c2m2.phenotype_association_type.id, **/ c2m2.phenotype.id,
     null, null, /** c2m2.phenotype_association_type.name, c2m2.phenotype_association_type.description, **/
-    c2m2.phenotype.name, c2m2.phenotype.description, c2m2.phenotype.synonyms
+    c2m2.phenotype.name, c2m2.phenotype.description, c2m2.phenotype.synonyms),
 
-    )) as searchable,
+    --- Mano: 2025/08/04: exclude c2m2.ptm.id
+    concat_ws('|', c2m2.site_type.id, c2m2.ptm_type.id, c2m2.ptm_subtype.id,
+    c2m2.site_type.name, c2m2.site_type.description,
+    c2m2.ptm_type.name, c2m2.ptm_type.description,
+    c2m2.ptm_subtype.name, c2m2.ptm_subtype.description
+    ))) as searchable,
     --- sample_prep_method, anatomy, biosample_disease, gene, substance, sample_prep_method, disease_association_type, race, sex, ethnicity, granularity, role_id, taxonomy_id are IDs.
     ---? null /* c2m2.biosample.id_namespace */ as biosample_id_namespace, null /* c2m2.biosample.local_id */ as biosample_local_id, 
     c2m2.collection_defined_by_project.project_id_namespace as project_id_namespace, c2m2.collection_defined_by_project.project_local_id as project_local_id, 
@@ -195,7 +201,12 @@ select distinct
     --- Mano: 2024/02/13
     null /** c2m2.phenotype_association_type.id **/ AS phenotype_association_type, c2m2.phenotype.id as phenotype, 
     null /** c2m2.phenotype_association_type.name **/ as phenotype_association_type_name,
-    c2m2.phenotype.name as phenotype_name
+    c2m2.phenotype.name as phenotype_name,
+
+    --- Mano: 2025/08/04
+    c2m2.site_type.id as ptm_site_type, c2m2.ptm_type.id as ptm_type, c2m2.ptm_subtype.id as ptm_subtype,
+    c2m2.site_type.name as ptm_site_type_name, 
+    c2m2.ptm_type.name as ptm_type_name, c2m2.ptm_subtype.name as ptm_subtype_name
 
     --- Mano: 2024/08/20: add counts
     --- These counts will be based on GROUP BY all other columns, which is a lot more than that 
@@ -275,8 +286,11 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.gene
         on (c2m2.collection_gene.gene = c2m2.gene.id)
 
-    left join c2m2.protein
-        on (c2m2.collection_protein.protein = c2m2.protein.id)
+    left join c2m2.protein_gene
+        on (c2m2.protein_gene.gene = c2m2.gene.id)
+    --- Join with c2m2.protein moved after join with c2m2.ptm 
+    ---left join c2m2.protein
+    ---    on ((c2m2.collection_protein.protein = c2m2.protein.id) OR (c2m2.ptm.protein = c2m2.protein.id))
 
     left join c2m2.substance
         on (c2m2.collection_substance.substance = c2m2.substance.id)
@@ -284,9 +298,24 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.compound
         on (c2m2.collection_compound.compound = c2m2.compound.id)
 
+
+
+
+
+
+
+
+
+
+
     left join c2m2.project
         on (c2m2.collection_defined_by_project.project_local_id = c2m2.project.local_id and
         c2m2.collection_defined_by_project.project_id_namespace = c2m2.project.id_namespace) 
+
+
+
+
+
         /* we are not defining the new table allCollection; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
         --- THIS CAN BE A PROBLEM
@@ -320,6 +349,8 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         (c2m2.collection.id_namespace = c2m2.dcc.project_id_namespace) OR
         (c2m2.collection_in_collection.superset_collection_id_namespace = c2m2.dcc.project_id_namespace))
      */
+
+     
     left join c2m2.id_namespace_dcc_id
         on ((c2m2.collection.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id) OR
         (c2m2.project.id_namespace = c2m2.id_namespace_dcc_id.id_namespace_id)) 
@@ -373,10 +404,6 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         on (c2m2.collection_taxonomy.taxon = c2m2.ncbi_taxonomy.id)
 
     /** Mano: 2024/04/12: commented as null used corresponding to columns from these tables
-    left join c2m2.collection
-        on (c2m2.biosample_in_collection.collection_local_id = c2m2.collection.local_id and
-        c2m2.biosample_in_collection.collection_id_namespace = c2m2.collection.id_namespace)
-    
     left join c2m2.sample_prep_method
         on (c2m2.biosample.sample_prep_method = c2m2.sample_prep_method.id)
 
@@ -445,6 +472,35 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     had them included at biosample level too)), and subject_phenotype added 238 rows (all from MW)
     */
 
+
+
+
+
+
+
+
+
+
+
+
+    --- Mano: 2025/08/04: Add collection_ptm, ptm, site_type, ptm_type, ptm_subtype
+    left join c2m2.collection_ptm 
+        on (c2m2.collection.local_id = c2m2.collection_ptm.collection_local_id and 
+        c2m2.collection.id_namespace = c2m2.collection_ptm.collection_id_namespace)
+    left join c2m2.ptm
+        on (c2m2.collection_ptm.ptm = c2m2.ptm.id)
+    left join c2m2.site_type
+        on (c2m2.ptm.site_type = c2m2.site_type.id)
+    left join c2m2.ptm_type
+        on (c2m2.ptm.ptm_type = c2m2.ptm_type.id)
+    left join c2m2.ptm_subtype
+        on (c2m2.ptm.ptm_subtype = c2m2.ptm_subtype.id)
+
+    left join c2m2.protein
+        on ((c2m2.collection_protein.protein = c2m2.protein.id) OR (c2m2.ptm.protein = c2m2.protein.id))
+
+
+
     --- GROUP BY not needed since count_bios is 0 but still keeping code if ever needed    
     --- Column names used here may differ between biosample*_cmp.sql and collection*_cmp.sql
     --- Use the column name from the original table if a null value is not used
@@ -468,7 +524,9 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     c2m2.collection.has_time_series_data, sample_prep_method_name, subject_race, subject_race_name, 
     subject_granularity_name, subject_sex_name, subject_ethnicity_name, subject_role_taxonomy_role_id, 
     subject_role_name, disease_association_type_name, phenotype_association_type, c2m2.phenotype.id,
-    phenotype_association_type_name, c2m2.phenotype.name
+    phenotype_association_type_name, c2m2.phenotype.name,
+    c2m2.site_type.id, c2m2.ptm_type.id, c2m2.ptm_subtype.id,
+    c2m2.site_type.name, c2m2.ptm_type.name, c2m2.ptm_subtype.name
     */
 
     --- Extra line for line match
@@ -512,9 +570,14 @@ BEGIN
         CREATE INDEX ffl_collection_cmp_idx_dcc_proj_sp_dis_ana_gene_data ON c2m2.ffl_collection_cmp USING 
         --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, gene_name, data_type_name, assay_type_name);
         btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-        compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name);
+        compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name,
+        subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name);
     END IF;
 END $$;
+
+\echo 'Counts with respect to id_namespace and dcc_name'
+select project_id_namespace,count(*) from c2m2.ffl_collection_cmp group by project_id_namespace order by project_id_namespace;
+select dcc_name,count(*) from c2m2.ffl_collection_cmp group by dcc_name order by dcc_name;
 
 set max_parallel_workers to 0;
 --- */
@@ -624,3 +687,19 @@ where
 */
 
 /* */
+
+/* PTM related:
+I noticed that the protein IDs used in the ptm.tsv table are like O75503-1 whereas those used in 
+collection_protein.tsv are like O75503. Going forward, unless there is a reason not to, 
+it will be best to use the same UniProt ID in both if they indeed refer to the same protein. 
+Otherwise, when searching, they will show up in two different records.
+
+select c2m2.ptm.id,c2m2.ptm.protein as ptm_protein, c2m2.collection_ptm.collection_local_id, 
+c2m2.collection_protein.protein as collection_protein 
+from 
+c2m2.ptm 
+left join c2m2.collection_ptm on c2m2.ptm.id = c2m2.collection_ptm.ptm 
+left join c2m2.collection_protein on c2m2.collection_protein.collection_local_id = c2m2.collection_ptm.collection_local_id 
+limit 20;
+
+*/
