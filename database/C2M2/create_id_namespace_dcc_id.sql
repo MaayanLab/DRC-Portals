@@ -1,7 +1,8 @@
 set statement_timeout = 0;
 /*
-Script to add a table called id_namespace_dcc_id with two columns id_namespace_id and dcc_id to link the tables id_namespace and dcc.
-This script needs to updated when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing 
+Script to add a table called id_namespace_dcc_id with two columns id_namespace_id 
+and dcc_id to link the tables id_namespace and dcc. This script needs to updated 
+when a new DCC joins or an existing DCC adds a new id_namespace. It will be better to alter the existing 
 table id_namespace.tsv to add a column called dcc_id (add/adjust foreign constraint too).
 This script can be run as (upon starting psql shell, or equivalent command):
 \i create_id_namespace_dcc_id.sql
@@ -10,7 +11,8 @@ psql -h localhost -U drc -d drc -p [5432|5433] -a -f create_id_namespace_dcc_id.
 psql -h localhost -U drc -d drc -p [5432|5433] -a -f create_id_namespace_dcc_id.sql -o log/log_create_id_namespace_dcc_id.log
 
 */
-
+\echo ''
+\echo '-------------------------- id_namespace_dcc_id: start ------------------------ '
 DROP TABLE IF EXISTS c2m2.id_namespace_dcc_id RESTRICT;
 CREATE TABLE c2m2.id_namespace_dcc_id (id_namespace_id varchar NOT NULL, dcc_id varchar NOT NULL, 
     dcc_short_label varchar NOT NULL, PRIMARY KEY(id_namespace_id));
@@ -25,7 +27,8 @@ VALUES
  ('https://www.data.glygen.org/', 'cfde_registry_dcc:glygen', 'GlyGen'),
  ('tag:hmpdacc.org,2022-04-04:', 'cfde_registry_dcc:hmp', 'HMP'),
  --- ('tag:hubmapconsortium.org,2023:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
- ('tag:hubmapconsortium.org,2024:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
+ --- ('tag:hubmapconsortium.org,2024:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
+ ('tag:hubmapconsortium.org,2025:', 'cfde_registry_dcc:hubmap', 'HuBMAP'),
  ('https://druggablegenome.net/cfde_idg_drugcentral_drugs', 'cfde_registry_dcc:idg', 'IDG'),
  ('https://druggablegenome.net/cfde_idg_tcrd_diseases', 'cfde_registry_dcc:idg', 'IDG'),
  ('https://druggablegenome.net/cfde_idg_tcrd_targets', 'cfde_registry_dcc:idg', 'IDG'),
@@ -50,6 +53,10 @@ ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_d
 ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_id_namespace_1 FOREIGN KEY (id_namespace_id) REFERENCES c2m2.id_namespace (id);
 ALTER TABLE c2m2.id_namespace_dcc_id DROP CONSTRAINT IF EXISTS fk_id_namespace_dcc_id_dcc_1;
 ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_dcc_1 FOREIGN KEY (dcc_id) REFERENCES c2m2.dcc (id);
+
+\echo '-------------------------- id_namespace_dcc_id: end ------------------------ '
+\echo ''
+
 --- Added after adding column dcc_short_label. Based on: 
 --- select id,label,short_label,cf_site from public.dccs;
 --- select id,dcc_name,dcc_abbreviation,project_local_id from c2m2.dcc;
@@ -76,5 +83,10 @@ ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_shor
 */
 
 /* Part of the above code, e.g., id_namespace_id values related texts were generated using:
-select concat_ws('', '(''', id, ''', ' , '''''),') from c2m2.id_namespace ;
+select concat_ws('', '(''', id, ''', ' , '''''),') as id_code_string from c2m2.id_namespace order by id_code_string;
+--- related useful queries:
+select id,dcc_name,dcc_abbreviation,project_id_namespace,project_local_id from c2m2.dcc;
+select id,abbreviation,name from c2m2.id_namespace;
+select id,label,short_label from public.dccs;
+--- The connectivity between the three tables is broken.
 */

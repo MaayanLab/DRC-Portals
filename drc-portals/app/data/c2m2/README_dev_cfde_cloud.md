@@ -301,19 +301,16 @@ https://dev.cfde.cloud/data/search/hispanic%20female%20cancer/c2m2?p=1&t=subject
 
 and follow one record:
 
-
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=hispanic%20female%20cancer&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_8Y99QZJJ|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:brain|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Sequence%20variations|assay_type_name:exome%20sequencing%20assay|subject_ethnicity_name:Hispanic%20or%20Latino|subject_sex_name:Female|subject_race_name:Unspecified
 
 ### Search sepsis and apply filters:
 https://dev.cfde.cloud/data/search/sepsis/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cncbi_taxonomy%3AMus+musculus%7Cbiofluid%3Ablood%7Cbiofluid%3Aperitoneal+fluid%7Cfile_format%3ATextual+format
-
 
 ### Search for mitochondria and apply filters
 https://dev.cfde.cloud/data/search/mitochondria/c2m2?p=1&t=ncbi_taxonomy%3AHomo+sapiens%7Cprotein%3AHUMMR_HUMAN%7Cprotein%3ADBLOH_HUMAN
 
 ### Search for schizophrenia and add filters:
 https://dev.cfde.cloud/data/search/schizophrenia/c2m2?p=1&t=data_type%3AMass+spectrometry+data
-
 
 ### Search for celiac disease and apply filters:
 https://dev.cfde.cloud/data/search/celiac%20disease/c2m2?t=anatomy%3Amyenteric+nerve+plexus%7Cdata_type%3AGene+expression+profile&p=1

@@ -410,37 +410,40 @@
                   "name": "granularity",
                   "description": "A CFDE CV category characterizing this subject by multiplicity",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_granularity:0",
-                     "cfde_subject_granularity:1",
-                     "cfde_subject_granularity:2",
-                     "cfde_subject_granularity:3",
-                     "cfde_subject_granularity:4",
-                     "cfde_subject_granularity:5"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_subject_granularity:0",
+                        "cfde_subject_granularity:1",
+                        "cfde_subject_granularity:2",
+                        "cfde_subject_granularity:3",
+                        "cfde_subject_granularity:4",
+                        "cfde_subject_granularity:5"
+                     ]
                   }
                },
                {
                   "name": "sex",
                   "description": "A CFDE CV category characterizing the physiological sex of this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_sex:0",
-                     "cfde_subject_sex:1",
-                     "cfde_subject_sex:2",
-                     "cfde_subject_sex:3"
-                  ]
+                  "constraints": {
+                     "enum": [
+                        "cfde_subject_sex:0",
+                        "cfde_subject_sex:1",
+                        "cfde_subject_sex:2"
+                     ]
+                  }
                },
                {
                   "name": "ethnicity",
                   "description": "A CFDE CV category characterizing the self-reported ethnicity of this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_ethnicity:0",
-                     "cfde_subject_ethnicity:1"
-                  ]
+                  "constraints": {
+                     "enum": [
+                        "cfde_subject_ethnicity:0",
+                        "cfde_subject_ethnicity:1"
+                     ]
+                  }
                },
                {
                   "name": "age_at_enrollment",
@@ -1646,12 +1649,12 @@
                   "name": "association_type",
                   "description": "The relationship between this biosample and this disease (e.g. 'observed' or '(tested for, but) not observed')",
                   "type": "string",
-                  "enum": [
-                     "cfde_disease_association_type:0",
-                     "cfde_disease_association_type:1"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_disease_association_type:0",
+                        "cfde_disease_association_type:1"
+                     ]
                   }
                },
                {
@@ -1728,12 +1731,12 @@
                   "name": "association_type",
                   "description": "The relationship between this subject and this disease (e.g. 'observed' or '(tested for, but) not observed')",
                   "type": "string",
-                  "enum": [
-                     "cfde_disease_association_type:0",
-                     "cfde_disease_association_type:1"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_disease_association_type:0",
+                        "cfde_disease_association_type:1"
+                     ]
                   }
                },
                {
@@ -2431,12 +2434,12 @@
                   "name": "association_type",
                   "description": "The relationship between this subject and this phenotype (e.g. 'observed' or '(tested for, but) not observed')",
                   "type": "string",
-                  "enum": [
-                     "cfde_phenotype_association_type:0",
-                     "cfde_phenotype_association_type:1"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_phenotype_association_type:0",
+                        "cfde_phenotype_association_type:1"
+                     ]
                   }
                },
                {
@@ -2828,15 +2831,18 @@
                   "name": "race",
                   "description": "A race self-identified by this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_race:0",
-                     "cfde_subject_race:1",
-                     "cfde_subject_race:2",
-                     "cfde_subject_race:3",
-                     "cfde_subject_race:4",
-                     "cfde_subject_race:5",
-                     "cfde_subject_race:6"
-                  ]
+                  "constraints": {
+                     "required": true,
+                     "enum": [
+                        "cfde_subject_race:0",
+                        "cfde_subject_race:1",
+                        "cfde_subject_race:2",
+                        "cfde_subject_race:3",
+                        "cfde_subject_race:4",
+                        "cfde_subject_race:5",
+                        "cfde_subject_race:6"
+                     ]
+                  }
                }
             ],
             "primaryKey": [
@@ -2896,18 +2902,18 @@
                   "name": "role_id",
                   "description": "The ID of the role assigned to this organism-level constituent component of this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_role:0",
-                     "cfde_subject_role:1",
-                     "cfde_subject_role:2",
-                     "cfde_subject_role:3",
-                     "cfde_subject_role:4",
-                     "cfde_subject_role:5",
-                     "cfde_subject_role:6",
-                     "cfde_subject_role:7"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_subject_role:0",
+                        "cfde_subject_role:1",
+                        "cfde_subject_role:2",
+                        "cfde_subject_role:3",
+                        "cfde_subject_role:4",
+                        "cfde_subject_role:5",
+                        "cfde_subject_role:6",
+                        "cfde_subject_role:7"
+                     ]
                   }
                },
                {
