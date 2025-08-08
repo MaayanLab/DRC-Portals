@@ -129,6 +129,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         protein_description: string,
         compound_description: string,
         taxonomy_description: string,
+        ptm_type_name: string, // PTM Type
+        ptm_type: string, // PTM Type
+        ptm_type_description: string, // PTM Type Description
 
         count: number, // this is based on across all-columns of ffl_biosample 
       }[],
@@ -156,6 +159,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
             LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
+            LEFT JOIN c2m2.ptm_type ON (allres_full.ptm_type = c2m2.ptm_type.id)
             GROUP BY ${SQL.raw(groupByString)}
             ORDER BY ${SQL.raw(orderByString)}
           ) 
@@ -174,6 +178,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
+    console.log("DESCRIPTION PTM Type = ", resultsRec?.ptm_type_description);
     console.log("resultsRec = ", resultsRec);
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
     // The following items are present in metadata and downloadMetadata
@@ -285,6 +290,14 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         ? {
           id: resultsRec.subject_race,
           name: resultsRec.subject_race_name
+        }
+        : null,
+      ptm_type: resultsRec?.ptm_type_name && resultsRec.ptm_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_type,
+          name: resultsRec.ptm_type_name,
+          url: `https://amigo.geneontology.org/amigo/term/${resultsRec.ptm_type}`,
+          description: resultsRec.ptm_type_description ? capitalizeFirstLetter(resultsRec.ptm_type_description) : null
         }
         : null,
     };
@@ -419,6 +432,15 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ? capitalizeFirstLetter(resultsRec?.subject_race_name)
           : ''
       },
+      {
+        label: 'PTM type',
+        value: resultsRec?.ptm_type_name && resultsRec?.file_format_name !== "Unspecified"
+          ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.ptm_type_name)}
+          </Link>
+          : ''
+      },
+      resultsRec?.ptm_type_description ? { label: 'PTM Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_type_description) } : null,
     ];
 
 
@@ -444,7 +466,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         {/* <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
         </React.Suspense> */}
-        
+
         <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplSubTblOffset={bioSamplSubTblOffset} />
         </React.Suspense>

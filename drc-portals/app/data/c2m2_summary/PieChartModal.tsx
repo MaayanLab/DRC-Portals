@@ -24,8 +24,8 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 560,
-  maxWidth: '95vw',
+  width: 800,
+  maxWidth: '100vw',
   bgcolor: 'background.paper',
   borderRadius: 2,
   boxShadow: 24,
@@ -121,7 +121,7 @@ Each segment represents a category (label and count). Summarize the largest, sma
 
   // Memoize the unique-ness check for current pie chart in the cart
   const pieKey = useMemo(() =>
-      `${xAxisField || ''}::${xAxisVal || ''}::${groupByField || ''}::${JSON.stringify(data.map(d => [d.name, d.value]))}`,
+    `${xAxisField || ''}::${xAxisVal || ''}::${groupByField || ''}::${JSON.stringify(data.map(d => [d.name, d.value]))}`,
     [xAxisField, xAxisVal, groupByField, data]
   );
   const alreadyInCart = cart.some(
@@ -179,7 +179,6 @@ Each segment represents a category (label and count). Summarize the largest, sma
                   data={data}
                   dataKey="value"
                   nameKey="name"
-                  label
                   cx="50%"
                   cy="50%"
                   outerRadius={90}

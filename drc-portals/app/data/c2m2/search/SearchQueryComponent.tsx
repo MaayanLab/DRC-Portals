@@ -28,6 +28,7 @@ import SubjectEthnicityFilterComponent from './SubjectEthnicityFilterComponent';
 import SubjectSexFilterComponent from './SubjectSexFilterComponent';
 import SubjectRaceFilterComponent from './SubjectRaceFilterComponent';
 import FileFormatFilterComponent from './FileFormatFilterComponent';
+import PTMTypeFilterComponent from './PTMTypeFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
 
@@ -283,8 +284,9 @@ export async function SearchQueryComponent(props: PageProps) {
               <SubjectRaceFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
-
-
+            <React.Suspense fallback={<>Loading..</>}>
+              <PTMTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
 
           </>
         }

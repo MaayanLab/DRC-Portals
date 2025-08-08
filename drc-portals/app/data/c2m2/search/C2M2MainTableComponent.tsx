@@ -38,14 +38,16 @@ interface C2M2SearchResult {
         assay_type: string,
         file_format_name: string,
         file_format: string,
-        subject_ethnicity_name: string, 
-        subject_ethnicity: string, 
-        subject_sex_name: string, 
-        subject_sex: string, 
+        subject_ethnicity_name: string,
+        subject_ethnicity: string,
+        subject_sex_name: string,
+        subject_sex: string,
         subject_race_name: string,
         subject_race: string,
         project_name: string,
         project_persistent_id: string,
+        ptm_type_name: string,
+        ptm_type: string,
         count: number,
         count_bios: number,
         count_sub: number,
@@ -156,26 +158,26 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                         sx={{ display: 'inline-block', maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
                     >
                         <Link
-                        href={res.project_persistent_id}
-                        className="underline cursor-pointer"
-                        target="_blank"
+                            href={res.project_persistent_id}
+                            className="underline cursor-pointer"
+                            target="_blank"
                         >
-                        <u>{res.project_name}</u>
+                            <u>{res.project_name}</u>
                         </Link>
                     </Typography>
                 </Tooltip>
 
 
-              ) : (
+            ) : (
                 <Tooltip title={res.project_name} arrow>
-                  <span style={{ display: 'inline-block', maxWidth: '100%' }}>
-                    <Description description={res.project_name} />
-                  </span>
+                    <span style={{ display: 'inline-block', maxWidth: '100%' }}>
+                        <Description description={res.project_name} />
+                    </span>
                 </Tooltip>
-              ),
-              
-                
-                /* : <Description description={res.project_name} />, */
+            ),
+
+
+            /* : <Description description={res.project_name} />, */
             attributes: (
                 <>
                     {res.taxonomy_name !== "Unspecified" && (
