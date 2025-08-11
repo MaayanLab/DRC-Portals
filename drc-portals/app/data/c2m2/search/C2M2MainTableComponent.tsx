@@ -50,6 +50,8 @@ interface C2M2SearchResult {
         ptm_type: string,
         ptm_subtype_name: string,
         ptm_subtype: string,
+        ptm_site_type_name: string,
+        ptm_site_type: string,
         count: number,
         count_bios: number,
         count_sub: number,

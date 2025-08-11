@@ -291,7 +291,8 @@ export const tableToName = [
   { table: 'substance', label: 'Substance' },
   { table: 'file_format', label: 'File Format' },
   { table: 'ptm_type', label: 'PTM Type' },
-  { table: 'ptm_subtype', label: 'PTM SubType' }
+  { table: 'ptm_subtype', label: 'PTM SubType' },
+  { table: 'ptm_site_type', label: 'PTM Site Type' }
 ];
 
 export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
@@ -299,6 +300,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
 
   //const tablename = "allres";
   if (searchParams.t) {
+    console.log("generateFilterQueryStringForRecordInfo searchParams.t = ", searchParams.t);
     const typeFilters: { [key: string]: SQL[] } = {};
 
     searchParams.t.forEach((t: any) => {
@@ -313,7 +315,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         // ${t.entity_type.replace(/'/g, "''")} is not needed: ${t.entity_type} is enough.
         const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name',
           'ncbi_taxonomy_name', 'anatomy_name', 'biofluid_name', 'gene_name', 'protein_name', 'compound_name',
-          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name', 'file_format_name', 'ptm_type_name', 'ptm_subtype_name'];
+          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name', 'file_format_name', 'ptm_type_name', 'ptm_subtype_name', 'ptm_site_type_name'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate upper and lower cases
@@ -333,6 +335,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
   const filterConditionStr = filters.length ? SQL.join(' AND ', ...filters) : SQL.empty();
   // console.log("FILTERS LENGTH =");
   // console.log(filters.length)
+  console.log("RECORDINFOQUERY filterConditionStr = ", filterConditionStr);
   return filterConditionStr;
 }
 // Mano: Not sure if use of this function is sql-injection safe
@@ -356,7 +359,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype', 'ptm_site_type'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate  upper case and lower case entity names
@@ -401,7 +404,7 @@ export function generateFilterClauseFromtParam(t: { type: string; entity_type: s
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype', 'ptm_site_type'];
 
         if (item.entity_type !== "Unspecified") {
           typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" ILIKE ${item.entity_type}`);
@@ -617,6 +620,58 @@ export function addCategoryColumns(
 
 
 export function useSanitizedSearchParams(props: { searchParams: Record<string, string | string[] | undefined> }) {
+  // Helper to safely split only on the first colon
+  const splitTypeEntity = (t: string) => {
+    const idx = t.indexOf(":");
+    return {
+      type: idx >= 0 ? t.slice(0, idx) : t,
+      entity_type: idx >= 0 ? t.slice(idx + 1) : null
+    };
+  };
+
+  // Define the schema for known parameters
+  const schema = z.object({
+    q: z.union([
+      z.array(z.string()).transform(qs => qs.join(" ")),
+      z.string(),
+      z.undefined(),
+    ]),
+    s: z.union([
+      z.array(z.string()).transform(ss => ss[ss.length - 1]),
+      z.string(),
+      z.undefined(),
+    ]).transform(ss => {
+      if (!ss) return undefined;
+      return splitTypeEntity(ss);
+    }),
+    p: z.union([
+      z.array(z.string()).transform(ps => +ps[ps.length - 1]),
+      z.string().transform(p => +p),
+      z.undefined().transform(() => 1),
+    ]),
+    r: z.union([
+      z.array(z.string()).transform(ps => +ps[ps.length - 1]),
+      z.string().transform(p => +p),
+      z.undefined().transform(() => 10),
+    ]).transform(r => ({ 10: 10, 20: 20, 50: 50, 100: 100 }[r] ?? 10)),
+    t: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split("|") : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(splitTypeEntity) : undefined),
+    et: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split("|") : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(splitTypeEntity) : undefined),
+  }).passthrough();
+
+  // Parse and return the parameters
+  return schema.parse(props.searchParams);
+}
+
+
+/* export function useSanitizedSearchParams(props: { searchParams: Record<string, string | string[] | undefined> }) {
   // Define the schema for known parameters
   const schema = z.object({
     q: z.union([
@@ -663,7 +718,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
 
   // Parse and return the parameters
   return schema.parse(props.searchParams);
-}
+} */
 
 export function get_partial_list_string(all_count: number, count: number, all_count_limit: number): string {
   return (all_count ?? 0).toLocaleString() +
@@ -694,7 +749,7 @@ export function generateSelectColumnsStringPlain(tablename: string = '') {
     'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein',
     'compound_name', 'compound', 'data_type_name', 'data_type', 'assay_type_name', 'assay_type', 'subject_ethnicity_name',
     'subject_ethnicity', 'subject_sex_name', 'subject_sex', 'subject_race_name', 'subject_race', 'file_format_name', 'file_format',
-    'project_name', 'project_persistent_id', 'ptm_type_name', 'ptm_type', 'ptm_subtype_name', 'ptm_subtype'];
+    'project_name', 'project_persistent_id', 'ptm_type_name', 'ptm_type', 'ptm_subtype_name', 'ptm_subtype', 'ptm_site_type_name', 'ptm_site_type'];
 
   const colnamesStringArray = colnames.map(col => tablenameWithDot + col);
   return colnamesStringArray.join(", ");
@@ -740,9 +795,12 @@ export function generateSelectColumnsStringModified(tablename: string = '') {
     "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name, " +
     "allres_full.project_persistent_id AS project_persistent_id, " +
     "COALESCE(allres_full.ptm_type_name, 'Unspecified') AS ptm_type_name, " +
-    "allres_full.ptm_type AS ptm_type" +
-    " , COALESCE(allres_full.ptm_subtype_name, 'Unspecified') AS ptm_subtype_name, " +
-    "allres_full.ptm_subtype AS ptm_subtype";
+    "allres_full.ptm_type AS ptm_type, " +
+    "COALESCE(allres_full.ptm_subtype_name, 'Unspecified') AS ptm_subtype_name, " +
+    "allres_full.ptm_subtype AS ptm_subtype, " +
+    "COALESCE(allres_full.ptm_site_type_name, 'Unspecified') AS ptm_site_type_name, " +
+    "allres_full.ptm_site_type AS ptm_site_type"
+    ;
 
   return colnamesString;
 }
@@ -760,7 +818,7 @@ export function groupByRecordInfoQueryString(tablename: string = '') {
     "data_type, assay_type_name, assay_type, file_format_name, file_format, subject_ethnicity_name, subject_ethnicity, " +
     "subject_sex_name, subject_sex, subject_race_name, subject_race, project_name, c2m2.project.persistent_id, " +
     "allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, " +
-    "protein_description, compound_description, taxonomy_description, ptm_type_name, ptm_type, ptm_type_description, ptm_subtype_name, ptm_subtype, ptm_subtype_description";
+    "protein_description, compound_description, taxonomy_description, ptm_type_name, ptm_type, ptm_type_description, ptm_subtype_name, ptm_subtype, ptm_subtype_description, ptm_site_type_name, ptm_site_type";
 
   return groupByString;
 }
@@ -768,7 +826,7 @@ export function groupByRecordInfoQueryString(tablename: string = '') {
 export function orderByRecordInfoQueryString() {
   const orderByString = "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, " +
     "protein_name, compound_name, data_type_name, assay_type_name, file_format_name, subject_ethnicity_name, " +
-    "subject_sex_name, subject_race_name, ptm_type_name, ptm_subtype_name /*rank DESC*/";
+    "subject_sex_name, subject_race_name, ptm_type_name, ptm_subtype_name, ptm_site_type_name /*rank DESC*/";
   return orderByString;
 }
 export function generateRecordInfoColnamesString(tablename: string = '') {
@@ -821,6 +879,8 @@ export function generateRecordInfoColnamesString(tablename: string = '') {
     "COALESCE(allres_full.ptm_subtype_name, 'Unspecified') AS ptm_subtype_name," +
     "allres_full.ptm_subtype AS ptm_subtype," +
     "c2m2.ptm_subtype.description AS ptm_subtype_description," +
+    "COALESCE(allres_full.ptm_site_type_name, 'Unspecified') AS ptm_site_type_name," +
+    "allres_full.ptm_site_type AS ptm_site_type, " +
     " ";
   return colnamesString;
 
@@ -833,7 +893,7 @@ export function generateOrderByString(rankColname: string = 'rank') {
   const OrderByString: string = orderByRankStr +
     "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, " +
     "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, " +
-    "subject_ethnicity_name, subject_sex_name, subject_race_name, file_format_name, ptm_type_name, ptm_subtype_name";
+    "subject_ethnicity_name, subject_sex_name, subject_race_name, file_format_name, ptm_type_name, ptm_subtype_name, ptm_site_type_name";
   return OrderByString;
 }
 
@@ -860,7 +920,8 @@ export function generateFilterStringsForURL(): string {
     `'|subject_race_name:', allres.subject_race_name, ` +
     `'|file_format_name:', allres.file_format_name, ` +
     `'|ptm_type_name:', allres.ptm_type_name, ` +
-    `'|ptm_subtype_name:', allres.ptm_subtype_name `
+    `'|ptm_subtype_name:', allres.ptm_subtype_name, ` +
+    `'|ptm_site_type_name:', allres.ptm_site_type_name `
   );
 }
 
@@ -900,8 +961,9 @@ export function generateSelectColumnsForFileQuery(tablename: string = '') {
     tablenameWithDot + "subject_ethnicity_name, " +
     tablenameWithDot + "file_format_id AS file_format," +
     tablenameWithDot + "file_format_name, " +
-    tablenameWithDot + "ptm_type_name " +
-    tablenameWithDot + "ptm_subtype_name "
+    tablenameWithDot + "ptm_type_name, " +
+    tablenameWithDot + "ptm_subtype_name, " +
+    tablenameWithDot + "ptm_site_type_name"
     ;
 
   return colnamesString;

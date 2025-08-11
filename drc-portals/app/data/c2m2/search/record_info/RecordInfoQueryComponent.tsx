@@ -46,6 +46,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     console.log("******");
     console.log("q = " + searchParams.q + " p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
+    console.log("searchParams.t = ", searchParams.t);
     // Declare different offsets for all the tables and this is needed to fine grain pagination
     const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
     const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
@@ -135,6 +136,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         ptm_subtype_name: string, // PTM SubType
         ptm_subtype: string, // PTM SubType
         ptm_subtype_description: string, // PTM SubType Description
+        ptm_site_type_name: string, // PTM Site Type
+        ptm_site_type: string, // PTM Site Type
         count: number, // this is based on across all-columns of ffl_biosample 
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
@@ -163,6 +166,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
             LEFT JOIN c2m2.ptm_type ON (allres_full.ptm_type = c2m2.ptm_type.id)
             LEFT JOIN c2m2.ptm_subtype ON (allres_full.ptm_subtype = c2m2.ptm_subtype.id)
+            LEFT JOIN c2m2.site_type ON (allres_full.ptm_site_type = c2m2.site_type.id)
             GROUP BY ${SQL.raw(groupByString)}
             ORDER BY ${SQL.raw(orderByString)}
           ) 
@@ -173,7 +177,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     const t1: number = performance.now();
 
-    console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+    console.log("Elapsed time for RecordInfoQueryComponent DB queries: ", t1 - t0, "milliseconds");
 
 
 
@@ -181,7 +185,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
-    console.log("DESCRIPTION PTM SubType = ", resultsRec?.ptm_subtype_description);
+
     console.log("resultsRec = ", resultsRec);
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
     // The following items are present in metadata and downloadMetadata
@@ -309,6 +313,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           name: resultsRec.ptm_subtype_name,
           url: `https://amigo.geneontology.org/amigo/term/${resultsRec.ptm_subtype}`,
           description: resultsRec.ptm_subtype_description ? capitalizeFirstLetter(resultsRec.ptm_subtype_description) : null
+        }
+        : null,
+      ptm_site_type: resultsRec?.ptm_site_type_name && resultsRec.ptm_site_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_site_type,
+          name: resultsRec.ptm_site_type_name
         }
         : null,
     };
@@ -461,6 +471,12 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           : ''
       },
       resultsRec?.ptm_subtype_description ? { label: 'PTM SubType Description', value: capitalizeFirstLetter(resultsRec?.ptm_subtype_description) } : null,
+      {
+        label: 'PTM SiteType',
+        value: resultsRec?.ptm_site_type_name && resultsRec?.file_format_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.ptm_site_type_name)
+          : ''
+      },
     ];
 
 

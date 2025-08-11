@@ -30,6 +30,7 @@ import SubjectRaceFilterComponent from './SubjectRaceFilterComponent';
 import FileFormatFilterComponent from './FileFormatFilterComponent';
 import PTMTypeFilterComponent from './PTMTypeFilterComponent';
 import PTMSubTypeFilterComponent from './PTMSubTypeFilterComponent';
+import PTMSiteTypeFilterComponent from '../PTMSiteTypeFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
 
@@ -291,6 +292,10 @@ export async function SearchQueryComponent(props: PageProps) {
 
             <React.Suspense fallback={<>Loading..</>}>
               <PTMSubTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <PTMSiteTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
           </>
