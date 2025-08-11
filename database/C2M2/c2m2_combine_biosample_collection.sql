@@ -27,6 +27,9 @@ CREATE TABLE c2m2.ffl_biosample_collection as (
 
 COMMIT;
 
+--- Mano: 2025/08/08: delete rows with dcc_name being null
+DELETE FROM c2m2.ffl_biosample_collection WHERE dcc_name is null;
+
 --- test
 select count(*) from c2m2.ffl_biosample_collection;
 select count(*) from c2m2.ffl_biosample;
