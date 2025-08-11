@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    treeParseResult = parsePathwayTree(tree, false);
+    treeParseResult = parsePathwayTree(tree, true);
     const node = treeParseResult.nodes.find((v) => v.id === body.nodeId);
     if (node === undefined) {
       return Response.json(
