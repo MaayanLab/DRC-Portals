@@ -48,6 +48,8 @@ interface C2M2SearchResult {
         project_persistent_id: string,
         ptm_type_name: string,
         ptm_type: string,
+        ptm_subtype_name: string,
+        ptm_subtype: string,
         count: number,
         count_bios: number,
         count_sub: number,
