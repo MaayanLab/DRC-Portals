@@ -337,7 +337,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         return (
           <Fragment key="pathway-search-chart-toolbar-help">
             <Tooltip title="Help" arrow>
-              <Link href="/data/graph/help">
+              <Link href="/data/graph/help" target="_blank">
                 <IconButton aria-label="pathway-help" component="label">
                   <HelpIcon />
                 </IconButton>
