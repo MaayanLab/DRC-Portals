@@ -58,7 +58,7 @@ import {
 } from "../../interfaces/pathway-search";
 import { CustomToolbarFnFactory } from "../../types/cy";
 import { PathwaySearchElement } from "../../types/pathway-search";
-import { isPathwaySearchEdgeElement } from "../../utils/pathway-search";
+import { getRootFromElements, isPathwaySearchEdgeElement } from "../../utils/pathway-search";
 
 import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
 import ChartCxtMenuItem from "../CytoscapeChart/ChartCxtMenuItem";
@@ -239,8 +239,13 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     setShowFilters(true);
   };
 
-  const showFilterNode = (event: EventObjectNode) =>
-    FILTER_LABELS.has(event.target.data("dbLabel"));
+  const showFilterNode = useCallback(
+    (event: EventObjectNode) => {
+      const root = getRootFromElements(elements);
+      return event.target.data("id") !== root?.data.id && FILTER_LABELS.has(event.target.data("dbLabel"))
+    }, [elements]
+  );
+
 
   const showExpandNode = (event: EventObjectNode) => !ADMIN_LABELS.includes(event.target.data("dbLabel"));
 

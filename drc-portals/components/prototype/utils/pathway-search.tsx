@@ -33,7 +33,7 @@ export const isPathwaySearchEdgeElement = (
   return (element as PathwaySearchEdge).data.type !== undefined;
 };
 
-export const createTree = (elements: PathwaySearchElement[]) => {
+export const getRootFromElements = (elements: PathwaySearchElement[]): PathwaySearchNode | undefined => {
   if (elements.length === 0) {
     return undefined;
   }
@@ -45,48 +45,55 @@ export const createTree = (elements: PathwaySearchElement[]) => {
       );
       return undefined;
     } else {
-      const root = elements[0];
-      return {
-        id: root.data.id,
-        label: root.data.dbLabel,
-        props:
-          root.data.displayLabel === root.data.dbLabel
-            ? undefined
-            : {
-                name: root.data.displayLabel,
-              },
-        parentRelationship: undefined,
-        children: [],
-      };
+      return elements[0];
     }
+  } else {
+    const sources = new Set<string>();
+    const targets = new Set<string>();
+    elements
+      .filter(isPathwaySearchEdgeElement)
+      .forEach((edge) => {
+        sources.add(edge.data.source);
+        targets.add(edge.data.target);
+      });
+    const rootNodes = set_difference(sources, targets);
+
+    if (rootNodes.size !== 1) {
+      console.error(
+        "GraphPathway Error: Could not find root node of the pathway."
+      );
+      return undefined;
+    }
+
+    return elements.find(
+      (el) => el.data.id === Array.from(rootNodes)[0]
+    ) as PathwaySearchNode | undefined;
   }
+}
 
-  const sources = new Set<string>();
-  const targets = new Set<string>();
-  elements
-    .filter(isPathwaySearchEdgeElement)
-    .forEach((edge) => {
-      sources.add(edge.data.source);
-      targets.add(edge.data.target);
-    });
-  const rootNodes = set_difference(sources, targets);
-
-  if (rootNodes.size !== 1) {
-    console.error(
-      "GraphPathway Error: Could not find root node of the pathway."
-    );
-    return undefined;
-  }
-
-  const root = elements.find(
-    (el) => el.data.id === Array.from(rootNodes)[0]
-  ) as PathwaySearchNode | undefined;
+export const createTree = (elements: PathwaySearchElement[]) => {
+  const root = getRootFromElements(elements);
 
   if (root === undefined) {
     console.error(
       "GraphPathway Error: Could not find root node of the pathway."
     );
     return undefined;
+  }
+
+  if (elements.length === 1) {
+    return {
+      id: root.data.id,
+      label: root.data.dbLabel,
+      props:
+        root.data.displayLabel === root.data.dbLabel
+          ? undefined
+          : {
+            name: root.data.displayLabel,
+          },
+      parentRelationship: undefined,
+      children: [],
+    };
   }
 
   const createTreeFromRoot = (root: PathwaySearchNode): PathwayNode => {
@@ -109,20 +116,20 @@ export const createTree = (elements: PathwaySearchElement[]) => {
         root.data.displayLabel === root.data.dbLabel
           ? undefined
           : {
-              name: root.data.displayLabel,
-            },
+            name: root.data.displayLabel,
+          },
       parentRelationship:
         parentEdge === undefined
           ? undefined
           : {
-              id: parentEdge.data.id,
-              type: parentEdge.data.type,
-              direction: (parentEdge.classes || []).includes(
-                "source-arrow-only"
-              )
-                ? Direction.INCOMING
-                : Direction.OUTGOING,
-            },
+            id: parentEdge.data.id,
+            type: parentEdge.data.type,
+            direction: (parentEdge.classes || []).includes(
+              "source-arrow-only"
+            )
+              ? Direction.INCOMING
+              : Direction.OUTGOING,
+          },
       children: (
         elements.filter(
           (el) =>
