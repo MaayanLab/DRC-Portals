@@ -3,6 +3,7 @@ import parser from "lucene-query-parser";
 import { v4 } from "uuid";
 
 import {
+  TERM_LABELS,
   UNIQUE_PAIR_INCOMING_CONNECTIONS,
   UNIQUE_PAIR_OUTGOING_CONNECTIONS,
   UNIQUE_TO_GENERIC_REL,
@@ -313,6 +314,30 @@ export const getConnectionQueries = (
         ?.includes(label)
     ) {
       continue;
+    }
+
+    // Also skip the connection if...
+    if (
+      // ...the node we're getting connections for is a term node...
+      TERM_LABELS.includes(node.label)
+    ) {
+      if (
+        // ...and it is the root...
+        node.parentRelationship === undefined
+      ) {
+        // ...and we're adding a non-term connection when it already has one
+        if (!TERM_LABELS.includes(label) && node.children.some((child) => !TERM_LABELS.includes(child.label))) {
+          continue;
+        }
+      } else {
+         // ...and it isn't the root...
+        if (
+          // ...and we're adding a non-term connection
+          !TERM_LABELS.includes(label)
+        ) {
+          continue;
+        }
+      }
     }
 
     const queryStmtsCopy = [...queryStmts];
