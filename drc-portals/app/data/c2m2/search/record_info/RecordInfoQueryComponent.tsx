@@ -9,6 +9,7 @@ import BiosamplesTableComponent from "./BiosamplesTableComponent";
 import BiosamplesSubjectTableComponent from "./BiosamplesSubjectsTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
 import CollectionsTableComponent from "./CollectionsTableComponent";
+import PTMTableComponent from "./PTMTableComponent";
 import FilesProjTableComponent from "./FileProjTableComponent";
 import FilesSubjectTableComponent from "./FilesSubjectTableComponent";
 import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
@@ -57,7 +58,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
     const colTblOffset = (colTbl_p - 1) * limit;
     // console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
-    const subTbl_p = searchParams.colTbl_p !== undefined ? searchParams.subTbl_p : 1;
+    const subTbl_p = searchParams.subTbl_p !== undefined ? searchParams.subTbl_p : 1;
     const subTblOffset = (subTbl_p - 1) * limit;
     // console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
     const fileProjTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileProjTbl_p : 1;
@@ -72,7 +73,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const fileColTbl_p = searchParams.fileColTbl_p !== undefined ? searchParams.fileColTbl_p : 1;
     const fileColTblOffset = (fileColTbl_p - 1) * limit;
     // console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
-
+    const ptmTbl_p = searchParams.ptmTbl_p !== undefined ? searchParams.ptmTbl_p : 1;
+    const ptmTblOffset = (ptmTbl_p -1 ) * limit;
     // console.log("*********");
 
 
@@ -535,6 +537,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileColTblOffset} file_count_limit_col={file_count_limit_col} />
+        </React.Suspense>
+
+        <React.Suspense fallback={<>Loading..</>}>
+          <PTMTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} ptmTblOffset={ptmTblOffset}  />
         </React.Suspense>
       </LandingPageLayout>
     )

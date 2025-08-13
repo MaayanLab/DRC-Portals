@@ -550,9 +550,16 @@ const collectionsTable: { [key: string]: string } = {
   "description": "Description",
   "has_time_series_data": "Has time series data"
 }
-
+const ptmTable: { [key: string]: string } = {
+  "ptm_local_id": "PTM ID",
+  // get all PTM columns here
+}
 export function getNameFromCollectionTable(iconKey: string): string {
   return collectionsTable[iconKey] || "";
+}
+
+export function getNameFromPTMTable(iconKey: string): string {
+  return ptmTable[iconKey] || "";
 }
 const fileProjTable: { [key: string]: string } = {
   "local_id": "File ID",

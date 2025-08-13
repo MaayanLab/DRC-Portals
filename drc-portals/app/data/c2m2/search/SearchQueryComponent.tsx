@@ -30,7 +30,7 @@ import SubjectRaceFilterComponent from './SubjectRaceFilterComponent';
 import FileFormatFilterComponent from './FileFormatFilterComponent';
 import PTMTypeFilterComponent from './PTMTypeFilterComponent';
 import PTMSubTypeFilterComponent from './PTMSubTypeFilterComponent';
-import PTMSiteTypeFilterComponent from '../PTMSiteTypeFilterComponent';
+import PTMSiteTypeFilterComponent from './PTMSiteTypeFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
 
