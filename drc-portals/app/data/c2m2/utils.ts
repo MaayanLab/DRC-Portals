@@ -551,9 +551,23 @@ const collectionsTable: { [key: string]: string } = {
   "has_time_series_data": "Has time series data"
 }
 const ptmTable: { [key: string]: string } = {
-  "ptm_local_id": "PTM ID",
-  // get all PTM columns here
+  "ptm_id": "PTM ID",
+  "collection_id_namespace": "Collection ID Namespace",
+  "collection_local_id": "Collection Local ID",
+  "protein": "Protein",
+  "protein_name": "Protein Name",
+  "site_one": "Site One",
+  "aa_site_one": "AA Site One",
+  "site_two": "Site Two",
+  "aa_site_two": "AA Site Two",
+  "ptm_site_type": "PTM Site Type",
+  "ptm_site_type_name": "PTM Site Type Name",
+  "ptm_type": "PTM Type",
+  "ptm_type_name": "PTM Type Name",
+  "ptm_subtype": "PTM Subtype",
+  "ptm_subtype_name": "PTM Subtype Name"
 }
+
 export function getNameFromCollectionTable(iconKey: string): string {
   return collectionsTable[iconKey] || "";
 }
@@ -825,7 +839,9 @@ export function groupByRecordInfoQueryString(tablename: string = '') {
     "data_type, assay_type_name, assay_type, file_format_name, file_format, subject_ethnicity_name, subject_ethnicity, " +
     "subject_sex_name, subject_sex, subject_race_name, subject_race, project_name, c2m2.project.persistent_id, " +
     "allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, " +
-    "protein_description, compound_description, taxonomy_description, ptm_type_name, ptm_type, ptm_type_description, ptm_subtype_name, ptm_subtype, ptm_subtype_description, ptm_site_type_name, ptm_site_type";
+    "protein_description, compound_description, taxonomy_description, " +
+    "ptm_type_name, ptm_type, ptm_type_description, ptm_subtype_name, ptm_subtype, ptm_subtype_description, " +
+    "ptm_site_type_name, ptm_site_type, ptm_site_type_description";
 
   return groupByString;
 }
@@ -888,6 +904,7 @@ export function generateRecordInfoColnamesString(tablename: string = '') {
     "c2m2.ptm_subtype.description AS ptm_subtype_description," +
     "COALESCE(allres_full.ptm_site_type_name, 'Unspecified') AS ptm_site_type_name," +
     "allres_full.ptm_site_type AS ptm_site_type, " +
+    "c2m2.site_type.description AS ptm_site_type_description," +
     " ";
   return colnamesString;
 

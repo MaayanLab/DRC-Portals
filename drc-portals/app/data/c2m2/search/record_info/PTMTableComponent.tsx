@@ -9,22 +9,40 @@ import DownloadButton from "../../DownloadButton";
 
 interface PTMTableResult {
     ptm_table_full: {
+        collection_id_namespace: string,
+        collection_local_id: string,
         ptm_id: string,
         protein: string,
+        protein_name: string,
         site_one: string,
         aa_site_one: string,
         site_two:  string,
         aa_site_two: string
+        ptm_site_type: string,
+        ptm_site_type_name: string,
+        ptm_type: string,
+        ptm_type_name: string,
+        ptm_subtype: string,
+        ptm_subtype_name: string
     }[];
     ptm_table: {
+        collection_id_namespace: string,
+        collection_local_id: string,
         ptm_id: string,
         protein: string,
+        protein_name: string,
         site_one: string,
         aa_site_one: string,
         site_two:  string,
-        aa_site_two: string
+        aa_site_two: string,
+        ptm_site_type: string,
+        ptm_site_type_name: string,
+        ptm_type: string,
+        ptm_type_name: string,
+        ptm_subtype: string,
+        ptm_subtype_name: string
     }[];
-    count_col: number;
+    count_ptm: number;
 }
 
 const renderMetadataValue = (item: MetadataItem) => {
@@ -56,9 +74,23 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
                 SELECT DISTINCT
                     allres_full.collection_id_namespace,
                     allres_full.collection_local_id,
-                    
+                    c2m2.collection_ptm.ptm as ptm_id,
+                    allres_full.protein,
+                    allres_full.protein_name,
+                    c2m2.ptm.site_one,
+                    c2m2.ptm.aa_site_one,
+                    c2m2.ptm.site_two,
+                    c2m2.ptm.aa_site_two,
+                    allres_full.ptm_site_type,
+                    allres_full.ptm_site_type_name,
+                    allres_full.ptm_type,
+                    allres_full.ptm_type_name,
+                    allres_full.ptm_subtype,
+                    allres_full.ptm_subtype_name                    
                 FROM allres_full
-                LEFT JOIN c2m2.collection ON (c2m2.collection.local_id = allres_full.collection_local_id)
+                LEFT JOIN c2m2.collection_ptm ON ((c2m2.collection_ptm.collection_local_id = allres_full.collection_local_id) AND
+                                              (c2m2.collection_ptm.collection_id_namespace = allres_full.collection_id_namespace))
+                LEFT JOIN c2m2.ptm on (c2m2.collection_ptm.ptm = c2m2.ptm.id)
             ),
             ptm_table_limited AS (
                 SELECT * 
@@ -66,12 +98,12 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
                 OFFSET ${ptmTblOffset}
                 LIMIT ${limit}
             ),
-            count_col AS (
+            count_ptm AS (
                 SELECT count(*)::int as count
                 FROM ptm_table
             )
             SELECT
-                (SELECT count FROM count_col) as count_col,
+                (SELECT count FROM count_ptm) as count_ptm,
                 (SELECT COALESCE(jsonb_agg(ptm_table_limited.*), '[]'::jsonb) FROM ptm_table_limited) AS ptm_table,
                 (SELECT COALESCE(jsonb_agg(ptm_table.*), '[]'::jsonb) FROM ptm_table) AS ptm_table_full
         `.toPrismaSql();
@@ -87,7 +119,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
 
         // Assuming you want to process the first result in the array
         const firstResult = results[0];
-        const countCol = firstResult.count_col ?? 0;
+        const countPTM = firstResult.count_ptm ?? 0;
         const ptmTable = firstResult.ptm_table ?? [];
         const ptmTableFull = firstResult.ptm_table_full ?? [];
 
@@ -95,7 +127,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
             return <div>No ptms data found.</div>;
         }
 
-        const PTMTableTitle = "PTMs: " + countCol;
+        const PTMTableTitle = "PTMs: " + countPTM;
 
         const ptm_table_columnsToIgnore: string[] = ['ptm_id_namespace']; // don't include 'persistent_id' here
         const {
@@ -134,7 +166,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
                         <Card variant="outlined" sx={{ mb: 0, borderBottom: "none" }}>
                             <CardContent id={`card-content-${category.title}`}>
                                 <Typography variant="h5" component="div">
-                                    {category.title + " (Uniform Columns) Count: " + countCol}
+                                    {category.title + " (Uniform Columns) Count: " + countPTM}
                                 </Typography>
                                 {category.metadata.map((item, i) => (
                                     item && item.value ? (
@@ -148,7 +180,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
                         </Card>
                     </Grid>
                 )}
-                {countCol === 1 && (
+                {countPTM === 1 && (
                     <Grid item xs={12}>
                         <DownloadButton
                             data={downloadData}
@@ -164,7 +196,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
                         downloadFileName={downloadFilename}
                         tableTitle={PTMTableTitle}
                         searchParams={searchParams}
-                        count={countCol}
+                        count={countPTM}
                         colNames={dynamicPtmColumns}
                         dynamicColumns={dynamicPtmColumns}
                         tablePrefix="ptmTbl"

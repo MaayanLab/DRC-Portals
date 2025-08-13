@@ -140,6 +140,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         ptm_subtype_description: string, // PTM SubType Description
         ptm_site_type_name: string, // PTM Site Type
         ptm_site_type: string, // PTM Site Type
+        ptm_site_type_description: string, // PTM Site Type
         count: number, // this is based on across all-columns of ffl_biosample 
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
@@ -320,7 +321,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       ptm_site_type: resultsRec?.ptm_site_type_name && resultsRec.ptm_site_type_name !== "Unspecified"
         ? {
           id: resultsRec.ptm_site_type,
-          name: resultsRec.ptm_site_type_name
+          name: resultsRec.ptm_site_type_name,
+          description: resultsRec.ptm_site_type_description ? capitalizeFirstLetter(resultsRec.ptm_site_type_description) : null
         }
         : null,
     };
@@ -479,6 +481,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ? capitalizeFirstLetter(resultsRec?.ptm_site_type_name)
           : ''
       },
+      resultsRec?.ptm_site_type_description ? { label: 'PTM Site Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_site_type_description) } : null,
     ];
 
 
