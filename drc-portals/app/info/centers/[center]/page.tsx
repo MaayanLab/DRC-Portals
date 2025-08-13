@@ -142,7 +142,7 @@ export default async function CenterDataPage({ params }: { params: { center: str
                                     p: PRenderer,
                                 }}
                                 className="prose max-w-none">
-                                    {center.description}
+                                    {center.description?.replace("<br/>", "&nbsp;\n\n")}
                             </ReactMarkdown>
                             {center.video_tutorial && <>
                                 <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Video Tutorial</Typography>
