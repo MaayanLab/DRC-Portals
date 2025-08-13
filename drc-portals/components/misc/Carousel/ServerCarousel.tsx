@@ -123,6 +123,12 @@ export default async function ServerCarousel () {
         description: 'Explore the five newly established **CFDE centers**: Data, Knowledge, Cloud, Training, and Admin centers',
         icon: 'https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde-centers.png',
         url: '/info/centers'
+      },
+      {
+        name: 'TC',
+        description: 'THE CDFE TRAINING CENTER NOW HAS A NEW WEBSITE',
+        icon: 'https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/TC_Website.png',
+        url: 'https://orau.org/cfde-trainingcenter/index.html'
       }
     ]
     const children = [...outreach_items, ...publication_items, ...center, ...items].map( (item, i) => (
