@@ -2,6 +2,7 @@ log
 log_dbserver
 ingest
 .env
+*.log
 empty_tsvs
 blank_non-auto-generated_C2M2_tables
 blank_non-auto-generated_C2M2_tables.zip
