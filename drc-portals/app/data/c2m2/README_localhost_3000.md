@@ -334,4 +334,4 @@ http://localhost:3000/data/c2m2/search/record_info?q=hepatitis&t=dcc_name:GlyGen
 http://localhost:3000/data/search/diabetes/c2m2?t=ptm_type%3Aprotein+phosphorylation%7Cncbi_taxonomy%3AHomo+sapiens&p=1
 
 ## Look into one record
-http://localhost:3001/data/c2m2/search/record_info?q=diabetes&t=dcc_name:GlyGen|pro[…]rylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
+http://localhost:3000/data/c2m2/search/record_info?q=diabetes&t=dcc_name:GlyGen|pro[…]rylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
