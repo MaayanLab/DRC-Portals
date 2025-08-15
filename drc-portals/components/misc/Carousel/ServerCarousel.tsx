@@ -126,15 +126,7 @@ export default async function ServerCarousel () {
       }
     ]
 
-    const prioritized = [
-      {
-        name: 'TC',
-        description: 'THE CDFE TRAINING CENTER NOW HAS A NEW WEBSITE',
-        icon: 'https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/TC_Website.png',
-        url: 'https://orau.org/cfde-trainingcenter/index.html'
-      }
-    ]
-    const children = [...prioritized, ...outreach_items, ...publication_items, ...center, ...items].map( (item, i) => (
+    const children = [...outreach_items, ...publication_items, ...center, ...items].map( (item, i) => (
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 450, xl: 450}, 
