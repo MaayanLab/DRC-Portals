@@ -60,6 +60,14 @@ export async function POST(request: Request) {
         file_format: string,
         project_name: string,
         project_persistent_id: string,
+        ptm_type_name: string, // PTM Type
+        ptm_type: string, // PTM Type
+        ptm_type_description: string, // PTM Type Description
+        ptm_subtype_name: string, // PTM SubType
+        ptm_subtype: string, // PTM SubType
+        ptm_subtype_description: string, // PTM SubType Description
+        ptm_site_type_name: string, // PTM Site Type
+        ptm_site_type: string, // PTM Site Type
         count: number,
         count_bios: number,
         count_sub: number,

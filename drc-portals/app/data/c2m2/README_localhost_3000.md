@@ -311,3 +311,27 @@ http://localhost:3000/data/search/mass%20spectrometry/c2m2?t=assay_type%3Atarget
 
 ### Search for menstrual cycle and add filters:
 http://localhost:3000/data/search/menstrual%20cycle/c2m2?t=compound%3AAcetaminophen&p=1
+
+## Search for liver and apply filters for PTM typs, subtype and site
+http://localhost:3000/data/search/liver/c2m2?t=ptm_type%3Aprotein+glycosylation%7Cptm_subtype%3Aprotein+N-linked+glycosylation&p=1
+
+## Look into recordinformation and download PTM metadata
+http://localhost:3000/data/c2m2/search/record_info?q=liver&t=dcc_name:GlyGen|projec[…]sylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+## Search for Parkinsons and apply PTM type filter
+http://localhost:3000/data/search/parkinson/c2m2?t=ptm_type%3Aprotein+phosphorylation&p=1
+
+## Look into the record
+http://localhost:3000/data/c2m2/search/record_info?q=parkinson&t=dcc_name:GlyGen|pr[…]rylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+## Search for hepatitis and apply taxonomy and PTM subtype filters
+http://localhost:3000/data/search/hepatitis/c2m2?t=ncbi_taxonomy%3ABos+taurus%7Cptm_subtype%3Aprotein+N-linked+glycosylation&p=1
+
+## Look into a record
+http://localhost:3000/data/c2m2/search/record_info?q=hepatitis&t=dcc_name:GlyGen|pr[…]sylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+## Searchh for Diabetes and apply filters for PTM type and Species
+http://localhost:3000/data/search/diabetes/c2m2?t=ptm_type%3Aprotein+phosphorylation%7Cncbi_taxonomy%3AHomo+sapiens&p=1
+
+## Look into one record
+http://localhost:3000/data/c2m2/search/record_info?q=diabetes&t=dcc_name:GlyGen|pro[…]rylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
