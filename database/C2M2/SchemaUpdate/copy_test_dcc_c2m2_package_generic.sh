@@ -31,6 +31,8 @@ schema_json_file=C2M2_datapackage.json
 schema_json_file_default=C2M2_datapackage.json
 main_target_file=file.tsv
 
+copy_sdir_to_tdir=0
+
 if [[ "$onlyTest" == "0" ]]; then
 	echo "onlyTest = ${onlyTest}, copy, update and test will be performed";
 elif [[ "$onlyTest" == "1" ]]; then
@@ -51,10 +53,18 @@ if [[ "$onlyTest" == "0" || "$onlyTest" == "2" ]]; then
 	mkdir -p "${tdir}"
 	echo "Created directory if did not exist: ${tdir}";
 	#cp -R ${sdir}/* ${tdir}/.
-	cp -R "${sdir}"/* "${tdir}"/. # ChatGPT said * should be outside quotes, but . can be inside
-	echo "Copied files from directory ${sdir} to ${tdir}";
-	cd "${tdir}" &&	dos2unix *.tsv
-	echo "Applied command dos2unix to tsv files inside ${tdir}";
+	if [[ "$copy_sdir_to_tdir" == "1" ]]; then
+		cp -R "${sdir}"/* "${tdir}"/. # ChatGPT said * should be outside quotes, but . can be inside
+		echo "Copied files from directory ${sdir} to ${tdir}";
+	fi
+	
+	cd "${tdir}"
+	
+	if [[ "$copy_sdir_to_tdir" == "1" ]]; then
+		dos2unix *.tsv
+		echo "Applied command dos2unix to tsv files inside ${tdir}";
+	fi
+	
 	cp "${schemaupdate_dir}"/${schema_json_file} ./"${schema_json_file_default}"
 	echo "Copied the updated c2m2 json schema file to ${tdir}";
 	cd "${curdir}"

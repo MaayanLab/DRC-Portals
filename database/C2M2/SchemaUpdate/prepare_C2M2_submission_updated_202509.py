@@ -97,7 +97,8 @@ cvFile = {
     # Reduced-size (sample) UniProtKB reference DB for debugging and fast testing (if you enable this, you must also comment out the line after it):
     #'UniProtKB' : '%s/sample_uniprot_reference_data/protein.first_5000_records.tsv.gz' % cvRefDir
     #'UniProtKB' : '%s/protein.tsv.gz' % cvRefDir
-    'UniProtKB' : '%s/protein.2024-11-22.tsv.gz' % cvRefDir
+    #'UniProtKB' : '%s/protein.2024-11-22.tsv.gz' % cvRefDir
+    'UniProtKB' : '%s/protein_v2025.03_r2025-06-18.tsv.gz' % cvRefDir    
 }
 
 ##########################################################################################
