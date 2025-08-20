@@ -89,11 +89,13 @@ cvFile = {
     # Reduced-size (sample) PubChem reference DB for debugging and fast testing (if you enable this, you must also comment out the line after it):
     #'PubChem_and_GlyTouCan_compound' : '%s/sample_pubchem_reference_data/compound.first_5000_records.max_100_synonyms_per_term.tsv.gz' % cvRefDir,
     #'PubChem_and_GlyTouCan_compound' : '%s/compound.tsv.gz' % cvRefDir,
-    'PubChem_and_GlyTouCan_compound' : '%s/compound.2024-11-26.tsv.gz' % cvRefDir,
+    #'PubChem_and_GlyTouCan_compound' : '%s/compound.2024-11-26.tsv.gz' % cvRefDir,
+    'PubChem_and_GlyTouCan_compound' : '%s/compound.2025-08-11.tsv.gz' % cvRefDir,
     # Reduced-size (sample) PubChem reference DB for debugging and fast testing (if you enable this, you must also comment out the line after it):
     #'PubChem_substance' : '%s/sample_pubchem_reference_data/substance.records_for_first_5000_CIDs.max_100_synonyms_per_term.tsv.gz' % cvRefDir,
     #'PubChem_substance' : '%s/substance.tsv.gz' % cvRefDir,
-    'PubChem_substance' : '%s/substance.2024-11-26.tsv.gz' % cvRefDir,
+    #'PubChem_substance' : '%s/substance.2024-11-26.tsv.gz' % cvRefDir,
+    'PubChem_substance' : '%s/substance.2025-08-11.tsv.gz' % cvRefDir,
     # Reduced-size (sample) UniProtKB reference DB for debugging and fast testing (if you enable this, you must also comment out the line after it):
     #'UniProtKB' : '%s/sample_uniprot_reference_data/protein.first_5000_records.tsv.gz' % cvRefDir
     #'UniProtKB' : '%s/protein.tsv.gz' % cvRefDir

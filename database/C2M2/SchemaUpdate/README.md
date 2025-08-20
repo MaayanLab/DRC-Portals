@@ -92,7 +92,9 @@ ALT_HOME="/mnt/share/mano" # or "${HOME}", set as needed
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
 C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
 cd "$SchemaUpdateFolder"
-cp *.sh "$C2M2_sub_folder"/.
+# Copy only the sh scripts that are needed, else, you may overwrite an updated sh file in the target dirrectory
+#cp *.sh "$C2M2_sub_folder"/.
+cp call_copy_update_test.sh copy_test_dcc_c2m2_package_generic.sh donothing.sh "$C2M2_sub_folder"/.
 cd "$C2M2_sub_folder"
 ./call_copy_update_test.sh ./copy_test_dcc_c2m2_package_generic.sh \
 donothing.sh "$SchemaUpdateFolder" 2 2>&1 | tee "${logf_base}.log"
