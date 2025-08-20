@@ -276,7 +276,7 @@ export default function GraphPathway() {
 
       try {
         await navigator.clipboard.writeText(
-          createPathwaySearchAllPathsCypher(treeParseResult, false, false)
+          createPathwaySearchAllPathsCypher(treeParseResult)
         );
         updateSnackbar(
           true,
@@ -374,11 +374,11 @@ export default function GraphPathway() {
           if (pruneCandidates.has(element.data.id)) {
             return isPathwaySearchEdgeElement(element)
               ? deepCopyPathwaySearchEdge(element, undefined, [
-                  "prune-candidate",
-                ])
+                "prune-candidate",
+              ])
               : deepCopyPathwaySearchNode(element, undefined, [
-                  "prune-candidate",
-                ]);
+                "prune-candidate",
+              ]);
           } else {
             return isPathwaySearchEdgeElement(element)
               ? deepCopyPathwaySearchEdge(element)
@@ -413,17 +413,17 @@ export default function GraphPathway() {
       ...searchElements.map((element) =>
         isPathwaySearchEdgeElement(element)
           ? deepCopyPathwaySearchEdge(
-              element,
-              undefined,
-              [],
-              ["prune-candidate"]
-            )
+            element,
+            undefined,
+            [],
+            ["prune-candidate"]
+          )
           : deepCopyPathwaySearchNode(
-              element,
-              undefined,
-              [],
-              ["prune-candidate"]
-            )
+            element,
+            undefined,
+            [],
+            ["prune-candidate"]
+          )
       ),
     ];
 
@@ -455,11 +455,11 @@ export default function GraphPathway() {
       ...searchElements.map((element) =>
         isPathwaySearchEdgeElement(element)
           ? deepCopyPathwaySearchEdge(element, undefined, undefined, [
-              "prune-candidate",
-            ])
+            "prune-candidate",
+          ])
           : deepCopyPathwaySearchNode(element, undefined, undefined, [
-              "prune-candidate",
-            ])
+            "prune-candidate",
+          ])
       ),
     ];
     setSearchElements(newElements);

@@ -1,7 +1,5 @@
 "use client";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DownloadIcon from "@mui/icons-material/Download";
 import {
   Box,
@@ -9,8 +7,6 @@ import {
   Checkbox,
   FormControl,
   MenuItem,
-  Pagination,
-  PaginationItem,
   Paper,
   Select,
   Skeleton,
@@ -20,7 +16,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 
 import {
@@ -31,18 +26,22 @@ import {
 } from "@/components/prototype/constants/pathway-search";
 
 import ReturnBtn from "../ReturnBtn";
+import PathwayTablePagination from "./PathwayTablePagination";
 
 interface TableViewSkeletonProps {
   count?: number;
   page?: number;
+  lowerPageBound?: number;
+  upperPageBound?: number;
   limit?: number;
   onReturnBtnClick: () => void;
 }
 
 export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
   const { onReturnBtnClick } = cmpProps;
-  const count = cmpProps.count || 10;
   const page = cmpProps.page || 1;
+  const lowerPageBound = cmpProps.page !== undefined && cmpProps.lowerPageBound !== undefined ? cmpProps.lowerPageBound : 1;
+  const upperPageBound = cmpProps.page !== undefined && cmpProps.upperPageBound !== undefined ? cmpProps.upperPageBound : 1;
   const limit = cmpProps.limit || 10;
   const COL_COUNT = 5;
   const columns = new Array(COL_COUNT).fill(null);
@@ -92,26 +91,16 @@ export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
         alignItems="center"
         marginTop={1}
       >
-        <Pagination
-          disabled
-          page={page}
-          count={Math.ceil(count / limit)}
-          variant="text"
-          shape="rounded"
-          color="primary"
-          renderItem={(item) => (
-            <PaginationItem
-              slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
-              {...item}
-            />
-          )}
-        />
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <PathwayTablePagination
+            page={page}
+            lowerBound={lowerPageBound}
+            upperBound={upperPageBound}
+            disabled={true}
+          />
+        </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="nav" noWrap>
-            Rows per page:
-          </Typography>
-
           <FormControl size="small">
             <Select disabled value={limit}>
               {PATHWAY_SEARCH_LIMIT_CHOICES.map((rowsPerPage) => (

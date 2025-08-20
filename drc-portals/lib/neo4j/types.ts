@@ -74,10 +74,11 @@ export type PathwaySearchResultRow = (NodeResult | RelationshipResult)[];
 
 export interface PathwaySearchResult {
   paths: PathwaySearchResultRow[];
+  lowerPageBound: number;
+  upperPageBound: number;
 }
 
 export interface PathwaySearchCountResult {
-  total: number;
   counts: {
     [key: string]: number;
   };

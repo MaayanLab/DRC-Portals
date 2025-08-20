@@ -1,8 +1,6 @@
 "use client";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DownloadIcon from "@mui/icons-material/Download";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
@@ -19,8 +17,6 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Pagination,
-  PaginationItem,
   Paper,
   Select,
   SelectChangeEvent,
@@ -31,12 +27,11 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-  TextField,
   Typography,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { NestedMenuItem } from "mui-nested-menu";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { NodeResult, PathwaySearchResultRow } from "@/lib/neo4j/types";
 import { isRelationshipResult } from "@/lib/neo4j/utils";
@@ -54,12 +49,14 @@ import { getPropertyListFromNodeLabel } from "@/components/prototype/utils/pathw
 import { downloadBlob } from "@/components/prototype/utils/shared";
 
 import ReturnBtn from "../ReturnBtn";
+import PathwayTablePagination from "./PathwayTablePagination";
 
 interface TableViewProps {
   data: PathwaySearchResultRow[];
   limit: number;
   page: number;
-  count: number;
+  lowerPageBound: number;
+  upperPageBound: number;
   order: Order;
   orderBy: number | undefined;
   columns: ColumnData[];
@@ -76,10 +73,11 @@ export default function TableView(cmpProps: TableViewProps) {
     data,
     limit,
     page,
+    lowerPageBound,
+    upperPageBound,
     order,
     orderBy,
     columns,
-    count,
     onReturnBtnClick,
     onPageChange,
     onLimitChange,
@@ -87,18 +85,11 @@ export default function TableView(cmpProps: TableViewProps) {
     onColumnChange,
     onDownloadAll,
   } = cmpProps;
-  const MAX_PAGE = Math.ceil(count / limit);
-  const JUMP_TO_PAGE_DEFAULT_LABEL = "Jump to Page";
   const [selected, setSelected] = useState<boolean[]>(
     new Array(data.length).fill(false)
   );
   const [sortedColumn, setSortedColumn] = useState(orderBy);
   const [downloading, setDownloading] = useState(false);
-  const [jumpToPageVal, setJumpToPageVal] = useState(page.toString());
-  const [jumpToPageError, setJumpToPageError] = useState(false);
-  const [jumpToPageHelperText, setJumpToPageHelperText] = useState<
-    string | undefined
-  >();
   const [colMenuAnchorEl, setColMenuAnchorEl] = useState<null | HTMLElement>(
     null
   );
@@ -197,30 +188,6 @@ export default function TableView(cmpProps: TableViewProps) {
   const handleDownloadAllClicked = () => {
     setDownloading(true);
     onDownloadAll().then(() => setDownloading(false));
-  };
-
-  const handleJumpToPageKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
-        const jumpToPageNum = Number(jumpToPageVal);
-        if (Number.isNaN(jumpToPageNum)) {
-          setJumpToPageError(true);
-          setJumpToPageHelperText("Page must be a number");
-        } else if (1 <= jumpToPageNum && jumpToPageNum <= MAX_PAGE) {
-          onPageChange(jumpToPageNum);
-        } else {
-          setJumpToPageError(true);
-          setJumpToPageHelperText(`Page must be between 1 and ${MAX_PAGE}`);
-        }
-      }
-    },
-    [jumpToPageVal]
-  );
-
-  const handleJumpToPageOnChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setJumpToPageError(false);
-    setJumpToPageHelperText(undefined);
-    setJumpToPageVal(event.target.value);
   };
 
   const handleLimitChange = (event: SelectChangeEvent<number>) => {
@@ -329,39 +296,12 @@ export default function TableView(cmpProps: TableViewProps) {
         marginTop={1}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Pagination
+          <PathwayTablePagination
             page={page}
-            count={MAX_PAGE}
-            onChange={(event, page) => onPageChange(page)}
-            variant="text"
-            shape="rounded"
-            color="primary"
-            renderItem={(item) => (
-              <PaginationItem
-                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
-                {...item}
-              />
-            )}
+            lowerBound={lowerPageBound}
+            upperBound={upperPageBound}
+            onChange={onPageChange}
           />
-          <Box sx={{ position: "relative" }}>
-            <TextField
-              sx={{
-                width: "150px",
-                "& .MuiFormHelperText-root": {
-                  top: "100%",
-                  position: "absolute",
-                },
-              }}
-              value={jumpToPageVal}
-              aria-label={JUMP_TO_PAGE_DEFAULT_LABEL}
-              label="Jump to Page"
-              helperText={jumpToPageHelperText}
-              error={jumpToPageError}
-              onKeyDown={handleJumpToPageKeyDown}
-              onChange={handleJumpToPageOnChange}
-            />
-          </Box>
-          <Typography>(Total Rows: {count})</Typography>
         </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
@@ -440,8 +380,8 @@ export default function TableView(cmpProps: TableViewProps) {
           </NestedMenuItem>
         ) : null}
         {colMenuColumn !== sortedColumn ||
-        order === undefined ||
-        order === "desc" ? (
+          order === undefined ||
+          order === "desc" ? (
           <MenuItem onClick={() => handleColMenuSort(colMenuColumn, "asc")}>
             <ListItemIcon>
               <ArrowUpwardIcon fontSize="small" />
@@ -450,8 +390,8 @@ export default function TableView(cmpProps: TableViewProps) {
           </MenuItem>
         ) : null}
         {colMenuColumn !== sortedColumn ||
-        order === undefined ||
-        order === "asc" ? (
+          order === undefined ||
+          order === "asc" ? (
           <MenuItem onClick={() => handleColMenuSort(colMenuColumn, "desc")}>
             <ListItemIcon>
               <ArrowDownwardIcon fontSize="small" />

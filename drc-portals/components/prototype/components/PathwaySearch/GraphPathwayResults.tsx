@@ -6,10 +6,9 @@ import TableChartIcon from "@mui/icons-material/TableChart";
 import { AlertColor, Box } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
-import { fetchPathwaySearch, fetchPathwaySearchCount } from "@/lib/neo4j/api";
+import { fetchPathwaySearch } from "@/lib/neo4j/api";
 import {
   PathwayNode,
-  PathwaySearchCountResult,
   PathwaySearchResult,
   PathwaySearchResultRow,
 } from "@/lib/neo4j/types";
@@ -42,8 +41,9 @@ export default function GraphPathwayResults(
 ) {
   const { tree, onReturnBtnClick } = cmpProps;
   const [paths, setPaths] = useState<PathwaySearchResultRow[]>([]);
-  const [count, setCount] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
+  const [lowerPageBound, setLowerPageBound] = useState<number>(Math.max(page - 5, 1));
+  const [upperPageBound, setUpperPageBound] = useState<number>(1);
   const [limit, setLimit] = useState<number>(PATHWAY_SEARCH_DEFAULT_LIMIT);
   const [order, setOrder] = useState<Order>();
   const [orderBy, setOrderBy] = useState<number>();
@@ -79,37 +79,25 @@ export default function GraphPathwayResults(
     return { data: await response.json(), status: response.status };
   };
 
-  const getPathwaySearchCount = async (
-    tree: PathwayNode
-  ): Promise<{ data: PathwaySearchCountResult; status: number }> => {
-    const query = btoa(JSON.stringify(tree));
-    const response = await fetchPathwaySearchCount(query);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Request failed: ${errorText}`);
-    }
-
-    return { data: await response.json(), status: response.status };
-  };
-
   const handlePageChange = useCallback(
     async (newPage: number) => {
-      setPage(newPage);
       setLoading(true);
       const { data } =
         orderBy !== undefined && order !== undefined
           ? await getPathwaySearchResults(
-              tree,
-              newPage,
-              limit,
-              columns[orderBy].key,
-              columns[orderBy].displayProp,
-              order
-            )
+            tree,
+            newPage,
+            limit,
+            columns[orderBy].key,
+            columns[orderBy].displayProp,
+            order
+          )
           : await getPathwaySearchResults(tree, newPage, limit);
       setLoading(false);
       setPaths(data.paths);
+      setPage(newPage);
+      setLowerPageBound(data.lowerPageBound);
+      setUpperPageBound(data.upperPageBound);
     },
     [tree, limit, columns, orderBy, order]
   );
@@ -118,13 +106,13 @@ export default function GraphPathwayResults(
     async (newLimit: number) => {
       try {
         setLimit(newLimit);
-        setPage(1); // Reset the table to the first page
         setLoading(true);
 
+        const newPage = 1; // Reset the table to the first page
         const columnData = orderBy === undefined ? undefined : columns[orderBy];
         const { data } = await getPathwaySearchResults(
           tree,
-          page,
+          newPage,
           newLimit,
           columnData?.key,
           columnData?.displayProp,
@@ -132,6 +120,9 @@ export default function GraphPathwayResults(
         );
 
         setPaths(data.paths);
+        setPage(newPage);
+        setLowerPageBound(data.lowerPageBound);
+        setUpperPageBound(data.upperPageBound);
       } catch {
         updateSnackbar(
           true,
@@ -142,7 +133,7 @@ export default function GraphPathwayResults(
         setLoading(false);
       }
     },
-    [tree, page, columns, orderBy, order]
+    [tree, columns, orderBy, order]
   );
 
   const handleOrderByChange = useCallback(
@@ -246,11 +237,11 @@ export default function GraphPathwayResults(
     setColumns(getColumnDataFromTree(tree));
     Promise.all([
       getPathwaySearchResults(tree, page, limit),
-      getPathwaySearchCount(tree),
-    ]).then(([searchResult, countResult]) => {
+    ]).then(([searchResult]) => {
       setLoading(false);
       setPaths(searchResult.data.paths);
-      setCount(countResult.data.total);
+      setLowerPageBound(searchResult.data.lowerPageBound);
+      setUpperPageBound(searchResult.data.upperPageBound);
     });
   }, [tree]);
 
@@ -271,7 +262,8 @@ export default function GraphPathwayResults(
               <TableViewSkeleton
                 limit={limit}
                 page={page}
-                count={count}
+                lowerPageBound={lowerPageBound}
+                upperPageBound={upperPageBound}
                 onReturnBtnClick={onReturnBtnClick}
               />
             ) : (
@@ -279,7 +271,8 @@ export default function GraphPathwayResults(
                 data={paths}
                 limit={limit}
                 page={page}
-                count={count}
+                lowerPageBound={lowerPageBound}
+                upperPageBound={upperPageBound}
                 order={order}
                 orderBy={orderBy}
                 columns={columns}

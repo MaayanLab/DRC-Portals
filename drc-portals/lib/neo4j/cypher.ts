@@ -95,10 +95,10 @@ export const getSearchCypher = (coreLabels: string[]) => {
     CALL {
       WITH term, dcc
       MATCH path=(dcc)-[:REGISTERED]->(:IDNamespace)-[:CONTAINS]->(core:${coreLabels
-        .map(escapeCypherString)
-        .join(
-          "|"
-        )})<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
+      .map(escapeCypherString)
+      .join(
+        "|"
+      )})<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
       WHERE
         core:File OR
         core:Biosample OR
@@ -112,10 +112,10 @@ export const getSearchCypher = (coreLabels: string[]) => {
       UNION ALL
       WITH term, dcc
       MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR|SAMPLED_FROM]-(core:${coreLabels
-        .map(escapeCypherString)
-        .join(
-          "|"
-        )})<-[:CONTAINS]-(:Project)<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
+      .map(escapeCypherString)
+      .join(
+        "|"
+      )})<-[:CONTAINS]-(:Project)<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
       WHERE
         core:File OR
         core:Biosample OR
@@ -156,8 +156,6 @@ export const createPathwaySearchAllPathsCountCypher = (
 
 export const createPathwaySearchAllPathsCypher = (
   treeParseResult: TreeParseResult,
-  useSkip = true,
-  useLimit = true,
   orderByKey?: string,
   orderByProp?: string,
   order?: "asc" | "desc" | undefined
@@ -173,11 +171,11 @@ export const createPathwaySearchAllPathsCypher = (
     // return, we would be ordering the *page* and not the entire result set.
     orderByKey && orderByProp && order && (order === "asc" || order === "desc")
       ? `ORDER BY ${escapeCypherString(orderByKey)}.${escapeCypherString(
-          orderByProp
-        )} ${order === "asc" ? "ASC" : "DESC"}`
+        orderByProp
+      )} ${order === "asc" ? "ASC" : "DESC"}`
       : "",
-    useSkip ? "SKIP $skip" : "",
-    useLimit ? "LIMIT $limit" : "",
+    "SKIP $skip",
+    "LIMIT $limit",
     "RETURN",
     nodeIds
       .map(
@@ -194,6 +192,19 @@ export const createPathwaySearchAllPathsCypher = (
   ].join("\n");
 };
 
+export const createUpperPageBoundCypher = (
+  treeParseResult: TreeParseResult,
+) => {
+  return [
+    "MATCH",
+    `\t${treeParseResult.patterns.join(",\n\t")}`,
+    "WITH *",
+    "SKIP $skip",
+    "LIMIT ($maxSiblings - (($skip / $limit) - $lowerPageBound)) * $limit",
+    "RETURN toInteger(ceil(count(*) / $limit)) + ($skip / $limit) AS upperPageBound",
+  ].join("\n");
+};
+
 export const createConnectionPattern = (
   refNodeId: string,
   direction: Direction,
@@ -204,7 +215,6 @@ export const createConnectionPattern = (
     type === undefined ? "[]" : `[:${escapeCypherString(type)}]`;
   const nodePattern =
     label === undefined ? "()" : `(:${escapeCypherString(label)})`;
-  return `(${escapeCypherString(refNodeId)})${
-    direction === Direction.INCOMING ? "<" : ""
-  }-${relPattern}-${direction === Direction.OUTGOING ? ">" : ""}${nodePattern}`;
+  return `(${escapeCypherString(refNodeId)})${direction === Direction.INCOMING ? "<" : ""
+    }-${relPattern}-${direction === Direction.OUTGOING ? ">" : ""}${nodePattern}`;
 };

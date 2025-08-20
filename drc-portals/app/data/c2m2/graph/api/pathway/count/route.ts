@@ -1,9 +1,8 @@
 import { NextRequest } from "next/server";
 
-import { createPathwaySearchAllPathsCountCypher } from "@/lib/neo4j/cypher";
 import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
-import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
-import { parsePathwayTree } from "@/lib/neo4j/utils";
+import { PathwayNode } from "@/lib/neo4j/types";
+import { getCountsQueryFromTree } from "@/lib/neo4j/utils";
 
 interface CountsQueryRecord {
   total: number;
@@ -14,7 +13,6 @@ interface CountsQueryRecord {
 
 export async function POST(request: NextRequest) {
   const body: { tree: string } = await request.json();
-  let treeParseResult: TreeParseResult;
   let tree: PathwayNode;
 
   if (body === null) {
@@ -28,7 +26,6 @@ export async function POST(request: NextRequest) {
 
   try {
     tree = JSON.parse(atob(body.tree));
-    treeParseResult = parsePathwayTree(tree);
     // TODO: Add a schema for the pathway search query object (see /search/path/route.ts for zod example usage)
   } catch (e) {
     // If for any reason (decoding, parsing, etc.) we couldn't get the path object, return a 400 response instead
@@ -45,15 +42,13 @@ export async function POST(request: NextRequest) {
     const driver = getDriver();
     const pathwaySearchResultCount = await executeReadOne<CountsQueryRecord>(
       driver,
-      createPathwaySearchAllPathsCountCypher(treeParseResult)
+      getCountsQueryFromTree(tree)
     );
 
-    const total = pathwaySearchResultCount.get("total");
     const counts = pathwaySearchResultCount.get("counts");
 
     return Response.json(
       {
-        total,
         counts,
       },
       { status: 200 }
@@ -64,7 +59,7 @@ export async function POST(request: NextRequest) {
         message: "An error occurred during the search. Please try again later.",
         error,
         params: {
-          treeParseResult,
+          tree,
         },
       },
       { status: 500 }

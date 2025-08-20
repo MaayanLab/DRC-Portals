@@ -136,12 +136,11 @@ export const parsePathwayTree = (
       const escapedRelId = escapeCypherString(node.parentRelationship.id);
       relIds.add(node.parentRelationship.id);
 
-      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${
-        node.parentRelationship.props !== undefined &&
+      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${node.parentRelationship.props !== undefined &&
         Object.keys(node.parentRelationship.props).length > 0
-          ? " " + createPropReprStr(node.parentRelationship.props)
-          : ""
-      }]-${!relIsIncoming ? ">" : ""}`;
+        ? " " + createPropReprStr(node.parentRelationship.props)
+        : ""
+        }]-${!relIsIncoming ? ">" : ""}`;
 
       if (!relIsIncoming) {
         updateCnxns(parent.id, node.label, type, outgoingCnxns);
@@ -153,11 +152,10 @@ export const parsePathwayTree = (
     }
 
     const escapedNodeId = escapeCypherString(node.id);
-    currentPattern += `(${escapedNodeId}:${node.label}${
-      node.props !== undefined && Object.keys(node.props).length > 0
-        ? " " + createPropReprStr(node.props)
-        : ""
-    })`;
+    currentPattern += `(${escapedNodeId}:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
+      ? " " + createPropReprStr(node.props)
+      : ""
+      })`;
 
     if (node.children.length === 0) {
       patterns.push(currentPattern);
@@ -185,6 +183,131 @@ export const parsePathwayTree = (
     outgoingCnxns,
     incomingCnxns,
   };
+};
+
+export const getCountsQueryFromTree = (
+  tree: PathwayNode,
+) => {
+  const statements: string[] = [];
+  const queryContext = new Set<string>();
+
+  const getFilterTree = (root: PathwayNode): string => {
+    const expressions: string[] = [];
+
+    const getExpression = (currentExpression: string, node: PathwayNode, parent?: PathwayNode) => {
+      let pattern = "";
+      if (node.parentRelationship !== undefined && parent !== undefined) {
+        const relIsIncoming = node.parentRelationship.direction === Direction.INCOMING;
+        const type = relIsIncoming
+          ? getUniqueTypeFromNodes(node.label, parent.label)
+          : getUniqueTypeFromNodes(parent.label, node.label);
+        pattern = `${relIsIncoming ? "<" : ""}-[:${type}${node.parentRelationship.props !== undefined &&
+          Object.keys(node.parentRelationship.props).length > 0
+          ? " " + createPropReprStr(node.parentRelationship.props)
+          : ""
+          }]-${!relIsIncoming ? ">" : ""}(:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
+            ? " " + createPropReprStr(node.props)
+            : ""
+          })`
+          ;
+      }
+
+      if (node.children.length > 0) {
+        node.children.forEach(child => getExpression(currentExpression + pattern, child, node));
+      } else {
+        expressions.push(currentExpression + pattern)
+      }
+    }
+    getExpression(`\t\t(${escapeCypherString(root.id)})`, root);
+    return expressions.join(" AND\n");
+  }
+
+  const getSubqueryFromNode = (
+    node: PathwayNode,
+    parent: PathwayNode | undefined
+  ) => {
+    let subquery = [
+      "CALL {",
+    ];
+    const escapedNodeId = escapeCypherString(node.id);
+    const nodeCollectionId = escapeCypherString(node.id + "-coll");
+    const nodeCountId = escapeCypherString(node.id + "-count");
+    let matchStmt = "\tMATCH ";
+    let aggWithStmt = "\tWITH "
+    let returnStmt = "\tRETURN ";
+
+    if (node.parentRelationship !== undefined && parent !== undefined) {
+      const parentCollectionId = escapeCypherString(parent.id + "-coll")
+      const escapedParentId = escapeCypherString(parent.id);
+      const relIsIncoming =
+        node.parentRelationship.direction === Direction.INCOMING;
+      const type = relIsIncoming
+        ? getUniqueTypeFromNodes(node.label, parent.label)
+        : getUniqueTypeFromNodes(parent.label, node.label);
+      const escapedRelId = escapeCypherString(node.parentRelationship.id);
+      const relCountId = escapeCypherString(node.parentRelationship.id + "-count");
+
+      subquery.push(
+        `\tWITH ${parentCollectionId}`,
+        `\tUNWIND ${parentCollectionId} AS ${escapedParentId}`
+      );
+      queryContext.add(relCountId);
+      matchStmt += `(${escapedParentId})${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${node.parentRelationship.props !== undefined &&
+        Object.keys(node.parentRelationship.props).length > 0
+        ? " " + createPropReprStr(node.parentRelationship.props)
+        : ""
+        }]-${!relIsIncoming ? ">" : ""}`
+        ;
+      aggWithStmt += `collect(DISTINCT ${escapedRelId}) AS ${escapedRelId}, `
+      returnStmt += `size(${escapedRelId}) AS ${relCountId}, `
+    }
+
+    matchStmt += `(${escapedNodeId}:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
+      ? " " + createPropReprStr(node.props)
+      : ""
+      })`;
+    aggWithStmt += `collect(DISTINCT ${escapedNodeId}) AS ${nodeCollectionId}`
+    subquery.push(matchStmt);
+    queryContext.add(nodeCountId);
+
+    if (node.children.length > 0) {
+      queryContext.add(nodeCollectionId)
+      subquery.push("\tWHERE")
+      subquery.push(getFilterTree(node));
+      returnStmt += `${nodeCollectionId}, `
+    }
+
+    returnStmt += `size(${nodeCollectionId}) AS ${nodeCountId}`
+    subquery.push(
+      aggWithStmt,
+      returnStmt,
+      "}"
+    );
+
+    if (queryContext.size > 0) {
+      subquery.push(`WITH ${Array.from(queryContext).join(", ")}`);
+    }
+
+    statements.push(subquery.join("\n"));
+
+    if (node.children.length > 0) {
+      node.children.forEach((child, idx) => {
+        // We don't need this node's collection once we've reached its last child, so free up the query context
+        if (idx === node.children.length - 1) {
+          queryContext.delete(nodeCollectionId)
+        }
+        getSubqueryFromNode(child, node)
+      });
+    }
+  };
+
+  getSubqueryFromNode(tree, undefined);
+  statements.push(
+    "RETURN {",
+    Array.from(queryContext).filter((val) => val.endsWith("-count`")).map(val => `\t${val.split("-count`")[0]}\`: ${val}`).join(",\n"),
+    `} AS counts`
+  )
+  return statements.join("\n");
 };
 
 const getRelevantIdCounts = (
@@ -330,7 +453,7 @@ export const getConnectionQueries = (
           continue;
         }
       } else {
-         // ...and it isn't the root...
+        // ...and it isn't the root...
         if (
           // ...and we're adding a non-term connection
           !TERM_LABELS.includes(label)
@@ -365,11 +488,9 @@ export const getConnectionQueries = (
         `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
         `\t"${connectedEdgeId}" AS edgeId,`,
         `\t"${relationship}" AS type,`,
-        `\t"${
-          direction === Direction.INCOMING ? connectedNodeId : node.id
+        `\t"${direction === Direction.INCOMING ? connectedNodeId : node.id
         }" AS source,`,
-        `\t"${
-          direction === Direction.INCOMING ? node.id : connectedNodeId
+        `\t"${direction === Direction.INCOMING ? node.id : connectedNodeId
         }" AS target,`,
         `\t"${direction}" AS direction`,
         "LIMIT 1",
