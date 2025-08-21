@@ -42,19 +42,13 @@ services:
   drc-portal-app-crossing:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-crossing:0.19.6
+    image: maayanlab/drc-portal-crossing:0.19.7
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://crossing.cfde.cloud
         nginx.ingress.kubernetes.io/configuration-snippet: |
           more_set_headers "X-Robots-Tag: noindex";
-    deploy:
-      replicas: 3
-      resources:
-        reservations:
-          cpus: '2.0'
-          memory: 6144M
     ports:
       - 3000:3000
     environment:
@@ -194,12 +188,6 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
-    deploy:
-      resources:
-        reservations:
-          cpus: '2.0'
-          memory: 512M
-    shm_size: 1Gb
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
