@@ -15,7 +15,7 @@ export const dccInfo: dccsInfoType[] = [
   {
     shortName: "Metabolomics",
     longName: "Metabolomics",
-    imgString: "/img/metabolomics.png",
+    imgString: "/img/Metabolomics.png",
   },
   {
     shortName: "GlyGen",
