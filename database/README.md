@@ -65,3 +65,18 @@ kubectl port-forward -n drc deploy/drc-portal-postgres 5432
 # in another, run the following script to generate the files and load them into s3 & the prod database
 python3 update_outreach.py updated-outreach.tsv updated-webinar.tsv
 ```
+
+## Setting Up GMT Crossing
+
+```bash
+npx prisma db pull --schema=prisma/g2sg/schema.prisma --url "postgresql://postgres:<password>@localhost:5436/postgres"
+
+npx prisma generate --schema=prisma/g2sg/schema.prisma
+```
+
+```json
+datasource db {
+  provider = "postgresql"
+  url      = env("G2SG_DATABASE_URL")
+}
+```
