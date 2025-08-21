@@ -188,6 +188,12 @@ services:
     image: postgres:16
     x-kubernetes:
       imagePullPolicy: IfNotPresent
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 512M
+    shm_size: 1Gb
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
