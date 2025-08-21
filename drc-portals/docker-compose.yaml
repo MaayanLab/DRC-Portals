@@ -42,7 +42,7 @@ services:
   drc-portal-app-crossing:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-crossing:0.19.7
+    image: maayanlab/drc-portal-crossing:0.19.8
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
