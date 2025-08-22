@@ -312,3 +312,35 @@ https://ucsd-sslab.ngrok.app/data/search/mass%20spectrometry/c2m2?t=assay_type%3
 
 ### Search for menstrual cycle and add filters:
 https://ucsd-sslab.ngrok.app/data/search/menstrual%20cycle/c2m2?t=compound%3AAcetaminophen&p=1
+
+## PTM-related test queries
+
+### Search for liver and apply filters for PTM typs, subtype and site
+https://ucsd-sslab.ngrok.app/data/search/liver/c2m2?t=ptm_type%3Aprotein+glycosylation%7Cptm_subtype%3Aprotein+N-linked+glycosylation&p=1
+
+#### Look into record information and download PTM metadata
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=liver&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Rattus%20norvegicus|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:EST5_RAT|compound_name:Unspecified|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:CSV|ptm_type_name:protein%20glycosylation|ptm_subtype_name:protein%20N-linked%20glycosylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+### Search for Parkinsons and apply PTM type filter
+https://ucsd-sslab.ngrok.app/data/search/parkinson/c2m2?t=ptm_type%3Aprotein+phosphorylation&p=1
+
+#### Look into the record
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=parkinson&t=dcc_name:GlyGen%7Cproject_local_id:Portal%7Cdisease_name:Unspecified%7Cncbi_taxonomy_name:Gallus%20gallus%7Canatomy_name:Unspecified%7Cbiofluid_name:Unspecified%7Cgene_name:Unspecified%7Cprotein_name:PARK7_CHICK%7Ccompound_name:Unspecified%7Cdata_type_name:GlyTouCan%20accession%7Cassay_type_name:Unspecified%7Csubject_ethnicity_name:Unspecified%7Csubject_sex_name:Unspecified%7Csubject_race_name:Unspecified%7Cfile_format_name:CSV%7Cptm_type_name:protein%20phosphorylation%7Cptm_subtype_name:peptidyl-tyrosine%20phosphorylation%7Cptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+### Apply PTM subtype filter as well
+https://ucsd-sslab.ngrok.app/data/search/parkinson/c2m2?t=ptm_type%3Aprotein+phosphorylation%7Cptm_subtype%3Apeptidyl-serine+phosphorylation&p=1
+
+#### Select a record
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=parkinson&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:PARK7_HUMAN|compound_name:Unspecified|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:CSV|ptm_type_name:protein%20phosphorylation|ptm_subtype_name:peptidyl-serine%20phosphorylation|ptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+### Search for hepatitis and apply taxonomy and PTM subtype filters
+https://ucsd-sslab.ngrok.app/data/search/hepatitis/c2m2?t=ncbi_taxonomy%3ABos+taurus%7Cptm_subtype%3Aprotein+N-linked+glycosylation&p=1
+
+#### Look into a record
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=hepatitis&t=dcc_name:GlyGen%7Cproject_local_id:Portal%7Cdisease_name:Unspecified%7Cncbi_taxonomy_name:Bos%20taurus%7Canatomy_name:Unspecified%7Cbiofluid_name:Unspecified%7Cgene_name:Unspecified%7Cprotein_name:HECAM_BOVIN%7Ccompound_name:Unspecified%7Cdata_type_name:GlyTouCan%20accession%7Cassay_type_name:Unspecified%7Csubject_ethnicity_name:Unspecified%7Csubject_sex_name:Unspecified%7Csubject_race_name:Unspecified%7Cfile_format_name:CSV%7Cptm_type_name:protein%20glycosylation%7Cptm_subtype_name:protein%20N-linked%20glycosylation%7Cptm_site_type_name:Defined%20-%20faldo:ExactPosition
+
+### Searchh for Diabetes and apply filters for PTM type and Species
+https://ucsd-sslab.ngrok.app/data/search/diabetes/c2m2?t=ptm_type%3Aprotein+phosphorylation%7Cncbi_taxonomy%3AHomo+sapiens&p=1
+
+#### Look into one record
+https://ucsd-sslab.ngrok.app/data/c2m2/search/record_info?q=diabetes&t=dcc_name:GlyGen%7Cproject_local_id:Portal%7Cdisease_name:Unspecified%7Cncbi_taxonomy_name:Homo%20sapiens%7Canatomy_name:Unspecified%7Cbiofluid_name:Unspecified%7Cgene_name:Unspecified%7Cprotein_name:ATPMK_HUMAN%7Ccompound_name:Unspecified%7Cdata_type_name:GlyTouCan%20accession%7Cassay_type_name:Unspecified%7Csubject_ethnicity_name:Unspecified%7Csubject_sex_name:Unspecified%7Csubject_race_name:Unspecified%7Cfile_format_name:CSV%7Cptm_type_name:protein%20phosphorylation%7Cptm_subtype_name:peptidyl-serine%20phosphorylation%7Cptm_site_type_name:Defined%20-%20faldo:ExactPosition
