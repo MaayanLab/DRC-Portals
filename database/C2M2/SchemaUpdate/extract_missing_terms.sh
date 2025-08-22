@@ -12,6 +12,10 @@ outf0=missing_${kw}s
 outf=${outf0}.tsv
 outf_nh=${outf0}_noheader.tsv
 dbtable=$kw
+
+# If DB port changes, edit it here
+dbcon_str="-h localhost -p 5433 -U drc -d drc";
+
 #grep 'has no name' schema_update_test.log | grep -o "Term '[^']*'" | sed "s/Term '\(.*\)'/\1/"
 #grep 'has no name' $logf | grep -o "Term '[^']*'" | sed "s/Term '\(.*\)'/\1/"
 
@@ -35,7 +39,9 @@ echo "Formatted string for use in psql:";
 echo $ids_string
 
 # Fetch such records from the DB which has metadata from the last submission
-psql -h localhost -p 5433 -U drc -d drc -c "\copy (SELECT * FROM c2m2.${dbtable} WHERE id IN (${ids_string})) TO '${outf}' WITH (FORMAT csv, DELIMITER E'\t', HEADER);"
+# Mano: 2025/08/20: Always run the psal command even if ids_string is just '', so that at least the outf is populated and processing downstream continues
+# Below, do not put ${dbcon_str} in double quotes, so that its expansion indeed contains spaces to separate the specs for db server, db port, etc.
+psql ${dbcon_str} -c "\copy (SELECT * FROM c2m2.${dbtable} WHERE id IN (${ids_string})) TO '${outf}' WITH (FORMAT csv, DELIMITER E'\t', HEADER);"
 echo "Fetched these records from the DB";
 # clean synonym column of $outf
 cp $outf ${outf}_raw.tsv
@@ -44,6 +50,7 @@ awk -F'\t' 'BEGIN { OFS="\t" } { \
     if (NF >= 4) { \
 	sub(/^"\[/, "[", $4); \
         sub(/\]"$/, "]", $4); \
+	sub(/^\[""\]$/, "[]", $4); \
         gsub(/""/, "\"", $4); \
     } \
     print $0 \

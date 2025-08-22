@@ -85,7 +85,8 @@ cvFile = {
     #'MPO' : '%s/mp.2024-10-17.obo' % cvRefDir,
     'MPO' : '%s/MPO_v1.2_r2025-07-29.obo' % cvRefDir,
     #'Ensembl' : '%s/ensembl_genes.tsv' % cvRefDir,
-    'Ensembl' : '%s/ensembl_genes.2024-08-18.tsv' % cvRefDir,
+    #'Ensembl' : '%s/ensembl_genes.2024-08-18.tsv' % cvRefDir,
+    'Ensembl' : '%s/ensembl_genes.2025-08-20.tsv' % cvRefDir,
     # Reduced-size (sample) PubChem reference DB for debugging and fast testing (if you enable this, you must also comment out the line after it):
     #'PubChem_and_GlyTouCan_compound' : '%s/sample_pubchem_reference_data/compound.first_5000_records.max_100_synonyms_per_term.tsv.gz' % cvRefDir,
     #'PubChem_and_GlyTouCan_compound' : '%s/compound.tsv.gz' % cvRefDir,

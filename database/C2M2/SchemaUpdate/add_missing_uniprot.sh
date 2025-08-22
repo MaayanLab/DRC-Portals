@@ -109,7 +109,36 @@ echo "done";
 #)
 #cp protein.2024-11-22.tsv.gz /mnt/share/mano/CFDE/C2M2_sub/scripts/external_CV_reference_files/.
 
-cmdstr="cp \"${kw_file}.gz\" \"${C2M2_sub_folder}/scripts/external_CV_reference_files/.\""
+echo "---------------------------------";
+pf="${kw_file}.gz"
+tf="${C2M2_sub_folder}/scripts/external_CV_reference_files"
+cmdstr="cp \"${pf}\" \"${tf}/.\""
 echo -e "--------\nYou can execute the command below to copy to external_CV_reference_files folder for testing:\n";
 echo "${cmdstr}"
+
+# extract sample file
+
+pf_5k="protein.first_5000_records.tsv"
+
+echo "pf:$pf"
+echo "pf_5k:$pf_5k"
+
+# If warning: gzip: stdout : broken pipe, use gzip -dc instead of zcat: gzip -dc compound.tsv.gz | head -5001 > compound.first_5000_records.tsv
+zcat "${pf}" | head -5001 > "${pf_5k}"
+
+ls -al "${pf_5k}"
+
+gzip -k "${pf_5k}"
+
+echo "gzipped ${pf_5k}"
+
+sff=sample_uniprot_reference_data
+cp "${pf_5k}" "${pf_5k}.gz" ${sff}/.
+
+tf="${C2M2_sub_folder}/scripts/external_CV_reference_files/${sff}"
+cmdstr3="cp \"${pf_5k}\" \"${pf_5k}.gz\" \"${tf}/.\""
+echo -e "--------\nYou can execute the commands below to copy to external_CV_reference_files/${sff} folder for testing:\n";
+echo -e "${cmdstr3}\n";
+echo "---------------------------------";
+
 
