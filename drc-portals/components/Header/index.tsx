@@ -68,6 +68,7 @@ const info_nav = [
 const data_nav = [
 	{title: "Search", href: "/data"},
 	{title: "Enrichment", href: "/data/enrichment"},
+	{title: "Cross", href: "/data/cross"},
 	{title: "Chatbot", href: "/data/chat"},
 	{title: "Data Matrix", href: "/data/matrix"},
 	{title: "Use Cases", href: "/data/usecases"},
