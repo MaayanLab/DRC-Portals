@@ -12,7 +12,7 @@ export default async function GMTCross() {
 						<Typography variant="h3" color="secondary.dark" sx={{ mb: 2, mt: 2 }}>COMMON FUND GENE SET CROSSING</Typography>
 					</div>
 					<Typography variant="subtitle1" color="#666666" sx={{ mb: 3 }}>
-						Cross Common Fund GMTs to explore their similarity for novel hypothesis generation. Each gene set pair is displayed with their Fisher exact test p-value, odds ratio and overlapping genes. Add gene sets to your cart to cross your assembled sets with CFDE gene set libraries.
+						Try crossing gene sets created from datasets produced by Common Fund programs to discover unexpected statistically significant overlap between sets across programs. The crossed gene set pairs are ranked by the Fisher’s exact test p-value of the overlap. You can explore and export the overlapping genes, and receive an explanation about the unexpected overlap.
 					</Typography>
 					<GMTCrossLayout sessionInfo={null} />
 				</Container>

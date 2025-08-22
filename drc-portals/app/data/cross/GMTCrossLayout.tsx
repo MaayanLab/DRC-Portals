@@ -188,7 +188,7 @@ export function GMTCrossLayout({ sessionInfo }: {
     }, [])
 
     const getCrossData = React.useCallback(() => {
-        router.push("/data/gmt_crossing/" + "?" + createQueryString("lib1", selectedLibs[0]) + "&" + createQueryString("lib2", selectedLibs[1]));
+        router.push("/data/cross/" + "?" + createQueryString("lib1", selectedLibs[0]) + "&" + createQueryString("lib2", selectedLibs[1]));
         setHypothesis(null)
         setLoading(true)
         if (selectedLibs.length === 2 && selectedLibs[0] == 'user_sets' && selectedLibs[1] != '' && sessionInfo != null) {       
