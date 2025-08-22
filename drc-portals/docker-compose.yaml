@@ -38,6 +38,7 @@ services:
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
+      - GSC_DATABASE_URL=${PROD_GSC_DATABASE_URL}
 
   drc-portal-app-crossing:
     build: .
