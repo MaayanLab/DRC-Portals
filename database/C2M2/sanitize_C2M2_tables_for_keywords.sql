@@ -114,6 +114,26 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION select_matching_rows_searchable_tsvector(
+    schema_name TEXT,
+    table_name TEXT,
+    keyword TEXT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    full_sql TEXT;
+BEGIN
+    ---SELECT * FROM node WHERE searchable @@ websearch_to_tsquery('english', 'gender');
+    full_sql := format('SELECT * FROM %I.%I WHERE searchable @@ websearch_to_tsquery(''english'', %L)',
+                       schema_name, table_name, keyword);
+    RAISE NOTICE 'Executing: %', full_sql;
+    EXECUTE full_sql;
+
+    --- COMMIT;  -- This works inside a procedure --- no commit for select
+END;
+$$;
+
 -------------------------
         DO $$
         DECLARE
@@ -241,6 +261,49 @@ select count(*) from c2m2.project where searchable ilike any (ARRAY['%gender%', 
 Some very specific deletions
 */
 
+------------------------- To print records with keyworkds in public schema, node and entity_node tables
+--- Do not worry about Inclusion conjunctivitis
+        DO $$
+        DECLARE
+            schema_name text;
+            table_name text;
+            keyword_from_array text;
+            schemas text[] := ARRAY['public'];  --- BE CAREFUL WITH THIS ONE AS THIS IS THE MAIN SCHEMA -- your schema names
+
+            tables text[] := ARRAY['node'];
+            keywords_array text[] := ARRAY['gender', 'inclusion', 'diversity', 'equity', 'lgbt', 'trans-gen', 'transgen']; ---  OR women 
+
+            sql_query TEXT;
+            record_result RECORD;
+        BEGIN
+            FOREACH schema_name IN ARRAY schemas
+            LOOP
+                RAISE NOTICE 'Processing schema: %', schema_name;
+                -------------------------------------------------------
+
+                FOREACH table_name IN ARRAY tables
+                LOOP
+                    RAISE NOTICE '    Processing table: %.%', schema_name, table_name;
+
+                    FOREACH keyword_from_array IN ARRAY keywords_array
+                    LOOP
+                        RAISE NOTICE 'Keyword: %', keyword_from_array;
+                        sql_query := format('SELECT * FROM %I.%I WHERE searchable @@ websearch_to_tsquery(''english'', %L);',
+                                        schema_name, table_name, keyword_from_array);
+                        RAISE NOTICE 'Executing: %', sql_query;
+                        FOR record_result IN EXECUTE sql_query
+                        LOOP
+                            -- Print each row to the psql console.
+                            RAISE NOTICE 'Result: %', record_result;
+                        END LOOP;
+                    END LOOP;
+                END LOOP;
+                -------------------------------------------------------
+            END LOOP;
+            --- RAISE NOTICE 'Done Processing tables in schemas';
+        END $$;
+-------------------------
+
 /*
 DO $$
 DECLARE
@@ -259,6 +322,9 @@ END $$;
 */
 --- #############################################################################
 
+--- To find the objects in public.node table which have the keywords to be exlcuded
+--- SELECT * FROM node WHERE searchable @@ websearch_to_tsquery('english', 'gender');
+
 /*
 DO $$
 DECLARE
@@ -270,6 +336,7 @@ BEGIN
         --- start transaction;
 
         --- from the node table
+        --- For March 2025 sub
         \set node_id '0e48e7a8-52d9-5fea-ade5-a2eb8eab0d21'
         --- DELETE FROM kg_assertion where source_id = '0e48e7a8-52d9-5fea-ade5-a2eb8eab0d21' or target_id = '0e48e7a8-52d9-5fea-ade5-a2eb8eab0d21';
         --- DELETE FROM entity_node where id = '0e48e7a8-52d9-5fea-ade5-a2eb8eab0d21';
@@ -278,6 +345,7 @@ BEGIN
         DELETE FROM entity_node where id = :'node_id';
         DELETE FROM node where id = :'node_id';
 
+        --- For March and June 2025 sub
         update node
         set description = replace(description, ' diversity ', ' intrinsic variation ')
         where description like '% diversity %';
