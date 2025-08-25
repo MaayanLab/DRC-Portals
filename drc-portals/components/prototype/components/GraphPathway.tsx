@@ -3,7 +3,7 @@
 import { AlertColor, Box } from "@mui/material";
 
 import { EventObjectNode, NodeSingular } from "cytoscape";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChangeEvent,
   useCallback,
@@ -64,6 +64,8 @@ export default function GraphPathway() {
     () => ({ tree }),
     [tree]
   );
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
@@ -103,6 +105,7 @@ export default function GraphPathway() {
     setTree(undefined);
     abortCountsRequest();
     setSearchElements([]);
+    router.push(pathname);
   };
 
   const updateCounts = (
@@ -253,6 +256,7 @@ export default function GraphPathway() {
 
     setTree(initialTree);
     setSearchElements([initialNode]);
+    router.push(pathname + "?q=" + encodeURI(btoa(JSON.stringify(cvTerm))))
   };
 
   const handleExport = useCallback(() => {
@@ -497,6 +501,7 @@ export default function GraphPathway() {
     }
   }, [searchElements]);
 
+  // On the initial load of the page, populate the pathway with an initial node if one exists in the query params
   useEffect(() => {
     const q = searchParams.get("q");
 
@@ -515,7 +520,7 @@ export default function GraphPathway() {
 
       handleParamsChange();
     }
-  }, [searchParams]);
+  }, []);
 
   return (
     <Box sx={{ height: "640px", position: "relative" }}>
