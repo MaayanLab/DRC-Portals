@@ -23,16 +23,16 @@ export default function PathwayTablePagination(cmpProps: PathwayTablePaginationP
 
   return (
     <ul>
-      <PaginationItem type="previous" disabled={disabled || page === lowerBound} slots={{ previous: ArrowBackIcon }} onClick={() => handleOnChange(page - 1)} />
+      <PaginationItem key="pathway-pagination-prev" type="previous" disabled={disabled || page === lowerBound} slots={{ previous: ArrowBackIcon }} onClick={() => handleOnChange(page - 1)} />
       {
         Array((upperBound - lowerBound) + 1)
           .fill(0)
           .map((_, i) => {
             const p = i + lowerBound;
-            return <PaginationItem type="page" disabled={disabled} color="primary" shape="rounded" page={p} selected={p === page} onClick={() => handleOnChange(p)} />
+            return <PaginationItem key={"pathway-pagination-" + i} type="page" disabled={disabled} color="primary" shape="rounded" page={p} selected={p === page} onClick={() => handleOnChange(p)} />
           })
       }
-      <PaginationItem type="next" slots={{ next: ArrowForwardIcon }} disabled={disabled || page === upperBound} onClick={() => handleOnChange(page + 1)} />
+      <PaginationItem key="pathway-pagination-next" type="next" slots={{ next: ArrowForwardIcon }} disabled={disabled || page === upperBound} onClick={() => handleOnChange(page + 1)} />
     </ul>
   )
 }

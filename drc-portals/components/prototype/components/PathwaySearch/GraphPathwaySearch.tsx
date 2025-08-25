@@ -299,11 +299,18 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-reset-search">
-            <Tooltip title="Start Over" arrow>
-              <IconButton aria-label="start-over" disabled={elements.length === 0} onClick={handleReset}>
-                <RestartAltIcon />
-              </IconButton>
-            </Tooltip>
+            {
+              elements.length === 0
+                ? <IconButton aria-label="start-over" disabled onClick={handleReset}>
+                  <RestartAltIcon />
+                </IconButton>
+                : <Tooltip title="Start Over" arrow>
+                  <IconButton aria-label="start-over" onClick={handleReset}>
+                    <RestartAltIcon />
+                  </IconButton>
+                </Tooltip>
+            }
+
           </Fragment>
         );
       },
