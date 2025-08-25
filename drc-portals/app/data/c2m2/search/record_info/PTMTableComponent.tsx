@@ -91,6 +91,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
                 LEFT JOIN c2m2.collection_ptm ON ((c2m2.collection_ptm.collection_local_id = allres_full.collection_local_id) AND
                                               (c2m2.collection_ptm.collection_id_namespace = allres_full.collection_id_namespace))
                 LEFT JOIN c2m2.ptm on (c2m2.collection_ptm.ptm = c2m2.ptm.id)
+                WHERE (c2m2.collection_ptm.ptm IS NOT NULL)
             ),
             ptm_table_limited AS (
                 SELECT * 
@@ -125,7 +126,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
         const ptmTableFull = firstResult.ptm_table_full ?? [];
 
         if (ptmTable.length === 0 || ptmTableFull.length === 0) {
-            return <div>No ptms data found.</div>;
+            return <div></div>;
         }
         console.log("PTM Table LENGTH = ", ptmTable.length)
         console.log("PTM Table RESULT = ", ptmTable)
