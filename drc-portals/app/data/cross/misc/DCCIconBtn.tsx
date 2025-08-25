@@ -146,6 +146,7 @@ export const DCCIcons = ({
         useFlexGap
         flexWrap="wrap"
         spacing={0.5}
+        justifyContent={"center"} 
         width={"100%"}
       >
         {dccInfo.map((dcc, i) => (

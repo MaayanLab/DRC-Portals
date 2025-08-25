@@ -206,15 +206,15 @@ const CFDEWebinarSeries = async () => {
 		}
 	})
 	return (
-		<Grid container spacing={1} justifyContent={"flex-start"} sx={{marginLeft:2}}>
+		<Grid container spacing={1} justifyContent={"flex-start"} sx={{marginLeft:2, mt: 2}}>
 			<Grid item xs={12}>
 				<Typography variant="h2" color="secondary">
 					CFDE Webinar Series
 				</Typography>
 			</Grid>
-			<Grid item xs={12}>
-				<Typography variant="body1">
-				Join us on the last Friday of each month from 1-2 PM Eastern Time to learn more about how the CFDE is harmonizing and discovering new knowledge by integrating datasets, tools and other resources from a collection of NIH Common Fund programs.
+			<Grid item xs={12} sx={{mb: 2}}>
+				<Typography variant="subtitle1">
+					Join us on the last Friday of each month from 1-2 PM Eastern Time to learn more about how the CFDE is harmonizing and discovering new knowledge by integrating datasets, tools and other resources from a collection of NIH Common Fund programs.
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>

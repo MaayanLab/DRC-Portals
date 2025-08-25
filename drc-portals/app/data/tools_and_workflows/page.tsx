@@ -273,10 +273,10 @@ export default async function ToolsPage() {
 				</ClientCarousel>
 			</Grid>
 			<Grid item xs={12} sx={{ marginTop: 2 }}>
-				<Typography sx={{ textAlign: "center" }} variant="h3" color="secondary">ALL TOOLS AND WORKFLOWS</Typography>
+				<Typography sx={{ textAlign: "center" }} variant="h2" color="secondary">All Tools and Workflows</Typography>
 			</Grid>
 			<Grid item xs={12}>
-				<Typography sx={{ textAlign: "center" }} variant="body2">
+				<Typography sx={{ textAlign: "center" }} variant="subtitle1">
 					Explore different tools and workflows that utilizes data from different CFDE participating programs
 				</Typography>
 			</Grid>

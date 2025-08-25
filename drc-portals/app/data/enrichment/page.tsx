@@ -138,10 +138,21 @@ export default async function Home({searchParams}: {
 		return (
 		<Grid container direction={"column"} spacing={2} justifyContent="space-between">
 			<Grid item xs={12} >
+				<Typography sx={{ml:3, mt:2}} color="secondary" variant="h2">
+					Enrichment Analysis Against Common Fund Gene Set Libraries
+				</Typography>
+			</Grid>
+			<Grid item xs={12}>
+				<Typography sx={{ml:3, mb:2}} variant="subtitle1">
+					Try submitting your gene sets for enrichment analysis against gene set libraries created from datasets produced by Common Fund programs to discover unexpected statistically significant overlaps between your gene sets and sets from across programs. The overlap between sets is ranked by the Fisher’s exact test. Please select at least one CF program by clicking on the icons. You should be able to explore the results as bar charts, networks, and tables.
+				</Typography>
+			</Grid>
+			<Grid item xs={12} >
 				{!searchParams.fullscreen &&<Suspense><Subheader/></Suspense>}
 			</Grid>
 			<Grid item xs={12} >
 				<Grid container spacing={1} alignItems={"flex-start"}>
+					
 					{(! searchParams.collapse) && 
 					<Grid item xs={12} md={elements===null?12:3}>
 						<Card elevation={0} sx={{borderRadius: "8px", backgroundColor: "inherit"}}>
