@@ -13,8 +13,20 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({ data, filename = 'data.
   if (!data || (Array.isArray(data) && data.length === 0)) return null; // Handle empty data
 
   const handleDownload = () => {
+
+    let outputData = data;
+
+    // 🔹 Check if it's an array of single-key objects
+    if (
+      Array.isArray(data) &&
+      data.every(item => typeof item === 'object' && item !== null && Object.keys(item).length === 1)
+    ) {
+      // Merge into a single object, then wrap in an array
+      const merged = Object.assign({}, ...data);
+      outputData = [merged];
+    }
     // Convert data to JSON format
-    const json = JSON.stringify(data, (_, value) => (typeof value === 'bigint' ? value.toString() : value), 2);
+    const json = JSON.stringify(outputData, (_, value) => (typeof value === 'bigint' ? value.toString() : value), 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
