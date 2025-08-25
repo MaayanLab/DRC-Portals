@@ -9,7 +9,7 @@ import {
   PathwayNode,
   TreeParseResult,
 } from "@/lib/neo4j/types";
-import { getConnectionQueries, parsePathwayTree } from "@/lib/neo4j/utils";
+import { getConnectionQueryFromTree, parsePathwayTree } from "@/lib/neo4j/utils";
 
 interface ConnectionQueryRecord {
   exists: boolean;
@@ -84,17 +84,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let connectionQueryParams: { [key: string]: string } = {}
   try {
     treeParseResult = parsePathwayTree(tree, true);
 
-    for (const node of treeParseResult.nodes) {
+    for (let i = 0; i < treeParseResult.nodes.length; i++) {
+      const node = treeParseResult.nodes[i]
       if (targetNodeIds.has(node.id)) {
-        connectionQueries.push(
-          ...getConnectionQueries(treeParseResult, node, Direction.OUTGOING)
-        );
-        connectionQueries.push(
-          ...getConnectionQueries(treeParseResult, node, Direction.INCOMING)
-        );
+        const nodeIdParam = `nodeIdParam${i + 1}`;
+        connectionQueries.push(getConnectionQueryFromTree(treeParseResult, tree, node, nodeIdParam));
+        connectionQueryParams = {
+          ...Object.fromEntries([[nodeIdParam, node.id]]),
+          ...connectionQueryParams
+        }
       }
     }
   } catch (e) {
@@ -112,9 +114,7 @@ export async function POST(request: NextRequest) {
   try {
     const driver = getDriver();
     const [...connectionsResults] = await Promise.all([
-      ...connectionQueries.map((q) =>
-        executeReadOne<ConnectionQueryRecord>(driver, q)
-      ),
+      ...connectionQueries.map((q) => executeReadOne<{ result: ConnectionQueryRecord[] }>(driver, q, connectionQueryParams)),
     ]);
 
     // There should be only one row per query
@@ -122,19 +122,23 @@ export async function POST(request: NextRequest) {
       .filter((result) => result !== undefined) // Filter out unmatched connections
       .forEach((result) => {
         const data = result.toObject();
-        connectedNodes.push({
-          id: data.nodeId,
-          label: data.label,
-        });
-        connectedEdges.push({
-          id: data.edgeId,
-          type:
-            // If the relationship is in the unique set map it to the general set, otherwise just use the general set
-            UNIQUE_TO_GENERIC_REL.get(data.type) || "Unknown",
-          source: data.source,
-          target: data.target,
-          direction: data.direction,
-        });
+        data.result
+          .filter(connection => connection.exists)
+          .forEach(connection => {
+            connectedNodes.push({
+              id: connection.nodeId,
+              label: connection.label,
+            });
+            connectedEdges.push({
+              id: connection.edgeId,
+              type:
+                // If the relationship is in the unique set map it to the general set, otherwise just use the general set
+                UNIQUE_TO_GENERIC_REL.get(connection.type) || "Unknown",
+              source: connection.source,
+              target: connection.target,
+              direction: connection.direction,
+            });
+          });
       });
     return Response.json(
       {

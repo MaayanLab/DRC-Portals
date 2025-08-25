@@ -19,8 +19,8 @@ import {
 import { Direction } from "./enums";
 
 export const escapeCypherString = (input: string) => {
-  // convert any \u0060 to literal backtick, then escape backticks, and finally wrap in single quotes and backticks
-  return `\`${input.replace(/\\u0060/g, "`").replace(/`/g, "``")}\``;
+  // convert any \u0060 to literal backtick, then escape backticks, and finally wrap in single backticks
+  return `\`${input.replace(/\\u0060/g, "`").replace(/`+/g, "``")}\``;
 };
 
 export const isValidLucene = (input: string) => {
@@ -400,12 +400,13 @@ export const getOptimizedMatches = (
   return queryStmts;
 };
 
-export const getConnectionQueries = (
+const getCnxnQueryReturnObjects = (
   treeParseResult: TreeParseResult,
   node: PathwayNode,
-  direction: Direction
+  direction: Direction,
+  nodeIdParam: string,
 ) => {
-  const connectionQueries: string[] = [];
+  const connectionObjects: string[] = [];
   const CONNECTIONS =
     direction === Direction.INCOMING
       ? UNIQUE_PAIR_INCOMING_CONNECTIONS
@@ -414,15 +415,7 @@ export const getConnectionQueries = (
     direction === Direction.INCOMING
       ? treeParseResult.incomingCnxns
       : treeParseResult.outgoingCnxns;
-  const queryStmts: string[] = getOptimizedMatches(treeParseResult, node.id);
-  let whereCnxnIdx: number | undefined = undefined;
 
-  // Find the first statement where node.id is present and save the index for later use
-  queryStmts.forEach((stmt, idx) => {
-    if (whereCnxnIdx === undefined && stmt.split(node.id).length > 1) {
-      whereCnxnIdx = idx + 1;
-    }
-  });
 
   for (const [relationship, label] of Array.from(
     CONNECTIONS.get(node.label)?.entries() || []
@@ -439,6 +432,7 @@ export const getConnectionQueries = (
       continue;
     }
 
+    // TODO: move this to the frontend
     // Also skip the connection if...
     if (
       // ...the node we're getting connections for is a term node...
@@ -463,39 +457,173 @@ export const getConnectionQueries = (
       }
     }
 
-    const queryStmtsCopy = [...queryStmts];
-    if (whereCnxnIdx !== undefined) {
-      const whereCnxnStmt = `WHERE COUNT {${createConnectionPattern(
-        node.id,
-        direction,
-        undefined,
-        relationship
-      )}} > 0`;
-
-      if (whereCnxnIdx === queryStmtsCopy.length) {
-        queryStmtsCopy.push(whereCnxnStmt);
-      } else {
-        queryStmtsCopy.splice(whereCnxnIdx, 0, whereCnxnStmt);
-      }
-    }
+    const whereCnxnStmt = `WHERE COUNT {${createConnectionPattern(
+      "n", // Just use a placeholder var name since this WHERE clause is going to be used as an `any` predicate below
+      direction,
+      undefined,
+      relationship
+    )}} > 0`;
 
     const connectedNodeId = v4();
     const connectedEdgeId = v4();
-    connectionQueries.push(
+    const escapedNodeId = escapeCypherString(node.id);
+    connectionObjects.push(
       [
-        ...queryStmtsCopy,
-        "RETURN",
-        `\t"${connectedNodeId}" AS nodeId, "${label}" AS label,`,
-        `\t"${connectedEdgeId}" AS edgeId,`,
-        `\t"${relationship}" AS type,`,
-        `\t"${direction === Direction.INCOMING ? connectedNodeId : node.id
-        }" AS source,`,
-        `\t"${direction === Direction.INCOMING ? node.id : connectedNodeId
-        }" AS target,`,
-        `\t"${direction}" AS direction`,
-        "LIMIT 1",
-      ].join("\n")
+        "\t\t{",
+        `\t\texists: any(n IN collect(${escapedNodeId}) ${whereCnxnStmt}),`,
+        `\t\tnodeId: "${connectedNodeId}",`,
+        `\t\tlabel: "${label}",`,
+        `\t\tedgeId: "${connectedEdgeId}",`,
+        `\t\ttype: "${relationship}",`,
+        `\t\tsource: ${direction === Direction.INCOMING ? `"${connectedNodeId}"` : `$${nodeIdParam}`},`,
+        `\t\ttarget: ${direction === Direction.INCOMING ? `$${nodeIdParam}` : `"${connectedNodeId}"`},`,
+        `\t\tdirection: "${direction}"`,
+        "\t}"
+      ].join("\n\t")
     );
   }
-  return connectionQueries;
+
+  return connectionObjects;
+};
+
+export const getConnectionQueryFromTree = (
+  treeParseResult: TreeParseResult,
+  tree: PathwayNode,
+  targetNode: PathwayNode,
+  targetNodeIdParam: string,
+) => {
+  const statements: string[] = [];
+  const queryContext = new Set<string>();
+
+  const getFilterTree = (root: PathwayNode): string => {
+    const expressions: string[] = [];
+
+    const getExpression = (currentExpression: string, node: PathwayNode, parent?: PathwayNode) => {
+      let pattern = "";
+      if (node.parentRelationship !== undefined && parent !== undefined) {
+        const relIsIncoming = node.parentRelationship.direction === Direction.INCOMING;
+        const type = relIsIncoming
+          ? getUniqueTypeFromNodes(node.label, parent.label)
+          : getUniqueTypeFromNodes(parent.label, node.label);
+        pattern = `${relIsIncoming ? "<" : ""}-[:${type}${node.parentRelationship.props !== undefined &&
+          Object.keys(node.parentRelationship.props).length > 0
+          ? " " + createPropReprStr(node.parentRelationship.props)
+          : ""
+          }]-${!relIsIncoming ? ">" : ""}(:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
+            ? " " + createPropReprStr(node.props)
+            : ""
+          })`
+          ;
+      }
+
+      if (node.children.length > 0) {
+        node.children.forEach(child => getExpression(currentExpression + pattern, child, node));
+      } else {
+        expressions.push(currentExpression + pattern)
+      }
+    }
+    getExpression(`\t\t(${escapeCypherString(root.id)})`, root);
+    return expressions.join(" AND\n");
+  }
+
+  const getSubqueryFromNode = (
+    node: PathwayNode,
+    parent: PathwayNode | undefined
+  ): boolean => {
+    if (node.children.length === 0 && node.id !== targetNode.id) {
+      return false;
+    }
+
+    let subquery = [
+      "CALL {",
+    ];
+    const escapedNodeId = escapeCypherString(node.id);
+    const nodeCollectionId = escapeCypherString(node.id + "-coll");
+    let matchStmt = "\tMATCH ";
+
+    if (node.parentRelationship !== undefined && parent !== undefined) {
+      const parentCollectionId = escapeCypherString(parent.id + "-coll")
+      const escapedParentId = escapeCypherString(parent.id);
+      const relIsIncoming =
+        node.parentRelationship.direction === Direction.INCOMING;
+      const type = relIsIncoming
+        ? getUniqueTypeFromNodes(node.label, parent.label)
+        : getUniqueTypeFromNodes(parent.label, node.label);
+
+      subquery.push(
+        `\tWITH ${parentCollectionId}`,
+        `\tUNWIND ${parentCollectionId} AS ${escapedParentId}`
+      );
+      matchStmt += `(${escapedParentId})${relIsIncoming ? "<" : ""}-[:${type}${node.parentRelationship.props !== undefined &&
+        Object.keys(node.parentRelationship.props).length > 0
+        ? " " + createPropReprStr(node.parentRelationship.props)
+        : ""
+        }]-${!relIsIncoming ? ">" : ""}`
+        ;
+    }
+
+    matchStmt += `(${escapedNodeId}:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
+      ? " " + createPropReprStr(node.props)
+      : ""
+      })`;
+    subquery.push(matchStmt);
+
+    if (node.children.length > 0) {
+      subquery.push("\tWHERE")
+      subquery.push(getFilterTree(node));
+    }
+
+    // Target node returns a final result distinct from intermediate nodes
+    if (node.id === targetNode.id) {
+      subquery.push(
+        `\tRETURN [`,
+        [
+          ...getCnxnQueryReturnObjects(treeParseResult, node, Direction.INCOMING, targetNodeIdParam),
+          ...getCnxnQueryReturnObjects(treeParseResult, node, Direction.OUTGOING, targetNodeIdParam)
+        ].join(",\n"),
+        "\t] AS result",
+        "}"
+      );
+      statements.unshift(subquery.join("\n"));
+      return true;
+    } else {
+      // At this point we know that:
+      // - This node has children
+      // - It isn't the target
+      queryContext.add(nodeCollectionId)
+      subquery.push(
+        `\tWITH collect(DISTINCT ${escapedNodeId}) AS ${nodeCollectionId}`,
+        `\tRETURN ${nodeCollectionId}`,
+        "}"
+      );
+
+      if (queryContext.size > 0) {
+        subquery.push(`WITH ${Array.from(queryContext).join(", ")}`);
+      }
+
+      let foundTarget = false;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+
+        // We don't need this node's collection once we've reached its last child, so free up the query context
+        if (i === node.children.length - 1) {
+          queryContext.delete(nodeCollectionId)
+        }
+
+        foundTarget = getSubqueryFromNode(child, node);
+
+        if (foundTarget) {
+          statements.unshift(subquery.join("\n"));
+          return true; // Early exit if we found the target node among this node's descendants
+        }
+      }
+      return false; // The target node was never found
+    }
+  };
+
+  getSubqueryFromNode(tree, undefined);
+  statements.push(
+    "RETURN result",
+  )
+  return statements.join("\n");
 };
