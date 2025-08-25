@@ -142,6 +142,27 @@ export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
   return createTreeFromRoot(root);
 };
 
+export const findNodeInTree = (nodeId: string, tree: PathwayNode) => {
+  const bts = (id: string, node: PathwayNode): PathwayNode | undefined => {
+    if (id === node.id) {
+      return node;
+    }
+
+    if (node.children.length === 0) {
+      return undefined;
+    } else {
+      for (let i = 0; i < node.children.length; i++) {
+        const foundNode = bts(id, node.children[i]);
+        if (foundNode !== undefined) {
+          return foundNode;
+        }
+      }
+      return undefined;
+    }
+  }
+  return bts(nodeId, tree);
+}
+
 export const createPathwaySearchNode = (
   data: PathwaySearchNodeData,
   classes?: string[]
