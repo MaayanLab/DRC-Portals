@@ -71,14 +71,11 @@ export const getRootFromElements = (elements: PathwaySearchElement[]): PathwaySe
   }
 }
 
-export const createTree = (elements: PathwaySearchElement[]) => {
+export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
   const root = getRootFromElements(elements);
 
   if (root === undefined) {
-    console.error(
-      "GraphPathway Error: Could not find root node of the pathway."
-    );
-    return undefined;
+    throw new Error("GraphPathway Error: Could not find root node of the pathway.");
   }
 
   if (elements.length === 1) {

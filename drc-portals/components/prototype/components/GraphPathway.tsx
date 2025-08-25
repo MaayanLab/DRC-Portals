@@ -111,7 +111,18 @@ export default function GraphPathway() {
     fallbackElements: PathwaySearchElement[]
   ) => {
     // We create the new tree with the success candidate elements to include them in the count query
-    const newTree = createTree(candidateSearchElements) as PathwayNode;
+    let newTree: PathwayNode;
+    try {
+      newTree = createTree(candidateSearchElements);
+    } catch (e) {
+      console.error(e);
+      updateSnackbar(
+        true,
+        "An error occurred fetching counts for the current pathway.",
+        "error"
+      );
+      return;
+    }
     const abortController = countsAbortControllerRef.current;
 
     // Temporarily set the elements to the loading list, and update the counting state
@@ -226,12 +237,22 @@ export default function GraphPathway() {
       },
       ["path-element"]
     );
-    const initialTree = createTree([initialNode]);
-    setTree(initialTree);
 
-    if (initialTree !== undefined) {
-      setSearchElements([initialNode]);
+    let initialTree: PathwayNode;
+    try {
+      initialTree = createTree([initialNode]);
+    } catch (e) {
+      console.error(e);
+      updateSnackbar(
+        true,
+        "An error occurred reading CV term data.",
+        "error"
+      );
+      return;
     }
+
+    setTree(initialTree);
+    setSearchElements([initialNode]);
   };
 
   const handleExport = useCallback(() => {
@@ -343,51 +364,56 @@ export default function GraphPathway() {
 
   const handlePruneSelected = useCallback(
     (node: NodeSingular) => {
-      const pruneCandidates = new Set<string>([node.id()]);
-      const dfs = (n: NodeSingular) => {
-        const children = n.outgoers();
+      try {
+        const pruneCandidates = new Set<string>([node.id()]);
+        const dfs = (n: NodeSingular) => {
+          const children = n.outgoers();
 
-        if (children.length > 0) {
-          children.forEach((child) => {
-            pruneCandidates.add(child.id());
-            if (child.isNode()) {
-              dfs(child);
-            }
-          });
-        }
-      };
-
-      // This should be a collection of a single node and edge; every node in the graph has exactly one parent, except for the root
-      const parents = node.incomers();
-      if (parents.size() !== 0) {
-        pruneCandidates.add(
-          node
-            .incomers()
-            .filter((el) => el.isEdge())[0]
-            .id()
-        );
-      }
-
-      dfs(node);
-      const newElements = [
-        ...searchElements.map((element) => {
-          if (pruneCandidates.has(element.data.id)) {
-            return isPathwaySearchEdgeElement(element)
-              ? deepCopyPathwaySearchEdge(element, undefined, [
-                "prune-candidate",
-              ])
-              : deepCopyPathwaySearchNode(element, undefined, [
-                "prune-candidate",
-              ]);
-          } else {
-            return isPathwaySearchEdgeElement(element)
-              ? deepCopyPathwaySearchEdge(element)
-              : deepCopyPathwaySearchNode(element);
+          if (children.length > 0) {
+            children.forEach((child) => {
+              pruneCandidates.add(child.id());
+              if (child.isNode()) {
+                dfs(child);
+              }
+            });
           }
-        }),
-      ];
-      setSearchElements(newElements);
-      setTree(createTree(newElements));
+        };
+
+        // This should be a collection of a single node and edge; every node in the graph has exactly one parent, except for the root
+        const parents = node.incomers();
+        if (parents.size() !== 0) {
+          pruneCandidates.add(
+            node
+              .incomers()
+              .filter((el) => el.isEdge())[0]
+              .id()
+          );
+        }
+
+        dfs(node);
+        const newElements = [
+          ...searchElements.map((element) => {
+            if (pruneCandidates.has(element.data.id)) {
+              return isPathwaySearchEdgeElement(element)
+                ? deepCopyPathwaySearchEdge(element, undefined, [
+                  "prune-candidate",
+                ])
+                : deepCopyPathwaySearchNode(element, undefined, [
+                  "prune-candidate",
+                ]);
+            } else {
+              return isPathwaySearchEdgeElement(element)
+                ? deepCopyPathwaySearchEdge(element)
+                : deepCopyPathwaySearchNode(element);
+            }
+          }),
+        ];
+        setSearchElements(newElements);
+        setTree(createTree(newElements));
+      } catch (e) {
+        console.error(e);
+        updateSnackbar(true, "An unexpected error occurred.", "error");
+      }
     },
     [searchElements]
   );
@@ -451,31 +477,43 @@ export default function GraphPathway() {
   }, [tree, searchElements]);
 
   const handlePruneCancel = useCallback(() => {
-    const newElements = [
-      ...searchElements.map((element) =>
-        isPathwaySearchEdgeElement(element)
-          ? deepCopyPathwaySearchEdge(element, undefined, undefined, [
-            "prune-candidate",
-          ])
-          : deepCopyPathwaySearchNode(element, undefined, undefined, [
-            "prune-candidate",
-          ])
-      ),
-    ];
-    setSearchElements(newElements);
-    setTree(createTree(newElements));
+    try {
+      const newElements = [
+        ...searchElements.map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element, undefined, undefined, [
+              "prune-candidate",
+            ])
+            : deepCopyPathwaySearchNode(element, undefined, undefined, [
+              "prune-candidate",
+            ])
+        ),
+      ];
+      setSearchElements(newElements);
+      setTree(createTree(newElements));
+    } catch (e) {
+      console.error(e);
+      updateSnackbar(true, "An unexpected error occurred.", "error");
+    }
   }, [searchElements]);
 
   useEffect(() => {
     const q = searchParams.get("q");
 
     if (q !== null) {
-      try {
-        const initialNode: NodeResult = JSON.parse(atob(decodeURI(q)));
+      // Using a closure here to use a return statement outside of the react effect context
+      const handleParamsChange = () => {
+        let initialNode: NodeResult;
+        try {
+          initialNode = JSON.parse(atob(decodeURI(q)));
+        } catch {
+          updateSnackbar(true, "Could not read data from URL params!", "warning");
+          return;
+        }
         handleSearchBarSubmit(initialNode);
-      } catch {
-        updateSnackbar(true, "Could not read data from URL params!", "warning");
       }
+
+      handleParamsChange();
     }
   }, [searchParams]);
 
