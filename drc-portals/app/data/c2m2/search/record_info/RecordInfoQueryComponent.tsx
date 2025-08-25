@@ -16,12 +16,12 @@ import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
 import FilesCollectionTableComponent from "./FilesCollectionComponent";
 import React from "react";
 
-const file_count_limit = 200000;
+const file_count_limit = 100000;
 const file_count_limit_proj = file_count_limit; // 500000;
 const file_count_limit_sub = file_count_limit; // 500000;
 const file_count_limit_bios = file_count_limit; // 500000;
 const file_count_limit_col = file_count_limit; // 500000;
-const maxTblCount = 200000;
+const maxTblCount = 100000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
