@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import Carousel from "react-material-ui-carousel";
 
-import { BlurBig } from "@/components/styled/Blur";
 import Image from "@/utils/image";
 import Link from "@/utils/link";
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
@@ -101,7 +100,7 @@ export default function GraphHome() {
                     </Link>
                   </div>
 
-                  <Box sx={{width: "100%"}}>
+                  <Box sx={{ width: "100%" }}>
                     <Carousel
                       autoPlay={false}
                       cycleNavigation={false}
@@ -126,32 +125,32 @@ export default function GraphHome() {
                               </Stack>
                             </Grid>
                             <Grid item xs={12} sm={6} md={7}>
-                              <Box sx={{display: "flex", justifyContent: "center"}}>
-                              <Box
-                                sx={{
-                                  minHeight: { xs: 150, sm: 150, md: 300, lg: 300, xl: 300 },
-                                  width: { xs: 300, sm: 300, md: 640, lg: 640, xl: 640 },
-                                  textAlign: "center",
-                                  border: 1,
-                                  borderRadius: 5,
-                                  borderColor: "rgba(81, 123, 154, 0.5)",
-                                  padding: 2,
-                                }}
-                              >
+                              <Box sx={{ display: "flex", justifyContent: "center" }}>
                                 <Box
-                                  className="flex flex-col"
-                                  sx={{ minHeight: 300, boxShadow: "none", background: "#FFF" }}
+                                  sx={{
+                                    minHeight: { xs: 150, sm: 150, md: 300, lg: 300, xl: 300 },
+                                    width: { xs: 300, sm: 300, md: 640, lg: 640, xl: 640 },
+                                    textAlign: "center",
+                                    border: 1,
+                                    borderRadius: 5,
+                                    borderColor: "rgba(81, 123, 154, 0.5)",
+                                    padding: 2,
+                                  }}
                                 >
-                                  <div className="flex grow items-center justify-center relative">
-                                    <Image
-                                      src={tool.image || tool.icon || "/img/favicon.png"}
-                                      alt={tool.label}
-                                      fill={true}
-                                      style={{ objectFit: "contain" }}
-                                    />
-                                  </div>
+                                  <Box
+                                    className="flex flex-col"
+                                    sx={{ minHeight: 300, boxShadow: "none", background: "#FFF" }}
+                                  >
+                                    <div className="flex grow items-center justify-center relative">
+                                      <Image
+                                        src={tool.image || tool.icon || "/img/favicon.png"}
+                                        alt={tool.label}
+                                        fill={true}
+                                        style={{ objectFit: "contain" }}
+                                      />
+                                    </div>
+                                  </Box>
                                 </Box>
-                              </Box>
                               </Box>
                             </Grid>
                           </Grid>
