@@ -114,6 +114,7 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
         console.log("Elapsed time for PTMTableComponent queries: ", t1 - t0, " milliseconds");
 
         if (!results || results.length === 0) {
+            console.log("Returning empty as there is no PTM Table")
             return <div></div>;
         }
 
@@ -126,7 +127,8 @@ export default async function PTMTableComponent({ searchParams, filterClause, pt
         if (ptmTable.length === 0 || ptmTableFull.length === 0) {
             return <div>No ptms data found.</div>;
         }
-
+        console.log("PTM Table LENGTH = ", ptmTable.length)
+        console.log("PTM Table RESULT = ", ptmTable)
         const PTMTableTitle = "PTMs: " + countPTM;
 
         const ptm_table_columnsToIgnore: string[] = ['ptm_id_namespace']; // don't include 'persistent_id' here

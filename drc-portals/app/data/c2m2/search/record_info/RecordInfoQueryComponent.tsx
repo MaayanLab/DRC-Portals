@@ -459,7 +459,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       },
       {
         label: 'PTM type',
-        value: resultsRec?.ptm_type_name && resultsRec?.file_format_name !== "Unspecified"
+        value: resultsRec?.ptm_type_name && resultsRec?.ptm_type_name !== "Unspecified"
           ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.ptm_type_name)}
           </Link>
@@ -468,7 +468,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       resultsRec?.ptm_type_description ? { label: 'PTM Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_type_description) } : null,
       {
         label: 'PTM SubType',
-        value: resultsRec?.ptm_subtype_name && resultsRec?.file_format_name !== "Unspecified"
+        value: resultsRec?.ptm_subtype_name && resultsRec?.ptm_subtype_name !== "Unspecified"
           ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_subtype}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.ptm_subtype_name)}
           </Link>
@@ -477,7 +477,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       resultsRec?.ptm_subtype_description ? { label: 'PTM SubType Description', value: capitalizeFirstLetter(resultsRec?.ptm_subtype_description) } : null,
       {
         label: 'PTM SiteType',
-        value: resultsRec?.ptm_site_type_name && resultsRec?.file_format_name !== "Unspecified"
+        value: resultsRec?.ptm_site_type_name && resultsRec?.ptm_site_type_name !== "Unspecified"
           ? capitalizeFirstLetter(resultsRec?.ptm_site_type_name)
           : ''
       },
