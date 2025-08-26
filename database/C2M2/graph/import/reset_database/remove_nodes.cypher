@@ -10,6 +10,12 @@ CALL {
     DELETE n
 } IN TRANSACTIONS OF 1000 ROWS;
 
+MATCH (n:Biofluid)
+CALL {
+    WITH n
+    DELETE n
+} IN TRANSACTIONS OF 1000 ROWS;
+
 MATCH (n:SubjectEthnicity)
 CALL {
     WITH n

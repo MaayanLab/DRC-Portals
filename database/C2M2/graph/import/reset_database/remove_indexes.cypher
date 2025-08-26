@@ -15,6 +15,7 @@ DROP INDEX index_Subject_persistent_id IF EXISTS;
 DROP INDEX node_text_index_AnalysisType_name IF EXISTS;
 DROP INDEX node_text_index_Anatomy_name IF EXISTS;
 DROP INDEX node_text_index_AssayType_name IF EXISTS;
+DROP INDEX node_text_index_Biofluid_name IF EXISTS;
 DROP INDEX node_text_index_Compound_name IF EXISTS;
 DROP INDEX node_text_index_DataType_name IF EXISTS;
 DROP INDEX node_text_index_Disease_name IF EXISTS;
