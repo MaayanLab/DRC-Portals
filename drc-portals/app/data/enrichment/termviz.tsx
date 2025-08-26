@@ -33,8 +33,8 @@ const TermViz = ({elements, tooltip_templates_edges, tooltip_templates_nodes, vi
 				entries[id] = {
 					id,
 					label,
-					enrichr_label,
 					...properties,
+					bar_label: `${enrichr_label} (p=${precise(pval as number)}${pval as number < 0.05 ? "*": ""})`,
 					library: `${library}`,
 					pval: typeof pval === 'number' ? parseFloat(`${precise(pval)}`): 1,
 					qval: typeof qval === 'number' ? precise(qval): undefined,

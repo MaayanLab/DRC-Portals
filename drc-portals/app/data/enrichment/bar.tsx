@@ -18,7 +18,7 @@ import { TooltipPayload } from 'recharts/types/state/tooltipSlice';
 
 const renderCustomizedLabel = (props: any) => {
 	const {
-	  x, y, width, height, value, color
+	  x, y, width, height, index, color, value
 	} = props;
 	// const radius = 10;
 	const background = Color(color)
@@ -51,6 +51,18 @@ const renderCustomizedLabel = (props: any) => {
 	} return null
 }
 
+const CustomizedAxisTick = (props: {data: Array<{library: string, color: string, pval: number, [key: string]: number | string | boolean | undefined}>, [key: string]: any}) => {
+const { x, y, index, payload, data } = props
+const library = data[index].library
+  return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={3} textAnchor="end" fontSize={11}> 
+          {library}
+        </text>
+      </g>
+    );
+};
+
 export const EnrichmentBar = (props: {
 	field?: string,
 	data: Array<{library: string, color: string, pval: number, [key: string]: number | string | boolean | undefined}>,
@@ -75,7 +87,7 @@ export const EnrichmentBar = (props: {
 		} = props
 	const height = data.length === 10 ? maxHeight: maxHeight/10 * data.length
 	let yWidth = 0
-	const data_cells = []
+	const data_cells:React.ReactNode[] = []
 	const barRef = useRef(null);
 	const ref = useRef(null);
 	for (const index in data) {
@@ -143,7 +155,7 @@ export const EnrichmentBar = (props: {
 					>
 						<Tooltip content={BarTooltip} />
 						<Bar dataKey="value" fill={color} barSize={barSize}>
-							<LabelList dataKey="enrichr_label" position="left" content={renderCustomizedLabel} fill={fontColor}/>
+							<LabelList dataKey="bar_label" position="left" content={(props:any) => renderCustomizedLabel(props)} fill={fontColor}/>
 							{data_cells}
 						</Bar>
 						<XAxis type="number" domain={[
@@ -162,7 +174,7 @@ export const EnrichmentBar = (props: {
 								}
 							},
 						]} hide/>
-						<YAxis type="category" dataKey={"library"} width={yWidth*(yWidth > 15 ? 10: 7)} axisLine={false} fontSize={12}/>
+						<YAxis type="category" dataKey={"enrichr_label"} tick={props=><CustomizedAxisTick data={data} {...props}/>} width={yWidth*(yWidth > 15 ? 10: 7)} axisLine={false} fontSize={12}/>
 					</BarChart>
 				</ResponsiveContainer>
 			</Grid>
