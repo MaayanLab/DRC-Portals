@@ -53,7 +53,7 @@ const renderCustomizedLabel = (props: any) => {
 
 const CustomizedAxisTick = (props: {data: Array<{library: string, color: string, pval: number, [key: string]: number | string | boolean | undefined}>, [key: string]: any}) => {
 const { x, y, index, payload, data } = props
-const library = data[index].library
+const library = data[index]?.library
   return (
       <g transform={`translate(${x},${y})`}>
         <text x={0} y={0} dy={3} textAnchor="end" fontSize={11}> 
@@ -92,8 +92,10 @@ export const EnrichmentBar = (props: {
 	const ref = useRef(null);
 	for (const index in data) {
 		const i = data[index]
-		if (yWidth < i.library.length) yWidth = i.library.length
-		data_cells.push(<Cell key={`${field}-${index}`} fill={i.color} />)
+		if (i !== undefined) {
+			if (yWidth < i.library.length) yWidth = i.library.length
+			data_cells.push(<Cell key={`${field}-${index}`} fill={i.color} />)
+		}
 	}
 	const [download_image, setDownloadImage] = useQueryState('download_image')
 
