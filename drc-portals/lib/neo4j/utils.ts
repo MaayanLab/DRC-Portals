@@ -3,8 +3,12 @@ import parser from "lucene-query-parser";
 import { v4 } from "uuid";
 
 import {
+  FILTER_LABELS,
+  NODE_LABELS,
+  RELATIONSHIP_TYPES,
   UNIQUE_PAIR_INCOMING_CONNECTIONS,
   UNIQUE_PAIR_OUTGOING_CONNECTIONS,
+  UNIQUE_PAIR_RELATIONSHIP_TYPES,
   UNIQUE_TO_GENERIC_REL,
   UUID_REGEX,
 } from "./constants";
@@ -31,6 +35,31 @@ export const isValidLucene = (input: string) => {
   return true;
 };
 
+export const getSafeLabel = (label: string) => {
+  if (NODE_LABELS.has(label)) {
+    return label;
+  } else {
+    console.warn(
+      `Cypher Query Warning: Attempted to use the nonexistent label "${label}", using empty string instead.`
+    );
+    return ""; // Not valid to use in Cypher, but it is "safe" in the sense that an empty node label in a query pattern will cause a syntax error
+  }
+};
+
+export const getSafeType = (type: string) => {
+  if (
+    RELATIONSHIP_TYPES.has(type) ||
+    UNIQUE_PAIR_RELATIONSHIP_TYPES.has(type)
+  ) {
+    return type;
+  } else {
+    console.warn(
+      `Cypher Query Warning: Attempted to use the nonexistent type "${type}", using empty string instead.`
+    );
+    return ""; // Not valid to use in Cypher, but it is "safe" in the sense that an empty relationship type in a query pattern will cause a syntax error
+  }
+};
+
 export const createNodeReprStr = (varName: string) => {
   return `{
     uuid: ${varName}._uuid,
@@ -49,6 +78,7 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
+// TODO: We'll want to parameterize these, otherwise Cypher injection may be possible
 const createPropReprStr = (props: { [key: string]: any }) => {
   const propStrs: string[] = [];
   Object.entries(props).forEach(([key, value]) => {
@@ -129,32 +159,34 @@ export const parsePathwayTree = (
           ? getUniqueTypeFromNodes(node.label, parent.label)
           : getUniqueTypeFromNodes(parent.label, node.label);
       } else {
-        type = node.parentRelationship.type;
+        type = getSafeType(node.parentRelationship.type);
       }
 
       const escapedRelId = escapeCypherString(node.parentRelationship.id);
       relIds.add(node.parentRelationship.id);
 
-      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${node.parentRelationship.props !== undefined &&
+      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${
+        node.parentRelationship.props !== undefined &&
         Object.keys(node.parentRelationship.props).length > 0
-        ? " " + createPropReprStr(node.parentRelationship.props)
-        : ""
-        }]-${!relIsIncoming ? ">" : ""}`;
+          ? " " + createPropReprStr(node.parentRelationship.props)
+          : ""
+      }]-${!relIsIncoming ? ">" : ""}`;
 
       if (!relIsIncoming) {
-        updateCnxns(parent.id, node.label, type, outgoingCnxns);
-        updateCnxns(node.id, parent.label, type, incomingCnxns);
+        updateCnxns(parent.id, getSafeLabel(node.label), type, outgoingCnxns);
+        updateCnxns(node.id, getSafeLabel(parent.label), type, incomingCnxns);
       } else if (relIsIncoming) {
-        updateCnxns(parent.id, node.label, type, incomingCnxns);
-        updateCnxns(node.id, parent.label, type, outgoingCnxns);
+        updateCnxns(parent.id, getSafeLabel(node.label), type, incomingCnxns);
+        updateCnxns(node.id, getSafeLabel(parent.label), type, outgoingCnxns);
       }
     }
 
     const escapedNodeId = escapeCypherString(node.id);
-    currentPattern += `(${escapedNodeId}:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
-      ? " " + createPropReprStr(node.props)
-      : ""
-      })`;
+    currentPattern += `(${escapedNodeId}:${getSafeLabel(node.label)}${
+      node.props !== undefined && Object.keys(node.props).length > 0
+        ? " " + createPropReprStr(node.props)
+        : ""
+    })`;
 
     if (node.children.length === 0) {
       patterns.push(currentPattern);
@@ -184,128 +216,198 @@ export const parsePathwayTree = (
   };
 };
 
-export const getCountsQueryFromTree = (
-  tree: PathwayNode,
-) => {
+export const getCountsQueryFromTree = (tree: PathwayNode) => {
   const statements: string[] = [];
   const queryContext = new Set<string>();
+  const termContext = new Set<string>();
+
+  const getDistinctTermSubqueries = (root: PathwayNode) => {
+    const bts = (node: PathwayNode) => {
+      if (FILTER_LABELS.has(node.label) && node.props?.name !== undefined) {
+        const escapedNodeId = escapeCypherString(node.id);
+        const nodeCountId = escapeCypherString(node.id + "-count");
+        queryContext.add(nodeCountId);
+        termContext.add(escapedNodeId);
+        statements.push(
+          [
+            "CALL {",
+            // We know this node label is safe because we just checked it in the if statement above
+            `\tMATCH (${escapedNodeId}:${node.label} ${createPropReprStr(
+              node.props
+            )})`,
+            `\tRETURN ${escapedNodeId}, 1 AS ${nodeCountId}`,
+            "}",
+            `WITH ${Array.from(termContext).join(", ")}, ${Array.from(
+              queryContext
+            ).join(", ")}`,
+          ].join("\n")
+        );
+      }
+
+      if (node.children.length > 0) {
+        node.children.forEach((child) => bts(child));
+      }
+    };
+    bts(root);
+  };
 
   const getFilterTree = (root: PathwayNode): string => {
     const expressions: string[] = [];
 
-    const getExpression = (currentExpression: string, node: PathwayNode, parent?: PathwayNode) => {
+    const getExpression = (
+      currentExpression: string,
+      node: PathwayNode,
+      parent?: PathwayNode
+    ) => {
       let pattern = "";
       if (node.parentRelationship !== undefined && parent !== undefined) {
-        const relIsIncoming = node.parentRelationship.direction === Direction.INCOMING;
+        const relIsIncoming =
+          node.parentRelationship.direction === Direction.INCOMING;
         const type = relIsIncoming
           ? getUniqueTypeFromNodes(node.label, parent.label)
           : getUniqueTypeFromNodes(parent.label, node.label);
-        pattern = `${relIsIncoming ? "<" : ""}-[:${type}${node.parentRelationship.props !== undefined &&
+        pattern = `${relIsIncoming ? "<" : ""}-[:${type}${
+          node.parentRelationship.props !== undefined &&
           Object.keys(node.parentRelationship.props).length > 0
-          ? " " + createPropReprStr(node.parentRelationship.props)
-          : ""
-          }]-${!relIsIncoming ? ">" : ""}(:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
-            ? " " + createPropReprStr(node.props)
+            ? " " + createPropReprStr(node.parentRelationship.props)
             : ""
-          })`
-          ;
+        }]-${!relIsIncoming ? ">" : ""}`;
+
+        const escapedNodeId = escapeCypherString(node.id);
+        if (termContext.has(escapedNodeId)) {
+          pattern += `(${escapedNodeId})`;
+        } else {
+          pattern += `(:${getSafeLabel(node.label)}${
+            node.props !== undefined && Object.keys(node.props).length > 0
+              ? " " + createPropReprStr(node.props)
+              : ""
+          })`;
+        }
       }
 
       if (node.children.length > 0) {
-        node.children.forEach(child => getExpression(currentExpression + pattern, child, node));
+        node.children.forEach((child) =>
+          getExpression(currentExpression + pattern, child, node)
+        );
       } else {
-        expressions.push(currentExpression + pattern)
+        expressions.push(currentExpression + pattern);
       }
-    }
+    };
     getExpression(`\t\t(${escapeCypherString(root.id)})`, root);
     return expressions.join(" AND\n");
-  }
+  };
 
   const getSubqueryFromNode = (
     node: PathwayNode,
     parent: PathwayNode | undefined
   ) => {
-    let subquery = [
-      "CALL {",
-    ];
+    let subquery = ["CALL {"];
     const escapedNodeId = escapeCypherString(node.id);
     const nodeCollectionId = escapeCypherString(node.id + "-coll");
     const nodeCountId = escapeCypherString(node.id + "-count");
     let matchStmt = "\tMATCH ";
-    let aggWithStmt = "\tWITH "
-    let returnStmt = "\tRETURN ";
+    let withVars: string[] = [];
+    let returnVars: string[] = [];
 
+    // This should always be true since we effectively skip the root node, and it would be the only node without a parent
     if (node.parentRelationship !== undefined && parent !== undefined) {
-      const parentCollectionId = escapeCypherString(parent.id + "-coll")
       const escapedParentId = escapeCypherString(parent.id);
+      const parentCollectionId = escapeCypherString(parent.id + "-coll");
       const relIsIncoming =
         node.parentRelationship.direction === Direction.INCOMING;
       const type = relIsIncoming
         ? getUniqueTypeFromNodes(node.label, parent.label)
         : getUniqueTypeFromNodes(parent.label, node.label);
       const escapedRelId = escapeCypherString(node.parentRelationship.id);
-      const relCountId = escapeCypherString(node.parentRelationship.id + "-count");
-
-      subquery.push(
-        `\tWITH ${parentCollectionId}`,
-        `\tUNWIND ${parentCollectionId} AS ${escapedParentId}`
+      const relCountId = escapeCypherString(
+        node.parentRelationship.id + "-count"
       );
+
+      // This case is only true for the child of the root node of the tree, since we prevent expansion from all other term nodes
+      if (termContext.has(escapedParentId)) {
+        subquery.push(`\tWITH ${Array.from(termContext).join(", ")}`);
+      } else {
+        subquery.push(
+          `\tWITH ${parentCollectionId}, ${Array.from(termContext).join(", ")}`,
+          `\tUNWIND ${parentCollectionId} AS ${escapedParentId}`
+        );
+      }
       queryContext.add(relCountId);
-      matchStmt += `(${escapedParentId})${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${node.parentRelationship.props !== undefined &&
+      matchStmt += `(${escapedParentId})${
+        relIsIncoming ? "<" : ""
+      }-[${escapedRelId}:${type}${
+        node.parentRelationship.props !== undefined &&
         Object.keys(node.parentRelationship.props).length > 0
-        ? " " + createPropReprStr(node.parentRelationship.props)
-        : ""
-        }]-${!relIsIncoming ? ">" : ""}`
-        ;
-      aggWithStmt += `collect(DISTINCT ${escapedRelId}) AS ${escapedRelId}, `
-      returnStmt += `size(${escapedRelId}) AS ${relCountId}, `
+          ? " " + createPropReprStr(node.parentRelationship.props)
+          : ""
+      }]-${!relIsIncoming ? ">" : ""}`;
+      withVars.push(`collect(DISTINCT ${escapedRelId}) AS ${escapedRelId}`);
+      returnVars.push(`size(${escapedRelId}) AS ${relCountId}`);
     }
 
-    matchStmt += `(${escapedNodeId}:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
-      ? " " + createPropReprStr(node.props)
-      : ""
+    if (termContext.has(escapedNodeId)) {
+      matchStmt += `(${escapedNodeId})`;
+    } else {
+      matchStmt += `(${escapedNodeId}:${getSafeLabel(node.label)}${
+        node.props !== undefined && Object.keys(node.props).length > 0
+          ? " " + createPropReprStr(node.props)
+          : ""
       })`;
-    aggWithStmt += `collect(DISTINCT ${escapedNodeId}) AS ${nodeCollectionId}`
+      withVars.push(
+        `collect(DISTINCT ${escapedNodeId}) AS ${nodeCollectionId}`
+      );
+      returnVars.push(`size(${nodeCollectionId}) AS ${nodeCountId}`);
+    }
+
     subquery.push(matchStmt);
     queryContext.add(nodeCountId);
 
     if (node.children.length > 0) {
-      queryContext.add(nodeCollectionId)
-      subquery.push("\tWHERE")
+      queryContext.add(nodeCollectionId);
+      subquery.push("\tWHERE");
       subquery.push(getFilterTree(node));
-      returnStmt += `${nodeCollectionId}, `
+      returnVars.push(`${nodeCollectionId}`);
     }
 
-    returnStmt += `size(${nodeCollectionId}) AS ${nodeCountId}`
     subquery.push(
-      aggWithStmt,
-      returnStmt,
+      "\tWITH " + withVars.join(", "),
+      "\tRETURN " + returnVars.join(", "),
       "}"
     );
 
-    if (queryContext.size > 0) {
-      subquery.push(`WITH ${Array.from(queryContext).join(", ")}`);
-    }
-
+    subquery.push(
+      `WITH ${Array.from(termContext).join(", ")}` +
+        (queryContext.size > 0
+          ? `, ${Array.from(queryContext).join(", ")}`
+          : "")
+    );
     statements.push(subquery.join("\n"));
 
     if (node.children.length > 0) {
       node.children.forEach((child, idx) => {
         // We don't need this node's collection once we've reached its last child, so free up the query context
         if (idx === node.children.length - 1) {
-          queryContext.delete(nodeCollectionId)
+          queryContext.delete(nodeCollectionId);
         }
-        getSubqueryFromNode(child, node)
+        getSubqueryFromNode(child, node);
       });
     }
   };
 
-  getSubqueryFromNode(tree, undefined);
+  getDistinctTermSubqueries(tree);
+  // The root node of the tree -- which is always a term node -- should have either one or zero children. Since we pre-fetch all terms in
+  // the tree, start building the rest of the query from the root node's child if it has one.
+  if (tree.children.length > 0) {
+    getSubqueryFromNode(tree.children[0], tree);
+  }
   statements.push(
     "RETURN {",
-    Array.from(queryContext).filter((val) => val.endsWith("-count`")).map(val => `\t${val.split("-count`")[0]}\`: ${val}`).join(",\n"),
+    Array.from(queryContext)
+      .filter((val) => val.endsWith("-count`"))
+      .map((val) => `\t${val.split("-count`")[0]}\`: ${val}`)
+      .join(",\n"),
     `} AS counts`
-  )
+  );
   return statements.join("\n");
 };
 
@@ -403,7 +505,7 @@ const getCnxnQueryReturnObjects = (
   treeParseResult: TreeParseResult,
   node: PathwayNode,
   direction: Direction,
-  nodeIdParam: string,
+  nodeIdParam: string
 ) => {
   const connectionObjects: string[] = [];
   const CONNECTIONS =
@@ -414,7 +516,6 @@ const getCnxnQueryReturnObjects = (
     direction === Direction.INCOMING
       ? treeParseResult.incomingCnxns
       : treeParseResult.outgoingCnxns;
-
 
   for (const [relationship, label] of Array.from(
     CONNECTIONS.get(node.label)?.entries() || []
@@ -449,10 +550,18 @@ const getCnxnQueryReturnObjects = (
         `\t\tlabel: "${label}",`,
         `\t\tedgeId: "${connectedEdgeId}",`,
         `\t\ttype: "${relationship}",`,
-        `\t\tsource: ${direction === Direction.INCOMING ? `"${connectedNodeId}"` : `$${nodeIdParam}`},`,
-        `\t\ttarget: ${direction === Direction.INCOMING ? `$${nodeIdParam}` : `"${connectedNodeId}"`},`,
+        `\t\tsource: ${
+          direction === Direction.INCOMING
+            ? `"${connectedNodeId}"`
+            : `$${nodeIdParam}`
+        },`,
+        `\t\ttarget: ${
+          direction === Direction.INCOMING
+            ? `$${nodeIdParam}`
+            : `"${connectedNodeId}"`
+        },`,
         `\t\tdirection: "${direction}"`,
-        "\t}"
+        "\t}",
       ].join("\n\t")
     );
   }
@@ -464,7 +573,7 @@ export const getConnectionQueryFromTree = (
   treeParseResult: TreeParseResult,
   tree: PathwayNode,
   targetNode: PathwayNode,
-  targetNodeIdParam: string,
+  targetNodeIdParam: string
 ) => {
   const statements: string[] = [];
   const queryContext = new Set<string>();
@@ -472,33 +581,41 @@ export const getConnectionQueryFromTree = (
   const getFilterTree = (root: PathwayNode): string => {
     const expressions: string[] = [];
 
-    const getExpression = (currentExpression: string, node: PathwayNode, parent?: PathwayNode) => {
+    const getExpression = (
+      currentExpression: string,
+      node: PathwayNode,
+      parent?: PathwayNode
+    ) => {
       let pattern = "";
       if (node.parentRelationship !== undefined && parent !== undefined) {
-        const relIsIncoming = node.parentRelationship.direction === Direction.INCOMING;
+        const relIsIncoming =
+          node.parentRelationship.direction === Direction.INCOMING;
         const type = relIsIncoming
           ? getUniqueTypeFromNodes(node.label, parent.label)
           : getUniqueTypeFromNodes(parent.label, node.label);
-        pattern = `${relIsIncoming ? "<" : ""}-[:${type}${node.parentRelationship.props !== undefined &&
+        pattern = `${relIsIncoming ? "<" : ""}-[:${type}${
+          node.parentRelationship.props !== undefined &&
           Object.keys(node.parentRelationship.props).length > 0
-          ? " " + createPropReprStr(node.parentRelationship.props)
-          : ""
-          }]-${!relIsIncoming ? ">" : ""}(:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
+            ? " " + createPropReprStr(node.parentRelationship.props)
+            : ""
+        }]-${!relIsIncoming ? ">" : ""}(:${getSafeLabel(node.label)}${
+          node.props !== undefined && Object.keys(node.props).length > 0
             ? " " + createPropReprStr(node.props)
             : ""
-          })`
-          ;
+        })`;
       }
 
       if (node.children.length > 0) {
-        node.children.forEach(child => getExpression(currentExpression + pattern, child, node));
+        node.children.forEach((child) =>
+          getExpression(currentExpression + pattern, child, node)
+        );
       } else {
-        expressions.push(currentExpression + pattern)
+        expressions.push(currentExpression + pattern);
       }
-    }
+    };
     getExpression(`\t\t(${escapeCypherString(root.id)})`, root);
     return expressions.join(" AND\n");
-  }
+  };
 
   const getSubqueryFromNode = (
     node: PathwayNode,
@@ -508,15 +625,13 @@ export const getConnectionQueryFromTree = (
       return false;
     }
 
-    let subquery = [
-      "CALL {",
-    ];
+    let subquery = ["CALL {"];
     const escapedNodeId = escapeCypherString(node.id);
     const nodeCollectionId = escapeCypherString(node.id + "-coll");
     let matchStmt = "\tMATCH ";
 
     if (node.parentRelationship !== undefined && parent !== undefined) {
-      const parentCollectionId = escapeCypherString(parent.id + "-coll")
+      const parentCollectionId = escapeCypherString(parent.id + "-coll");
       const escapedParentId = escapeCypherString(parent.id);
       const relIsIncoming =
         node.parentRelationship.direction === Direction.INCOMING;
@@ -528,22 +643,23 @@ export const getConnectionQueryFromTree = (
         `\tWITH ${parentCollectionId}`,
         `\tUNWIND ${parentCollectionId} AS ${escapedParentId}`
       );
-      matchStmt += `(${escapedParentId})${relIsIncoming ? "<" : ""}-[:${type}${node.parentRelationship.props !== undefined &&
+      matchStmt += `(${escapedParentId})${relIsIncoming ? "<" : ""}-[:${type}${
+        node.parentRelationship.props !== undefined &&
         Object.keys(node.parentRelationship.props).length > 0
-        ? " " + createPropReprStr(node.parentRelationship.props)
-        : ""
-        }]-${!relIsIncoming ? ">" : ""}`
-        ;
+          ? " " + createPropReprStr(node.parentRelationship.props)
+          : ""
+      }]-${!relIsIncoming ? ">" : ""}`;
     }
 
-    matchStmt += `(${escapedNodeId}:${node.label}${node.props !== undefined && Object.keys(node.props).length > 0
-      ? " " + createPropReprStr(node.props)
-      : ""
-      })`;
+    matchStmt += `(${escapedNodeId}:${getSafeLabel(node.label)}${
+      node.props !== undefined && Object.keys(node.props).length > 0
+        ? " " + createPropReprStr(node.props)
+        : ""
+    })`;
     subquery.push(matchStmt);
 
     if (node.children.length > 0) {
-      subquery.push("\tWHERE")
+      subquery.push("\tWHERE");
       subquery.push(getFilterTree(node));
     }
 
@@ -552,8 +668,18 @@ export const getConnectionQueryFromTree = (
       subquery.push(
         `\tRETURN [`,
         [
-          ...getCnxnQueryReturnObjects(treeParseResult, node, Direction.INCOMING, targetNodeIdParam),
-          ...getCnxnQueryReturnObjects(treeParseResult, node, Direction.OUTGOING, targetNodeIdParam)
+          ...getCnxnQueryReturnObjects(
+            treeParseResult,
+            node,
+            Direction.INCOMING,
+            targetNodeIdParam
+          ),
+          ...getCnxnQueryReturnObjects(
+            treeParseResult,
+            node,
+            Direction.OUTGOING,
+            targetNodeIdParam
+          ),
         ].join(",\n"),
         "\t] AS result",
         "}"
@@ -564,7 +690,7 @@ export const getConnectionQueryFromTree = (
       // At this point we know that:
       // - This node has children
       // - It isn't the target
-      queryContext.add(nodeCollectionId)
+      queryContext.add(nodeCollectionId);
       subquery.push(
         `\tWITH collect(DISTINCT ${escapedNodeId}) AS ${nodeCollectionId}`,
         `\tRETURN ${nodeCollectionId}`,
@@ -581,7 +707,7 @@ export const getConnectionQueryFromTree = (
 
         // We don't need this node's collection once we've reached its last child, so free up the query context
         if (i === node.children.length - 1) {
-          queryContext.delete(nodeCollectionId)
+          queryContext.delete(nodeCollectionId);
         }
 
         foundTarget = getSubqueryFromNode(child, node);
@@ -596,8 +722,6 @@ export const getConnectionQueryFromTree = (
   };
 
   getSubqueryFromNode(tree, undefined);
-  statements.push(
-    "RETURN result",
-  )
+  statements.push("RETURN result");
   return statements.join("\n");
 };
