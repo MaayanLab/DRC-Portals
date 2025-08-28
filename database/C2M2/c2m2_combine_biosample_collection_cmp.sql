@@ -21,8 +21,19 @@ CREATE TABLE c2m2.ffl_biosample_collection_cmp as (
     )
     --- Mano: 2024/08/27: May be, preordering might make the query a bit faster
     ORDER BY dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-    protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name    
+    protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name,
+    subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name
 );
+
+COMMIT;
+
+--- Mano: 2025/08/08: delete rows with dcc_name being null
+DELETE FROM c2m2.ffl_biosample_collection_cmp WHERE dcc_name is null;
+
+--- test
+select count(*) from c2m2.ffl_biosample_collection_cmp;
+select count(*) from c2m2.ffl_biosample_cmp;
+select count(*) from c2m2.ffl_collection_cmp;
 
 DO $$ 
 BEGIN
@@ -48,33 +59,66 @@ BEGIN
         --- btree(dcc_name, project_local_id, ncbi_taxonomy_name, disease_name, anatomy_name, 
         ---    gene_name, protein_name, compound_name, data_type_name, assay_type_name);
         btree(dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-        compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name);
+        compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name,
+        subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name);
     END IF;
 END $$;
 
 set max_parallel_workers to 0;
 
---- test:
+--- test again:
 
-select count(*) from c2m2.ffl_biosample_collection_cmp;
-select count(*) from c2m2.ffl_biosample_cmp;
-select count(*) from c2m2.ffl_collection_cmp;
+\echo '==================== Cross-checking ===================='
 
-select project_id_namespace,count(*) from c2m2.ffl_biosample_collection_cmp group by project_id_namespace;
-select dcc_name,count(*) from c2m2.ffl_biosample_collection_cmp group by dcc_name;
+--- Function for some count printing:
+CREATE OR REPLACE PROCEDURE print_counts(
+    count_b BIGINT,
+    count_c BIGINT,
+    count_bc BIGINT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE NOTICE 'count_b: %', count_b;
+    RAISE NOTICE 'count_c: %', count_c;
+    RAISE NOTICE 'count_bc: %', count_bc;
+    RAISE NOTICE 'count_bc - (count_b + count_c): %', count_bc - (count_b + count_c);
+END;
+$$;
 
---- Count w.r.t. a subset of columns: 
---- This should be same in the two tables with/without file_format_name and analysis_type_name
-select count(*) from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-    compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_cmp);
-select count(*) from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-    compound_name, data_type_name, assay_type_name from c2m2.ffl_collection_cmp);
-select count(*) from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
-    compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_collection_cmp);
+DO $$
+DECLARE 
+  count_b bigint;
+  count_c bigint;
+  count_bc bigint;
+BEGIN
+    select count(*) into count_b from c2m2.ffl_biosample_cmp;
+    select count(*) into count_c from c2m2.ffl_collection_cmp;
+    select count(*) into count_bc from c2m2.ffl_biosample_collection_cmp;
+    RAISE NOTICE 'Count of row:';
+    CALL print_counts(count_b, count_c, count_bc);
 
-select count(*) FROM c2m2.ffl_biosample_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
-select count(*) FROM c2m2.ffl_biosample_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
-select count(*) FROM c2m2.ffl_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
+    --- Count w.r.t. a subset of columns: 
+    --- This should be same in the two tables with/without file_format_name and analysis_type_name
+    select count(*) into count_b from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
+        compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_cmp);
+    select count(*) into count_c from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
+        compound_name, data_type_name, assay_type_name from c2m2.ffl_collection_cmp);
+    select count(*) into count_bc from (select distinct dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, 
+        compound_name, data_type_name, assay_type_name from c2m2.ffl_biosample_collection_cmp);
+    RAISE NOTICE 'Count of ditinct row w.r.t. a subset of columns:';
+    CALL print_counts(count_b, count_c, count_bc);
+
+    select count(*) into count_b FROM c2m2.ffl_biosample_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
+    select count(*) into count_c FROM c2m2.ffl_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
+    select count(*) into count_bc FROM c2m2.ffl_biosample_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver');
+    RAISE NOTICE 'Count in searchable: searched for: liver';
+    CALL print_counts(count_b, count_c, count_bc);
+END $$;
+
+\echo 'Counts with respect to id_namespace and dcc_name'
+select project_id_namespace,count(*) from c2m2.ffl_biosample_collection_cmp group by project_id_namespace order by project_id_namespace;
+select dcc_name,count(*) from c2m2.ffl_biosample_collection_cmp group by dcc_name order by dcc_name;
 
 /*
 select * FROM c2m2.ffl_biosample_collection_cmp WHERE searchable @@ websearch_to_tsquery('english', 'liver') limit 5;

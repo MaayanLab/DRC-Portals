@@ -9,18 +9,19 @@ import BiosamplesTableComponent from "./BiosamplesTableComponent";
 import BiosamplesSubjectTableComponent from "./BiosamplesSubjectsTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
 import CollectionsTableComponent from "./CollectionsTableComponent";
+import PTMTableComponent from "./PTMTableComponent";
 import FilesProjTableComponent from "./FileProjTableComponent";
 import FilesSubjectTableComponent from "./FilesSubjectTableComponent";
 import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
 import FilesCollectionTableComponent from "./FilesCollectionComponent";
 import React from "react";
 
-const file_count_limit = 200000;
+const file_count_limit = 100000;
 const file_count_limit_proj = file_count_limit; // 500000;
 const file_count_limit_sub = file_count_limit; // 500000;
 const file_count_limit_bios = file_count_limit; // 500000;
 const file_count_limit_col = file_count_limit; // 500000;
-const maxTblCount = 200000;
+const maxTblCount = 100000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -46,6 +47,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     console.log("******");
     console.log("q = " + searchParams.q + " p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
+    console.log("searchParams.t = ", searchParams.t);
     // Declare different offsets for all the tables and this is needed to fine grain pagination
     const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
     const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
@@ -56,7 +58,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
     const colTblOffset = (colTbl_p - 1) * limit;
     // console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
-    const subTbl_p = searchParams.colTbl_p !== undefined ? searchParams.subTbl_p : 1;
+    const subTbl_p = searchParams.subTbl_p !== undefined ? searchParams.subTbl_p : 1;
     const subTblOffset = (subTbl_p - 1) * limit;
     // console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
     const fileProjTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileProjTbl_p : 1;
@@ -71,7 +73,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const fileColTbl_p = searchParams.fileColTbl_p !== undefined ? searchParams.fileColTbl_p : 1;
     const fileColTblOffset = (fileColTbl_p - 1) * limit;
     // console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
-
+    const ptmTbl_p = searchParams.ptmTbl_p !== undefined ? searchParams.ptmTbl_p : 1;
+    const ptmTblOffset = (ptmTbl_p -1 ) * limit;
     // console.log("*********");
 
 
@@ -129,7 +132,15 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         protein_description: string,
         compound_description: string,
         taxonomy_description: string,
-
+        ptm_type_name: string, // PTM Type
+        ptm_type: string, // PTM Type
+        ptm_type_description: string, // PTM Type Description
+        ptm_subtype_name: string, // PTM SubType
+        ptm_subtype: string, // PTM SubType
+        ptm_subtype_description: string, // PTM SubType Description
+        ptm_site_type_name: string, // PTM Site Type
+        ptm_site_type: string, // PTM Site Type
+        ptm_site_type_description: string, // PTM Site Type
         count: number, // this is based on across all-columns of ffl_biosample 
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
@@ -156,6 +167,9 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
             LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
+            LEFT JOIN c2m2.ptm_type ON (allres_full.ptm_type = c2m2.ptm_type.id)
+            LEFT JOIN c2m2.ptm_subtype ON (allres_full.ptm_subtype = c2m2.ptm_subtype.id)
+            LEFT JOIN c2m2.site_type ON (allres_full.ptm_site_type = c2m2.site_type.id)
             GROUP BY ${SQL.raw(groupByString)}
             ORDER BY ${SQL.raw(orderByString)}
           ) 
@@ -166,7 +180,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     const t1: number = performance.now();
 
-    console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+    console.log("Elapsed time for RecordInfoQueryComponent DB queries: ", t1 - t0, "milliseconds");
 
 
 
@@ -174,6 +188,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
+
     console.log("resultsRec = ", resultsRec);
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
     // The following items are present in metadata and downloadMetadata
@@ -285,6 +300,29 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         ? {
           id: resultsRec.subject_race,
           name: resultsRec.subject_race_name
+        }
+        : null,
+      ptm_type: resultsRec?.ptm_type_name && resultsRec.ptm_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_type,
+          name: resultsRec.ptm_type_name,
+          url: `https://amigo.geneontology.org/amigo/term/${resultsRec.ptm_type}`,
+          description: resultsRec.ptm_type_description ? capitalizeFirstLetter(resultsRec.ptm_type_description) : null
+        }
+        : null,
+      ptm_subtype: resultsRec?.ptm_subtype_name && resultsRec.ptm_subtype_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_subtype,
+          name: resultsRec.ptm_subtype_name,
+          url: `https://amigo.geneontology.org/amigo/term/${resultsRec.ptm_subtype}`,
+          description: resultsRec.ptm_subtype_description ? capitalizeFirstLetter(resultsRec.ptm_subtype_description) : null
+        }
+        : null,
+      ptm_site_type: resultsRec?.ptm_site_type_name && resultsRec.ptm_site_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_site_type,
+          name: resultsRec.ptm_site_type_name,
+          description: resultsRec.ptm_site_type_description ? capitalizeFirstLetter(resultsRec.ptm_site_type_description) : null
         }
         : null,
     };
@@ -419,6 +457,31 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ? capitalizeFirstLetter(resultsRec?.subject_race_name)
           : ''
       },
+      {
+        label: 'PTM type',
+        value: resultsRec?.ptm_type_name && resultsRec?.ptm_type_name !== "Unspecified"
+          ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.ptm_type_name)}
+          </Link>
+          : ''
+      },
+      resultsRec?.ptm_type_description ? { label: 'PTM Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_type_description) } : null,
+      {
+        label: 'PTM SubType',
+        value: resultsRec?.ptm_subtype_name && resultsRec?.ptm_subtype_name !== "Unspecified"
+          ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_subtype}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.ptm_subtype_name)}
+          </Link>
+          : ''
+      },
+      resultsRec?.ptm_subtype_description ? { label: 'PTM SubType Description', value: capitalizeFirstLetter(resultsRec?.ptm_subtype_description) } : null,
+      {
+        label: 'PTM SiteType',
+        value: resultsRec?.ptm_site_type_name && resultsRec?.ptm_site_type_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.ptm_site_type_name)
+          : ''
+      },
+      resultsRec?.ptm_site_type_description ? { label: 'PTM Site Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_site_type_description) } : null,
     ];
 
 
@@ -444,7 +507,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         {/* <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
         </React.Suspense> */}
-        
+
         <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplSubTblOffset={bioSamplSubTblOffset} />
         </React.Suspense>
@@ -477,6 +540,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
         <React.Suspense fallback={<>Loading..</>}>
           <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileColTblOffset} file_count_limit_col={file_count_limit_col} />
+        </React.Suspense>
+
+        <React.Suspense fallback={<>Loading..</>}>
+          <PTMTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} ptmTblOffset={ptmTblOffset}  />
         </React.Suspense>
       </LandingPageLayout>
     )

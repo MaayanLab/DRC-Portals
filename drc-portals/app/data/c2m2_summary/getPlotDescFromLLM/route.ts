@@ -7,17 +7,11 @@ const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 export async function POST(req: NextRequest) {
   console.log("In getPlotDescFromLLM");
   try {
-    const { yAxis, xAxis, groupBy } = await req.json();
+    const { prompt } = await req.json();
 
-    if (!yAxis || !xAxis || !groupBy) {
-      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    if (!prompt || typeof prompt !== 'string') {
+      return NextResponse.json({ error: 'Missing prompt' }, { status: 400 });
     }
-
-    const prompt = `Generate a concise description of a bar chart with the following parameters:
-- Y-axis: ${yAxis}
-- X-axis: ${xAxis}
-- Group by: ${groupBy}
-Describe what kind of data this chart shows and what insights it might reveal.`;
 
     const response = await ai.models.generateContent({
       model: 'models/gemini-1.5-flash',

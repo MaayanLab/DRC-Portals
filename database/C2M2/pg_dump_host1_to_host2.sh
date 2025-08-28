@@ -15,7 +15,7 @@ fi
 
 host1=$1
 host2=$2
-port1=5434
+port1=5433
 port2=5432
 user1=drc
 user2=drcadmin
@@ -82,7 +82,9 @@ for sch in "${schemas[@]}"; do
 	#pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -n ${sch} \
         #        -Fp | psql -b -v ON_ERROR_STOP=1 -h ${host2} -p ${port2} -U ${user2} -d ${dbname} -o ${logf}
         # For dropping tables but not schema, specify like -t schemaname.*
-	pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -t ${sch}.* \
+        # Use pg_dump for psql 16 instead of some other
+
+	/usr/pgsql-16/bin/pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -t ${sch}.* \
                 -Fp | psql -b -v ON_ERROR_STOP=1 -h ${host2} -p ${port2} -U ${user2} -d ${dbname} -o ${logf}
 	#pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -n ${sch} \
         #-t "${sch}.dcc" -t "${sch}.anatomy" -Fp -f pg_dump_${dbname}_from_cfdedb_${ymd}.sql
