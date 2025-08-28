@@ -3,6 +3,7 @@ import parser from "lucene-query-parser";
 import { v4 } from "uuid";
 
 import {
+  ALL_PROPERTY_NAMES,
   FILTER_LABELS,
   NODE_LABELS,
   RELATIONSHIP_TYPES,
@@ -78,10 +79,14 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
-// TODO: We'll want to parameterize these, otherwise Cypher injection may be possible
 const createPropReprStr = (props: { [key: string]: any }) => {
   const propStrs: string[] = [];
   Object.entries(props).forEach(([key, value]) => {
+    if (!ALL_PROPERTY_NAMES.has(key)) {
+      throw Error(
+        `ValueError: property name ${key} is not a valid C2M2 Neo4j node filter.`
+      );
+    }
     propStrs.push(`${key}: ${JSON.stringify(value)}`);
   });
   return `{${propStrs.join(", ")}}`;
