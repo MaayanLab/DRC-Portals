@@ -57,13 +57,13 @@ export default function C2M2ReportPage() {
         if (item.chartType === 'bar') {
           const groupValues = item.groupBy
             ? Array.from(
-                item.chartData.reduce<Set<string>>((set, row) => {
-                  Object.keys(row).forEach((key) => {
-                    if (key !== item.xAxis) set.add(key)
-                  })
-                  return set
-                }, new Set())
-              )
+              item.chartData.reduce<Set<string>>((set, row) => {
+                Object.keys(row).forEach((key) => {
+                  if (key !== item.xAxis) set.add(key)
+                })
+                return set
+              }, new Set())
+            )
             : ['value']
 
           const colorMap = groupValues.reduce((map, key, i) => {
