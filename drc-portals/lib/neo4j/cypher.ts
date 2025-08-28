@@ -95,10 +95,10 @@ export const getSearchCypher = (coreLabels: string[]) => {
     CALL {
       WITH term, dcc
       MATCH path=(dcc)-[:REGISTERED]->(:IDNamespace)-[:CONTAINS]->(core:${coreLabels
-      .map(escapeCypherString)
-      .join(
-        "|"
-      )})<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
+        .map(escapeCypherString)
+        .join(
+          "|"
+        )})<-[:CONTAINS]-(:Collection)-[:IS_SUPERSET_OF*0..]->(:Collection)-[:CONTAINS]->(term)
       WHERE
         core:File OR
         core:Biosample OR
@@ -112,10 +112,10 @@ export const getSearchCypher = (coreLabels: string[]) => {
       UNION ALL
       WITH term, dcc
       MATCH path=(term)<-[:ASSOCIATED_WITH|TESTED_FOR|SAMPLED_FROM]-(core:${coreLabels
-      .map(escapeCypherString)
-      .join(
-        "|"
-      )})<-[:CONTAINS]-(:Project)<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
+        .map(escapeCypherString)
+        .join(
+          "|"
+        )})<-[:CONTAINS]-(:Project)<-[:CONTAINS]-(:IDNamespace)<-[:REGISTERED]-(dcc:DCC)
       WHERE
         core:File OR
         core:Biosample OR
@@ -171,8 +171,8 @@ export const createPathwaySearchAllPathsCypher = (
     // return, we would be ordering the *page* and not the entire result set.
     orderByKey && orderByProp && order && (order === "asc" || order === "desc")
       ? `ORDER BY ${escapeCypherString(orderByKey)}.${escapeCypherString(
-        orderByProp
-      )} ${order === "asc" ? "ASC" : "DESC"}`
+          orderByProp
+        )} ${order === "asc" ? "ASC" : "DESC"}`
       : "",
     "SKIP $skip",
     "LIMIT $limit",
@@ -193,7 +193,7 @@ export const createPathwaySearchAllPathsCypher = (
 };
 
 export const createUpperPageBoundCypher = (
-  treeParseResult: TreeParseResult,
+  treeParseResult: TreeParseResult
 ) => {
   return [
     "MATCH",
@@ -201,7 +201,7 @@ export const createUpperPageBoundCypher = (
     "WITH *",
     "SKIP $skip",
     "LIMIT ($maxSiblings - (($skip / $limit) - $lowerPageBound)) * $limit",
-    "RETURN toInteger(ceil(count(*) / $limit)) + ($skip / $limit) AS upperPageBound",
+    "RETURN toInteger(ceil(toFloat(count(*)) / $limit)) + ($skip / $limit) AS upperPageBound",
   ].join("\n");
 };
 
@@ -215,6 +215,7 @@ export const createConnectionPattern = (
     type === undefined ? "[]" : `[:${escapeCypherString(type)}]`;
   const nodePattern =
     label === undefined ? "()" : `(:${escapeCypherString(label)})`;
-  return `(${escapeCypherString(refNodeId)})${direction === Direction.INCOMING ? "<" : ""
-    }-${relPattern}-${direction === Direction.OUTGOING ? ">" : ""}${nodePattern}`;
+  return `(${escapeCypherString(refNodeId)})${
+    direction === Direction.INCOMING ? "<" : ""
+  }-${relPattern}-${direction === Direction.OUTGOING ? ">" : ""}${nodePattern}`;
 };

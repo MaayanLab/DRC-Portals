@@ -1,6 +1,9 @@
 import { NextRequest } from "next/server";
 
-import { createPathwaySearchAllPathsCypher, createUpperPageBoundCypher } from "@/lib/neo4j/cypher";
+import {
+  createPathwaySearchAllPathsCypher,
+  createUpperPageBoundCypher,
+} from "@/lib/neo4j/cypher";
 import { executeRead, executeReadOne, getDriver } from "@/lib/neo4j/driver";
 import {
   NodeResult,
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const driver = getDriver();
-    const skip = limit * (page - 1) // Assume page is 1-indexed!
+    const skip = limit * (page - 1); // Assume page is 1-indexed!
 
     const pathwaySearchResult = await executeRead<{
       [key: string]: NodeResult | RelationshipResult;
@@ -122,29 +125,34 @@ export async function POST(request: NextRequest) {
       Object.values(record.toObject())
     );
 
-    let lowerPageBound = Math.max(page - Math.ceil(MAX_PAGE_SIBLINGS / 2), 1)
-    const upperPageBound = (await executeReadOne<{ upperPageBound: number; }>(
-      driver,
-      createUpperPageBoundCypher(treeParseResult),
-      {
-        limit,
-        skip: skip + limit, // Start counting from the page after the current page
-        maxSiblings: MAX_PAGE_SIBLINGS,
-        lowerPageBound
-      }
-    )).toObject().upperPageBound;
+    let lowerPageBound = Math.max(page - Math.ceil(MAX_PAGE_SIBLINGS / 2), 1);
+    const upperPageBound = (
+      await executeReadOne<{ upperPageBound: number }>(
+        driver,
+        createUpperPageBoundCypher(treeParseResult),
+        {
+          limit,
+          skip: skip + limit, // Start counting from the page after the current page
+          maxSiblings: MAX_PAGE_SIBLINGS,
+          lowerPageBound,
+        }
+      )
+    ).toObject().upperPageBound;
 
     // If we reach the end of the table, we can fix the lower bound to maintain a constant number of page items
     const greaterSiblings = upperPageBound - page;
     if (greaterSiblings < Math.floor(MAX_PAGE_SIBLINGS / 2)) {
-      lowerPageBound = Math.max(page - (MAX_PAGE_SIBLINGS - greaterSiblings), 1)
+      lowerPageBound = Math.max(
+        page - (MAX_PAGE_SIBLINGS - greaterSiblings),
+        1
+      );
     }
 
     return Response.json(
       {
         paths,
         lowerPageBound,
-        upperPageBound
+        upperPageBound,
       },
       { status: 200 }
     );
