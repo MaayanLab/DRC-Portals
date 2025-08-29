@@ -141,21 +141,16 @@ const InteractiveNavComponent = ({dccs, disableDCC}: {dccs: DCC[], disableDCC?: 
 	  }
 	const additional = [
 		{
-			short_label: "SMaHT",
-			icon: "/img/interactive/smath.png",
-			homepage: "https://commonfund.nih.gov/somatic-mosaicism-across-human-tissues-smaht"
-		},
-		{
 			short_label: "NPH",
 			icon: "/img/interactive/nph.png",
 			homepage: "https://commonfund.nih.gov/nutritionforprecisionhealth"
 		}
 	]
 	
-	const additional_label = ['NPH', 'SMaHT']
+	const additional_label = ['NPH']
 	const ordering = [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", "NPH", 
 		"GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SCGE", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",]
-	const all_dccs: {[key:string]: any} = [...dccs, ...additional].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
+	const all_dccs: {[key:string]: any} = [...additional, ...dccs].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
 	const pie_chunk = 2*Math.PI/(ordering.length)
 
 	const radius = 280

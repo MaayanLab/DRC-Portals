@@ -12,10 +12,9 @@ from tqdm.auto import tqdm
 from datetime import datetime
 import re
 from urllib.parse import urlsplit
-from deriva_datapackage import create_offline_client
+from deriva_datapackage import create_sqlite_client, create_offline_client
 from c2m2_assessment.__main__ import assess
 import os
-import glob
 import math
 import h5py
 import yaml
@@ -36,7 +35,7 @@ def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
   * Credit to Daniel J. B. Clarke, Amanda Charbonneau - https://github.com/MaayanLab/appyter-catalog/blob/main/appyters/CFDE-C2M2-FAIR-Assessment/C2M2Assessment.ipynb
   '''
-  return set(glob.glob(os.path.join(root, '**', file), recursive=True))
+  return set(map(str, pathlib.Path(root).rglob(file)))
 
 def find_between_r( s, first, last ):
     try:
@@ -399,66 +398,84 @@ def traverse_datasets(hdf_file):
 
 def c2m2_fair(directory):
     """Run FAIR Assessment for a C2M2 file asset given its filepath"""
+    rubric = {
+        'Machine readable metadata': 0.0,
+        'Persistent identifier': None,
+        'files with data type': None,
+        'files with file format': None,
+        'files with assay type': None,
+        'files with anatomy': None,
+        'files with biosample': None,
+        'files with subject': None,
+        'biosamples with species': None,
+        'biosamples with subject': None,
+        'biosamples with file': None,
+        'biosamples with anatomy': None,
+        'subjects with taxonomy': None,
+        'subjects with granularity': None,
+        'subjects with taxonomic role': None,
+        'subjects with biosample': None,
+        'subjects with file': None,
+        'files in collections': None,
+        'subjects in collections': None,
+        'biosamples in collections': None,
+        'projects with anatomy': None,
+        'projects with files': None,
+        'projects with data types': None,
+        'projects with subjects': None,
+        'biosamples with substance': None,
+        'collections with gene': None,
+        'collections with substance': None,
+        'subjects with substance': None,
+        'biosamples with gene': None,
+        'phenotypes with gene': None,
+        'proteins with gene': None,
+        'collections with protein': None,
+        'subjects with phenotype': None,
+        'genes with phenotype': None,
+        'diseases with phenotype': None,
+        'collections with phenotype': None,
+        'Accessible via DRS': 1.0
+    }
     try:
-        package, *more_packages = (
+        packages = (
             deep_find(directory, 'C2M2_datapackage.json')
             | deep_find(directory, 'datapackage.json')
         )
-        if more_packages:
+        if not packages:
+            raise RuntimeError(f"Couldn't locate C2M2_datapackage.json")
+        else:
+            package, *more_packages = packages
+        if len(packages) > 1:
             print(f"Assessing {package=}, but also found {more_packages=}")
-        subprocess.check_call([sys.executable, '-m', 'frictionless', 'validate', package], stdout=sys.stdout, stderr=sys.stderr)
-        CFDE = create_offline_client(package, cachedir=directory)
+        package_pathlib = pathlib.Path(package)
+        os.chdir(package_pathlib.parent)
+        # make sure we have the right name
+        if package_pathlib.name != 'C2M2_datapackage.json':
+            package_pathlib = package_pathlib.rename('C2M2_datapackage.json')
+        # run our validation script (which also indexes the database)
+        validate_proc = subprocess.run([sys.executable, '-m', 'cfde_c2m2', 'validate'], stdout=sys.stdout, stderr=sys.stderr)
+        if validate_proc.returncode == 0:
+            rubric['Machine readable metadata'] = 1
+        else:
+            print('ERROR: Validate failed! Trying to continue anyway...')
+        #
+        if pathlib.Path('C2M2_datapackage.sqlite').exists():
+            # re-use indexed database for fair assessment
+            CFDE = create_sqlite_client('sqlite:///C2M2_datapackage.sqlite')
+        else:
+            CFDE = create_offline_client('C2M2_datapackage.json')
+        #
         result = assess(CFDE, rubric='drc2024', full=False)
-        rubric = {}
         for index, row in result.iterrows():
             if math.isnan(row['value']):
                 rubric[row["name"]] = None
             else:
                 rubric[row["name"]] = row["value"]
-        rubric["Accessible via DRS"] = 1
-        rubric['Machine readable metadata'] = 1
-        return rubric
     except KeyboardInterrupt: raise
     except:
         import traceback; traceback.print_exc()
-        return {'Machine readable metadata': 0.0,
-                'Persistent identifier': None,
-                'files with data type': None,
-                'files with file format': None,
-                'files with assay type': None,
-                'files with anatomy': None,
-                'files with biosample': None,
-                'files with subject': None,
-                'biosamples with species': None,
-                'biosamples with subject': None,
-                'biosamples with file': None,
-                'biosamples with anatomy': None,
-                'subjects with taxonomy': None,
-                'subjects with granularity': None,
-                'subjects with taxonomic role': None,
-                'subjects with biosample': None,
-                'subjects with file': None,
-                'files in collections': None,
-                'subjects in collections': None,
-                'biosamples in collections': None,
-                'projects with anatomy': None,
-                'projects with files': None,
-                'projects with data types': None,
-                'projects with subjects': None,
-                'biosamples with substance': None,
-                'collections with gene': None,
-                'collections with substance': None,
-                'subjects with substance': None,
-                'biosamples with gene': None,
-                'phenotypes with gene': None,
-                'proteins with gene': None,
-                'collections with protein': None,
-                'subjects with phenotype': None,
-                'genes with phenotype': None,
-                'diseases with phenotype': None,
-                'collections with phenotype': None,
-                'Accessible via DRS': 1.0}
-    
+    return rubric
 
 def xmt_fair(xmt_path, row):
     """Run FAIR Assessment for a XMT file asset given its filepath and database row"""

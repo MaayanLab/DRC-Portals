@@ -31,9 +31,9 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 	  <Link href={"/data"}>
 		<Typography variant="nav"  sx={path === "/data"  ? {textDecoration: "underline", textDecorationThickness: 2}: {}}><b>Data Portal</b></Typography>
 	  </Link>
-	  <Link href={"https://cfdeknowledge.org/r/kc_landing"} target="_blank" rel="noopener noreferrer">
+	  {/* <Link href={"https://cfdeknowledge.org/r/kc_landing"} target="_blank" rel="noopener noreferrer">
 		<Typography variant="nav"><b>Knowledge Portal</b></Typography>
-	  </Link>
+	  </Link> */}
 	  <UserComponent session={session}/>
 	</>
   )}
@@ -67,6 +67,8 @@ const info_nav = [
 
 const data_nav = [
 	{title: "Search", href: "/data"},
+	{title: "Enrichment", href: "/data/enrichment"},
+	{title: "Cross", href: "/data/cross"},
 	{title: "Chatbot", href: "/data/chat"},
 	{title: "Data Matrix", href: "/data/matrix"},
 	{title: "Use Cases", href: "/data/usecases"},
@@ -107,7 +109,7 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
 	  <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
 		<Stack spacing={1}>
 			<DRCDrawer path={path} nav={nav} session={session}/>
-			{path === "/data" && <SearchParamSearchField />}
+			{(path === "/data") && <SearchParamSearchField />}
 		</Stack>
 	  </Box>
     </Container>

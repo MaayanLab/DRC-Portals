@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.18.3
+    image: maayanlab/drc-portal:0.19.15
     deploy:
       replicas: 3
       resources:
@@ -35,11 +35,14 @@ services:
       - OPENAI_API_KEY
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
       - ASSISTANT_ID
-
+      - NEXT_PUBLIC_GSE
+      - NEXT_PUBLIC_ENRICHR_URL
+      - TURL_CRED
+      - GSC_DATABASE_URL=${PROD_GSC_DATABASE_URL}
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.19.0
+    image: maayanlab/drc-portal-dev:0.19.3
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -72,13 +75,15 @@ services:
       - GRAPH_C2M2_DBNAME
       - GRAPH_C2M2_READER_USERNAME
       - GRAPH_C2M2_READER_PASSWORD
-
+      - NEXT_PUBLIC_GSE
+      - NEXT_PUBLIC_ENRICHR_URL
+      - TURL_CRED
   drc-portal-worker:
     build:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.18.0
+    image: maayanlab/drc-portal-worker:0.19.3
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:

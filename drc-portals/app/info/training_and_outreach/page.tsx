@@ -280,11 +280,11 @@ export default async function OutreachPage ({ searchParams }: {
         current_outreach = [...current as OutreachWithDCCAndCenter[], ...recurring as OutreachWithDCCAndCenter[]]
     }
     
-    return <Grid container spacing={2}>
-        <Grid item xs={12}>
+    return <Grid container spacing={2} sx={{ marginTop: 2 }}>
+        <Grid item xs={12} md={6}>
             <Typography variant={"h2"} color="secondary">Training and Outreach Activities</Typography>
         </Grid>
-        <Grid item xs={12} sx={{justifyContent: "flex-end"}}>
+        <Grid item xs={12} md={6} sx={{justifyContent: "flex-end"}}>
             <FilterBox parsedParams={parsedParams}/>
         </Grid>
         <Grid item xs={12}>

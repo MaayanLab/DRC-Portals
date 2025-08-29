@@ -20,6 +20,7 @@ import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from "@/components/misc/ReadMore";
 import {OutreachComponent} from "@/components/misc/Outreach/featured";
+import PubButton from "./linksbutton";
 export default async function DccDataPage({ params }: { params: { dcc: string } }) {
     const now = new Date()
     const dcc = await prisma.dCC.findFirst({
@@ -131,6 +132,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     </Button>
                                 </Link>
                                 }
+                                <PubButton dcc={params.dcc}/>
                             </Stack>
                             <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
                                 <Link href={dcc.homepage} target="_blank">
@@ -144,6 +146,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                                     </Button>
                                 </Link>
                                 }
+                                <PubButton dcc={params.dcc}/>
                             </Box>
                         </CardActions>
                     </Card>

@@ -1,5 +1,6 @@
 BeautifulSoup4
-c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment@v0.0.5
+c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment@v0.1.1
+cfde-c2m2 @ git+https://github.com/MaayanLab/cfde-c2m2@v0.1.0
 frictionless
 h5py
 numpy

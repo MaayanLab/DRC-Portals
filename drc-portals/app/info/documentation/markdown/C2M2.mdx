@@ -1,4 +1,4 @@
-import { C2m2Table, C2m2SubmissionPrep } from "@/components/misc/ExternalC2m2"
+import { C2m2Table } from "@/components/misc/ExternalC2m2"
 
 # C2M2 
 
@@ -9,8 +9,7 @@ import { C2m2Table, C2m2SubmissionPrep } from "@/components/misc/ExternalC2m2"
   - [Identifiers](#identifiers)
   - [C2M2 Tables](#c2m2-tables)
   - [Reference Tables](#reference-tables)
-  - [Submission Prep Script](#submission-prep-script)
-  - [Datapackage Submission](#datapackage-submission)
+  - [Submission Guide](#submission-guide)
   - [Tutorial](#tutorial)
 
 ## Introduction
@@ -24,15 +23,8 @@ The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describin
 
 Each TSV file is a **data table** containing various **data records** (rows) and their values for different **fields** (columns). **Entity tables** describe various types of data objects, while **association tables** describe the relationships between different entities. 
 
-This page is adapted from the [original C2M2 documentation](https://github.com/nih-cfde/published-documentation) developed by the CFDE Coordination Center (CFDE-CC). 
-
 ## Resources
-- The [c2m2-frictionless-dataclass](https://github.com/nih-cfde/c2m2-frictionless-dataclass/tree/main) 
-  - This repository includes the `c2m2-frictionless` Python package, which contains specific helper functions for C2M2 datapackage building and validation. 
-  - This package is not designed to generate a complete C2M2 datapackage from any given data, but should be used in collaboration with the provided schema and ontology preparation scripts, as well as with DCC-specific scripts.
-- The most up-to-date [C2M2 JSON schema](https://osf.io/3sra4/)
-- The most up-to-date [C2M2 ontology preparation script and files](https://osf.io/bq6k9/)
-- The original [C2M2 documentation](https://github.com/nih-cfde/c2m2/blob/master/draft-C2M2_specification/README.md) from the CFDE Coordination Center contains more details on the concepts discussed here.
+The [cfde-c2m2](https://github.com/maayanlab/cfde-c2m2) repository includes a CLI helper for preparing, validating, and submitting your C2M2 submission.
 
 ## Frictionless Data Packages
 C2M2 instances are also known as "datapackages" based on the [Data Package](http://frictionlessdata.io/docs/data-package/) meta-specification from [Frictionless Data](http://frictionlessdata.io/). 
@@ -81,23 +73,57 @@ Certain table fields within the C2M2 are restricted to only a few pre-defined va
   - [subject_role](https://osf.io/fapnr/)
   - [subject_sex](https://osf.io/wepsz/)
 
-## Submission Prep Script
+## Submission Guide
 
-_Sourced from the [CFDE-CC Documentation Wiki](https://github.com/nih-cfde/published-documentation/wiki/submission-prep-script)_
+_Sourced from the [CFDE C2M2 Documentation](https://github.com/MaayanLab/cfde-c2m2)_
 
-<C2m2SubmissionPrep />
+### Step 1: Install CFDE C2M2 CLI
 
-## Datapackage Submission
+```bash
+pipx install cfde-c2m2
+```
 
-As an optional but recommended step before submitting your data package, you may validate your pipeline using either the `c2m2-frictionless` Python package (see [Resources](#resources)) or by following the steps below for using the frictionless validator, from the [CFDE-CC Documentation Wiki Quickstart](https://github.com/nih-cfde/published-documentation/wiki/Quickstart#optional-frictionless): 
+### Step 2: Initialize Submission
 
-> `pip install frictionless`  
-If that command fails try:  
-`pip install frictionless-py`  
-Once it's installed, run it by doing:  
-`frictionless validate PATH/TO/JSON_FILE_IN_DIRECTORY`  
-This command takes several minutes to run, and dumps the results into your terminal by default. To make a nicer file to review do:  
-`frictionless validate PATH/TO/JSON_FILE_IN_DIRECTORY > report.txt`  
+Initializes a fresh C2M2 submission in the current working directory, creating blank versions of all tables defined in the current C2M2 datapackage schema (`C2M2_datapackage.json`).
+
+```bash
+mkdir submission
+cd submission
+cfde-c2m2 init
+```
+
+### Step 3: Fill in tables
+
+Usually you would develop a script to format the information you already have into the structure of the C2M2 tables.
+The schema is designed to support incremental improvements and as such many tables and fields are optional.
+An example of doing this is available below in the tutorial.
+
+### Step 4: Prepare submission
+
+Resolves ontology identifiers and populates the Common Vocabulary (CV) tables.
+
+```bash
+cfde-c2m2 prepare
+```
+
+### Step 5: Validate
+
+Checks validity of C2M2 submission and highlights tables for which corrections, if any, are needed.
+
+```bash
+cfde-c2m2 validate
+```
+
+### Step 6: Package
+
+Collects metadata tables in a zip file to be submitted to the DRC portal.
+
+```bash
+cfde-c2m2 package
+```
+
+### Step 7: Submit
 
 Currently, the CFDE Workbench Data Portal accepts complete datapackage submissions in ZIP file format (*.zip). 
 
@@ -111,69 +137,73 @@ For the April 2022 CFDE Cross-Pollination meeting, the LINCS DCC demonstrated a 
 [LINCS C2M2 Demo (04-05-2022 Cross-Pollination)](https://github.com/MaayanLab/lincs-data-manifests/tree/main/April-CrossPollination-Demo)
 
 Code snippets from this tutorial corresponding to each step are reproduced below. Note that the C2M2 datapackage building process will vary across DCCs, depending on the types of generated data, ontologies, and access standards in place. In general, the process will be as follows: 
-1. Become familiar with the current structure of the C2M2, including the required fields across the entity and association tables, and download the most recent version of the [JSON schema](https://osf.io/c63aw/). Gather any metadata mapping files you may need. 
+1. Become familiar with the current structure of the C2M2, including the required fields across the entity and association tables, start with the steps from the submission guide:
+
+    ```bash
+    # install the cfde-c2m2 helper CLI
+    pipx install cfde-c2m2
+
+    # create a directory for the submission
+    mkdir submission
+    cd submission
+
+    # initialize the submission directory, fetching the C2M2_datapackage.json and building blank tables
+    cfde-c2m2 init
+    ```
+
 2. Identify the relevant namespace for all files, and build the `id_namespace` and `dcc` tables first. 
 
     - For LINCS, the namespace "https://lincsproject.org" is used. The following code will generate the LINCS `id_namespace` table: 
-    ```
-    pd.DataFrame(
-      [
-        [
-          'https://www.lincsproject.org', # id
-          'LINCS', # abbreviation
-          'Library of Integrated Network-Based Cellular Signatures', # name
-          'A network-based understanding of biology' # description
-          ]
-      ], 
-      columns=['id', 'abbreviation', 'name', 'description']
+    ```python
+    import pandas as pd
+    pd.DataFrame([{
+      'id': 'https://www.lincsproject.org',
+      'abbreviation': 'LINCS',
+      'name': 'Library of Integrated Network-Based Cellular Signatures',
+      'description': 'A network-based understanding of biology',
+    }], columns=['id', 'abbreviation', 'name', 'description']
     ).to_csv('id_namespace.tsv', sep='\t', index=False)
     ```
 
 3. Identify all relevant projects and their associated files that will be included in the C2M2 datapackage. Generate container entity tables (`project`, `collection`) that describe logic, theme, or funding-based groups of the core entities. Note that projects and collections may be nested, in the `project_in_project` and `collection_in_collection` tables. 
 
     - In the LINCS tutorial, the data comes from the 2021 release of the LINCS L1000 Connectivity Map dataset. In creating a project representing the files from this dataset, there must also be an overarching root project for all LINCS data. 
-    ```
-    pd.DataFrame(
-      [
-        [ 
-          'https://www.lincsproject.org', # id_namespace
-          'LINCS', # local_id
-          'https://www.lincsproject.org', # persistent_id
-          date(2013, 1, 1), # creation_time
-          'LINCS', # abbreviation
-          'Library of Integrated Network-Based Cellular Signatures', # name
-          'A network-based understanding of biology' # description
-        ], 
-        [
-          'https://www.lincsproject.org', # id_namespace
-          'LINCS-2021', # local_id
-          'https://clue.io/data/CMap2020#LINCS2020', # persistent_id
-          date(2020, 11, 20), # creation_time
-          'LINCS-2021', # abbreviation
-          'LINCS 2021 Data Release', # name
-          'The 2021 beta release of the CMap LINCS resource' # description
-        ]
-      ], 
-      columns=[
-        'id_namespace', 'local_id', 'persistent_id', 'creation_time', 
-        'abbreviation', 'name', 'description'
-      ]
-    ).to_csv('project.tsv', sep='\t', index=False)
+    ```python
+    import pandas as pd
+    from datetime import datetime
+    pd.DataFrame([
+      {
+        'id_namespace': 'https://www.lincsproject.org',
+        'local_id': 'LINCS',
+        'persistent_id': 'https://www.lincsproject.org',
+        'creation_time': datetime(2013, 1, 1).astimezone().isoformat(),
+        'abbreviation': 'LINCS',
+        'name': 'Library of Integrated Network-Based Cellular Signatures',
+        'description': 'A network-based understanding of biology',
+      }, 
+      {
+        'id_namespace': 'https://www.lincsproject.org',
+        'local_id': 'LINCS-2021',
+        'persistent_id': 'https://clue.io/data/CMap2020#LINCS2020',
+        'creation_time': datetime(2020, 11, 20).astimezone().isoformat(),
+        'abbreviation': 'LINCS_2021',
+        'name': 'LINCS 2021 Data Release',
+        'description': 'The 2021 beta release of the CMap LINCS resource',
+      }
+    ], columns=[
+      'id_namespace', 'local_id', 'persistent_id', 'creation_time', 
+      'abbreviation', 'name', 'description'
+    ]).to_csv('project.tsv', sep='\t', index=False)
 
-    pd.DataFrame(
-      [
-        [
-          'https://www.lincsproject.org', # parent_project_id_namespace
-          'LINCS', # parent_project_local_id
-          'https://www.lincsproject.org/', # child_project_id_namespace
-          'LINCS-2021' # child_project_local_id
-        ]
-      ],
-      columns=[
-        'parent_project_id_namespace', 'parent_project_local_id',
-        'child_project_id_namespace', 'child_project_local_id'
-      ]
-    ).to_csv('project_in_project.tsv', sep='\t', index=False)
+    pd.DataFrame([{
+      'parent_project_id_namespace': 'https://www.lincsproject.org',
+      'parent_project_local_id': 'LINCS',
+      'child_project_id_namespace': 'https://www.lincsproject.org',
+      'child_project_local_id': 'LINCS-2021',
+    }], columns=[
+      'parent_project_id_namespace', 'parent_project_local_id',
+      'child_project_id_namespace', 'child_project_local_id'
+    ]).to_csv('project_in_project.tsv', sep='\t', index=False)
     ```
 
 4. Determine the relationships between files and their associated samples or biological subjects, as well as all relevant assay types, analysis methods, data types, file formats, etc. Also identify all appropriate ontological mappings, if any, corresponding to each value from above. 
@@ -203,13 +233,24 @@ Code snippets from this tutorial corresponding to each step are reproduced below
 
     - Collections are optional, and can represent files from the same publications or other logical groupings outside of funding. 
 
-8. Use provided [C2M2 submission preparation script and ontology support files](https://osf.io/bq6k9/) to automatically build term entity tables from your created files. 
+8. Continue with submission guide:
 
-9. Optionally validate the final datapackage containing all files and the schema using one of the following validator tools:
-    - [Frictionless validator](#datapackage-submission)
-    - [`c2m2-frictionless-datapackage` code package](#resources)
-    
-10. Compress the entire directory into a *.zip file and upload to the [CFDE Workbench Metadata and Data Submission System](https://data.cfde.cloud/submit/form). 
+    ```bash
+    # finish preparing your package by resolving iris
+    cfde-c2m2 prepare
+    # verify integrity of your package and address any errors
+    cfde-c2m2 validate
+    # zip the necessary files for a bare minimum package
+    cfde-c2m2 package
+    ```
+
+9. The `C2M2_datapackage.zip` file can now be uploaded to the [CFDE Workbench Metadata and Data Submission System](https://data.cfde.cloud/submit/form). 
+
+## Other Links
+
+- The original [C2M2 documentation](https://github.com/nih-cfde/c2m2/blob/master/draft-C2M2_specification/README.md) from the CFDE Coordination Center contains more details on the concepts discussed here.
+- The most up-to-date [C2M2 JSON schema](https://osf.io/3sra4/) (NOTE: cfde-cli package downloads this for you automatically)
+- The most up-to-date [C2M2 ontology preparation script and files](https://osf.io/bq6k9/) (NOTE: cfde-cli package downloads this for you automatically)
 
 ### Return to [Documentation](/info/documentation/.)
 <br /><br />

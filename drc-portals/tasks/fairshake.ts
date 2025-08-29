@@ -55,6 +55,9 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
         ...(fileAsset ? {...fileAsset, size: fileAsset.size?.toString()} : codeAsset ?? {})
       },
     ],
+    kwargs: {
+      directory: null,
+    },
   }, msg => {
     log += msg
     helpers.logger.info(msg)
