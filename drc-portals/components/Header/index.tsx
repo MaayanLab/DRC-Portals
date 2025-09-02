@@ -69,7 +69,7 @@ const data_nav = [
 	{title: "Search", href: "/data"},
 	{title: "Enrichment", href: "/data/enrichment"},
 	{title: "Cross", href: "/data/cross"},
-	{title: "Chatbot", href: "/data/chat"},
+	{title: "Assistant", href: "/data/chat"},
 	{title: "Data Matrix", href: "/data/matrix"},
 	{title: "Use Cases", href: "/data/usecases"},
 	{title: "Tools & Workflows", href: "/data/tools_and_workflows"},
