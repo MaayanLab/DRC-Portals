@@ -94,6 +94,12 @@ export async function GET(req: Request) {
       ;
     `;
 
+    // Log the query for debugging
+    console.log('-----------------------------------------------------');
+    console.log('/* Y-axis: ', y_axis, 'X-axis: ', x_axis, 'Group by: ', group_by, ' */');
+    console.log('Executing SQL query:', query);
+    console.log('-----------------------------------------------------');
+
     const result = await pool.query(query);
     const rawRows = result.rows;
 
