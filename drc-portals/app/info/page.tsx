@@ -120,7 +120,7 @@ export default async function Home() {
                             </Link>
                             <Link href='/data/chat'>
                               <Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                                CHATBOT
+                                CFDE WORKBENCH ASSISTANT
                               </Button>
                             </Link>
                             <Link href='/data/usecases'>
