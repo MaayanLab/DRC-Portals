@@ -407,8 +407,8 @@ def create_disease_cypher():
 
 
 def create_file_cypher():
-    # id_namespace	local_id	project_id_namespace	project_local_id	persistent_id	creation_time	size_in_bytes	uncompressed_size_in_bytes	sha256	md5	filename	file_format	compression_format	data_type	assay_type	analysis_type	mime_type	bundle_collection_id_namespace	bundle_collection_local_id	dbgap_study_id
-    props = '{local_id: row.local_id, id_namespace: row.id_namespace, project_local_id: row.project_local_id, persistent_id: row.persistent_id, creation_time: row.creation_time, size_in_bytes: row.size_in_bytes, uncompressed_size_in_bytes: row.uncompressed_size_in_bytes, sha256: row.sha256, md5: row.md5, filename: row.filename, mime_type: row.mime_type, dbgap_study_id: row.dbgap_study_id, _uuid: randomUUID()}'
+    # id_namespace	local_id	project_id_namespace	project_local_id	persistent_id	creation_time	size_in_bytes	uncompressed_size_in_bytes	sha256	md5	filename	file_format	compression_format	data_type	assay_type	analysis_type	mime_type	bundle_collection_id_namespace	bundle_collection_local_id	dbgap_study_id  access_url
+    props = '{local_id: row.local_id, id_namespace: row.id_namespace, project_local_id: row.project_local_id, persistent_id: row.persistent_id, creation_time: row.creation_time, size_in_bytes: row.size_in_bytes, uncompressed_size_in_bytes: row.uncompressed_size_in_bytes, sha256: row.sha256, md5: row.md5, filename: row.filename, mime_type: row.mime_type, dbgap_study_id: row.dbgap_study_id, access_url: row.access_url, _uuid: randomUUID()}'
     return f'CREATE (file:File {props})'
 
 
