@@ -279,12 +279,23 @@ export const getColumnDataFromTree = (tree: PathwayNode): ColumnData[] => {
         const ontologyLink = getOntologyLink(label, node.properties.id);
         return getExternalLinkElement(ontologyLink, displayText);
       };
-    } else if ([PROJECT_LABEL, COLLECTION_LABEL, FILE_LABEL].includes(label)) {
+    } else if (label === FILE_LABEL) {
       displayProp = "local_id";
       valueGetter = (node: NodeResult, displayProp: string) => {
         const displayText = getPropFromNodeResult(node, displayProp);
         const link =
           node.properties.persistent_id || node.properties.access_url;
+        if (link !== undefined && linkRegex.test(link)) {
+          return getExternalLinkElement(link, displayText);
+        } else {
+          return displayText;
+        }
+      };
+    } else if ([PROJECT_LABEL, COLLECTION_LABEL].includes(label)) {
+      displayProp = "local_id";
+      valueGetter = (node: NodeResult, displayProp: string) => {
+        const displayText = getPropFromNodeResult(node, displayProp);
+        const link = node.properties.persistent_id;
         if (link !== undefined && linkRegex.test(link)) {
           return getExternalLinkElement(link, displayText);
         } else {

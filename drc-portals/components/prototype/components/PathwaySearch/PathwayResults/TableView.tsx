@@ -31,7 +31,9 @@ import {
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { NestedMenuItem } from "mui-nested-menu";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+
+import DRSBundleButton from "@/app/data/c2m2/DRSBundleButton";
 
 import { NodeResult, PathwaySearchResultRow } from "@/lib/neo4j/types";
 import { isRelationshipResult } from "@/lib/neo4j/utils";
@@ -95,6 +97,14 @@ export default function TableView(cmpProps: TableViewProps) {
   );
   const [colMenuColumn, setColMenuColumn] = useState<number>();
   const colMenuOpen = Boolean(colMenuAnchorEl);
+
+  const drsBundleData = useMemo(() =>
+    data
+      .filter((_, idx) => selected[idx])
+      .flat()
+      .filter((element) => !isRelationshipResult(element))
+      .map(node => node.properties)
+    , [data, selected])
 
   const getColumnHeaderText = (column: ColumnData) => {
     return (
@@ -324,6 +334,19 @@ export default function TableView(cmpProps: TableViewProps) {
       {/* Start download buttons */}
       <Stack direction="row" marginTop={1} justifyContent="space-between">
         <Stack direction="row" spacing={1}>
+          {selected.some((val) => val) ? (
+            <DRSBundleButton data={drsBundleData} />
+          ) : null}
+          {selected.some((val) => val) ? (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownloadSelectedClicked}
+            >
+              Download Selected
+            </Button>
+          ) : null}
           <Button
             variant="contained"
             color="primary"
@@ -338,16 +361,7 @@ export default function TableView(cmpProps: TableViewProps) {
           >
             Download All
           </Button>
-          {selected.some((val) => val) ? (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<DownloadIcon />}
-              onClick={handleDownloadSelectedClicked}
-            >
-              Download Selected
-            </Button>
-          ) : null}
+
         </Stack>
 
         <ReturnBtn onClick={onReturnBtnClick} />
