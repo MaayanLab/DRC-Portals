@@ -63,6 +63,7 @@
     "dom-to-image": "^2.6.0",
     "downloadjs": "^1.4.7",
     "fairshakeinsignia": "^1.0.3",
+    "file-saver": "^2.0.5",
     "filesize": "^10.1.6",
     "fs": "^0.0.1-security",
     "graphile-worker": "^0.16.6",
@@ -104,6 +105,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
     "@types/crypto-js": "^4.2.2",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

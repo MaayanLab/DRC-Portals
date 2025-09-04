@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import fs from "fs";
+import { appendFileSync } from 'node:fs';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -61,6 +63,12 @@ const axisInfo: Record<string, {
   
 };
 
+function sanitizeName(name: string) {
+  return name
+    .replace(/\s+/g, "")       // remove spaces
+    .replace(/[^a-zA-Z0-9_]/g, "") // remove non-alphanumeric/underscore
+    .toLowerCase();            // lowercase for SQL safety
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -110,12 +118,29 @@ export async function GET(req: Request) {
       ;
     `;
 
-    // Log the query for debugging
+    
+
+
+    
+    const tableName = `c2m2.${sanitizeName(y_axis)}_${sanitizeName(x_axis)}_${sanitizeName(group_by)}`;
+    console.log("Table name = ", tableName);
     console.log('-----------------------------------------------------');
     console.log('/* Y-axis: ', y_axis, 'X-axis: ', x_axis, 'Group by: ', group_by, ' */');
     console.log('Executing SQL query:', query);
     console.log('-----------------------------------------------------');
-
+    
+    const logLine = `
+    DROP TABLE IF EXISTS ${tableName};
+    CREATE TABLE ${tableName} AS (
+      /* Y-axis: ${y_axis}, X-axis: ${x_axis}, Group by: ${group_by} */
+      ${query}
+    );\n\n`;
+    try {
+    fs.appendFileSync("../c2m2_summary_count_queries.sql", logLine, "utf8");
+    } catch(err) {
+      console.log("Error in appending file ", err)
+    }
+    console.log("Updated file ")
     const result = await pool.query(query);
     const rawRows = result.rows;
 

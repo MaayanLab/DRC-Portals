@@ -49,7 +49,7 @@ const SummaryQueryComponent: React.FC = () => {
   const [chartData, setChartData] = useState<ChartRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showUnspecified, setShowUnspecified] = useState<boolean>(true);
+  const [showUnspecified, setShowUnspecified] = useState<boolean>(false);
 
   const [plotDescription, setPlotDescription] = useState<string>('');
   const [loadingDescription, setLoadingDescription] = useState<boolean>(false);
