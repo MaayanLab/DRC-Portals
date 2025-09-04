@@ -82,6 +82,10 @@ model biosample {
 
   @@id([id_namespace, local_id])
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_idx_searchable", type: Gin)
+  @@index([anatomy], map: "idx_biosample_anatomy")
+  @@index([biofluid], map: "idx_biosample_biofluid")
+  @@index([id_namespace], map: "idx_biosample_idns")
+  @@index([sample_prep_method], map: "idx_biosample_sample_prep")
 }
 
 model biosample_disease {
@@ -95,6 +99,9 @@ model biosample_disease {
 
   @@id([biosample_id_namespace, biosample_local_id, association_type, disease])
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_disease_idx_searchable", type: Gin)
+  @@index([association_type], map: "idx_biosample_disease_association_type")
+  @@index([disease], map: "idx_biosample_disease_disease")
+  @@index([biosample_id_namespace, biosample_local_id], map: "idx_biosample_disease_idns_local")
 }
 
 model biosample_from_subject {
@@ -417,165 +424,6 @@ model domain_location {
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_domain_location_idx_searchable", type: Gin)
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model ffl_biosample {
-  searchable                        Unsupported("tsvector")?
-  biosample_id_namespace            String?                  @db.VarChar
-  biosample_local_id                String?                  @db.VarChar
-  project_id_namespace              String?                  @db.VarChar
-  project_local_id                  String?                  @db.VarChar
-  biosample_persistent_id           String?                  @db.VarChar
-  biosample_creation_time           String?                  @db.VarChar
-  sample_prep_method                String?                  @db.VarChar
-  anatomy                           String?                  @db.VarChar
-  biofluid                          String?                  @db.VarChar
-  disease_association_type          String?                  @db.VarChar
-  disease                           String?                  @db.VarChar
-  subject_id_namespace              String?                  @db.VarChar
-  subject_local_id                  String?                  @db.VarChar
-  biosample_age_at_sampling         String?                  @db.VarChar
-  gene                              String?                  @db.VarChar
-  collection_id_namespace           String?                  @db.VarChar
-  collection_local_id               String?                  @db.VarChar
-  substance                         String?                  @db.VarChar
-  dcc_name                          String?                  @db.VarChar
-  dcc_abbreviation                  String?                  @db.VarChar
-  anatomy_name                      String?                  @db.VarChar
-  biofluid_name                     String?                  @db.VarChar
-  gene_name                         String?                  @db.VarChar
-  protein                           String?                  @db.VarChar
-  protein_name                      String?                  @db.VarChar
-  disease_name                      String?                  @db.VarChar
-  subject_granularity               String?                  @db.VarChar
-  subject_sex                       String?                  @db.VarChar
-  subject_ethnicity                 String?                  @db.VarChar
-  subject_age_at_enrollment         String?                  @db.VarChar
-  substance_name                    String?                  @db.VarChar
-  substance_compound                String?                  @db.VarChar
-  compound_name                     String?                  @db.VarChar
-  project_persistent_id             String?                  @db.VarChar
-  project_creation_time             String?                  @db.VarChar
-  project_name                      String?                  @db.VarChar
-  project_abbreviation              String?                  @db.VarChar
-  data_type_id                      String?                  @db.VarChar
-  data_type_name                    String?                  @db.VarChar
-  assay_type_id                     String?                  @db.VarChar
-  assay_type_name                   String?                  @db.VarChar
-  file_format_id                    String?                  @db.VarChar
-  file_format_name                  String?                  @db.VarChar
-  analysis_type_id                  String?                  @db.VarChar
-  analysis_type_name                String?                  @db.VarChar
-  subject_role_taxonomy_taxonomy_id String?                  @db.VarChar
-  ncbi_taxonomy_name                String?                  @db.VarChar
-  collection_persistent_id          String?                  @db.VarChar
-  collection_creation_time          String?                  @db.VarChar
-  collection_name                   String?                  @db.VarChar
-  collection_abbreviation           String?                  @db.VarChar
-  collection_has_time_series_data   String?                  @db.VarChar
-  sample_prep_method_name           String?                  @db.VarChar
-  subject_race                      String?                  @db.VarChar
-  subject_race_name                 String?                  @db.VarChar
-  subject_granularity_name          String?                  @db.VarChar
-  subject_sex_name                  String?                  @db.VarChar
-  subject_ethnicity_name            String?                  @db.VarChar
-  subject_role_taxonomy_role_id     String?                  @db.VarChar
-  subject_role_name                 String?                  @db.VarChar
-  disease_association_type_name     String?                  @db.VarChar
-  phenotype_association_type        String?                  @db.VarChar
-  phenotype                         String?                  @db.VarChar
-  phenotype_association_type_name   String?                  @db.VarChar
-  phenotype_name                    String?                  @db.VarChar
-  ptm_site_type                     String?                  @db.VarChar
-  ptm_type                          String?                  @db.VarChar
-  ptm_subtype                       String?                  @db.VarChar
-  ptm_site_type_name                String?                  @db.VarChar
-  ptm_type_name                     String?                  @db.VarChar
-  ptm_subtype_name                  String?                  @db.VarChar
-
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_biosample_idx_dcc_proj_sp_dis_ana_gene_data")
-  @@index([dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name, biofluid_name], map: "ffl_biosample_idx_dcc_sp_dis_ana")
-  @@index([searchable], map: "ffl_biosample_idx_searchable", type: Gin)
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model ffl_biosample_cmp {
-  searchable                        Unsupported("tsvector")?
-  project_id_namespace              String?                  @db.VarChar
-  project_local_id                  String?                  @db.VarChar
-  sample_prep_method                String?                  @db.VarChar
-  anatomy                           String?                  @db.VarChar
-  biofluid                          String?                  @db.VarChar
-  disease_association_type          String?                  @db.VarChar
-  disease                           String?                  @db.VarChar
-  subject_id_namespace              String?                  @db.VarChar
-  subject_local_id                  String?                  @db.VarChar
-  biosample_age_at_sampling         String?                  @db.VarChar
-  gene                              String?                  @db.VarChar
-  collection_id_namespace           String?                  @db.VarChar
-  collection_local_id               String?                  @db.VarChar
-  substance                         String?                  @db.VarChar
-  dcc_name                          String?                  @db.VarChar
-  dcc_abbreviation                  String?                  @db.VarChar
-  anatomy_name                      String?                  @db.VarChar
-  biofluid_name                     String?                  @db.VarChar
-  gene_name                         String?                  @db.VarChar
-  protein                           String?                  @db.VarChar
-  protein_name                      String?                  @db.VarChar
-  disease_name                      String?                  @db.VarChar
-  subject_granularity               String?                  @db.VarChar
-  subject_sex                       String?                  @db.VarChar
-  subject_ethnicity                 String?                  @db.VarChar
-  subject_age_at_enrollment         String?                  @db.VarChar
-  substance_name                    String?                  @db.VarChar
-  substance_compound                String?                  @db.VarChar
-  compound_name                     String?                  @db.VarChar
-  project_persistent_id             String?                  @db.VarChar
-  project_creation_time             String?                  @db.VarChar
-  project_name                      String?                  @db.VarChar
-  project_abbreviation              String?                  @db.VarChar
-  data_type_id                      String?                  @db.VarChar
-  data_type_name                    String?                  @db.VarChar
-  assay_type_id                     String?                  @db.VarChar
-  assay_type_name                   String?                  @db.VarChar
-  file_format_id                    String?                  @db.VarChar
-  file_format_name                  String?                  @db.VarChar
-  analysis_type_id                  String?                  @db.VarChar
-  analysis_type_name                String?                  @db.VarChar
-  subject_role_taxonomy_taxonomy_id String?                  @db.VarChar
-  ncbi_taxonomy_name                String?                  @db.VarChar
-  collection_persistent_id          String?                  @db.VarChar
-  collection_creation_time          String?                  @db.VarChar
-  collection_name                   String?                  @db.VarChar
-  collection_abbreviation           String?                  @db.VarChar
-  collection_has_time_series_data   String?                  @db.VarChar
-  sample_prep_method_name           String?                  @db.VarChar
-  subject_race                      String?                  @db.VarChar
-  subject_race_name                 String?                  @db.VarChar
-  subject_granularity_name          String?                  @db.VarChar
-  subject_sex_name                  String?                  @db.VarChar
-  subject_ethnicity_name            String?                  @db.VarChar
-  subject_role_taxonomy_role_id     String?                  @db.VarChar
-  subject_role_name                 String?                  @db.VarChar
-  disease_association_type_name     String?                  @db.VarChar
-  phenotype_association_type        String?                  @db.VarChar
-  phenotype                         String?                  @db.VarChar
-  phenotype_association_type_name   String?                  @db.VarChar
-  phenotype_name                    String?                  @db.VarChar
-  ptm_site_type                     String?                  @db.VarChar
-  ptm_type                          String?                  @db.VarChar
-  ptm_subtype                       String?                  @db.VarChar
-  ptm_site_type_name                String?                  @db.VarChar
-  ptm_type_name                     String?                  @db.VarChar
-  ptm_subtype_name                  String?                  @db.VarChar
-  bios_array                        String[]                 @db.VarChar
-
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_biosample_cmp_idx_dcc_proj_sp_dis_ana_gene_data")
-  @@index([dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name, biofluid_name], map: "ffl_biosample_cmp_idx_dcc_sp_dis_ana")
-  @@index([searchable], map: "ffl_biosample_cmp_idx_searchable", type: Gin)
-  @@ignore
-}
-
 model ffl_biosample_collection {
   searchable                        Unsupported("tsvector")?
   biosample_id_namespace            String?                  @db.VarChar
@@ -729,165 +577,6 @@ model ffl_biosample_collection_cmp {
 
   @@index([searchable], map: "ffl_biosample_collection_cmp_idx", type: Gin)
   @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_biosample_collection_cmp_idx_many_cols")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model ffl_collection {
-  searchable                        Unsupported("tsvector")?
-  biosample_id_namespace            String?
-  biosample_local_id                String?
-  project_id_namespace              String?                  @db.VarChar
-  project_local_id                  String?                  @db.VarChar
-  biosample_persistent_id           String?
-  biosample_creation_time           String?
-  sample_prep_method                String?
-  anatomy                           String?                  @db.VarChar
-  biofluid                          String?                  @db.VarChar
-  disease_association_type          String?
-  disease                           String?                  @db.VarChar
-  subject_id_namespace              String?
-  subject_local_id                  String?
-  biosample_age_at_sampling         String?
-  gene                              String?                  @db.VarChar
-  collection_id_namespace           String?                  @db.VarChar
-  collection_local_id               String?                  @db.VarChar
-  substance                         String?                  @db.VarChar
-  dcc_name                          String?                  @db.VarChar
-  dcc_abbreviation                  String?                  @db.VarChar
-  anatomy_name                      String?                  @db.VarChar
-  biofluid_name                     String?                  @db.VarChar
-  gene_name                         String?                  @db.VarChar
-  protein                           String?                  @db.VarChar
-  protein_name                      String?                  @db.VarChar
-  disease_name                      String?                  @db.VarChar
-  subject_granularity               String?
-  subject_sex                       String?
-  subject_ethnicity                 String?
-  subject_age_at_enrollment         String?
-  substance_name                    String?                  @db.VarChar
-  substance_compound                String?                  @db.VarChar
-  compound_name                     String?                  @db.VarChar
-  project_persistent_id             String?                  @db.VarChar
-  project_creation_time             String?                  @db.VarChar
-  project_name                      String?                  @db.VarChar
-  project_abbreviation              String?                  @db.VarChar
-  data_type_id                      String?                  @db.VarChar
-  data_type_name                    String?                  @db.VarChar
-  assay_type_id                     String?                  @db.VarChar
-  assay_type_name                   String?                  @db.VarChar
-  file_format_id                    String?                  @db.VarChar
-  file_format_name                  String?                  @db.VarChar
-  analysis_type_id                  String?                  @db.VarChar
-  analysis_type_name                String?                  @db.VarChar
-  subject_role_taxonomy_taxonomy_id String?                  @db.VarChar
-  ncbi_taxonomy_name                String?                  @db.VarChar
-  collection_persistent_id          String?                  @db.VarChar
-  collection_creation_time          String?                  @db.VarChar
-  collection_name                   String?                  @db.VarChar
-  collection_abbreviation           String?                  @db.VarChar
-  collection_has_time_series_data   String?                  @db.VarChar
-  sample_prep_method_name           String?
-  subject_race                      String?
-  subject_race_name                 String?
-  subject_granularity_name          String?
-  subject_sex_name                  String?
-  subject_ethnicity_name            String?
-  subject_role_taxonomy_role_id     String?
-  subject_role_name                 String?
-  disease_association_type_name     String?
-  phenotype_association_type        String?
-  phenotype                         String?                  @db.VarChar
-  phenotype_association_type_name   String?
-  phenotype_name                    String?                  @db.VarChar
-  ptm_site_type                     String?                  @db.VarChar
-  ptm_type                          String?                  @db.VarChar
-  ptm_subtype                       String?                  @db.VarChar
-  ptm_site_type_name                String?                  @db.VarChar
-  ptm_type_name                     String?                  @db.VarChar
-  ptm_subtype_name                  String?                  @db.VarChar
-
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_collection_idx_dcc_proj_sp_dis_ana_gene_data")
-  @@index([dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name, biofluid_name], map: "ffl_collection_idx_dcc_sp_dis_ana")
-  @@index([searchable], map: "ffl_collection_idx_searchable", type: Gin)
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model ffl_collection_cmp {
-  searchable                        Unsupported("tsvector")?
-  project_id_namespace              String?                  @db.VarChar
-  project_local_id                  String?                  @db.VarChar
-  sample_prep_method                String?
-  anatomy                           String?                  @db.VarChar
-  biofluid                          String?                  @db.VarChar
-  disease_association_type          String?
-  disease                           String?                  @db.VarChar
-  subject_id_namespace              String?
-  subject_local_id                  String?
-  biosample_age_at_sampling         String?
-  gene                              String?                  @db.VarChar
-  collection_id_namespace           String?                  @db.VarChar
-  collection_local_id               String?                  @db.VarChar
-  substance                         String?                  @db.VarChar
-  dcc_name                          String?                  @db.VarChar
-  dcc_abbreviation                  String?                  @db.VarChar
-  anatomy_name                      String?                  @db.VarChar
-  biofluid_name                     String?                  @db.VarChar
-  gene_name                         String?                  @db.VarChar
-  protein                           String?                  @db.VarChar
-  protein_name                      String?                  @db.VarChar
-  disease_name                      String?                  @db.VarChar
-  subject_granularity               String?
-  subject_sex                       String?
-  subject_ethnicity                 String?
-  subject_age_at_enrollment         String?
-  substance_name                    String?                  @db.VarChar
-  substance_compound                String?                  @db.VarChar
-  compound_name                     String?                  @db.VarChar
-  project_persistent_id             String?                  @db.VarChar
-  project_creation_time             String?                  @db.VarChar
-  project_name                      String?                  @db.VarChar
-  project_abbreviation              String?                  @db.VarChar
-  data_type_id                      String?                  @db.VarChar
-  data_type_name                    String?                  @db.VarChar
-  assay_type_id                     String?                  @db.VarChar
-  assay_type_name                   String?                  @db.VarChar
-  file_format_id                    String?                  @db.VarChar
-  file_format_name                  String?                  @db.VarChar
-  analysis_type_id                  String?                  @db.VarChar
-  analysis_type_name                String?                  @db.VarChar
-  subject_role_taxonomy_taxonomy_id String?                  @db.VarChar
-  ncbi_taxonomy_name                String?                  @db.VarChar
-  collection_persistent_id          String?                  @db.VarChar
-  collection_creation_time          String?                  @db.VarChar
-  collection_name                   String?                  @db.VarChar
-  collection_abbreviation           String?                  @db.VarChar
-  collection_has_time_series_data   String?                  @db.VarChar
-  sample_prep_method_name           String?
-  subject_race                      String?
-  subject_race_name                 String?
-  subject_granularity_name          String?
-  subject_sex_name                  String?
-  subject_ethnicity_name            String?
-  subject_role_taxonomy_role_id     String?
-  subject_role_name                 String?
-  disease_association_type_name     String?
-  phenotype_association_type        String?
-  phenotype                         String?                  @db.VarChar
-  phenotype_association_type_name   String?
-  phenotype_name                    String?                  @db.VarChar
-  ptm_site_type                     String?                  @db.VarChar
-  ptm_type                          String?                  @db.VarChar
-  ptm_subtype                       String?                  @db.VarChar
-  ptm_site_type_name                String?                  @db.VarChar
-  ptm_type_name                     String?                  @db.VarChar
-  ptm_subtype_name                  String?                  @db.VarChar
-  bios_array                        String[]                 @db.VarChar
-
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_collection_cmp_idx_dcc_proj_sp_dis_ana_gene_data")
-  @@index([dcc_name, ncbi_taxonomy_name, disease_name, anatomy_name, biofluid_name], map: "ffl_collection_cmp_idx_dcc_sp_dis_ana")
-  @@index([searchable], map: "ffl_collection_cmp_idx_searchable", type: Gin)
-  @@ignore
 }
 
 model file {
@@ -1268,6 +957,10 @@ model subject {
 
   @@id([id_namespace, local_id])
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_idx_searchable", type: Gin)
+  @@index([ethnicity], map: "idx_subject_ethnicity")
+  @@index([granularity], map: "idx_subject_granularity")
+  @@index([id_namespace], map: "idx_subject_idns")
+  @@index([sex], map: "idx_subject_sex")
 }
 
 model subject_disease {
@@ -1281,6 +974,9 @@ model subject_disease {
 
   @@id([subject_id_namespace, subject_local_id, association_type, disease])
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_disease_idx_searchable", type: Gin)
+  @@index([association_type], map: "idx_subject_disease_association_type")
+  @@index([disease], map: "idx_subject_disease_disease")
+  @@index([subject_id_namespace, subject_local_id], map: "idx_subject_disease_idns_local")
 }
 
 model subject_ethnicity {
@@ -1330,6 +1026,8 @@ model subject_race {
 
   @@id([subject_id_namespace, subject_local_id, race])
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_race_idx_searchable", type: Gin)
+  @@index([subject_id_namespace, subject_local_id], map: "idx_subject_race_idns_local")
+  @@index([race], map: "idx_subject_race_race")
 }
 
 model subject_race_cv {
@@ -1355,6 +1053,9 @@ model subject_role_taxonomy {
 
   @@id([subject_id_namespace, subject_local_id, role_id, taxonomy_id])
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_role_taxonomy_idx_searchable", type: Gin)
+  @@index([subject_id_namespace, subject_local_id], map: "idx_subject_role_taxonomy_idns_local")
+  @@index([role_id], map: "idx_subject_role_taxonomy_role_id")
+  @@index([taxonomy_id], map: "idx_subject_role_taxonomy_taxonomy_id")
 }
 
 model subject_sex {

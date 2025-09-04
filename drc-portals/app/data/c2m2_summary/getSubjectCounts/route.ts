@@ -128,19 +128,24 @@ export async function GET(req: Request) {
     console.log('/* Y-axis: ', y_axis, 'X-axis: ', x_axis, 'Group by: ', group_by, ' */');
     console.log('Executing SQL query:', query);
     console.log('-----------------------------------------------------');
-    
+
+    //----------------- For writing to sql file
+    /*
     const logLine = `
     DROP TABLE IF EXISTS ${tableName};
     CREATE TABLE ${tableName} AS (
-      /* Y-axis: ${y_axis}, X-axis: ${x_axis}, Group by: ${group_by} */
+      /* Y-axis: ${y_axis}, X-axis: ${x_axis}, Group by: ${group_by} 
       ${query}
     );\n\n`;
     try {
-    fs.appendFileSync("../c2m2_summary_count_queries.sql", logLine, "utf8");
+    fs.appendFileSync("../database/C2M2/c2m2_summary_count_queries.sql", logLine, "utf8");
     } catch(err) {
       console.log("Error in appending file ", err)
     }
     console.log("Updated file ")
+    */
+    //-----------------
+
     const result = await pool.query(query);
     const rawRows = result.rows;
 
