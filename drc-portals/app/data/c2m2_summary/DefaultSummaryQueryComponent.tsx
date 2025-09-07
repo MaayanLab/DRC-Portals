@@ -1,11 +1,10 @@
-// npm install file-saver --save
-// npm install @types/file-saver --save-dev
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Button, CircularProgress, Alert } from '@mui/material';
-import C2M2BarChart from './C2M2BarChart';
 import { saveAs } from 'file-saver';
+import C2M2BarChart from './C2M2BarChart';
+import C2M2PieChart from './C2M2PieChart';
 
 type YAxisField =
   | 'Subjects count'
@@ -22,23 +21,25 @@ interface Combination {
   yAxis: YAxisField;
   xAxis: string;
   groupBy: string;
+  pieForAxis?: string; // Optional: custom x-axis label for Pie chart
 }
 
 interface ComboResult {
   combination: Combination;
   chartData: ChartRow[];
-  description: string;
   error?: string;
+  colorMap?: Record<string, string>;
 }
 
-// Define your default combinations
+// Default combinations with optional pieForAxis
 const defaultCombos: Combination[] = [
   { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy' },
-  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease' }
-  // { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'sex' },
-  // { yAxis: 'Files count', xAxis: 'file_format', groupBy: 'assay_type' },
-  // { yAxis: 'Collections count', xAxis: 'anatomy', groupBy: 'disease' }
-  // Add or modify as needed
+  // { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease' },
+  // { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'taxonomy_id', pieForAxis: 'MoTrPAC' },
+  { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
+  { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
+  { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'data_type' },
+  { yAxis: 'Collections count', xAxis: 'dcc', groupBy: 'protein' }
 ];
 
 const endpointMap: Partial<Record<YAxisField, string>> = {
@@ -49,33 +50,53 @@ const endpointMap: Partial<Record<YAxisField, string>> = {
   'Projects count': '/data/c2m2_summary/getProjectCounts',
 };
 
-// Utility to clean 0/neg values
 const cleanChartData = (data: ChartRow[], xAxis: string) =>
   data.map(row => {
     const newRow: ChartRow = { ...row };
     Object.keys(newRow).forEach(key => {
       const val = newRow[key];
-      if (key !== xAxis && typeof val === 'number' && val <= 0) {
+      if (key !== xAxis && key !== 'Unspecified' && typeof val === 'number' && val <= 0) {
         newRow[key] = 1;
       }
     });
     return newRow;
   });
 
-const getChartPrompt = (combo: Combination) => {
-  let out = `Generate a concise description of a bar chart with the following parameters:
-- Y-axis: ${combo.yAxis}
-- X-axis: ${combo.xAxis}`;
-  if (combo.groupBy) out += `\n- Group by: ${combo.groupBy}`;
-  out += `
-Describe what kind of data this chart shows and what insights it might reveal.`;
-  return out;
+const generateColorMap = (row: ChartRow, xAxis: string) => {
+  const keys = Object.keys(row).filter(k => k !== xAxis && k !== 'Unspecified');
+  const colors = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+  ];
+  const colorMap: Record<string, string> = {};
+  keys.forEach((k, i) => colorMap[k] = colors[i % colors.length]);
+  return colorMap;
+};
+
+const generatePieData = (row: ChartRow, xAxis: string) =>
+  Object.keys(row)
+    .filter(k => k !== xAxis && k !== 'Unspecified')
+    .map(k => ({ name: k, value: typeof row[k] === 'number' ? row[k] as number : 0 }))
+    .filter(d => d.value > 0);
+
+// Used for x_axis display and prompt
+const dispXAxis = (x: string) => (x === 'dcc' ? 'NIH Common Fund program' : x || '[none]');
+
+// Generate prompt with X and Y axis summary for ALL plots
+const getCombinedPrompt = (combos: Combination[]) => {
+  const plots = combos.map((combo, idx) =>
+    `Figure ${idx + 1}: Bar chart of "${combo.yAxis}" by "${dispXAxis(combo.xAxis)}"` +
+    (combo.groupBy ? `, grouped by "${combo.groupBy}"` : '') +
+    (combo.xAxis === 'dcc' ? ' (treat x-axis as NIH Common Fund program)' : '')
+  );
+  return `Describe the key trends and insights across the following charts, referencing 'NIH Common Fund program' for dcc on the x-axis:\n\n${plots.join('\n')}\n\nGenerate an integrated, concise and informative summary for the entire report.`;
 };
 
 const DefaultSummaryQueryComponent: React.FC = () => {
   const [results, setResults] = useState<ComboResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
+  const [combinedDescription, setCombinedDescription] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -83,19 +104,15 @@ const DefaultSummaryQueryComponent: React.FC = () => {
       setLoading(true);
       setGlobalError(null);
       const allResults: ComboResult[] = [];
+
       for (const combo of defaultCombos) {
         const endpoint = endpointMap[combo.yAxis];
         if (!endpoint) {
-          allResults.push({
-            combination: combo,
-            chartData: [],
-            description: '',
-            error: 'Invalid endpoint',
-          });
+          allResults.push({ combination: combo, chartData: [], error: 'Invalid endpoint' });
           continue;
         }
+
         try {
-          // 1. Fetch chart data
           const params = new URLSearchParams({
             x_axis: combo.xAxis,
             y_axis: combo.yAxis.toLowerCase().replace(/\s/g, ''),
@@ -105,146 +122,75 @@ const DefaultSummaryQueryComponent: React.FC = () => {
           const dataJson = await dataResp.json();
           const rawChartData: ChartRow[] = dataJson?.data || [];
           const cleaned = cleanChartData(rawChartData, combo.xAxis);
+          const colorMap = generateColorMap(cleaned[0] || {}, combo.xAxis);
 
-          // 2. Generate description
-          const prompt = getChartPrompt(combo);
-          const descResp = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt }),
+          allResults.push({
+            combination: combo,
+            chartData: cleaned,
+            error: undefined,
+            colorMap,
           });
-          const descJson = await descResp.json();
-          const description = descJson.description || descJson.error || 'No description';
-
-          if (!cancelled) {
-            allResults.push({
-              combination: combo,
-              chartData: cleaned,
-              description: description,
-              error: descJson.error ? 'Description error' : undefined,
-            });
-            setResults([...allResults]);
-          }
         } catch (e) {
-          if (!cancelled) {
-            allResults.push({
-              combination: combo,
-              chartData: [],
-              description: '',
-              error: (e as any)?.message || 'Error fetching data/desc',
-            });
-            setResults([...allResults]);
-          }
+          allResults.push({
+            combination: combo,
+            chartData: [],
+            error: (e as any)?.message || 'Error fetching data/desc',
+          });
         }
       }
-      if (!cancelled) setLoading(false);
+
+      // Send one prompt to LLM for all charts
+      let unifiedDescription = '';
+      try {
+        const prompt = getCombinedPrompt(defaultCombos);
+        const descResp = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+        const descJson = await descResp.json();
+        unifiedDescription = descJson.description || descJson.descriptions?.join('\n') || '';
+      } catch (e) {
+        unifiedDescription = 'Failed to generate summary.';
+      }
+
+      if (!cancelled) {
+        setResults(allResults);
+        setCombinedDescription(unifiedDescription);
+        setLoading(false);
+      }
     }
+
     generateAll();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // Export text report
+  // Export (keeps only table data, not the unified plot description)
   const exportReport = () => {
     let report = '';
     results.forEach(r => {
-      report += `\n=== Chart: Y-axis = ${r.combination.yAxis}, X-axis = ${r.combination.xAxis}, Group by = ${r.combination.groupBy} ===\n`;
-      report += r.description + '\n';
+      report += `\n=== Plot: Y-axis = ${r.combination.yAxis}, X-axis = ${r.combination.xAxis}, Group by = ${r.combination.groupBy} ===\n`;
+      if (r.chartData && r.chartData.length > 0) {
+        report += JSON.stringify(r.chartData, null, 2) + '\n';
+      }
     });
+    report += '\n=== Report Summary ===\n' + combinedDescription;
     const blob = new Blob([report], { type: 'text/plain' });
     saveAs(blob, 'c2m2_summary_report.txt');
-  };
-
-  // Helper to format chart data as table (optional)
-  function htmlTableForChartData(data: ChartRow[]) {
-    if (data.length === 0) return '';
-    const columns = Object.keys(data[0]);
-    const thead = columns.map(col => `<th>${col}</th>`).join('');
-    const rows = data
-      .map(
-        row =>
-          '<tr>' +
-          columns
-            .map(col => `<td>${row[col] !== undefined ? row[col] : ''}</td>`)
-            .join('') +
-          '</tr>'
-      )
-      .join('');
-    return `
-      <details>
-        <summary>Chart data (table)</summary>
-        <table border="1" cellpadding="4" style="margin-top:1em;border-collapse:collapse;">
-          <thead><tr>${thead}</tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </details>
-    `;
-  }
-
-  // Export HTML report
-  const exportHTMLReport = () => {
-    let html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8" />
-<title>C2M2 Summary HTML Report</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 2em; background: #fff; }
-  h2 { margin-top: 2em; }
-  .desc { background: #f5f5f5; padding: 1em; border-radius: 5px; white-space: pre-wrap; }
-  .section { margin-bottom: 2em; }
-  table { border-collapse: collapse; width: 100%; }
-  th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
-  details summary { cursor: pointer; font-weight: bold; margin-bottom: 0.5em; }
-</style>
-</head>
-<body>
-<h1>Default Summary Chart Report</h1>
-<p>Auto-generated for C2M2 summary charts and descriptions.</p>
-`;
-
-    results.forEach((r, idx) => {
-      html += `
-  <div class="section">
-    <h2>Plot ${idx + 1}: Y-axis = ${r.combination.yAxis}, X-axis = ${r.combination.xAxis}, Group by = ${r.combination.groupBy}</h2>
-    ${r.error ? `<p style="color: red;">Error: ${r.error}</p>` : ''}
-    <div class="desc">
-      <strong>Description:</strong>
-      <pre>${r.description}</pre>
-    </div>
-    ${r.chartData && r.chartData.length > 0 ? htmlTableForChartData(r.chartData) : '<em>No data available.</em>'}
-  </div>
-`;
-    });
-
-    html += '</body></html>';
-
-    const blob = new Blob([html], { type: 'text/html' });
-    saveAs(blob, 'c2m2_summary_report.html');
   };
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Default Summary Chart Report
+        C2M2 Default Summary Chart Report
       </Typography>
       <Typography variant="body1" sx={{ mb: 2 }}>
-        Auto-generating multiple summary plots and descriptions for C2M2 key fields.
+        This report auto-generates key summary plots for C2M2 datasets, including bar and pie charts, along with a unified summary at the bottom.
       </Typography>
 
       <Box sx={{ mb: 2 }}>
         <Button variant="outlined" onClick={exportReport} disabled={results.length === 0}>
           Export Text Report
-        </Button>
-        <Button
-          variant="outlined"
-          sx={{ ml: 2 }}
-          onClick={exportHTMLReport}
-          disabled={results.length === 0}
-        >
-          Export HTML Report
         </Button>
       </Box>
 
@@ -255,29 +201,46 @@ const DefaultSummaryQueryComponent: React.FC = () => {
         {results.map((res, i) => (
           <Paper sx={{ p: 2, mb: 3 }} key={i} elevation={2}>
             <Typography variant="h6">
-              Plot {i + 1}: {res.combination.yAxis} vs {res.combination.xAxis} (group by {res.combination.groupBy})
+              Plot {i + 1}: {res.combination.yAxis} vs {dispXAxis(res.combination.xAxis)} (group by {res.combination.groupBy})
             </Typography>
             {res.error && <Alert severity="warning">{res.error}</Alert>}
+
             {res.chartData && res.chartData.length > 0 ? (
-              <C2M2BarChart
-                data={res.chartData}
-                xAxis={res.combination.xAxis}
-                groupValues={Object.keys(res.chartData[0] ?? {}).filter(k => k !== res.combination.xAxis)}
-                colorMap={{}}
-                showUnspecified={false}
-                minBarWidth={60}
-                minChartWidth={600}
-              />
+              <>
+                <C2M2BarChart
+                  data={res.chartData}
+                  xAxis={res.combination.xAxis}
+                  groupValues={Object.keys(res.chartData[0]).filter(k => k !== res.combination.xAxis && k !== 'Unspecified')}
+                  colorMap={res.colorMap || {}}
+                  showUnspecified={false}
+                  minBarWidth={60}
+                  minChartWidth={600}
+                />
+                {res.combination.pieForAxis && (
+                  <Box sx={{ mt: 2 }}>
+                    <C2M2PieChart
+                      data={generatePieData(res.chartData[0], res.combination.pieForAxis)}
+                      colorMap={res.colorMap || {}}
+                      title={`Breakdown by ${res.combination.pieForAxis}`}
+                    />
+                  </Box>
+                )}
+              </>
             ) : (
               <Typography color="textSecondary">No data available.</Typography>
             )}
-            <Box sx={{ mt: 2, bg: '#f5f5f5', p: 2, borderRadius: 1 }}>
-              <Typography variant="subtitle1">Plot Description</Typography>
-              <Typography sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>{res.description}</Typography>
-            </Box>
           </Paper>
         ))}
       </Box>
+
+      {combinedDescription && (
+        <Box sx={{ mt: 3, p: 2, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
+          <Typography variant="h6" gutterBottom>
+            Combined Figure Description
+          </Typography>
+          <Typography sx={{ whiteSpace: 'pre-wrap' }}>{combinedDescription}</Typography>
+        </Box>
+      )}
     </Box>
   );
 };
