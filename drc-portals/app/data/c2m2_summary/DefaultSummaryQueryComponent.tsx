@@ -6,6 +6,8 @@ import { saveAs } from 'file-saver';
 import C2M2BarChart from './C2M2BarChart';
 import C2M2PieChart from './C2M2PieChart';
 
+// install html2canvas: npm i html2canvas
+
 type YAxisField =
   | 'Subjects count'
   | 'Biosamples count'
@@ -21,7 +23,7 @@ interface Combination {
   yAxis: YAxisField;
   xAxis: string;
   groupBy: string;
-  pieForAxis?: string; // Optional: custom x-axis label for Pie chart
+  pieForAxis?: string;
 }
 
 interface ComboResult {
@@ -31,17 +33,16 @@ interface ComboResult {
   colorMap?: Record<string, string>;
 }
 
-// Default combinations with optional pieForAxis
+// Default combinations
 const defaultCombos: Combination[] = [
   { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy' },
-  // { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease' },
-  // { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'taxonomy_id', pieForAxis: 'MoTrPAC' },
   { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'data_type' },
   { yAxis: 'Collections count', xAxis: 'dcc', groupBy: 'protein' }
 ];
 
+// Endpoint map
 const endpointMap: Partial<Record<YAxisField, string>> = {
   'Subjects count': '/data/c2m2_summary/getSubjectCounts',
   'Biosamples count': '/data/c2m2_summary/getBiosampleCounts',
@@ -50,6 +51,7 @@ const endpointMap: Partial<Record<YAxisField, string>> = {
   'Projects count': '/data/c2m2_summary/getProjectCounts',
 };
 
+// Utility functions
 const cleanChartData = (data: ChartRow[], xAxis: string) =>
   data.map(row => {
     const newRow: ChartRow = { ...row };
@@ -79,10 +81,8 @@ const generatePieData = (row: ChartRow, xAxis: string) =>
     .map(k => ({ name: k, value: typeof row[k] === 'number' ? row[k] as number : 0 }))
     .filter(d => d.value > 0);
 
-// Used for x_axis display and prompt
 const dispXAxis = (x: string) => (x === 'dcc' ? 'NIH Common Fund program' : x || '[none]');
 
-// Generate prompt with X and Y axis summary for ALL plots
 const getCombinedPrompt = (combos: Combination[]) => {
   const plots = combos.map((combo, idx) =>
     `Figure ${idx + 1}: Bar chart of "${combo.yAxis}" by "${dispXAxis(combo.xAxis)}"` +
@@ -92,6 +92,7 @@ const getCombinedPrompt = (combos: Combination[]) => {
   return `Describe the key trends and insights across the following charts, referencing 'NIH Common Fund program' for dcc on the x-axis:\n\n${plots.join('\n')}\n\nGenerate an integrated, concise and informative summary for the entire report.`;
 };
 
+// Main component
 const DefaultSummaryQueryComponent: React.FC = () => {
   const [results, setResults] = useState<ComboResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -139,7 +140,7 @@ const DefaultSummaryQueryComponent: React.FC = () => {
         }
       }
 
-      // Send one prompt to LLM for all charts
+      // Unified description
       let unifiedDescription = '';
       try {
         const prompt = getCombinedPrompt(defaultCombos);
@@ -165,41 +166,114 @@ const DefaultSummaryQueryComponent: React.FC = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // Export (keeps only table data, not the unified plot description)
-  const exportReport = () => {
-    let report = '';
-    results.forEach(r => {
-      report += `\n=== Plot: Y-axis = ${r.combination.yAxis}, X-axis = ${r.combination.xAxis}, Group by = ${r.combination.groupBy} ===\n`;
-      if (r.chartData && r.chartData.length > 0) {
-        report += JSON.stringify(r.chartData, null, 2) + '\n';
+  // Export HTML report with embedded images
+  const exportHtmlReport = async () => {
+    if (results.length === 0) return;
+    setLoading(true);
+    try {
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = (html2canvasModule as any).default ?? html2canvasModule;
+      const capturedImages: string[] = [];
+
+      for (let i = 0; i < results.length; i++) {
+        const node = document.getElementById(`chart-container-${i}`);
+        if (!node) {
+          capturedImages.push('');
+          continue;
+        }
+        const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
+        const dataUrl = canvas.toDataURL('image/png');
+        capturedImages.push(dataUrl);
       }
-    });
-    report += '\n=== Report Summary ===\n' + combinedDescription;
-    const blob = new Blob([report], { type: 'text/plain' });
-    saveAs(blob, 'c2m2_summary_report.txt');
+
+      const safeTitle = 'C2M2 Summary Report';
+      const style = `
+        body{font-family: Arial, Helvetica, sans-serif; margin:20px; color:#111}
+        .header{margin-bottom:24px}
+        .chart{margin: 20px 0; border:1px solid #ddd; padding:12px; border-radius:6px}
+        .chart img{max-width:100%; height:auto; display:block; margin-bottom:8px}
+        pre{background:#f7f7f7; padding:12px; overflow:auto}
+        h2,h3{margin:8px 0}
+      `;
+
+      let bodyHtml = `<div class="header"><h1>${safeTitle}</h1>`;
+      bodyHtml += `<p>Building on the C2M2 framework, this report presents a series of visual summaries that highlight the distribution and relationships among core metadata entities within the NIH Common Fund Data Ecosystem.</p>`;
+      bodyHtml += `</div>`;
+
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i];
+        bodyHtml += `<div class="chart">`;
+        bodyHtml += `<h2>Plot ${i + 1}: ${r.combination.yAxis} vs ${dispXAxis(r.combination.xAxis)}</h2>`;
+        bodyHtml += `<h3>Group by: ${r.combination.groupBy || '[none]'}</h3>`;
+        if (capturedImages[i]) {
+          bodyHtml += `<img alt="chart-${i}" src="${capturedImages[i]}"/>`;
+        } else {
+          bodyHtml += `<p><em>Chart image not available</em></p>`;
+        }
+        bodyHtml += `<details><summary>Chart data (JSON)</summary><pre>${escapeHtml(JSON.stringify(r.chartData || [], null, 2))}</pre></details>`;
+        bodyHtml += `</div>`;
+      }
+
+      if (combinedDescription) {
+        bodyHtml += `<section><h2>Combined Figure Description</h2><pre>${escapeHtml(combinedDescription)}</pre></section>`;
+      }
+
+      const finalHtml = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${safeTitle}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>${style}</style>
+</head>
+<body>
+  ${bodyHtml}
+</body>
+</html>`;
+
+      const blob = new Blob([finalHtml], { type: 'text/html' });
+      saveAs(blob, 'c2m2_summary_report.html');
+    } catch (err) {
+      console.error('Failed to export HTML report', err);
+      setGlobalError('Failed to export HTML report: ' + ((err as any)?.message || 'unknown error'));
+    } finally {
+      setLoading(false);
+    }
   };
+
+  function escapeHtml(s: string) {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        C2M2 Default Summary Chart Report
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        This report auto-generates key summary plots for C2M2 datasets, including bar and pie charts, along with a unified summary at the bottom.
-      </Typography>
-
-      <Box sx={{ mb: 2 }}>
-        <Button variant="outlined" onClick={exportReport} disabled={results.length === 0}>
-          Export Text Report
+      {/* Header with sticky button */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10, pt: 1, pb: 1 }}>
+        <Typography variant="h5">
+          C2M2 Default Summary Chart Report
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={exportHtmlReport}
+          disabled={results.length === 0 || loading}
+        >
+          Export HTML Report
         </Button>
       </Box>
+
+      <Typography variant="body1" sx={{ mb: 2 }}>
+        Building on the C2M2 framework, this report presents a series of visual summaries that highlight the distribution and relationships among core metadata entities within the NIH Common Fund Data Ecosystem. Specifically, it focuses on counts of key entities—subjects, biosamples, projects, collections, and files—plotted along the y-axis, with various related entities such as anatomical sources, disease states, assay types, and contributing programs displayed along the x-axis. Many plots also incorporate a group-by dimension, allowing for layered comparisons across additional metadata categories. Together, these visualizations offer an intuitive overview of how data is structured, submitted, and distributed across Common Fund programs, providing valuable insights into the scale, scope, and context of the available resources.
+      </Typography>
 
       {loading && <CircularProgress sx={{ mt: 2 }} />}
       {globalError && <Alert severity="error">{globalError}</Alert>}
 
       <Box sx={{ mt: 3 }}>
         {results.map((res, i) => (
-          <Paper sx={{ p: 2, mb: 3 }} key={i} elevation={2}>
+          <Paper sx={{ p: 2, mb: 3 }} key={i} elevation={2} id={`chart-container-${i}`}>
             <Typography variant="h6">
               Plot {i + 1}: {res.combination.yAxis} vs {dispXAxis(res.combination.xAxis)} (group by {res.combination.groupBy})
             </Typography>

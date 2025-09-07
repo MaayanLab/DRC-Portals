@@ -129,20 +129,20 @@ export async function GET(req: Request) {
     console.log('Executing SQL query:', query);
     console.log('-----------------------------------------------------');
     
-    const logLine = `
-    DROP TABLE IF EXISTS ${tableName};
-    CREATE TABLE ${tableName} AS (
-      /* Y-axis: ${y_axis}, X-axis: ${x_axis}, Group by: ${group_by} */
-      ${query}
-    );\n\n`;
-    try {
-      fs.appendFileSync("../c2m2_summary_count_queries.sql", logLine, "utf8");
-    } catch(err) {
-      console.log("Error in appending file ", err)
-    }
-    console.log("Updated file ")
-    const result = await pool.query(query);
-    const rawRows = result.rows;
+    // const logLine = `
+    // DROP TABLE IF EXISTS ${tableName};
+    // CREATE TABLE ${tableName} AS (
+    //   /* Y-axis: ${y_axis}, X-axis: ${x_axis}, Group by: ${group_by} */
+    //   ${query}
+    // );\n\n`;
+    // try {
+    //   fs.appendFileSync("../c2m2_summary_count_queries.sql", logLine, "utf8");
+    // } catch(err) {
+    //   console.log("Error in appending file ", err)
+    // }
+    // console.log("Updated file ")
+   const result = await pool.query(query);
+   const rawRows = result.rows;
 
     // Convert to chart-friendly format
     const groupedData: Record<string, Record<string, number>> = {};
