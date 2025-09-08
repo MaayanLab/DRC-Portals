@@ -35,7 +35,8 @@ interface ComboResult {
 
 // Default combinations
 const defaultCombos: Combination[] = [
-  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy' },
+  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy'  },
+  /* { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease'  }, */
   { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'data_type' },
@@ -122,6 +123,7 @@ const DefaultSummaryQueryComponent: React.FC = () => {
           const dataResp = await fetch(`${endpoint}?${params.toString()}`);
           const dataJson = await dataResp.json();
           const rawChartData: ChartRow[] = dataJson?.data || [];
+          console.log(rawChartData);
           const cleaned = cleanChartData(rawChartData, combo.xAxis);
           const colorMap = generateColorMap(cleaned[0] || {}, combo.xAxis);
 
