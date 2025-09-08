@@ -250,7 +250,7 @@ def create_biosample_from_subject_cypher():
 
 def create_biosample_gene_cypher():
     # biosample_id_namespace	biosample_local_id	gene
-    merge_stmt = 'MERGE (gene)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(biosample)'
+    merge_stmt = 'MERGE (biosample)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]->(gene)'
     return MATCH_GENE_STR + MATCH_BIOSAMPLE_STR + merge_stmt
 
 
@@ -264,7 +264,7 @@ def create_biosample_in_collection_cypher():
 
 def create_biosample_substance_cypher():
     # biosample_id_namespace	biosample_local_id	substance
-    merge_stmt = 'MERGE (biosample)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(substance)'
+    merge_stmt = 'MERGE (biosample)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]->(substance)'
     return MATCH_BIOSAMPLE_STR + MATCH_SUBSTANCE_STR + merge_stmt
 
 
@@ -368,7 +368,8 @@ def create_container_indexes_cypher():
 def create_core_indexes_cypher():
     return ''.join(
         [create_range_index(label, 'local_id') for label in CORE_NODES] +
-        [create_text_index(label, 'persistent_id') for label in CORE_NODES]
+        [create_text_index(label, 'persistent_id') for label in CORE_NODES] +
+        [create_text_index(FILE, 'access_url')]
     )
 
 
@@ -681,7 +682,7 @@ def create_subject_role_cypher():
 def create_subject_role_taxonomy_cypher():
     # subject_id_namespace	subject_local_id	role_id	taxonomy_id
     match_taxonomy_stmt = 'MATCH (ncbi_taxonomy:NCBITaxonomy {id: row.taxonomy_id})\n'
-    merge_stmt = 'MERGE (subject)-[:ASSOCIATED_WITH {role_id: row.role_id, _uuid: randomUUID()}]-(ncbi_taxonomy)'
+    merge_stmt = 'MERGE (subject)-[:ASSOCIATED_WITH {role_id: row.role_id, _uuid: randomUUID()}]->(ncbi_taxonomy)'
     return MATCH_SUBJECT_STR + match_taxonomy_stmt + merge_stmt
 
 
@@ -692,7 +693,7 @@ def create_subject_sex_cypher():
 
 def create_subject_substance_cypher():
     # subject_id_namespace	subject_local_id	substance
-    merge_stmt = 'MERGE (subject)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(substance)'
+    merge_stmt = 'MERGE (subject)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]->(substance)'
     return MATCH_SUBJECT_STR + MATCH_SUBSTANCE_STR + merge_stmt
 
 

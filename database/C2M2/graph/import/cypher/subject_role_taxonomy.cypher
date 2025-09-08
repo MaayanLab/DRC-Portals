@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (subject:Subject {local_id: row.subject_local_id})<-[:CONTAINS]-(subject_id_namespace:IDNamespace {id: row.subject_id_namespace})
 	MATCH (ncbi_taxonomy:NCBITaxonomy {id: row.taxonomy_id})
-	MERGE (subject)-[:ASSOCIATED_WITH {role_id: row.role_id, _uuid: randomUUID()}]-(ncbi_taxonomy)
+	MERGE (subject)-[:ASSOCIATED_WITH {role_id: row.role_id, _uuid: randomUUID()}]->(ncbi_taxonomy)
 } IN TRANSACTIONS OF 10000 ROWS

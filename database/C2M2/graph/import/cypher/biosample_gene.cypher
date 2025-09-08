@@ -3,5 +3,5 @@ CALL {
 	WITH row
 	MATCH (gene:Gene {id: row.gene})
 	MATCH (biosample:Biosample {local_id: row.biosample_local_id})<-[:CONTAINS]-(biosample_id_namespace:IDNamespace {id: row.biosample_id_namespace})
-	MERGE (gene)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]-(biosample)
+	MERGE (biosample)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]->(gene)
 } IN TRANSACTIONS OF 10000 ROWS
