@@ -82,46 +82,37 @@ import {
 
 import { createArrowDividerElement } from "../utils/shared";
 
-const getRelativePos = (s: Position, t: Position, c: Position) => {
-  const numerator = (c.x - s.x) * (t.x - s.x) + (c.y - s.y) * (t.y - s.y);
-  const denominator = (t.x - s.x) ** 2 + (t.y - s.y) ** 2;
-
-  return numerator / denominator;
-};
-
-const getSegmentIntersectionPoint = (
+const projectPointOntoLine = (
   s: Position,
-  c: Position,
-  t: Position
-): Position => {
-  const m = (t.y - s.y) / (t.x - s.x);
-  const b = s.y - m * s.x;
-  const mp = -1 * (1 / m);
-  const bp = -1 * (mp * c.x) + c.y;
-  const x_intersect = (bp - b) / (m - mp);
-  const y_intersect = m * x_intersect + b;
+  t: Position,
+  c: Position
+): { weight: number; intersection: Position; distance: number } => {
+  const st = { x: t.x - s.x, y: t.y - s.y };
+  const sc = { x: c.x - s.x, y: c.y - s.y };
 
-  return {
-    x: x_intersect,
-    y: y_intersect,
+  const denominator = st.x * st.x + st.y * st.y;
+
+  // Handle degenerate case: line has zero length
+  if (denominator === 0) {
+    return {
+      weight: 0,
+      intersection: { x: s.x, y: s.y },
+      distance: Math.sqrt(sc.x * sc.x + sc.y * sc.y),
+    };
+  }
+
+  const weight = (sc.x * st.x + sc.y * st.y) / denominator;
+
+  const intersection = {
+    x: s.x + weight * st.x,
+    y: s.y + weight * st.y,
   };
-};
 
-const getSegmentWeight = (s: Position, c: Position, t: Position) => {
-  const intersection_point = getSegmentIntersectionPoint(s, c, t);
-  return getRelativePos(
-    { x: s.x, y: s.y },
-    { x: t.x, y: t.y },
-    { x: intersection_point.x, y: intersection_point.y }
-  );
-};
+  const dx = c.x - intersection.x;
+  const dy = c.y - intersection.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
 
-const getSegmentDistance = (s: Position, c: Position, t: Position) => {
-  const intersection_point = getSegmentIntersectionPoint(s, c, t);
-
-  return Math.sqrt(
-    (c.x - intersection_point.x) ** 2 + (c.y - intersection_point.y) ** 2
-  );
+  return { weight, intersection, distance };
 };
 
 const getSegmentPropsWithPoints = (
@@ -139,11 +130,10 @@ const getSegmentPropsWithPoints = (
   const distances: number[] = [];
 
   controlPoints.forEach((cp, i) => {
-    weights.push(getSegmentWeight(source, cp, target));
-    distances.push(
-      getSegmentDistance(source, cp, target) *
-        (invertDistancesResolved[i] ? -1 : 1)
-    );
+    const { weight, distance } = projectPointOntoLine(source, target, cp);
+
+    weights.push(weight);
+    distances.push(distance * (invertDistancesResolved[i] ? -1 : 1));
   });
 
   return {
@@ -401,10 +391,9 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
     selector: "node",
     style: {
       label: (element: NodeSingular) =>
-        `${element.data("displayLabel")}${
-          element.data("count") === undefined
-            ? ""
-            : ` (${element.data("count")})`
+        `${element.data("displayLabel")}${element.data("count") === undefined
+          ? ""
+          : ` (${element.data("count")})`
         }`,
       opacity: TRANSPARENT_OPACITY,
     },
@@ -420,10 +409,9 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
     selector: "edge",
     style: {
       label: (element: EdgeSingular) =>
-        `${element.data("displayLabel")}${
-          element.data("count") === undefined
-            ? ""
-            : ` (${element.data("count")})`
+        `${element.data("displayLabel")}${element.data("count") === undefined
+          ? ""
+          : ` (${element.data("count")})`
         }`,
       opacity: TRANSPARENT_OPACITY,
     },
@@ -544,6 +532,7 @@ const SUBSTANCE_ASSOCIATED_WITH_COMPOUND_EDGE_ID =
 const PROTEIN_HAS_SOURCE_TAXONOMY_EDGE_ID = "protein-has-source-taxonomy";
 const GENE_HAS_SOURCE_TAXONOMY_EDGE_ID = "gene-has-source-taxonomy";
 const GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID = "gene-associated-with-phenotype";
+const PHENOTYPE_ASSOCIATED_WITH_DISEASE_EDGE_ID = "phenotype-associated-with-disease";
 
 const FILE_POS = { x: 0, y: 0 };
 const ID_NAMESPACE_POS = { x: FILE_POS.x, y: -120 };
@@ -1800,6 +1789,15 @@ const SCHEMA_EDGES = [
       label: ASSOCIATED_WITH_TYPE,
     },
   },
+  {
+    classes: ["term-relationship", "no-arrows", "horizontal-text"],
+    data: {
+      id: PHENOTYPE_ASSOCIATED_WITH_DISEASE_EDGE_ID,
+      source: PHENOTYPE_NODE_ID,
+      target: DISEASE_NODE_ID,
+      label: ASSOCIATED_WITH_TYPE,
+    },
+  },
 ];
 
 const SCHEMA_ADMIN_NODE_ITEM = "Admin Node";
@@ -2879,6 +2877,10 @@ export const SCHEMA_STYLESHEET: any[] = [
   },
   {
     selector: `edge#${GENE_ASSOCIATED_WITH_PHENOTYPE_EDGE_ID}`,
+    style: {},
+  },
+  {
+    selector: `edge#${PHENOTYPE_ASSOCIATED_WITH_DISEASE_EDGE_ID}`,
     style: {},
   },
   {
