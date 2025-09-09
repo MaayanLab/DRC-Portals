@@ -59,8 +59,15 @@ const axisInfo: Record<string, {
       'LEFT JOIN c2m2.subject_role sr2 ON srt.role_id = sr2.id'
     ].join('\n'),
   },
-  
-  
+  taxonomy: {
+    id: 'srt.taxonomy_id',
+    name: "COALESCE(nt.name, 'Unspecified')",
+    join: [
+      'LEFT JOIN c2m2.subject_role_taxonomy srt ON s.local_id = srt.subject_local_id AND s.id_namespace = srt.subject_id_namespace',
+      'LEFT JOIN c2m2.ncbi_taxonomy nt ON (srt.taxonomy_id = nt.id)'
+    ].join('\n'),
+    
+  },
 };
 
 function sanitizeName(name: string) {

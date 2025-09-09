@@ -36,7 +36,7 @@ interface ComboResult {
 // Default combinations
 const defaultCombos: Combination[] = [
   { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy'  },
-  /* { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease'  }, */
+  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease'  },
   { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'data_type' },
