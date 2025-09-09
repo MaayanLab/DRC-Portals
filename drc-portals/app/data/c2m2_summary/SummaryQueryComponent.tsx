@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import dynamic from "next/dynamic"; 
 import {
   Box, Grid, Typography, FormControl, InputLabel, Select, MenuItem,
   Button, CircularProgress, Alert, Switch, FormControlLabel,
@@ -12,7 +13,8 @@ import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
 import C2M2BarChart from './C2M2BarChart';
 import PlotDescriptionEditor from './PlotDescriptionEditor';
-import C2M2Heatmap from './C2M2Heatmap';
+// dynamically import Plotly heatmap (client only)
+const C2M2Heatmap = dynamic(() => import('./C2M2Heatmap'), { ssr: false });
 
 type YAxisField =
   | 'Subjects count'
