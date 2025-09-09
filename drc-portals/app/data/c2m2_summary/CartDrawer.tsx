@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Box, Drawer, Typography, Button, List, ListItem, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -5,7 +7,7 @@ import { useCart } from './CartContext';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { saveReport } from '../c2m2_report/reportStorage';
-
+import { generateChartTitle } from './_utils/chartUtils'; // <--- updated import
 
 interface CartDrawerProps {
   open: boolean;
@@ -35,34 +37,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
             </ListItem>
           )}
 
-          {cart.map(item => {
-            // Prefer title if available, else fallback depending on chart type
-            const title =
-              'title' in item && item.title
-                ? item.title
-                : item.chartType === 'bar'
-                ? `${item.yAxis} by ${item.xAxis}${item.groupBy ? ` group:${item.groupBy}` : ''}`
-                : item.chartType === 'pie'
-                ? 'Pie Chart' // fallback text if needed
-                : item.chartType === 'heatmap'
-                ? 'Heatmap Chart'
-                : 'Untitled Chart';
-
-            return (
-              <ListItem
-                key={item.id}
-                secondaryAction={
-                  <IconButton edge="end" onClick={() => removeFromCart(item.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
-                <Typography variant="subtitle2" noWrap>
-                  {title}
-                </Typography>
-              </ListItem>
-            );
-          })}
+          {cart.map((item) => (
+            <ListItem
+              key={item.id}
+              secondaryAction={
+                <IconButton edge="end" onClick={() => removeFromCart(item.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <Typography variant="subtitle2" noWrap>
+                {generateChartTitle(item)}
+              </Typography>
+            </ListItem>
+          ))}
         </List>
 
         <Button
