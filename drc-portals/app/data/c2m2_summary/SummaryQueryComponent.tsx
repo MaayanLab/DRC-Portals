@@ -33,11 +33,11 @@ interface DescriptionResponse {
 }
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
-  'Subjects count': ['dcc', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role', 'taxonomy'],
-  'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'sample_prep_method', 'disease'],
-  'Files count': ['dcc', 'file_format', 'assay_type', 'analysis_type', 'data_type', 'compression_format'],
-  'Collections count': ['dcc', 'anatomy', 'biofluid', 'disease', 'phenotype', 'compound', 'protein'],
+  'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'disease', 'sample_prep_method'],
+  'Subjects count': ['dcc', 'disease', 'ethnicity', 'granularity', 'phenotype', 'race', 'role', 'sex', 'taxonomy'],
+  'Files count': ['dcc', 'analysis_type', 'assay_type', 'compression_format', 'data_type', 'file_format'],
   'Projects count': ['dcc'],
+  'Collections count': ['dcc', 'anatomy', 'biofluid', 'compound', 'disease', 'protein'],
 };
 
 const minBarWidth = 60;

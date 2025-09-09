@@ -46,6 +46,15 @@ const axisInfo: Record<string, {
       'WHERE d.id IS NOT NULL'
     ].join('\n'),
   },
+  phenotype: {
+    id: 'sp.phenotype',
+    name: "COALESCE(p.name, 'Unspecified')",
+    join: [
+      'LEFT JOIN c2m2.subject_phenotype sp ON s.local_id = sp.subject_local_id AND s.id_namespace = sp.subject_id_namespace',
+      'LEFT JOIN c2m2.phenotype p ON p.id = sp.phenotype',
+      'WHERE p.id IS NOT NULL'
+    ].join('\n'),
+  },
   granularity: {
     id: 's.granularity',
     name: "COALESCE(sg.name, 'Unspecified')",
