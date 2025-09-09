@@ -35,8 +35,8 @@ interface ComboResult {
 
 // Default combinations
 const defaultCombos: Combination[] = [
-  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy'  },
-  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease'  },
+  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy' },
+  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease' },
   { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
   { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'data_type' },
@@ -123,7 +123,6 @@ const DefaultSummaryQueryComponent: React.FC = () => {
           const dataResp = await fetch(`${endpoint}?${params.toString()}`);
           const dataJson = await dataResp.json();
           const rawChartData: ChartRow[] = dataJson?.data || [];
-          console.log(rawChartData);
           const cleaned = cleanChartData(rawChartData, combo.xAxis);
           const colorMap = generateColorMap(cleaned[0] || {}, combo.xAxis);
 
@@ -220,18 +219,14 @@ const DefaultSummaryQueryComponent: React.FC = () => {
         bodyHtml += `<section><h2>Combined Figure Description</h2><pre>${escapeHtml(combinedDescription)}</pre></section>`;
       }
 
-      const finalHtml = `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>${safeTitle}</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <style>${style}</style>
-</head>
-<body>
-  ${bodyHtml}
-</body>
-</html>`;
+      const finalHtml = `<!doctype html> <html> <head>
+        <meta charset="utf-8" />
+        <title>${safeTitle}</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <style>${style}</style>
+      </head> <body>
+        ${bodyHtml}
+      </body> </html>`;
 
       const blob = new Blob([finalHtml], { type: 'text/html' });
       saveAs(blob, 'c2m2_summary_report.html');
@@ -286,6 +281,8 @@ const DefaultSummaryQueryComponent: React.FC = () => {
                 <C2M2BarChart
                   data={res.chartData}
                   xAxis={res.combination.xAxis}
+                  yAxis={res.combination.yAxis}   
+                  groupBy={res.combination.groupBy} 
                   groupValues={Object.keys(res.chartData[0]).filter(k => k !== res.combination.xAxis && k !== 'Unspecified')}
                   colorMap={res.colorMap || {}}
                   showUnspecified={false}
