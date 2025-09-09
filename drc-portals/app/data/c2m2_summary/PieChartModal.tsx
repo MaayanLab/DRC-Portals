@@ -22,8 +22,11 @@ interface PieChartModalProps {
   open: boolean;
   onClose: () => void;
   data: { name: string; value: number }[];
-  title: string;
+  yAxis: string;
+  xAxis: string;
+  groupBy: string;
   colorMap: Record<string, string>;
+  title: string;  // <-- Add this line
 }
 
 interface DescriptionResponse {
@@ -31,7 +34,14 @@ interface DescriptionResponse {
   error?: string;
 }
 
-const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, title, colorMap }) => {
+const generatePieTitle = (yAxis: string, xAxis: string, groupBy: string): string => {
+  let title = yAxis;
+  if (xAxis) title += ` by ${xAxis}`;
+  if (groupBy) title += ` group: ${groupBy}`;
+  return title;
+};
+
+const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxis, xAxis, groupBy, colorMap, title }) => {
   const [plotDescription, setPlotDescription] = useState<string>('');
   const [loadingDescription, setLoadingDescription] = useState<boolean>(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
@@ -40,7 +50,6 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, titl
   const { addToCart, cart } = useCart();
   const descriptionTimeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  // Reset description state when modal opens
   React.useEffect(() => {
     if (open) {
       setPlotDescription('');
@@ -49,7 +58,6 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, titl
     }
   }, [open]);
 
-  // LLM prompt generator
   const getChartPrompt = () => {
     return `Generate a concise description for a pie chart titled "${title}". 
 Summarize what the segments represent, the data shown, and any clear trends or insights from the pie chart.`;
@@ -72,13 +80,11 @@ Summarize what the segments represent, the data shown, and any clear trends or i
 
     try {
       const prompt = getChartPrompt();
-
       const res = await fetch('/data/c2m2_summary/getPlotDescFromLLM', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
-
       const result: DescriptionResponse = await res.json();
 
       if (descriptionTimeoutId.current) clearTimeout(descriptionTimeoutId.current);
@@ -105,10 +111,12 @@ Summarize what the segments represent, the data shown, and any clear trends or i
     addToCart({
       id: uuidv4(),
       chartType: 'pie',
+      xAxis,
+      xAxisValue: '', // optionally provide if you have
+      groupBy,
+      pieData: data,
+      pieDescription: plotDescription,
       title,
-      data,
-      colorMap,
-      plotDescription,
     });
   };
 
@@ -125,9 +133,12 @@ Summarize what the segments represent, the data shown, and any clear trends or i
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <C2M2PieChart data={data} colorMap={colorMap} />
+        <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+          {title}
+        </Typography>
 
-        {/* Button Bar */}
+        <C2M2PieChart data={data} colorMap={colorMap} title={title} />
+
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, gap: 2 }}>
           <Button variant="contained" onClick={handleGenerateDescription} disabled={loadingDescription}>
             Generate Description
@@ -144,7 +155,6 @@ Summarize what the segments represent, the data shown, and any clear trends or i
           </Badge>
         </Box>
 
-        {/* Description */}
         {loadingDescription && (
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
             <CircularProgress size={20} />
@@ -156,7 +166,6 @@ Summarize what the segments represent, the data shown, and any clear trends or i
           <Alert severity="error" sx={{ mt: 2 }}>{descriptionError}</Alert>
         )}
 
-        {/* Show description or editor */}
         {plotDescription && !isEditing && (
           <Box sx={{ mt: 3, whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', p: 2, borderRadius: 1 }}>
             <Typography variant="subtitle1">Plot Description</Typography>
@@ -164,6 +173,7 @@ Summarize what the segments represent, the data shown, and any clear trends or i
             <Button variant="outlined" onClick={() => setIsEditing(true)}>Edit</Button>
           </Box>
         )}
+
         {isEditing && (
           <PlotDescriptionEditor
             initialValue={plotDescription}

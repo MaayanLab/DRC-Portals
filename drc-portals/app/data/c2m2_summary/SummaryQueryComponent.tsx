@@ -12,8 +12,8 @@ import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
 import C2M2BarChart from './C2M2BarChart';
 import PlotDescriptionEditor from './PlotDescriptionEditor';
+import C2M2Heatmap from './C2M2Heatmap';
 
-// ------ Types ------
 type YAxisField =
   | 'Subjects count'
   | 'Biosamples count'
@@ -29,7 +29,6 @@ interface DescriptionResponse {
   description?: string;
   error?: string;
 }
-// -------------------
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
   'Subjects count': ['dcc', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
@@ -57,6 +56,8 @@ const SummaryQueryComponent: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
+  const [showHeatmap, setShowHeatmap] = useState<boolean>(false);
 
   const { addToCart, cart } = useCart();
 
@@ -137,13 +138,13 @@ const SummaryQueryComponent: React.FC = () => {
 
   const groupValues = groupBy
     ? Array.from(
-        cleanedChartData.reduce<Set<string>>((set, item) => {
-          Object.keys(item).forEach(key => {
-            if (key !== xAxis) set.add(key);
-          });
-          return set;
-        }, new Set())
-      )
+      cleanedChartData.reduce<Set<string>>((set, item) => {
+        Object.keys(item).forEach(key => {
+          if (key !== xAxis) set.add(key);
+        });
+        return set;
+      }, new Set())
+    )
     : ['value'];
 
   const colorMap = groupValues.reduce((map, key, i) => {
@@ -153,9 +154,20 @@ const SummaryQueryComponent: React.FC = () => {
     return map;
   }, {} as Record<string, string>);
 
+  // --- Heatmap data ---
+  const heatmapXLabels = cleanedChartData.map(row => String(row[xAxis] ?? ''));
+  const heatmapYLabels = groupValues;
+  const heatmapZ = heatmapYLabels.map(groupVal =>
+    heatmapXLabels.map((xVal, colIdx) => {
+      const row = cleanedChartData[colIdx];
+      const value = row ? row[groupVal] : undefined;
+      return typeof value === 'number' ? value : 0;
+    })
+  );
+
   // Prompt for LLM
   const getChartPrompt = () => {
-    let out = `Generate a concise description of a bar chart with the following parameters:
+    let out = `Generate a concise description of a ${showHeatmap ? 'heatmap' : 'bar chart'} with the following parameters:
 - Y-axis: ${yAxis}
 - X-axis: ${xAxis}`;
     if (groupBy) out += `\n- Group by: ${groupBy}`;
@@ -214,18 +226,29 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
     }
   };
 
-  // --- ADD TO CART updated to new SavedBarChart type ---
+  // --- ADD TO CART with heatmap support ---
   const handleAddToCart = () => {
-    addToCart({
-      id: uuidv4(),
-      chartType: 'bar',
-      xAxis,
-      yAxis,
-      groupBy,
-      chartData,
-      plotDescription,
-      showUnspecified
-    });
+    if (showHeatmap) {
+      addToCart({
+        id: uuidv4(),
+        chartType: 'heatmap',
+        xLabels: heatmapXLabels,
+        yLabels: heatmapYLabels,
+        z: heatmapZ,
+        plotDescription,
+      });
+    } else {
+      addToCart({
+        id: uuidv4(),
+        chartType: 'bar',
+        xAxis,
+        yAxis,
+        groupBy,
+        chartData,
+        plotDescription,
+        showUnspecified,
+      });
+    }
   };
 
   return (
@@ -243,6 +266,7 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
             </Select>
           </FormControl>
         </Grid>
+
         <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>X-axis</InputLabel>
@@ -253,6 +277,7 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
             </Select>
           </FormControl>
         </Grid>
+
         <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>Group By</InputLabel>
@@ -264,6 +289,14 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
           </FormControl>
         </Grid>
       </Grid>
+
+      {/* Heatmap toggle */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <FormControlLabel
+          control={<Switch checked={showHeatmap} onChange={() => setShowHeatmap(!showHeatmap)} />}
+          label="Show Heatmap"
+        />
+      </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <FormControlLabel
@@ -291,16 +324,23 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
 
       {loading && <Box sx={{ py: 6, textAlign: 'center' }}><CircularProgress /></Box>}
       {error && <Alert severity="error">{error}</Alert>}
+
       {!loading && !error && (
-        <C2M2BarChart
-          data={cleanedChartData}
-          xAxis={xAxis}
-          groupValues={groupValues}
-          colorMap={colorMap}
-          showUnspecified={showUnspecified}
-          minBarWidth={minBarWidth}
-          minChartWidth={minChartWidth}
-        />
+        showHeatmap ?
+          <C2M2Heatmap xLabels={heatmapXLabels} yLabels={heatmapYLabels} z={heatmapZ} />
+          :
+          <C2M2BarChart
+            data={cleanedChartData}
+            xAxis={xAxis}
+            yAxis={yAxis}           // add this!
+            groupBy={groupBy}       // add this!
+            groupValues={groupValues}
+            colorMap={colorMap}
+            showUnspecified={showUnspecified}
+            minBarWidth={minBarWidth}
+            minChartWidth={minChartWidth}
+          />
+
       )}
 
       {loadingDescription && (

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import PieChartModal from './PieChartModal';
 
+
 const CustomTooltip: React.FC<{ active?: boolean }> = ({ active }) => {
   if (active) {
     return (
@@ -58,6 +59,8 @@ const axisTitleMap: Record<string, string> = {
 export interface C2M2BarChartProps {
   data: Record<string, number | string | undefined>[];
   xAxis: string;
+  yAxis: string;        // added yAxis here
+  groupBy: string;      // added groupBy here
   groupValues: string[];
   colorMap: Record<string, string>;
   showUnspecified: boolean;
@@ -71,6 +74,8 @@ export interface C2M2BarChartProps {
 const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   data,
   xAxis,
+  yAxis,
+  groupBy,
   groupValues,
   colorMap,
   showUnspecified,
@@ -117,7 +122,10 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
       .filter(d => d.value > 0);
 
     setPieData(pieBreakdown);
-    setPieTitle(`${axisTitleMap[xAxis] || xAxis}: ${row[xAxis]}`);
+
+    const generatedTitle = `${axisTitleMap[xAxis] || xAxis}: ${row[xAxis]}`;
+    setPieTitle(generatedTitle);
+
     setPieModalOpen(true);
   };
 
@@ -133,7 +141,7 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   const useLogScale = (maxCount / minCount) > 20 && minCount > 0;
   const yTitle = useLogScale ? `log(${yAxisTitle ?? 'Count'})` : (yAxisTitle ?? 'Count');
 
-  // Figure caption
+  // Figure caption without groupBy, as you requested
   const captionText = figureCaption ?? `Figure: Bar chart of ${yTitle} by ${xTitle}`;
 
   return (
@@ -252,10 +260,14 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
         </>
       )}
 
+      {/* Pass yAxis and groupBy to PieChartModal*/}
       <PieChartModal
         open={pieModalOpen}
         onClose={() => setPieModalOpen(false)}
         data={pieData}
+        yAxis={yAxis}
+        xAxis={xAxis}
+        groupBy={groupBy}
         title={pieTitle}
         colorMap={colorMap}
       />
