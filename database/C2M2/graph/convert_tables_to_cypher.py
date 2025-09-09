@@ -157,6 +157,10 @@ def create_text_index(node_label: str, property_name: str):
     return f'CREATE TEXT INDEX index_{node_label}_{property_name} IF NOT EXISTS FOR (n:{node_label}) ON (n.{property_name});\n'
 
 
+def create_fulltext_index(node_label: str, property_name: str):
+    return f'CREATE FULLTEXT INDEX index_{node_label}_{property_name} IF NOT EXISTS FOR (n:{node_label}) ON EACH [n.{property_name}];\n'
+
+
 def create_property_exists_constraint(constraint_name: str, node_label: str, property_name: str):
     return f'CREATE CONSTRAINT {constraint_name} IF NOT EXISTS FOR (n:{node_label}) REQUIRE n.{property_name} IS NOT NULL;\n'
 
@@ -358,7 +362,7 @@ def create_compound_cypher():
 
 def create_container_indexes_cypher():
     return ''.join(
-        [create_range_index(label, 'local_id') for label in CONTAINER_NODES] +
+        [create_text_index(label, 'local_id') for label in CONTAINER_NODES] +
         [create_text_index(label, 'name') for label in CONTAINER_NODES] +
         [create_text_index(label, 'persistent_id')
          for label in CONTAINER_NODES]
@@ -367,7 +371,7 @@ def create_container_indexes_cypher():
 
 def create_core_indexes_cypher():
     return ''.join(
-        [create_range_index(label, 'local_id') for label in CORE_NODES] +
+        [create_text_index(label, 'local_id') for label in CORE_NODES] +
         [create_text_index(label, 'persistent_id') for label in CORE_NODES] +
         [create_text_index(FILE, 'access_url')]
     )
