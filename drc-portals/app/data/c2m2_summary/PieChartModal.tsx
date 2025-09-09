@@ -59,9 +59,23 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxi
   }, [open]);
 
   const getChartPrompt = () => {
-    return `Generate a concise description for a pie chart titled "${title}". 
-Summarize what the segments represent, the data shown, and any clear trends or insights from the pie chart.`;
+    // Convert the pie chart data into a readable string
+    const dataSummary = data
+      .map(d => `${d.name}: ${d.value}`)
+      .join(', ');
+  
+    let prompt = `For the pie chart titled "${title}", the slices represent "${groupBy}" `;
+    prompt += `and the size of each slice represents "${yAxis}".\n\n`;
+    prompt += `Here is the data for the pie chart:\n${dataSummary}\n\n`;
+    prompt += `Summarize the chart in **no more than 5 sentences** by describing the distribution of "${groupBy}" categories, `;
+    prompt += `any notable trends or differences based on the counts, and key insights from the data.`;
+    
+    return prompt;
   };
+  
+  
+  
+  
 
   const handleGenerateDescription = async () => {
     setLoadingDescription(true);

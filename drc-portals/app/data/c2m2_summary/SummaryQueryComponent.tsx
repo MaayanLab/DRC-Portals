@@ -170,15 +170,21 @@ const SummaryQueryComponent: React.FC = () => {
   // Prompt for LLM
   const getChartPrompt = () => {
     let out = `Generate a concise description of a ${showHeatmap ? 'heatmap' : 'bar chart'} with the following parameters:
-- Y-axis: ${yAxis}
-- X-axis: ${xAxis}`;
-    if (groupBy) out += `\n- Group by: ${groupBy}`;
+  - Y-axis: ${yAxis}
+  - X-axis: ${xAxis}`;
+  
+    // Removed the groupBy line
     out += `
-Describe what kind of data this chart shows and what insights it might reveal.`;
-    if (showUnspecified) out += `
-If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
+  Describe what kind of data this chart shows and what insights it might reveal.`;
+  
+    if (showUnspecified) {
+      out += `
+  If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
+    }
+  
     return out;
   };
+  
 
   // LLM handle
   const handleGenerateDescription = async () => {
