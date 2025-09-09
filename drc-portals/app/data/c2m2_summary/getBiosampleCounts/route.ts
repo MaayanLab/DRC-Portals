@@ -14,17 +14,17 @@ const axisInfo: Record<string, {
   anatomy: {
     id: 'b.anatomy',
     name: 'a.name',
-    join: 'LEFT JOIN c2m2.anatomy a ON a.id = b.anatomy',
+    join: 'LEFT JOIN c2m2.anatomy a ON a.id = b.anatomy WHERE a.id IS NOT NULL',
   },
   biofluid: {
     id: 'b.biofluid',
-    name: 'f.name',
-    join: 'LEFT JOIN c2m2.biofluid f ON f.id = b.biofluid',
+    name: 'bf.name',
+    join: 'LEFT JOIN c2m2.biofluid bf ON bf.id = b.biofluid WHERE bf.id IS NOT NULL',
   },
   sample_prep_method: {
     id: 'b.sample_prep_method',
     name: 's.name',
-    join: 'LEFT JOIN c2m2.sample_prep_method s ON s.id = b.sample_prep_method',
+    join: 'LEFT JOIN c2m2.sample_prep_method s ON s.id = b.sample_prep_method WHERE s.id IS NOT NULL',
   },
   dcc: {
     id: 'b.id_namespace',
@@ -34,7 +34,7 @@ const axisInfo: Record<string, {
   disease: {
     id: 'bd.disease',
     name: 'd.name',
-    join: 'LEFT JOIN c2m2.disease d ON d.id = bd.disease',
+    join: 'LEFT JOIN c2m2.disease d ON d.id = bd.disease WHERE d.id IS NOT NULL',
   },
 };
 
