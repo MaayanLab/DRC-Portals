@@ -4,6 +4,7 @@ set -e
 
 files=(
     "curated_synonyms.cypher"
+    "dcc_synonyms.cypher"
     "synonym_constraints.cypher"
     "synonym_indexes.cypher"
     "synonyms.cypher"

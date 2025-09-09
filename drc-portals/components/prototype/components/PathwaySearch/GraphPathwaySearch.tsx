@@ -251,31 +251,21 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     const root = getRootFromElements(elements);
     const nodeLabel: string = event.target.data("dbLabel");
     const nodeId: string = event.target.data("id");
-    if (ADMIN_LABELS.includes(nodeLabel)) {
-      // Don't allow expansion if the node has an admin label
-      return false;
-    } else {
-      // Also don't allow expansion if...
-      if (
-        // ...the node we're getting connections for is a term node...
-        TERM_LABELS.includes(nodeLabel)
-      ) {
-        if (
-          // ...and it is the root...
-          nodeId === root?.data.id
-        ) {
-          // ...and it already has some connection
-          if (elements.filter(isPathwaySearchEdgeElement).some((edge) => edge.data.source === nodeId || edge.data.target === nodeId)) {
-            return false;
-          }
-        } else {
-          // ...or if it isn't the root...
-          return false;
-        }
+
+    // If the node is the root...
+    if (nodeId === root?.data.id) {
+      if (elements.filter(isPathwaySearchEdgeElement).some((edge) => edge.data.source === nodeId || edge.data.target === nodeId)) {
+        // Don't allow expansion if already has some connection
+        return false
       }
-      // ...otherwise we allow expanding
-      return true;
+    } else {
+      // If the node is NOT the root...
+      if (ADMIN_LABELS.includes(nodeLabel) || TERM_LABELS.includes(nodeLabel)) {
+        // Don't allow expansion if the node has an admin label or a term label
+        return false;
+      }
     }
+    return true;
   }, [elements]);
 
   const handlePruneNodeSelected = (event: EventObjectNode) => {
