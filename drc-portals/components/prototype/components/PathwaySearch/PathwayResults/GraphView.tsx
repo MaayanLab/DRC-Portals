@@ -52,7 +52,7 @@ import { CytoscapeNodeData } from "@/components/prototype/interfaces/cy";
 import GraphEntityDetails from "../../GraphEntityDetails";
 import ChartCxtMenuItem from "../../CytoscapeChart/ChartCxtMenuItem";
 import CytoscapeChart from "../../CytoscapeChart/CytoscapeChart";
-import ChartNestedCxtMenuItem from "../../CytoscapeChart/NestedChartCxtMenuItem";
+import ChartNestedCxtMenuItem from "../../CytoscapeChart/ChartNestedCxtMenuItem";
 
 import ReturnBtn from "../ReturnBtn";
 
@@ -111,32 +111,6 @@ export default function GraphView(cmpProps: GraphViewProps) {
       setLegend(newLegend);
     }
   }, [elements]);
-
-  const highlightRenderChildren = (event: EventObject) => [
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-neighbors"
-      renderContent={(event) => "Neighbors"}
-      action={highlightNeighbors}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-nodes-with-label"
-      renderContent={(event) => "Nodes with this Label"}
-      action={highlightNodesWithLabel}
-    ></ChartCxtMenuItem>,
-  ];
-
-  const selectRenderChildren = (event: EventObject) => [
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-neighbors"
-      renderContent={(event) => "Select Neighbors"}
-      action={selectNeighbors}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-highlight-nodes-with-label"
-      renderContent={(event) => "Select Nodes with this Label"}
-      action={selectNodesWithLabel}
-    ></ChartCxtMenuItem>,
-  ];
 
   const staticCxtMenuItems: ReactNode[] = [
     <ChartCxtMenuItem
@@ -201,13 +175,37 @@ export default function GraphView(cmpProps: GraphViewProps) {
     <ChartNestedCxtMenuItem
       key="chart-cxt-highlight"
       renderContent={(event) => "Highlight"}
-      renderChildren={highlightRenderChildren}
-    ></ChartNestedCxtMenuItem>,
+    >
+      {[
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-neighbors"
+          renderContent={(event) => "Neighbors"}
+          action={highlightNeighbors}
+        ></ChartCxtMenuItem>,
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-nodes-with-label"
+          renderContent={(event) => "Nodes with this Label"}
+          action={highlightNodesWithLabel}
+        ></ChartCxtMenuItem>
+      ]}
+    </ChartNestedCxtMenuItem>,
     <ChartNestedCxtMenuItem
       key="chart-cxt-select"
       renderContent={(event) => "Select"}
-      renderChildren={selectRenderChildren}
-    ></ChartNestedCxtMenuItem>,
+    >
+      {[
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-neighbors"
+          renderContent={(event) => "Select Neighbors"}
+          action={selectNeighbors}
+        ></ChartCxtMenuItem>,
+        <ChartCxtMenuItem
+          key="chart-cxt-highlight-nodes-with-label"
+          renderContent={(event) => "Select Nodes with this Label"}
+          action={selectNodesWithLabel}
+        ></ChartCxtMenuItem>
+      ]}
+    </ChartNestedCxtMenuItem>,
   ];
 
   const edgeCxtMenuItems = [

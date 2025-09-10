@@ -9,14 +9,14 @@ import { ChartCxtMenuContext } from "./ChartCxtMenuContext";
 
 interface ChartNestedCxtMenuItemProps {
   renderContent: (event: EventObject) => ReactNode;
-  renderChildren: (event: EventObject) => ReactNode;
   showFn?: (event: EventObject) => boolean;
+  children: ReactNode;
 }
 
 export default function ChartNestedCxtMenuItem(
   cmpProps: ChartNestedCxtMenuItemProps
 ) {
-  const { renderContent, renderChildren, showFn } = cmpProps;
+  const { renderContent, showFn, children } = cmpProps;
   const context = useContext(ChartCxtMenuContext);
   const showItem = useRef(
     // Capture the initial value `showFn`, this prevents the menu from prematurely removing elements if the upstream state changed as a
@@ -31,7 +31,7 @@ export default function ChartNestedCxtMenuItem(
       parentMenuOpen={context.open}
       sx={{ paddingX: "16px" }}
     >
-      {renderChildren(context.event)}
+      {children}
     </NestedMenuItem>
   ) : null;
 }
