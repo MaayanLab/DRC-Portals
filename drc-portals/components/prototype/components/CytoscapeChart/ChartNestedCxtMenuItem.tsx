@@ -16,22 +16,27 @@ interface ChartNestedCxtMenuItemProps {
 export default function ChartNestedCxtMenuItem(
   cmpProps: ChartNestedCxtMenuItemProps
 ) {
-  const { renderContent, showFn, children } = cmpProps;
   const context = useContext(ChartCxtMenuContext);
-  const showItem = useRef(
-    // Capture the initial value `showFn`, this prevents the menu from prematurely removing elements if the upstream state changed as a
-    // result of, for example, closing the menu
-    context !== null && (showFn === undefined || showFn(context.event))
-  );
+  if (context === null) {
+    return null;
+  } else {
+    const { renderContent, showFn, children } = cmpProps;
+    const showItem = useRef(
+      // Capture the initial value `showFn`, this prevents the menu from prematurely removing elements if the upstream state changed as a
+      // result of, for example, closing the menu
+      (showFn === undefined || showFn(context.event))
+    );
 
-  return context !== null && showItem.current ? (
-    <NestedMenuItem
-      rightIcon={<KeyboardArrowRightIcon />}
-      renderLabel={() => renderContent(context.event)}
-      parentMenuOpen={context.open}
-      sx={{ paddingX: "16px" }}
-    >
-      {children}
-    </NestedMenuItem>
-  ) : null;
+    return showItem.current ? (
+      <NestedMenuItem
+        rightIcon={<KeyboardArrowRightIcon />}
+        renderLabel={() => renderContent(context.event)}
+        parentMenuOpen={context.open}
+        sx={{ paddingX: "16px" }}
+      >
+        {children}
+      </NestedMenuItem>
+    ) : null;
+  }
+
 }

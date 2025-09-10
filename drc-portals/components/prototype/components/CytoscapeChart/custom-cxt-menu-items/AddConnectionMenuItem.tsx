@@ -42,205 +42,210 @@ interface AddConnectionMenuItemProps {
 export default function AddConnectionMenuItem(
   cmpProps: AddConnectionMenuItemProps
 ) {
-  const { elements, onConnectionSelected, showFn } = cmpProps;
-  const [loading, setLoading] = useState(false);
-  const [getConnectionsError, setGetConnectionsError] =
-    useState<boolean>(false);
-  const [subMenuItems, setSubMenuItems] = useState<ReactNode[]>([]);
-  const [gotConnections, setGotConnections] = useState(false);
-  const abortControllerRef = useRef(new AbortController());
   const context = useContext(ChartCxtMenuContext);
-  const showItem = useRef(
-    // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
-    // result of, for example, closing the menu
-    context !== null && (showFn === undefined || showFn(context.event))
-  );
 
-  const getRightIcon = useCallback(() => {
-    if (loading) {
-      return (
-        <CircularProgress aria-label="loading" color="inherit" size={20} />
-      );
-    } else if (getConnectionsError) {
-      return (
-        <Tooltip title="An error occurred fetching expand options">
-          <ErrorIcon aria-label="error" color="error" />
-        </Tooltip>
-      );
-    } else if (gotConnections) {
-      return subMenuItems.length === 0 ? (
-        <Tooltip title="Node has no expand options">
-          <WarningIcon aria-label="warning" color="warning" />
-        </Tooltip>
-      ) : (
-        <KeyboardArrowRightIcon aria-label="show-all-rels" />
-      );
-    } else {
-      return null;
-    }
-  }, [loading, getConnectionsError, subMenuItems, gotConnections]);
+  if (context === null) {
+    return null;
+  } else {
+    const { elements, onConnectionSelected, showFn } = cmpProps;
+    const [loading, setLoading] = useState(false);
+    const [getConnectionsError, setGetConnectionsError] =
+      useState<boolean>(false);
+    const [subMenuItems, setSubMenuItems] = useState<ReactNode[]>([]);
+    const [gotConnections, setGotConnections] = useState(false);
+    const abortControllerRef = useRef(new AbortController());
+    const showItem = useRef(
+      // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
+      // result of, for example, closing the menu
+      (showFn === undefined || showFn(context.event))
+    );
 
-  const setConnectionOptions = useCallback(
-    async (nodeId: string) => {
-      const controller = abortControllerRef.current;
-      const signal = controller.signal;
-
-      setLoading(true);
-
-      try {
-        const tree = createTree(elements);
-        const btoaTree = btoa(JSON.stringify(tree));
-
-        const response = await fetchPathwaySearchConnections(
-          btoaTree,
-          [nodeId],
-          { signal }
+    const getRightIcon = useCallback(() => {
+      if (loading) {
+        return (
+          <CircularProgress aria-label="loading" color="inherit" size={20} />
         );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data: PathwayConnectionsResult = await response.json();
-        const nodeMap = new Map<string, string>(
-          data.connectedNodes.map((node) => [node.id, node.label])
+      } else if (getConnectionsError) {
+        return (
+          <Tooltip title="An error occurred fetching expand options">
+            <ErrorIcon aria-label="error" color="error" />
+          </Tooltip>
         );
-
-        setSubMenuItems(
-          data.connectedEdges
-            .sort((a, b) => {
-              if (
-                a.direction === Direction.OUTGOING &&
-                b.direction === Direction.INCOMING
-              ) {
-                return -1;
-              } else if (
-                a.direction === Direction.INCOMING &&
-                b.direction === Direction.OUTGOING
-              ) {
-                return 1;
-              } else {
-                return 0;
-              }
-            })
-            .map((edge) => {
-              if (edge.source === nodeId) {
-                const nodeLabel = nodeMap.get(edge.target);
-                if (nodeLabel === undefined) {
-                  console.warn(
-                    `Could not find node match for edge target id "${edge.target}" for edge with id "${edge.id}"`
-                  );
-                  return undefined;
-                } else {
-                  return {
-                    nodeId: edge.target,
-                    label: nodeLabel,
-                    edgeId: edge.id,
-                    type: edge.type,
-                    source: edge.source,
-                    target: edge.target,
-                    direction: edge.direction,
-                  };
-                }
-              } else {
-                const nodeLabel = nodeMap.get(edge.source);
-                if (nodeLabel === undefined) {
-                  console.warn(
-                    `Could not find node match for edge source id "${edge.source}" for edge with id "${edge.id}"`
-                  );
-                  return undefined;
-                } else {
-                  return {
-                    nodeId: edge.source,
-                    label: nodeLabel,
-                    edgeId: edge.id,
-                    type: edge.type,
-                    source: edge.source,
-                    target: edge.target,
-                    direction: edge.direction,
-                  };
-                }
-              }
-            })
-            .filter((v): v is Exclude<typeof v, undefined> => v !== undefined)
-            .map(createConnectionMenuItem)
+      } else if (gotConnections) {
+        return subMenuItems.length === 0 ? (
+          <Tooltip title="Node has no expand options">
+            <WarningIcon aria-label="warning" color="warning" />
+          </Tooltip>
+        ) : (
+          <KeyboardArrowRightIcon aria-label="show-all-rels" />
         );
-      } catch (error) {
-        if (!signal.aborted) {
-          setGetConnectionsError(true);
-        }
-      } finally {
-        setGotConnections(true);
-
-        // This check should only be meaningful when strict mode is enabled: there is a race condition between the two runs of the effect
-        // below where the loading state can be erroneously set to false. Normally when `signal` is aborted we are unmounting the
-        // component because the menu was closed, so we don't need to update loading state. But when it's unmounted as a result of
-        // duplicate renders, the race condition is created.
-        if (!signal.aborted) {
-          setLoading(false);
-        }
+      } else {
+        return null;
       }
-    },
-    [elements]
-  );
+    }, [loading, getConnectionsError, subMenuItems, gotConnections]);
 
-  const createConnectionMenuItem = useCallback(
-    (item: ConnectionMenuItem) => (
-      <ChartCxtMenuItem
-        key={`${item.type}-${item.direction}-${item.label}`}
-        renderContent={(event) => (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <Box sx={{ display: "flex" }}>
-              <Box>
-                {createDirectedRelationshipElement(item.type, item.direction)}
+    const setConnectionOptions = useCallback(
+      async (nodeId: string) => {
+        const controller = abortControllerRef.current;
+        const signal = controller.signal;
+
+        setLoading(true);
+
+        try {
+          const tree = createTree(elements);
+          const btoaTree = btoa(JSON.stringify(tree));
+
+          const response = await fetchPathwaySearchConnections(
+            btoaTree,
+            [nodeId],
+            { signal }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const data: PathwayConnectionsResult = await response.json();
+          const nodeMap = new Map<string, string>(
+            data.connectedNodes.map((node) => [node.id, node.label])
+          );
+
+          setSubMenuItems(
+            data.connectedEdges
+              .sort((a, b) => {
+                if (
+                  a.direction === Direction.OUTGOING &&
+                  b.direction === Direction.INCOMING
+                ) {
+                  return -1;
+                } else if (
+                  a.direction === Direction.INCOMING &&
+                  b.direction === Direction.OUTGOING
+                ) {
+                  return 1;
+                } else {
+                  return 0;
+                }
+              })
+              .map((edge) => {
+                if (edge.source === nodeId) {
+                  const nodeLabel = nodeMap.get(edge.target);
+                  if (nodeLabel === undefined) {
+                    console.warn(
+                      `Could not find node match for edge target id "${edge.target}" for edge with id "${edge.id}"`
+                    );
+                    return undefined;
+                  } else {
+                    return {
+                      nodeId: edge.target,
+                      label: nodeLabel,
+                      edgeId: edge.id,
+                      type: edge.type,
+                      source: edge.source,
+                      target: edge.target,
+                      direction: edge.direction,
+                    };
+                  }
+                } else {
+                  const nodeLabel = nodeMap.get(edge.source);
+                  if (nodeLabel === undefined) {
+                    console.warn(
+                      `Could not find node match for edge source id "${edge.source}" for edge with id "${edge.id}"`
+                    );
+                    return undefined;
+                  } else {
+                    return {
+                      nodeId: edge.source,
+                      label: nodeLabel,
+                      edgeId: edge.id,
+                      type: edge.type,
+                      source: edge.source,
+                      target: edge.target,
+                      direction: edge.direction,
+                    };
+                  }
+                }
+              })
+              .filter((v): v is Exclude<typeof v, undefined> => v !== undefined)
+              .map(createConnectionMenuItem)
+          );
+        } catch (error) {
+          if (!signal.aborted) {
+            setGetConnectionsError(true);
+          }
+        } finally {
+          setGotConnections(true);
+
+          // This check should only be meaningful when strict mode is enabled: there is a race condition between the two runs of the effect
+          // below where the loading state can be erroneously set to false. Normally when `signal` is aborted we are unmounting the
+          // component because the menu was closed, so we don't need to update loading state. But when it's unmounted as a result of
+          // duplicate renders, the race condition is created.
+          if (!signal.aborted) {
+            setLoading(false);
+          }
+        }
+      },
+      [elements]
+    );
+
+    const createConnectionMenuItem = useCallback(
+      (item: ConnectionMenuItem) => (
+        <ChartCxtMenuItem
+          key={`${item.type}-${item.direction}-${item.label}`}
+          renderContent={(event) => (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Box sx={{ display: "flex" }}>
+                <Box>
+                  {createDirectedRelationshipElement(item.type, item.direction)}
+                </Box>
+                <Box>{createNodeElement(item.label)}</Box>
               </Box>
-              <Box>{createNodeElement(item.label)}</Box>
             </Box>
+          )}
+          action={(event) => onConnectionSelected(item, event)}
+        ></ChartCxtMenuItem>
+      ),
+      [onConnectionSelected]
+    );
+
+    const onMenuClicked = useCallback(() => {
+      if (context !== null) {
+        setConnectionOptions(context.event.target.data("id"));
+      }
+    }, [context]);
+
+    useEffect(() => {
+      return () => {
+        const controller = abortControllerRef.current;
+        controller.abort("Cancelling connections request.");
+
+        // This may seem unnecessary, and in production mode it is. However in dev mode, the extra render caused by `reactStrictMode` means
+        // we need to reset the abort controller so that the abort call above doesn't carry over into the state of the new render.
+        abortControllerRef.current = new AbortController();
+      };
+    }, []);
+
+    return showItem.current ? (
+      <NestedMenuItem
+        onClick={onMenuClicked}
+        rightIcon={getRightIcon()}
+        renderLabel={() => (
+          <Box sx={{ display: "flex", marginRight: 1 }}>
+            <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+            Expand
           </Box>
         )}
-        action={(event) => onConnectionSelected(item, event)}
-      ></ChartCxtMenuItem>
-    ),
-    [onConnectionSelected]
-  );
-
-  const onMenuClicked = useCallback(() => {
-    if (context !== null) {
-      setConnectionOptions(context.event.target.data("id"));
-    }
-  }, [context]);
-
-  useEffect(() => {
-    return () => {
-      const controller = abortControllerRef.current;
-      controller.abort("Cancelling connections request.");
-
-      // This may seem unnecessary, and in production mode it is. However in dev mode, the extra render caused by `reactStrictMode` means
-      // we need to reset the abort controller so that the abort call above doesn't carry over into the state of the new render.
-      abortControllerRef.current = new AbortController();
-    };
-  }, []);
-
-  return context !== null && showItem.current ? (
-    <NestedMenuItem
-      onClick={onMenuClicked}
-      rightIcon={getRightIcon()}
-      renderLabel={() => (
-        <Box sx={{ display: "flex", marginRight: 1 }}>
-          <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-          Expand
-        </Box>
-      )}
-      MenuProps={subMenuItems.length > 0 ? undefined : { open: false }} // This is a kludge to make sure an empty submenu isn't shown
-      parentMenuOpen={context.open}
-      sx={{ paddingX: "16px" }}
-      children={subMenuItems}
-    />
-  ) : null;
+        MenuProps={subMenuItems.length > 0 ? undefined : { open: false }} // This is a kludge to make sure an empty submenu isn't shown
+        parentMenuOpen={context.open}
+        sx={{ paddingX: "16px" }}
+        children={subMenuItems}
+      />
+    ) : null;
+  }
 }

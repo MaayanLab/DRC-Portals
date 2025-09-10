@@ -13,22 +13,28 @@ interface ChartCxtMenuItemProps {
 }
 
 export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
-  const { renderContent, action, showFn } = cmpProps;
   const context = useContext(ChartCxtMenuContext);
-  const showItem = useRef(
-    // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
-    // result of, for example, closing the menu
-    context !== null && (showFn === undefined || showFn(context.event))
-  );
 
-  const handleOnClick = () => {
-    if (context !== null) {
-      action(context.event);
-      context.onClose();
-    }
-  };
+  if (context === null) {
+    return null;
+  } else {
+    const { renderContent, action, showFn } = cmpProps;
 
-  return context !== null && showItem.current ? (
-    <MenuItem onClick={handleOnClick}>{renderContent(context.event)}</MenuItem>
-  ) : null;
+    const showItem = useRef(
+      // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
+      // result of, for example, closing the menu
+      (showFn === undefined || showFn(context.event))
+    );
+
+    const handleOnClick = () => {
+      if (context !== null) {
+        action(context.event);
+        context.onClose();
+      }
+    };
+
+    return showItem.current ? (
+      <MenuItem onClick={handleOnClick}>{renderContent(context.event)}</MenuItem>
+    ) : null;
+  }
 }
