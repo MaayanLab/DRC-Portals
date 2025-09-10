@@ -545,9 +545,9 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         elements={elements}
         layout={layout}
         stylesheet={PATHWAY_SEARCH_STYLESHEET}
-        cxtMenuEnabled={false}
+        cxtMenuEnabled={true}
         tooltipEnabled={false}
-        hoverCxtMenuEnabled={loadingNodes.length === 0}
+        hoverCxtMenuEnabled={false}
         toolbarPosition={{ top: 10, right: 10 }}
         customTools={customTools}
         nodeCxtMenuItems={nodeCxtMenuItems}

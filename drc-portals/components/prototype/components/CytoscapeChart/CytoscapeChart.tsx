@@ -325,24 +325,24 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       { event: "cxttap", callback: handleCxtTap }, // Shared cxttap behavior
       ...(cxtMenuEnabled
         ? [
-            { event: "cxttap", callback: openCanvasCxt }, // Canvas specific cxttap behavior
-            { event: "cxttap", target: "node", callback: openNodeCxt },
-            { event: "cxttap", target: "edge", callback: openEdgeCxt },
-          ]
+          { event: "cxttap", callback: openCanvasCxt }, // Canvas specific cxttap behavior
+          { event: "cxttap", target: "node", callback: openNodeCxt },
+          { event: "cxttap", target: "edge", callback: openEdgeCxt },
+        ]
         : []),
       ...(hoverCxtMenuEnabled
         ? [
-            {
-              event: "mouseover",
-              target: "node",
-              callback: openNodeHoverCxt,
-            },
-            {
-              event: "mouseout",
-              target: "node",
-              callback: closeNodeHoverCxt,
-            },
-          ]
+          {
+            event: "mouseover",
+            target: "node",
+            callback: openNodeHoverCxt,
+          },
+          {
+            event: "mouseout",
+            target: "node",
+            callback: closeNodeHoverCxt,
+          },
+        ]
         : []),
     ],
     [
@@ -427,8 +427,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           position={contextMenuPosRef.current}
           event={contextMenuEvent}
           onClose={handleContextMenuClose}
-          onMouseEnter={handleCxtMenuMouseEnter}
-          onMouseLeave={handleCxtMenuMouseLeave}
         >
           {contextMenuItems}
         </ChartCxtMenu>
