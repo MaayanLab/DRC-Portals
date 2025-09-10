@@ -12,19 +12,13 @@ export default async function About() {
     })
     const additional = [
       {
-        label: "Somatic Mosaicism across Human Tissues",
-        short_label: "SMaHT",
-        icon: "/img/interactive/smath.png",
-        homepage: "https://commonfund.nih.gov/somatic-mosaicism-across-human-tissues-smaht"
-      },
-      {
         short_label: "NPH",
         label: "Nutrition for Precision Health",
         icon: "/img/interactive/nph.png",
         homepage: "https://commonfund.nih.gov/nutritionforprecisionhealth"
       }
     ]
-    const additional_label = ['NPH', 'SMaHT']
+    const additional_label = ['NPH']
     const ordering = [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", "NPH", 
       "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SCGE", "SPARC", "SMaHT", "HMP", "GTEx", "SenNet", "ExRNA",].sort()
     const all_dccs: {[key:string]: any} = [...dccs, ...additional].reduce((acc, i)=>({...acc, [`${i.short_label}`]: i}), {})
