@@ -160,7 +160,7 @@ export async function sendUploadReceipt(user: { name?: string | null, email?: st
     const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
     const transporter = nodemailer.createTransport(server)
     if (assetInfo.codeAsset) {
-        const emailHtml = render(<AssetSubmitReceiptEmail userFirstname={user.name ? user.name : ''} codeAsset={assetInfo.codeAsset} />);
+        const emailHtml = await render(<AssetSubmitReceiptEmail userFirstname={user.name ? user.name : ''} codeAsset={assetInfo.codeAsset} />);
         if (user.email) {
             transporter.sendMail({
                 from: from,
@@ -191,7 +191,7 @@ export async function sendDCCApproverEmail(user: { email?: string | null }, dcc:
 
     const approvers = approversList ? approversList.Users : []
     for (let approver of approvers) {
-        const emailHtml = render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} />);
+        const emailHtml = await render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} />);
         if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
         const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
         const transporter = nodemailer.createTransport(server)
