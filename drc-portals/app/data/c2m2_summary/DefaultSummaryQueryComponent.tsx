@@ -9,11 +9,11 @@ import C2M2PieChart from './C2M2PieChart';
 // install html2canvas: npm i html2canvas
 
 type YAxisField =
-  | 'Subjects count'
-  | 'Biosamples count'
-  | 'Files count'
-  | 'Projects count'
-  | 'Collections count';
+  | 'Subject count'
+  | 'Biosample count'
+  | 'File count'
+  | 'Project count'
+  | 'Collection count';
 
 interface ChartRow {
   [key: string]: string | number | undefined;
@@ -35,21 +35,21 @@ interface ComboResult {
 
 // Default combinations
 const defaultCombos: Combination[] = [
-  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'anatomy' },
-  { yAxis: 'Biosamples count', xAxis: 'dcc', groupBy: 'disease' },
-  { yAxis: 'Subjects count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
-  { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
-  { yAxis: 'Files count', xAxis: 'dcc', groupBy: 'data_type' },
-  { yAxis: 'Collections count', xAxis: 'dcc', groupBy: 'protein' }
+  { yAxis: 'Biosample count', xAxis: 'dcc', groupBy: 'anatomy' },
+  { yAxis: 'Biosample count', xAxis: 'dcc', groupBy: 'disease' },
+  { yAxis: 'Subject count', xAxis: 'dcc', groupBy: 'disease', pieForAxis: 'KidsFirst' },
+  { yAxis: 'File count', xAxis: 'dcc', groupBy: 'assay_type', pieForAxis: 'KidsFirst' },
+  { yAxis: 'File count', xAxis: 'dcc', groupBy: 'data_type' },
+  { yAxis: 'Collection count', xAxis: 'dcc', groupBy: 'protein' }
 ];
 
 // Endpoint map
 const endpointMap: Partial<Record<YAxisField, string>> = {
-  'Subjects count': '/data/c2m2_summary/getSubjectCounts',
-  'Biosamples count': '/data/c2m2_summary/getBiosampleCounts',
-  'Files count': '/data/c2m2_summary/getFileCounts',
-  'Collections count': '/data/c2m2_summary/getCollectionCounts',
-  'Projects count': '/data/c2m2_summary/getProjectCounts',
+  'Subject count': '/data/c2m2_summary/getSubjectCounts',
+  'Biosample count': '/data/c2m2_summary/getBiosampleCounts',
+  'File count': '/data/c2m2_summary/getFileCounts',
+  'Collection count': '/data/c2m2_summary/getCollectionCounts',
+  'Project count': '/data/c2m2_summary/getProjectCounts',
 };
 
 // Utility functions

@@ -17,11 +17,11 @@ import PlotDescriptionEditor from './PlotDescriptionEditor';
 const C2M2Heatmap = dynamic(() => import('./C2M2Heatmap'), { ssr: false });
 
 type YAxisField =
-  | 'Subjects count'
-  | 'Biosamples count'
-  | 'Files count'
-  | 'Projects count'
-  | 'Collections count';
+  | 'Subject count'
+  | 'Biosample count'
+  | 'File count'
+  | 'Project count'
+  | 'Collection count';
 
 interface ChartRow {
   [key: string]: string | number | undefined;
@@ -33,20 +33,20 @@ interface DescriptionResponse {
 }
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
-  'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'disease', 'sample_prep_method'],
-  'Subjects count': ['dcc', 'disease', 'ethnicity', 'granularity', 'phenotype', 'race', 'role', 'sex', 'taxonomy'],
-  'Files count': ['dcc', 'analysis_type', 'assay_type', 'compression_format', 'data_type', 'file_format'],
-  'Projects count': ['dcc'],
-  'Collections count': ['dcc', 'anatomy', 'biofluid', 'compound', 'disease', 'protein'],
+  'Biosample count': ['dcc', 'anatomy', 'biofluid', 'disease', 'sample_prep_method'],
+  'Subject count': ['dcc', 'disease', 'ethnicity', 'granularity', 'phenotype', 'race', 'role', 'sex', 'taxonomy'],
+  'File count': ['dcc', 'analysis_type', 'assay_type', 'compression_format', 'data_type', 'file_format'],
+  'Project count': ['dcc'],
+  'Collection count': ['dcc', 'anatomy', 'biofluid', 'compound', 'disease', 'protein'],
 };
 
 const minBarWidth = 60;
 const minChartWidth = 600;
 
 const SummaryQueryComponent: React.FC = () => {
-  const [yAxis, setYAxis] = useState<YAxisField>('Biosamples count');
-  const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosamples count'][0]);
-  const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosamples count'][1] || '');
+  const [yAxis, setYAxis] = useState<YAxisField>('Biosample count');
+  const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosample count'][0]);
+  const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosample count'][1] || '');
   const [chartData, setChartData] = useState<ChartRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,11 +92,11 @@ const SummaryQueryComponent: React.FC = () => {
       });
 
       const endpointMap: Partial<Record<YAxisField, string>> = {
-        'Subjects count': '/data/c2m2_summary/getSubjectCounts',
-        'Biosamples count': '/data/c2m2_summary/getBiosampleCounts',
-        'Files count': '/data/c2m2_summary/getFileCounts',
-        'Collections count': '/data/c2m2_summary/getCollectionCounts',
-        'Projects count': '/data/c2m2_summary/getProjectCounts'
+        'Subject count': '/data/c2m2_summary/getSubjectCounts',
+        'Biosample count': '/data/c2m2_summary/getBiosampleCounts',
+        'File count': '/data/c2m2_summary/getFileCounts',
+        'Collection count': '/data/c2m2_summary/getCollectionCounts',
+        'Project count': '/data/c2m2_summary/getProjectCounts'
       };
 
       const endpoint = endpointMap[yAxis];
@@ -261,7 +261,8 @@ const SummaryQueryComponent: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>Summary Query Chart</Typography>
+      {/* <Typography variant="h5" gutterBottom>Summary Query Chart</Typography> */}
+      <Typography variant="h5" gutterBottom>Summary: Counts of various Assets</Typography>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={4}>

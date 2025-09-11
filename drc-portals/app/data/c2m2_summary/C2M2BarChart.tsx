@@ -90,6 +90,8 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   const [pieData, setPieData] = useState<{ name: string; value: number }[]>([]);
   const [pieTitle, setPieTitle] = useState('');
 
+  //console.log('*** In C2M2BarChart.tsx: Y-axis: ', yAxis, 'X-axis: ', xAxis, 'Group by: ', groupBy);
+
   // Aggregate total counts and sort descending
   const barChartData = data
     .map(row => {
@@ -137,12 +139,16 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   const minCount = Math.min(...counts.filter(c => c > 0));
   const maxCount = Math.max(...counts);
 
+  const assetType = yAxis?.trim().split(/\s+/)[0] ?? "";
+
   // Use log scale if ratio > 20 and minCount > 0
   const useLogScale = (maxCount / minCount) > 20 && minCount > 0;
-  const yTitle = useLogScale ? `log(${yAxisTitle ?? 'Count'})` : (yAxisTitle ?? 'Count');
+  //const yTitle = useLogScale ? `log(${yAxisTitle ?? 'Count'})` : (yAxisTitle ?? 'Count');
+  const yTitleBase = `${assetType ?? ''} ${yAxisTitle ?? 'count'}`.trim();
+  const yTitle = useLogScale ? `log(${yTitleBase})` : yTitleBase;
 
   // Figure caption without groupBy, as you requested
-  const captionText = figureCaption ?? `Figure: Bar chart of ${yTitle} by ${xTitle}`;
+  const captionText = figureCaption ?? `Figure: Bar chart of ${yTitleBase} by ${xTitle}`;
 
   return (
     <Box>
