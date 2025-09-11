@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://drc:drcpass@localhost:5433/drc?schema=c2m2"
+  url      = env("C2M2_DATABASE_URL")
 }
 
 model analysis_type {
