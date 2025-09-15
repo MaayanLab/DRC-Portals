@@ -31,7 +31,7 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 	  <Link href={"/data"}>
 		<Typography variant="nav"  sx={path === "/data"  ? {textDecoration: "underline", textDecorationThickness: 2}: {}}><b>Data Portal</b></Typography>
 	  </Link>
-	  <Link href={"https://cfdeknowledge.org/r/kc_landing"} target="_blank" rel="noopener noreferrer">
+	  <Link href={"/info/centers/KC"}>
 		<Typography variant="nav"><b>Knowledge Portal</b></Typography>
 	  </Link>
 	  <UserComponent session={session}/>
