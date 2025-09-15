@@ -1,7 +1,7 @@
 "use client";
 
 import { Grid } from "@mui/material";
-import { Core, EventObject } from "cytoscape";
+import { Core } from "cytoscape";
 import {
   ReactNode,
   useCallback,
@@ -13,6 +13,26 @@ import {
 
 import { PathwaySearchResultRow } from "@/lib/neo4j/types";
 
+import {
+  DOWNLOAD_SELECTION,
+  HIDE_EDGE,
+  HIDE_NODE,
+  HIDE_SELECTION,
+  HIGHLIGHT_NODE,
+  HIGHLIGHT_NODE_NEIGHBORS,
+  HIGHLIGHT_NODES_WITH_LABEL,
+  RESET_HIGHLIGHTS,
+  SELECT_ALL,
+  SELECT_NODE,
+  SELECT_NODE_NEIGHBORS,
+  SELECT_NODES_WITH_LABEL,
+  SHOW_EDGE,
+  SHOW_NODE,
+  SHOW_NODE_DETAILS,
+  SHOW_SELECTION,
+  UNLOCK_NODE,
+  UNLOCK_NODE_SELECTION
+} from "@/components/prototype/constants/cxt-menu";
 import {
   DEFAULT_STYLESHEET,
   EULER_LAYOUT,
@@ -47,6 +67,7 @@ import {
   unlockD3ForceNode,
   unlockSelection,
 } from "@/components/prototype/utils/cy";
+import { CxtMenuItem } from "@/components/prototype/interfaces/cxt-menu";
 import { CytoscapeNodeData } from "@/components/prototype/interfaces/cy";
 
 import GraphEntityDetails from "../../GraphEntityDetails";
@@ -112,123 +133,261 @@ export default function GraphView(cmpProps: GraphViewProps) {
     }
   }, [elements]);
 
-  const staticCxtMenuItems: ReactNode[] = [
-    <ChartCxtMenuItem
-      key="cxt-menu-reset-highlights"
-      renderContent={() => "Reset Highlights"}
-      action={resetHighlights}
-      showFn={(event) =>
-        event.cy.elements(".highlight").length > 0 ||
-        event.cy.elements(".transparent").length > 0
+  const staticCxtMenuItems: CxtMenuItem[] = [
+    {
+      content: <ChartCxtMenuItem
+        id={RESET_HIGHLIGHTS}
+        key={RESET_HIGHLIGHTS}
+        renderContent={() => "Reset Highlights"}
+        action={resetHighlights}
+        showFn={(event) =>
+          event.cy.elements(".highlight").length > 0 ||
+          event.cy.elements(".transparent").length > 0
+        }
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: RESET_HIGHLIGHTS,
+        children: [],
+        open: false,
+      },
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={DOWNLOAD_SELECTION}
+        key={DOWNLOAD_SELECTION}
+        renderContent={(event) => "Download Selection"}
+        action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
+        showFn={(event) => event.cy.elements(":selected").length > 0}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: DOWNLOAD_SELECTION,
+        children: [],
+        open: false
       }
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-download-selection"
-      renderContent={(event) => "Download Selection"}
-      action={(event) => downloadCyAsJson(event.cy.elements(":selected"))}
-      showFn={(event) => event.cy.elements(":selected").length > 0}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-show-selection"
-      renderContent={(event) => "Show Selection"}
-      action={showSelection}
-      showFn={(event) => !selectionIsAllShown(event)}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-hide-selection"
-      renderContent={(event) => "Hide Selection"}
-      action={hideSelection}
-      showFn={(event) => !selectionIsAllHidden(event)}
-    ></ChartCxtMenuItem>,
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={SHOW_SELECTION}
+        key={SHOW_SELECTION}
+        renderContent={(event) => "Show Selection"}
+        action={showSelection}
+        showFn={(event) => !selectionIsAllShown(event)}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: DOWNLOAD_SELECTION,
+        children: [],
+        open: false,
+      },
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={HIDE_SELECTION}
+        key={HIDE_SELECTION}
+        renderContent={(event) => "Hide Selection"}
+        action={hideSelection}
+        showFn={(event) => !selectionIsAllHidden(event)}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: HIDE_SELECTION,
+        children: [],
+        open: false,
+      },
+    },
   ];
 
-  const nodeCxtMenuItems: ReactNode[] = [
-    <ChartCxtMenuItem
-      key="cxt-menu-show"
-      renderContent={(event) => "Show"}
-      action={showElement}
-      showFn={(event) => event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="cxt-menu-hide"
-      renderContent={(event) => "Hide"}
-      action={hideElement}
-      showFn={(event) => !event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-show-details"
-      renderContent={(event) => "Show Details"}
-      action={(event) => setEntityDetails(event.target.data())}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-unlock"
-      renderContent={(event) => "Unlock"}
-      action={(event) => unlockD3ForceNode(event.target)}
-      showFn={(event) => isNodeD3Locked(event.target)}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="chart-cxt-unlock-selection"
-      renderContent={(event) => "Unlock Selection"}
-      action={unlockSelection}
-      showFn={selectionHasLockedNode}
-    ></ChartCxtMenuItem>,
-    <ChartNestedCxtMenuItem
-      key="chart-cxt-highlight"
-      renderContent={(event) => "Highlight"}
-    >
-      {[
-        <ChartCxtMenuItem
-          key="chart-cxt-highlight-neighbors"
-          renderContent={(event) => "Neighbors"}
-          action={highlightNeighbors}
-        ></ChartCxtMenuItem>,
-        <ChartCxtMenuItem
-          key="chart-cxt-highlight-nodes-with-label"
-          renderContent={(event) => "Nodes with this Label"}
-          action={highlightNodesWithLabel}
-        ></ChartCxtMenuItem>
-      ]}
-    </ChartNestedCxtMenuItem>,
-    <ChartNestedCxtMenuItem
-      key="chart-cxt-select"
-      renderContent={(event) => "Select"}
-    >
-      {[
-        <ChartCxtMenuItem
-          key="chart-cxt-highlight-neighbors"
-          renderContent={(event) => "Select Neighbors"}
-          action={selectNeighbors}
-        ></ChartCxtMenuItem>,
-        <ChartCxtMenuItem
-          key="chart-cxt-highlight-nodes-with-label"
-          renderContent={(event) => "Select Nodes with this Label"}
-          action={selectNodesWithLabel}
-        ></ChartCxtMenuItem>
-      ]}
-    </ChartNestedCxtMenuItem>,
+  const nodeCxtMenuItems: CxtMenuItem[] = [
+    {
+      content: <ChartCxtMenuItem
+        id={SHOW_NODE}
+        key={SHOW_NODE}
+        renderContent={(event) => "Show"}
+        action={showElement}
+        showFn={(event) => event.target.hasClass("transparent")}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: SHOW_NODE,
+        children: [],
+        open: false,
+      }
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={HIDE_NODE}
+        key={HIDE_NODE}
+        renderContent={(event) => "Hide"}
+        action={hideElement}
+        showFn={(event) => !event.target.hasClass("transparent")}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: HIDE_NODE,
+        children: [],
+        open: false,
+      }
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={SHOW_NODE_DETAILS}
+        key={SHOW_NODE_DETAILS}
+        renderContent={(event) => "Show Details"}
+        action={(event) => setEntityDetails(event.target.data())}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: SHOW_NODE_DETAILS,
+        children: [],
+        open: false,
+      }
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={UNLOCK_NODE}
+        key={UNLOCK_NODE}
+        renderContent={(event) => "Unlock"}
+        action={(event) => unlockD3ForceNode(event.target)}
+        showFn={(event) => isNodeD3Locked(event.target)}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: UNLOCK_NODE,
+        children: [],
+        open: false,
+      }
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={UNLOCK_NODE_SELECTION}
+        key={UNLOCK_NODE_SELECTION}
+        renderContent={(event) => "Unlock Selection"}
+        action={unlockSelection}
+        showFn={selectionHasLockedNode}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: UNLOCK_NODE_SELECTION,
+        children: [],
+        open: false,
+      }
+    },
+    {
+      content: <ChartNestedCxtMenuItem
+        id={HIGHLIGHT_NODE}
+        key={HIGHLIGHT_NODE}
+        renderContent={(event) => "Highlight"}
+      >
+        {[
+          <ChartCxtMenuItem
+            id={HIGHLIGHT_NODE_NEIGHBORS}
+            key={HIGHLIGHT_NODE_NEIGHBORS}
+            renderContent={(event) => "Neighbors"}
+            action={highlightNeighbors}
+          ></ChartCxtMenuItem>,
+          <ChartCxtMenuItem
+            id={HIGHLIGHT_NODES_WITH_LABEL}
+            key={HIGHLIGHT_NODES_WITH_LABEL}
+            renderContent={(event) => "Nodes with this Label"}
+            action={highlightNodesWithLabel}
+          ></ChartCxtMenuItem>
+        ]}
+      </ChartNestedCxtMenuItem>,
+      tree: {
+        id: HIGHLIGHT_NODE,
+        open: false,
+        children: [
+          {
+            id: HIGHLIGHT_NODE_NEIGHBORS,
+            children: [],
+            open: false,
+          },
+          {
+            id: HIGHLIGHT_NODES_WITH_LABEL,
+            children: [],
+            open: false,
+          }
+        ]
+      }
+    },
+    {
+      content: <ChartNestedCxtMenuItem
+        id={SELECT_NODE}
+        key={SELECT_NODE}
+        renderContent={(event) => "Select"}
+      >
+        {[
+          <ChartCxtMenuItem
+            id={SELECT_NODE_NEIGHBORS}
+            key={SELECT_NODE_NEIGHBORS}
+            renderContent={(event) => "Neighbors"}
+            action={selectNeighbors}
+          ></ChartCxtMenuItem>,
+          <ChartCxtMenuItem
+            id={SELECT_NODES_WITH_LABEL}
+            key={SELECT_NODES_WITH_LABEL}
+            renderContent={(event) => "Nodes with this Label"}
+            action={selectNodesWithLabel}
+          ></ChartCxtMenuItem>
+        ]}
+      </ChartNestedCxtMenuItem>,
+      tree: {
+        id: SELECT_NODE,
+        open: false,
+        children: [
+          {
+            id: SELECT_NODE_NEIGHBORS,
+            children: [],
+            open: false,
+          },
+          {
+            id: SELECT_NODES_WITH_LABEL,
+            children: [],
+            open: false,
+          }
+        ]
+      }
+    },
   ];
 
-  const edgeCxtMenuItems = [
-    <ChartCxtMenuItem
-      key="cxt-menu-show"
-      renderContent={(event) => "Show"}
-      action={showElement}
-      showFn={(event) => event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
-    <ChartCxtMenuItem
-      key="cxt-menu-hide"
-      renderContent={(event) => "Hide"}
-      action={hideElement}
-      showFn={(event) => !event.target.hasClass("transparent")}
-    ></ChartCxtMenuItem>,
+  const edgeCxtMenuItems: CxtMenuItem[] = [
+    {
+      content: <ChartCxtMenuItem
+        id={SHOW_EDGE}
+        key={SHOW_EDGE}
+        renderContent={(event) => "Show"}
+        action={showElement}
+        showFn={(event) => event.target.hasClass("transparent")}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: SHOW_EDGE,
+        children: [],
+        open: false,
+      }
+    },
+    {
+      content: <ChartCxtMenuItem
+        id={HIDE_EDGE}
+        key={HIDE_EDGE}
+        renderContent={(event) => "Hide"}
+        action={hideElement}
+        showFn={(event) => !event.target.hasClass("transparent")}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: HIDE_EDGE,
+        children: [],
+        open: false,
+      }
+    },
   ];
 
-  const canvasCxtMenuItems = [
-    <ChartCxtMenuItem
-      key="cxt-menu-select-all"
-      renderContent={() => "Select All"}
-      action={selectAll}
-    ></ChartCxtMenuItem>,
+  const canvasCxtMenuItems: CxtMenuItem[] = [
+    {
+      content: <ChartCxtMenuItem
+        id={SELECT_ALL}
+        key={SELECT_ALL}
+        renderContent={() => "Select All"}
+        action={selectAll}
+      ></ChartCxtMenuItem>,
+      tree: {
+        id: SELECT_ALL,
+        children: [],
+        open: false,
+      }
+    },
   ];
 
   // TODO: We could probably reduce some of the repetition in these function definitions...also would be nice to move this to another file

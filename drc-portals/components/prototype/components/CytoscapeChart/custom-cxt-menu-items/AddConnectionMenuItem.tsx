@@ -23,6 +23,7 @@ import {
   createDirectedRelationshipElement,
   createNodeElement,
 } from "@/components/prototype/utils/shared";
+import { getCxtMenuItemOpenState } from "@/components/prototype/utils/cxt-menu";
 import { fetchPathwaySearchConnections } from "@/lib/neo4j/api";
 import { Direction } from "@/lib/neo4j/enums";
 import { PathwayConnectionsResult } from "@/lib/neo4j/types";
@@ -31,6 +32,7 @@ import { ChartCxtMenuContext } from "../ChartCxtMenuContext";
 import ChartCxtMenuItem from "../ChartCxtMenuItem";
 
 interface AddConnectionMenuItemProps {
+  id: string;
   elements: PathwaySearchElement[];
   onConnectionSelected: (
     item: ConnectionMenuItem,
@@ -47,13 +49,14 @@ export default function AddConnectionMenuItem(
   if (context === null) {
     return null;
   } else {
-    const { elements, onConnectionSelected, showFn } = cmpProps;
+    const { id, elements, onConnectionSelected, showFn } = cmpProps;
     const [loading, setLoading] = useState(false);
     const [getConnectionsError, setGetConnectionsError] =
       useState<boolean>(false);
     const [subMenuItems, setSubMenuItems] = useState<ReactNode[]>([]);
     const [gotConnections, setGotConnections] = useState(false);
     const abortControllerRef = useRef(new AbortController());
+    const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
     const showItem = useRef(
       // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
       // result of, for example, closing the menu
@@ -84,6 +87,8 @@ export default function AddConnectionMenuItem(
       }
     }, [loading, getConnectionsError, subMenuItems, gotConnections]);
 
+    const getConnectionItemId = (item: ConnectionMenuItem) => `${item.type}-${item.direction}-${item.label}`
+
     const setConnectionOptions = useCallback(
       async (nodeId: string) => {
         const controller = abortControllerRef.current;
@@ -109,66 +114,76 @@ export default function AddConnectionMenuItem(
           const nodeMap = new Map<string, string>(
             data.connectedNodes.map((node) => [node.id, node.label])
           );
+          const items: ConnectionMenuItem[] = data.connectedEdges
+            .sort((a, b) => {
+              if (
+                a.direction === Direction.OUTGOING &&
+                b.direction === Direction.INCOMING
+              ) {
+                return -1;
+              } else if (
+                a.direction === Direction.INCOMING &&
+                b.direction === Direction.OUTGOING
+              ) {
+                return 1;
+              } else {
+                return 0;
+              }
+            })
+            .map((edge) => {
+              if (edge.source === nodeId) {
+                const nodeLabel = nodeMap.get(edge.target);
+                if (nodeLabel === undefined) {
+                  console.warn(
+                    `Could not find node match for edge target id "${edge.target}" for edge with id "${edge.id}"`
+                  );
+                  return undefined;
+                } else {
+                  return {
+                    nodeId: edge.target,
+                    label: nodeLabel,
+                    edgeId: edge.id,
+                    type: edge.type,
+                    source: edge.source,
+                    target: edge.target,
+                    direction: edge.direction,
+                  };
+                }
+              } else {
+                const nodeLabel = nodeMap.get(edge.source);
+                if (nodeLabel === undefined) {
+                  console.warn(
+                    `Could not find node match for edge source id "${edge.source}" for edge with id "${edge.id}"`
+                  );
+                  return undefined;
+                } else {
+                  return {
+                    nodeId: edge.source,
+                    label: nodeLabel,
+                    edgeId: edge.id,
+                    type: edge.type,
+                    source: edge.source,
+                    target: edge.target,
+                    direction: edge.direction,
+                  };
+                }
+              }
+            })
+            .filter((v): v is Exclude<typeof v, undefined> => v !== undefined)
 
-          setSubMenuItems(
-            data.connectedEdges
-              .sort((a, b) => {
-                if (
-                  a.direction === Direction.OUTGOING &&
-                  b.direction === Direction.INCOMING
-                ) {
-                  return -1;
-                } else if (
-                  a.direction === Direction.INCOMING &&
-                  b.direction === Direction.OUTGOING
-                ) {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              })
-              .map((edge) => {
-                if (edge.source === nodeId) {
-                  const nodeLabel = nodeMap.get(edge.target);
-                  if (nodeLabel === undefined) {
-                    console.warn(
-                      `Could not find node match for edge target id "${edge.target}" for edge with id "${edge.id}"`
-                    );
-                    return undefined;
-                  } else {
-                    return {
-                      nodeId: edge.target,
-                      label: nodeLabel,
-                      edgeId: edge.id,
-                      type: edge.type,
-                      source: edge.source,
-                      target: edge.target,
-                      direction: edge.direction,
-                    };
-                  }
-                } else {
-                  const nodeLabel = nodeMap.get(edge.source);
-                  if (nodeLabel === undefined) {
-                    console.warn(
-                      `Could not find node match for edge source id "${edge.source}" for edge with id "${edge.id}"`
-                    );
-                    return undefined;
-                  } else {
-                    return {
-                      nodeId: edge.source,
-                      label: nodeLabel,
-                      edgeId: edge.id,
-                      type: edge.type,
-                      source: edge.source,
-                      target: edge.target,
-                      direction: edge.direction,
-                    };
-                  }
-                }
-              })
-              .filter((v): v is Exclude<typeof v, undefined> => v !== undefined)
-              .map(createConnectionMenuItem)
-          );
+          // Since these items didn't exist previously, signal to the parent to add them to the tree
+          context.updateTreeItem({
+            id,
+            open: true,
+            children: items.map(item => {
+              return {
+                id: getConnectionItemId(item),
+                children: [],
+                open: false,
+              }
+            })
+          })
+          setSubMenuItems(items.map(createConnectionMenuItem));
         } catch (error) {
           if (!signal.aborted) {
             setGetConnectionsError(true);
@@ -185,32 +200,36 @@ export default function AddConnectionMenuItem(
           }
         }
       },
-      [elements]
+      [id, elements]
     );
 
     const createConnectionMenuItem = useCallback(
-      (item: ConnectionMenuItem) => (
-        <ChartCxtMenuItem
-          key={`${item.type}-${item.direction}-${item.label}`}
-          renderContent={(event) => (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <Box sx={{ display: "flex" }}>
-                <Box>
-                  {createDirectedRelationshipElement(item.type, item.direction)}
+      (item: ConnectionMenuItem) => {
+        const id = getConnectionItemId(item);
+        return (
+          <ChartCxtMenuItem
+            id={id}
+            key={id}
+            renderContent={(event) => (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex" }}>
+                  <Box>
+                    {createDirectedRelationshipElement(item.type, item.direction)}
+                  </Box>
+                  <Box>{createNodeElement(item.label)}</Box>
                 </Box>
-                <Box>{createNodeElement(item.label)}</Box>
               </Box>
-            </Box>
-          )}
-          action={(event) => onConnectionSelected(item, event)}
-        ></ChartCxtMenuItem>
-      ),
+            )}
+            action={(event) => onConnectionSelected(item, event)}
+          ></ChartCxtMenuItem>
+        )
+      },
       [onConnectionSelected]
     );
 
@@ -219,6 +238,22 @@ export default function AddConnectionMenuItem(
         setConnectionOptions(context.event.target.data("id"));
       }
     }, [context]);
+
+    const handleMouseEnter = () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+
+      context.onItemEnter(id)
+    }
+
+    const handleMouseLeave = () => {
+      const timer = setTimeout(() => {
+        context.onItemLeave(id);
+      }, 100); // adjust delay as needed
+      closeTimerRef.current = timer;
+    };
 
     useEffect(() => {
       return () => {
@@ -233,6 +268,8 @@ export default function AddConnectionMenuItem(
 
     return showItem.current ? (
       <NestedMenuItem
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         onClick={onMenuClicked}
         rightIcon={getRightIcon()}
         renderLabel={() => (
@@ -241,11 +278,22 @@ export default function AddConnectionMenuItem(
             Expand
           </Box>
         )}
-        MenuProps={subMenuItems.length > 0 ? undefined : { open: false }} // This is a kludge to make sure an empty submenu isn't shown
+        MenuProps={{
+          onMouseEnter: () => {
+            if (closeTimerRef.current) {
+              clearTimeout(closeTimerRef.current);
+              closeTimerRef.current = null;
+            }
+          },
+          open: getCxtMenuItemOpenState(context.treeRef.current, id) && subMenuItems.length > 0,
+          transitionDuration: 0
+        }} // The length check is a kludge to make sure an empty submenu isn't shown
         parentMenuOpen={context.open}
         sx={{ paddingX: "16px" }}
-        children={subMenuItems}
-      />
+
+      >
+        {subMenuItems}
+      </NestedMenuItem>
     ) : null;
   }
 }

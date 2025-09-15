@@ -7,6 +7,7 @@ import { ReactNode, useContext, useRef } from "react";
 import { ChartCxtMenuContext } from "./ChartCxtMenuContext";
 
 interface ChartCxtMenuItemProps {
+  id: string;
   renderContent: (event: EventObject) => ReactNode;
   action: (event: EventObject) => void;
   showFn?: (event: EventObject) => boolean;
@@ -18,7 +19,7 @@ export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
   if (context === null) {
     return null;
   } else {
-    const { renderContent, action, showFn } = cmpProps;
+    const { id, renderContent, action, showFn } = cmpProps;
 
     const showItem = useRef(
       // Capture the initial value `showFn`, this prevents the menu from prematurely re-rendering elements if the upstream state changed as a
@@ -34,7 +35,12 @@ export default function ChartCxtMenuItem(cmpProps: ChartCxtMenuItemProps) {
     };
 
     return showItem.current ? (
-      <MenuItem onClick={handleOnClick}>{renderContent(context.event)}</MenuItem>
+      <MenuItem
+        onMouseEnter={() => context.onItemEnter(id)}
+        onClick={handleOnClick}
+      >
+        {renderContent(context.event)}
+      </MenuItem>
     ) : null;
   }
 }

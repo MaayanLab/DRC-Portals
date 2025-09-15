@@ -35,6 +35,7 @@ import CytoscapeComponent from "react-cytoscapejs";
 
 import { ChartContainer, WidgetContainer } from "../../constants/cy";
 import { CytoscapeEvent, CytoscapeNodeData } from "../../interfaces/cy";
+import { CxtMenuItem } from "../../interfaces/cxt-menu";
 import { PositionOffsets } from "../../interfaces/shared";
 import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 import { createNodeTooltip, rebindEventHandlers } from "../../utils/cy";
@@ -62,10 +63,10 @@ interface CytoscapeChartProps {
   tooltipBoxStyleProps?: CSSProperties;
   tooltipContentProps?: TypographyProps;
   customTools?: CustomToolbarFnFactory[];
-  staticCxtMenuItems?: ReactNode[];
-  nodeCxtMenuItems?: ReactNode[];
-  edgeCxtMenuItems?: ReactNode[];
-  canvasCxtMenuItems?: ReactNode[];
+  staticCxtMenuItems?: CxtMenuItem[];
+  nodeCxtMenuItems?: CxtMenuItem[];
+  edgeCxtMenuItems?: CxtMenuItem[];
+  canvasCxtMenuItems?: CxtMenuItem[];
   legend?: Map<string, ReactNode>;
   autoungrabify?: boolean;
   boxSelectionEnabled?: boolean;
@@ -110,7 +111,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     useState(false);
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState<EventObject>();
-  const [contextMenuItems, setContextMenuItems] = useState<ReactNode[]>([]);
+  const [contextMenuItems, setContextMenuItems] = useState<CxtMenuItem[]>([]);
   const contextMenuPosRef = useRef<Position>({
     x: 0,
     y: 0,
@@ -129,10 +130,11 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
 
   const handleContextMenuClose = () => {
     setContextMenuOpen(false);
+    setContextMenuItems([]);
   };
 
   const handleContextMenu = useCallback(
-    (event: EventObject, menuItems: ReactNode[]) => {
+    (event: EventObject, menuItems: CxtMenuItem[]) => {
       if (staticCxtMenuItems !== undefined && staticCxtMenuItems.length > 0) {
         menuItems.push(...staticCxtMenuItems);
       }
@@ -264,7 +266,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
   const openCanvasCxt = useCallback(
     (event: EventObject) => {
       if (event.target === cyRef.current) {
-        const items: ReactNode[] = [];
+        const items = [];
 
         if (canvasCxtMenuItems !== undefined) {
           items.push(...canvasCxtMenuItems);
@@ -421,16 +423,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
           </ChartContainer>
         </ChartTooltip>
       </ClickAwayListener>
-      <ClickAwayListener onClickAway={handleContextMenuClose}>
-        <ChartCxtMenu
-          open={contextMenuOpen && contextMenuItems.length > 0}
-          position={contextMenuPosRef.current}
-          event={contextMenuEvent}
-          onClose={handleContextMenuClose}
-        >
-          {contextMenuItems}
-        </ChartCxtMenu>
-      </ClickAwayListener>
+      <ChartCxtMenu
+        open={contextMenuOpen && contextMenuItems.length > 0}
+        items={contextMenuItems}
+        position={contextMenuPosRef.current}
+        event={contextMenuEvent}
+        onClose={handleContextMenuClose}
+      ></ChartCxtMenu>
       {toolbarPosition === undefined ? null : (
         <WidgetContainer key="cy-chart-toolbar" sx={{ ...toolbarPosition }}>
           <Tooltip

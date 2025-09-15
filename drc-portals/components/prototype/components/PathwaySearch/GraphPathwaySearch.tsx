@@ -51,6 +51,8 @@ import {
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
 import { CFDE_DARK_BLUE, VisuallyHiddenInput } from "../../constants/shared";
+import { ADD_CONNECTION_ITEM_ID, PRUNE_ID, SHOW_FILTERS_ID } from "../../constants/cxt-menu";
+import { CxtMenuItem } from "../../interfaces/cxt-menu";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import {
   ConnectionMenuItem,
@@ -448,35 +450,59 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     [handleSelectedNodeChange]
   );
 
-  const nodeCxtMenuItems: ReactNode[] = useMemo(
+  const nodeCxtMenuItems: CxtMenuItem[] = useMemo(
     () => [
-      <AddConnectionMenuItem
-        key="chart-cxt-add-connection"
-        elements={elements}
-        onConnectionSelected={onConnectionSelected}
-        showFn={showExpandNode}
-      ></AddConnectionMenuItem>,
-      <ChartCxtMenuItem
-        key="chart-cxt-show-filters"
-        renderContent={(event) => (
-          <Box sx={{ display: "flex" }}>
-            <FilterAltIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-            Filters
-          </Box>
-        )}
-        action={handleFilterNodeSelected}
-        showFn={showFilterNode}
-      ></ChartCxtMenuItem>,
-      <ChartCxtMenuItem
-        key="chart-cxt-prune"
-        renderContent={(event) => (
-          <Box sx={{ display: "flex" }}>
-            <ContentCutIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-            Prune
-          </Box>
-        )}
-        action={handlePruneNodeSelected}
-      ></ChartCxtMenuItem>,
+      {
+        content: <AddConnectionMenuItem
+          id={ADD_CONNECTION_ITEM_ID}
+          key={ADD_CONNECTION_ITEM_ID}
+          elements={elements}
+          onConnectionSelected={onConnectionSelected}
+          showFn={showExpandNode}
+        ></AddConnectionMenuItem>,
+        tree: {
+          id: ADD_CONNECTION_ITEM_ID,
+          children: [],
+          open: false,
+        }
+      },
+      {
+        content: <ChartCxtMenuItem
+          id={SHOW_FILTERS_ID}
+          key={SHOW_FILTERS_ID}
+          renderContent={(event) => (
+            <Box sx={{ display: "flex" }}>
+              <FilterAltIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+              Filters
+            </Box>
+          )}
+          action={handleFilterNodeSelected}
+          showFn={showFilterNode}
+        ></ChartCxtMenuItem>,
+        tree: {
+          id: SHOW_FILTERS_ID,
+          children: [],
+          open: false,
+        }
+      },
+      {
+        content: <ChartCxtMenuItem
+          id={PRUNE_ID}
+          key={PRUNE_ID}
+          renderContent={(event) => (
+            <Box sx={{ display: "flex" }}>
+              <ContentCutIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+              Prune
+            </Box>
+          )}
+          action={handlePruneNodeSelected}
+        ></ChartCxtMenuItem>,
+        tree: {
+          id: PRUNE_ID,
+          children: [],
+          open: false,
+        }
+      },
     ],
     [elements]
   );
