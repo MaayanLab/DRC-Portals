@@ -1,4 +1,4 @@
-import neo4j, { Driver, int, Record, RecordShape } from "neo4j-driver";
+import neo4j, { Driver, int, Record, RecordShape, Session } from "neo4j-driver";
 
 let driver: Driver;
 const NEO4J_URL = process.env.NEO4J_URL || "neo4j://localhost:7687";
@@ -35,6 +35,11 @@ export const closeDriver = async () => {
     await driver.close();
   }
 };
+
+export const getSession = (driver: Driver) =>
+  driver.session({ database: GRAPH_C2M2_DBNAME });
+
+export const closeSession = async (session: Session) => await session.close();
 
 export const makeParamsWriteable = (params: { [key: string]: any }) => {
   Object.keys(params).forEach((key) => {
@@ -87,6 +92,46 @@ export const executeReadOne = async <T extends RecordShape>(
     // There was a problem with the
     // database connection or the query
     await session.close();
+    throw e;
+  }
+};
+
+export const sessionExecuteRead = async <T extends RecordShape>(
+  session: Session,
+  cypher: string,
+  params?: { [key: string]: any }
+): Promise<Record<T>[]> => {
+  try {
+    const res = await session.executeRead((tx) => {
+      return tx.run(
+        cypher,
+        params === undefined ? params : makeParamsWriteable(params)
+      );
+    });
+    return res.records;
+  } catch (e) {
+    // There was a problem with the
+    // database connection or the query
+    throw e;
+  }
+};
+
+export const sessionExecuteReadOne = async <T extends RecordShape>(
+  session: Session,
+  cypher: string,
+  params?: { [key: string]: any }
+): Promise<Record<T>> => {
+  try {
+    const res = await session.executeRead((tx) => {
+      return tx.run(
+        cypher,
+        params === undefined ? params : makeParamsWriteable(params)
+      );
+    });
+    return res.records[0];
+  } catch (e) {
+    // There was a problem with the
+    // database connection or the query
     throw e;
   }
 };

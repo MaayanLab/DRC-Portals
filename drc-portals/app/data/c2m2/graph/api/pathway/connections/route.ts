@@ -1,7 +1,13 @@
+import { Session } from "neo4j-driver";
 import { NextRequest } from "next/server";
 
 import { UNIQUE_TO_GENERIC_REL } from "@/lib/neo4j/constants";
-import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
+import {
+  closeSession,
+  getDriver,
+  getSession,
+  sessionExecuteReadOne,
+} from "@/lib/neo4j/driver";
 import { Direction } from "@/lib/neo4j/enums";
 import {
   EdgeConnection,
@@ -9,7 +15,11 @@ import {
   PathwayNode,
   TreeParseResult,
 } from "@/lib/neo4j/types";
-import { getConnectionQueryFromTree, parsePathwayTree } from "@/lib/neo4j/utils";
+import {
+  getSingleMatchConnectionQuery,
+  getMultiCallConnectionQuery,
+  parsePathwayTree,
+} from "@/lib/neo4j/utils";
 
 interface ConnectionQueryRecord {
   exists: boolean;
@@ -28,8 +38,8 @@ export async function POST(request: NextRequest) {
   const body: { tree: string; targetNodeIds: string[] } = await request.json();
   let tree: PathwayNode;
   const targetNodeIds = new Set<string>();
+  const zippedQueries: string[][] = [];
   let treeParseResult: TreeParseResult;
-  const connectionQueries: string[] = [];
 
   if (body === null) {
     return Response.json(
@@ -84,19 +94,33 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let connectionQueryParams: { [key: string]: string } = {}
+  let connectionQueryParams: { [key: string]: string } = {};
   try {
     treeParseResult = parsePathwayTree(tree, true);
 
     for (let i = 0; i < treeParseResult.nodes.length; i++) {
-      const node = treeParseResult.nodes[i]
+      const node = treeParseResult.nodes[i];
       if (targetNodeIds.has(node.id)) {
         const nodeIdParam = `nodeIdParam${i + 1}`;
-        connectionQueries.push(getConnectionQueryFromTree(treeParseResult, tree, node, nodeIdParam));
+        zippedQueries.push([
+          getSingleMatchConnectionQuery(
+            treeParseResult,
+            node,
+            nodeIdParam,
+            false
+          ),
+          getSingleMatchConnectionQuery(
+            treeParseResult,
+            node,
+            nodeIdParam,
+            true
+          ),
+          getMultiCallConnectionQuery(treeParseResult, tree, node, nodeIdParam),
+        ]);
         connectionQueryParams = {
           ...Object.fromEntries([[nodeIdParam, node.id]]),
-          ...connectionQueryParams
-        }
+          ...connectionQueryParams,
+        };
       }
     }
   } catch (e) {
@@ -114,7 +138,26 @@ export async function POST(request: NextRequest) {
   try {
     const driver = getDriver();
     const [...connectionsResults] = await Promise.all([
-      ...connectionQueries.map((q) => executeReadOne<{ result: ConnectionQueryRecord[] }>(driver, q, connectionQueryParams)),
+      ...zippedQueries.map((queries) => {
+        const querySessions: [string, Session][] = queries.map((query) => [
+          query,
+          getSession(driver),
+        ]);
+        return Promise.race(
+          querySessions.map(([query, session]) =>
+            sessionExecuteReadOne<{ result: ConnectionQueryRecord[] }>(
+              session,
+              query,
+              connectionQueryParams
+            )
+          )
+        )
+          .then((result) => result)
+          .finally(() => {
+            // Regardless of which query finishes first, close all sessions
+            querySessions.forEach(([_, session]) => closeSession(session));
+          });
+      }),
     ]);
 
     // There should be only one row per query
@@ -123,8 +166,8 @@ export async function POST(request: NextRequest) {
       .forEach((result) => {
         const data = result.toObject();
         data.result
-          .filter(connection => connection.exists)
-          .forEach(connection => {
+          .filter((connection) => connection.exists)
+          .forEach((connection) => {
             connectedNodes.push({
               id: connection.nodeId,
               label: connection.label,

@@ -63,6 +63,7 @@ export interface TreeParseResult {
   nodes: PathwayNode[];
   outgoingCnxns: Map<string, Map<string, string[]>>;
   incomingCnxns: Map<string, Map<string, string[]>>;
+  usingJoinStmts: string[];
 }
 
 export interface PathwayConnectionsResult {

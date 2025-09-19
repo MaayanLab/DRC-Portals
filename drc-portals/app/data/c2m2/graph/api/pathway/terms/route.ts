@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const queryStmts = getOptimizedMatches(treeParseResult, body.nodeId, true);
+    const queryStmts = getOptimizedMatches(treeParseResult, body.nodeId);
     const escapedNodeId = escapeCypherString(body.nodeId);
     const query = [...queryStmts];
     const driver = getDriver();

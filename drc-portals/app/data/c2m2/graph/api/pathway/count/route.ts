@@ -1,8 +1,15 @@
+import { Session } from "neo4j-driver";
 import { NextRequest } from "next/server";
 
-import { executeReadOne, getDriver } from "@/lib/neo4j/driver";
-import { PathwayNode } from "@/lib/neo4j/types";
-import { getCountsQueryFromTree } from "@/lib/neo4j/utils";
+import { getSingleMatchCountsQuery } from "@/lib/neo4j/cypher";
+import {
+  closeSession,
+  getDriver,
+  getSession,
+  sessionExecuteReadOne,
+} from "@/lib/neo4j/driver";
+import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
+import { getMultiCallCountsQuery, parsePathwayTree } from "@/lib/neo4j/utils";
 
 interface CountsQueryRecord {
   total: number;
@@ -14,6 +21,7 @@ interface CountsQueryRecord {
 export async function POST(request: NextRequest) {
   const body: { tree: string } = await request.json();
   let tree: PathwayNode;
+  let treeParseResult: TreeParseResult;
 
   if (body === null) {
     return Response.json(
@@ -26,6 +34,7 @@ export async function POST(request: NextRequest) {
 
   try {
     tree = JSON.parse(atob(body.tree));
+    treeParseResult = parsePathwayTree(tree, true);
     // TODO: Add a schema for the pathway search query object (see /search/path/route.ts for zod example usage)
   } catch (e) {
     // If for any reason (decoding, parsing, etc.) we couldn't get the path object, return a 400 response instead
@@ -40,10 +49,21 @@ export async function POST(request: NextRequest) {
 
   try {
     const driver = getDriver();
-    const pathwaySearchResultCount = await executeReadOne<CountsQueryRecord>(
-      driver,
-      getCountsQueryFromTree(tree)
-    );
+    const querySessions: [string, Session][] = [
+      [getSingleMatchCountsQuery(treeParseResult, true), getSession(driver)],
+      [getSingleMatchCountsQuery(treeParseResult), getSession(driver)],
+      [getMultiCallCountsQuery(tree), getSession(driver)],
+    ];
+    const pathwaySearchResultCount = await Promise.race(
+      querySessions.map(([query, session]) =>
+        sessionExecuteReadOne<CountsQueryRecord>(session, query)
+      )
+    )
+      .then((result) => result)
+      .finally(() => {
+        // Regardless of which query finishes first, close all sessions
+        querySessions.forEach(([_, session]) => closeSession(session));
+      });
 
     const counts = pathwaySearchResultCount.get("counts");
 

@@ -140,14 +140,17 @@ export const getSearchCypher = (coreLabels: string[]) => {
     `;
 };
 
-export const createPathwaySearchAllPathsCountCypher = (
-  treeParseResult: TreeParseResult
+export const getSingleMatchCountsQuery = (
+  treeParseResult: TreeParseResult,
+  usingJoin = false
 ) => {
+  const usingJoinStmts = usingJoin ? treeParseResult.usingJoinStmts : [];
+
   return [
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
+    ...usingJoinStmts,
     "RETURN",
-    "\tcount(*) AS total,",
     "{\n\t",
     Array.from(treeParseResult.nodeIds)
       .map(escapeCypherString)
@@ -160,15 +163,19 @@ export const createPathwaySearchAllPathsCountCypher = (
 
 export const createPathwaySearchAllPathsCypher = (
   treeParseResult: TreeParseResult,
+  usingJoin = false,
   orderByKey?: string,
   orderByProp?: string,
   order?: "asc" | "desc" | undefined
 ) => {
   const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
   const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
+  const usingJoinStmts = usingJoin ? treeParseResult.usingJoinStmts : [];
+
   return [
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
+    ...usingJoinStmts,
     "WITH *",
     // Need to order/paginate before aliasing the results to the return values. In other words: "First order *all* the results by this node
     // and property, then paginate the results, then map that page into the final result." If we did the ordering/pagination *after* the
@@ -197,11 +204,15 @@ export const createPathwaySearchAllPathsCypher = (
 };
 
 export const createUpperPageBoundCypher = (
-  treeParseResult: TreeParseResult
+  treeParseResult: TreeParseResult,
+  usingJoin = false
 ) => {
+  const usingJoinStmts = usingJoin ? treeParseResult.usingJoinStmts : [];
+
   return [
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
+    ...usingJoinStmts,
     "WITH *",
     "SKIP $skip",
     "LIMIT ($maxSiblings - (($skip / $limit) - $lowerPageBound)) * $limit",

@@ -218,10 +218,19 @@ export const parsePathwayTree = (
     nodes,
     outgoingCnxns,
     incomingCnxns,
+    usingJoinStmts: Array.from(outgoingCnxns.entries())
+      .filter(
+        ([_, cnxns]) =>
+          Array.from(cnxns.values()).reduce(
+            (prev, curr) => curr.length + prev,
+            0
+          ) > 1
+      )
+      .map(([key, _]) => `USING JOIN ON ${escapeCypherString(key)}`),
   };
 };
 
-export const getCountsQueryFromTree = (tree: PathwayNode) => {
+export const getMultiCallCountsQuery = (tree: PathwayNode) => {
   const statements: string[] = [];
   const queryContext = new Set<string>();
   const termContext = new Set<string>();
@@ -444,15 +453,14 @@ const getRelevantIdCounts = (
 
 export const getOptimizedMatches = (
   treeParseResult: TreeParseResult,
-  targetNodeId?: string,
-  keepTargetInWorkingSet = false
+  targetNodeId?: string
 ): string[] => {
   const relevantIdCounts = getRelevantIdCounts(treeParseResult, targetNodeId);
   const workingSet = new Set<string>();
   const queryStmts: string[] = [];
 
   const decrementIdCount = (id: string) => {
-    if (keepTargetInWorkingSet && id === targetNodeId && !workingSet.has(id)) {
+    if (id === targetNodeId && !workingSet.has(id)) {
       workingSet.add(id);
       return;
     }
@@ -510,7 +518,8 @@ const getCnxnQueryReturnObjects = (
   treeParseResult: TreeParseResult,
   node: PathwayNode,
   direction: Direction,
-  nodeIdParam: string
+  nodeIdParam: string,
+  targetCollectionAlias: string
 ) => {
   const connectionObjects: string[] = [];
   const CONNECTIONS =
@@ -546,11 +555,10 @@ const getCnxnQueryReturnObjects = (
 
     const connectedNodeId = v4();
     const connectedEdgeId = v4();
-    const escapedNodeId = escapeCypherString(node.id);
     connectionObjects.push(
       [
         "\t\t{",
-        `\t\texists: any(n IN collect(${escapedNodeId}) ${whereCnxnStmt}),`,
+        `\t\texists: any(n IN ${targetCollectionAlias} ${whereCnxnStmt}),`,
         `\t\tnodeId: "${connectedNodeId}",`,
         `\t\tlabel: "${label}",`,
         `\t\tedgeId: "${connectedEdgeId}",`,
@@ -574,12 +582,46 @@ const getCnxnQueryReturnObjects = (
   return connectionObjects;
 };
 
-export const getConnectionQueryFromTree = (
+export const getSingleMatchConnectionQuery = (
+  treeParseResult: TreeParseResult,
+  node: PathwayNode,
+  targetNodeIdParam: string,
+  usingJoin = false
+): string => {
+  const targetCollectionAlias = "coll";
+  const usingJoinStmts = usingJoin ? treeParseResult.usingJoinStmts : [];
+  return [
+    "MATCH",
+    `${treeParseResult.patterns.join(",\n")}`,
+    ...usingJoinStmts,
+    `WITH collect(${escapeCypherString(node.id)}) AS ${targetCollectionAlias}`,
+    `RETURN [`,
+    [
+      ...getCnxnQueryReturnObjects(
+        treeParseResult,
+        node,
+        Direction.INCOMING,
+        targetNodeIdParam,
+        targetCollectionAlias
+      ),
+      ...getCnxnQueryReturnObjects(
+        treeParseResult,
+        node,
+        Direction.OUTGOING,
+        targetNodeIdParam,
+        targetCollectionAlias
+      ),
+    ].join(",\n"),
+    "] AS result",
+  ].join("\n");
+};
+
+export const getMultiCallConnectionQuery = (
   treeParseResult: TreeParseResult,
   tree: PathwayNode,
   targetNode: PathwayNode,
   targetNodeIdParam: string
-) => {
+): string => {
   const statements: string[] = [];
   const queryContext = new Set<string>();
 
@@ -670,20 +712,26 @@ export const getConnectionQueryFromTree = (
 
     // Target node returns a final result distinct from intermediate nodes
     if (node.id === targetNode.id) {
+      const targetCollectionAlias = "coll";
       subquery.push(
+        `WITH collect(${escapeCypherString(
+          node.id
+        )}) AS ${targetCollectionAlias}`,
         `\tRETURN [`,
         [
           ...getCnxnQueryReturnObjects(
             treeParseResult,
             node,
             Direction.INCOMING,
-            targetNodeIdParam
+            targetNodeIdParam,
+            targetCollectionAlias
           ),
           ...getCnxnQueryReturnObjects(
             treeParseResult,
             node,
             Direction.OUTGOING,
-            targetNodeIdParam
+            targetNodeIdParam,
+            targetCollectionAlias
           ),
         ].join(",\n"),
         "\t] AS result",

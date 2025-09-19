@@ -1,10 +1,17 @@
+import { Session } from "neo4j-driver";
 import { NextRequest } from "next/server";
 
 import {
   createPathwaySearchAllPathsCypher,
   createUpperPageBoundCypher,
 } from "@/lib/neo4j/cypher";
-import { executeRead, executeReadOne, getDriver } from "@/lib/neo4j/driver";
+import {
+  closeSession,
+  getDriver,
+  getSession,
+  sessionExecuteRead,
+  sessionExecuteReadOne,
+} from "@/lib/neo4j/driver";
 import {
   NodeResult,
   PathwayNode,
@@ -88,7 +95,7 @@ export async function POST(request: NextRequest) {
 
   try {
     tree = JSON.parse(atob(body.tree));
-    treeParseResult = parsePathwayTree(tree);
+    treeParseResult = parsePathwayTree(tree, true);
     // TODO: Add a schema for the pathway search query object (see /search/path/route.ts for zod example usage)
   } catch (e) {
     // If for any reason (decoding, parsing, etc.) we couldn't get the path object, return a 400 response instead
@@ -104,40 +111,71 @@ export async function POST(request: NextRequest) {
   try {
     const driver = getDriver();
     const skip = limit * (page - 1); // Assume page is 1-indexed!
+    const pathwaySearchQuerySessions: [string, Session][] = [
+      [
+        createPathwaySearchAllPathsCypher(
+          treeParseResult,
+          false,
+          orderByKey,
+          orderByProp,
+          order
+        ),
+        getSession(driver),
+      ],
+      [
+        createPathwaySearchAllPathsCypher(
+          treeParseResult,
+          true,
+          orderByKey,
+          orderByProp,
+          order
+        ),
+        getSession(driver),
+      ],
+    ];
+    let lowerPageBound = Math.max(page - Math.ceil(MAX_PAGE_SIBLINGS / 2), 1);
+    const pageBoundQuerySessions: [string, Session][] = [
+      [createUpperPageBoundCypher(treeParseResult, false), getSession(driver)],
+      [createUpperPageBoundCypher(treeParseResult, true), getSession(driver)],
+    ];
 
-    const pathwaySearchResult = await executeRead<{
-      [key: string]: NodeResult | RelationshipResult;
-    }>(
-      driver,
-      createPathwaySearchAllPathsCypher(
-        treeParseResult,
-        orderByKey,
-        orderByProp,
-        order
-      ),
-      {
-        limit,
-        skip,
-      }
-    );
-
+    const [pathwaySearchResult, upperPageBoundResult] = await Promise.all([
+      Promise.race(
+        pathwaySearchQuerySessions.map(([query, session]) =>
+          sessionExecuteRead<{
+            [key: string]: NodeResult | RelationshipResult;
+          }>(session, query, { limit, skip })
+        )
+      )
+        .then((result) => result)
+        .finally(() => {
+          // Regardless of which query finishes first, close all sessions
+          pathwaySearchQuerySessions.forEach(([_, session]) =>
+            closeSession(session)
+          );
+        }),
+      Promise.race(
+        pageBoundQuerySessions.map(([query, session]) =>
+          sessionExecuteReadOne<{ upperPageBound: number }>(session, query, {
+            limit,
+            skip: skip + limit, // Start counting from the page after the current page
+            maxSiblings: MAX_PAGE_SIBLINGS,
+            lowerPageBound,
+          })
+        )
+      )
+        .then((result) => result)
+        .finally(() => {
+          // Regardless of which query finishes first, close all sessions
+          pageBoundQuerySessions.forEach(([_, session]) =>
+            closeSession(session)
+          );
+        }),
+    ]);
     const paths: PathwaySearchResultRow[] = pathwaySearchResult.map((record) =>
       Object.values(record.toObject())
     );
-
-    let lowerPageBound = Math.max(page - Math.ceil(MAX_PAGE_SIBLINGS / 2), 1);
-    const upperPageBound = (
-      await executeReadOne<{ upperPageBound: number }>(
-        driver,
-        createUpperPageBoundCypher(treeParseResult),
-        {
-          limit,
-          skip: skip + limit, // Start counting from the page after the current page
-          maxSiblings: MAX_PAGE_SIBLINGS,
-          lowerPageBound,
-        }
-      )
-    ).toObject().upperPageBound;
+    const upperPageBound = upperPageBoundResult.toObject().upperPageBound;
 
     // If we reach the end of the table, we can fix the lower bound to maintain a constant number of page items
     const greaterSiblings = upperPageBound - page;
