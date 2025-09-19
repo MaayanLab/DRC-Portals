@@ -247,7 +247,7 @@ services:
   drc-portal-mcp:
     build: ../mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.0.4
+    image: maayanlab/drc-portal-mcp:0.0.5
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:

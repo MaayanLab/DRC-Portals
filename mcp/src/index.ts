@@ -18,7 +18,7 @@ app.use(cors({
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
 
 // Handle POST requests for client-to-server communication
-app.post('/mcp', async (req:any, res:any) => {
+app.post('/', async (req:any, res:any) => {
   // Check for existing session ID
   const sessionId = req.headers['mcp-session-id'] as string | undefined;
   let transport: StreamableHTTPServerTransport;
@@ -82,9 +82,9 @@ const handleSessionRequest = async (req: any, res: any) => {
 };
 
 // Handle GET requests for server-to-client notifications via SSE
-app.get('/mcp', handleSessionRequest);
+app.get('/', handleSessionRequest);
 
 // Handle DELETE requests for session termination
-app.delete('/mcp', handleSessionRequest);
+app.delete('/', handleSessionRequest);
 
 app.listen(5000);
