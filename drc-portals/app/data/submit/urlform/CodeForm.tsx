@@ -171,9 +171,6 @@ type fullDCCAsset = {
 
 export function CodeForm(user: { name?: string | null, email?: string | null, role: Role, dccs: string[] }) {
     const [status, setStatus] = React.useState<StatusType>({})
-    const [smartSelected, setSmartSelected] = React.useState(false)
-    const [apiSelected, setApiSelected] = React.useState(false)
-    const [entitySelected, setEntitySelected] = React.useState(false)
     const [popOpen, setPopOpen] = React.useState(false)
     const [oldVersion, setOldVersion] = React.useState<fullDCCAsset[]>([])
     const [currentVersion, setCurrentVersion] = React.useState<OtherCodeDataType | APIDataType | null>(null)
@@ -212,12 +209,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
         }
     }, [searchParams])
 
-
-    const handlePopClose = () => {
-        setPopOpen(false);
-    };
-
-    const handlePopConfirm = async (isAPI: boolean | undefined) => {
+    const handlePopConfirm = React.useCallback(async (isAPI: boolean | undefined) => {
         if (isAPI !== undefined) {
             try {
                 if (currentVersion) {
@@ -273,20 +265,11 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
             }
             setPopOpen(false);
         }
-    };
+    }, [currentVersion])
 
-    const handleChange = React.useCallback((event: SelectChangeEvent) => {
-        setForm(form => ({ ...form, assetType: event.target.value }));
-        if (event.target.value === 'API') {
-            setApiSelected(true)
-            setEntitySelected(false)
-        } else if (event.target.value === 'Entity Page Template') {
-            setEntitySelected(true)
-        } else {
-            setApiSelected(false)
-            setEntitySelected(false)
-        }
-    }, []);
+    const apiSelected = React.useMemo(() => form.assetType === 'API', [form])
+    const entitySelected = React.useMemo(() => form.assetType === 'Entity Page Template', [form])
+    const smartSelected = React.useMemo(() => form.smartAPISpecs === true, [form])
 
     return (
         <form
@@ -409,7 +392,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                                     <Select
                                         labelId="select-url"
                                         id="simple-select"
-                                        onChange={handleChange}
+                                        onChange={event => {setForm(form => ({ ...form, assetType: event.target.value }))}}
                                         autoWidth
                                         required
                                         label="Code Asset Type"
@@ -517,7 +500,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
 
                 <Dialog
                     open={popOpen}
-                    onClose={handlePopClose}
+                    onClose={evt => {setPopOpen(false)}}
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
@@ -559,7 +542,7 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button color="secondary" onClick={handlePopClose}>No</Button>
+                        <Button color="secondary" onClick={() => {setPopOpen(false)}}>No</Button>
                         <Button color="secondary" onClick={() => handlePopConfirm(currentVersion ? currentVersion.assetType === 'API' : undefined)} autoFocus>
                             Confirm
                         </Button>
