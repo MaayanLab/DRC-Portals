@@ -10,20 +10,24 @@ import {
 export const getTermsCypher = () => `
     CALL {
       CALL db.index.fulltext.queryNodes('synonymIdx', $phrase)
-      YIELD node AS s
-      WITH s
+      YIELD node AS s, score
+      WITH s, score
+      ORDER BY score DESC
       LIMIT $limit
       MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
       RETURN s.name AS synonym, cvTerm AS cvTerm
       UNION ALL
       CALL db.index.fulltext.queryNodes('synonymIdx', $fuzzy)
-      YIELD node AS s
-      WITH s
+      YIELD node AS s, score
+      WITH s, score
+      ORDER BY score DESC
       LIMIT $limit
       MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
       RETURN s.name AS synonym, cvTerm AS cvTerm
     }
-    RETURN DISTINCT synonym AS synonym, ${createNodeReprStr("cvTerm")} AS cvTerm
+    RETURN DISTINCT collect(synonym)[0] AS synonym, ${createNodeReprStr(
+      "cvTerm"
+    )} AS cvTerm
     LIMIT $limit
   `;
 

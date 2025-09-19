@@ -25,7 +25,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   const [loading, setLoading] = useState(false);
   const [showNoOptions, setShowNoOptions] = useState(false);
   const abortControllerRef = useRef(new AbortController());
-  const cvTermsMap = useRef(new Map<string, NodeResult>());
+  const cvTermsMap = useRef(new Map<string, [string, NodeResult]>());
 
   const NO_OPTIONS_TEXT = "No terms found";
 
@@ -69,12 +69,13 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   );
 
   const getOptionLabel = (option: string) => {
-    const termName = cvTermsMap.current.get(option)?.properties.name;
-    return option === termName ? (
+    const synonymAndTerm = cvTermsMap.current.get(option);
+    const synonymName = synonymAndTerm !== undefined ? synonymAndTerm[0] : "Unknown"
+    return option === synonymName ? (
       option
     ) : (
       <>
-        {option} <em>({termName})</em>
+        {synonymName} <em>({option})</em>
       </>
     );
   };
@@ -89,31 +90,29 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
 
     if (loading) {
       content = (
-          <Skeleton
-            variant="text"
-            width={SEARCH_PLACEHOLDER_OPTIONS[state.index]}
-          />
-        );
+        <Skeleton
+          variant="text"
+          width={SEARCH_PLACEHOLDER_OPTIONS[state.index]}
+        />
+      );
     } else if (showNoOptions) {
       content = option;
     } else {
+      const synonymAndTerm = cvTermsMap.current.get(option);
+      const label = synonymAndTerm !== undefined ? (synonymAndTerm[1].labels[0] || "Unknown") : "Unknown"
       content = (
-          <Box
-            display="flex"
-            sx={{
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
-            <Box>{getOptionLabel(option)}</Box>
-            <Box>
-              {createNodeElement(
-                cvTermsMap.current.get(option)?.labels[0] || "Unknown"
-              )}
-            </Box>
-          </Box>
-        );
+        <Box
+          display="flex"
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <Box>{getOptionLabel(option)}</Box>
+          <Box>{createNodeElement(label)}</Box>
+        </Box>
+      );
     }
 
     return (
@@ -124,8 +123,8 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
         {...optionProps}
         onClick={(event: MouseEvent) => {
           if (cvTermsMap.current !== undefined) {
-            const cvTerm = cvTermsMap.current.get(option);
-            submit(cvTerm);
+            const synonymAndTerm = cvTermsMap.current.get(option);
+            submit(synonymAndTerm !== undefined ? synonymAndTerm[1] : undefined);
           }
           optionProps.onClick(event);
         }}
@@ -161,7 +160,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
             if (cvTermsMap.current !== undefined) {
               cvTermsMap.current.clear();
               data.forEach((row) => {
-                cvTermsMap.current.set(row.synonym, row.cvTerm);
+                cvTermsMap.current.set(row.cvTerm.properties.name || "Unknown", [row.synonym, row.cvTerm]);
               });
               setShowNoOptions(false);
               setOptions(Array.from(cvTermsMap.current.keys()));
