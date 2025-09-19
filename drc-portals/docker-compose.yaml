@@ -244,6 +244,18 @@ services:
   #   deploy:
   #     replicas: 0
 
+  drc-portal-mcp:
+    build: ../mcp
+    platform: linux/amd64
+    image: maayanlab/drc-portal-mcp:0.0.1
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      cron: '0 * * * *'
+    environment:
+      - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public}
+  
+
 volumes:
   drc-portal-postgres:
     x-kubernetes:

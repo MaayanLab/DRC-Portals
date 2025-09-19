@@ -7,3 +7,4 @@ kub/
 venv
 package-lock.json
 playground*
+mcp/dist
