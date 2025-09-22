@@ -45,10 +45,13 @@ export function generateHashedJSONFilename(prefix: string, searchParams: any): s
   return hashedFileName;
 }
 export function isURL(str: string): boolean {
-  const http_pattern = /^http/i;
-  const drs_pattern = /^drs:\/\//i;
+  const http_pattern = /^https?:/i;
   const doi_pattern = "doi.org";
-  return (!(str === null || str.trim() === '') && (http_pattern.test(str) || drs_pattern.test(str) || str.toLowerCase().includes(doi_pattern)));
+  return (!(str === null || str.trim() === '') && (http_pattern.test(str) || str.toLowerCase().includes(doi_pattern)));
+}
+export function isDRS(str: string): boolean {
+  const drs_pattern = /^drs:\/\//i;
+  return (!(str === null || str.trim() === '') && (drs_pattern.test(str)));
 }
 
 interface HashTable {
