@@ -45,7 +45,7 @@ export function generateHashedJSONFilename(prefix: string, searchParams: any): s
   return hashedFileName;
 }
 export function isURL(str: string): boolean {
-  const http_pattern = /^https?:/i;
+  const http_pattern = /^https?:\/\//i;
   const doi_pattern = "doi.org";
   return (!(str === null || str.trim() === '') && (http_pattern.test(str) || str.toLowerCase().includes(doi_pattern)));
 }
