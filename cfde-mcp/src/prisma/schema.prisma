@@ -1,3 +1,10 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/.prisma/client"
+  previewFeatures = ["fullTextSearchPostgres"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -505,12 +512,4 @@ enum Role {
   DRC_APPROVER
   ADMIN
   READONLY
-}
-
-
-generator client {
-  provider        = "prisma-client-js"
-  output          = "../../node_modules/.prisma/client"
-  previewFeatures = ["fullTextSearch"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }

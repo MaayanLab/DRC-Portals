@@ -1,5 +1,5 @@
-import { PrismaClient } from '.prisma/client'
-import singleton from '../singleton'
+import { PrismaClient } from '@prisma/client'
+import singleton from '../singleton/index.js'
 
 export default singleton('prisma', () => {
   if (process.env.NODE_ENV === 'development') {
