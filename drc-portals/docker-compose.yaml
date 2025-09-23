@@ -247,12 +247,13 @@ services:
   drc-portal-mcp:
     build: ../mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.0.6
+    image: maayanlab/drc-portal-mcp:0.0.7
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://mcp.cfde.cloud
     environment:
+      - API_KEY=${MCP_API_KEY}
       - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public}
     ports:
       - 5000:5000
