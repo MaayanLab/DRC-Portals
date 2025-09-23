@@ -3,7 +3,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.19.25
+    image: maayanlab/drc-portal:0.19.26
     deploy:
       replicas: 3
       resources:
@@ -247,7 +247,7 @@ services:
   drc-portal-mcp:
     build: ../mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.0.5
+    image: maayanlab/drc-portal-mcp:0.0.6
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
