@@ -18,22 +18,27 @@ import {
   TableRow,
 } from "@mui/material";
 
+import { PathwaySearchResultRow } from "@/lib/neo4j/types";
+
 import {
   PATHWAY_SEARCH_LIMIT_CHOICES,
   StyledDataCell,
   StyledHeaderCell,
   StyledTableCell,
 } from "@/components/prototype/constants/pathway-search";
+import { ColumnData } from "@/components/prototype/interfaces/pathway-search";
 
 import ReturnBtn from "../ReturnBtn";
 import PathwayTablePagination from "./PathwayTablePagination";
 
 interface TableViewSkeletonProps {
+  data?: PathwaySearchResultRow[];
   count?: number;
   page?: number;
   lowerPageBound?: number;
   upperPageBound?: number;
   limit?: number;
+  columns?: ColumnData[];
   onReturnBtnClick: () => void;
 }
 
@@ -44,8 +49,8 @@ export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
   const upperPageBound = cmpProps.page !== undefined && cmpProps.upperPageBound !== undefined ? cmpProps.upperPageBound : 1;
   const limit = cmpProps.limit || 10;
   const COL_COUNT = 5;
-  const columns = new Array(COL_COUNT).fill(null);
-  const data = new Array(limit || 10).fill(new Array(COL_COUNT).fill(null));
+  const columns = cmpProps.columns?.length ? cmpProps.columns : new Array(COL_COUNT).fill(null);
+  const data = cmpProps.data?.length ? cmpProps.data : new Array(limit || 10).fill(new Array(COL_COUNT).fill(null));
 
   return (
     <>
@@ -117,7 +122,7 @@ export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
 
       <Stack direction="row" marginTop={1} justifyContent="space-between">
         <Stack direction="row" spacing={1}>
-          <Button
+          {/* <Button
             disabled
             variant="contained"
             color="primary"
@@ -125,7 +130,7 @@ export default function TableViewSkeleton(cmpProps: TableViewSkeletonProps) {
             onClick={() => console.log("Download All btn clicked")}
           >
             Download All
-          </Button>
+          </Button> */}
         </Stack>
 
         <ReturnBtn onClick={onReturnBtnClick} />

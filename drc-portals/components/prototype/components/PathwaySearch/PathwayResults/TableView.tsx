@@ -347,7 +347,7 @@ export default function TableView(cmpProps: TableViewProps) {
               Download Selected
             </Button>
           ) : null}
-          <Button
+          {/* <Button
             variant="contained"
             color="primary"
             startIcon={
@@ -360,8 +360,7 @@ export default function TableView(cmpProps: TableViewProps) {
             onClick={handleDownloadAllClicked}
           >
             Download All
-          </Button>
-
+          </Button> */}
         </Stack>
 
         <ReturnBtn onClick={onReturnBtnClick} />

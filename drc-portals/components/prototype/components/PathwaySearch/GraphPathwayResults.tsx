@@ -205,8 +205,8 @@ export default function GraphPathwayResults(
       const columnData = orderBy === undefined ? undefined : columns[orderBy];
       const { data } = await getPathwaySearchResults(
         tree,
-        undefined,
-        undefined,
+        page,
+        limit,
         columnData?.key,
         columnData?.displayProp,
         order
@@ -260,10 +260,12 @@ export default function GraphPathwayResults(
           <TableViewContainer>
             {loading ? (
               <TableViewSkeleton
+                data={paths}
                 limit={limit}
                 page={page}
                 lowerPageBound={lowerPageBound}
                 upperPageBound={upperPageBound}
+                columns={columns}
                 onReturnBtnClick={onReturnBtnClick}
               />
             ) : (
