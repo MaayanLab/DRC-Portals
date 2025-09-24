@@ -193,6 +193,14 @@ export const getOntologyLink = (label: string, id: string) => {
   }
 };
 
+export const getDccLink = (dccLink: string) => {
+  if (dccLink === "https://genome.ucsd.edu/") {
+    return "https://www.metabolomicsworkbench.org/"
+  } else {
+    return dccLink;
+  }
+}
+
 export const getExternalLinkElement = (link: string, text: string) => (
   <Link href={link} target="_blank" rel="noopener" color="secondary">
     {text}

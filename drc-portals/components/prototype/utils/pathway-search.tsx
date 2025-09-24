@@ -24,7 +24,7 @@ import {
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
 
-import { getExternalLinkElement, getOntologyLink } from "./shared";
+import { getDccLink, getExternalLinkElement, getOntologyLink } from "./shared";
 import set_difference from "@/utils/set";
 
 export const isPathwaySearchEdgeElement = (
@@ -305,7 +305,7 @@ export const getColumnDataFromTree = (tree: PathwayNode): ColumnData[] => {
     } else if (label === DCC_LABEL) {
       displayProp = "abbreviation";
       valueGetter = (node: NodeResult, displayProp: string) => {
-        const url = node.properties.url;
+        const url = getDccLink(node.properties.url);
         const displayText = getPropFromNodeResult(node, displayProp);
         if (url !== undefined) {
           if (linkRegex.test(url)) {
