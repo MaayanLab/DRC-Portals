@@ -12,6 +12,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -63,7 +64,7 @@ export default function AddConnectionMenuItem(
       (showFn === undefined || showFn(context.event))
     );
 
-    const getRightIcon = useCallback(() => {
+    const rightIcon = useMemo(() => {
       if (loading) {
         return (
           <CircularProgress aria-label="loading" color="inherit" size={20} />
@@ -95,6 +96,7 @@ export default function AddConnectionMenuItem(
         const signal = controller.signal;
 
         setLoading(true);
+        setGetConnectionsError(false);
 
         try {
           const tree = createTree(elements);
@@ -271,7 +273,7 @@ export default function AddConnectionMenuItem(
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={onMenuClicked}
-        rightIcon={getRightIcon()}
+        rightIcon={rightIcon}
         renderLabel={() => (
           <Box sx={{ display: "flex", marginRight: 1 }}>
             <HubIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
