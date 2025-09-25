@@ -96,7 +96,7 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
     console.log("q = " + searchParams.q);
 
     const ColumnsForFileQuery = generateSelectColumnsForFileQuery("allres_full");
-    
+
     try {
         const query = SQL.template`
         WITH allres_full AS (
@@ -123,7 +123,8 @@ export default async function FilesCollectionTableComponent({ searchParams, filt
             INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                     AND f.project_id_namespace = ui.project_id_namespace
                                     AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/
-                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL))  /****/
+                                    AND ((f.file_format = ui.file_format) OR (f.file_format IS NULL AND ui.file_format IS NULL)) ) /****/
           ),
           file_col_table_keycol AS (
               SELECT DISTINCT fdc.file_id_namespace, fdc.file_local_id, fdc.collection_id_namespace, fdc.collection_local_id,

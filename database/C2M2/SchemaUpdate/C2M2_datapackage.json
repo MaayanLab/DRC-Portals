@@ -410,37 +410,40 @@
                   "name": "granularity",
                   "description": "A CFDE CV category characterizing this subject by multiplicity",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_granularity:0",
-                     "cfde_subject_granularity:1",
-                     "cfde_subject_granularity:2",
-                     "cfde_subject_granularity:3",
-                     "cfde_subject_granularity:4",
-                     "cfde_subject_granularity:5"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_subject_granularity:0",
+                        "cfde_subject_granularity:1",
+                        "cfde_subject_granularity:2",
+                        "cfde_subject_granularity:3",
+                        "cfde_subject_granularity:4",
+                        "cfde_subject_granularity:5"
+                     ]
                   }
                },
                {
                   "name": "sex",
                   "description": "A CFDE CV category characterizing the physiological sex of this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_sex:0",
-                     "cfde_subject_sex:1",
-                     "cfde_subject_sex:2",
-                     "cfde_subject_sex:3"
-                  ]
+                  "constraints": {
+                     "enum": [
+                        "cfde_subject_sex:0",
+                        "cfde_subject_sex:1",
+                        "cfde_subject_sex:2"
+                     ]
+                  }
                },
                {
                   "name": "ethnicity",
                   "description": "A CFDE CV category characterizing the self-reported ethnicity of this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_ethnicity:0",
-                     "cfde_subject_ethnicity:1"
-                  ]
+                  "constraints": {
+                     "enum": [
+                        "cfde_subject_ethnicity:0",
+                        "cfde_subject_ethnicity:1"
+                     ]
+                  }
                },
                {
                   "name": "age_at_enrollment",
@@ -1646,12 +1649,12 @@
                   "name": "association_type",
                   "description": "The relationship between this biosample and this disease (e.g. 'observed' or '(tested for, but) not observed')",
                   "type": "string",
-                  "enum": [
-                     "cfde_disease_association_type:0",
-                     "cfde_disease_association_type:1"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_disease_association_type:0",
+                        "cfde_disease_association_type:1"
+                     ]
                   }
                },
                {
@@ -1728,12 +1731,12 @@
                   "name": "association_type",
                   "description": "The relationship between this subject and this disease (e.g. 'observed' or '(tested for, but) not observed')",
                   "type": "string",
-                  "enum": [
-                     "cfde_disease_association_type:0",
-                     "cfde_disease_association_type:1"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_disease_association_type:0",
+                        "cfde_disease_association_type:1"
+                     ]
                   }
                },
                {
@@ -2431,12 +2434,12 @@
                   "name": "association_type",
                   "description": "The relationship between this subject and this phenotype (e.g. 'observed' or '(tested for, but) not observed')",
                   "type": "string",
-                  "enum": [
-                     "cfde_phenotype_association_type:0",
-                     "cfde_phenotype_association_type:1"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_phenotype_association_type:0",
+                        "cfde_phenotype_association_type:1"
+                     ]
                   }
                },
                {
@@ -2828,15 +2831,18 @@
                   "name": "race",
                   "description": "A race self-identified by this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_race:0",
-                     "cfde_subject_race:1",
-                     "cfde_subject_race:2",
-                     "cfde_subject_race:3",
-                     "cfde_subject_race:4",
-                     "cfde_subject_race:5",
-                     "cfde_subject_race:6"
-                  ]
+                  "constraints": {
+                     "required": true,
+                     "enum": [
+                        "cfde_subject_race:0",
+                        "cfde_subject_race:1",
+                        "cfde_subject_race:2",
+                        "cfde_subject_race:3",
+                        "cfde_subject_race:4",
+                        "cfde_subject_race:5",
+                        "cfde_subject_race:6"
+                     ]
+                  }
                }
             ],
             "primaryKey": [
@@ -2896,18 +2902,18 @@
                   "name": "role_id",
                   "description": "The ID of the role assigned to this organism-level constituent component of this subject",
                   "type": "string",
-                  "enum": [
-                     "cfde_subject_role:0",
-                     "cfde_subject_role:1",
-                     "cfde_subject_role:2",
-                     "cfde_subject_role:3",
-                     "cfde_subject_role:4",
-                     "cfde_subject_role:5",
-                     "cfde_subject_role:6",
-                     "cfde_subject_role:7"
-                  ],
                   "constraints": {
-                     "required": true
+                     "required": true,
+                     "enum": [
+                        "cfde_subject_role:0",
+                        "cfde_subject_role:1",
+                        "cfde_subject_role:2",
+                        "cfde_subject_role:3",
+                        "cfde_subject_role:4",
+                        "cfde_subject_role:5",
+                        "cfde_subject_role:6",
+                        "cfde_subject_role:7"
+                     ]
                   }
                },
                {
@@ -3802,6 +3808,414 @@
             ],
             "primaryKey": "id"
          }
-      }
+      },
+      {
+         "profile": "tabular-data-resource",
+         "name": "collection_ptm",
+         "title": "collection_ptm",
+         "path": "collection_ptm.tsv",
+         "dialect": {
+             "delimiter": "\t",
+             "doubleQuote": false,
+             "lineTerminator": "\n",
+             "skipInitialSpace": true,
+             "header": true
+         },
+         "description": "Association between a collection and PTMs",
+         "schema": {
+             "fields": [
+                 {
+                     "name": "collection_id_namespace",
+                     "description": "Identifier namespace for this collection [part 1 of 3-component composite primary key]",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "collection_local_id",
+                     "description": "The ID of this collection [part 2 of 3-component composite primary key]",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "ptm",
+                     "description": "A valid PTM ID term [part 3 of 3-component composite primary key]",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 }
+             ],
+             "missingValues": [
+                 ""
+             ],
+             "primaryKey": [
+                 "collection_id_namespace",
+                 "collection_local_id",
+                 "ptm"
+             ],
+             "foreignKeys": [
+                 {
+                     "fields": [
+                         "collection_id_namespace",
+                         "collection_local_id"
+                     ],
+                     "reference": {
+                         "resource": "collection",
+                         "fields": [
+                             "id_namespace",
+                             "local_id"
+                         ]
+                     }
+                 },
+                 {
+                     "fields": "ptm",
+                     "reference": {
+                         "resource": "ptm",
+                         "fields": "id"
+                     }
+                 }
+             ]
+         }
+     },
+     {
+         "profile": "tabular-data-resource",
+         "name": "biosample_ptm",
+         "title": "biosample_ptm",
+         "path": "biosample_ptm.tsv",
+         "dialect": {
+             "delimiter": "\t",
+             "doubleQuote": false,
+             "lineTerminator": "\n",
+             "skipInitialSpace": true,
+             "header": true
+         },
+         "description": "Association between a biosample and PTMs",
+         "schema": {
+             "fields": [
+                 {
+                     "name": "biosample_id_namespace",
+                     "description": "Identifier namespace for this biosample [part 1 of 3-component composite primary key]",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "biosample_local_id",
+                     "description": "The ID of this biosample [part 2 of 3-component composite primary key]",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "ptm",
+                     "description": "A valid PTM ID term [part 3 of 3-component composite primary key]",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 }
+             ],
+             "missingValues": [
+                 ""
+             ],
+             "primaryKey": [
+                 "biosample_id_namespace",
+                 "biosample_local_id",
+                 "ptm"
+             ],
+             "foreignKeys": [
+                 {
+                     "fields": [
+                         "biosample_id_namespace",
+                         "biosample_local_id"
+                     ],
+                     "reference": {
+                         "resource": "biosample",
+                         "fields": [
+                             "id_namespace",
+                             "local_id"
+                         ]
+                     }
+                 },
+                 {
+                     "fields": "ptm",
+                     "reference": {
+                         "resource": "ptm",
+                         "fields": "id"
+                     }
+                 }
+             ]
+         }
+     },
+     {
+         "profile": "tabular-data-resource",
+         "name": "ptm",
+         "title": "ptm",
+         "path": "ptm.tsv",
+         "dialect": {
+             "delimiter": "\t",
+             "doubleQuote": false,
+             "lineTerminator": "\n",
+             "skipInitialSpace": true,
+             "header": true
+         },
+         "description": "Post-translational modification of proteins",
+         "schema": {
+             "fields": [
+                 {
+                     "name": "id",
+                     "description": "A unique PTM ID",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "protein",
+                     "description": "A UniProt Knowledgebase (UniProtKB) protein accession (AC)",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "site_one",
+                     "description": "Position of the first site involved in the ptm",
+                     "type": "integer",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "aa_site_one",
+                     "description": "Amino acid at the first site",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "site_two",
+                     "description": "Position of the second site involved in the ptm",
+                     "type": "integer"
+                 },
+                 {
+                     "name": "aa_site_two",
+                     "description": "Amino acid at the second site",
+                     "type": "string"
+                 },
+                 {
+                     "name": "site_type",
+                     "description": "Type of site, a valid site_type ID",
+                     "type": "string"
+                 },
+                 {
+                     "name": "ptm_type",
+                     "description": "Major type of PTM, a valid ptm_type ID",
+                     "type": "string"
+                 },
+                 {
+                     "name": "ptm_subtype",
+                     "description": "Subtype of PTM, a valid ptm_subtype ID",
+                     "type": "string"
+                 },
+                 {
+                     "name": "domain_location",
+                     "description": "ID for subcellular localization",
+                     "type": "string"
+                 },
+                 {
+                     "name": "domain_type",
+                     "description": "Domain type",
+                     "type": "string"
+                 }
+             ],
+             "missingValues": [
+                 ""
+             ],
+             "primaryKey": [
+                 "id"
+             ],
+             "foreignKeys": [
+                 {
+                     "fields": "ptm_type",
+                     "reference": {
+                         "resource": "ptm_type",
+                         "fields": "id"
+                     }
+                 },
+                 {
+                     "fields": "ptm_subtype",
+                     "reference": {
+                         "resource": "ptm_subtype",
+                         "fields": "id"
+                     }
+                 },
+                 {
+                     "fields": "domain_location",
+                     "reference": {
+                         "resource": "domain_location",
+                         "fields": "id"
+                     }
+                 }
+             ]
+         }
+     },
+     {
+         "profile": "tabular-data-resource",
+         "name": "ptm_type",
+         "title": "ptm_type",
+         "path": "ptm_type.tsv",
+         "dialect": {
+             "delimiter": "\t",
+             "doubleQuote": false,
+             "lineTerminator": "\n",
+             "skipInitialSpace": true,
+             "header": true
+         },
+         "description": "PTM types from Gene Ontology",
+         "schema": {
+             "fields": [
+                 {
+                     "name": "id",
+                     "description": "A valid ptm_type ID from Gene Ontology",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "name",
+                     "description": "A short human-readable label for this GO term",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "description",
+                     "description": "A human-readable description of this GO term",
+                     "type": "string"
+                 },
+                 {
+                     "name": "synonyms",
+                     "description": "A list of synonyms for this GO term as identified by the Gene Ontology",
+                     "type": "array"
+                 }
+             ],
+             "missingValues": [
+                 ""
+             ],
+             "primaryKey": [
+                 "id"
+             ]
+         }
+     },
+     {
+         "profile": "tabular-data-resource",
+         "name": "ptm_subtype",
+         "title": "ptm_subtype",
+         "path": "ptm_subtype.tsv",
+         "dialect": {
+             "delimiter": "\t",
+             "doubleQuote": false,
+             "lineTerminator": "\n",
+             "skipInitialSpace": true,
+             "header": true
+         },
+         "description": "PTM subtypes from Gene Ontology",
+         "schema": {
+             "fields": [
+                 {
+                     "name": "id",
+                     "description": "A valid ptm_subtype ID from Gene Ontology",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "name",
+                     "description": "A short human-readable label for this GO term",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "description",
+                     "description": "A human-readable description of this GO term",
+                     "type": "string"
+                 },
+                 {
+                     "name": "synonyms",
+                     "description": "A list of synonyms for this GO term as identified by the Gene Ontology",
+                     "type": "array"
+                 }
+             ],
+             "missingValues": [
+                 ""
+             ],
+             "primaryKey": [
+                 "id"
+             ]
+         }
+     },
+     {
+         "profile": "tabular-data-resource",
+         "name": "domain_location",
+         "title": "domain_location",
+         "path": "domain_location.tsv",
+         "dialect": {
+             "delimiter": "\t",
+             "doubleQuote": false,
+             "lineTerminator": "\n",
+             "skipInitialSpace": true,
+             "header": true
+         },
+         "description": "Domain locations from Gene Ontology",
+         "schema": {
+             "fields": [
+                 {
+                     "name": "id",
+                     "description": "A valid domain_location ID from Gene Ontology",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "name",
+                     "description": "A short human-readable label for this GO term",
+                     "type": "string",
+                     "constraints": {
+                         "required": true
+                     }
+                 },
+                 {
+                     "name": "description",
+                     "description": "A human-readable description of this GO term",
+                     "type": "string"
+                 },
+                 {
+                     "name": "synonyms",
+                     "description": "A list of synonyms for this GO term as identified by the Gene Ontology",
+                     "type": "array"
+                 }
+             ],
+             "missingValues": [
+                 ""
+             ],
+             "primaryKey": [
+                 "id"
+             ]
+         }
+     }
    ]
 }

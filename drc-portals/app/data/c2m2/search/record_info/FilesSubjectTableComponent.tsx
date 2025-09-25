@@ -122,7 +122,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                         AND f.project_id_namespace = ui.project_id_namespace
                                         AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/ /* 2024/03/07 match data type */
-                                        AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+                                        AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL))  /****/
+                                        AND ((f.file_format = ui.file_format) OR (f.file_format IS NULL AND ui.file_format IS NULL)) ) /****/
                 ),
                 file_sub_table_keycol AS (
                   SELECT DISTINCT fds.*,

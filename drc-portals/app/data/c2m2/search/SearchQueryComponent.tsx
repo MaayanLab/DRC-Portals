@@ -27,6 +27,10 @@ import DiseaseFilterComponent from './DiseaseFilterComponent';
 import SubjectEthnicityFilterComponent from './SubjectEthnicityFilterComponent';
 import SubjectSexFilterComponent from './SubjectSexFilterComponent';
 import SubjectRaceFilterComponent from './SubjectRaceFilterComponent';
+import FileFormatFilterComponent from './FileFormatFilterComponent';
+import PTMTypeFilterComponent from './PTMTypeFilterComponent';
+import PTMSubTypeFilterComponent from './PTMSubTypeFilterComponent';
+import PTMSiteTypeFilterComponent from './PTMSiteTypeFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
 
@@ -59,7 +63,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
 
   // Prepare the filter clause, similar to the original doQuery function
   const filterClause = generateFilterQueryString(searchParams, "allres_full");
-  
+
   // Query to fetch the count of records only
   const [result] = await prisma.$queryRaw<Array<{
     count: number;
@@ -72,8 +76,7 @@ const doQueryCount = React.cache(async (props: PageProps) => {
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
       WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
-      ORDER BY  ${SQL.raw(orderByClause)}/* rank DESC,  dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-          protein_name, compound_name, data_type_name, assay_type_name, subject_ethnicity_name, subject_sex_name, subject_race_name */
+      ORDER BY  ${SQL.raw(orderByClause)}
   ),
     
     
@@ -193,7 +196,7 @@ export async function SearchQueryComponentTab(props: { search: string }) {
 export async function SearchQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return
-
+  console.log("In SearchQueryComponent");
   //const filterClause = generateFilterQueryString(searchParams, "ffl_biosample_collection");
   const filterClause = generateFilterQueryString(searchParams, main_table);
 
@@ -264,6 +267,14 @@ export async function SearchQueryComponent(props: PageProps) {
             </React.Suspense>
 
             <React.Suspense fallback={<>Loading..</>}>
+              <FileFormatFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
               <SubjectEthnicityFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
@@ -276,9 +287,16 @@ export async function SearchQueryComponent(props: PageProps) {
             </React.Suspense>
 
             <React.Suspense fallback={<>Loading..</>}>
-              <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              <PTMTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
+            <React.Suspense fallback={<>Loading..</>}>
+              <PTMSubTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
+
+            <React.Suspense fallback={<>Loading..</>}>
+              <PTMSiteTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+            </React.Suspense>
 
           </>
         }

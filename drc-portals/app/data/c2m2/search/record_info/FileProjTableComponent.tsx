@@ -120,7 +120,8 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
             INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                     AND f.project_id_namespace = ui.project_id_namespace
                                     AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/ /* 2024/03/07 match data type */
-                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+                                    AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL))  /****/
+                                    AND ((f.file_format = ui.file_format) OR (f.file_format IS NULL AND ui.file_format IS NULL)) ) /****/
             ),
             file_table AS (
             SELECT DISTINCT 
@@ -185,7 +186,7 @@ export default async function FilesProjTableComponent({ searchParams, filterClau
         const priorityFileCols = ['filename', 'file_local_id', 'data_type_name', 'assay_type_name', 'analysis_type_name', 'size_in_bytes', 'persistent_id']; // priority columns to show up early
 
 
-        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type']; // added md5 and sha256 to ignore columns
+        const filesProj_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'bundle_collection_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type', 'searchable']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileProjPrunedData,
             columnNames: fileProjColNames,

@@ -1,25 +1,37 @@
 #!/bin/bash
 #
-# First be in folder ${HOME}/CFDE/C2M2_sub since other needed resources are there.
+# First be in folder ${HOME}/CFDE/C2M2_sub (or /mnt/share/CFDE/C2M2_sub) since other needed 
+# resources are there.
 # Assuming this script will be operated from the folder ~/CFDE/C2M2_sub, it takes the arguments:
 # name of the first script to be called
 # name of the second script to to be called by the first script
 # folder path for schemaupdate_dir
-# onlyTest: 0 or 1
+# onlyTest: 0 (copy, update test) or 1 (only test) or 2 (copy, test)
+# ingest_c2m2s_parent_folder: if not specified, defaults to: "${schemaupdate_dir}/.."
 #
 # Call syntax:
+#
 #./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh \
-# append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
+# append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0 \
+# ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate/..
+#
 # OR, in one line:
-# ./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
+#
+# ./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_biofluid.sh append_random_biofluid_to_bios_col_biof.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0 ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate/..
+#
 # Another example
 # For file.tsv access_url update
 # mock access_url related data in file.tsv.
 #./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_access_url.sh \
 # append_random_access_url_to_file.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
-# OR, in one line:
+# OR, in one line: 5th argument not specified
 #./call_copy_update_test.sh ./copy_update_test_dcc_c2m2_package_for_access_url.sh append_random_access_url_to_file.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 0
+#
+# To only test, and not copy and not update any of the files in any of the DCC's C2M2 packages:
+#./call_copy_update_test.sh copy_test_dcc_c2m2_package_generic.sh donothing.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 1
 
+# To only copy and test (no update) the files in the DCC's C2M2 packages:
+#./call_copy_update_test.sh copy_test_dcc_c2m2_package_generic.sh donothing.sh ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate 2
 
 # The above command started many copies of the above command, printing:
 # /bin/bash: warning: shell level (1000) too high, resetting to 1
@@ -29,8 +41,9 @@
 # If needed, copy script to suitable location and chmod, e.g.
 #[user@server SchemaUpdate]$ chmod a+x *.sh && cp *.sh ~/CFDE/C2M2_sub/.
 
-# Loop over the list of DCC-named folders inside SchemaUpdate/ingest/c2m2s, construct the arguments 
-# for the script ./copy_update_test_dcc_c2m2_package_for_biofluid.sh and call it
+# Loop over the list of DCC-named folders inside SchemaUpdate/../ingest/c2m2s, construct the arguments 
+# for the script ./copy_update_test_dcc_c2m2_package_for_biofluid.sh or copy_test_dcc_c2m2_package_generic.sh 
+# and call it.
 
 # The key task is to find the subfolder that has the actual c2m2 package files such as 
 # project.tsv, biosampple.tsv, collection.tsv and file.tsv with total combined row count >= 15
@@ -45,24 +58,29 @@ f4=file.tsv
 scriptfile_for_copy_update_test="$1"
 scriptfile_for_update="$2" # script to run to make changes in the seelect tsv files: e.g., append_random_biofluid_to_bios_col_biof.sh
 schemaupdate_dir="$3" # ....../DRC-Portals/database/C2M2/SchemaUpdate
+onlyTest=0
 
 # Set below, onlyTest to 0 if want to copy and update the C2M2 files, 1 if already updated
 # Usually, 1 if only testing prepare_C2M2_submission.py (with updated master ontology files) and frictionless
-if [[ $# -lt 4 ]]; then
-	onlyTest=0
-else
+if [[ $# -ge 4 ]]; then
 	onlyTest=$4
 fi
 
-curdir="$PWD"
-ingest_c2m2s="${schemaupdate_dir}/ingest/c2m2s"
+ingest_c2m2s_parent_folder="${schemaupdate_dir}/.."
+if [[ $# -ge 5 ]]; then
+	ingest_c2m2s_parent_folder=$5
+fi
 
+curdir="$PWD"
+#ingest_c2m2s="${schemaupdate_dir}/ingest/c2m2s"
+ingest_c2m2s="${ingest_c2m2s_parent_folder}/ingest/c2m2s"
 
 echo "scriptfile_for_copy_update_test: $scriptfile_for_copy_update_test";
 echo "scriptfile_for_update: $scriptfile_for_update";
 echo "schemaupdate_dir: $schemaupdate_dir";
-echo "curdir: $curdir";
+echo "onlyTest: ${onlyTest}";
 echo "ingest_c2m2s: $ingest_c2m2s";
+echo "curdir: $curdir";
 
 source_dirs=()
 
@@ -129,4 +147,5 @@ done
 # validation-logs/202412/validation_result-KidsFirst.log \
 # append_random_biofluid_to_bios_col_biof.sh \
 # ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate
-echo "--------------------- Script $0: Completed ---------------------"
+
+echo "--------------------- Script $0: Completed for dcc_name: ${dcc_name} ---------------------"

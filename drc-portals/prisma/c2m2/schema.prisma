@@ -15,7 +15,10 @@ model analysis_type {
   name                                   String  @db.VarChar
   description                            String? @default("") @db.VarChar
   synonyms                               String? @default("") @db.VarChar
+  searchable                             String? @default("") @db.VarChar
   file_file_analysis_typeToanalysis_type file[]  @relation("file_analysis_typeToanalysis_type")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_analysis_type_idx_searchable", type: Gin)
 }
 
 model anatomy {
@@ -23,8 +26,11 @@ model anatomy {
   name                                                   String               @db.VarChar
   description                                            String?              @default("") @db.VarChar
   synonyms                                               String?              @default("") @db.VarChar
+  searchable                                             String?              @default("") @db.VarChar
   biosample_biosample_anatomyToanatomy                   biosample[]          @relation("biosample_anatomyToanatomy")
   collection_anatomy_collection_anatomy_anatomyToanatomy collection_anatomy[] @relation("collection_anatomy_anatomyToanatomy")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_anatomy_idx_searchable", type: Gin)
 }
 
 model assay_type {
@@ -32,7 +38,22 @@ model assay_type {
   name                             String  @db.VarChar
   description                      String? @default("") @db.VarChar
   synonyms                         String? @default("") @db.VarChar
+  searchable                       String? @default("") @db.VarChar
   file_file_assay_typeToassay_type file[]  @relation("file_assay_typeToassay_type")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_assay_type_idx_searchable", type: Gin)
+}
+
+model biofluid {
+  id                                                         String                @id @db.VarChar
+  name                                                       String                @db.VarChar
+  description                                                String?               @default("") @db.VarChar
+  synonyms                                                   String?               @default("") @db.VarChar
+  searchable                                                 String?               @default("") @db.VarChar
+  biosample_biosample_biofluidTobiofluid                     biosample[]           @relation("biosample_biofluidTobiofluid")
+  collection_biofluid_collection_biofluid_biofluidTobiofluid collection_biofluid[] @relation("collection_biofluid_biofluidTobiofluid")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biofluid_idx_searchable", type: Gin)
 }
 
 model biosample {
@@ -45,19 +66,26 @@ model biosample {
   sample_prep_method                                                  String?                    @default("") @db.VarChar
   anatomy                                                             String?                    @default("") @db.VarChar
   biofluid                                                            String?                    @default("") @db.VarChar
-  anatomy_biosample_anatomyToanatomy                                  anatomy?                   @relation("biosample_anatomyToanatomy", fields: [anatomy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_anatomy_4")
-  biofluid_biosample_biofluidTobiofluid                               biofluid?                  @relation("biosample_biofluidTobiofluid", fields: [biofluid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_biofluid_5")
-  id_namespace_biosample_id_namespaceToid_namespace                   id_namespace               @relation("biosample_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_id_namespace_1")
-  project                                                             project                    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_project_2")
-  sample_prep_method_biosample_sample_prep_methodTosample_prep_method sample_prep_method?        @relation("biosample_sample_prep_methodTosample_prep_method", fields: [sample_prep_method], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_sample_prep_method_3")
+  searchable                                                          String?                    @default("") @db.VarChar
+  anatomy_biosample_anatomyToanatomy                                  anatomy?                   @relation("biosample_anatomyToanatomy", fields: [anatomy], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_anatomy_4")
+  biofluid_biosample_biofluidTobiofluid                               biofluid?                  @relation("biosample_biofluidTobiofluid", fields: [biofluid], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_biofluid_5")
+  id_namespace_biosample_id_namespaceToid_namespace                   id_namespace               @relation("biosample_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_id_namespace_1")
+  project                                                             project                    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_project_2")
+  sample_prep_method_biosample_sample_prep_methodTosample_prep_method sample_prep_method?        @relation("biosample_sample_prep_methodTosample_prep_method", fields: [sample_prep_method], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_sample_prep_method_3")
   biosample_disease                                                   biosample_disease[]
   biosample_from_subject                                              biosample_from_subject[]
   biosample_gene                                                      biosample_gene[]
   biosample_in_collection                                             biosample_in_collection[]
+  biosample_ptm                                                       biosample_ptm[]
   biosample_substance                                                 biosample_substance[]
   file_describes_biosample                                            file_describes_biosample[]
 
   @@id([id_namespace, local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_idx_searchable", type: Gin)
+  @@index([anatomy], map: "idx_biosample_anatomy")
+  @@index([biofluid], map: "idx_biosample_biofluid")
+  @@index([id_namespace], map: "idx_biosample_idns")
+  @@index([sample_prep_method], map: "idx_biosample_sample_prep")
 }
 
 model biosample_disease {
@@ -65,10 +93,15 @@ model biosample_disease {
   biosample_local_id                         String    @db.VarChar
   association_type                           String    @db.VarChar
   disease                                    String    @db.VarChar
-  biosample                                  biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_disease_biosample_1")
-  disease_biosample_disease_diseaseTodisease disease   @relation("biosample_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_disease_disease_2")
+  searchable                                 String?   @default("") @db.VarChar
+  biosample                                  biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_disease_biosample_1")
+  disease_biosample_disease_diseaseTodisease disease   @relation("biosample_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_disease_disease_2")
 
   @@id([biosample_id_namespace, biosample_local_id, association_type, disease])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_disease_idx_searchable", type: Gin)
+  @@index([association_type], map: "idx_biosample_disease_association_type")
+  @@index([disease], map: "idx_biosample_disease_disease")
+  @@index([biosample_id_namespace, biosample_local_id], map: "idx_biosample_disease_idns_local")
 }
 
 model biosample_from_subject {
@@ -77,20 +110,24 @@ model biosample_from_subject {
   subject_id_namespace   String    @db.VarChar
   subject_local_id       String    @db.VarChar
   age_at_sampling        String?   @default("") @db.VarChar
-  biosample              biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_from_subject_biosample_1")
-  subject                subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_from_subject_subject_2")
+  searchable             String?   @default("") @db.VarChar
+  biosample              biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_from_subject_biosample_1")
+  subject                subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_from_subject_subject_2")
 
   @@id([biosample_id_namespace, biosample_local_id, subject_id_namespace, subject_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_from_subject_idx_searchable", type: Gin)
 }
 
 model biosample_gene {
   biosample_id_namespace         String    @db.VarChar
   biosample_local_id             String    @db.VarChar
   gene                           String    @db.VarChar
-  biosample                      biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_gene_biosample_1")
-  gene_biosample_gene_geneTogene gene      @relation("biosample_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_gene_gene_2")
+  searchable                     String?   @default("") @db.VarChar
+  biosample                      biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_gene_biosample_1")
+  gene_biosample_gene_geneTogene gene      @relation("biosample_gene_geneTogene", fields: [gene], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_gene_gene_2")
 
   @@id([biosample_id_namespace, biosample_local_id, gene])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_gene_idx_searchable", type: Gin)
 }
 
 model biosample_in_collection {
@@ -98,20 +135,42 @@ model biosample_in_collection {
   biosample_local_id      String     @db.VarChar
   collection_id_namespace String     @db.VarChar
   collection_local_id     String     @db.VarChar
-  biosample               biosample  @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_in_collection_biosample_1")
-  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_in_collection_collection_2")
+  searchable              String?    @default("") @db.VarChar
+  biosample               biosample  @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_in_collection_biosample_1")
+  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_in_collection_collection_2")
 
   @@id([biosample_id_namespace, biosample_local_id, collection_id_namespace, collection_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_in_collection_idx_searchable", type: Gin)
+}
+
+model biosample_ptm {
+  biosample_id_namespace     String    @db.VarChar
+  biosample_local_id         String    @db.VarChar
+  ptm                        String    @db.VarChar
+  searchable                 String?   @default("") @db.VarChar
+  biosample                  biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_ptm_biosample_1")
+  ptm_biosample_ptm_ptmToptm ptm       @relation("biosample_ptm_ptmToptm", fields: [ptm], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_ptm_ptm_2")
+
+  @@id([biosample_id_namespace, biosample_local_id, ptm])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_ptm_idx_searchable", type: Gin)
 }
 
 model biosample_substance {
   biosample_id_namespace                             String    @db.VarChar
   biosample_local_id                                 String    @db.VarChar
   substance                                          String    @db.VarChar
-  biosample                                          biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_substance_biosample_1")
-  substance_biosample_substance_substanceTosubstance substance @relation("biosample_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_biosample_substance_substance_2")
+  searchable                                         String?   @default("") @db.VarChar
+  biosample                                          biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_substance_biosample_1")
+  substance_biosample_substance_substanceTosubstance substance @relation("biosample_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_substance_substance_2")
 
   @@id([biosample_id_namespace, biosample_local_id, substance])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_substance_idx_searchable", type: Gin)
+}
+
+model biosample_type {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
 }
 
 model collection {
@@ -123,8 +182,9 @@ model collection {
   name                                                                                                                        String                          @db.VarChar
   description                                                                                                                 String?                         @default("") @db.VarChar
   has_time_series_data                                                                                                        String?                         @default("") @db.VarChar
+  searchable                                                                                                                  String?                         @default("") @db.VarChar
   biosample_in_collection                                                                                                     biosample_in_collection[]
-  id_namespace_collection_id_namespaceToid_namespace                                                                          id_namespace                    @relation("collection_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_id_namespace_1")
+  id_namespace_collection_id_namespaceToid_namespace                                                                          id_namespace                    @relation("collection_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_id_namespace_1")
   collection_anatomy                                                                                                          collection_anatomy[]
   collection_biofluid                                                                                                         collection_biofluid[]
   collection_compound                                                                                                         collection_compound[]
@@ -135,6 +195,7 @@ model collection {
   collection_in_collection_collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection     collection_in_collection[]      @relation("collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection")
   collection_phenotype                                                                                                        collection_phenotype[]
   collection_protein                                                                                                          collection_protein[]
+  collection_ptm                                                                                                              collection_ptm[]
   collection_substance                                                                                                        collection_substance[]
   collection_taxonomy                                                                                                         collection_taxonomy[]
   file                                                                                                                        file[]
@@ -143,26 +204,43 @@ model collection {
   subject_in_collection                                                                                                       subject_in_collection[]
 
   @@id([id_namespace, local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_idx_searchable", type: Gin)
 }
 
 model collection_anatomy {
   collection_id_namespace                     String     @db.VarChar
   collection_local_id                         String     @db.VarChar
   anatomy                                     String     @db.VarChar
-  anatomy_collection_anatomy_anatomyToanatomy anatomy    @relation("collection_anatomy_anatomyToanatomy", fields: [anatomy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_anatomy_anatomy_2")
-  collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_anatomy_collection_1")
+  searchable                                  String?    @default("") @db.VarChar
+  anatomy_collection_anatomy_anatomyToanatomy anatomy    @relation("collection_anatomy_anatomyToanatomy", fields: [anatomy], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_anatomy_anatomy_2")
+  collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_anatomy_collection_1")
 
   @@id([collection_id_namespace, collection_local_id, anatomy])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_anatomy_idx_searchable", type: Gin)
+}
+
+model collection_biofluid {
+  collection_id_namespace                         String     @db.VarChar
+  collection_local_id                             String     @db.VarChar
+  biofluid                                        String     @db.VarChar
+  searchable                                      String?    @default("") @db.VarChar
+  biofluid_collection_biofluid_biofluidTobiofluid biofluid   @relation("collection_biofluid_biofluidTobiofluid", fields: [biofluid], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_biofluid_biofluid_2")
+  collection                                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_biofluid_collection_1")
+
+  @@id([collection_id_namespace, collection_local_id, biofluid])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_biofluid_idx_searchable", type: Gin)
 }
 
 model collection_compound {
   collection_id_namespace                         String     @db.VarChar
   collection_local_id                             String     @db.VarChar
   compound                                        String     @db.VarChar
-  collection                                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_compound_collection_1")
-  compound_collection_compound_compoundTocompound compound   @relation("collection_compound_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_compound_compound_2")
+  searchable                                      String?    @default("") @db.VarChar
+  collection                                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_compound_collection_1")
+  compound_collection_compound_compoundTocompound compound   @relation("collection_compound_compoundTocompound", fields: [compound], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_compound_compound_2")
 
   @@id([collection_id_namespace, collection_local_id, compound])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_compound_idx_searchable", type: Gin)
 }
 
 model collection_defined_by_project {
@@ -170,30 +248,36 @@ model collection_defined_by_project {
   collection_local_id     String     @db.VarChar
   project_id_namespace    String     @db.VarChar
   project_local_id        String     @db.VarChar
-  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_defined_by_project_collection_1")
-  project                 project    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_defined_by_project_project_2")
+  searchable              String?    @default("") @db.VarChar
+  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_defined_by_project_collection_1")
+  project                 project    @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_defined_by_project_project_2")
 
   @@id([collection_id_namespace, collection_local_id, project_id_namespace, project_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_defined_by_project_idx_searchable", type: Gin)
 }
 
 model collection_disease {
   collection_id_namespace                     String     @db.VarChar
   collection_local_id                         String     @db.VarChar
   disease                                     String     @db.VarChar
-  collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_disease_collection_1")
-  disease_collection_disease_diseaseTodisease disease    @relation("collection_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_disease_disease_2")
+  searchable                                  String?    @default("") @db.VarChar
+  collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_disease_collection_1")
+  disease_collection_disease_diseaseTodisease disease    @relation("collection_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_disease_disease_2")
 
   @@id([collection_id_namespace, collection_local_id, disease])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_disease_idx_searchable", type: Gin)
 }
 
 model collection_gene {
   collection_id_namespace         String     @db.VarChar
   collection_local_id             String     @db.VarChar
   gene                            String     @db.VarChar
-  collection                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_gene_collection_1")
-  gene_collection_gene_geneTogene gene       @relation("collection_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_gene_gene_2")
+  searchable                      String?    @default("") @db.VarChar
+  collection                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_gene_collection_1")
+  gene_collection_gene_geneTogene gene       @relation("collection_gene_geneTogene", fields: [gene], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_gene_gene_2")
 
   @@id([collection_id_namespace, collection_local_id, gene])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_gene_idx_searchable", type: Gin)
 }
 
 model collection_in_collection {
@@ -201,50 +285,72 @@ model collection_in_collection {
   superset_collection_local_id                                                                                  String     @db.VarChar
   subset_collection_id_namespace                                                                                String     @db.VarChar
   subset_collection_local_id                                                                                    String     @db.VarChar
-  collection_collection_in_collection_superset_collection_id_namespace_superset_collection_local_idTocollection collection @relation("collection_in_collection_superset_collection_id_namespace_superset_collection_local_idTocollection", fields: [superset_collection_id_namespace, superset_collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_in_collection_collection_1")
-  collection_collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection     collection @relation("collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection", fields: [subset_collection_id_namespace, subset_collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_in_collection_collection_2")
+  searchable                                                                                                    String?    @default("") @db.VarChar
+  collection_collection_in_collection_superset_collection_id_namespace_superset_collection_local_idTocollection collection @relation("collection_in_collection_superset_collection_id_namespace_superset_collection_local_idTocollection", fields: [superset_collection_id_namespace, superset_collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_in_collection_collection_1")
+  collection_collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection     collection @relation("collection_in_collection_subset_collection_id_namespace_subset_collection_local_idTocollection", fields: [subset_collection_id_namespace, subset_collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_in_collection_collection_2")
 
   @@id([superset_collection_id_namespace, superset_collection_local_id, subset_collection_id_namespace, subset_collection_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_in_collection_idx_searchable", type: Gin)
 }
 
 model collection_phenotype {
   collection_id_namespace                             String     @db.VarChar
   collection_local_id                                 String     @db.VarChar
   phenotype                                           String     @db.VarChar
-  collection                                          collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_phenotype_collection_1")
-  phenotype_collection_phenotype_phenotypeTophenotype phenotype  @relation("collection_phenotype_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_phenotype_phenotype_2")
+  searchable                                          String?    @default("") @db.VarChar
+  collection                                          collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_phenotype_collection_1")
+  phenotype_collection_phenotype_phenotypeTophenotype phenotype  @relation("collection_phenotype_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_phenotype_phenotype_2")
 
   @@id([collection_id_namespace, collection_local_id, phenotype])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_phenotype_idx_searchable", type: Gin)
 }
 
 model collection_protein {
   collection_id_namespace                     String     @db.VarChar
   collection_local_id                         String     @db.VarChar
   protein                                     String     @db.VarChar
-  collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_protein_collection_1")
-  protein_collection_protein_proteinToprotein protein    @relation("collection_protein_proteinToprotein", fields: [protein], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_protein_protein_2")
+  searchable                                  String?    @default("") @db.VarChar
+  collection                                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_protein_collection_1")
+  protein_collection_protein_proteinToprotein protein    @relation("collection_protein_proteinToprotein", fields: [protein], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_protein_protein_2")
 
   @@id([collection_id_namespace, collection_local_id, protein])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_protein_idx_searchable", type: Gin)
+}
+
+model collection_ptm {
+  collection_id_namespace     String     @db.VarChar
+  collection_local_id         String     @db.VarChar
+  ptm                         String     @db.VarChar
+  searchable                  String?    @default("") @db.VarChar
+  collection                  collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_ptm_collection_1")
+  ptm_collection_ptm_ptmToptm ptm        @relation("collection_ptm_ptmToptm", fields: [ptm], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_ptm_ptm_2")
+
+  @@id([collection_id_namespace, collection_local_id, ptm])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_ptm_idx_searchable", type: Gin)
 }
 
 model collection_substance {
   collection_id_namespace                             String     @db.VarChar
   collection_local_id                                 String     @db.VarChar
   substance                                           String     @db.VarChar
-  collection                                          collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_substance_collection_1")
-  substance_collection_substance_substanceTosubstance substance  @relation("collection_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_substance_substance_2")
+  searchable                                          String?    @default("") @db.VarChar
+  collection                                          collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_substance_collection_1")
+  substance_collection_substance_substanceTosubstance substance  @relation("collection_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_substance_substance_2")
 
   @@id([collection_id_namespace, collection_local_id, substance])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_substance_idx_searchable", type: Gin)
 }
 
 model collection_taxonomy {
   collection_id_namespace String        @db.VarChar
   collection_local_id     String        @db.VarChar
   taxon                   String        @db.VarChar
-  collection              collection    @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_taxonomy_collection_1")
-  ncbi_taxonomy           ncbi_taxonomy @relation(fields: [taxon], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_taxonomy_ncbi_taxonomy_2")
+  searchable              String?       @default("") @db.VarChar
+  collection              collection    @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_taxonomy_collection_1")
+  ncbi_taxonomy           ncbi_taxonomy @relation(fields: [taxon], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_collection_taxonomy_ncbi_taxonomy_2")
 
   @@id([collection_id_namespace, collection_local_id, taxon])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_collection_taxonomy_idx_searchable", type: Gin)
 }
 
 model compound {
@@ -252,8 +358,11 @@ model compound {
   name                                                       String                @db.VarChar
   description                                                String?               @default("") @db.VarChar
   synonyms                                                   String?               @default("") @db.VarChar
+  searchable                                                 String?               @default("") @db.VarChar
   collection_compound_collection_compound_compoundTocompound collection_compound[] @relation("collection_compound_compoundTocompound")
   substance_substance_compoundTocompound                     substance[]           @relation("substance_compoundTocompound")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_compound_idx_searchable", type: Gin)
 }
 
 model data_type {
@@ -261,7 +370,10 @@ model data_type {
   name                           String  @db.VarChar
   description                    String? @default("") @db.VarChar
   synonyms                       String? @default("") @db.VarChar
+  searchable                     String? @default("") @db.VarChar
   file_file_data_typeTodata_type file[]  @relation("file_data_typeTodata_type")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_data_type_idx_searchable", type: Gin)
 }
 
 model dcc {
@@ -274,8 +386,11 @@ model dcc {
   dcc_url              String                @db.VarChar
   project_id_namespace String                @db.VarChar
   project_local_id     String                @db.VarChar
-  project              project               @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dcc_project_1")
+  searchable           String?               @default("") @db.VarChar
+  project              project               @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_dcc_project_1")
   id_namespace_dcc_id  id_namespace_dcc_id[]
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_dcc_idx_searchable", type: Gin)
 }
 
 model disease {
@@ -283,10 +398,13 @@ model disease {
   name                                                   String               @db.VarChar
   description                                            String?              @default("") @db.VarChar
   synonyms                                               String?              @default("") @db.VarChar
+  searchable                                             String?              @default("") @db.VarChar
   biosample_disease_biosample_disease_diseaseTodisease   biosample_disease[]  @relation("biosample_disease_diseaseTodisease")
   collection_disease_collection_disease_diseaseTodisease collection_disease[] @relation("collection_disease_diseaseTodisease")
   phenotype_disease_phenotype_disease_diseaseTodisease   phenotype_disease[]  @relation("phenotype_disease_diseaseTodisease")
   subject_disease_subject_disease_diseaseTodisease       subject_disease[]    @relation("subject_disease_diseaseTodisease")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_disease_idx_searchable", type: Gin)
 }
 
 model disease_association_type {
@@ -295,394 +413,15 @@ model disease_association_type {
   description String @db.VarChar
 }
 
-model project_data_type {
-  project_id_namespace   String? @db.VarChar
-  project_local_id       String? @db.VarChar
-  data_type_id           String? @db.VarChar
-  data_type_name         String? @db.VarChar
-  data_type_description  String? @db.VarChar
-  assay_type_id          String? @db.VarChar
-  assay_type_name        String? @db.VarChar
-  assay_type_description String? @db.VarChar
-  pk_id                  Int     @id @default(autoincrement())
-}
+model domain_location {
+  id                                       String  @id @db.VarChar
+  name                                     String  @db.VarChar
+  description                              String? @default("") @db.VarChar
+  synonyms                                 String? @default("") @db.VarChar
+  searchable                               String? @default("") @db.VarChar
+  ptm_ptm_domain_locationTodomain_location ptm[]   @relation("ptm_domain_locationTodomain_location")
 
-model file {
-  id_namespace                                     String                      @db.VarChar
-  local_id                                         String                      @db.VarChar
-  project_id_namespace                             String                      @db.VarChar
-  project_local_id                                 String                      @db.VarChar
-  persistent_id                                    String?                     @default("") @db.VarChar
-  creation_time                                    String?                     @default("") @db.VarChar
-  size_in_bytes                                    String?                     @default("") @db.VarChar
-  uncompressed_size_in_bytes                       String?                     @default("") @db.VarChar
-  sha256                                           String?                     @default("") @db.VarChar
-  md5                                              String?                     @default("") @db.VarChar
-  filename                                         String                      @db.VarChar
-  file_format                                      String?                     @default("") @db.VarChar
-  compression_format                               String?                     @default("") @db.VarChar
-  data_type                                        String?                     @default("") @db.VarChar
-  assay_type                                       String?                     @default("") @db.VarChar
-  analysis_type                                    String?                     @default("") @db.VarChar
-  mime_type                                        String?                     @default("") @db.VarChar
-  bundle_collection_id_namespace                   String?                     @default("") @db.VarChar
-  bundle_collection_local_id                       String?                     @default("") @db.VarChar
-  dbgap_study_id                                   String?                     @default("") @db.VarChar
-  access_url                                       String?                     @default("") @db.VarChar
-  analysis_type_file_analysis_typeToanalysis_type  analysis_type?              @relation("file_analysis_typeToanalysis_type", fields: [analysis_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_analysis_type_7")
-  assay_type_file_assay_typeToassay_type           assay_type?                 @relation("file_assay_typeToassay_type", fields: [assay_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_assay_type_6")
-  collection                                       collection?                 @relation(fields: [bundle_collection_id_namespace, bundle_collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_collection_8")
-  data_type_file_data_typeTodata_type              data_type?                  @relation("file_data_typeTodata_type", fields: [data_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_data_type_5")
-  file_format_file_file_formatTofile_format        file_format?                @relation("file_file_formatTofile_format", fields: [file_format], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_file_format_3")
-  file_format_file_compression_formatTofile_format file_format?                @relation("file_compression_formatTofile_format", fields: [compression_format], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_file_format_4")
-  id_namespace_file_id_namespaceToid_namespace     id_namespace                @relation("file_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_id_namespace_1")
-  project                                          project                     @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_project_2")
-  file_describes_biosample                         file_describes_biosample[]
-  file_describes_collection                        file_describes_collection[]
-  file_describes_subject                           file_describes_subject[]
-  file_in_collection                               file_in_collection[]
-
-  @@id([id_namespace, local_id])
-}
-
-model file_describes_biosample {
-  file_id_namespace      String    @db.VarChar
-  file_local_id          String    @db.VarChar
-  biosample_id_namespace String    @db.VarChar
-  biosample_local_id     String    @db.VarChar
-  biosample              biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_biosample_biosample_2")
-  file                   file      @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_biosample_file_1")
-
-  @@id([file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id])
-}
-
-model file_describes_collection {
-  file_id_namespace       String     @db.VarChar
-  file_local_id           String     @db.VarChar
-  collection_id_namespace String     @db.VarChar
-  collection_local_id     String     @db.VarChar
-  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_collection_collection_2")
-  file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_collection_file_1")
-
-  @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
-}
-
-model file_describes_subject {
-  file_id_namespace    String  @db.VarChar
-  file_local_id        String  @db.VarChar
-  subject_id_namespace String  @db.VarChar
-  subject_local_id     String  @db.VarChar
-  file                 file    @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_subject_file_1")
-  subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_describes_subject_subject_2")
-
-  @@id([file_id_namespace, file_local_id, subject_id_namespace, subject_local_id])
-}
-
-model file_format {
-  id                                        String  @id @db.VarChar
-  name                                      String  @db.VarChar
-  description                               String? @default("") @db.VarChar
-  synonyms                                  String? @default("") @db.VarChar
-  file_file_file_formatTofile_format        file[]  @relation("file_file_formatTofile_format")
-  file_file_compression_formatTofile_format file[]  @relation("file_compression_formatTofile_format")
-}
-
-model file_in_collection {
-  file_id_namespace       String     @db.VarChar
-  file_local_id           String     @db.VarChar
-  collection_id_namespace String     @db.VarChar
-  collection_local_id     String     @db.VarChar
-  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_in_collection_collection_2")
-  file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_file_in_collection_file_1")
-
-  @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
-}
-
-model gene {
-  id                                         String            @id @db.VarChar
-  name                                       String            @db.VarChar
-  description                                String?           @default("") @db.VarChar
-  synonyms                                   String?           @default("") @db.VarChar
-  organism                                   String            @db.VarChar
-  biosample_gene_biosample_gene_geneTogene   biosample_gene[]  @relation("biosample_gene_geneTogene")
-  collection_gene_collection_gene_geneTogene collection_gene[] @relation("collection_gene_geneTogene")
-  ncbi_taxonomy                              ncbi_taxonomy     @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gene_ncbi_taxonomy_1")
-  phenotype_gene_phenotype_gene_geneTogene   phenotype_gene[]  @relation("phenotype_gene_geneTogene")
-  protein_gene_protein_gene_geneTogene       protein_gene[]    @relation("protein_gene_geneTogene")
-}
-
-model id_namespace {
-  id                                               String               @id @db.VarChar
-  abbreviation                                     String?              @default("") @db.VarChar
-  name                                             String               @db.VarChar
-  description                                      String?              @default("") @db.VarChar
-  biosample_biosample_id_namespaceToid_namespace   biosample[]          @relation("biosample_id_namespaceToid_namespace")
-  collection_collection_id_namespaceToid_namespace collection[]         @relation("collection_id_namespaceToid_namespace")
-  file_file_id_namespaceToid_namespace             file[]               @relation("file_id_namespaceToid_namespace")
-  id_namespace_dcc_id                              id_namespace_dcc_id?
-  project_project_id_namespaceToid_namespace       project[]            @relation("project_id_namespaceToid_namespace")
-  subject_subject_id_namespaceToid_namespace       subject[]            @relation("subject_id_namespaceToid_namespace")
-}
-
-model ncbi_taxonomy {
-  id                    String                  @id @db.VarChar
-  clade                 String                  @db.VarChar
-  name                  String                  @db.VarChar
-  description           String?                 @default("") @db.VarChar
-  synonyms              String?                 @default("") @db.VarChar
-  collection_taxonomy   collection_taxonomy[]
-  gene                  gene[]
-  protein               protein[]
-  subject_role_taxonomy subject_role_taxonomy[]
-}
-
-model phenotype {
-  id                                                             String                 @id @db.VarChar
-  name                                                           String                 @db.VarChar
-  description                                                    String?                @default("") @db.VarChar
-  synonyms                                                       String?                @default("") @db.VarChar
-  collection_phenotype_collection_phenotype_phenotypeTophenotype collection_phenotype[] @relation("collection_phenotype_phenotypeTophenotype")
-  phenotype_disease_phenotype_disease_phenotypeTophenotype       phenotype_disease[]    @relation("phenotype_disease_phenotypeTophenotype")
-  phenotype_gene_phenotype_gene_phenotypeTophenotype             phenotype_gene[]       @relation("phenotype_gene_phenotypeTophenotype")
-  subject_phenotype_subject_phenotype_phenotypeTophenotype       subject_phenotype[]    @relation("subject_phenotype_phenotypeTophenotype")
-}
-
-model phenotype_association_type {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model phenotype_disease {
-  phenotype                                        String    @db.VarChar
-  disease                                          String    @db.VarChar
-  disease_phenotype_disease_diseaseTodisease       disease   @relation("phenotype_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_disease_disease_2")
-  phenotype_phenotype_disease_phenotypeTophenotype phenotype @relation("phenotype_disease_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_disease_phenotype_1")
-
-  @@id([phenotype, disease])
-}
-
-model phenotype_gene {
-  phenotype                                     String    @db.VarChar
-  gene                                          String    @db.VarChar
-  gene_phenotype_gene_geneTogene                gene      @relation("phenotype_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_gene_gene_2")
-  phenotype_phenotype_gene_phenotypeTophenotype phenotype @relation("phenotype_gene_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_phenotype_gene_phenotype_1")
-
-  @@id([phenotype, gene])
-}
-
-model project {
-  id_namespace                                                                                       String                          @db.VarChar
-  local_id                                                                                           String                          @db.VarChar
-  persistent_id                                                                                      String?                         @default("") @db.VarChar
-  creation_time                                                                                      String?                         @default("") @db.VarChar
-  abbreviation                                                                                       String?                         @default("") @db.VarChar
-  name                                                                                               String                          @db.VarChar
-  description                                                                                        String?                         @default("") @db.VarChar
-  biosample                                                                                          biosample[]
-  collection_defined_by_project                                                                      collection_defined_by_project[]
-  dcc                                                                                                dcc[]
-  file                                                                                               file[]
-  id_namespace_project_id_namespaceToid_namespace                                                    id_namespace                    @relation("project_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_id_namespace_1")
-  project_in_project_project_in_project_parent_project_id_namespace_parent_project_local_idToproject project_in_project[]            @relation("project_in_project_parent_project_id_namespace_parent_project_local_idToproject")
-  project_in_project_project_in_project_child_project_id_namespace_child_project_local_idToproject   project_in_project[]            @relation("project_in_project_child_project_id_namespace_child_project_local_idToproject")
-  subject                                                                                            subject[]
-
-  @@id([id_namespace, local_id])
-}
-
-model project_in_project {
-  parent_project_id_namespace                                                             String  @db.VarChar
-  parent_project_local_id                                                                 String  @db.VarChar
-  child_project_id_namespace                                                              String  @db.VarChar
-  child_project_local_id                                                                  String  @db.VarChar
-  project_project_in_project_parent_project_id_namespace_parent_project_local_idToproject project @relation("project_in_project_parent_project_id_namespace_parent_project_local_idToproject", fields: [parent_project_id_namespace, parent_project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_in_project_project_1")
-  project_project_in_project_child_project_id_namespace_child_project_local_idToproject   project @relation("project_in_project_child_project_id_namespace_child_project_local_idToproject", fields: [child_project_id_namespace, child_project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_in_project_project_2")
-
-  @@id([parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id])
-}
-
-model protein {
-  id                                                     String               @id @db.VarChar
-  name                                                   String               @db.VarChar
-  description                                            String?              @default("") @db.VarChar
-  synonyms                                               String?              @default("") @db.VarChar
-  organism                                               String?              @default("") @db.VarChar
-  collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
-  ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
-  protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
-}
-
-model protein_gene {
-  protein                               String  @db.VarChar
-  gene                                  String  @db.VarChar
-  gene_protein_gene_geneTogene          gene    @relation("protein_gene_geneTogene", fields: [gene], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_gene_gene_2")
-  protein_protein_gene_proteinToprotein protein @relation("protein_gene_proteinToprotein", fields: [protein], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_protein_gene_protein_1")
-
-  @@id([protein, gene])
-}
-
-model sample_prep_method {
-  id                                                         String      @id @db.VarChar
-  name                                                       String      @db.VarChar
-  description                                                String?     @default("") @db.VarChar
-  synonyms                                                   String?     @default("") @db.VarChar
-  biosample_biosample_sample_prep_methodTosample_prep_method biosample[] @relation("biosample_sample_prep_methodTosample_prep_method")
-}
-
-model subject {
-  id_namespace                                    String                   @db.VarChar
-  local_id                                        String                   @db.VarChar
-  project_id_namespace                            String                   @db.VarChar
-  project_local_id                                String                   @db.VarChar
-  persistent_id                                   String?                  @default("") @db.VarChar
-  creation_time                                   String?                  @default("") @db.VarChar
-  granularity                                     String                   @db.VarChar
-  sex                                             String?                  @default("") @db.VarChar
-  ethnicity                                       String?                  @default("") @db.VarChar
-  age_at_enrollment                               String?                  @default("") @db.VarChar
-  biosample_from_subject                          biosample_from_subject[]
-  file_describes_subject                          file_describes_subject[]
-  id_namespace_subject_id_namespaceToid_namespace id_namespace             @relation("subject_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_id_namespace_1")
-  project                                         project                  @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_project_2")
-  subject_disease                                 subject_disease[]
-  subject_in_collection                           subject_in_collection[]
-  subject_phenotype                               subject_phenotype[]
-  subject_race                                    subject_race[]
-  subject_role_taxonomy                           subject_role_taxonomy[]
-  subject_substance                               subject_substance[]
-
-  @@id([id_namespace, local_id])
-}
-
-model subject_disease {
-  subject_id_namespace                     String  @db.VarChar
-  subject_local_id                         String  @db.VarChar
-  association_type                         String  @db.VarChar
-  disease                                  String  @db.VarChar
-  disease_subject_disease_diseaseTodisease disease @relation("subject_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_disease_disease_2")
-  subject                                  subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_disease_subject_1")
-
-  @@id([subject_id_namespace, subject_local_id, association_type, disease])
-}
-
-model subject_ethnicity {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model subject_granularity {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model subject_in_collection {
-  subject_id_namespace    String     @db.VarChar
-  subject_local_id        String     @db.VarChar
-  collection_id_namespace String     @db.VarChar
-  collection_local_id     String     @db.VarChar
-  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_in_collection_collection_2")
-  subject                 subject    @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_in_collection_subject_1")
-
-  @@id([subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id])
-}
-
-model subject_phenotype {
-  subject_id_namespace                             String    @db.VarChar
-  subject_local_id                                 String    @db.VarChar
-  association_type                                 String    @db.VarChar
-  phenotype                                        String    @db.VarChar
-  phenotype_subject_phenotype_phenotypeTophenotype phenotype @relation("subject_phenotype_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_phenotype_phenotype_2")
-  subject                                          subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_phenotype_subject_1")
-
-  @@id([subject_id_namespace, subject_local_id, association_type, phenotype])
-}
-
-model subject_race {
-  subject_id_namespace String  @db.VarChar
-  subject_local_id     String  @db.VarChar
-  race                 String  @default("") @db.VarChar
-  subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_race_subject_1")
-
-  @@id([subject_id_namespace, subject_local_id, race])
-}
-
-model subject_race_cv {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model subject_role {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model subject_role_taxonomy {
-  subject_id_namespace String        @db.VarChar
-  subject_local_id     String        @db.VarChar
-  role_id              String        @db.VarChar
-  taxonomy_id          String        @db.VarChar
-  ncbi_taxonomy        ncbi_taxonomy @relation(fields: [taxonomy_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_role_taxonomy_ncbi_taxonomy_2")
-  subject              subject       @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_role_taxonomy_subject_1")
-
-  @@id([subject_id_namespace, subject_local_id, role_id, taxonomy_id])
-}
-
-model subject_sex {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model subject_substance {
-  subject_id_namespace                             String    @db.VarChar
-  subject_local_id                                 String    @db.VarChar
-  substance                                        String    @db.VarChar
-  subject                                          subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_substance_subject_1")
-  substance_subject_substance_substanceTosubstance substance @relation("subject_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subject_substance_substance_2")
-
-  @@id([subject_id_namespace, subject_local_id, substance])
-}
-
-model substance {
-  id                                                             String                 @id @db.VarChar
-  name                                                           String                 @db.VarChar
-  description                                                    String?                @default("") @db.VarChar
-  synonyms                                                       String?                @default("") @db.VarChar
-  compound                                                       String                 @db.VarChar
-  biosample_substance_biosample_substance_substanceTosubstance   biosample_substance[]  @relation("biosample_substance_substanceTosubstance")
-  collection_substance_collection_substance_substanceTosubstance collection_substance[] @relation("collection_substance_substanceTosubstance")
-  subject_substance_subject_substance_substanceTosubstance       subject_substance[]    @relation("subject_substance_substanceTosubstance")
-  compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_substance_compound_1")
-}
-
-model biofluid {
-  id                                                         String                @id @db.VarChar
-  name                                                       String                @db.VarChar
-  description                                                String?               @default("") @db.VarChar
-  synonyms                                                   String?               @default("") @db.VarChar
-  biosample_biosample_biofluidTobiofluid                     biosample[]           @relation("biosample_biofluidTobiofluid")
-  collection_biofluid_collection_biofluid_biofluidTobiofluid collection_biofluid[] @relation("collection_biofluid_biofluidTobiofluid")
-}
-
-model biosample_type {
-  id          String @id @db.VarChar
-  name        String @db.VarChar
-  description String @db.VarChar
-}
-
-model collection_biofluid {
-  collection_id_namespace                         String     @db.VarChar
-  collection_local_id                             String     @db.VarChar
-  biofluid                                        String     @db.VarChar
-  biofluid_collection_biofluid_biofluidTobiofluid biofluid   @relation("collection_biofluid_biofluidTobiofluid", fields: [biofluid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_biofluid_biofluid_2")
-  collection                                      collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_collection_biofluid_collection_1")
-
-  @@id([collection_id_namespace, collection_local_id, biofluid])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_domain_location_idx_searchable", type: Gin)
 }
 
 model ffl_biosample_collection {
@@ -728,6 +467,10 @@ model ffl_biosample_collection {
   data_type_name                    String?                  @db.VarChar
   assay_type_id                     String?                  @db.VarChar
   assay_type_name                   String?                  @db.VarChar
+  file_format_id                    String?                  @db.VarChar
+  file_format_name                  String?                  @db.VarChar
+  analysis_type_id                  String?                  @db.VarChar
+  analysis_type_name                String?                  @db.VarChar
   subject_role_taxonomy_taxonomy_id String?                  @db.VarChar
   ncbi_taxonomy_name                String?                  @db.VarChar
   collection_persistent_id          String?                  @db.VarChar
@@ -748,10 +491,16 @@ model ffl_biosample_collection {
   phenotype                         String?                  @db.VarChar
   phenotype_association_type_name   String?                  @db.VarChar
   phenotype_name                    String?                  @db.VarChar
+  ptm_site_type                     String?                  @db.VarChar
+  ptm_type                          String?                  @db.VarChar
+  ptm_subtype                       String?                  @db.VarChar
+  ptm_site_type_name                String?                  @db.VarChar
+  ptm_type_name                     String?                  @db.VarChar
+  ptm_subtype_name                  String?                  @db.VarChar
   pk_id                             Int                      @id @default(autoincrement())
 
   @@index([searchable], map: "ffl_biosample_collection_idx", type: Gin)
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name], map: "ffl_biosample_collection_idx_many_cols")
+  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_biosample_collection_idx_many_cols")
 }
 
 model ffl_biosample_collection_cmp {
@@ -793,6 +542,10 @@ model ffl_biosample_collection_cmp {
   data_type_name                    String?                  @db.VarChar
   assay_type_id                     String?                  @db.VarChar
   assay_type_name                   String?                  @db.VarChar
+  file_format_id                    String?                  @db.VarChar
+  file_format_name                  String?                  @db.VarChar
+  analysis_type_id                  String?                  @db.VarChar
+  analysis_type_name                String?                  @db.VarChar
   subject_role_taxonomy_taxonomy_id String?                  @db.VarChar
   ncbi_taxonomy_name                String?                  @db.VarChar
   collection_persistent_id          String?                  @db.VarChar
@@ -813,11 +566,84 @@ model ffl_biosample_collection_cmp {
   phenotype                         String?                  @db.VarChar
   phenotype_association_type_name   String?                  @db.VarChar
   phenotype_name                    String?                  @db.VarChar
+  ptm_site_type                     String?                  @db.VarChar
+  ptm_type                          String?                  @db.VarChar
+  ptm_subtype                       String?                  @db.VarChar
+  ptm_site_type_name                String?                  @db.VarChar
+  ptm_type_name                     String?                  @db.VarChar
+  ptm_subtype_name                  String?                  @db.VarChar
   bios_array                        String[]                 @db.VarChar
   pk_id                             Int                      @id @default(autoincrement())
 
   @@index([searchable], map: "ffl_biosample_collection_cmp_idx", type: Gin)
-  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name], map: "ffl_biosample_collection_cmp_idx_many_cols")
+  @@index([dcc_abbreviation, project_name, disease_name, ncbi_taxonomy_name, anatomy_name, biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, file_format_name, analysis_type_name, subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name], map: "ffl_biosample_collection_cmp_idx_many_cols")
+}
+
+model file {
+  id_namespace                                     String                      @db.VarChar
+  local_id                                         String                      @db.VarChar
+  project_id_namespace                             String                      @db.VarChar
+  project_local_id                                 String                      @db.VarChar
+  persistent_id                                    String?                     @default("") @db.VarChar
+  creation_time                                    String?                     @default("") @db.VarChar
+  size_in_bytes                                    String?                     @default("") @db.VarChar
+  uncompressed_size_in_bytes                       String?                     @default("") @db.VarChar
+  sha256                                           String?                     @default("") @db.VarChar
+  md5                                              String?                     @default("") @db.VarChar
+  filename                                         String                      @db.VarChar
+  file_format                                      String?                     @default("") @db.VarChar
+  compression_format                               String?                     @default("") @db.VarChar
+  data_type                                        String?                     @default("") @db.VarChar
+  assay_type                                       String?                     @default("") @db.VarChar
+  analysis_type                                    String?                     @default("") @db.VarChar
+  mime_type                                        String?                     @default("") @db.VarChar
+  bundle_collection_id_namespace                   String?                     @default("") @db.VarChar
+  bundle_collection_local_id                       String?                     @default("") @db.VarChar
+  dbgap_study_id                                   String?                     @default("") @db.VarChar
+  access_url                                       String?                     @default("") @db.VarChar
+  searchable                                       String?                     @default("") @db.VarChar
+  analysis_type_file_analysis_typeToanalysis_type  analysis_type?              @relation("file_analysis_typeToanalysis_type", fields: [analysis_type], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_analysis_type_7")
+  assay_type_file_assay_typeToassay_type           assay_type?                 @relation("file_assay_typeToassay_type", fields: [assay_type], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_assay_type_6")
+  collection                                       collection?                 @relation(fields: [bundle_collection_id_namespace, bundle_collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_collection_8")
+  data_type_file_data_typeTodata_type              data_type?                  @relation("file_data_typeTodata_type", fields: [data_type], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_data_type_5")
+  file_format_file_file_formatTofile_format        file_format?                @relation("file_file_formatTofile_format", fields: [file_format], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_file_format_3")
+  file_format_file_compression_formatTofile_format file_format?                @relation("file_compression_formatTofile_format", fields: [compression_format], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_file_format_4")
+  id_namespace_file_id_namespaceToid_namespace     id_namespace                @relation("file_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_id_namespace_1")
+  project                                          project                     @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_project_2")
+  file_describes_biosample                         file_describes_biosample[]
+  file_describes_collection                        file_describes_collection[]
+  file_describes_subject                           file_describes_subject[]
+  file_in_collection                               file_in_collection[]
+
+  @@id([id_namespace, local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_idx_searchable", type: Gin)
+  @@index([project_id_namespace, project_local_id, assay_type, data_type, analysis_type, file_format], map: "file_proj_assay_data_idx")
+}
+
+model file_describes_biosample {
+  file_id_namespace      String    @db.VarChar
+  file_local_id          String    @db.VarChar
+  biosample_id_namespace String    @db.VarChar
+  biosample_local_id     String    @db.VarChar
+  searchable             String?   @default("") @db.VarChar
+  biosample              biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_biosample_biosample_2")
+  file                   file      @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_biosample_file_1")
+
+  @@id([file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_describes_biosample_idx_searchable", type: Gin)
+}
+
+model file_describes_collection {
+  file_id_namespace       String     @db.VarChar
+  file_local_id           String     @db.VarChar
+  collection_id_namespace String     @db.VarChar
+  collection_local_id     String     @db.VarChar
+  searchable              String?    @default("") @db.VarChar
+  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_collection_collection_2")
+  file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_collection_file_1")
+
+  @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_describes_collection_idx_searchable", type: Gin)
 }
 
 model file_describes_in_collection {
@@ -830,10 +656,437 @@ model file_describes_in_collection {
   @@index([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id], map: "file_describes_in_collection_idx")
 }
 
+model file_describes_subject {
+  file_id_namespace    String  @db.VarChar
+  file_local_id        String  @db.VarChar
+  subject_id_namespace String  @db.VarChar
+  subject_local_id     String  @db.VarChar
+  searchable           String? @default("") @db.VarChar
+  file                 file    @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_subject_file_1")
+  subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_subject_subject_2")
+
+  @@id([file_id_namespace, file_local_id, subject_id_namespace, subject_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_describes_subject_idx_searchable", type: Gin)
+}
+
+model file_format {
+  id                                        String  @id @db.VarChar
+  name                                      String  @db.VarChar
+  description                               String? @default("") @db.VarChar
+  synonyms                                  String? @default("") @db.VarChar
+  searchable                                String? @default("") @db.VarChar
+  file_file_file_formatTofile_format        file[]  @relation("file_file_formatTofile_format")
+  file_file_compression_formatTofile_format file[]  @relation("file_compression_formatTofile_format")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_format_idx_searchable", type: Gin)
+}
+
+model file_in_collection {
+  file_id_namespace       String     @db.VarChar
+  file_local_id           String     @db.VarChar
+  collection_id_namespace String     @db.VarChar
+  collection_local_id     String     @db.VarChar
+  searchable              String?    @default("") @db.VarChar
+  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_in_collection_collection_2")
+  file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_in_collection_file_1")
+
+  @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_in_collection_idx_searchable", type: Gin)
+}
+
+model gene {
+  id                                         String            @id @db.VarChar
+  name                                       String            @db.VarChar
+  description                                String?           @default("") @db.VarChar
+  synonyms                                   String?           @default("") @db.VarChar
+  organism                                   String            @db.VarChar
+  searchable                                 String?           @default("") @db.VarChar
+  biosample_gene_biosample_gene_geneTogene   biosample_gene[]  @relation("biosample_gene_geneTogene")
+  collection_gene_collection_gene_geneTogene collection_gene[] @relation("collection_gene_geneTogene")
+  ncbi_taxonomy                              ncbi_taxonomy     @relation(fields: [organism], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_gene_ncbi_taxonomy_1")
+  phenotype_gene_phenotype_gene_geneTogene   phenotype_gene[]  @relation("phenotype_gene_geneTogene")
+  protein_gene_protein_gene_geneTogene       protein_gene[]    @relation("protein_gene_geneTogene")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_gene_idx_searchable", type: Gin)
+}
+
+model id_namespace {
+  id                                               String               @id @db.VarChar
+  abbreviation                                     String?              @default("") @db.VarChar
+  name                                             String               @db.VarChar
+  description                                      String?              @default("") @db.VarChar
+  searchable                                       String?              @default("") @db.VarChar
+  biosample_biosample_id_namespaceToid_namespace   biosample[]          @relation("biosample_id_namespaceToid_namespace")
+  collection_collection_id_namespaceToid_namespace collection[]         @relation("collection_id_namespaceToid_namespace")
+  file_file_id_namespaceToid_namespace             file[]               @relation("file_id_namespaceToid_namespace")
+  id_namespace_dcc_id                              id_namespace_dcc_id?
+  project_project_id_namespaceToid_namespace       project[]            @relation("project_id_namespaceToid_namespace")
+  subject_subject_id_namespaceToid_namespace       subject[]            @relation("subject_id_namespaceToid_namespace")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_id_namespace_idx_searchable", type: Gin)
+}
+
 model id_namespace_dcc_id {
   id_namespace_id String       @id @db.VarChar
   dcc_id          String       @db.VarChar
   dcc_short_label String       @db.VarChar
   dcc             dcc          @relation(fields: [dcc_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_namespace_dcc_id_dcc_1")
   id_namespace    id_namespace @relation(fields: [id_namespace_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_namespace_dcc_id_id_namespace_1")
+}
+
+model ncbi_taxonomy {
+  id                    String                  @id @db.VarChar
+  clade                 String                  @db.VarChar
+  name                  String                  @db.VarChar
+  description           String?                 @default("") @db.VarChar
+  synonyms              String?                 @default("") @db.VarChar
+  searchable            String?                 @default("") @db.VarChar
+  collection_taxonomy   collection_taxonomy[]
+  gene                  gene[]
+  protein               protein[]
+  subject_role_taxonomy subject_role_taxonomy[]
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_ncbi_taxonomy_idx_searchable", type: Gin)
+}
+
+model phenotype {
+  id                                                             String                 @id @db.VarChar
+  name                                                           String                 @db.VarChar
+  description                                                    String?                @default("") @db.VarChar
+  synonyms                                                       String?                @default("") @db.VarChar
+  searchable                                                     String?                @default("") @db.VarChar
+  collection_phenotype_collection_phenotype_phenotypeTophenotype collection_phenotype[] @relation("collection_phenotype_phenotypeTophenotype")
+  phenotype_disease_phenotype_disease_phenotypeTophenotype       phenotype_disease[]    @relation("phenotype_disease_phenotypeTophenotype")
+  phenotype_gene_phenotype_gene_phenotypeTophenotype             phenotype_gene[]       @relation("phenotype_gene_phenotypeTophenotype")
+  subject_phenotype_subject_phenotype_phenotypeTophenotype       subject_phenotype[]    @relation("subject_phenotype_phenotypeTophenotype")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_phenotype_idx_searchable", type: Gin)
+}
+
+model phenotype_association_type {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model phenotype_disease {
+  phenotype                                        String    @db.VarChar
+  disease                                          String    @db.VarChar
+  searchable                                       String?   @default("") @db.VarChar
+  disease_phenotype_disease_diseaseTodisease       disease   @relation("phenotype_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_phenotype_disease_disease_2")
+  phenotype_phenotype_disease_phenotypeTophenotype phenotype @relation("phenotype_disease_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_phenotype_disease_phenotype_1")
+
+  @@id([phenotype, disease])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_phenotype_disease_idx_searchable", type: Gin)
+}
+
+model phenotype_gene {
+  phenotype                                     String    @db.VarChar
+  gene                                          String    @db.VarChar
+  searchable                                    String?   @default("") @db.VarChar
+  gene_phenotype_gene_geneTogene                gene      @relation("phenotype_gene_geneTogene", fields: [gene], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_phenotype_gene_gene_2")
+  phenotype_phenotype_gene_phenotypeTophenotype phenotype @relation("phenotype_gene_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_phenotype_gene_phenotype_1")
+
+  @@id([phenotype, gene])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_phenotype_gene_idx_searchable", type: Gin)
+}
+
+model project {
+  id_namespace                                                                                       String                          @db.VarChar
+  local_id                                                                                           String                          @db.VarChar
+  persistent_id                                                                                      String?                         @default("") @db.VarChar
+  creation_time                                                                                      String?                         @default("") @db.VarChar
+  abbreviation                                                                                       String?                         @default("") @db.VarChar
+  name                                                                                               String                          @db.VarChar
+  description                                                                                        String?                         @default("") @db.VarChar
+  searchable                                                                                         String?                         @default("") @db.VarChar
+  biosample                                                                                          biosample[]
+  collection_defined_by_project                                                                      collection_defined_by_project[]
+  dcc                                                                                                dcc[]
+  file                                                                                               file[]
+  id_namespace_project_id_namespaceToid_namespace                                                    id_namespace                    @relation("project_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_id_namespace_1")
+  project_in_project_project_in_project_parent_project_id_namespace_parent_project_local_idToproject project_in_project[]            @relation("project_in_project_parent_project_id_namespace_parent_project_local_idToproject")
+  project_in_project_project_in_project_child_project_id_namespace_child_project_local_idToproject   project_in_project[]            @relation("project_in_project_child_project_id_namespace_child_project_local_idToproject")
+  subject                                                                                            subject[]
+
+  @@id([id_namespace, local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_project_idx_searchable", type: Gin)
+}
+
+model project_data_type {
+  project_id_namespace      String? @db.VarChar
+  project_local_id          String? @db.VarChar
+  data_type_id              String? @db.VarChar
+  data_type_name            String? @db.VarChar
+  data_type_description     String? @db.VarChar
+  assay_type_id             String? @db.VarChar
+  assay_type_name           String? @db.VarChar
+  assay_type_description    String? @db.VarChar
+  file_format_id            String? @db.VarChar
+  file_format_name          String? @db.VarChar
+  file_format_description   String? @db.VarChar
+  analysis_type_id          String? @db.VarChar
+  analysis_type_name        String? @db.VarChar
+  analysis_type_description String? @db.VarChar
+  pk_id                     Int     @id @default(autoincrement())
+
+  @@index([project_id_namespace, project_local_id, assay_type_id, data_type_id, analysis_type_id, file_format_id], map: "project_data_type_idx")
+}
+
+model project_in_project {
+  parent_project_id_namespace                                                             String  @db.VarChar
+  parent_project_local_id                                                                 String  @db.VarChar
+  child_project_id_namespace                                                              String  @db.VarChar
+  child_project_local_id                                                                  String  @db.VarChar
+  searchable                                                                              String? @default("") @db.VarChar
+  project_project_in_project_parent_project_id_namespace_parent_project_local_idToproject project @relation("project_in_project_parent_project_id_namespace_parent_project_local_idToproject", fields: [parent_project_id_namespace, parent_project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_in_project_project_1")
+  project_project_in_project_child_project_id_namespace_child_project_local_idToproject   project @relation("project_in_project_child_project_id_namespace_child_project_local_idToproject", fields: [child_project_id_namespace, child_project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_in_project_project_2")
+
+  @@id([parent_project_id_namespace, parent_project_local_id, child_project_id_namespace, child_project_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_project_in_project_idx_searchable", type: Gin)
+}
+
+model protein {
+  id                                                     String               @id @db.VarChar
+  name                                                   String               @db.VarChar
+  description                                            String?              @default("") @db.VarChar
+  synonyms                                               String?              @default("") @db.VarChar
+  organism                                               String?              @default("") @db.VarChar
+  searchable                                             String?              @default("") @db.VarChar
+  collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
+  ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
+  protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_protein_idx_searchable", type: Gin)
+}
+
+model protein_gene {
+  protein                               String  @db.VarChar
+  gene                                  String  @db.VarChar
+  searchable                            String? @default("") @db.VarChar
+  gene_protein_gene_geneTogene          gene    @relation("protein_gene_geneTogene", fields: [gene], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_protein_gene_gene_2")
+  protein_protein_gene_proteinToprotein protein @relation("protein_gene_proteinToprotein", fields: [protein], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_protein_gene_protein_1")
+
+  @@id([protein, gene])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_protein_gene_idx_searchable", type: Gin)
+}
+
+model ptm {
+  id                                                   String           @id @db.VarChar
+  protein                                              String           @db.VarChar
+  site_one                                             String           @db.VarChar
+  aa_site_one                                          String           @db.VarChar
+  site_two                                             String?          @default("") @db.VarChar
+  aa_site_two                                          String?          @default("") @db.VarChar
+  site_type                                            String?          @default("") @db.VarChar
+  ptm_type                                             String?          @default("") @db.VarChar
+  ptm_subtype                                          String?          @default("") @db.VarChar
+  domain_location                                      String?          @default("") @db.VarChar
+  domain_type                                          String?          @default("") @db.VarChar
+  searchable                                           String?          @default("") @db.VarChar
+  biosample_ptm_biosample_ptm_ptmToptm                 biosample_ptm[]  @relation("biosample_ptm_ptmToptm")
+  collection_ptm_collection_ptm_ptmToptm               collection_ptm[] @relation("collection_ptm_ptmToptm")
+  domain_location_ptm_domain_locationTodomain_location domain_location? @relation("ptm_domain_locationTodomain_location", fields: [domain_location], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ptm_domain_location_3")
+  ptm_subtype_ptm_ptm_subtypeToptm_subtype             ptm_subtype?     @relation("ptm_ptm_subtypeToptm_subtype", fields: [ptm_subtype], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ptm_ptm_subtype_2")
+  ptm_type_ptm_ptm_typeToptm_type                      ptm_type?        @relation("ptm_ptm_typeToptm_type", fields: [ptm_type], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ptm_ptm_type_1")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_ptm_idx_searchable", type: Gin)
+}
+
+model ptm_subtype {
+  id                               String  @id @db.VarChar
+  name                             String  @db.VarChar
+  description                      String? @default("") @db.VarChar
+  synonyms                         String? @default("") @db.VarChar
+  searchable                       String? @default("") @db.VarChar
+  ptm_ptm_ptm_subtypeToptm_subtype ptm[]   @relation("ptm_ptm_subtypeToptm_subtype")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_ptm_subtype_idx_searchable", type: Gin)
+}
+
+model ptm_type {
+  id                         String  @id @db.VarChar
+  name                       String  @db.VarChar
+  description                String? @default("") @db.VarChar
+  synonyms                   String? @default("") @db.VarChar
+  searchable                 String? @default("") @db.VarChar
+  ptm_ptm_ptm_typeToptm_type ptm[]   @relation("ptm_ptm_typeToptm_type")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_ptm_type_idx_searchable", type: Gin)
+}
+
+model sample_prep_method {
+  id                                                         String      @id @db.VarChar
+  name                                                       String      @db.VarChar
+  description                                                String?     @default("") @db.VarChar
+  synonyms                                                   String?     @default("") @db.VarChar
+  searchable                                                 String?     @default("") @db.VarChar
+  biosample_biosample_sample_prep_methodTosample_prep_method biosample[] @relation("biosample_sample_prep_methodTosample_prep_method")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_sample_prep_method_idx_searchable", type: Gin)
+}
+
+model site_type {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model subject {
+  id_namespace                                    String                   @db.VarChar
+  local_id                                        String                   @db.VarChar
+  project_id_namespace                            String                   @db.VarChar
+  project_local_id                                String                   @db.VarChar
+  persistent_id                                   String?                  @default("") @db.VarChar
+  creation_time                                   String?                  @default("") @db.VarChar
+  granularity                                     String                   @db.VarChar
+  sex                                             String?                  @default("") @db.VarChar
+  ethnicity                                       String?                  @default("") @db.VarChar
+  age_at_enrollment                               String?                  @default("") @db.VarChar
+  searchable                                      String?                  @default("") @db.VarChar
+  biosample_from_subject                          biosample_from_subject[]
+  file_describes_subject                          file_describes_subject[]
+  id_namespace_subject_id_namespaceToid_namespace id_namespace             @relation("subject_id_namespaceToid_namespace", fields: [id_namespace], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_id_namespace_1")
+  project                                         project                  @relation(fields: [project_id_namespace, project_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_project_2")
+  subject_disease                                 subject_disease[]
+  subject_in_collection                           subject_in_collection[]
+  subject_phenotype                               subject_phenotype[]
+  subject_race                                    subject_race[]
+  subject_role_taxonomy                           subject_role_taxonomy[]
+  subject_substance                               subject_substance[]
+
+  @@id([id_namespace, local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_idx_searchable", type: Gin)
+  @@index([ethnicity], map: "idx_subject_ethnicity")
+  @@index([granularity], map: "idx_subject_granularity")
+  @@index([id_namespace], map: "idx_subject_idns")
+  @@index([sex], map: "idx_subject_sex")
+}
+
+model subject_disease {
+  subject_id_namespace                     String  @db.VarChar
+  subject_local_id                         String  @db.VarChar
+  association_type                         String  @db.VarChar
+  disease                                  String  @db.VarChar
+  searchable                               String? @default("") @db.VarChar
+  disease_subject_disease_diseaseTodisease disease @relation("subject_disease_diseaseTodisease", fields: [disease], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_disease_disease_2")
+  subject                                  subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_disease_subject_1")
+
+  @@id([subject_id_namespace, subject_local_id, association_type, disease])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_disease_idx_searchable", type: Gin)
+  @@index([association_type], map: "idx_subject_disease_association_type")
+  @@index([disease], map: "idx_subject_disease_disease")
+  @@index([subject_id_namespace, subject_local_id], map: "idx_subject_disease_idns_local")
+}
+
+model subject_ethnicity {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model subject_granularity {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model subject_in_collection {
+  subject_id_namespace    String     @db.VarChar
+  subject_local_id        String     @db.VarChar
+  collection_id_namespace String     @db.VarChar
+  collection_local_id     String     @db.VarChar
+  searchable              String?    @default("") @db.VarChar
+  collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_in_collection_collection_2")
+  subject                 subject    @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_in_collection_subject_1")
+
+  @@id([subject_id_namespace, subject_local_id, collection_id_namespace, collection_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_in_collection_idx_searchable", type: Gin)
+}
+
+model subject_phenotype {
+  subject_id_namespace                             String    @db.VarChar
+  subject_local_id                                 String    @db.VarChar
+  association_type                                 String    @db.VarChar
+  phenotype                                        String    @db.VarChar
+  searchable                                       String?   @default("") @db.VarChar
+  phenotype_subject_phenotype_phenotypeTophenotype phenotype @relation("subject_phenotype_phenotypeTophenotype", fields: [phenotype], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_phenotype_phenotype_2")
+  subject                                          subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_phenotype_subject_1")
+
+  @@id([subject_id_namespace, subject_local_id, association_type, phenotype])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_phenotype_idx_searchable", type: Gin)
+}
+
+model subject_race {
+  subject_id_namespace String  @db.VarChar
+  subject_local_id     String  @db.VarChar
+  race                 String  @default("") @db.VarChar
+  searchable           String? @default("") @db.VarChar
+  subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_race_subject_1")
+
+  @@id([subject_id_namespace, subject_local_id, race])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_race_idx_searchable", type: Gin)
+  @@index([subject_id_namespace, subject_local_id], map: "idx_subject_race_idns_local")
+  @@index([race], map: "idx_subject_race_race")
+}
+
+model subject_race_cv {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model subject_role {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model subject_role_taxonomy {
+  subject_id_namespace String        @db.VarChar
+  subject_local_id     String        @db.VarChar
+  role_id              String        @db.VarChar
+  taxonomy_id          String        @db.VarChar
+  searchable           String?       @default("") @db.VarChar
+  ncbi_taxonomy        ncbi_taxonomy @relation(fields: [taxonomy_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_role_taxonomy_ncbi_taxonomy_2")
+  subject              subject       @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_role_taxonomy_subject_1")
+
+  @@id([subject_id_namespace, subject_local_id, role_id, taxonomy_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_role_taxonomy_idx_searchable", type: Gin)
+  @@index([subject_id_namespace, subject_local_id], map: "idx_subject_role_taxonomy_idns_local")
+  @@index([role_id], map: "idx_subject_role_taxonomy_role_id")
+  @@index([taxonomy_id], map: "idx_subject_role_taxonomy_taxonomy_id")
+}
+
+model subject_sex {
+  id          String @id @db.VarChar
+  name        String @db.VarChar
+  description String @db.VarChar
+}
+
+model subject_substance {
+  subject_id_namespace                             String    @db.VarChar
+  subject_local_id                                 String    @db.VarChar
+  substance                                        String    @db.VarChar
+  searchable                                       String?   @default("") @db.VarChar
+  subject                                          subject   @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_substance_subject_1")
+  substance_subject_substance_substanceTosubstance substance @relation("subject_substance_substanceTosubstance", fields: [substance], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_subject_substance_substance_2")
+
+  @@id([subject_id_namespace, subject_local_id, substance])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_subject_substance_idx_searchable", type: Gin)
+}
+
+model substance {
+  id                                                             String                 @id @db.VarChar
+  name                                                           String                 @db.VarChar
+  description                                                    String?                @default("") @db.VarChar
+  synonyms                                                       String?                @default("") @db.VarChar
+  compound                                                       String                 @db.VarChar
+  searchable                                                     String?                @default("") @db.VarChar
+  biosample_substance_biosample_substance_substanceTosubstance   biosample_substance[]  @relation("biosample_substance_substanceTosubstance")
+  collection_substance_collection_substance_substanceTosubstance collection_substance[] @relation("collection_substance_substanceTosubstance")
+  subject_substance_subject_substance_substanceTosubstance       subject_substance[]    @relation("subject_substance_substanceTosubstance")
+  compound_substance_compoundTocompound                          compound               @relation("substance_compoundTocompound", fields: [compound], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_substance_compound_1")
+
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_substance_idx_searchable", type: Gin)
 }

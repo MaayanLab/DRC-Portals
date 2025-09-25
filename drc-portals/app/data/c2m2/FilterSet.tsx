@@ -31,8 +31,12 @@ const GroupItems = styled('ul')({
 });
 
 function getFirstLetter(opt: FilterObject): string {
+  if (!opt || !opt.name || typeof opt.name !== 'string' || opt.name.length === 0) {
+    return '#'; // fallback group for items without a valid name
+  }
   return opt.name[0].toUpperCase();
 }
+
 
 export default function FilterSet({ id, filterList, filter_title, example_query, maxCount }: { id: string, filterList: FilterObject[], filter_title: string, example_query: string, maxCount?: number }) {
   const router = useRouter();

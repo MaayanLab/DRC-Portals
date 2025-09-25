@@ -14,10 +14,13 @@ f=$1
 ingestf=ingest
 f1=${ingestf}/DccC2M2.tsv
 f2=${ingestf}/validDccC2M2.tsv
-head -n 1 $f|cut -d$'\t' -f1,3,8,9 > ${f1} && cat $f | grep C2M2 | egrep -e "202[0-5]-[0-9][0-9]" | cut -d$'\t' -f1,3,8,9|sort >> ${f1}
-awk -F'\t' '$2 == "True" && $3 == "False"' ${f1} > ${f2}
+#head -n 1 $f|cut -d$'\t' -f1,3,8,9 > ${f1} && cat $f | grep C2M2 | egrep -e "202[0-5]-[0-9][0-9]" | cut -d$'\t' -f1,3,8,9|sort >> ${f1}
+#awk -F'\t' '$2 == "True" && $3 == "False"' ${f1} > ${f2}
+# Include drcapproved and dccapproved too
+head -n 1 $f|cut -d$'\t' -f1,3,6,7,8,9 > ${f1} && cat $f | grep C2M2 | egrep -e "202[0-5]-[0-9][0-9]" | cut -d$'\t' -f1,3,6,7,8,9|sort >> ${f1}
+awk -F'\t' '$2 == "True" && $3 == "True" && $4 == "True" && $5 == "False"' ${f1} > ${f2}
 # To see which DCCs might have more than one current:
-echo "List of DCCs with valid C2M2 (with respect to current and deleted):"
+echo "List of DCCs with valid C2M2 (with respect to current, drcapproved, dccapproved and deleted):"
 cat ${f2} |cut -d$'\t' -f1|cut -d'/' -f4
 echo "";
 echo -e "If there are DCCs with their names listed more than one, then check the file \n${f2}\n to see which ones for which submission they are marked current=True and deleted=False \nand in the original input file \n${f}\n set current to False and/or deleted to True for all but one row per DCC.";

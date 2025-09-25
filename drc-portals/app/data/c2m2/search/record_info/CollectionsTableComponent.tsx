@@ -67,7 +67,8 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
                     c2m2.collection.description as description,
                     allres_full.collection_has_time_series_data as has_time_series_data
                 FROM allres_full
-                LEFT JOIN c2m2.collection ON (c2m2.collection.local_id = allres_full.collection_local_id)
+                LEFT JOIN c2m2.collection ON ((c2m2.collection.local_id = allres_full.collection_local_id) AND
+                                              (c2m2.collection.id_namespace = allres_full.collection_id_namespace))
             ),
             collections_table_limited AS (
                 SELECT * 
