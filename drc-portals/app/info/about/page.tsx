@@ -31,13 +31,13 @@ export default async function About() {
 	
     return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{mt: 2}}>
         <Typography variant={'h2'} color="secondary">
           The Common Fund Data Ecosystem (CFDE) Program Snapshot
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant={'body1'} sx={{textAlign: "justify"}}>
+        <Typography variant={'subtitle1'} sx={{textAlign: "justify"}}>
           The Common Fund generates a diverse array of valuable data sets and 
           knowledge resources intended for the research community. However, 
           these resources are dispersed across multiple locations, making it 
@@ -58,7 +58,7 @@ export default async function About() {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant={'body1'} sx={{textAlign: "justify"}}>
+        <Typography variant={'subtitle1'} sx={{textAlign: "justify"}}>
           The CFDE is structured around <Link color="secondary" href="https://info.cfde.cloud/centers"><b>five centers</b></Link> that work collaboratively to integrate metadata, data, tools, and knowledge from participating Common Fund programs. These collective efforts enable researchers to generate hypotheses, make discoveries, and validate findings, leading to new insights into health and disease. Additionally, the CFDE supports pilot projects that engage a wide range of end-users, gather feedback on Common Fund data resources, and foster the exploration of cross-disciplinary biological questions.
         </Typography>
       </Grid>
@@ -74,9 +74,9 @@ export default async function About() {
       </Grid>
       <Grid item xs={12}>
         <List>
-          <ListItem><Typography variant={'body1'} sx={{textAlign: "justify"}}>1. <b>CFDE Centers</b>-The CFDE five centers include: the data resource center, the knowledge center, the training center, the coordination and integration center, and the cloud workspace center. These CFDE centers serve as the central hub for CFDE activities, engaging with Common Fund programs, user communities, and training initiatives. They are building a computational infrastructure that aims to convert data and metadata into knowledge. These centers work closely with relevant programs to ensure seamless integration and coordination.</Typography></ListItem>
-          <ListItem><Typography variant={'body1'} sx={{textAlign: "justify"}}>2. <b>Participating Common Fund Data Coordinating Centers (<Link color="secondary" href="https://info.cfde.cloud/dcc">DCCs</Link>)</b>-These centers collaborate with the CFDE to ensure that the data and tools that their program produces can be integrated and combined with other datasets for knowledge discovery and sustainability. The CFDE promotes establishing best practices, sharing of tools and workflows, developing cross-data use cases, and providing training.</Typography></ListItem>
-          <ListItem><Typography variant={'body1'} sx={{textAlign: "justify"}}>3. <b>Enhancing the Utility of Common Fund Data Sets (Pilot Projects)</b>-The CFDE also funds pilot projects and partnerships aimed at developing new tools, refining existing data sets, and integrating multiple data sources to answer complex biological questions. These projects broaden the CFDE’s reach by engaging new users, improving portal functionality, and facilitating interdisciplinary research. For more information, visit the <Link color="secondary" href="https://commonfund.nih.gov/dataecosystem/FundedResearch"><b>Funded Research</b></Link> page.</Typography></ListItem>
+          <ListItem><Typography variant={'subtitle1'} sx={{textAlign: "justify"}}>1. <b>CFDE Centers</b>-The CFDE five centers include: the data resource center, the knowledge center, the training center, the coordination and integration center, and the cloud workspace center. These CFDE centers serve as the central hub for CFDE activities, engaging with Common Fund programs, user communities, and training initiatives. They are building a computational infrastructure that aims to convert data and metadata into knowledge. These centers work closely with relevant programs to ensure seamless integration and coordination.</Typography></ListItem>
+          <ListItem><Typography variant={'subtitle1'} sx={{textAlign: "justify"}}>2. <b>Participating Common Fund Data Coordinating Centers (<Link color="secondary" href="https://info.cfde.cloud/dcc">DCCs</Link>)</b>-These centers collaborate with the CFDE to ensure that the data and tools that their program produces can be integrated and combined with other datasets for knowledge discovery and sustainability. The CFDE promotes establishing best practices, sharing of tools and workflows, developing cross-data use cases, and providing training.</Typography></ListItem>
+          <ListItem><Typography variant={'subtitle1'} sx={{textAlign: "justify"}}>3. <b>Enhancing the Utility of Common Fund Data Sets (Pilot Projects)</b>-The CFDE also funds pilot projects and partnerships aimed at developing new tools, refining existing data sets, and integrating multiple data sources to answer complex biological questions. These projects broaden the CFDE’s reach by engaging new users, improving portal functionality, and facilitating interdisciplinary research. For more information, visit the <Link color="secondary" href="https://commonfund.nih.gov/dataecosystem/FundedResearch"><b>Funded Research</b></Link> page.</Typography></ListItem>
         </List>
       </Grid>
       <Grid item xs={12}>
@@ -85,7 +85,7 @@ export default async function About() {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant={'body1'}>
+        <Typography variant={'subtitle1'}>
           Currently, 18 Common Fund programs participate in the CFDE, each offering unique perspectives to improve data integration and accessibility:
         </Typography>
       </Grid>
@@ -118,7 +118,7 @@ export default async function About() {
                   }
                 </Button>
                 </ListItemIcon>
-                <Typography variant="body1"><b>{dcc.label} (
+                <Typography variant="subtitle1"><b>{dcc.label} (
 								<Link color="secondary" href={additional_label.indexOf(dcc.short_label) === -1 ? `/info/dcc/${dcc.short_label}`: dcc.homepage}>
 									{dcc.short_label}
 								</Link>
@@ -129,7 +129,7 @@ export default async function About() {
         </List>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant={'body1'}>
+        <Typography variant={'subtitle1'}>
         These programs produce data and other resources for the most cutting-edge grand challenges in biomedical research. Moving forward, the CFDE is expected to continue to expand, incorporating future Common Fund programs to further enrich the research community’s access to high-quality, cutting edge, large-scale, and interoperable data and metadata.
         </Typography>
       </Grid>

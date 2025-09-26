@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma"
+import prismaPDP from "@/lib/prisma/slow"
+import prismaC2M2 from "@/lib/prisma/c2m2"
 import { safeAsync } from "@/utils/safe"
 
 async function getDccAssetUrl(object_id: string, access_id: string) {
@@ -43,11 +45,33 @@ async function getDccAssetNodeUrl(object_id: string, access_id: string) {
   return { url: object.data.dcc_asset.fileAsset.link }
 }
 
-async function getC2M2FileUrl(object_id: string, access_id: string) {
-  if (access_id !== 'c2m2_file') return null
-  const object = await safeAsync(() => prisma.c2M2FileNode.findUnique({
+async function getPDPFileUrl(object_id: string, access_id: string) {
+  if (access_id !== 'pdp_file') return null
+  const object = await safeAsync(() => prismaPDP.c2M2FileNode.findUnique({
     where: {
       id: object_id,
+    },
+    select: {
+      access_url: true,
+    },
+  }))
+  if (!object?.data?.access_url) return null
+  if (object.data.access_url.startsWith('drs://')) {
+    // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
+    const upstreamDRS = object.data.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
+    const req = await fetch(upstreamDRS)
+    if (req.ok) return Response.json(await req.json(), { status: req.status })
+    else if (req.status === 404) return null
+    else return req
+  }
+  return { url: object.data.access_url }
+}
+
+async function getC2M2FileUrl(object_id: string, access_id: string) {
+  if (access_id !== 'pdp_file') return null
+  const object = await safeAsync(() => prismaC2M2.file.findFirstOrThrow({
+    where: {
+      sha256: object_id,
     },
     select: {
       access_url: true,
@@ -70,6 +94,8 @@ export async function GET(request: Request, { params }: { params: { object_id: s
   access_url = await getDccAssetUrl(params.object_id, params.access_id)
   if (access_url) return Response.json(access_url)
   access_url = await getDccAssetNodeUrl(params.object_id, params.access_id)
+  if (access_url) return Response.json(access_url)
+  access_url = await getPDPFileUrl(params.object_id, params.access_id)
   if (access_url) return Response.json(access_url)
   access_url = await getC2M2FileUrl(params.object_id, params.access_id)
   if (access_url) return Response.json(access_url)

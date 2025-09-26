@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import fs from "fs";
+import { appendFileSync } from 'node:fs';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -19,48 +21,72 @@ const axisInfo: Record<string, {
   ethnicity: {
     id: 's.ethnicity',
     name: "COALESCE(se.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.subject_ethnicity se ON s.ethnicity = se.id',
+    join: 'LEFT JOIN c2m2.subject_ethnicity se ON s.ethnicity = se.id WHERE se.id IS NOT NULL',
   },
   sex: {
     id: 's.sex',
     name: "COALESCE(ss.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.subject_sex ss ON s.sex = ss.id',
+    join: 'LEFT JOIN c2m2.subject_sex ss ON s.sex = ss.id WHERE ss.id IS NOT NULL',
   },
   race: {
     id: 'sr.race',
     name: "COALESCE(srcv.name, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.subject_race sr ON s.local_id = sr.subject_local_id AND s.id_namespace = sr.subject_id_namespace',
-      'LEFT JOIN c2m2.subject_race_cv srcv ON sr.race = srcv.id'
+      'LEFT JOIN c2m2.subject_race_cv srcv ON sr.race = srcv.id',
+      'WHERE srcv.id IS NOT NULL'
     ].join('\n'),
   },
-  
-  
   disease: {
     id: 'sd.disease',
     name: "COALESCE(d.name, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.subject_disease sd ON s.local_id = sd.subject_local_id AND s.id_namespace = sd.subject_id_namespace',
-      'LEFT JOIN c2m2.disease d ON d.id = sd.disease'
+      'LEFT JOIN c2m2.disease d ON d.id = sd.disease',
+      'WHERE d.id IS NOT NULL'
+    ].join('\n'),
+  },
+  phenotype: {
+    id: 'sp.phenotype',
+    name: "COALESCE(p.name, 'Unspecified')",
+    join: [
+      'LEFT JOIN c2m2.subject_phenotype sp ON s.local_id = sp.subject_local_id AND s.id_namespace = sp.subject_id_namespace',
+      'LEFT JOIN c2m2.phenotype p ON p.id = sp.phenotype',
+      'WHERE p.id IS NOT NULL'
     ].join('\n'),
   },
   granularity: {
     id: 's.granularity',
     name: "COALESCE(sg.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.subject_granularity sg ON s.granularity = sg.id',
+    join: 'LEFT JOIN c2m2.subject_granularity sg ON s.granularity = sg.id WHERE sg.id IS NOT NULL',
   },
   role: {
     id: 'srt.role_id',
     name: "COALESCE(sr2.name, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.subject_role_taxonomy srt ON s.local_id = srt.subject_local_id AND s.id_namespace = srt.subject_id_namespace',
-      'LEFT JOIN c2m2.subject_role sr2 ON srt.role_id = sr2.id'
+      'LEFT JOIN c2m2.subject_role sr2 ON srt.role_id = sr2.id',
+      'WHERE sr2.id IS NOT NULL'
     ].join('\n'),
   },
-  
-  
+  taxonomy: {
+    id: 'srt.taxonomy_id',
+    name: "COALESCE(nt.name, 'Unspecified')",
+    join: [
+      'LEFT JOIN c2m2.subject_role_taxonomy srt ON s.local_id = srt.subject_local_id AND s.id_namespace = srt.subject_id_namespace',
+      'LEFT JOIN c2m2.ncbi_taxonomy nt ON (srt.taxonomy_id = nt.id)',
+      'WHERE nt.id IS NOT NULL'
+    ].join('\n'),
+    
+  },
 };
 
+function sanitizeName(name: string) {
+  return name
+    .replace(/\s+/g, "")       // remove spaces
+    .replace(/[^a-zA-Z0-9_]/g, "") // remove non-alphanumeric/underscore
+    .toLowerCase();            // lowercase for SQL safety
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -110,11 +136,31 @@ export async function GET(req: Request) {
       ;
     `;
 
-    // Log the query for debugging
-    console.log('Executing SQL query:', query);
+    
 
-    const result = await pool.query(query);
-    const rawRows = result.rows;
+
+    
+    const tableName = `c2m2.${sanitizeName(y_axis)}_${sanitizeName(x_axis)}_${sanitizeName(group_by)}`;
+    console.log("Table name = ", tableName);
+    console.log('-----------------------------------------------------');
+    console.log('/* Y-axis: ', y_axis, 'X-axis: ', x_axis, 'Group by: ', group_by, ' */');
+    console.log('Executing SQL query:', query);
+    console.log('-----------------------------------------------------');
+    
+    // const logLine = `
+    // DROP TABLE IF EXISTS ${tableName};
+    // CREATE TABLE ${tableName} AS (
+    //   /* Y-axis: ${y_axis}, X-axis: ${x_axis}, Group by: ${group_by} */
+    //   ${query}
+    // );\n\n`;
+    // try {
+    //   fs.appendFileSync("../c2m2_summary_count_queries.sql", logLine, "utf8");
+    // } catch(err) {
+    //   console.log("Error in appending file ", err)
+    // }
+    // console.log("Updated file ")
+   const result = await pool.query(query);
+   const rawRows = result.rows;
 
     // Convert to chart-friendly format
     const groupedData: Record<string, Record<string, number>> = {};
@@ -130,6 +176,8 @@ export async function GET(req: Request) {
       [x_axis]: xVal,
       ...groupCounts,
     }));
+
+  //console.log("Subject chart data= ", chartData);
 
     return NextResponse.json({ data: chartData });
   } catch (err) {

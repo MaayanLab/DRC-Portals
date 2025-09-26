@@ -1,3 +1,6 @@
+import c2m2 from '@/lib/prisma/c2m2';
+import { CarCrash, CropDin } from '@mui/icons-material';
+import { csCZ } from '@mui/x-data-grid';
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
@@ -21,7 +24,8 @@ const axisInfo: Record<string, {
     name: "COALESCE(an.name, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.collection_anatomy ca ON c.local_id = ca.collection_local_id AND c.id_namespace = ca.collection_id_namespace',
-      'LEFT JOIN c2m2.anatomy an ON ca.anatomy = an.id'
+      'LEFT JOIN c2m2.anatomy an ON ca.anatomy = an.id',
+      'WHERE an.id IS NOT NULL'
     ].join('\n'),
   },
   biofluid: {
@@ -29,7 +33,8 @@ const axisInfo: Record<string, {
     name: "COALESCE(bf.name, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.collection_biofluid cb ON c.local_id = cb.collection_local_id AND c.id_namespace = cb.collection_id_namespace',
-      'LEFT JOIN c2m2.biofluid bf ON cb.biofluid = bf.id'
+      'LEFT JOIN c2m2.biofluid bf ON cb.biofluid = bf.id',
+      'WHERE bf.id IS NOT NULL'
     ].join('\n'),
   },
   disease: {
@@ -37,7 +42,8 @@ const axisInfo: Record<string, {
     name: "COALESCE(d.name, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.collection_disease cd ON c.local_id = cd.collection_local_id AND c.id_namespace = cd.collection_id_namespace',
-      'LEFT JOIN c2m2.disease d ON cd.disease = d.id'
+      'LEFT JOIN c2m2.disease d ON cd.disease = d.id',
+      'WHERE d.id IS NOT NULL'
     ].join('\n'),
   },
   protein: {
@@ -45,14 +51,18 @@ const axisInfo: Record<string, {
     name: "COALESCE(p.name, cp.protein, 'Unspecified')",
     join: [
       'LEFT JOIN c2m2.collection_protein cp ON c.local_id = cp.collection_local_id AND c.id_namespace = cp.collection_id_namespace',
-      'LEFT JOIN c2m2.protein p ON cp.protein = p.id'
+      'LEFT JOIN c2m2.protein p ON cp.protein = p.id',
+      'WHERE p.id IS NOT NULL'
     ].join('\n'),
   },
   compound: {
     id: 'cc.compound',
-    name: "COALESCE(cc.compound, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.collection_compound cc ON c.local_id = cc.collection_local_id AND c.id_namespace = cc.collection_id_namespace',
-    // If you have a compound lookup table, join it here as well
+    name: "COALESCE(cpd.name, 'Unspecified')",
+    join: [
+      'LEFT JOIN c2m2.collection_compound cc ON c.local_id = cc.collection_local_id AND c.id_namespace = cc.collection_id_namespace',
+      'LEFT JOIN c2m2.compound cpd ON cc.compound = cpd.id',
+      'WHERE cpd.id IS NOT NULL'
+    ].join('\n'),
   },
 };
 

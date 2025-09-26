@@ -67,7 +67,7 @@ export default async function PublicationsServer({
       },
     })
     return (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{mt: 2}}>
           <Grid item xs={12} sx={{marginBottom:4}}>
             <Typography variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Landmark Publications</Typography>
           </Grid> 

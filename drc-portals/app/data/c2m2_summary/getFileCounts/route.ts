@@ -18,27 +18,27 @@ const axisInfo: Record<string, {
   file_format: {
     id: 'f.file_format',
     name: "COALESCE(ff.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.file_format ff ON f.file_format = ff.id',
+    join: 'LEFT JOIN c2m2.file_format ff ON f.file_format = ff.id WHERE ff.id IS NOT NULL',
   },
   compression_format: {
     id: 'f.compression_format',
     name: "COALESCE(ff2.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.file_format ff2 ON f.compression_format = ff2.id',
+    join: 'LEFT JOIN c2m2.file_format ff2 ON f.compression_format = ff2.id WHERE ff2.id IS NOT NULL',
   },
   data_type: {
     id: 'f.data_type',
     name: "COALESCE(dt.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.data_type dt ON f.data_type = dt.id',
+    join: 'LEFT JOIN c2m2.data_type dt ON f.data_type = dt.id WHERE dt.id IS NOT NULL',
   },
   assay_type: {
     id: 'f.assay_type',
     name: "COALESCE(at.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.assay_type at ON f.assay_type = at.id',
+    join: 'LEFT JOIN c2m2.assay_type at ON f.assay_type = at.id WHERE at.id IS NOT NULL',
   },
   analysis_type: {
     id: 'f.analysis_type',
     name: "COALESCE(an.name, 'Unspecified')",
-    join: 'LEFT JOIN c2m2.analysis_type an ON f.analysis_type = an.id',
+    join: 'LEFT JOIN c2m2.analysis_type an ON f.analysis_type = an.id WHERE an.id IS NOT NULL',
   },
 };
 

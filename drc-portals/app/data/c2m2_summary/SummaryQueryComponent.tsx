@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import dynamic from "next/dynamic"; 
 import {
   Box, Grid, Typography, FormControl, InputLabel, Select, MenuItem,
   Button, CircularProgress, Alert, Switch, FormControlLabel,
@@ -12,14 +13,15 @@ import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
 import C2M2BarChart from './C2M2BarChart';
 import PlotDescriptionEditor from './PlotDescriptionEditor';
+// dynamically import Plotly heatmap (client only)
+const C2M2Heatmap = dynamic(() => import('./C2M2Heatmap'), { ssr: false });
 
-// ------ Types ------
 type YAxisField =
-  | 'Subjects count'
-  | 'Biosamples count'
-  | 'Files count'
-  | 'Projects count'
-  | 'Collections count';
+  | 'Subject count'
+  | 'Biosample count'
+  | 'File count'
+  | 'Project count'
+  | 'Collection count';
 
 interface ChartRow {
   [key: string]: string | number | undefined;
@@ -29,27 +31,26 @@ interface DescriptionResponse {
   description?: string;
   error?: string;
 }
-// -------------------
 
 const axisOptionsMap: Record<YAxisField, string[]> = {
-  'Subjects count': ['dcc', 'ethnicity', 'sex', 'race', 'disease', 'granularity', 'role'],
-  'Biosamples count': ['dcc', 'anatomy', 'biofluid', 'sample_prep_method', 'disease'],
-  'Files count': ['dcc', 'file_format', 'assay_type', 'analysis_type', 'data_type', 'compression_format'],
-  'Collections count': ['dcc', 'anatomy', 'biofluid', 'disease', 'phenotype', 'compound', 'protein'],
-  'Projects count': ['dcc'],
+  'Biosample count': ['dcc', 'anatomy', 'biofluid', 'disease', 'sample_prep_method'],
+  'Subject count': ['dcc', 'disease', 'ethnicity', 'granularity', 'phenotype', 'race', 'role', 'sex', 'taxonomy'],
+  'File count': ['dcc', 'analysis_type', 'assay_type', 'compression_format', 'data_type', 'file_format'],
+  'Project count': ['dcc'],
+  'Collection count': ['dcc', 'anatomy', 'biofluid', 'compound', 'disease', 'protein'],
 };
 
 const minBarWidth = 60;
 const minChartWidth = 600;
 
 const SummaryQueryComponent: React.FC = () => {
-  const [yAxis, setYAxis] = useState<YAxisField>('Biosamples count');
-  const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosamples count'][0]);
-  const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosamples count'][1] || '');
+  const [yAxis, setYAxis] = useState<YAxisField>('Biosample count');
+  const [xAxis, setXAxis] = useState<string>(axisOptionsMap['Biosample count'][0]);
+  const [groupBy, setGroupBy] = useState<string>(axisOptionsMap['Biosample count'][1] || '');
   const [chartData, setChartData] = useState<ChartRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showUnspecified, setShowUnspecified] = useState<boolean>(true);
+  const [showUnspecified, setShowUnspecified] = useState<boolean>(false);
 
   const [plotDescription, setPlotDescription] = useState<string>('');
   const [loadingDescription, setLoadingDescription] = useState<boolean>(false);
@@ -57,6 +58,8 @@ const SummaryQueryComponent: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
+  const [showHeatmap, setShowHeatmap] = useState<boolean>(false);
 
   const { addToCart, cart } = useCart();
 
@@ -89,11 +92,11 @@ const SummaryQueryComponent: React.FC = () => {
       });
 
       const endpointMap: Partial<Record<YAxisField, string>> = {
-        'Subjects count': '/data/c2m2_summary/getSubjectCounts',
-        'Biosamples count': '/data/c2m2_summary/getBiosampleCounts',
-        'Files count': '/data/c2m2_summary/getFileCounts',
-        'Collections count': '/data/c2m2_summary/getCollectionCounts',
-        'Projects count': '/data/c2m2_summary/getProjectCounts'
+        'Subject count': '/data/c2m2_summary/getSubjectCounts',
+        'Biosample count': '/data/c2m2_summary/getBiosampleCounts',
+        'File count': '/data/c2m2_summary/getFileCounts',
+        'Collection count': '/data/c2m2_summary/getCollectionCounts',
+        'Project count': '/data/c2m2_summary/getProjectCounts'
       };
 
       const endpoint = endpointMap[yAxis];
@@ -137,13 +140,13 @@ const SummaryQueryComponent: React.FC = () => {
 
   const groupValues = groupBy
     ? Array.from(
-        cleanedChartData.reduce<Set<string>>((set, item) => {
-          Object.keys(item).forEach(key => {
-            if (key !== xAxis) set.add(key);
-          });
-          return set;
-        }, new Set())
-      )
+      cleanedChartData.reduce<Set<string>>((set, item) => {
+        Object.keys(item).forEach(key => {
+          if (key !== xAxis) set.add(key);
+        });
+        return set;
+      }, new Set())
+    )
     : ['value'];
 
   const colorMap = groupValues.reduce((map, key, i) => {
@@ -153,18 +156,35 @@ const SummaryQueryComponent: React.FC = () => {
     return map;
   }, {} as Record<string, string>);
 
+  // --- Heatmap data ---
+  const heatmapXLabels = cleanedChartData.map(row => String(row[xAxis] ?? ''));
+  const heatmapYLabels = groupValues;
+  const heatmapZ = heatmapYLabels.map(groupVal =>
+    heatmapXLabels.map((xVal, colIdx) => {
+      const row = cleanedChartData[colIdx];
+      const value = row ? row[groupVal] : undefined;
+      return typeof value === 'number' ? value : 0;
+    })
+  );
+
   // Prompt for LLM
   const getChartPrompt = () => {
-    let out = `Generate a concise description of a bar chart with the following parameters:
-- Y-axis: ${yAxis}
-- X-axis: ${xAxis}`;
-    if (groupBy) out += `\n- Group by: ${groupBy}`;
+    let out = `Generate a concise description of a ${showHeatmap ? 'heatmap' : 'bar chart'} with the following parameters:
+  - Y-axis: ${yAxis}
+  - X-axis: ${xAxis}`;
+  
+    // Removed the groupBy line
     out += `
-Describe what kind of data this chart shows and what insights it might reveal.`;
-    if (showUnspecified) out += `
-If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
+  Describe what kind of data this chart shows and what insights it might reveal.`;
+  
+    if (showUnspecified) {
+      out += `
+  If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
+    }
+  
     return out;
   };
+  
 
   // LLM handle
   const handleGenerateDescription = async () => {
@@ -214,23 +234,35 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
     }
   };
 
-  // --- ADD TO CART updated to new SavedBarChart type ---
+  // --- ADD TO CART with heatmap support ---
   const handleAddToCart = () => {
-    addToCart({
-      id: uuidv4(),
-      chartType: 'bar',
-      xAxis,
-      yAxis,
-      groupBy,
-      chartData,
-      plotDescription,
-      showUnspecified
-    });
+    if (showHeatmap) {
+      addToCart({
+        id: uuidv4(),
+        chartType: 'heatmap',
+        xLabels: heatmapXLabels,
+        yLabels: heatmapYLabels,
+        z: heatmapZ,
+        plotDescription,
+      });
+    } else {
+      addToCart({
+        id: uuidv4(),
+        chartType: 'bar',
+        xAxis,
+        yAxis,
+        groupBy,
+        chartData,
+        plotDescription,
+        showUnspecified,
+      });
+    }
   };
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>Summary Query Chart</Typography>
+      {/* <Typography variant="h5" gutterBottom>Summary Query Chart</Typography> */}
+      <Typography variant="h5" gutterBottom>Summary: Counts of various Assets</Typography>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={4}>
@@ -243,6 +275,7 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
             </Select>
           </FormControl>
         </Grid>
+
         <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>X-axis</InputLabel>
@@ -253,6 +286,7 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
             </Select>
           </FormControl>
         </Grid>
+
         <Grid item xs={4}>
           <FormControl fullWidth>
             <InputLabel>Group By</InputLabel>
@@ -264,6 +298,14 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
           </FormControl>
         </Grid>
       </Grid>
+
+      {/* Heatmap toggle */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <FormControlLabel
+          control={<Switch checked={showHeatmap} onChange={() => setShowHeatmap(!showHeatmap)} />}
+          label="Show Heatmap"
+        />
+      </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <FormControlLabel
@@ -291,16 +333,23 @@ If there is an "Unspecified Only" sub-chart below, also describe any trends or p
 
       {loading && <Box sx={{ py: 6, textAlign: 'center' }}><CircularProgress /></Box>}
       {error && <Alert severity="error">{error}</Alert>}
+
       {!loading && !error && (
-        <C2M2BarChart
-          data={cleanedChartData}
-          xAxis={xAxis}
-          groupValues={groupValues}
-          colorMap={colorMap}
-          showUnspecified={showUnspecified}
-          minBarWidth={minBarWidth}
-          minChartWidth={minChartWidth}
-        />
+        showHeatmap ?
+          <C2M2Heatmap xLabels={heatmapXLabels} yLabels={heatmapYLabels} z={heatmapZ} />
+          :
+          <C2M2BarChart
+            data={cleanedChartData}
+            xAxis={xAxis}
+            yAxis={yAxis}           // add this!
+            groupBy={groupBy}       // add this!
+            groupValues={groupValues}
+            colorMap={colorMap}
+            showUnspecified={showUnspecified}
+            minBarWidth={minBarWidth}
+            minChartWidth={minChartWidth}
+          />
+
       )}
 
       {loadingDescription && (

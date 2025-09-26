@@ -20,7 +20,14 @@
 # OR
 # curl https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv -o "DccAssets.tsv"
 # Then be in C2M2 folder (cd ..)
-./get_current_notdeleted_C2M2_list.sh ingest/DccAssets.tsv
+./get_current_notdeleted_assets_list.sh ingest/DccAssets.tsv C2M2
+# Can also process ../ingest/DccAssets.tsv (ingest/DccAssets.tsv in the parent folder named database)
+./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv C2M2
+./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv XMT
+./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv "KG Assetions"
+# Check the resulting output files like validDcc_XMT.tsv inside ../ingest/
+# ingest]$ cat validDcc_XMT.tsv |grep "\.gmt"|cut -d$'\t' -f1|cut -d'/' -f4|sort|uniq
+# ingest]$ egrep -e "file_path.parent:ingest/assertions" ../log/log_ingest_kg.log
 
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
 server_label=
@@ -92,7 +99,7 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log
 #logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2_2.log
 logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
 # psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
-date_div >> ${logf};
+date_div > ${logf};
 psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql 2>&1 | tee ${logf};
 #psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql;
 date_div >> ${logf};
@@ -121,7 +128,7 @@ fi
 # IMPORTANT: in every submission, do not forget to check c2m2.dcc in psql:
 # select concat_ws('', '(''', id, ''', ' , '''''),') as id_code_string from c2m2.id_namespace order by id_code_string;
 logf=${logdir}/log_create_id_namespace_dcc_id.log
-date_div >> ${logf};
+date_div > ${logf};
 psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -L ${logf}
 date_div >> ${logf};
 

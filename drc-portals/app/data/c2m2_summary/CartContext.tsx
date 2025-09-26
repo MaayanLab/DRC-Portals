@@ -1,5 +1,3 @@
-'use client';
-
 import React, { createContext, useContext, useState } from 'react';
 
 export interface SavedBarChart {
@@ -16,15 +14,25 @@ export interface SavedBarChart {
 export interface SavedPieChart {
   id: string;
   chartType: 'pie';
-  xAxis: string;         // e.g., "anatomy"
-  xAxisValue: string;    // e.g., "brain"
-  groupBy: string;       // e.g., "disease"
-  pieData: { name: string; value: number }[];    // The data in the modal
-  pieDescription: string;                        // LLM or user-provided
-  parentBarChartId?: string;                     // Optional: to relate to parent bar chart
+  xAxis: string;
+  xAxisValue: string;
+  groupBy: string;
+  pieData: { name: string; value: number }[];
+  pieDescription: string;
+  parentBarChartId?: string;
+  title?: string;
 }
 
-export type SavedChart = SavedBarChart | SavedPieChart;
+export interface SavedHeatmapChart {
+  id: string;
+  chartType: 'heatmap';
+  xLabels: string[];
+  yLabels: string[];
+  z: number[][];
+  plotDescription: string;
+}
+
+export type SavedChart = SavedBarChart | SavedPieChart | SavedHeatmapChart;
 
 interface CartContextType {
   cart: SavedChart[];
