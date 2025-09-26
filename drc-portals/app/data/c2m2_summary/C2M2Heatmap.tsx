@@ -24,6 +24,21 @@ const C2M2Heatmap: React.FC<C2M2HeatmapProps> = ({ xLabels, yLabels, z }) => {
     ? z.map(row => row.map(value => (value > 0 ? Math.log10(value) : 0)))
     : z;
 
+  // Generate custom hover text
+  const hoverText = z.map((row, i) =>
+    row.map((originalVal, j) => {
+      const xLabel = xLabels[j];
+      const yLabel = yLabels[i];
+      const transformedVal = useLogScale
+        ? originalVal > 0
+          ? Math.log10(originalVal).toFixed(2)
+          : '0'
+        : originalVal.toFixed(2);
+
+      return `X: ${xLabel}<br>Y: ${yLabel}<br>Raw Count: ${originalVal}<br>${useLogScale ? 'Log₁₀(Value)' : 'Value'}: ${transformedVal}`;
+    })
+  );
+
   const trace = {
     z: logZ,
     x: xLabels,
@@ -35,6 +50,8 @@ const C2M2Heatmap: React.FC<C2M2HeatmapProps> = ({ xLabels, yLabels, z }) => {
     zmin: useLogScale ? Math.log10(minCount) : undefined,
     zmax: useLogScale ? Math.log10(maxCount) : undefined,
     colorbar: useLogScale ? { title: 'log₁₀(count)' } : { title: 'count' },
+    hoverinfo: 'text',
+    text: hoverText,
   } as Partial<Plotly.Data> & { hoverongaps: boolean };
 
   return (
