@@ -19,8 +19,8 @@ export default function C2M2ReportPage() {
     typeof params?.id === 'string'
       ? params.id
       : Array.isArray(params?.id)
-      ? params?.id[0]
-      : ''
+        ? params?.id[0]
+        : ''
   const [reportCharts, setReportCharts] = useState<SavedChart[] | null>(null)
   const [loading, setLoading] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -90,11 +90,11 @@ export default function C2M2ReportPage() {
         if (item.chartType === 'bar') {
           const groupValues = item.groupBy
             ? Array.from(
-                item.chartData.reduce<Set<string>>((set, row) => {
-                  Object.keys(row).forEach((key) => { if (key !== item.xAxis) set.add(key) })
-                  return set
-                }, new Set())
-              )
+              item.chartData.reduce<Set<string>>((set, row) => {
+                Object.keys(row).forEach((key) => { if (key !== item.xAxis) set.add(key) })
+                return set
+              }, new Set())
+            )
             : ['value']
 
           const colorMap = groupValues.reduce((map, key, i) => {
