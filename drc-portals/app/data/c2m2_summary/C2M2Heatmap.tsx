@@ -10,63 +10,66 @@ interface C2M2HeatmapProps {
 }
 
 const C2M2Heatmap: React.FC<C2M2HeatmapProps> = ({ xLabels, yLabels, z }) => {
-  // Flatten the z matrix to compute min/max
   const flatZ = z.flat();
-  const nonZeroZ = flatZ.filter(value => value > 0);
+  const nonZeroZ = flatZ.filter(v => v > 0);
 
-  const minCount = Math.min(...nonZeroZ);
-  const maxCount = Math.max(...flatZ);
+  const minCount = nonZeroZ.length > 0 ? Math.min(...nonZeroZ) : 0;
+  const maxCount = flatZ.length > 0 ? Math.max(...flatZ) : 0;
 
-  const useLogScale = (maxCount / minCount) > 20 && minCount > 0;
+  const useLogScale = minCount > 0 && maxCount / minCount > 20;
 
-  // If using log scale, transform z values
   const logZ = useLogScale
-    ? z.map(row => row.map(value => (value > 0 ? Math.log10(value) : 0)))
+    ? z.map(row => row.map(v => (v > 0 ? Math.log10(v) : 0)))
     : z;
 
-  // Generate custom hover text
   const hoverText = z.map((row, i) =>
-    row.map((originalVal, j) => {
+    row.map((val, j) => {
       const xLabel = xLabels[j];
       const yLabel = yLabels[i];
       const transformedVal = useLogScale
-        ? originalVal > 0
-          ? Math.log10(originalVal).toFixed(2)
+        ? val > 0
+          ? Math.log10(val).toFixed(2)
           : '0'
-        : originalVal.toFixed(2);
-
-      return `X: ${xLabel}<br>Y: ${yLabel}<br>Raw Count: ${originalVal}<br>${useLogScale ? 'Log₁₀(Value)' : 'Value'}: ${transformedVal}`;
+        : val.toFixed(2);
+      return `X: ${xLabel}<br>Y: ${yLabel}<br>Raw Count: ${val}<br>${
+        useLogScale ? 'Log₁₀(Value)' : 'Value'
+      }: ${transformedVal}`;
     })
   );
 
+  // Plain object for the trace
   const trace = {
     z: logZ,
     x: xLabels,
     y: yLabels,
-    type: 'heatmap',
+    type: 'heatmap' as const,
     colorscale: 'Viridis',
+    hoverinfo: 'text' as const,
+    text: hoverText,
     hoverongaps: false,
     zauto: !useLogScale,
-    zmin: useLogScale ? Math.log10(minCount) : undefined,
-    zmax: useLogScale ? Math.log10(maxCount) : undefined,
-    colorbar: useLogScale ? { title: 'log₁₀(count)' } : { title: 'count' },
-    hoverinfo: 'text',
-    text: hoverText,
-  } as Partial<Plotly.Data> & { hoverongaps: boolean };
+    ...(useLogScale
+      ? { zmin: Math.log10(minCount), zmax: Math.log10(maxCount), colorbar: { title: 'log₁₀(count)' } }
+      : { colorbar: { title: 'count' } }),
+  };
 
   return (
-    <Plot
-      data={[trace]}
-      layout={{
-        title: 'C2M2 Heatmap',
-        xaxis: { title: 'X Axis' },
-        yaxis: { title: 'Y Axis' },
-        margin: { t: 50, l: 80 },
-        autosize: true,
-      }}
-      style={{ width: '100%', height: '100%' }}
-      useResizeHandler
-    />
+    <div style={{ width: '100%', overflowX: 'auto' }}>
+      <div style={{ minWidth: Math.max(600, xLabels.length * 40) }}>
+        <Plot
+          data={[trace as any]} // ✅ Only cast at render time
+          layout={{
+            title: 'C2M2 Heatmap',
+            xaxis: { title: '', automargin: true },
+            yaxis: { title: '', automargin: true },
+            margin: { t: 50, l: 150, r: 50, b: 100 },
+            autosize: false,
+          }}
+          style={{ width: '100%', height: '100%' }}
+          useResizeHandler
+        />
+      </div>
+    </div>
   );
 };
 
