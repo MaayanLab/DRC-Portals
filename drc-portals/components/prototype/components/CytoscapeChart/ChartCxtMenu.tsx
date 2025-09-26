@@ -27,76 +27,34 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
       onMouseEnter,
       onMouseLeave,
     } = cmpProps;
+    const initialTree = {
+      id: "root",
+      children: items.map(item => item.tree),
+      open
+    };
+
     if (event === undefined) {
       // Don't try to display the context menu if we don't know what the event was
       return null;
     } else {
-      const treeRef = useRef({
-        id: "root",
-        children: items.map(item => item.tree),
-        open
-      });
-      const [tree, setTree] = useState<CxtMenuTree>(treeRef.current);
+      const [tree, setTree] = useState<CxtMenuTree>(initialTree);
+      const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
 
-      const onItemEnter = debounce((itemId: string) => {
-        const refreshTree = (t: CxtMenuTree, searchId: string): CxtMenuTree => {
-          const foundId = t.id === searchId;
-          if (t.children.length > 0) {
-            const children = t.children.map(child => refreshTree(child, searchId))
-            return {
-              id: t.id,
-              children,
-              open: foundId || children.some(child => child.open)
-            }
-          } else {
-            return {
-              id: t.id,
-              children: [],
-              open: foundId
-            }
-          }
-        }
+      const onItemEnter = useMemo(() => debounce((itemId: string) => {
+        setHoveredItemId(itemId);
+      }, 250), []);
 
-        const newTree = refreshTree(treeRef.current, itemId)
-        treeRef.current = newTree;
-        setTree(newTree);
-      }, 250)
-
-      const closeAllItems = (t: CxtMenuTree) => {
-        const closeTree = (n: CxtMenuTree): CxtMenuTree => {
-          if (n.children.length > 0) {
-            const children = n.children.map(child => closeTree(child))
-            return {
-              id: n.id,
-              children,
-              open: false
-            }
-          } else {
-            return {
-              id: n.id,
-              children: [],
-              open: false
-            }
-          }
-        }
-
-        return closeTree(t);
-      }
-
-      const onItemLeave = () => {
-        const newTree = closeAllItems(treeRef.current)
-        treeRef.current = newTree;
-        setTree(newTree);
-      }
+      const onItemLeave = useCallback(() => {
+        setHoveredItemId(null);
+      }, []);
 
       const onCloseWrapper = useCallback(() => {
-        const newTree = closeAllItems(treeRef.current)
-        treeRef.current = newTree;
-        setTree(newTree);
+        setTree(initialTree);
+        setHoveredItemId(null);
         onClose();
       }, [onClose]);
 
-      const updateTreeItem = (item: CxtMenuTree) => {
+      const updateTreeItem = useCallback((item: CxtMenuTree) => {
         const nts = (n: CxtMenuTree, update: CxtMenuTree): CxtMenuTree => {
           if (n.id === update.id) {
             return update;
@@ -109,23 +67,23 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
           }
         }
 
-        const newTree = nts(treeRef.current, item);
-        treeRef.current = newTree;
-        setTree(newTree);
-      }
+        setTree((prev) => nts(prev, item));
+      }, [])
 
-      const context = { open, event, treeRef, suppressLeaveItem: false, onClose: onCloseWrapper, onItemEnter, onItemLeave, updateTreeItem }
-
-      const menu = useMemo(() => {
-        return <Paper>
-          <MenuList>
-            <ChartCxtMenuContext.Provider value={context}>
-              {items.map(item => item.content)}
-            </ChartCxtMenuContext.Provider>
-          </MenuList>
-        </Paper>
-      }, [tree, items])
-
+      const context = useMemo(
+        () => ({
+          open,
+          event,
+          tree,
+          hoveredItemId,
+          suppressLeaveItem: false,
+          onClose: onCloseWrapper,
+          onItemEnter,
+          onItemLeave,
+          updateTreeItem
+        }),
+        [open, event, tree, hoveredItemId, onCloseWrapper, onItemEnter, onItemLeave, updateTreeItem]
+      )
 
       return (
         <ClickAwayListener onClickAway={onCloseWrapper}>
@@ -156,7 +114,13 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
                 style={{ transformOrigin: "0 0 0" }}
                 timeout="auto"
               >
-                {menu}
+                <Paper>
+                  <MenuList>
+                    <ChartCxtMenuContext.Provider value={context}>
+                      {items.map(item => item.content)}
+                    </ChartCxtMenuContext.Provider>
+                  </MenuList>
+                </Paper>
               </Grow>
             )}
           </Popper>

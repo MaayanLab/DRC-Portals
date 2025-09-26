@@ -1,12 +1,13 @@
 import { EventObject } from "cytoscape";
-import { createContext, MutableRefObject } from "react";
+import { createContext } from "react";
 
 import { CxtMenuTree } from "../../interfaces/cxt-menu";
 
 export interface ChartCxtMenuContextProps {
   open: boolean;
   event: EventObject;
-  treeRef: MutableRefObject<CxtMenuTree>;
+  tree: CxtMenuTree;
+  hoveredItemId: string | null;
   suppressLeaveItem: boolean;
   updateTreeItem: (item: CxtMenuTree) => void;
   onItemEnter: (itemId: string) => void;

@@ -251,10 +251,14 @@ export default function AddConnectionMenuItem(
     }
 
     const handleMouseLeave = () => {
-      const timer = setTimeout(() => {
-        context.onItemLeave(id);
-      }, 100); // adjust delay as needed
-      closeTimerRef.current = timer;
+      if (!context.suppressLeaveItem) {
+        context.suppressLeaveItem = true;
+        const timer = setTimeout(() => {
+          context.onItemLeave(id);
+          context.suppressLeaveItem = false;
+        }, 200); // adjust delay as needed
+        closeTimerRef.current = timer;
+      }
     };
 
     useEffect(() => {
@@ -287,7 +291,7 @@ export default function AddConnectionMenuItem(
               closeTimerRef.current = null;
             }
           },
-          open: getCxtMenuItemOpenState(context.treeRef.current, id) && subMenuItems.length > 0,
+          open: getCxtMenuItemOpenState(context.tree, context.hoveredItemId, id) && subMenuItems.length > 0,
           transitionDuration: 0
         }} // The length check is a kludge to make sure an empty submenu isn't shown
         parentMenuOpen={context.open}

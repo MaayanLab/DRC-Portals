@@ -46,7 +46,7 @@ export default function ChartNestedCxtMenuItem(
         const timer = setTimeout(() => {
           context.onItemLeave(id);
           context.suppressLeaveItem = false;
-        }, 100); // adjust delay as needed
+        }, 200); // adjust delay as needed
         closeTimerRef.current = timer;
       }
     };
@@ -65,7 +65,7 @@ export default function ChartNestedCxtMenuItem(
               closeTimerRef.current = null;
             }
           },
-          open: getCxtMenuItemOpenState(context.treeRef.current, id),
+          open: getCxtMenuItemOpenState(context.tree, context.hoveredItemId, id),
           transitionDuration: 0
         }}
         sx={{ paddingX: "16px" }}
