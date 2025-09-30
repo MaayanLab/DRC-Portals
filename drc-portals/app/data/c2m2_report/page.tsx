@@ -25,7 +25,7 @@ const ReportPage: React.FC = () => {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" gutterBottom>Charts Report</Typography>
-      {cart.map((item: SavedChart) => (
+      {cart.map((item) => 'yAxis' in item && (
         <Box key={item.id} sx={{ mb: 5 }}>
           <Typography variant="h6">{item.yAxis} by {item.xAxis}{item.groupBy && ` (grouped by ${item.groupBy})`}</Typography>
           <BarChart
