@@ -60,23 +60,20 @@ const modules: {
         data: { gene: { type: "Input[Gene]", value: item.label } },
         workflow: [
           { id: "input-gene", type: "Input[Gene]", data: { id: "gene" } },
+          { id: "LINCS", type: "LINCSL1000ReverseSearch", inputs: { gene: { id: "input-gene" } } },
+          { id: "GlyGen", type: "GlyGenProteinInformation", inputs: { gene: { id: "input-gene" } } },
+          { id: "GTEx", type: "GTExTissueExpressionFromGene", inputs: { gene: { id: "input-gene" } } },
+          { id: "KidsFirst", type: "KFTumorExpressionFromGene", inputs: { gene: { id: "input-gene" } } },
+          { id: "GTEx-KF-Barplot", type: "BarplotFrom[[TumorGeneExpression]]", inputs: {
+            terms: { id: "KidsFirst" }, other_terms: { "id": "GTEx" },
+            } },
+          { id: "exRNA", type: "GetRegulatoryElementsForGeneInfoFromGene", inputs: { gene: { id: "input-gene" } } },
+          { id: "Metabolomics", type: "MetGeneSearch", inputs: { gene: { id: "input-gene" } } },
         ],
       }}
-      title="Playbook Workflow Builder"
-      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.label}.</>}
-    />,
-  },
-  {
-    compatible: (item) => item.entity.type === 'Drug',
-    button: ({ item }) => <PWBButton
-      body={{
-        data: { drug: { type: "Input[Drug]", value: item.label } },
-        workflow: [
-          { id: "input-drug", type: "Input[Drug]", data: { id: "drug" } },
-        ],
-      }}
-      title="Playbook Workflow Builder"
-      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.label}.</>}
+      title="Playbook Workflow Builder: Gene-Centric Workflow"
+      description={<>View Gene-Centric information about the gene from a pre-built PWB workflow. View the workflow with {item.label}.</>}
+      mode="report"
     />,
   },
   {
@@ -123,6 +120,32 @@ const modules: {
         target="_blank"
       >Submit</Button>
     </CardButton>,
+  },
+  {
+    compatible: (item) => item.entity.type === 'gene',
+    button: ({ item }) => <PWBButton
+      body={{
+        data: { gene: { type: "Input[Gene]", value: item.label } },
+        workflow: [
+          { id: "input-gene", type: "Input[Gene]", data: { id: "gene" } },
+        ],
+      }}
+      title="Playbook Workflow Builder"
+      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.label}.</>}
+    />,
+  },
+  {
+    compatible: (item) => item.entity.type === 'Drug',
+    button: ({ item }) => <PWBButton
+      body={{
+        data: { drug: { type: "Input[Drug]", value: item.label } },
+        workflow: [
+          { id: "input-drug", type: "Input[Drug]", data: { id: "drug" } },
+        ],
+      }}
+      title="Playbook Workflow Builder"
+      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.label}.</>}
+    />,
   },
 ]
 export default modules
