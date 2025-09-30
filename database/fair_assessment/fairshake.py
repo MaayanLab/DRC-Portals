@@ -24,7 +24,6 @@ from urllib.parse import urlsplit
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
-from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
 import traceback
 import subprocess
@@ -594,6 +593,7 @@ def kg_assertions_fair(assertions_extract_path):
 
 def code_assets_fair_assessment():
     """Run FAIR Assessment for all current code assets"""
+    from ingest_common import current_code_assets
     current_code_asset_df = current_code_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0], desc='Processing code assets..'):
@@ -621,6 +621,7 @@ def code_assets_fair_assessment():
 def file_assets_fair_assessment():
     """Run FAIR Assessment for all current file assets"""
     ingest_path = __dir__.parent / 'ingest'
+    from ingest_common import current_dcc_assets
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0], desc='Processing file assets..'):
