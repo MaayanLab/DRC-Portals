@@ -1,6 +1,6 @@
 # expected to have the parent directory as context
 
-FROM python:3.11
+FROM python:3.11-bookworm
 
 WORKDIR /app
 
